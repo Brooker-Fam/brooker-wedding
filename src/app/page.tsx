@@ -67,6 +67,36 @@ const games = [
     highScore: 9500,
     color: "plum",
   },
+  {
+    title: "Zoe's Adventure",
+    description:
+      "Run, jump, and collect treats with Zoe the farm dog!",
+    emoji: "🐕",
+    href: "/games/zoes-adventure",
+    difficulty: 3 as const,
+    highScore: 0,
+    color: "sage",
+  },
+  {
+    title: "Cake Creator",
+    description:
+      "Decorate cakes for wedding guests!",
+    emoji: "🎂",
+    href: "/games/cake-creator",
+    difficulty: 2 as const,
+    highScore: 0,
+    color: "blush",
+  },
+  {
+    title: "Here Comes the Bride",
+    description:
+      "Walk down the aisle with perfect timing!",
+    emoji: "👰",
+    href: "/games/here-comes-the-bride",
+    difficulty: 2 as const,
+    highScore: 0,
+    color: "gold",
+  },
 ];
 
 const fadeInUp = {
@@ -330,7 +360,7 @@ export default function Home() {
             </h2>
           </motion.div>
 
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-6 lg:gap-5">
+          <div className="grid grid-cols-3 gap-3 sm:gap-4 lg:gap-5">
             {games.map((game, index) => (
               <GameCard key={game.title} {...game} index={index} />
             ))}

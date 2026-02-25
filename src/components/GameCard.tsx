@@ -27,11 +27,8 @@ const colorOrder = ["sage", "lavender", "blush", "gold", "forest", "plum"];
 
 export default function GameCard({
   title,
-  description,
   emoji,
   href,
-  difficulty,
-  highScore = 0,
   index = 0,
 }: GameCardProps) {
   const colorKey = colorOrder[index % colorOrder.length];
@@ -48,104 +45,35 @@ export default function GameCard({
         <div className="game-card-hover overflow-hidden rounded-2xl border border-sage/15 bg-warm-white/80 backdrop-blur-sm">
           {/* Emoji display area */}
           <div
-            className="relative flex h-36 items-center justify-center overflow-hidden sm:h-44"
+            className="relative flex h-24 items-center justify-center overflow-hidden sm:h-28"
             style={{ background: colors.bg }}
           >
-            {/* Soft gradient overlay */}
-            <div
-              className="absolute inset-0 opacity-30"
-              style={{
-                background: `radial-gradient(circle at 50% 80%, ${colors.accent}22 0%, transparent 70%)`,
-              }}
-            />
-
-            {/* Game emoji */}
             <motion.span
-              className="relative z-10 text-5xl drop-shadow-sm sm:text-6xl"
+              className="relative z-10 text-4xl drop-shadow-sm sm:text-5xl"
               whileHover={{ scale: 1.15, rotate: [0, -3, 3, 0] }}
               transition={{ duration: 0.4 }}
             >
               {emoji}
             </motion.span>
-
-            {/* Decorative sparkles */}
-            <div
-              className="absolute top-4 right-4 h-1.5 w-1.5 animate-soft-sparkle rounded-full"
-              style={{
-                background: colors.accent,
-                opacity: 0.4,
-                animationDelay: "0.5s",
-              }}
-            />
-            <div
-              className="absolute bottom-4 left-4 h-1 w-1 animate-soft-sparkle rounded-full"
-              style={{
-                background: colors.accent,
-                opacity: 0.3,
-                animationDelay: "1.5s",
-              }}
-            />
           </div>
 
           {/* Card content */}
-          <div className="p-4 sm:p-5">
-            {/* Title */}
+          <div className="p-3 sm:p-4">
             <h3
-              className="mb-1.5 truncate font-[family-name:var(--font-cormorant-garant)] text-lg font-bold sm:mb-2 sm:text-xl"
+              className="mb-2.5 truncate text-center font-[family-name:var(--font-cormorant-garant)] text-base font-bold sm:mb-3 sm:text-lg"
               style={{ color: colors.accent }}
             >
               {title}
             </h3>
 
-            {/* Description */}
-            <p className="mb-4 line-clamp-2 text-xs leading-relaxed text-forest/60 sm:text-sm">
-              {description}
-            </p>
-
-            {/* Stats row */}
-            <div className="mb-4 flex items-center justify-between">
-              {/* Difficulty */}
-              <div className="flex items-center gap-1.5">
-                <span className="text-xs font-medium text-forest/40">
-                  Level
-                </span>
-                <div className="flex gap-0.5">
-                  {Array.from({ length: 5 }).map((_, i) => (
-                    <div
-                      key={i}
-                      className="h-2 w-2 rounded-full transition-colors"
-                      style={{
-                        backgroundColor:
-                          i < difficulty ? colors.accent : "rgba(29,68,32,0.08)",
-                      }}
-                    />
-                  ))}
-                </div>
-              </div>
-
-              {/* High score */}
-              <div className="flex items-center gap-1.5">
-                <span className="text-xs font-medium text-forest/40">
-                  Best
-                </span>
-                <span
-                  className="text-xs font-semibold"
-                  style={{ color: colors.accent }}
-                >
-                  {highScore.toLocaleString()}
-                </span>
-              </div>
-            </div>
-
-            {/* Play button */}
             <div
-              className="flex items-center justify-center rounded-xl py-2.5 font-medium text-warm-white transition-all duration-300 group-hover:shadow-md"
+              className="flex items-center justify-center rounded-xl py-2 font-medium text-warm-white transition-all duration-300 group-hover:shadow-md"
               style={{
                 backgroundColor: colors.accent,
                 boxShadow: `0 2px 10px ${colors.accent}22`,
               }}
             >
-              <span className="text-sm tracking-wide">Play</span>
+              <span className="text-xs tracking-wide sm:text-sm">Play</span>
             </div>
           </div>
         </div>

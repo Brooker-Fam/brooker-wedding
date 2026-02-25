@@ -78,6 +78,24 @@ const GAMES: GameCard[] = [
     path: "/games/zoes-adventure",
     scoreKey: "zoesAdventure_highScore",
   },
+  {
+    id: "cake-creator",
+    title: "Cake Creator",
+    description: "Decorate cakes for wedding guests!",
+    difficulty: 2,
+    icon: "🎂",
+    path: "/games/cake-creator",
+    scoreKey: "cakeCreator_highScore",
+  },
+  {
+    id: "here-comes-the-bride",
+    title: "Here Comes the Bride",
+    description: "Walk down the aisle with perfect timing!",
+    difficulty: 2,
+    icon: "👰",
+    path: "/games/here-comes-the-bride",
+    scoreKey: "hereComesTheBride_highScore",
+  },
 ];
 
 function DifficultyDots({ count }: { count: number }) {
@@ -143,6 +161,8 @@ export default function GamesArcadePage() {
               "yoga-goat",
               "barn-cat-ninja",
               "zoes-adventure",
+              "cake-creator",
+              "here-comes-the-bride",
             ].includes(game.id);
 
             const card = (
