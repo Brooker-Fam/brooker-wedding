@@ -146,7 +146,7 @@ export default function Home() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.6, delay: 0.7 }}
-            className="mb-6 text-center text-lg font-medium text-forest/70 sm:mb-8 sm:text-xl md:text-2xl"
+            className="mb-6 text-center text-lg font-medium text-forest/80 sm:mb-8 sm:text-xl md:text-2xl"
           >
             invite you to their wedding celebration
           </motion.p>
@@ -181,13 +181,13 @@ export default function Home() {
             transition={{ delay: 2 }}
             className="mt-10 flex flex-col items-center gap-2 sm:mt-14"
           >
-            <span className="text-xs font-medium tracking-widest text-forest/30 uppercase">
+            <span className="text-xs font-semibold tracking-widest text-warm-white/80 uppercase drop-shadow-[0_1px_2px_rgba(29,68,32,0.3)]">
               Explore
             </span>
             <motion.div
               animate={{ y: [0, 6, 0] }}
               transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-              className="text-forest/25"
+              className="text-warm-white/60 drop-shadow-[0_1px_2px_rgba(29,68,32,0.3)]"
             >
               <svg
                 width="20"

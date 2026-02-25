@@ -52,7 +52,7 @@ function CountdownCard({ value, label }: TimeUnit) {
           {display}
         </span>
       </motion.div>
-      <span className="text-xs font-medium tracking-widest text-sage-dark/70 uppercase sm:text-sm">
+      <span className="text-xs font-semibold tracking-widest text-warm-white/90 uppercase drop-shadow-[0_1px_2px_rgba(29,68,32,0.3)] sm:text-sm">
         {label}
       </span>
     </div>
@@ -94,7 +94,7 @@ export default function Countdown() {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6, delay: 0.3 }}
     >
-      <p className="text-xs font-medium tracking-[0.2em] text-soft-gold/80 uppercase sm:text-sm">
+      <p className="text-xs font-semibold tracking-[0.2em] text-warm-white/90 uppercase drop-shadow-[0_1px_2px_rgba(29,68,32,0.3)] sm:text-sm">
         Counting down to forever
       </p>
 

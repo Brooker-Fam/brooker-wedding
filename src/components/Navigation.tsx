@@ -106,17 +106,17 @@ export default function Navigation() {
               animate={
                 isOpen ? { rotate: 45, y: 6 } : { rotate: 0, y: 0 }
               }
-              className="block h-[2px] w-6 rounded-full bg-forest"
+              className="block h-[2.5px] w-6 rounded-full bg-forest"
             />
             <motion.span
               animate={isOpen ? { opacity: 0, x: -10 } : { opacity: 1, x: 0 }}
-              className="block h-[2px] w-6 rounded-full bg-forest"
+              className="block h-[2.5px] w-6 rounded-full bg-forest"
             />
             <motion.span
               animate={
                 isOpen ? { rotate: -45, y: -6 } : { rotate: 0, y: 0 }
               }
-              className="block h-[2px] w-6 rounded-full bg-forest"
+              className="block h-[2.5px] w-6 rounded-full bg-forest"
             />
           </button>
         </div>
