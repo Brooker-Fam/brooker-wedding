@@ -105,7 +105,7 @@ function DifficultyDots({ count }: { count: number }) {
         <span
           key={i}
           className={`inline-block h-1.5 w-1.5 rounded-full ${
-            i <= count ? "bg-soft-gold" : "bg-deep-plum/10"
+            i <= count ? "bg-soft-gold" : "bg-deep-plum/10 dark:bg-cream/10"
           }`}
         />
       ))}
@@ -134,20 +134,20 @@ export default function GamesArcadePage() {
           animate={{ opacity: 1, y: 0 }}
           className="mb-12 text-center"
         >
-          <div className="mb-3 text-sm font-medium tracking-widest text-lavender uppercase">
+          <div className="mb-3 text-sm font-medium tracking-widest text-lavender uppercase dark:text-lavender-light">
             A Little Fun to Celebrate
           </div>
-          <h1 className="font-[family-name:var(--font-cormorant-garant)] text-4xl font-semibold text-forest sm:text-5xl">
+          <h1 className="font-[family-name:var(--font-cormorant-garant)] text-4xl font-semibold text-forest dark:text-cream sm:text-5xl">
             Fun & Games
           </h1>
-          <p className="mt-4 text-base text-deep-plum/60">
+          <p className="mt-4 text-base text-deep-plum/60 dark:text-cream/60">
             Play a few games while you&apos;re here! Just for fun.
           </p>
 
           <div className="mx-auto mt-6 flex items-center justify-center gap-3">
-            <div className="h-px w-16 bg-lavender/40" />
-            <span className="text-lavender/50">&#10022;</span>
-            <div className="h-px w-16 bg-lavender/40" />
+            <div className="h-px w-16 bg-lavender/40 dark:bg-lavender/25" />
+            <span className="text-lavender/50 dark:text-lavender/35">&#10022;</span>
+            <div className="h-px w-16 bg-lavender/40 dark:bg-lavender/25" />
           </div>
         </motion.div>
 
@@ -187,18 +187,18 @@ export default function GamesArcadePage() {
                 <div className="mb-3 text-center text-4xl">{game.icon}</div>
 
                 {/* Title */}
-                <h3 className="text-center font-[family-name:var(--font-cormorant-garant)] text-xl font-semibold text-deep-plum">
+                <h3 className="text-center font-[family-name:var(--font-cormorant-garant)] text-xl font-semibold text-deep-plum dark:text-cream">
                   {game.title}
                 </h3>
 
                 {/* Description */}
-                <p className="mt-1 text-center text-sm text-deep-plum/60">
+                <p className="mt-1 text-center text-sm text-deep-plum/60 dark:text-cream/60">
                   {game.description}
                 </p>
 
                 {/* Difficulty */}
                 <div className="mt-3 flex items-center justify-center gap-2">
-                  <span className="text-xs text-deep-plum/55">
+                  <span className="text-xs text-deep-plum/55 dark:text-cream/55">
                     Difficulty
                   </span>
                   <DifficultyDots count={game.difficulty} />
@@ -233,7 +233,7 @@ export default function GamesArcadePage() {
         </div>
 
         {/* Footer */}
-        <div className="mt-12 text-center text-xs text-sage/55">
+        <div className="mt-12 text-center text-xs text-sage/55 dark:text-sage-light/55">
           Matt & Brittany &middot; June 27, 2026
         </div>
       </div>

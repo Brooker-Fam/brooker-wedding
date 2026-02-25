@@ -131,30 +131,30 @@ export default function StoryPage() {
           animate={{ opacity: 1, y: 0 }}
           className="mb-16 text-center"
         >
-          <div className="mb-3 text-sm font-medium tracking-widest text-sage uppercase">
+          <div className="mb-3 text-sm font-medium tracking-widest text-sage uppercase dark:text-sage-light">
             Matt & Brittany
           </div>
-          <h1 className="font-[family-name:var(--font-cormorant-garant)] text-4xl font-semibold text-forest sm:text-5xl md:text-6xl">
+          <h1 className="font-[family-name:var(--font-cormorant-garant)] text-4xl font-semibold text-forest dark:text-cream sm:text-5xl md:text-6xl">
             Our Story
           </h1>
-          <p className="mt-4 text-base text-deep-plum/60">
+          <p className="mt-4 text-base text-deep-plum/60 dark:text-cream/60">
             A love story written in laughter, farm dirt, and quiet moments.
           </p>
 
           <div className="mx-auto mt-6 flex items-center justify-center gap-3">
-            <div className="h-px w-16 bg-sage/40" />
-            <svg width="20" height="20" viewBox="0 0 20 20" className="text-sage/60">
+            <div className="h-px w-16 bg-sage/40 dark:bg-sage/25" />
+            <svg width="20" height="20" viewBox="0 0 20 20" className="text-sage/60 dark:text-sage/40">
               <path d="M10 2 C10 2, 4 8, 10 14 C16 8, 10 2, 10 2Z" fill="currentColor" />
               <line x1="10" y1="14" x2="10" y2="18" stroke="currentColor" strokeWidth="1" />
             </svg>
-            <div className="h-px w-16 bg-sage/40" />
+            <div className="h-px w-16 bg-sage/40 dark:bg-sage/25" />
           </div>
         </motion.div>
 
         {/* Timeline */}
         <div className="relative">
           {/* Timeline line - visible on sm+ */}
-          <div className="absolute left-1/2 top-0 hidden h-full w-px -translate-x-1/2 bg-gradient-to-b from-sage/40 via-lavender/30 to-soft-gold/40 sm:block" />
+          <div className="absolute left-1/2 top-0 hidden h-full w-px -translate-x-1/2 bg-gradient-to-b from-sage/40 via-lavender/30 to-soft-gold/40 dark:from-sage/25 dark:via-lavender/20 dark:to-soft-gold/25 sm:block" />
 
           <div className="space-y-8 sm:space-y-12">
             {chapters.map((chapter, i) => {
@@ -170,7 +170,7 @@ export default function StoryPage() {
                   className="relative"
                 >
                   {/* Timeline dot */}
-                  <div className="absolute left-1/2 top-8 z-10 hidden h-3 w-3 -translate-x-1/2 rounded-full border-2 border-cream bg-sage shadow-sm sm:block" />
+                  <div className="absolute left-1/2 top-8 z-10 hidden h-3 w-3 -translate-x-1/2 rounded-full border-2 border-cream bg-sage shadow-sm dark:border-[#0D1F0F] dark:bg-soft-gold sm:block" />
 
                   {/* Card */}
                   <div
@@ -180,27 +180,27 @@ export default function StoryPage() {
                   >
                     <div className="soft-card p-5 transition-shadow hover:shadow-md sm:p-6">
                       {/* Year badge */}
-                      <span className="inline-block rounded-full bg-sage/10 px-3 py-1 text-xs font-medium text-sage">
+                      <span className="inline-block rounded-full bg-sage/10 px-3 py-1 text-xs font-medium text-sage dark:bg-sage/15 dark:text-sage-light">
                         {chapter.year}
                       </span>
 
-                      <h2 className="mt-3 font-[family-name:var(--font-cormorant-garant)] text-2xl font-semibold text-forest">
+                      <h2 className="mt-3 font-[family-name:var(--font-cormorant-garant)] text-2xl font-semibold text-forest dark:text-cream">
                         {chapter.title}
                       </h2>
 
-                      <p className="mt-3 text-sm leading-relaxed text-deep-plum/70">
+                      <p className="mt-3 text-sm leading-relaxed text-deep-plum/70 dark:text-cream/70">
                         {chapter.content}
                       </p>
 
                       {/* Photo placeholder */}
-                      <div className="mt-4 flex h-36 items-center justify-center rounded-xl border-2 border-dashed border-sage/20 bg-sage/5">
+                      <div className="mt-4 flex h-36 items-center justify-center rounded-xl border-2 border-dashed border-sage/20 bg-sage/5 dark:border-sage/15 dark:bg-sage/8">
                         <div className="text-center">
                           <svg className="mx-auto h-8 w-8 text-sage/30" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
                             <rect x="3" y="3" width="18" height="18" rx="2" />
                             <circle cx="8.5" cy="8.5" r="1.5" />
                             <path d="M21 15l-5-5L5 21" />
                           </svg>
-                          <p className="mt-2 text-xs text-sage/55">
+                          <p className="mt-2 text-xs text-sage/55 dark:text-sage-light/55">
                             Photo coming soon
                           </p>
                         </div>
@@ -221,13 +221,13 @@ export default function StoryPage() {
           className="mt-20"
         >
           <div className="mb-10 text-center">
-            <div className="mb-3 text-sm font-medium tracking-widest text-soft-gold uppercase">
+            <div className="mb-3 text-sm font-medium tracking-widest text-soft-gold uppercase dark:text-soft-gold-light">
               The ones who live here
             </div>
-            <h2 className="font-[family-name:var(--font-cormorant-garant)] text-3xl font-semibold text-forest sm:text-4xl">
+            <h2 className="font-[family-name:var(--font-cormorant-garant)] text-3xl font-semibold text-forest dark:text-cream sm:text-4xl">
               Our Farm Family
             </h2>
-            <p className="mt-3 text-sm text-deep-plum/60">
+            <p className="mt-3 text-sm text-deep-plum/60 dark:text-cream/60">
               Every member of the farm has a story and a personality all their own.
             </p>
 
@@ -247,7 +247,7 @@ export default function StoryPage() {
               transition={{ delay: gi * 0.1 }}
               className="mb-8"
             >
-              <h3 className="mb-4 font-[family-name:var(--font-cormorant-garant)] text-xl font-semibold text-deep-plum/80">
+              <h3 className="mb-4 font-[family-name:var(--font-cormorant-garant)] text-xl font-semibold text-deep-plum/80 dark:text-cream/80">
                 {group.category}
               </h3>
 
@@ -263,11 +263,11 @@ export default function StoryPage() {
                     className="soft-card p-5 transition-shadow hover:shadow-md"
                   >
                     <div className="mb-3 flex items-center gap-3">
-                      <div className="flex h-12 w-12 items-center justify-center rounded-full bg-soft-gold/10 text-2xl">
+                      <div className="flex h-12 w-12 items-center justify-center rounded-full bg-soft-gold/10 text-2xl dark:bg-soft-gold/15">
                         {animal.emoji}
                       </div>
                       <div>
-                        <h4 className="text-sm font-semibold text-deep-plum">
+                        <h4 className="text-sm font-semibold text-deep-plum dark:text-cream">
                           {animal.name}
                         </h4>
                         <p className="text-xs text-soft-gold">
@@ -276,7 +276,7 @@ export default function StoryPage() {
                       </div>
                     </div>
 
-                    <p className="text-sm leading-relaxed text-deep-plum/70">
+                    <p className="text-sm leading-relaxed text-deep-plum/70 dark:text-cream/70">
                       {animal.description}
                     </p>
                   </motion.div>
@@ -294,10 +294,10 @@ export default function StoryPage() {
           className="mt-16 text-center"
         >
           <div className="soft-card mx-auto max-w-md p-8">
-            <p className="font-[family-name:var(--font-cormorant-garant)] text-2xl font-semibold text-forest">
+            <p className="font-[family-name:var(--font-cormorant-garant)] text-2xl font-semibold text-forest dark:text-cream">
               Come Celebrate With Us
             </p>
-            <p className="mt-3 text-sm text-deep-plum/60">
+            <p className="mt-3 text-sm text-deep-plum/60 dark:text-cream/60">
               We got married! Now join us on our farm June 27, 2026 to celebrate.
             </p>
             <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-center">
@@ -309,13 +309,13 @@ export default function StoryPage() {
               </Link>
               <Link
                 href="/details"
-                className="flex min-h-[44px] items-center justify-center rounded-xl border border-sage/30 px-6 py-3 text-center text-sm font-medium text-deep-plum transition-all hover:bg-sage/10"
+                className="flex min-h-[44px] items-center justify-center rounded-xl border border-sage/30 px-6 py-3 text-center text-sm font-medium text-deep-plum transition-all hover:bg-sage/10 dark:border-sage/40 dark:text-cream dark:hover:bg-sage/20"
               >
                 View Details
               </Link>
             </div>
           </div>
-          <p className="mt-6 text-sm text-sage/55">
+          <p className="mt-6 text-sm text-sage/55 dark:text-sage-light/55">
             June 27, 2026
           </p>
         </motion.div>
