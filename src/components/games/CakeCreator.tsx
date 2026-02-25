@@ -411,14 +411,15 @@ function getButtonZones(canvasW: number, canvasH: number, playerSpec: CakeSpec):
   decoButtons: ButtonZone[];
   serveButton: ButtonZone;
 } {
+  const isVeryCompact = canvasH < 460;
   const isCompact = canvasH < 560;
-  const buttonH = isCompact ? 34 : 38;
+  const buttonH = isVeryCompact ? 30 : isCompact ? 34 : 38;
   const gap = isCompact ? 4 : 6;
-  const sectionGap = isCompact ? 12 : 20;
+  const sectionGap = isVeryCompact ? 8 : isCompact ? 12 : 20;
   const margin = 12;
   const usableW = canvasW - margin * 2;
 
-  const sectionStartY = canvasH * (isCompact ? 0.42 : 0.48);
+  const sectionStartY = canvasH * (isVeryCompact ? 0.44 : isCompact ? 0.46 : 0.48);
   const layerBtnW = (usableW - gap * 3) / 4;
   const layerButtons: ButtonZone[] = [];
   for (let i = 1; i <= 4; i++) {
@@ -471,13 +472,14 @@ function getButtonZones(canvasW: number, canvasH: number, playerSpec: CakeSpec):
     });
   }
 
-  const serveY = decoY + buttonH + gap + (isCompact ? 10 : 16);
+  const serveY = decoY + buttonH + gap + (isVeryCompact ? 6 : isCompact ? 10 : 16);
   const serveBtnW = usableW * 0.6;
+  const serveBtnH = isVeryCompact ? 38 : 44;
   const serveButton: ButtonZone = {
     x: canvasW / 2 - serveBtnW / 2,
-    y: Math.min(serveY, canvasH - 52),
+    y: Math.min(serveY, canvasH - serveBtnH - 8),
     w: serveBtnW,
-    h: 44,
+    h: serveBtnH,
     label: 'SERVE!',
     value: 'serve',
     active: false,
@@ -525,8 +527,8 @@ export default function CakeCreator({ onGameOver }: CakeCreatorProps) {
     if (!canvas || !container) return;
     const rect = container.getBoundingClientRect();
     const w = rect.width;
-    const maxH = window.innerHeight - container.getBoundingClientRect().top;
-    const h = Math.min(Math.max(maxH, 480), 650);
+    const availableH = window.innerHeight - rect.top;
+    const h = Math.min(Math.max(availableH, 380), 650);
     canvas.style.height = `${h}px`;
     const dpr = window.devicePixelRatio || 1;
     canvas.width = w * dpr;
@@ -544,8 +546,8 @@ export default function CakeCreator({ onGameOver }: CakeCreatorProps) {
     if (!container) return;
     const rect = container.getBoundingClientRect();
     const w = rect.width;
-    const maxH = window.innerHeight - container.getBoundingClientRect().top;
-    const h = Math.min(Math.max(maxH, 480), 650);
+    const availableH = window.innerHeight - rect.top;
+    const h = Math.min(Math.max(availableH, 380), 650);
     const firstOrder = generateOrder(1);
     const maxTime = STARTING_TIME;
 
@@ -772,11 +774,12 @@ export default function CakeCreator({ onGameOver }: CakeCreatorProps) {
     ctx.fillRect(0, 0, w, h);
 
     const cx = w / 2;
-    const cy = h * 0.35;
+    const isShort = h < 460;
+    const cy = h * (isShort ? 0.30 : 0.35);
 
     // Result card
     const cardW = w * 0.8;
-    const cardH = 220;
+    const cardH = isShort ? 190 : 220;
     drawRoundedRect(ctx, cx - cardW / 2, cy - 30, cardW, cardH, 12);
     ctx.fillStyle = COLORS.cardBg;
     ctx.fill();
@@ -798,31 +801,32 @@ export default function CakeCreator({ onGameOver }: CakeCreatorProps) {
       { label: 'Toppings', match: g.roundScore.decoMatch },
     ];
 
+    const checkSpacing = isShort ? 18 : 22;
     ctx.font = '13px monospace';
-    let checkY = cy + 30;
+    let checkY = cy + (isShort ? 24 : 30);
     for (const check of checks) {
       ctx.fillStyle = check.match ? '#228B22' : '#DC143C';
       ctx.fillText(check.match ? '✓' : '✗', cx - 60, checkY);
       ctx.fillStyle = '#FFF8DC';
       ctx.fillText(check.label, cx + 10, checkY);
-      checkY += 22;
+      checkY += checkSpacing;
     }
 
     if (isPerfect) {
       ctx.fillStyle = COLORS.gold;
       ctx.font = '11px monospace';
-      ctx.fillText(`Time Bonus: +${g.roundScore.timeBonus}`, cx, checkY + 5);
+      ctx.fillText(`Time Bonus: +${g.roundScore.timeBonus}`, cx, checkY + 4);
     }
 
     ctx.fillStyle = '#FFF8DC';
     ctx.font = 'bold 16px monospace';
-    ctx.fillText(`+${g.roundScore.total} points`, cx, checkY + 35);
+    ctx.fillText(`+${g.roundScore.total} points`, cx, checkY + (isShort ? 24 : 35));
 
     // Next/Finish prompt
     ctx.fillStyle = COLORS.gold;
     ctx.font = '12px monospace';
     const nextText = g.round >= TOTAL_ROUNDS ? 'TAP TO SEE RESULTS' : 'TAP FOR NEXT ROUND';
-    ctx.fillText(nextText, cx, checkY + 65);
+    ctx.fillText(nextText, cx, checkY + (isShort ? 48 : 65));
 
     ctx.textAlign = 'left';
   }, []);
@@ -831,19 +835,20 @@ export default function CakeCreator({ onGameOver }: CakeCreatorProps) {
     drawBackground(ctx, w, h);
 
     const cx = w / 2;
+    const topPad = h < 460 ? 0.06 : 0.03;
 
     // Title
     ctx.textAlign = 'center';
     ctx.fillStyle = COLORS.gold;
     ctx.font = 'bold 22px monospace';
-    ctx.fillText('CAKE CREATOR', cx, h * 0.15);
+    ctx.fillText('CAKE CREATOR', cx, h * (0.15 + topPad));
 
     // Decorative line
     ctx.strokeStyle = COLORS.gold + '44';
     ctx.lineWidth = 1;
     ctx.beginPath();
-    ctx.moveTo(cx - 60, h * 0.18);
-    ctx.lineTo(cx + 60, h * 0.18);
+    ctx.moveTo(cx - 60, h * (0.18 + topPad));
+    ctx.lineTo(cx + 60, h * (0.18 + topPad));
     ctx.stroke();
 
     // Demo cake
@@ -852,7 +857,8 @@ export default function CakeCreator({ onGameOver }: CakeCreatorProps) {
       frostingIndex: 0,
       decorations: ['flowers', 'hearts'],
     };
-    drawCake(ctx, cx, h * 0.48, demoCake, 1.2, frame);
+    const cakeScale = h < 460 ? 1.0 : 1.2;
+    drawCake(ctx, cx, h * (0.48 + topPad), demoCake, cakeScale, frame);
 
     // Instructions
     ctx.fillStyle = '#FFF8DC';
@@ -862,7 +868,7 @@ export default function CakeCreator({ onGameOver }: CakeCreatorProps) {
       'Choose layers, frosting & toppings',
       `${TOTAL_ROUNDS} rounds, faster each time`,
     ];
-    let iy = h * 0.58;
+    let iy = h * (0.58 + topPad);
     for (const line of instructions) {
       ctx.fillText(line, cx, iy);
       iy += 20;
@@ -871,13 +877,13 @@ export default function CakeCreator({ onGameOver }: CakeCreatorProps) {
     // Farm theme
     ctx.fillStyle = '#FFF8DC88';
     ctx.font = '10px monospace';
-    ctx.fillText('Matt & Brittany | June 27, 2026', cx, h * 0.72);
+    ctx.fillText('Matt & Brittany | June 27, 2026', cx, h * (0.72 + topPad));
 
     // Start button
     const btnW = 160;
     const btnH = 44;
     const btnX = cx - btnW / 2;
-    const btnY = h * 0.78;
+    const btnY = Math.min(h * (0.78 + topPad), h - btnH - 16);
     const pulse = 1 + Math.sin(frame * 0.06) * 0.04;
 
     ctx.save();
@@ -904,11 +910,12 @@ export default function CakeCreator({ onGameOver }: CakeCreatorProps) {
     drawBackground(ctx, w, h);
 
     const cx = w / 2;
+    const topPad = h < 460 ? 0.06 : 0.03;
     ctx.textAlign = 'center';
 
     ctx.fillStyle = COLORS.gold;
     ctx.font = 'bold 22px monospace';
-    ctx.fillText('ALL DONE!', cx, h * 0.12);
+    ctx.fillText('ALL DONE!', cx, h * (0.12 + topPad));
 
     // Final cake celebration
     const finalCake: CakeSpec = {
@@ -916,15 +923,16 @@ export default function CakeCreator({ onGameOver }: CakeCreatorProps) {
       frostingIndex: 3,
       decorations: ['flowers', 'hearts', 'ribbon'],
     };
-    drawCake(ctx, cx, h * 0.38, finalCake, 1.0, frame);
+    const cakeScale = h < 460 ? 0.8 : 1.0;
+    drawCake(ctx, cx, h * (0.38 + topPad), finalCake, cakeScale, frame);
 
     ctx.fillStyle = '#FFF8DC';
     ctx.font = 'bold 16px monospace';
-    ctx.fillText(`FINAL SCORE: ${g.score}`, cx, h * 0.46);
+    ctx.fillText(`FINAL SCORE: ${g.score}`, cx, h * (0.46 + topPad));
 
     ctx.fillStyle = COLORS.gold;
     ctx.font = '12px monospace';
-    ctx.fillText(`Perfect Rounds: ${g.perfectRounds}/${TOTAL_ROUNDS}`, cx, h * 0.52);
+    ctx.fillText(`Perfect Rounds: ${g.perfectRounds}/${TOTAL_ROUNDS}`, cx, h * (0.52 + topPad));
 
     // Rating
     let rating = '';
@@ -936,13 +944,13 @@ export default function CakeCreator({ onGameOver }: CakeCreatorProps) {
 
     ctx.fillStyle = '#FFF8DC';
     ctx.font = 'bold 14px monospace';
-    ctx.fillText(rating, cx, h * 0.58);
+    ctx.fillText(rating, cx, h * (0.58 + topPad));
 
     // Play again
     const btnW = 160;
     const btnH = 44;
     const btnX = cx - btnW / 2;
-    const btnY = h * 0.65;
+    const btnY = Math.min(h * (0.65 + topPad), h - btnH - 40);
     const pulse = 1 + Math.sin(frame * 0.06) * 0.04;
 
     ctx.save();
@@ -966,7 +974,7 @@ export default function CakeCreator({ onGameOver }: CakeCreatorProps) {
     // Back link
     ctx.fillStyle = '#87CEEB';
     ctx.font = '10px monospace';
-    ctx.fillText('< BACK TO ARCADE', cx, h * 0.78);
+    ctx.fillText('< BACK TO ARCADE', cx, Math.min(h * (0.78 + topPad), h - 12));
 
     ctx.textAlign = 'left';
   }, [drawBackground]);
@@ -1028,9 +1036,10 @@ export default function CakeCreator({ onGameOver }: CakeCreatorProps) {
       ctx.fillText(`Score: ${g.score}`, w - 12, 92);
       ctx.textAlign = 'left';
 
+      const isVeryCompact = h < 460;
       const isCompact = h < 560;
-      const cakePreviewY = isCompact ? h * 0.32 : h * 0.38;
-      const cakeScale = isCompact ? 0.7 : 0.9;
+      const cakePreviewY = isVeryCompact ? h * 0.33 : isCompact ? h * 0.35 : h * 0.38;
+      const cakeScale = isVeryCompact ? 0.6 : isCompact ? 0.7 : 0.9;
       drawCake(ctx, w / 2, cakePreviewY, g.playerSpec, cakeScale, g.frame);
 
       // Buttons
@@ -1092,8 +1101,10 @@ export default function CakeCreator({ onGameOver }: CakeCreatorProps) {
       const w = cRect.width;
       const h = cRect.height;
 
-      // Check back link area
-      if (y > h * 0.74 && y < h * 0.82) {
+      // Check back link area (drawn near bottom of canvas)
+      const topPad = h < 460 ? 0.06 : 0.03;
+      const backLinkY = Math.min(h * (0.78 + topPad), h - 12);
+      if (y > backLinkY - 12 && y < backLinkY + 8) {
         window.location.href = '/games';
         return;
       }
@@ -1261,7 +1272,7 @@ export default function CakeCreator({ onGameOver }: CakeCreatorProps) {
           display: 'block',
           width: '100%',
           height: 650,
-          maxHeight: 'calc(100dvh - 60px)',
+          maxHeight: 'calc(100dvh - 70px)',
           borderRadius: 8,
           cursor: 'pointer',
         }}
