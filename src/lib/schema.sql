@@ -1,4 +1,4 @@
-CREATE TABLE rsvps (
+CREATE TABLE IF NOT EXISTS rsvps (
   id SERIAL PRIMARY KEY,
   name VARCHAR(255) NOT NULL,
   email VARCHAR(255) NOT NULL,
@@ -10,7 +10,7 @@ CREATE TABLE rsvps (
   created_at TIMESTAMP DEFAULT NOW()
 );
 
-CREATE TABLE game_scores (
+CREATE TABLE IF NOT EXISTS game_scores (
   id SERIAL PRIMARY KEY,
   player_name VARCHAR(100) NOT NULL,
   game_id VARCHAR(50) NOT NULL,
@@ -18,5 +18,5 @@ CREATE TABLE game_scores (
   created_at TIMESTAMP DEFAULT NOW()
 );
 
-CREATE INDEX idx_game_scores_game_id ON game_scores(game_id);
-CREATE INDEX idx_game_scores_score ON game_scores(game_id, score DESC);
+CREATE INDEX IF NOT EXISTS idx_game_scores_game_id ON game_scores(game_id);
+CREATE INDEX IF NOT EXISTS idx_game_scores_score ON game_scores(game_id, score DESC);
