@@ -14,6 +14,7 @@ interface RsvpData {
   dietary_restrictions: string;
   potluck_dish: string;
   message: string;
+  phone: string | null;
   public_display: boolean;
   created_at: string;
   updated_at?: string;
@@ -189,6 +190,7 @@ function RsvpForm({ initialData, isEditing, onSuccess, onCancel }: { initialData
   const [dietaryRestrictions, setDietaryRestrictions] = useState(initialData?.dietary_restrictions ?? "");
   const [potluckDish, setPotluckDish] = useState(initialData?.potluck_dish ?? "");
   const [message, setMessage] = useState(initialData?.message ?? "");
+  const [phone, setPhone] = useState(initialData?.phone ?? "");
   const [publicDisplay, setPublicDisplay] = useState(initialData?.public_display ?? false);
   const [submitting, setSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
@@ -209,6 +211,7 @@ function RsvpForm({ initialData, isEditing, onSuccess, onCancel }: { initialData
         potluck_dish: potluckDish.trim(),
         message: message.trim(),
         public_display: publicDisplay,
+        phone: phone.trim(),
       };
       const res = await fetch("/api/rsvp", {
         method: isEditing ? "PUT" : "POST",
@@ -233,6 +236,11 @@ function RsvpForm({ initialData, isEditing, onSuccess, onCancel }: { initialData
       <div>
         <label className="mb-2 block text-sm font-medium text-deep-plum dark:text-cream">Email Address <span className="text-soft-gold">*</span></label>
         <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="your@email.com" className="enchanted-input" required />
+      </div>
+      <div>
+        <label className="mb-2 block text-sm font-medium text-deep-plum dark:text-cream">Phone Number</label>
+        <input type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="(555) 123-4567" className="enchanted-input" />
+        <p className="mt-1.5 text-xs text-deep-plum/55 dark:text-cream/55">Optional -- we may text updates about the celebration</p>
       </div>
 
       <div>
@@ -330,6 +338,12 @@ function RsvpViewer({ data, onEdit }: { data: RsvpData; onEdit: () => void }) {
       </div>
 
       <div className="space-y-3 text-sm">
+        {data.phone && (
+          <div className="flex justify-between border-b border-sage/10 pb-2 dark:border-sage/20">
+            <span className="text-deep-plum/60 dark:text-cream/60">Phone</span>
+            <span className="font-medium text-deep-plum dark:text-cream">{data.phone}</span>
+          </div>
+        )}
         <div className="flex justify-between border-b border-sage/10 pb-2 dark:border-sage/20">
           <span className="text-deep-plum/60 dark:text-cream/60">Status</span>
           <span className="font-medium text-deep-plum dark:text-cream">{data.attending ? "Joyfully Attending" : "Regretfully Declining"}</span>

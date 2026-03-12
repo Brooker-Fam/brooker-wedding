@@ -11,6 +11,7 @@ interface Rsvp {
   dietary_restrictions: string;
   potluck_dish: string;
   message: string;
+  phone: string | null;
   public_display: boolean;
   created_at: string;
 }
@@ -120,6 +121,7 @@ export default function AdminPage() {
                   <tr className="border-b border-sage/20 text-xs uppercase tracking-wider text-deep-plum/60 dark:text-cream/60">
                     <th className="px-3 py-3">Name</th>
                     <th className="px-3 py-3">Email</th>
+                    <th className="px-3 py-3">Phone</th>
                     <th className="px-3 py-3">Attending</th>
                     <th className="px-3 py-3">Guests</th>
                     <th className="px-3 py-3">Dietary</th>
@@ -146,6 +148,14 @@ export default function AdminPage() {
                             type="email"
                             value={editForm.email}
                             onChange={(e) => set("email", e.target.value)}
+                            className="enchanted-input !py-1.5 text-sm"
+                          />
+                        </td>
+                        <td className="px-2 py-2">
+                          <input
+                            type="tel"
+                            value={editForm.phone ?? ""}
+                            onChange={(e) => set("phone", e.target.value || null)}
                             className="enchanted-input !py-1.5 text-sm"
                           />
                         </td>
@@ -218,6 +228,7 @@ export default function AdminPage() {
                       <tr key={r.id} className="border-b border-sage/10 dark:border-sage/20">
                         <td className="px-3 py-3 font-medium text-deep-plum dark:text-cream">{r.name}</td>
                         <td className="px-3 py-3 text-deep-plum/70 dark:text-cream/70">{r.email}</td>
+                        <td className="px-3 py-3 text-deep-plum/70 dark:text-cream/70">{r.phone || "—"}</td>
                         <td className="px-3 py-3">
                           <span className={`inline-block rounded-full px-2 py-0.5 text-xs font-medium ${r.attending ? "bg-sage/20 text-sage" : "bg-lavender/20 text-lavender"}`}>
                             {r.attending ? "Yes" : "No"}

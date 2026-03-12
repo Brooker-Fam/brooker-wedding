@@ -1,6 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
 import { query } from "@/lib/db";
 
+/** Normalize a phone string to E.164 (+1XXXXXXXXXX) for SMS. Returns null if empty. */
+function normalizePhone(raw: string | undefined | null): string | null {
+  if (!raw) return null;
+  const digits = raw.replace(/[^\d]/g, "");
+  if (digits.length === 0) return null;
+  if (digits.length === 10) return `+1${digits}`;
+  if (digits.length === 11 && digits[0] === "1") return `+${digits}`;
+  return `+${digits}`;
+}
+
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
@@ -13,6 +23,7 @@ export async function POST(request: NextRequest) {
       potluck_dish = "",
       message = "",
       public_display = false,
+      phone = "",
     } = body;
 
     if (!name || typeof name !== "string" || name.trim().length === 0) {
@@ -37,10 +48,12 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    const normalizedPhone = normalizePhone(phone);
+
     const result = await query(
-      `INSERT INTO rsvps (name, email, attending, guest_count, dietary_restrictions, potluck_dish, message, public_display)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
-       RETURNING id, name, email, attending, guest_count, dietary_restrictions, potluck_dish, message, public_display, created_at`,
+      `INSERT INTO rsvps (name, email, attending, guest_count, dietary_restrictions, potluck_dish, message, public_display, phone)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+       RETURNING id, name, email, attending, guest_count, dietary_restrictions, potluck_dish, message, public_display, phone, created_at`,
       [
         name.trim(),
         email.trim().toLowerCase(),
@@ -50,6 +63,7 @@ export async function POST(request: NextRequest) {
         potluck_dish.trim(),
         message.trim(),
         Boolean(public_display),
+        normalizedPhone,
       ]
     );
 
@@ -66,6 +80,7 @@ export async function POST(request: NextRequest) {
           potluck_dish: potluck_dish.trim(),
           message: message.trim(),
           public_display: Boolean(public_display),
+          phone: normalizedPhone,
           created_at: new Date().toISOString(),
         },
         mock: true,
@@ -93,7 +108,7 @@ export async function GET(request: NextRequest) {
     // Single RSVP lookup by id — no auth required
     if (id) {
       const result = await query(
-        "SELECT id, name, email, attending, guest_count, dietary_restrictions, potluck_dish, message, public_display, created_at, updated_at FROM rsvps WHERE id = $1",
+        "SELECT id, name, email, attending, guest_count, dietary_restrictions, potluck_dish, message, public_display, phone, created_at, updated_at FROM rsvps WHERE id = $1",
         [Number(id)]
       );
 
@@ -142,6 +157,7 @@ export async function PUT(request: NextRequest) {
       potluck_dish = "",
       message = "",
       public_display = false,
+      phone = "",
     } = body;
 
     if (!id) {
@@ -173,13 +189,15 @@ export async function PUT(request: NextRequest) {
       );
     }
 
+    const normalizedPhone = normalizePhone(phone);
+
     const result = await query(
       `UPDATE rsvps
        SET name = $1, email = $2, attending = $3, guest_count = $4,
            dietary_restrictions = $5, potluck_dish = $6, message = $7,
-           public_display = $8, updated_at = NOW()
-       WHERE id = $9
-       RETURNING id, name, email, attending, guest_count, dietary_restrictions, potluck_dish, message, public_display, created_at, updated_at`,
+           public_display = $8, phone = $9, updated_at = NOW()
+       WHERE id = $10
+       RETURNING id, name, email, attending, guest_count, dietary_restrictions, potluck_dish, message, public_display, phone, created_at, updated_at`,
       [
         name.trim(),
         email.trim().toLowerCase(),
@@ -189,6 +207,7 @@ export async function PUT(request: NextRequest) {
         potluck_dish.trim(),
         message.trim(),
         Boolean(public_display),
+        normalizedPhone,
         Number(id),
       ]
     );

@@ -7,6 +7,9 @@ CREATE TABLE IF NOT EXISTS rsvps (
   dietary_restrictions TEXT,
   potluck_dish TEXT,
   message TEXT,
+  phone VARCHAR(20),
+  public_display BOOLEAN DEFAULT false,
+  updated_at TIMESTAMP DEFAULT NOW(),
   created_at TIMESTAMP DEFAULT NOW()
 );
 
