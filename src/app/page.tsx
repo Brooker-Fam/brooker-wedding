@@ -249,23 +249,12 @@ export default function Home() {
             </div>
 
             {/* Secondary links */}
-            <div className="flex flex-col items-center gap-4 sm:flex-row sm:justify-center sm:gap-6">
+            <div className="flex justify-center">
               <motion.div
-                initial={{ opacity: 0, x: -15 }}
-                whileInView={{ opacity: 1, x: 0 }}
+                initial={{ opacity: 0, y: 10 }}
+                whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.5, delay: 0.1 }}
-              >
-                <PixelButton href="/story" variant="secondary" size="md">
-                  Our Story
-                </PixelButton>
-              </motion.div>
-
-              <motion.div
-                initial={{ opacity: 0, x: 15 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: 0.2 }}
               >
                 <PixelButton href="/details" variant="success" size="md">
                   Celebration Details

@@ -65,6 +65,17 @@ export default function AdminPage() {
     }
   };
 
+  const deleteRsvp = async (id: number, name: string) => {
+    if (!confirm(`Delete RSVP for ${name}?`)) return;
+    try {
+      const res = await fetch(`/api/rsvp?id=${id}`, { method: "DELETE" });
+      if (!res.ok) throw new Error();
+      setRsvps((prev) => prev.filter((r) => r.id !== id));
+    } catch {
+      setError("Failed to delete RSVP");
+    }
+  };
+
   const set = <K extends keyof Rsvp>(key: K, value: Rsvp[K]) =>
     setEditForm((prev) => prev && ({ ...prev, [key]: value }));
 
@@ -219,12 +230,18 @@ export default function AdminPage() {
                         <td className="whitespace-nowrap px-3 py-3 text-deep-plum/50 dark:text-cream/50">
                           {new Date(r.created_at).toLocaleDateString()}
                         </td>
-                        <td className="px-3 py-3">
+                        <td className="whitespace-nowrap px-3 py-3">
                           <button
                             onClick={() => startEdit(r)}
                             className="text-xs font-medium text-sage underline underline-offset-2 hover:text-sage-dark dark:text-sage-light dark:hover:text-sage"
                           >
                             Edit
+                          </button>
+                          <button
+                            onClick={() => deleteRsvp(r.id, r.name)}
+                            className="ml-3 text-xs font-medium text-red-400 underline underline-offset-2 hover:text-red-600"
+                          >
+                            Delete
                           </button>
                         </td>
                       </tr>

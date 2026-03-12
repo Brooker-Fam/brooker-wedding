@@ -212,3 +212,37 @@ export async function PUT(request: NextRequest) {
     );
   }
 }
+
+export async function DELETE(request: NextRequest) {
+  try {
+    const { searchParams } = new URL(request.url);
+    const id = searchParams.get("id");
+
+    if (!id) {
+      return NextResponse.json(
+        { error: "RSVP id is required" },
+        { status: 400 }
+      );
+    }
+
+    const result = await query(
+      "DELETE FROM rsvps WHERE id = $1 RETURNING id",
+      [Number(id)]
+    );
+
+    if (!result || result.length === 0) {
+      return NextResponse.json(
+        { error: "RSVP not found" },
+        { status: 404 }
+      );
+    }
+
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error("RSVP delete error:", error);
+    return NextResponse.json(
+      { error: "Failed to delete RSVP" },
+      { status: 500 }
+    );
+  }
+}
