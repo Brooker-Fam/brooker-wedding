@@ -170,5 +170,3 @@ The mobile slide-out menu is rendered **outside the `<nav>` element** (as a sibl
 ## TODO / Not Yet Implemented
 
 - **Wedding photos** from pic-time gallery (not yet added)
-- **Neon database** needs to be created in Vercel Storage tab (code is ready, just needs the DB provisioned)
-- Game leaderboards only work with localStorage until DB is connected
