@@ -186,10 +186,10 @@ export default function DetailsPage() {
             accent="sage"
           >
             <p className="font-[family-name:var(--font-display)] text-xl font-semibold text-[#2D5016] dark:text-[#FDF8F0]">
-              Saturday, June 27, 2026
+              Saturday, June 27, 2026 at 1:00 PM
             </p>
             <p>
-              The celebration kicks off in the afternoon.
+              Arrive early to explore our farm and settle in!
             </p>
           </SectionCard>
 
@@ -227,25 +227,11 @@ export default function DetailsPage() {
             delay={0.2}
             accent="blush"
           >
-            <div className="space-y-3">
-              <p className="font-[family-name:var(--font-display)] text-lg font-semibold text-[#2D5016]">
-                A Farm Feast to Remember
-              </p>
-              <p>
-                We&apos;d love for you to bring a dish to share if you&apos;d like!
-                There will also be plenty of catered food, so absolutely no pressure.
-                It&apos;s a farm party, and sharing a meal together is part of the magic.
-              </p>
-              <div className="rounded-xl border border-[#D4A574]/20 bg-[#D4A574]/5 p-4 dark:border-[#D4A574]/15 dark:bg-[#D4A574]/8">
-                <p className="font-[family-name:var(--font-body)] text-sm font-medium text-[#D4A574]">
-                  Thinking of bringing something?
-                </p>
-                <p className="mt-1 text-sm text-[#2D5016]/60 dark:text-[#FDF8F0]/60">
-                  Salads, sides, desserts, and anything made with love are all welcome.
-                  You can let us know what you&apos;re bringing in your RSVP!
-                </p>
-              </div>
-            </div>
+            <p>
+              We already tied the knot on January 1st -- now it&apos;s time to celebrate
+              with all of you! Join us for an afternoon of music, dancing, games,
+              and good times on our farm.
+            </p>
           </SectionCard>
 
           <BotanicalDivider />
@@ -336,7 +322,7 @@ export default function DetailsPage() {
           >
             RSVP Now
           </Link>
-          <p className="mt-4 font-[family-name:var(--font-body)] text-sm text-[#9CAF88]/65">
+          <p className="mt-4 font-[family-name:var(--font-body)] text-sm text-[#9CAF88]/65 dark:text-[#9CAF88]/50">
             June 27, 2026
           </p>
         </motion.div>
