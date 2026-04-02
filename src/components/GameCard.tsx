@@ -5,12 +5,8 @@ import Link from "next/link";
 
 interface GameCardProps {
   title: string;
-  description: string;
   emoji: string;
   href: string;
-  difficulty: 1 | 2 | 3 | 4 | 5;
-  highScore?: number;
-  color: string;
   index?: number;
 }
 

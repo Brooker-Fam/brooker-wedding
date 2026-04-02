@@ -15,96 +15,15 @@ function getAge(birthYear: number, birthMonth: number, birthDay: number) {
 }
 
 const games = [
-  {
-    title: "Egg Catcher",
-    description:
-      "Catch eggs falling from the coop before they splat! How many can you save?",
-    emoji: "🥚",
-    href: "/games/egg-catcher",
-    difficulty: 2 as const,
-    highScore: 12450,
-    color: "sage",
-  },
-  {
-    title: "Farm Defense",
-    description:
-      "Protect the crops from waves of pesky critters. Build scarecrows and fences!",
-    emoji: "🌾",
-    href: "/games/farm-defense",
-    difficulty: 4 as const,
-    highScore: 8800,
-    color: "lavender",
-  },
-  {
-    title: "Yoga Goat",
-    description:
-      "Help the goat hold impossible yoga poses. Balance is everything on the farm!",
-    emoji: "🐐",
-    href: "/games/yoga-goat",
-    difficulty: 3 as const,
-    highScore: 6200,
-    color: "blush",
-  },
-  {
-    title: "Duck Duck Goose",
-    description:
-      "The classic game reimagined! Tap the goose before it escapes the circle.",
-    emoji: "🦆",
-    href: "/games/duck-duck-goose",
-    difficulty: 1 as const,
-    highScore: 15000,
-    color: "gold",
-  },
-  {
-    title: "Unicorn TKD",
-    description:
-      "A unicorn with a black belt? Roundhouse kick your way through enchanted obstacles!",
-    emoji: "🦄",
-    href: "/games/unicorn-taekwondo",
-    difficulty: 5 as const,
-    highScore: 3100,
-    color: "forest",
-  },
-  {
-    title: "Barn Cat Ninja",
-    description:
-      "Stealthy paws, razor claws. Sneak through the barn collecting mice and avoiding dogs.",
-    emoji: "🐱",
-    href: "/games/barn-cat-ninja",
-    difficulty: 3 as const,
-    highScore: 9500,
-    color: "plum",
-  },
-  {
-    title: "Zoe's Adventure",
-    description:
-      "Run, jump, and collect treats with Zoe the farm dog!",
-    emoji: "🐕",
-    href: "/games/zoes-adventure",
-    difficulty: 3 as const,
-    highScore: 0,
-    color: "sage",
-  },
-  {
-    title: "Cake Creator",
-    description:
-      "Decorate cakes for wedding guests!",
-    emoji: "🎂",
-    href: "/games/cake-creator",
-    difficulty: 2 as const,
-    highScore: 0,
-    color: "blush",
-  },
-  {
-    title: "Here Comes the Bride",
-    description:
-      "Walk down the aisle with perfect timing!",
-    emoji: "👰",
-    href: "/games/here-comes-the-bride",
-    difficulty: 2 as const,
-    highScore: 0,
-    color: "gold",
-  },
+  { title: "Egg Catcher", emoji: "🥚", href: "/games/egg-catcher" },
+  { title: "Farm Defense", emoji: "🌾", href: "/games/farm-defense" },
+  { title: "Yoga Goat", emoji: "🐐", href: "/games/yoga-goat" },
+  { title: "Duck Duck Goose", emoji: "🦆", href: "/games/duck-duck-goose" },
+  { title: "Unicorn TKD", emoji: "🦄", href: "/games/unicorn-taekwondo" },
+  { title: "Barn Cat Ninja", emoji: "🐱", href: "/games/barn-cat-ninja" },
+  { title: "Zoe's Adventure", emoji: "🐕", href: "/games/zoes-adventure" },
+  { title: "Cake Creator", emoji: "🎂", href: "/games/cake-creator" },
+  { title: "Here Comes the Bride", emoji: "👰", href: "/games/here-comes-the-bride" },
 ];
 
 const fadeInUp = {
