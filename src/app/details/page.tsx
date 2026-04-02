@@ -147,35 +147,6 @@ export default function DetailsPage() {
           </div>
         </motion.div>
 
-        {/* Countdown */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-          className="mb-12 rounded-[2rem] border border-[#D4A574]/25 bg-gradient-to-br from-[#FFF8F0] via-[#F8EEDD] to-[#F2D7D5]/35 p-6 text-center shadow-[0_16px_40px_rgba(212,165,116,0.12)] dark:border-soft-gold/30 dark:bg-[#162618]/70 dark:shadow-[0_4px_20px_rgba(196,154,60,0.15)] sm:p-8"
-        >
-          <p className="mb-4 font-[family-name:var(--font-body)] text-sm font-medium tracking-wider text-[#D4A574] uppercase">
-            Counting Down the Days
-          </p>
-          <div className="flex justify-center gap-3 sm:gap-6">
-            {[
-              { value: countdown.days, label: "Days" },
-              { value: countdown.hours, label: "Hours" },
-              { value: countdown.minutes, label: "Minutes" },
-              { value: countdown.seconds, label: "Seconds" },
-            ].map((item) => (
-              <div key={item.label} className="text-center">
-                <div className="mb-1 rounded-2xl border border-[#D4A574]/20 bg-white/90 px-3 py-2 font-[family-name:var(--font-display)] text-2xl font-semibold lining-nums text-[#2D5016] shadow-[0_6px_18px_rgba(212,165,116,0.12)] dark:border-soft-gold/15 dark:bg-[#1B2C1D]/80 dark:text-[#FDF8F0] sm:px-5 sm:text-3xl">
-                  {String(item.value).padStart(2, "0")}
-                </div>
-                <div className="font-[family-name:var(--font-body)] text-xs text-[#D4A574]/70">
-                  {item.label}
-                </div>
-              </div>
-            ))}
-          </div>
-        </motion.div>
-
         {/* Date & Time Hero */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
