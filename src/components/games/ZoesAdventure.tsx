@@ -1775,8 +1775,9 @@ export default function ZoesAdventure({ onGameOver }: ZoesAdventureProps) {
     const ctx = canvas?.getContext('2d');
     if (!canvas || !ctx) return;
 
-    const w = canvas.width;
-    const h = canvas.height;
+    const dpr = window.devicePixelRatio || 1;
+    const w = Math.round(canvas.width / dpr);
+    const h = Math.round(canvas.height / dpr);
 
     // Background
     const grad = ctx.createLinearGradient(0, 0, 0, h);
@@ -1947,8 +1948,9 @@ export default function ZoesAdventure({ onGameOver }: ZoesAdventureProps) {
     const ctx = canvas?.getContext('2d');
     if (!canvas || !ctx) return;
 
-    const w = canvas.width;
-    const h = canvas.height;
+    const dpr = window.devicePixelRatio || 1;
+    const w = Math.round(canvas.width / dpr);
+    const h = Math.round(canvas.height / dpr);
 
     // Overlay
     ctx.fillStyle = 'rgba(0,0,0,0.75)';
