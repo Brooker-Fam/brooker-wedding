@@ -284,11 +284,6 @@ function RsvpForm({ initialData, isEditing, onSuccess, onCancel }: { initialData
               <input type="text" value={dietaryRestrictions} onChange={(e) => setDietaryRestrictions(e.target.value)} placeholder="Allergies, vegan, gluten-free..." className="enchanted-input" />
               <p className="mt-1.5 text-xs text-deep-plum/55 dark:text-cream/55">Optional -- let us know about any food needs</p>
             </div>
-            <div>
-              <label className="mb-2 block text-sm font-medium text-deep-plum dark:text-cream">Bringing a Dish to Share?</label>
-              <input type="text" value={potluckDish} onChange={(e) => setPotluckDish(e.target.value)} placeholder="Grandma's famous pie, garden salad..." className="enchanted-input" />
-              <p className="mt-1.5 text-xs text-deep-plum/55 dark:text-cream/55">Totally optional -- there will also be catered food, so no pressure at all!</p>
-            </div>
           </motion.div>
         )}
       </AnimatePresence>
@@ -370,12 +365,6 @@ function RsvpViewer({ data, onEdit }: { data: RsvpData; onEdit: () => void }) {
           <div className="flex justify-between border-b border-sage/10 pb-2 dark:border-sage/20">
             <span className="text-deep-plum/60 dark:text-cream/60">Dietary Needs</span>
             <span className="font-medium text-deep-plum dark:text-cream">{data.dietary_restrictions}</span>
-          </div>
-        )}
-        {data.potluck_dish && (
-          <div className="flex justify-between border-b border-sage/10 pb-2 dark:border-sage/20">
-            <span className="text-deep-plum/60 dark:text-cream/60">Bringing</span>
-            <span className="font-medium text-deep-plum dark:text-cream">{data.potluck_dish}</span>
           </div>
         )}
         {data.message && (
