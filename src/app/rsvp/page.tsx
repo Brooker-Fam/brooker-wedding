@@ -222,7 +222,7 @@ function PageHeader() {
           Saturday, June 27, 2026
         </p>
         <div className="grid gap-4 sm:grid-cols-2">
-          <div className="rounded-[1.6rem] border border-[#9CAF88]/15 bg-gradient-to-br from-white via-[#F8FBF4] to-[#F6EBDD] px-5 py-4 shadow-[0_12px_24px_rgba(156,175,136,0.12)] dark:border-sage/20 dark:bg-[#1B2C1D]/80 dark:shadow-[0_8px_24px_rgba(0,0,0,0.2)]">
+          <div className="rounded-[1.6rem] border border-[#9CAF88]/15 bg-gradient-to-br from-white via-[#F8FBF4] to-[#F6EBDD] px-5 py-4 shadow-[0_12px_24px_rgba(156,175,136,0.12)] dark:border-soft-gold/15 dark:bg-[#1B2C1D]/80 dark:shadow-[0_8px_24px_rgba(0,0,0,0.2)]">
             <p className="mb-1 font-[family-name:var(--font-body)] text-xs font-semibold tracking-[0.24em] text-[#9CAF88] uppercase dark:text-[#A8C090]">
               Arrival
             </p>

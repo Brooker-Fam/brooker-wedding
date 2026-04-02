@@ -152,7 +152,7 @@ export default function DetailsPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
-          className="mb-12 rounded-[2rem] border border-[#D4A574]/25 bg-gradient-to-br from-[#FFF8F0] via-[#F8EEDD] to-[#F2D7D5]/35 p-6 text-center shadow-[0_16px_40px_rgba(212,165,116,0.12)] dark:border-[#D4A574]/15 dark:bg-gradient-to-br dark:from-[#1A2B1C] dark:via-[#182518] dark:to-[#2F2430] sm:p-8"
+          className="mb-12 rounded-[2rem] border border-[#D4A574]/25 bg-gradient-to-br from-[#FFF8F0] via-[#F8EEDD] to-[#F2D7D5]/35 p-6 text-center shadow-[0_16px_40px_rgba(212,165,116,0.12)] dark:border-soft-gold/30 dark:bg-[#162618]/70 dark:shadow-[0_4px_20px_rgba(196,154,60,0.15)] sm:p-8"
         >
           <p className="mb-4 font-[family-name:var(--font-body)] text-sm font-medium tracking-wider text-[#D4A574] uppercase">
             Counting Down the Days
@@ -165,7 +165,7 @@ export default function DetailsPage() {
               { value: countdown.seconds, label: "Seconds" },
             ].map((item) => (
               <div key={item.label} className="text-center">
-                <div className="mb-1 rounded-2xl border border-[#D4A574]/20 bg-white/90 px-3 py-2 font-[family-name:var(--font-display)] text-2xl font-semibold lining-nums text-[#2D5016] shadow-[0_6px_18px_rgba(212,165,116,0.12)] dark:border-[#D4A574]/15 dark:bg-[#162618]/80 dark:text-[#FDF8F0] sm:px-5 sm:text-3xl">
+                <div className="mb-1 rounded-2xl border border-[#D4A574]/20 bg-white/90 px-3 py-2 font-[family-name:var(--font-display)] text-2xl font-semibold lining-nums text-[#2D5016] shadow-[0_6px_18px_rgba(212,165,116,0.12)] dark:border-soft-gold/15 dark:bg-[#1B2C1D]/80 dark:text-[#FDF8F0] sm:px-5 sm:text-3xl">
                   {String(item.value).padStart(2, "0")}
                 </div>
                 <div className="font-[family-name:var(--font-body)] text-xs text-[#D4A574]/70">
@@ -183,12 +183,12 @@ export default function DetailsPage() {
           transition={{ delay: 0.3 }}
           className="mb-12 text-center"
         >
-          <div className="rounded-[2rem] border border-[#9CAF88]/20 bg-gradient-to-br from-[#F8FBF4] via-[#FDF8F0] to-[#F2D7D5]/28 p-8 shadow-[0_18px_45px_rgba(156,175,136,0.14)] dark:border-[#9CAF88]/15 dark:bg-gradient-to-br dark:from-[#142515] dark:via-[#112011] dark:to-[#241A26] sm:p-10">
+          <div className="rounded-[2rem] border border-[#9CAF88]/20 bg-gradient-to-br from-[#F8FBF4] via-[#FDF8F0] to-[#F2D7D5]/28 p-8 shadow-[0_18px_45px_rgba(156,175,136,0.14)] dark:border-soft-gold/30 dark:bg-[#162618]/70 dark:shadow-[0_4px_20px_rgba(196,154,60,0.15)] sm:p-10">
             <p className="mb-6 font-[family-name:var(--font-display)] text-4xl font-semibold tracking-tight lining-nums text-[#2D5016] dark:text-[#FDF8F0] sm:text-5xl md:text-6xl">
               Saturday, June 27, 2026
             </p>
             <div className="grid gap-4 sm:grid-cols-2">
-              <div className="rounded-[1.6rem] border border-[#9CAF88]/15 bg-gradient-to-br from-white via-[#F8FBF4] to-[#F6EBDD] px-5 py-4 shadow-[0_12px_24px_rgba(156,175,136,0.12)] dark:border-[#9CAF88]/10 dark:bg-gradient-to-br dark:from-[#1A2B1C] dark:to-[#19251A]">
+              <div className="rounded-[1.6rem] border border-[#9CAF88]/15 bg-gradient-to-br from-white via-[#F8FBF4] to-[#F6EBDD] px-5 py-4 shadow-[0_12px_24px_rgba(156,175,136,0.12)] dark:border-soft-gold/15 dark:bg-[#1B2C1D]/80 dark:shadow-[0_8px_24px_rgba(0,0,0,0.2)]">
                 <p className="mb-1 font-[family-name:var(--font-body)] text-xs font-semibold tracking-[0.24em] text-[#9CAF88] uppercase dark:text-[#A8C090]">
                   Arrival
                 </p>
@@ -197,7 +197,7 @@ export default function DetailsPage() {
                   <span className="text-lg sm:text-xl">PM</span>
                 </p>
               </div>
-              <div className="rounded-[1.6rem] border border-[#B8A9C9]/18 bg-gradient-to-br from-white via-[#FBF7FC] to-[#F2D7D5]/40 px-5 py-4 shadow-[0_12px_24px_rgba(184,169,201,0.14)] dark:border-[#B8A9C9]/12 dark:bg-gradient-to-br dark:from-[#221C28] dark:to-[#19251A]">
+              <div className="rounded-[1.6rem] border border-[#B8A9C9]/18 bg-gradient-to-br from-white via-[#FBF7FC] to-[#F2D7D5]/40 px-5 py-4 shadow-[0_12px_24px_rgba(184,169,201,0.14)] dark:border-soft-gold/15 dark:bg-[#1B2C1D]/80 dark:shadow-[0_8px_24px_rgba(0,0,0,0.2)]">
                 <p className="mb-1 font-[family-name:var(--font-body)] text-xs font-semibold tracking-[0.24em] text-[#9CAF88] uppercase dark:text-[#A8C090]">
                   Ceremony
                 </p>
