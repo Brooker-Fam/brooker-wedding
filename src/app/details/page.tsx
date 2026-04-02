@@ -170,30 +170,25 @@ export default function DetailsPage() {
           </div>
         </motion.div>
 
+        {/* Date & Time Hero */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+          className="mb-12 text-center"
+        >
+          <div className="rounded-2xl border border-[#9CAF88]/20 bg-[#9CAF88]/5 p-8 dark:border-[#9CAF88]/15 dark:bg-[#9CAF88]/8 sm:p-10">
+            <p className="mb-2 font-[family-name:var(--font-body)] text-sm font-medium tracking-wider text-[#9CAF88] uppercase dark:text-[#A8C090]">
+              Saturday, June 27, 2026
+            </p>
+            <p className="font-[family-name:var(--font-display)] text-5xl font-bold text-[#2D5016] dark:text-[#FDF8F0] sm:text-6xl">
+              1:00 PM
+            </p>
+          </div>
+        </motion.div>
+
         {/* Sections */}
         <div className="space-y-4">
-          <SectionCard
-            icon={
-              <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
-                <rect x="3" y="4" width="18" height="18" rx="2" />
-                <line x1="16" y1="2" x2="16" y2="6" />
-                <line x1="8" y1="2" x2="8" y2="6" />
-                <line x1="3" y1="10" x2="21" y2="10" />
-              </svg>
-            }
-            title="When"
-            delay={0.1}
-            accent="sage"
-          >
-            <p className="font-[family-name:var(--font-display)] text-xl font-semibold text-[#2D5016] dark:text-[#FDF8F0]">
-              Saturday, June 27, 2026 at 1:00 PM
-            </p>
-            <p>
-              Arrive early to explore our farm and settle in!
-            </p>
-          </SectionCard>
-
-          <BotanicalDivider />
 
           <SectionCard
             icon={
