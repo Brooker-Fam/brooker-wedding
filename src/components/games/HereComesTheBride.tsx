@@ -255,8 +255,8 @@ export default function HereComesTheBride({ onGameOver }: HereComesTheBrideProps
       graceActive: false,
       graceTimer: 0,
       scrollX: 0,
-      scrollSpeed: 1.5,
-      baseSpeed: 1.5,
+      scrollSpeed: w < 600 ? 1.0 : 1.5,
+      baseSpeed: w < 600 ? 1.0 : 1.5,
       gameTime: 0,
       totalTime: GAME_DURATION * TARGET_FPS,
       brideX: w * 0.2,
@@ -390,7 +390,8 @@ export default function HereComesTheBride({ onGameOver }: HereComesTheBrideProps
       const dx = p.x - tapX;
       const dy = p.y - tapY;
       const dist = Math.sqrt(dx * dx + dy * dy);
-      const hitRadius = p.radius + 30;
+      const isMobile = g.canvasW < 600;
+      const hitRadius = p.radius + (isMobile ? 60 : 30);
       if (dist < hitRadius && dist < closestDist) {
         closestDist = dist;
         closestPrompt = p;
