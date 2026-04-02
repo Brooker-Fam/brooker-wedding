@@ -156,6 +156,8 @@ export default function GamesArcadePage() {
           {GAMES.map((game, index) => {
             const hs = highScores[game.scoreKey];
             const isAvailable = [
+              "egg-catcher",
+              "farm-defense",
               "duck-duck-goose",
               "unicorn-taekwondo",
               "yoga-goat",

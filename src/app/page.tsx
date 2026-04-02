@@ -3,7 +3,6 @@
 import { motion } from "framer-motion";
 import FarmScene from "@/components/FarmScene";
 import Countdown from "@/components/Countdown";
-import GameCard from "@/components/GameCard";
 import PixelButton from "@/components/PixelButton";
 
 function getAge(birthYear: number, birthMonth: number, birthDay: number) {
@@ -14,17 +13,6 @@ function getAge(birthYear: number, birthMonth: number, birthDay: number) {
   return age;
 }
 
-const games = [
-  { title: "Egg Catcher", emoji: "🥚", href: "/games/egg-catcher" },
-  { title: "Farm Defense", emoji: "🌾", href: "/games/farm-defense" },
-  { title: "Yoga Goat", emoji: "🐐", href: "/games/yoga-goat" },
-  { title: "Duck Duck Goose", emoji: "🦆", href: "/games/duck-duck-goose" },
-  { title: "Unicorn TKD", emoji: "🦄", href: "/games/unicorn-taekwondo" },
-  { title: "Barn Cat Ninja", emoji: "🐱", href: "/games/barn-cat-ninja" },
-  { title: "Zoe's Adventure", emoji: "🐕", href: "/games/zoes-adventure" },
-  { title: "Cake Creator", emoji: "🎂", href: "/games/cake-creator" },
-  { title: "Here Comes the Bride", emoji: "👰", href: "/games/here-comes-the-bride" },
-];
 
 const fadeInUp = {
   initial: { opacity: 0, y: 30 },
@@ -269,31 +257,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* =============================================
-          GAMES - subtle section at the bottom
-          ============================================= */}
-      <section className="relative px-4 py-12 sm:py-16">
-        <div className="mx-auto max-w-5xl">
-          <motion.div
-            {...fadeInUp}
-            transition={{ duration: 0.6 }}
-            className="mb-8 text-center"
-          >
-            <p className="mb-2 text-xs font-medium tracking-[0.2em] text-forest/50 uppercase dark:text-cream/50">
-              While you wait
-            </p>
-            <h2 className="font-[family-name:var(--font-cormorant-garamond)] text-2xl font-bold text-forest/70 dark:text-cream/70 sm:text-3xl">
-              A Few Games for Fun
-            </h2>
-          </motion.div>
-
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:gap-5">
-            {games.map((game, index) => (
-              <GameCard key={game.title} {...game} index={index} />
-            ))}
-          </div>
-        </div>
-      </section>
 
       {/* =============================================
           FOOTER
