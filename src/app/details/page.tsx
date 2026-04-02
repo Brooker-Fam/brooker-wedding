@@ -187,7 +187,8 @@ export default function DetailsPage() {
                   Arrival
                 </p>
                 <p className="font-[family-name:var(--font-display)] text-3xl font-bold text-[#2D5016] dark:text-[#FDF8F0] sm:text-4xl">
-                  12:30 PM
+                  <span>12:30</span>{" "}
+                  <span className="text-lg sm:text-xl">PM</span>
                 </p>
               </div>
               <div className="rounded-2xl border border-[#9CAF88]/15 bg-white/65 px-5 py-4 dark:border-[#9CAF88]/10 dark:bg-[#162618]/55">
@@ -195,7 +196,8 @@ export default function DetailsPage() {
                   Ceremony
                 </p>
                 <p className="font-[family-name:var(--font-display)] text-3xl font-bold text-[#2D5016] dark:text-[#FDF8F0] sm:text-4xl">
-                  1:00 PM
+                  <span>1:00</span>{" "}
+                  <span className="text-lg sm:text-xl">PM</span>
                 </p>
               </div>
             </div>
