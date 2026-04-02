@@ -75,14 +75,14 @@ export default function Home() {
             transition={{ duration: 0.6, delay: 0.9 }}
             className="mb-8 sm:mb-10"
           >
-            <div className="relative rounded-2xl border border-soft-gold/25 bg-warm-white/60 px-8 py-5 text-center shadow-[0_4px_20px_rgba(196,154,60,0.1)] backdrop-blur-sm dark:border-soft-gold/30 dark:bg-[#162618]/70 dark:shadow-[0_4px_20px_rgba(196,154,60,0.15)] sm:px-12 sm:py-6">
-              <p className="mb-1 text-xs font-medium tracking-[0.25em] text-soft-gold/70 uppercase sm:text-sm">
+            <div className="relative rounded-2xl border border-soft-gold/25 bg-warm-white/60 px-12 py-7 text-center shadow-[0_4px_20px_rgba(196,154,60,0.1)] backdrop-blur-sm dark:border-soft-gold/30 dark:bg-[#162618]/70 dark:shadow-[0_4px_20px_rgba(196,154,60,0.15)] sm:px-16 sm:py-8">
+              <p className="mb-2 text-sm font-medium tracking-[0.25em] text-soft-gold/70 uppercase sm:text-base">
                 Join the Celebration
               </p>
-              <p className="font-[family-name:var(--font-cormorant-garamond)] text-2xl font-bold text-soft-gold dark:text-soft-gold-light sm:text-3xl md:text-4xl">
+              <p className="font-[family-name:var(--font-cormorant-garamond)] text-4xl font-bold text-soft-gold dark:text-soft-gold-light sm:text-5xl md:text-6xl">
                 June 27, 2026
               </p>
-              <p className="mt-1 text-xs font-medium text-sage-dark/50 dark:text-sage-light/50 sm:text-sm">
+              <p className="mt-2 text-sm font-medium text-sage-dark/60 dark:text-sage-light/60 sm:text-base">
                 Arrival 12:30 PM · Ceremony 1:00 PM
               </p>
             </div>
