@@ -246,9 +246,8 @@ export default function Home() {
                   Join the Celebration
                 </h3>
                 <p className="mx-auto mb-7 max-w-md text-sm leading-relaxed text-forest/60 dark:text-cream/60 sm:mb-8 sm:text-base">
-                  Join us on our farm for a lovely afternoon of great food,
-                  fun games, and even better company. What more could you ask
-                  for?
+                  Celebrate with us on our farm for a day filled with good
+                  food, fun games, and the people we love most.
                 </p>
                 <PixelButton href="/rsvp" variant="primary" size="lg">
                   RSVP Now
