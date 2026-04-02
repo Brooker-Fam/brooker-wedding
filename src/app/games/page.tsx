@@ -137,7 +137,7 @@ export default function GamesArcadePage() {
           <div className="mb-3 text-sm font-medium tracking-widest text-lavender uppercase dark:text-lavender-light">
             A Little Fun to Celebrate
           </div>
-          <h1 className="font-[family-name:var(--font-cormorant-garant)] text-4xl font-semibold text-forest dark:text-cream sm:text-5xl">
+          <h1 className="font-[family-name:var(--font-cormorant-garamond)] text-4xl font-semibold text-forest dark:text-cream sm:text-5xl">
             Fun & Games
           </h1>
           <p className="mt-4 text-base text-deep-plum/60 dark:text-cream/60">
@@ -187,7 +187,7 @@ export default function GamesArcadePage() {
                 <div className="mb-3 text-center text-4xl">{game.icon}</div>
 
                 {/* Title */}
-                <h3 className="text-center font-[family-name:var(--font-cormorant-garant)] text-xl font-semibold text-deep-plum dark:text-cream">
+                <h3 className="text-center font-[family-name:var(--font-cormorant-garamond)] text-xl font-semibold text-deep-plum dark:text-cream">
                   {game.title}
                 </h3>
 

@@ -60,7 +60,7 @@ export default function GameCard({
           {/* Card content */}
           <div className="p-3 sm:p-4">
             <h3
-              className="mb-2.5 truncate text-center font-[family-name:var(--font-cormorant-garant)] text-base font-bold sm:mb-3 sm:text-lg"
+              className="mb-2.5 truncate text-center font-[family-name:var(--font-cormorant-garamond)] text-base font-bold sm:mb-3 sm:text-lg"
               style={{ color: colors.accent }}
             >
               {title}

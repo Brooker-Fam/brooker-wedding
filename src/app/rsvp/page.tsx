@@ -134,7 +134,7 @@ export default function RSVPPage() {
                     <path d="M8 12l3 3 5-5" strokeLinecap="round" strokeLinejoin="round" />
                   </svg>
                 </motion.div>
-                <h2 className="font-[family-name:var(--font-cormorant-garant)] text-3xl font-semibold text-forest dark:text-cream">
+                <h2 className="font-[family-name:var(--font-cormorant-garamond)] text-3xl font-semibold text-forest dark:text-cream">
                   {rsvpData.attending ? "We Can\u2019t Wait to Celebrate With You!" : "We\u2019ll Miss You!"}
                 </h2>
                 <p className="mt-4 text-base text-deep-plum/70 dark:text-cream/70">
@@ -159,11 +159,11 @@ function PageHeader() {
       <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="mb-3 text-sm font-medium tracking-widest text-sage uppercase dark:text-sage-light">
         You&apos;re Invited
       </motion.div>
-      <motion.h1 initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="font-[family-name:var(--font-cormorant-garant)] text-4xl font-semibold text-forest dark:text-cream sm:text-5xl">
+      <motion.h1 initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="font-[family-name:var(--font-cormorant-garamond)] text-4xl font-semibold text-forest dark:text-cream sm:text-5xl">
         Join Our Celebration
       </motion.h1>
       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.35 }} className="mt-4 inline-block rounded-xl border border-soft-gold/20 bg-soft-gold/5 px-5 py-2 dark:border-soft-gold/15 dark:bg-soft-gold/8">
-        <p className="font-[family-name:var(--font-cormorant-garant)] text-lg font-semibold text-soft-gold dark:text-soft-gold-light">
+        <p className="font-[family-name:var(--font-cormorant-garamond)] text-lg font-semibold text-soft-gold dark:text-soft-gold-light">
           Saturday, June 27, 2026
         </p>
         <p className="text-xs font-medium text-soft-gold/70 dark:text-soft-gold-light/70">
@@ -275,13 +275,13 @@ function RsvpForm({ initialData, isEditing, onSuccess, onCancel }: { initialData
               <div className="space-y-3">
                 <div className="flex items-center gap-4">
                   <button type="button" onClick={() => setAdultCount(Math.max(1, adultCount - 1))} className="flex h-10 w-10 items-center justify-center rounded-full border border-sage/30 bg-warm-white text-lg text-deep-plum transition-all hover:border-sage hover:bg-sage/10 dark:border-sage/40 dark:bg-[#162618] dark:text-cream dark:hover:bg-sage/20">-</button>
-                  <span className="min-w-[2rem] text-center font-[family-name:var(--font-cormorant-garant)] text-2xl font-semibold text-deep-plum dark:text-cream">{adultCount}</span>
+                  <span className="min-w-[2rem] text-center font-[family-name:var(--font-cormorant-garamond)] text-2xl font-semibold text-deep-plum dark:text-cream">{adultCount}</span>
                   <button type="button" onClick={() => setAdultCount(Math.min(10, adultCount + 1))} className="flex h-10 w-10 items-center justify-center rounded-full border border-sage/30 bg-warm-white text-lg text-deep-plum transition-all hover:border-sage hover:bg-sage/10 dark:border-sage/40 dark:bg-[#162618] dark:text-cream dark:hover:bg-sage/20">+</button>
                   <span className="text-sm text-deep-plum/60 dark:text-cream/60">{adultCount === 1 ? "adult" : "adults"}</span>
                 </div>
                 <div className="flex items-center gap-4">
                   <button type="button" onClick={() => setChildCount(Math.max(0, childCount - 1))} className="flex h-10 w-10 items-center justify-center rounded-full border border-sage/30 bg-warm-white text-lg text-deep-plum transition-all hover:border-sage hover:bg-sage/10 dark:border-sage/40 dark:bg-[#162618] dark:text-cream dark:hover:bg-sage/20">-</button>
-                  <span className="min-w-[2rem] text-center font-[family-name:var(--font-cormorant-garant)] text-2xl font-semibold text-deep-plum dark:text-cream">{childCount}</span>
+                  <span className="min-w-[2rem] text-center font-[family-name:var(--font-cormorant-garamond)] text-2xl font-semibold text-deep-plum dark:text-cream">{childCount}</span>
                   <button type="button" onClick={() => setChildCount(Math.min(10, childCount + 1))} className="flex h-10 w-10 items-center justify-center rounded-full border border-sage/30 bg-warm-white text-lg text-deep-plum transition-all hover:border-sage hover:bg-sage/10 dark:border-sage/40 dark:bg-[#162618] dark:text-cream dark:hover:bg-sage/20">+</button>
                   <span className="text-sm text-deep-plum/60 dark:text-cream/60">{childCount === 1 ? "child" : "children"}</span>
                 </div>
@@ -438,7 +438,7 @@ function RsvpLookup({ onFound, onBack }: { onFound: (d: RsvpData) => void; onBac
 
   return (
     <div className="soft-card p-6 sm:p-8">
-      <h3 className="mb-4 text-center font-[family-name:var(--font-cormorant-garant)] text-2xl font-semibold text-forest dark:text-cream">
+      <h3 className="mb-4 text-center font-[family-name:var(--font-cormorant-garamond)] text-2xl font-semibold text-forest dark:text-cream">
         Find Your RSVP
       </h3>
       <div className="mb-4">
@@ -506,7 +506,7 @@ function WhosComingSection() {
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.6 }} className="mt-12">
       <div className="soft-card p-6 sm:p-8">
-        <h3 className="mb-4 text-center font-[family-name:var(--font-cormorant-garant)] text-2xl font-semibold text-forest dark:text-cream">
+        <h3 className="mb-4 text-center font-[family-name:var(--font-cormorant-garamond)] text-2xl font-semibold text-forest dark:text-cream">
           Who&apos;s Coming
         </h3>
         {total > 0 && (

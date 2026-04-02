@@ -144,7 +144,7 @@ export default function Home() {
               delay: 0.4,
               ease: "easeOut",
             }}
-            className="fairy-sparkle mb-3 text-center font-[family-name:var(--font-cormorant-garant)] text-5xl font-bold text-forest dark:text-cream sm:mb-4 sm:text-7xl md:text-8xl"
+            className="fairy-sparkle mb-3 text-center font-[family-name:var(--font-cormorant-garamond)] text-5xl font-bold text-forest dark:text-cream sm:mb-4 sm:text-7xl md:text-8xl"
           >
             Matt & Brittany
           </motion.h1>
@@ -170,7 +170,7 @@ export default function Home() {
               <p className="mb-1 text-xs font-medium tracking-[0.25em] text-soft-gold/70 uppercase sm:text-sm">
                 Join the Celebration
               </p>
-              <p className="font-[family-name:var(--font-cormorant-garant)] text-2xl font-bold text-soft-gold dark:text-soft-gold-light sm:text-3xl md:text-4xl">
+              <p className="font-[family-name:var(--font-cormorant-garamond)] text-2xl font-bold text-soft-gold dark:text-soft-gold-light sm:text-3xl md:text-4xl">
                 June 27, 2026
               </p>
               <p className="mt-1 text-xs font-medium text-sage-dark/50 dark:text-sage-light/50 sm:text-sm">
@@ -239,7 +239,7 @@ export default function Home() {
                 transition={{ duration: 0.6 }}
                 className="inline-block rounded-3xl border border-soft-gold/20 bg-warm-white/70 p-8 shadow-[0_8px_40px_rgba(196,154,60,0.1)] backdrop-blur-sm dark:border-soft-gold/15 dark:bg-[#162618]/70 dark:shadow-[0_8px_40px_rgba(0,0,0,0.2)] sm:p-12"
               >
-                <h3 className="fairy-sparkle mb-5 font-[family-name:var(--font-cormorant-garant)] text-3xl font-bold text-forest dark:text-cream sm:mb-6 sm:text-4xl">
+                <h3 className="fairy-sparkle mb-5 font-[family-name:var(--font-cormorant-garamond)] text-3xl font-bold text-forest dark:text-cream sm:mb-6 sm:text-4xl">
                   Join the Celebration
                 </h3>
                 <p className="mx-auto mb-7 max-w-md text-sm leading-relaxed text-forest/60 dark:text-cream/60 sm:mb-8 sm:text-base">
@@ -283,14 +283,14 @@ export default function Home() {
             className="text-center"
           >
             <div className="overflow-hidden rounded-3xl border border-sage/15 bg-warm-white/70 px-6 py-10 shadow-[0_4px_30px_rgba(29,68,32,0.05)] backdrop-blur-sm dark:border-sage/20 dark:bg-[#162618]/70 dark:shadow-[0_4px_30px_rgba(0,0,0,0.2)] sm:px-10 sm:py-14">
-              <h3 className="fairy-sparkle mb-6 font-[family-name:var(--font-cormorant-garant)] text-2xl font-bold text-forest dark:text-cream sm:mb-8 sm:text-3xl">
+              <h3 className="fairy-sparkle mb-6 font-[family-name:var(--font-cormorant-garamond)] text-2xl font-bold text-forest dark:text-cream sm:mb-8 sm:text-3xl">
                 The Brooker Family
               </h3>
 
               <div className="mb-6 flex flex-wrap items-center justify-center gap-6 sm:gap-10">
                 <div className="flex flex-col items-center gap-2">
                   <span className="text-3xl sm:text-4xl">🤵</span>
-                  <span className="font-[family-name:var(--font-cormorant-garant)] text-lg font-semibold text-forest dark:text-cream">
+                  <span className="font-[family-name:var(--font-cormorant-garamond)] text-lg font-semibold text-forest dark:text-cream">
                     Matt
                   </span>
                 </div>
@@ -305,7 +305,7 @@ export default function Home() {
                 </div>
                 <div className="flex flex-col items-center gap-2">
                   <span className="text-3xl sm:text-4xl">👰</span>
-                  <span className="font-[family-name:var(--font-cormorant-garant)] text-lg font-semibold text-forest dark:text-cream">
+                  <span className="font-[family-name:var(--font-cormorant-garamond)] text-lg font-semibold text-forest dark:text-cream">
                     Brittany
                   </span>
                 </div>
@@ -314,14 +314,14 @@ export default function Home() {
               <div className="mt-4 flex items-center justify-center gap-8 border-t border-sage/10 pt-6 dark:border-sage/20 sm:gap-12">
                 <div className="flex flex-col items-center gap-1.5">
                   <span className="text-2xl sm:text-3xl">&#127775;</span>
-                  <span className="font-[family-name:var(--font-cormorant-garant)] text-base font-semibold text-forest dark:text-cream">
+                  <span className="font-[family-name:var(--font-cormorant-garamond)] text-base font-semibold text-forest dark:text-cream">
                     Emmett
                   </span>
                   <span className="text-xs text-forest/50 dark:text-cream/50">Age {getAge(2014, 3, 29)}</span>
                 </div>
                 <div className="flex flex-col items-center gap-1.5">
                   <span className="text-2xl sm:text-3xl">&#128142;</span>
-                  <span className="font-[family-name:var(--font-cormorant-garant)] text-base font-semibold text-forest dark:text-cream">
+                  <span className="font-[family-name:var(--font-cormorant-garamond)] text-base font-semibold text-forest dark:text-cream">
                     Sapphire
                   </span>
                   <span className="text-xs text-forest/50 dark:text-cream/50">Age {getAge(2017, 6, 19)}</span>
@@ -348,7 +348,7 @@ export default function Home() {
             <p className="mb-2 text-xs font-medium tracking-[0.2em] text-forest/50 uppercase dark:text-cream/50">
               While you wait
             </p>
-            <h2 className="font-[family-name:var(--font-cormorant-garant)] text-2xl font-bold text-forest/70 dark:text-cream/70 sm:text-3xl">
+            <h2 className="font-[family-name:var(--font-cormorant-garamond)] text-2xl font-bold text-forest/70 dark:text-cream/70 sm:text-3xl">
               A Few Games for Fun
             </h2>
           </motion.div>
@@ -384,7 +384,7 @@ export default function Home() {
             ))}
           </div>
 
-          <p className="font-[family-name:var(--font-cormorant-garant)] text-xl font-semibold text-forest/60 dark:text-cream/60 sm:text-2xl">
+          <p className="font-[family-name:var(--font-cormorant-garamond)] text-xl font-semibold text-forest/60 dark:text-cream/60 sm:text-2xl">
             Matt & Brittany
           </p>
           <p className="mt-1 text-sm text-forest/40 dark:text-cream/40">June 27, 2026</p>

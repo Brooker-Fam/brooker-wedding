@@ -117,7 +117,7 @@ export default function Navigation() {
           <div className="flex h-16 items-center justify-between sm:h-18">
             {/* Logo */}
             <Link href="/" className="group flex items-center gap-2">
-              <span className="font-[family-name:var(--font-cormorant-garant)] text-2xl font-bold tracking-wide text-forest transition-colors group-hover:text-soft-gold dark:text-cream sm:text-3xl">
+              <span className="font-[family-name:var(--font-cormorant-garamond)] text-2xl font-bold tracking-wide text-forest transition-colors group-hover:text-soft-gold dark:text-cream sm:text-3xl">
                 M & B
               </span>
             </Link>
@@ -256,7 +256,7 @@ export default function Navigation() {
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ delay: 0.4 }}
-                    className="font-[family-name:var(--font-cormorant-garant)] text-lg text-soft-gold/70"
+                    className="font-[family-name:var(--font-cormorant-garamond)] text-lg text-soft-gold/70"
                   >
                     June 27, 2026
                   </motion.p>
