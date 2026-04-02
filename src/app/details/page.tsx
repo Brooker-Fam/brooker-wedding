@@ -159,7 +159,7 @@ export default function DetailsPage() {
               { value: countdown.seconds, label: "Seconds" },
             ].map((item) => (
               <div key={item.label} className="text-center">
-                <div className="mb-1 rounded-xl border border-[#D4A574]/20 bg-white/80 px-3 py-2 font-[family-name:var(--font-display)] text-2xl font-semibold text-[#2D5016] dark:border-[#D4A574]/15 dark:bg-[#162618]/80 dark:text-[#FDF8F0] sm:px-5 sm:text-3xl">
+                <div className="mb-1 rounded-xl border border-[#D4A574]/20 bg-white/80 px-3 py-2 font-[family-name:var(--font-display)] text-2xl font-semibold lining-nums text-[#2D5016] dark:border-[#D4A574]/15 dark:bg-[#162618]/80 dark:text-[#FDF8F0] sm:px-5 sm:text-3xl">
                   {String(item.value).padStart(2, "0")}
                 </div>
                 <div className="font-[family-name:var(--font-body)] text-xs text-[#D4A574]/70">
@@ -218,7 +218,7 @@ export default function DetailsPage() {
             delay={0.15}
             accent="lavender"
           >
-            <p className="font-[family-name:var(--font-body)] text-xl font-semibold tracking-tight text-[#2D5016] dark:text-[#FDF8F0]">
+            <p className="font-[family-name:var(--font-display)] text-xl font-semibold tracking-tight lining-nums text-[#2D5016] dark:text-[#FDF8F0]">
               49 Clarks Mill Rd, Greenwich, NY 12834
             </p>
             <p>
