@@ -124,7 +124,7 @@ export default function DetailsPage() {
           className="mb-12 text-center"
         >
           <div className="mb-3 font-[family-name:var(--font-body)] text-sm font-medium tracking-widest text-[#9CAF88] uppercase dark:text-[#A8C090]">
-            Everything You Need to Know
+            A Few Lovely Details
           </div>
           <h1 className="font-[family-name:var(--font-display)] text-4xl font-semibold text-[#2D5016] dark:text-[#FDF8F0] sm:text-5xl md:text-6xl">
             Celebration Details
