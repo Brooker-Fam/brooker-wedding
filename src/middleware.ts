@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 
-const ADMIN_USER = process.env.ADMIN_USER || "admin";
-const ADMIN_PASS = process.env.ADMIN_PASS || "zoe";
+const ADMIN_USER = process.env.ADMIN_USER;
+const ADMIN_PASS = process.env.ADMIN_PASS;
 
 function isAdminRoute(pathname: string): boolean {
   return pathname === "/rsvp/admin";
@@ -17,6 +17,7 @@ function isAdminApi(request: NextRequest): boolean {
 }
 
 function checkBasicAuth(request: NextRequest): boolean {
+  if (!ADMIN_USER || !ADMIN_PASS) return false;
   const auth = request.headers.get("authorization");
   if (!auth?.startsWith("Basic ")) return false;
   const decoded = atob(auth.slice(6));
