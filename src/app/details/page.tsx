@@ -116,15 +116,8 @@ export default function DetailsPage() {
   const countdown = useCountdown(weddingMs);
 
   return (
-    <div className="relative min-h-screen overflow-hidden bg-[#FDF8F0] dark:bg-[#0D1F0F]">
-      <div className="pointer-events-none absolute inset-0 overflow-hidden">
-        <div className="absolute top-0 left-1/2 h-[22rem] w-[22rem] -translate-x-1/2 rounded-full bg-[#F2D7D5]/40 blur-3xl dark:bg-[#6D4A53]/20" />
-        <div className="absolute top-32 right-[-5rem] h-56 w-56 rounded-full bg-[#B8A9C9]/30 blur-3xl dark:bg-[#4B375F]/20" />
-        <div className="absolute top-[28rem] left-[-4rem] h-64 w-64 rounded-full bg-[#D4A574]/25 blur-3xl dark:bg-[#6B4226]/20" />
-        <div className="absolute bottom-24 right-1/4 h-48 w-48 rounded-full bg-[#9CAF88]/20 blur-3xl dark:bg-[#2D5016]/25" />
-      </div>
-
-      <div className="relative mx-auto max-w-3xl px-4 pt-24 pb-16 sm:pt-28 sm:pb-20">
+    <div className="enchanted-bg min-h-screen">
+      <div className="mx-auto max-w-3xl px-4 pt-24 pb-16 sm:pt-28 sm:pb-20">
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: -10 }}
