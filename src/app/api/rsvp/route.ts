@@ -74,25 +74,10 @@ export async function POST(request: NextRequest) {
     );
 
     if (!result) {
-      return NextResponse.json({
-        success: true,
-        data: {
-          id: Date.now(),
-          name: name.trim(),
-          email: email.trim().toLowerCase(),
-          attending,
-          guest_count: guestCount,
-          adult_count: adults,
-          child_count: children,
-          dietary_restrictions: dietary_restrictions.trim(),
-          potluck_dish: potluck_dish.trim(),
-          message: message.trim(),
-          public_display: Boolean(public_display),
-          phone: normalizedPhone,
-          created_at: new Date().toISOString(),
-        },
-        mock: true,
-      });
+      return NextResponse.json(
+        { error: "RSVP could not be saved. Please try again later." },
+        { status: 503 }
+      );
     }
 
     return NextResponse.json({
@@ -140,10 +125,10 @@ export async function GET(request: NextRequest) {
     );
 
     if (!result) {
-      return NextResponse.json({
-        data: [],
-        mock: true,
-      });
+      return NextResponse.json(
+        { error: "Database unavailable" },
+        { status: 503 }
+      );
     }
 
     return NextResponse.json({ data: result });

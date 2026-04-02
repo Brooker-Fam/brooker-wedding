@@ -1,13 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { query } from "@/lib/db";
 
-const MOCK_SCORES = [
-  { id: 1, player_name: "FarmKing", game_id: "chicken-chase", score: 9500, created_at: new Date().toISOString() },
-  { id: 2, player_name: "PixelCow", game_id: "chicken-chase", score: 8200, created_at: new Date().toISOString() },
-  { id: 3, player_name: "HayBaler", game_id: "chicken-chase", score: 7100, created_at: new Date().toISOString() },
-  { id: 4, player_name: "EggHunter", game_id: "chicken-chase", score: 6800, created_at: new Date().toISOString() },
-  { id: 5, player_name: "GooseChaser", game_id: "chicken-chase", score: 5500, created_at: new Date().toISOString() },
-];
 
 export async function POST(request: NextRequest) {
   try {
@@ -35,17 +28,10 @@ export async function POST(request: NextRequest) {
     );
 
     if (!result) {
-      return NextResponse.json({
-        success: true,
-        data: {
-          id: Date.now(),
-          player_name: player_name.trim(),
-          game_id: game_id.trim(),
-          score: numScore,
-          created_at: new Date().toISOString(),
-        },
-        mock: true,
-      });
+      return NextResponse.json(
+        { error: "Score could not be saved. Please try again later." },
+        { status: 503 }
+      );
     }
 
     return NextResponse.json({ success: true, data: result[0] });
@@ -71,10 +57,10 @@ export async function GET(request: NextRequest) {
     );
 
     if (!result) {
-      return NextResponse.json({
-        data: MOCK_SCORES.filter((s) => s.game_id === gameId).slice(0, limit),
-        mock: true,
-      });
+      return NextResponse.json(
+        { error: "Database unavailable" },
+        { status: 503 }
+      );
     }
 
     return NextResponse.json({ data: result });
