@@ -95,7 +95,7 @@ export default function Countdown() {
       transition={{ duration: 0.6, delay: 0.3 }}
     >
       <p className="text-xs font-semibold tracking-[0.2em] text-warm-white/90 uppercase drop-shadow-[0_1px_2px_rgba(29,68,32,0.3)] sm:text-sm">
-        Counting down to forever
+        Forever
       </p>
 
       <div className="flex items-center gap-3 sm:gap-5 md:gap-6">

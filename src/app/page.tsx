@@ -144,9 +144,6 @@ export default function Home() {
             </div>
           </motion.div>
 
-          {/* Countdown */}
-          <Countdown />
-
         </div>
       </section>
 
@@ -200,6 +197,10 @@ export default function Home() {
                   Celebration Details
                 </PixelButton>
               </motion.div>
+            </div>
+
+            <div className="mt-8 sm:mt-10">
+              <Countdown />
             </div>
           </motion.div>
         </div>
