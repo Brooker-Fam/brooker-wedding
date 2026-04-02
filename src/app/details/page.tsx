@@ -178,23 +178,23 @@ export default function DetailsPage() {
           className="mb-12 text-center"
         >
           <div className="rounded-2xl border border-[#9CAF88]/20 bg-[#9CAF88]/5 p-8 dark:border-[#9CAF88]/15 dark:bg-[#9CAF88]/8 sm:p-10">
-            <p className="mb-2 font-[family-name:var(--font-body)] text-sm font-medium tracking-wider text-[#9CAF88] uppercase dark:text-[#A8C090]">
+            <p className="mb-6 font-[family-name:var(--font-display)] text-4xl font-bold text-[#2D5016] dark:text-[#FDF8F0] sm:text-5xl md:text-6xl">
               Saturday, June 27, 2026
             </p>
-            <div className="space-y-3">
-              <div>
-                <p className="font-[family-name:var(--font-body)] text-xs font-semibold tracking-[0.24em] text-[#9CAF88] uppercase dark:text-[#A8C090]">
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div className="rounded-2xl border border-[#9CAF88]/15 bg-white/65 px-5 py-4 dark:border-[#9CAF88]/10 dark:bg-[#162618]/55">
+                <p className="mb-1 font-[family-name:var(--font-body)] text-xs font-semibold tracking-[0.24em] text-[#9CAF88] uppercase dark:text-[#A8C090]">
                   Arrival
                 </p>
                 <p className="font-[family-name:var(--font-display)] text-3xl font-bold text-[#2D5016] dark:text-[#FDF8F0] sm:text-4xl">
                   12:30 PM
                 </p>
               </div>
-              <div>
-                <p className="font-[family-name:var(--font-body)] text-xs font-semibold tracking-[0.24em] text-[#9CAF88] uppercase dark:text-[#A8C090]">
+              <div className="rounded-2xl border border-[#9CAF88]/15 bg-white/65 px-5 py-4 dark:border-[#9CAF88]/10 dark:bg-[#162618]/55">
+                <p className="mb-1 font-[family-name:var(--font-body)] text-xs font-semibold tracking-[0.24em] text-[#9CAF88] uppercase dark:text-[#A8C090]">
                   Ceremony
                 </p>
-                <p className="font-[family-name:var(--font-display)] text-4xl font-bold text-[#2D5016] dark:text-[#FDF8F0] sm:text-5xl">
+                <p className="font-[family-name:var(--font-display)] text-3xl font-bold text-[#2D5016] dark:text-[#FDF8F0] sm:text-4xl">
                   1:00 PM
                 </p>
               </div>
