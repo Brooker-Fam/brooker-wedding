@@ -178,6 +178,7 @@ export default function ZoesAdventure({ onGameOver }: ZoesAdventureProps) {
     const w = Math.min(container.getBoundingClientRect().width, 500);
     const maxH = window.innerHeight - container.getBoundingClientRect().top;
     const h = Math.min(Math.max(maxH, 400), 600);
+    canvas.style.width = `${w}px`;
     canvas.style.height = `${h}px`;
     canvas.width = w * dpr;
     canvas.height = h * dpr;
@@ -194,9 +195,11 @@ export default function ZoesAdventure({ onGameOver }: ZoesAdventureProps) {
 
   const initGame = useCallback(() => {
     const canvas = canvasRef.current;
-    if (!canvas) return;
-    const w = canvas.width;
-    const h = canvas.height;
+    const container = containerRef.current;
+    if (!canvas || !container) return;
+    const dpr = window.devicePixelRatio || 1;
+    const w = Math.round(canvas.width / dpr);
+    const h = Math.round(canvas.height / dpr);
     const groundY = h - 80;
 
     const clouds: Cloud[] = Array.from({ length: 6 }, (_, i) => ({
