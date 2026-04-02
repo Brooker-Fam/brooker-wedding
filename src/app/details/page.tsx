@@ -116,7 +116,7 @@ export default function DetailsPage() {
   const countdown = useCountdown(weddingMs);
 
   return (
-    <div className="relative min-h-screen overflow-hidden">
+    <div className="enchanted-bg relative min-h-screen overflow-hidden">
       <div className="mx-auto max-w-3xl px-4 pt-24 pb-16 sm:pt-28 sm:pb-20">
         {/* Header */}
         <motion.div
