@@ -192,6 +192,62 @@ export default function Home() {
       <GnomeDivider />
 
       {/* =============================================
+          OUR STORY SECTION
+          ============================================= */}
+      <section className="relative px-4 py-16 sm:py-20">
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-blush/10 to-transparent dark:via-blush-dark/10" />
+
+        <div className="relative mx-auto max-w-4xl">
+          <motion.div
+            {...fadeInUp}
+            transition={{ duration: 0.6 }}
+            className="overflow-hidden rounded-3xl border border-blush/30 bg-warm-white/75 px-6 py-10 shadow-[0_10px_40px_rgba(164,112,120,0.08)] backdrop-blur-sm dark:border-blush-dark/25 dark:bg-[#162618]/70 dark:shadow-[0_10px_40px_rgba(0,0,0,0.22)] sm:px-10 sm:py-14"
+          >
+            <div className="mx-auto max-w-3xl text-center">
+              <p className="mb-3 text-xs font-medium tracking-[0.25em] text-soft-gold/70 uppercase sm:text-sm">
+                Our Story
+              </p>
+              <h3 className="fairy-sparkle mb-8 font-[family-name:var(--font-cormorant-garant)] text-3xl font-bold text-forest dark:text-cream sm:text-4xl">
+                A Love Worth Celebrating
+              </h3>
+
+              <div className="space-y-5 text-left text-sm leading-relaxed text-forest/70 dark:text-cream/70 sm:text-base">
+                <p>
+                  Matt proposed to Brittany on Thanksgiving 2025 in the
+                  beautiful woods at the New Skete Monastery. Before asking her
+                  to marry him, he sang and played the mandolin and read her a
+                  poem he had written just for her. After Brittany said yes,
+                  they attended a peaceful service at the monastery, making the
+                  moment even more meaningful.
+                </p>
+
+                <p>
+                  They couldn&apos;t wait to be husband and wife, so in just 35
+                  days, they planned their dream winter wedding, exchanging
+                  vows surrounded by their 20 closest loved ones.
+                </p>
+
+                <p>
+                  Now, they&apos;re so excited to gather everyone they love for
+                  their summer wedding celebration under the open sky at their
+                  farm on June 27.
+                </p>
+
+                <p>
+                  The day will begin with a ceremony celebrating their union,
+                  followed by a joyful celebration filled with good food,
+                  music, dancing, games, and lots of love.
+                </p>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* Fairy string lights divider */}
+      <FairyLightDivider />
+
+      {/* =============================================
           FAMILY SECTION
           ============================================= */}
       <section className="relative px-4 py-16 sm:py-20">
@@ -250,9 +306,6 @@ export default function Home() {
           </motion.div>
         </div>
       </section>
-
-      {/* Fairy string lights divider */}
-      <FairyLightDivider />
 
       {/* =============================================
           GAMES - subtle section at the bottom
