@@ -162,7 +162,12 @@ function PageHeader() {
       <motion.h1 initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="font-[family-name:var(--font-cormorant-garant)] text-4xl font-semibold text-forest dark:text-cream sm:text-5xl">
         Join Our Celebration
       </motion.h1>
-      <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.4 }} className="mt-4 text-base text-deep-plum/60 dark:text-cream/60">
+      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.35 }} className="mt-4 inline-block rounded-xl border border-soft-gold/20 bg-soft-gold/5 px-5 py-2 dark:border-soft-gold/15 dark:bg-soft-gold/8">
+        <p className="font-[family-name:var(--font-cormorant-garant)] text-lg font-semibold text-soft-gold dark:text-soft-gold-light">
+          Saturday, June 27, 2026 at 1:00 PM
+        </p>
+      </motion.div>
+      <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.4 }} className="mt-3 text-base text-deep-plum/60 dark:text-cream/60">
         We would be so happy to have you there. Please let us know if you can make it!
       </motion.p>
       <motion.div initial={{ scaleX: 0 }} animate={{ scaleX: 1 }} transition={{ delay: 0.5, duration: 0.8 }} className="mx-auto mt-6 flex items-center justify-center gap-3">
@@ -180,7 +185,7 @@ function PageHeader() {
 function PageFooter() {
   return (
     <div className="mt-8 text-center">
-      <p className="text-sm text-sage/70 dark:text-sage-light/70">June 27, 2026</p>
+      <p className="text-sm text-sage/70 dark:text-sage-light/70">June 27, 2026 at 1:00 PM</p>
     </div>
   );
 }

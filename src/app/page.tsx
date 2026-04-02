@@ -173,8 +173,8 @@ export default function Home() {
               <p className="font-[family-name:var(--font-cormorant-garant)] text-2xl font-bold text-soft-gold dark:text-soft-gold-light sm:text-3xl md:text-4xl">
                 June 27, 2026
               </p>
-              <p className="mt-1 text-xs font-medium text-sage-dark/50 dark:text-sage-light/50 sm:text-sm">
-                Saturday
+              <p className="mt-1 font-[family-name:var(--font-cormorant-garant)] text-lg font-semibold text-soft-gold/80 dark:text-soft-gold-light/80 sm:text-xl">
+                Saturday at 1:00 PM
               </p>
             </div>
           </motion.div>
