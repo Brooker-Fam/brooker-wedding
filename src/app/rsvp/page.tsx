@@ -359,15 +359,8 @@ function RsvpForm({ initialData, isEditing, onSuccess, onCancel }: { initialData
         {attending && (
           <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.4, ease: "easeInOut" }} className="space-y-6 overflow-hidden">
             <div>
-              <div className="mb-3 flex items-center justify-between gap-3">
+              <div className="mb-3">
                 <label className="block text-sm font-medium text-deep-plum dark:text-cream">Who Is Included in This RSVP?</label>
-                <button
-                  type="button"
-                  onClick={() => setAttendeeEntries((prev) => [...prev, { name: "", type: "adult" }])}
-                  className="rounded-lg border border-sage/30 px-3 py-1.5 text-xs font-medium text-sage transition-all hover:bg-sage/10 dark:border-sage/40 dark:text-sage-light dark:hover:bg-sage/20"
-                >
-                  Add Guest
-                </button>
               </div>
               <div className="space-y-3">
                 {attendeeEntries.map((entry, index) => (
@@ -426,6 +419,15 @@ function RsvpForm({ initialData, isEditing, onSuccess, onCancel }: { initialData
                     </div>
                   </div>
                 ))}
+              </div>
+              <div className="mt-4">
+                <button
+                  type="button"
+                  onClick={() => setAttendeeEntries((prev) => [...prev, { name: "", type: "adult" }])}
+                  className="w-full rounded-xl bg-soft-gold px-4 py-3 text-sm font-semibold text-white shadow-md transition-all hover:bg-soft-gold-dark hover:shadow-lg sm:w-auto"
+                >
+                  Add Another Guest
+                </button>
               </div>
               <div className="mt-3 text-xs text-deep-plum/55 dark:text-cream/55">
                 {attendeeEntries.filter((entry) => entry.name.trim() && entry.type === "adult").length} adults · {attendeeEntries.filter((entry) => entry.name.trim() && entry.type === "child").length} children
