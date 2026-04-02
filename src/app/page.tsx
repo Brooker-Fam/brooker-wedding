@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import FarmScene from "@/components/FarmScene";
 import Countdown from "@/components/Countdown";
 import PixelButton from "@/components/PixelButton";
+import HeartGarland from "@/components/HeartGarland";
 
 function getAge(birthYear: number, birthMonth: number, birthDay: number) {
   const today = new Date();
@@ -33,6 +34,7 @@ export default function Home() {
         {/* Content overlay */}
         <div className="relative z-10 flex flex-col items-center px-4 pt-20 pb-8 sm:pt-24">
           {/* Small subtitle */}
+          <HeartGarland size="lg" className="mb-5" />
           <motion.p
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -263,23 +265,7 @@ export default function Home() {
           ============================================= */}
       <footer className="relative border-t border-sage/15 bg-cream-dark/50 px-4 py-12 dark:border-sage/20 dark:bg-[#0A1A0C]/50 sm:py-16">
         <div className="mx-auto max-w-4xl text-center">
-          {/* Decorative hearts */}
-          <div className="mb-5 flex items-center justify-center gap-3">
-            {[0, 1, 2, 3, 4].map((i) => (
-              <motion.span
-                key={i}
-                className={`text-sm ${i % 2 === 0 ? "text-soft-gold/40" : "text-sage/40"}`}
-                animate={{ y: [0, -3, 0] }}
-                transition={{
-                  duration: 2,
-                  repeat: Infinity,
-                  delay: i * 0.2,
-                }}
-              >
-                &hearts;
-              </motion.span>
-            ))}
-          </div>
+          <HeartGarland className="mb-5" />
 
           <p className="font-[family-name:var(--font-cormorant-garamond)] text-xl font-semibold text-forest/60 dark:text-cream/60 sm:text-2xl">
             Matt & Brittany

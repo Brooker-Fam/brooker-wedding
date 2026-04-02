@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
+import HeartGarland from "@/components/HeartGarland";
 
 function useCountdown(targetMs: number) {
   const [timeLeft, setTimeLeft] = useState({
@@ -130,6 +131,7 @@ export default function DetailsPage() {
           animate={{ opacity: 1, y: 0 }}
           className="mb-12 text-center"
         >
+          <HeartGarland size="lg" className="mb-5" />
           <div className="mb-3 font-[family-name:var(--font-body)] text-sm font-medium tracking-widest text-[#9CAF88] uppercase dark:text-[#A8C090]">
             A Few Lovely Details
           </div>

@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import ConfettiCelebration from "@/components/ConfettiCelebration";
+import HeartGarland from "@/components/HeartGarland";
 
 interface RsvpData {
   id: number;
@@ -215,6 +216,7 @@ export default function RSVPPage() {
 function PageHeader() {
   return (
     <div className="mb-10 text-center">
+      <HeartGarland size="lg" className="mb-5" />
       <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="mb-3 text-sm font-medium tracking-widest text-sage uppercase dark:text-sage-light">
         You&apos;re Invited
       </motion.div>
