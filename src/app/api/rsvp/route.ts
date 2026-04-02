@@ -43,6 +43,20 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    if (!phone || typeof phone !== "string" || phone.trim().length === 0) {
+      return NextResponse.json(
+        { error: "Phone number is required" },
+        { status: 400 }
+      );
+    }
+
+    if (!mailing_address || typeof mailing_address !== "string" || mailing_address.trim().length === 0) {
+      return NextResponse.json(
+        { error: "Mailing address is required" },
+        { status: 400 }
+      );
+    }
+
     const adults = attending ? Math.max(1, Number(adult_count) || 1) : 0;
     const children = attending ? Math.max(0, Number(child_count) || 0) : 0;
     const guestCount = adults + children;
@@ -170,6 +184,20 @@ export async function PUT(request: NextRequest) {
     if (!email || typeof email !== "string" || !email.includes("@")) {
       return NextResponse.json(
         { error: "A valid email is required" },
+        { status: 400 }
+      );
+    }
+
+    if (!phone || typeof phone !== "string" || phone.trim().length === 0) {
+      return NextResponse.json(
+        { error: "Phone number is required" },
+        { status: 400 }
+      );
+    }
+
+    if (!mailing_address || typeof mailing_address !== "string" || mailing_address.trim().length === 0) {
+      return NextResponse.json(
+        { error: "Mailing address is required" },
         { status: 400 }
       );
     }

@@ -128,9 +128,15 @@ export default function RSVPPage() {
   }, []);
 
   return (
-    <div className="enchanted-bg min-h-screen">
+    <div className="enchanted-bg relative min-h-screen overflow-hidden">
+      <div className="pointer-events-none absolute inset-0 overflow-hidden">
+        <div className="absolute top-0 left-1/2 h-[24rem] w-[24rem] -translate-x-1/2 rounded-full bg-[#F2D7D5]/35 blur-3xl dark:bg-[#6D4A53]/20" />
+        <div className="absolute top-40 right-[-4rem] h-56 w-56 rounded-full bg-[#B8A9C9]/30 blur-3xl dark:bg-[#4B375F]/18" />
+        <div className="absolute top-[34rem] left-[-5rem] h-64 w-64 rounded-full bg-[#D4A574]/25 blur-3xl dark:bg-[#6B4226]/18" />
+        <div className="absolute bottom-24 right-1/4 h-52 w-52 rounded-full bg-[#9CAF88]/20 blur-3xl dark:bg-[#2D5016]/20" />
+      </div>
       <ConfettiCelebration active={showConfetti} />
-      <div className="mx-auto max-w-2xl px-4 pt-24 pb-16 sm:pt-28 sm:pb-20">
+      <div className="relative mx-auto max-w-2xl px-4 pt-24 pb-16 sm:pt-28 sm:pb-20">
         <AnimatePresence mode="wait">
           {pageState === "loading" && (
             <motion.div key="loading" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="py-20 text-center">
@@ -215,13 +221,30 @@ function PageHeader() {
       <motion.h1 initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="font-[family-name:var(--font-cormorant-garamond)] text-4xl font-semibold text-forest dark:text-cream sm:text-5xl">
         Join Our Celebration
       </motion.h1>
-      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.35 }} className="mt-4 inline-block rounded-xl border border-soft-gold/20 bg-soft-gold/5 px-5 py-2 dark:border-soft-gold/15 dark:bg-soft-gold/8">
-        <p className="font-[family-name:var(--font-cormorant-garamond)] text-lg font-semibold text-soft-gold dark:text-soft-gold-light">
+      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.35 }} className="mt-6 rounded-[2rem] border border-[#9CAF88]/20 bg-gradient-to-br from-[#F8FBF4] via-[#FDF8F0] to-[#F2D7D5]/28 p-6 shadow-[0_18px_45px_rgba(156,175,136,0.14)] dark:border-[#9CAF88]/15 dark:bg-gradient-to-br dark:from-[#142515] dark:via-[#112011] dark:to-[#241A26] sm:p-8">
+        <p className="mb-5 font-[family-name:var(--font-display)] text-4xl font-semibold tracking-tight lining-nums text-[#2D5016] dark:text-[#FDF8F0] sm:text-5xl">
           Saturday, June 27, 2026
         </p>
-        <p className="text-xs font-medium text-soft-gold/70 dark:text-soft-gold-light/70">
-          Arrival 12:30 PM · Ceremony 1:00 PM
-        </p>
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div className="rounded-[1.6rem] border border-[#9CAF88]/15 bg-gradient-to-br from-white via-[#F8FBF4] to-[#F6EBDD] px-5 py-4 shadow-[0_12px_24px_rgba(156,175,136,0.12)] dark:border-[#9CAF88]/10 dark:bg-gradient-to-br dark:from-[#1A2B1C] dark:to-[#19251A]">
+            <p className="mb-1 font-[family-name:var(--font-body)] text-xs font-semibold tracking-[0.24em] text-[#9CAF88] uppercase dark:text-[#A8C090]">
+              Arrival
+            </p>
+            <p className="font-[family-name:var(--font-display)] text-3xl font-semibold tracking-tight lining-nums text-[#2D5016] dark:text-[#FDF8F0] sm:text-4xl">
+              <span>12:30</span>{" "}
+              <span className="text-lg sm:text-xl">PM</span>
+            </p>
+          </div>
+          <div className="rounded-[1.6rem] border border-[#B8A9C9]/18 bg-gradient-to-br from-white via-[#FBF7FC] to-[#F2D7D5]/40 px-5 py-4 shadow-[0_12px_24px_rgba(184,169,201,0.14)] dark:border-[#B8A9C9]/12 dark:bg-gradient-to-br dark:from-[#221C28] dark:to-[#19251A]">
+            <p className="mb-1 font-[family-name:var(--font-body)] text-xs font-semibold tracking-[0.24em] text-[#9CAF88] uppercase dark:text-[#A8C090]">
+              Ceremony
+            </p>
+            <p className="font-[family-name:var(--font-display)] text-3xl font-semibold tracking-tight lining-nums text-[#2D5016] dark:text-[#FDF8F0] sm:text-4xl">
+              <span>1:00</span>{" "}
+              <span className="text-lg sm:text-xl">PM</span>
+            </p>
+          </div>
+        </div>
       </motion.div>
       <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.4 }} className="mt-3 text-base text-deep-plum/60 dark:text-cream/60">
         We would be so happy to have you there. Please let us know if you can make it!
@@ -270,6 +293,8 @@ function RsvpForm({ initialData, isEditing, onSuccess, onCancel }: { initialData
     e.preventDefault();
     if (!name.trim()) { setErrorMessage("Please enter your name so we know who to expect!"); return; }
     if (!email.trim() || !email.includes("@")) { setErrorMessage("We need a valid email to keep you updated!"); return; }
+    if (!phone.trim()) { setErrorMessage("Please include a phone number so we can reach you if needed."); return; }
+    if (!mailingAddress.trim()) { setErrorMessage("Please include your mailing address."); return; }
     const filledAttendees = attendeeEntries.filter((entry) => entry.name.trim());
     const adultCount = filledAttendees.filter((entry) => entry.type === "adult").length;
     const childCount = filledAttendees.filter((entry) => entry.type === "child").length;
@@ -306,7 +331,7 @@ function RsvpForm({ initialData, isEditing, onSuccess, onCancel }: { initialData
   };
 
   return (
-    <motion.form onSubmit={handleSubmit} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }} className="soft-card space-y-6 p-6 sm:p-8">
+    <motion.form onSubmit={handleSubmit} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }} className="space-y-6 rounded-[2rem] border border-white/50 bg-white/72 p-6 shadow-[0_18px_40px_rgba(95,61,87,0.12)] backdrop-blur-md dark:border-white/8 dark:bg-[#162618]/72 sm:p-8">
       <div>
         <label className="mb-2 block text-sm font-medium text-deep-plum dark:text-cream">Your Name <span className="text-soft-gold">*</span></label>
         <input type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder="Enter your name" className="enchanted-input" required />
@@ -316,20 +341,21 @@ function RsvpForm({ initialData, isEditing, onSuccess, onCancel }: { initialData
         <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="your@email.com" className="enchanted-input" required />
       </div>
       <div>
-        <label className="mb-2 block text-sm font-medium text-deep-plum dark:text-cream">Phone Number</label>
-        <input type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="(555) 123-4567" className="enchanted-input" />
-        <p className="mt-1.5 text-xs text-deep-plum/55 dark:text-cream/55">Optional -- we may text updates about the celebration</p>
+        <label className="mb-2 block text-sm font-medium text-deep-plum dark:text-cream">Phone Number <span className="text-soft-gold">*</span></label>
+        <input type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="(555) 123-4567" className="enchanted-input" required />
+        <p className="mt-1.5 text-xs text-deep-plum/55 dark:text-cream/55">Required -- we may text any updates about the celebration</p>
       </div>
       <div>
-        <label className="mb-2 block text-sm font-medium text-deep-plum dark:text-cream">Mailing Address</label>
+        <label className="mb-2 block text-sm font-medium text-deep-plum dark:text-cream">Mailing Address <span className="text-soft-gold">*</span></label>
         <textarea
           value={mailingAddress}
           onChange={(e) => setMailingAddress(e.target.value)}
           placeholder="Street address, city, state, ZIP"
           className="enchanted-input min-h-[90px] resize-y"
           rows={3}
+          required
         />
-        <p className="mt-1.5 text-xs text-deep-plum/55 dark:text-cream/55">Optional -- helpful if we need to send anything your way</p>
+        <p className="mt-1.5 text-xs text-deep-plum/55 dark:text-cream/55">Required -- helpful for sending any mail your way</p>
       </div>
 
       <div>
