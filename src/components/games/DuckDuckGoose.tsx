@@ -83,6 +83,8 @@ export default function DuckDuckGoose() {
     if (!canvas || !container) return;
     const rect = container.getBoundingClientRect();
     const dpr = window.devicePixelRatio || 1;
+    canvas.style.width = `${rect.width}px`;
+    canvas.style.height = `${rect.height}px`;
     canvas.width = rect.width * dpr;
     canvas.height = rect.height * dpr;
     const ctx = canvas.getContext('2d');
@@ -633,7 +635,7 @@ export default function DuckDuckGoose() {
     ctx.fillStyle = barColor;
     ctx.fillRect(barX, barY, barW * distPct, barH);
     ctx.fillStyle = '#FFF8DC';
-    ctx.font = '7px "Press Start 2P", monospace';
+    ctx.font = '9px "Press Start 2P", monospace';
     ctx.fillText('GOOSE', barX, barY - 3);
 
     // Score
@@ -642,7 +644,7 @@ export default function DuckDuckGoose() {
     ctx.fillRect(g.canvasW - 110, 6, 104, 18);
     ctx.globalAlpha = 1;
     ctx.fillStyle = '#FFF8DC';
-    ctx.font = '10px "Press Start 2P", monospace';
+    ctx.font = '12px "Press Start 2P", monospace';
     ctx.textAlign = 'right';
     ctx.fillText(`${g.score}`, g.canvasW - 12, 20);
     ctx.textAlign = 'left';
@@ -650,12 +652,12 @@ export default function DuckDuckGoose() {
     // Active power-up indicators
     if (g.invincible > 0) {
       ctx.fillStyle = '#FF69B4';
-      ctx.font = '7px "Press Start 2P", monospace';
+      ctx.font = '9px "Press Start 2P", monospace';
       ctx.fillText(`INVINCIBLE ${Math.ceil(g.invincible / 60)}s`, 10, 60);
     }
     if (g.speedBoost > 0) {
       ctx.fillStyle = '#87CEEB';
-      ctx.font = '7px "Press Start 2P", monospace';
+      ctx.font = '9px "Press Start 2P", monospace';
       ctx.fillText(`SPEED ${Math.ceil(g.speedBoost / 60)}s`, 10, g.invincible > 0 ? 74 : 60);
     }
 
@@ -775,7 +777,7 @@ export default function DuckDuckGoose() {
         href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap"
         rel="stylesheet"
       />
-      <canvas ref={canvasRef} style={{ display: 'block', width: '100%', height: '100%' }} />
+      <canvas ref={canvasRef} style={{ display: 'block' }} />
 
       {gameState === 'start' && (
         <div
@@ -796,15 +798,15 @@ export default function DuckDuckGoose() {
             DUCK DUCK GOOSE
           </div>
           <div style={{ fontSize: '40px', marginBottom: '16px' }}>🦆</div>
-          <div style={{ fontSize: '8px', lineHeight: 2, maxWidth: '300px', marginBottom: '20px' }}>
+          <div style={{ fontSize: 'clamp(12px, 3vw, 15px)', lineHeight: 2, maxWidth: '320px', marginBottom: '20px' }}>
             <p>Run from the goose!</p>
             <p>TAP / SPACE to jump</p>
-            <p>SWIPE DOWN / ARROW DOWN to duck</p>
+            <p>SWIPE DOWN / DOWN ARROW to duck</p>
             <p>Collect food for points!</p>
             <p>Avoid obstacles or goose gets closer!</p>
           </div>
           {highScore > 0 && (
-            <div style={{ fontSize: '8px', color: '#DAA520', marginBottom: '16px' }}>
+            <div style={{ fontSize: 'clamp(10px, 2.5vw, 13px)', color: '#DAA520', marginBottom: '16px' }}>
               HIGH SCORE: {highScore}
             </div>
           )}
@@ -844,11 +846,11 @@ export default function DuckDuckGoose() {
             HONK! CAUGHT!
           </div>
           <div style={{ fontSize: '40px', marginBottom: '12px' }}>🦆💨🪿</div>
-          <div style={{ fontSize: '12px', marginBottom: '8px' }}>SCORE: {score}</div>
+          <div style={{ fontSize: 'clamp(14px, 3.5vw, 18px)', marginBottom: '8px' }}>SCORE: {score}</div>
           {score >= highScore && score > 0 && (
-            <div style={{ fontSize: '10px', color: '#DAA520', marginBottom: '8px' }}>NEW HIGH SCORE!</div>
+            <div style={{ fontSize: 'clamp(12px, 3vw, 14px)', color: '#DAA520', marginBottom: '8px' }}>NEW HIGH SCORE!</div>
           )}
-          <div style={{ fontSize: '8px', color: '#87CEEB', marginBottom: '20px' }}>
+          <div style={{ fontSize: 'clamp(11px, 2.5vw, 13px)', color: '#87CEEB', marginBottom: '20px' }}>
             BEST: {Math.max(score, highScore)}
           </div>
           <button
@@ -868,7 +870,7 @@ export default function DuckDuckGoose() {
           <a
             href="/games"
             style={{
-              fontSize: '8px',
+              fontSize: 'clamp(10px, 2.5vw, 12px)',
               color: '#87CEEB',
               marginTop: '16px',
               textDecoration: 'none',
