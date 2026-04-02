@@ -178,7 +178,7 @@ export default function DetailsPage() {
           className="mb-12 text-center"
         >
           <div className="rounded-2xl border border-[#9CAF88]/20 bg-[#9CAF88]/5 p-8 dark:border-[#9CAF88]/15 dark:bg-[#9CAF88]/8 sm:p-10">
-            <p className="mb-6 font-[family-name:var(--font-body)] text-4xl font-semibold tracking-tight text-[#2D5016] dark:text-[#FDF8F0] sm:text-5xl md:text-6xl">
+            <p className="mb-6 font-[family-name:var(--font-display)] text-4xl font-semibold tracking-tight lining-nums text-[#2D5016] dark:text-[#FDF8F0] sm:text-5xl md:text-6xl">
               Saturday, June 27, 2026
             </p>
             <div className="grid gap-4 sm:grid-cols-2">
@@ -186,7 +186,7 @@ export default function DetailsPage() {
                 <p className="mb-1 font-[family-name:var(--font-body)] text-xs font-semibold tracking-[0.24em] text-[#9CAF88] uppercase dark:text-[#A8C090]">
                   Arrival
                 </p>
-                <p className="font-[family-name:var(--font-body)] text-3xl font-semibold tracking-tight text-[#2D5016] tabular-nums dark:text-[#FDF8F0] sm:text-4xl">
+                <p className="font-[family-name:var(--font-display)] text-3xl font-semibold tracking-tight lining-nums text-[#2D5016] dark:text-[#FDF8F0] sm:text-4xl">
                   <span>12:30</span>{" "}
                   <span className="text-lg sm:text-xl">PM</span>
                 </p>
@@ -195,7 +195,7 @@ export default function DetailsPage() {
                 <p className="mb-1 font-[family-name:var(--font-body)] text-xs font-semibold tracking-[0.24em] text-[#9CAF88] uppercase dark:text-[#A8C090]">
                   Ceremony
                 </p>
-                <p className="font-[family-name:var(--font-body)] text-3xl font-semibold tracking-tight text-[#2D5016] tabular-nums dark:text-[#FDF8F0] sm:text-4xl">
+                <p className="font-[family-name:var(--font-display)] text-3xl font-semibold tracking-tight lining-nums text-[#2D5016] dark:text-[#FDF8F0] sm:text-4xl">
                   <span>1:00</span>{" "}
                   <span className="text-lg sm:text-xl">PM</span>
                 </p>
