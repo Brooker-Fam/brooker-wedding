@@ -215,7 +215,7 @@ export default function GamesArcadePage() {
 
                 {/* Play button */}
                 {isAvailable && (
-                  <div className="mt-4 flex items-center justify-center rounded-xl bg-soft-gold py-2.5 text-center text-sm font-semibold text-white transition-colors hover:bg-soft-gold-dark" style={{ minHeight: 44 }}>
+                  <div className="mt-4 flex items-center justify-center rounded-xl bg-soft-gold py-2.5 text-center text-sm font-semibold text-[#2A1A00] transition-colors hover:bg-soft-gold-dark" style={{ minHeight: 44 }}>
                     Play
                   </div>
                 )}

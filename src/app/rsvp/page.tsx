@@ -346,10 +346,10 @@ function RsvpForm({ initialData, isEditing, onSuccess, onCancel }: { initialData
           <button type="button" onClick={() => {
             setAttending(true);
             setAttendeeEntries((prev) => prev.length > 0 ? prev : [{ name: name.trim(), type: "adult" }]);
-          }} className={`flex-1 rounded-xl border-2 px-4 py-3 text-sm font-medium transition-all duration-300 ${attending ? "border-soft-gold bg-soft-gold text-white shadow-md" : "border-lavender/30 bg-warm-white text-deep-plum/80 hover:border-lavender/50 dark:border-sage/30 dark:bg-[#162618] dark:text-cream/80 dark:hover:border-sage/50"}`}>
+          }} className={`flex-1 rounded-xl border-2 px-4 py-3 text-sm font-medium transition-all duration-300 ${attending ? "border-soft-gold bg-soft-gold text-[#2A1A00] shadow-md" : "border-lavender/30 bg-warm-white text-deep-plum/80 hover:border-lavender/50 dark:border-sage/30 dark:bg-[#162618] dark:text-cream/80 dark:hover:border-sage/50"}`}>
             Joyfully Accept
           </button>
-          <button type="button" onClick={() => setAttending(false)} className={`flex-1 rounded-xl border-2 px-4 py-3 text-sm font-medium transition-all duration-300 ${!attending ? "border-lavender bg-lavender text-white shadow-md" : "border-lavender/30 bg-warm-white text-deep-plum/80 hover:border-lavender/50 dark:border-sage/30 dark:bg-[#162618] dark:text-cream/80 dark:hover:border-sage/50"}`}>
+          <button type="button" onClick={() => setAttending(false)} className={`flex-1 rounded-xl border-2 px-4 py-3 text-sm font-medium transition-all duration-300 ${!attending ? "border-[#8B7AA0] bg-[#8B7AA0] text-white shadow-md" : "border-lavender/30 bg-warm-white text-deep-plum/80 hover:border-lavender/50 dark:border-sage/30 dark:bg-[#162618] dark:text-cream/80 dark:hover:border-sage/50"}`}>
             Regretfully Decline
           </button>
         </div>
@@ -389,7 +389,7 @@ function RsvpForm({ initialData, isEditing, onSuccess, onCancel }: { initialData
                               )
                             )
                           }
-                          className={`rounded-lg px-3 py-2 text-xs font-medium transition-all ${entry.type === "adult" ? "bg-soft-gold text-white shadow-sm" : "border border-sage/30 text-deep-plum hover:bg-sage/10 dark:border-sage/40 dark:text-cream dark:hover:bg-sage/20"}`}
+                          className={`rounded-lg px-3 py-2 text-xs font-medium transition-all ${entry.type === "adult" ? "bg-soft-gold text-[#2A1A00] shadow-sm" : "border border-sage/30 text-deep-plum hover:bg-sage/10 dark:border-sage/40 dark:text-cream dark:hover:bg-sage/20"}`}
                         >
                           Adult
                         </button>
@@ -402,7 +402,7 @@ function RsvpForm({ initialData, isEditing, onSuccess, onCancel }: { initialData
                               )
                             )
                           }
-                          className={`rounded-lg px-3 py-2 text-xs font-medium transition-all ${entry.type === "child" ? "bg-lavender text-white shadow-sm" : "border border-sage/30 text-deep-plum hover:bg-sage/10 dark:border-sage/40 dark:text-cream dark:hover:bg-sage/20"}`}
+                          className={`rounded-lg px-3 py-2 text-xs font-medium transition-all ${entry.type === "child" ? "bg-[#8B7AA0] text-white shadow-sm" : "border border-sage/30 text-deep-plum hover:bg-sage/10 dark:border-sage/40 dark:text-cream dark:hover:bg-sage/20"}`}
                         >
                           Child
                         </button>
@@ -424,7 +424,7 @@ function RsvpForm({ initialData, isEditing, onSuccess, onCancel }: { initialData
                 <button
                   type="button"
                   onClick={() => setAttendeeEntries((prev) => [...prev, { name: "", type: "adult" }])}
-                  className="w-full rounded-xl bg-soft-gold px-4 py-3 text-sm font-semibold text-white shadow-md transition-all hover:bg-soft-gold-dark hover:shadow-lg sm:w-auto"
+                  className="w-full rounded-xl bg-soft-gold px-4 py-3 text-sm font-semibold text-[#2A1A00] shadow-md transition-all hover:bg-soft-gold-dark hover:shadow-lg sm:w-auto"
                 >
                   Add Another Guest
                 </button>
@@ -472,7 +472,7 @@ function RsvpForm({ initialData, isEditing, onSuccess, onCancel }: { initialData
             Cancel
           </button>
         )}
-        <button type="submit" disabled={submitting} className={`${isEditing && onCancel ? "flex-1" : "w-full"} rounded-xl bg-soft-gold px-6 py-3.5 text-base font-semibold text-white shadow-md transition-all duration-300 hover:bg-soft-gold-dark hover:shadow-lg ${submitting ? "cursor-wait opacity-70" : ""}`}>
+        <button type="submit" disabled={submitting} className={`${isEditing && onCancel ? "flex-1" : "w-full"} rounded-xl bg-soft-gold px-6 py-3.5 text-base font-semibold text-[#2A1A00] shadow-md transition-all duration-300 hover:bg-soft-gold-dark hover:shadow-lg ${submitting ? "cursor-wait opacity-70" : ""}`}>
           {submitting ? (
             <span className="flex items-center justify-center gap-2">
               <svg className="h-4 w-4 animate-spin" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" /></svg>
@@ -549,7 +549,7 @@ function RsvpViewer({ data, onEdit }: { data: RsvpData; onEdit: () => void }) {
       </div>
 
       <div className="mt-6 flex flex-col gap-3 sm:flex-row">
-        <button onClick={onEdit} className="flex-1 rounded-xl bg-soft-gold px-6 py-3 text-sm font-semibold text-white transition-all hover:bg-soft-gold-dark hover:shadow-md">
+        <button onClick={onEdit} className="flex-1 rounded-xl bg-soft-gold px-6 py-3 text-sm font-semibold text-[#2A1A00] transition-all hover:bg-soft-gold-dark hover:shadow-md">
           Edit Your RSVP
         </button>
         <Link href="/details" className="flex flex-1 items-center justify-center rounded-xl border border-sage/30 px-6 py-3 text-sm font-medium text-deep-plum transition-all hover:bg-sage/10 dark:border-sage/40 dark:text-cream dark:hover:bg-sage/20">

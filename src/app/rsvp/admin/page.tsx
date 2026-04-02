@@ -244,7 +244,7 @@ export default function AdminPage() {
                             <button
                               onClick={saveEdit}
                               disabled={saving}
-                              className="rounded-lg bg-soft-gold px-2.5 py-1 text-xs font-semibold text-white hover:bg-soft-gold-dark disabled:opacity-50"
+                              className="rounded-lg bg-soft-gold px-2.5 py-1 text-xs font-semibold text-[#2A1A00] hover:bg-soft-gold-dark disabled:opacity-50"
                             >
                               {saving ? "..." : "Save"}
                             </button>
