@@ -111,7 +111,7 @@ function BotanicalDivider() {
 }
 
 export default function DetailsPage() {
-  const weddingMs = new Date("2026-06-27T16:00:00").getTime();
+  const weddingMs = new Date("2026-06-27T13:00:00-04:00").getTime();
   const countdown = useCountdown(weddingMs);
 
   return (

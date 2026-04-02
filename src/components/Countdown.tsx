@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 
-const WEDDING_DATE = new Date("2026-06-27T16:00:00-06:00");
+const WEDDING_DATE = new Date("2026-06-27T13:00:00-04:00");
 
 interface TimeUnit {
   value: number;
