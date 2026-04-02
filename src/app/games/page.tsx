@@ -134,7 +134,7 @@ export default function GamesArcadePage() {
           animate={{ opacity: 1, y: 0 }}
           className="mb-12 text-center"
         >
-          <div className="mb-3 text-sm font-medium tracking-widest text-lavender uppercase dark:text-lavender-light">
+          <div className="mb-3 text-sm font-medium tracking-widest text-[#8B7AA0] uppercase dark:text-lavender-light">
             A Little Fun to Celebrate
           </div>
           <h1 className="font-[family-name:var(--font-cormorant-garamond)] text-4xl font-semibold text-forest dark:text-cream sm:text-5xl">

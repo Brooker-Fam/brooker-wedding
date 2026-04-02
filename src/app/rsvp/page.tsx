@@ -224,7 +224,7 @@ function PageHeader() {
         <p className="font-[family-name:var(--font-cormorant-garamond)] text-4xl font-bold text-soft-gold dark:text-soft-gold-light sm:text-5xl md:text-6xl">
           June 27, 2026
         </p>
-        <p className="mt-2 text-sm font-medium text-sage-dark/60 dark:text-sage-light/60 sm:text-base">
+        <p className="mt-2 text-sm font-medium text-sage-dark/85 dark:text-sage-light/85 sm:text-base">
           Arrival 12:30 PM · Ceremony 1:00 PM
         </p>
       </motion.div>

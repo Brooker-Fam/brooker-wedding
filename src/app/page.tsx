@@ -275,7 +275,7 @@ export default function Home() {
           <div className="mt-5">
             <a
               href="mailto:brookerhousehold@gmail.com"
-              className="text-sm text-soft-gold/80 transition-colors hover:text-soft-gold"
+              className="text-sm text-soft-gold-dark transition-colors hover:text-soft-gold dark:text-soft-gold-light"
             >
               brookerhousehold@gmail.com
             </a>

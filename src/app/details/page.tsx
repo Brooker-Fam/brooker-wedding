@@ -131,7 +131,7 @@ export default function DetailsPage() {
           <h1 className="font-[family-name:var(--font-display)] text-4xl font-semibold text-[#2D5016] drop-shadow-[0_8px_20px_rgba(255,255,255,0.45)] dark:text-[#FDF8F0] sm:text-5xl md:text-6xl">
             Celebration Details
           </h1>
-          <p className="mx-auto mt-4 max-w-xl font-[family-name:var(--font-body)] text-sm leading-relaxed text-[#4A2040]/80 dark:text-[#FDF8F0]/80 sm:text-base">
+          <p className="mx-auto mt-4 max-w-xl font-[family-name:var(--font-body)] text-sm leading-relaxed text-[#4A2040] dark:text-[#FDF8F0]/80 sm:text-base">
             A colorful little guide to the day, with all the timing, farm
             charm, and joyful details you&apos;ll need.
           </p>

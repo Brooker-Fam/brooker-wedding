@@ -52,7 +52,7 @@ function CountdownCard({ value, label }: TimeUnit) {
           {display}
         </span>
       </motion.div>
-      <span className="text-xs font-semibold tracking-widest text-warm-white/90 uppercase drop-shadow-[0_1px_2px_rgba(29,68,32,0.3)] sm:text-sm">
+      <span className="text-xs font-semibold tracking-widest text-forest/70 uppercase dark:text-cream/80 sm:text-sm">
         {label}
       </span>
     </div>
@@ -82,7 +82,7 @@ export default function Countdown() {
   if (!mounted) {
     return (
       <div className="flex flex-col items-center gap-4">
-        <div className="text-sm text-sage/60">Loading...</div>
+        <div className="text-sm text-sage/80 dark:text-sage-light/80">Loading...</div>
       </div>
     );
   }
@@ -94,7 +94,7 @@ export default function Countdown() {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6, delay: 0.3 }}
     >
-      <p className="text-xs font-semibold tracking-[0.2em] text-warm-white/90 uppercase drop-shadow-[0_1px_2px_rgba(29,68,32,0.3)] sm:text-sm">
+      <p className="text-xs font-semibold tracking-[0.2em] text-forest/70 uppercase dark:text-cream/80 sm:text-sm">
         Celebration Countdown
       </p>
 
