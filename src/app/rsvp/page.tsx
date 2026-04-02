@@ -403,11 +403,13 @@ function RsvpLookup({ onFound, onBack }: { onFound: (d: RsvpData) => void; onBac
   const [results, setResults] = useState<{ id: number; name: string; email: string; attending: boolean }[]>([]);
   const [searched, setSearched] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
   useEffect(() => {
     if (search.trim().length < 2) return;
     const timer = setTimeout(() => {
       setLoading(true);
+      setError("");
       fetch(`/api/rsvp/lookup?q=${encodeURIComponent(search.trim())}`)
         .then((r) => r.json())
         .then((json) => {
@@ -420,7 +422,7 @@ function RsvpLookup({ onFound, onBack }: { onFound: (d: RsvpData) => void; onBac
               .then((full) => { if (full?.data) onFound(full.data); });
           }
         })
-        .catch(() => { setResults([]); setSearched(true); })
+        .catch(() => { setResults([]); setSearched(true); setError("Something went wrong. Please try again."); })
         .finally(() => setLoading(false));
     }, 400);
     return () => clearTimeout(timer);
@@ -456,7 +458,11 @@ function RsvpLookup({ onFound, onBack }: { onFound: (d: RsvpData) => void; onBac
         </div>
       )}
 
-      {!loading && searched && results.length === 0 && (
+      {!loading && error && (
+        <p className="py-4 text-center text-sm text-red-600 dark:text-red-400">{error}</p>
+      )}
+
+      {!loading && !error && searched && results.length === 0 && (
         <p className="py-4 text-center text-sm text-deep-plum/60 dark:text-cream/60">No results found. Try a different name or email.</p>
       )}
 
