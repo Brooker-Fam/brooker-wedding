@@ -130,10 +130,10 @@ export default function RSVPPage() {
   return (
     <div className="enchanted-bg relative min-h-screen overflow-hidden">
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
-        <div className="absolute top-0 left-1/2 h-[24rem] w-[24rem] -translate-x-1/2 rounded-full bg-[#F2D7D5]/35 blur-3xl dark:bg-[#6D4A53]/20" />
-        <div className="absolute top-40 right-[-4rem] h-56 w-56 rounded-full bg-[#B8A9C9]/30 blur-3xl dark:bg-[#4B375F]/18" />
-        <div className="absolute top-[34rem] left-[-5rem] h-64 w-64 rounded-full bg-[#D4A574]/25 blur-3xl dark:bg-[#6B4226]/18" />
-        <div className="absolute bottom-24 right-1/4 h-52 w-52 rounded-full bg-[#9CAF88]/20 blur-3xl dark:bg-[#2D5016]/20" />
+        <div className="absolute top-0 left-1/2 h-[24rem] w-[24rem] -translate-x-1/2 rounded-full bg-[#F2D7D5]/35 blur-3xl dark:bg-[#2D5016]/14" />
+        <div className="absolute top-40 right-[-4rem] h-56 w-56 rounded-full bg-[#B8A9C9]/30 blur-3xl dark:bg-[#D4A574]/10" />
+        <div className="absolute top-[34rem] left-[-5rem] h-64 w-64 rounded-full bg-[#D4A574]/25 blur-3xl dark:bg-[#9CAF88]/10" />
+        <div className="absolute bottom-24 right-1/4 h-52 w-52 rounded-full bg-[#9CAF88]/20 blur-3xl dark:bg-[#B8A9C9]/8" />
       </div>
       <ConfettiCelebration active={showConfetti} />
       <div className="relative mx-auto max-w-2xl px-4 pt-24 pb-16 sm:pt-28 sm:pb-20">
@@ -221,12 +221,12 @@ function PageHeader() {
       <motion.h1 initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="font-[family-name:var(--font-cormorant-garamond)] text-4xl font-semibold text-forest dark:text-cream sm:text-5xl">
         Join Our Celebration
       </motion.h1>
-      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.35 }} className="mt-6 rounded-[2rem] border border-[#9CAF88]/20 bg-gradient-to-br from-[#F8FBF4] via-[#FDF8F0] to-[#F2D7D5]/28 p-6 shadow-[0_18px_45px_rgba(156,175,136,0.14)] dark:border-[#9CAF88]/15 dark:bg-gradient-to-br dark:from-[#142515] dark:via-[#112011] dark:to-[#241A26] sm:p-8">
+      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.35 }} className="mt-6 rounded-[2rem] border border-[#9CAF88]/20 bg-gradient-to-br from-[#F8FBF4] via-[#FDF8F0] to-[#F2D7D5]/28 p-6 shadow-[0_18px_45px_rgba(156,175,136,0.14)] dark:border-soft-gold/30 dark:bg-[#162618]/70 dark:shadow-[0_4px_20px_rgba(196,154,60,0.15)] sm:p-8">
         <p className="mb-5 font-[family-name:var(--font-display)] text-4xl font-semibold tracking-tight lining-nums text-[#2D5016] dark:text-[#FDF8F0] sm:text-5xl">
           Saturday, June 27, 2026
         </p>
         <div className="grid gap-4 sm:grid-cols-2">
-          <div className="rounded-[1.6rem] border border-[#9CAF88]/15 bg-gradient-to-br from-white via-[#F8FBF4] to-[#F6EBDD] px-5 py-4 shadow-[0_12px_24px_rgba(156,175,136,0.12)] dark:border-[#9CAF88]/10 dark:bg-gradient-to-br dark:from-[#1A2B1C] dark:to-[#19251A]">
+          <div className="rounded-[1.6rem] border border-[#9CAF88]/15 bg-gradient-to-br from-white via-[#F8FBF4] to-[#F6EBDD] px-5 py-4 shadow-[0_12px_24px_rgba(156,175,136,0.12)] dark:border-sage/20 dark:bg-[#1B2C1D]/80 dark:shadow-[0_8px_24px_rgba(0,0,0,0.2)]">
             <p className="mb-1 font-[family-name:var(--font-body)] text-xs font-semibold tracking-[0.24em] text-[#9CAF88] uppercase dark:text-[#A8C090]">
               Arrival
             </p>
@@ -235,7 +235,7 @@ function PageHeader() {
               <span className="text-lg sm:text-xl">PM</span>
             </p>
           </div>
-          <div className="rounded-[1.6rem] border border-[#B8A9C9]/18 bg-gradient-to-br from-white via-[#FBF7FC] to-[#F2D7D5]/40 px-5 py-4 shadow-[0_12px_24px_rgba(184,169,201,0.14)] dark:border-[#B8A9C9]/12 dark:bg-gradient-to-br dark:from-[#221C28] dark:to-[#19251A]">
+          <div className="rounded-[1.6rem] border border-[#B8A9C9]/18 bg-gradient-to-br from-white via-[#FBF7FC] to-[#F2D7D5]/40 px-5 py-4 shadow-[0_12px_24px_rgba(184,169,201,0.14)] dark:border-soft-gold/15 dark:bg-[#1B2C1D]/80 dark:shadow-[0_8px_24px_rgba(0,0,0,0.2)]">
             <p className="mb-1 font-[family-name:var(--font-body)] text-xs font-semibold tracking-[0.24em] text-[#9CAF88] uppercase dark:text-[#A8C090]">
               Ceremony
             </p>
@@ -331,7 +331,7 @@ function RsvpForm({ initialData, isEditing, onSuccess, onCancel }: { initialData
   };
 
   return (
-    <motion.form onSubmit={handleSubmit} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }} className="space-y-6 rounded-[2rem] border border-white/50 bg-white/72 p-6 shadow-[0_18px_40px_rgba(95,61,87,0.12)] backdrop-blur-md dark:border-white/8 dark:bg-[#162618]/72 sm:p-8">
+    <motion.form onSubmit={handleSubmit} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }} className="space-y-6 rounded-[2rem] border border-white/50 bg-white/72 p-6 shadow-[0_18px_40px_rgba(95,61,87,0.12)] backdrop-blur-md dark:border-soft-gold/15 dark:bg-[#162618]/70 dark:shadow-[0_8px_40px_rgba(0,0,0,0.2)] sm:p-8">
       <div>
         <label className="mb-2 block text-sm font-medium text-deep-plum dark:text-cream">Your Name <span className="text-soft-gold">*</span></label>
         <input type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder="Enter your name" className="enchanted-input" required />
