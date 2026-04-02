@@ -136,7 +136,7 @@ export default function Navigation() {
                         ? "rounded-full bg-soft-gold/10 text-soft-gold-dark hover:bg-soft-gold/20 dark:bg-soft-gold/15 dark:text-soft-gold-light"
                         : isActive
                           ? "text-forest dark:text-cream"
-                          : "text-forest/60 hover:text-forest dark:text-cream/60 dark:hover:text-cream"
+                          : "text-forest/75 hover:text-forest dark:text-cream/75 dark:hover:text-cream"
                     }`}
                   >
                     {link.sparkle && (

@@ -125,13 +125,13 @@ export default function DetailsPage() {
           className="mb-12 text-center"
         >
           <HeartGarland size="lg" className="mb-5" />
-          <div className="mb-3 font-[family-name:var(--font-body)] text-sm font-medium tracking-widest text-[#9CAF88] uppercase dark:text-[#A8C090]">
+          <div className="mb-3 font-[family-name:var(--font-body)] text-sm font-medium tracking-widest text-[#6B8F5B] uppercase dark:text-[#C0D4A8]">
             A Few Lovely Details
           </div>
           <h1 className="font-[family-name:var(--font-display)] text-4xl font-semibold text-[#2D5016] drop-shadow-[0_8px_20px_rgba(255,255,255,0.45)] dark:text-[#FDF8F0] sm:text-5xl md:text-6xl">
             Celebration Details
           </h1>
-          <p className="mx-auto mt-4 max-w-xl font-[family-name:var(--font-body)] text-sm leading-relaxed text-[#4A2040]/65 dark:text-[#FDF8F0]/65 sm:text-base">
+          <p className="mx-auto mt-4 max-w-xl font-[family-name:var(--font-body)] text-sm leading-relaxed text-[#4A2040]/80 dark:text-[#FDF8F0]/80 sm:text-base">
             A colorful little guide to the day, with all the timing, farm
             charm, and joyful details you&apos;ll need.
           </p>
@@ -161,7 +161,7 @@ export default function DetailsPage() {
             <p className="font-[family-name:var(--font-cormorant-garamond)] text-4xl font-bold text-soft-gold dark:text-soft-gold-light sm:text-5xl md:text-6xl">
               June 27, 2026
             </p>
-            <p className="mt-2 text-sm font-medium text-sage-dark/60 dark:text-sage-light/60 sm:text-base">
+            <p className="mt-2 text-sm font-medium text-sage-dark/85 dark:text-sage-light/85 sm:text-base">
               Arrival 12:30 PM · Ceremony 1:00 PM
             </p>
           </div>
@@ -298,7 +298,7 @@ export default function DetailsPage() {
           >
             RSVP Here
           </Link>
-          <p className="mt-4 font-[family-name:var(--font-body)] text-sm text-[#9CAF88]/65 dark:text-[#9CAF88]/50">
+          <p className="mt-4 font-[family-name:var(--font-body)] text-sm text-[#6B8F5B] dark:text-[#9CAF88]/85">
             June 27, 2026
           </p>
         </motion.div>

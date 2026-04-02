@@ -140,14 +140,14 @@ export default function GamesArcadePage() {
           <h1 className="font-[family-name:var(--font-cormorant-garamond)] text-4xl font-semibold text-forest dark:text-cream sm:text-5xl">
             Fun & Games
           </h1>
-          <p className="mt-4 text-base text-deep-plum/60 dark:text-cream/60">
+          <p className="mt-4 text-base text-deep-plum/80 dark:text-cream/80">
             Play a few games while you&apos;re here! Just for fun.
           </p>
 
           <div className="mx-auto mt-6 flex items-center justify-center gap-3">
-            <div className="h-px w-16 bg-lavender/40 dark:bg-lavender/25" />
-            <span className="text-lavender/50 dark:text-lavender/35">&#10022;</span>
-            <div className="h-px w-16 bg-lavender/40 dark:bg-lavender/25" />
+            <div className="h-px w-16 bg-lavender/50 dark:bg-lavender/40" />
+            <span className="text-lavender/70 dark:text-lavender/55">&#10022;</span>
+            <div className="h-px w-16 bg-lavender/50 dark:bg-lavender/40" />
           </div>
         </motion.div>
 
@@ -180,7 +180,7 @@ export default function GamesArcadePage() {
                 }`}
               >
                 {!isAvailable && (
-                  <span className="absolute top-3 right-3 rounded-full bg-lavender/15 px-2.5 py-0.5 text-[10px] font-medium text-lavender">
+                  <span className="absolute top-3 right-3 rounded-full bg-lavender/20 px-2.5 py-0.5 text-[10px] font-medium text-deep-plum/70 dark:text-cream/70">
                     Coming Soon
                   </span>
                 )}
@@ -194,13 +194,13 @@ export default function GamesArcadePage() {
                 </h3>
 
                 {/* Description */}
-                <p className="mt-1 text-center text-sm text-deep-plum/60 dark:text-cream/60">
+                <p className="mt-1 text-center text-sm text-deep-plum/80 dark:text-cream/80">
                   {game.description}
                 </p>
 
                 {/* Difficulty */}
                 <div className="mt-3 flex items-center justify-center gap-2">
-                  <span className="text-xs text-deep-plum/55 dark:text-cream/55">
+                  <span className="text-xs text-deep-plum/75 dark:text-cream/75">
                     Difficulty
                   </span>
                   <DifficultyDots count={game.difficulty} />
@@ -235,7 +235,7 @@ export default function GamesArcadePage() {
         </div>
 
         {/* Footer */}
-        <div className="mt-12 text-center text-xs text-sage/55 dark:text-sage-light/55">
+        <div className="mt-12 text-center text-xs text-sage/80 dark:text-sage-light/75">
           Matt & Brittany &middot; June 27, 2026
         </div>
       </div>

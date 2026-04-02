@@ -39,7 +39,7 @@ export default function Home() {
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
-            className="mb-4 text-sm font-medium tracking-[0.3em] text-sage-dark/70 uppercase dark:text-sage-light/70 sm:text-base"
+            className="mb-4 text-sm font-medium tracking-[0.3em] text-sage-dark/90 uppercase dark:text-sage-light/90 sm:text-base"
           >
             Together with their families
           </motion.p>
@@ -82,7 +82,7 @@ export default function Home() {
               <p className="font-[family-name:var(--font-cormorant-garamond)] text-4xl font-bold text-soft-gold dark:text-soft-gold-light sm:text-5xl md:text-6xl">
                 June 27, 2026
               </p>
-              <p className="mt-2 text-sm font-medium text-sage-dark/60 dark:text-sage-light/60 sm:text-base">
+              <p className="mt-2 text-sm font-medium text-sage-dark/80 dark:text-sage-light/85 sm:text-base">
                 Arrival 12:30 PM · Ceremony 1:00 PM
               </p>
             </div>
@@ -244,14 +244,14 @@ export default function Home() {
                   <span className="font-[family-name:var(--font-cormorant-garamond)] text-base font-semibold text-forest dark:text-cream">
                     Emmett
                   </span>
-                  <span className="text-xs text-forest/50 dark:text-cream/50">Age {getAge(2014, 3, 29)}</span>
+                  <span className="text-xs text-forest/70 dark:text-cream/70">Age {getAge(2014, 3, 29)}</span>
                 </div>
                 <div className="flex flex-col items-center gap-1.5">
                   <span className="text-2xl sm:text-3xl">&#128142;</span>
                   <span className="font-[family-name:var(--font-cormorant-garamond)] text-base font-semibold text-forest dark:text-cream">
                     Sapphire
                   </span>
-                  <span className="text-xs text-forest/50 dark:text-cream/50">Age {getAge(2017, 6, 19)}</span>
+                  <span className="text-xs text-forest/70 dark:text-cream/70">Age {getAge(2017, 6, 19)}</span>
                 </div>
               </div>
             </div>
@@ -270,12 +270,12 @@ export default function Home() {
           <p className="font-[family-name:var(--font-cormorant-garamond)] text-xl font-semibold text-forest/60 dark:text-cream/60 sm:text-2xl">
             Matt & Brittany
           </p>
-          <p className="mt-1 text-sm text-forest/40 dark:text-cream/40">June 27, 2026</p>
+          <p className="mt-1 text-sm text-forest/70 dark:text-cream/70">June 27, 2026</p>
 
           <div className="mt-5">
             <a
               href="mailto:brookerhousehold@gmail.com"
-              className="text-sm text-soft-gold/60 transition-colors hover:text-soft-gold"
+              className="text-sm text-soft-gold/80 transition-colors hover:text-soft-gold"
             >
               brookerhousehold@gmail.com
             </a>
@@ -283,12 +283,12 @@ export default function Home() {
 
           <div className="mt-8 flex items-center justify-center gap-3">
             <div className="h-px w-12 bg-sage/10 dark:bg-sage/20" />
-            <span className="text-xs text-forest/30 dark:text-cream/30">2026</span>
+            <span className="text-xs text-forest/60 dark:text-cream/60">2026</span>
             <div className="h-px w-12 bg-sage/10 dark:bg-sage/20" />
           </div>
 
           <motion.p
-            className="mt-5 text-xs text-forest/30 dark:text-cream/30"
+            className="mt-5 text-xs text-forest/60 dark:text-cream/60"
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
             viewport={{ once: true }}

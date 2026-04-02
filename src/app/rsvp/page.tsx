@@ -228,7 +228,7 @@ function PageHeader() {
           Arrival 12:30 PM · Ceremony 1:00 PM
         </p>
       </motion.div>
-      <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.4 }} className="mt-3 text-base text-deep-plum/60 dark:text-cream/60">
+      <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.4 }} className="mt-3 text-base text-deep-plum/75 dark:text-cream/75">
         We would be so happy to have you there. Please let us know if you can make it!
       </motion.p>
       <motion.div initial={{ scaleX: 0 }} animate={{ scaleX: 1 }} transition={{ delay: 0.5, duration: 0.8 }} className="mx-auto mt-6 flex items-center justify-center gap-3">
@@ -325,7 +325,7 @@ function RsvpForm({ initialData, isEditing, onSuccess, onCancel }: { initialData
       <div>
         <label className="mb-2 block text-sm font-medium text-deep-plum dark:text-cream">Phone Number <span className="text-soft-gold">*</span></label>
         <input type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="(555) 123-4567" className="enchanted-input" required />
-        <p className="mt-1.5 text-xs text-deep-plum/55 dark:text-cream/55">Required -- we may text any updates about the celebration</p>
+        <p className="mt-1.5 text-xs text-deep-plum/75 dark:text-cream/75">Required -- we may text any updates about the celebration</p>
       </div>
       <div>
         <label className="mb-2 block text-sm font-medium text-deep-plum dark:text-cream">Mailing Address <span className="text-soft-gold">*</span></label>
@@ -337,7 +337,7 @@ function RsvpForm({ initialData, isEditing, onSuccess, onCancel }: { initialData
           rows={3}
           required
         />
-        <p className="mt-1.5 text-xs text-deep-plum/55 dark:text-cream/55">Required -- helpful for sending any mail your way</p>
+        <p className="mt-1.5 text-xs text-deep-plum/75 dark:text-cream/75">Required -- helpful for sending any mail your way</p>
       </div>
 
       <div>
@@ -346,10 +346,10 @@ function RsvpForm({ initialData, isEditing, onSuccess, onCancel }: { initialData
           <button type="button" onClick={() => {
             setAttending(true);
             setAttendeeEntries((prev) => prev.length > 0 ? prev : [{ name: name.trim(), type: "adult" }]);
-          }} className={`flex-1 rounded-xl border-2 px-4 py-3 text-sm font-medium transition-all duration-300 ${attending ? "border-soft-gold bg-soft-gold text-white shadow-md" : "border-lavender/30 bg-warm-white text-deep-plum/65 hover:border-lavender/50 dark:border-sage/30 dark:bg-[#162618] dark:text-cream/65 dark:hover:border-sage/50"}`}>
+          }} className={`flex-1 rounded-xl border-2 px-4 py-3 text-sm font-medium transition-all duration-300 ${attending ? "border-soft-gold bg-soft-gold text-white shadow-md" : "border-lavender/30 bg-warm-white text-deep-plum/80 hover:border-lavender/50 dark:border-sage/30 dark:bg-[#162618] dark:text-cream/80 dark:hover:border-sage/50"}`}>
             Joyfully Accept
           </button>
-          <button type="button" onClick={() => setAttending(false)} className={`flex-1 rounded-xl border-2 px-4 py-3 text-sm font-medium transition-all duration-300 ${!attending ? "border-lavender bg-lavender text-white shadow-md" : "border-lavender/30 bg-warm-white text-deep-plum/65 hover:border-lavender/50 dark:border-sage/30 dark:bg-[#162618] dark:text-cream/65 dark:hover:border-sage/50"}`}>
+          <button type="button" onClick={() => setAttending(false)} className={`flex-1 rounded-xl border-2 px-4 py-3 text-sm font-medium transition-all duration-300 ${!attending ? "border-lavender bg-lavender text-white shadow-md" : "border-lavender/30 bg-warm-white text-deep-plum/80 hover:border-lavender/50 dark:border-sage/30 dark:bg-[#162618] dark:text-cream/80 dark:hover:border-sage/50"}`}>
             Regretfully Decline
           </button>
         </div>
@@ -429,17 +429,17 @@ function RsvpForm({ initialData, isEditing, onSuccess, onCancel }: { initialData
                   Add Another Guest
                 </button>
               </div>
-              <div className="mt-3 text-xs text-deep-plum/55 dark:text-cream/55">
+              <div className="mt-3 text-xs text-deep-plum/75 dark:text-cream/75">
                 {attendeeEntries.filter((entry) => entry.name.trim() && entry.type === "adult").length} adults · {attendeeEntries.filter((entry) => entry.name.trim() && entry.type === "child").length} children
               </div>
-              <p className="mt-1.5 text-xs text-deep-plum/55 dark:text-cream/55">
+              <p className="mt-1.5 text-xs text-deep-plum/75 dark:text-cream/75">
                 Please add a guest row for each person included with this RSVP.
               </p>
             </div>
             <div>
               <label className="mb-2 block text-sm font-medium text-deep-plum dark:text-cream">Dietary Needs</label>
               <input type="text" value={dietaryRestrictions} onChange={(e) => setDietaryRestrictions(e.target.value)} placeholder="Allergies, vegan, gluten-free..." className="enchanted-input" />
-              <p className="mt-1.5 text-xs text-deep-plum/55 dark:text-cream/55">Optional -- let us know about any food needs</p>
+              <p className="mt-1.5 text-xs text-deep-plum/75 dark:text-cream/75">Optional -- let us know about any food needs</p>
             </div>
           </motion.div>
         )}
@@ -497,53 +497,53 @@ function RsvpViewer({ data, onEdit }: { data: RsvpData; onEdit: () => void }) {
         </div>
         <div>
           <h3 className="text-lg font-semibold text-deep-plum dark:text-cream">{data.name}</h3>
-          <p className="text-sm text-deep-plum/60 dark:text-cream/60">{data.email}</p>
+          <p className="text-sm text-deep-plum/75 dark:text-cream/75">{data.email}</p>
         </div>
       </div>
 
       <div className="space-y-3 text-sm">
         {data.phone && (
           <div className="flex justify-between border-b border-sage/10 pb-2 dark:border-sage/20">
-            <span className="text-deep-plum/60 dark:text-cream/60">Phone</span>
+            <span className="text-deep-plum/75 dark:text-cream/75">Phone</span>
             <span className="font-medium text-deep-plum dark:text-cream">{data.phone}</span>
           </div>
         )}
         {data.mailing_address && (
           <div className="border-b border-sage/10 pb-2 dark:border-sage/20">
-            <span className="text-deep-plum/60 dark:text-cream/60">Mailing Address</span>
+            <span className="text-deep-plum/75 dark:text-cream/75">Mailing Address</span>
             <p className="mt-1 whitespace-pre-line font-medium text-deep-plum dark:text-cream">{data.mailing_address}</p>
           </div>
         )}
         <div className="flex justify-between border-b border-sage/10 pb-2 dark:border-sage/20">
-          <span className="text-deep-plum/60 dark:text-cream/60">Status</span>
+          <span className="text-deep-plum/75 dark:text-cream/75">Status</span>
           <span className="font-medium text-deep-plum dark:text-cream">{data.attending ? "Joyfully Attending" : "Regretfully Declining"}</span>
         </div>
         {data.attending && (
           <div className="flex justify-between border-b border-sage/10 pb-2 dark:border-sage/20">
-            <span className="text-deep-plum/60 dark:text-cream/60">Guests</span>
+            <span className="text-deep-plum/75 dark:text-cream/75">Guests</span>
             <span className="font-medium text-deep-plum dark:text-cream">{data.adult_count} {data.adult_count === 1 ? "adult" : "adults"}{data.child_count > 0 ? `, ${data.child_count} ${data.child_count === 1 ? "child" : "children"}` : ""}</span>
           </div>
         )}
         {data.dietary_restrictions && (
           <div className="flex justify-between border-b border-sage/10 pb-2 dark:border-sage/20">
-            <span className="text-deep-plum/60 dark:text-cream/60">Dietary Needs</span>
+            <span className="text-deep-plum/75 dark:text-cream/75">Dietary Needs</span>
             <span className="font-medium text-deep-plum dark:text-cream">{data.dietary_restrictions}</span>
           </div>
         )}
         {data.attendee_names && (
           <div className="border-b border-sage/10 pb-2 dark:border-sage/20">
-            <span className="text-deep-plum/60 dark:text-cream/60">Guests Included</span>
+            <span className="text-deep-plum/75 dark:text-cream/75">Guests Included</span>
             <p className="mt-1 whitespace-pre-line font-medium text-deep-plum dark:text-cream">{data.attendee_names}</p>
           </div>
         )}
         {data.message && (
           <div className="border-b border-sage/10 pb-2 dark:border-sage/20">
-            <span className="text-deep-plum/60 dark:text-cream/60">Your Note</span>
+            <span className="text-deep-plum/75 dark:text-cream/75">Your Note</span>
             <p className="mt-1 font-medium text-deep-plum dark:text-cream">{data.message}</p>
           </div>
         )}
         <div className="flex justify-between pb-2">
-          <span className="text-deep-plum/60 dark:text-cream/60">Show Name Publicly</span>
+          <span className="text-deep-plum/75 dark:text-cream/75">Show Name Publicly</span>
           <span className="font-medium text-deep-plum dark:text-cream">{data.public_display ? "Yes" : "No"}</span>
         </div>
       </div>
@@ -624,7 +624,7 @@ function RsvpLookup({ onFound, onBack }: { onFound: (d: RsvpData) => void; onBac
       )}
 
       {!loading && !error && searched && results.length === 0 && (
-        <p className="py-4 text-center text-sm text-deep-plum/60 dark:text-cream/60">No results found. Try a different name or email.</p>
+        <p className="py-4 text-center text-sm text-deep-plum/75 dark:text-cream/75">No results found. Try a different name or email.</p>
       )}
 
       {!loading && results.length > 1 && (
@@ -632,7 +632,7 @@ function RsvpLookup({ onFound, onBack }: { onFound: (d: RsvpData) => void; onBac
           {results.map((r) => (
             <button key={r.id} onClick={() => selectResult(r.id)} className="w-full rounded-xl border border-sage/20 p-3 text-left transition-all hover:border-sage/50 hover:bg-sage/5 dark:border-sage/30 dark:hover:bg-sage/10">
               <span className="font-medium text-deep-plum dark:text-cream">{r.name}</span>
-              <span className="ml-2 text-sm text-deep-plum/50 dark:text-cream/50">{r.email}</span>
+              <span className="ml-2 text-sm text-deep-plum/75 dark:text-cream/75">{r.email}</span>
             </button>
           ))}
         </div>
@@ -671,7 +671,7 @@ function WhosComingSection() {
           Who&apos;s Coming
         </h3>
         {total > 0 && (
-          <p className="mb-4 text-center text-sm text-deep-plum/60 dark:text-cream/60">
+          <p className="mb-4 text-center text-sm text-deep-plum/75 dark:text-cream/75">
             {total} {total === 1 ? "guest" : "guests"} attending so far
           </p>
         )}
