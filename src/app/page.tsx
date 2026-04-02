@@ -239,9 +239,6 @@ export default function Home() {
                 transition={{ duration: 0.6 }}
                 className="inline-block rounded-3xl border border-soft-gold/20 bg-warm-white/70 p-8 shadow-[0_8px_40px_rgba(196,154,60,0.1)] backdrop-blur-sm dark:border-soft-gold/15 dark:bg-[#162618]/70 dark:shadow-[0_8px_40px_rgba(0,0,0,0.2)] sm:p-12"
               >
-                <p className="mb-3 text-xs font-medium tracking-[0.25em] text-soft-gold/70 uppercase sm:text-sm">
-                  We would love to see you there
-                </p>
                 <h3 className="fairy-sparkle mb-5 font-[family-name:var(--font-cormorant-garant)] text-3xl font-bold text-forest dark:text-cream sm:mb-6 sm:text-4xl">
                   Join the Celebration
                 </h3>
