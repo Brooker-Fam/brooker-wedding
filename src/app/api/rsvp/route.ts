@@ -1,6 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { query } from "@/lib/db";
 
+const ADMIN_SECRET = process.env.ADMIN_SECRET || "zoe";
+
+function isAdmin(request: NextRequest): boolean {
+  const { searchParams } = new URL(request.url);
+  return searchParams.get("secret") === ADMIN_SECRET;
+}
+
 /** Normalize a phone string to E.164 (+1XXXXXXXXXX) for SMS. Returns null if empty. */
 function normalizePhone(raw: string | undefined | null): string | null {
   if (!raw) return null;
@@ -123,7 +130,11 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ data: result[0] });
     }
 
-    // Full list — unlisted admin page only
+    // Full list — requires admin secret
+    if (!isAdmin(request)) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     const result = await query(
       "SELECT * FROM rsvps ORDER BY created_at DESC"
     );
@@ -146,6 +157,10 @@ export async function GET(request: NextRequest) {
 }
 
 export async function PUT(request: NextRequest) {
+  if (!isAdmin(request)) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   try {
     const body = await request.json();
     const {
@@ -234,6 +249,10 @@ export async function PUT(request: NextRequest) {
 }
 
 export async function DELETE(request: NextRequest) {
+  if (!isAdmin(request)) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   try {
     const { searchParams } = new URL(request.url);
     const id = searchParams.get("id");
