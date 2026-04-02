@@ -17,6 +17,8 @@ interface RsvpData {
   potluck_dish: string;
   message: string;
   phone: string | null;
+  mailing_address: string;
+  attendee_names: string;
   public_display: boolean;
   created_at: string;
   updated_at?: string;
@@ -202,6 +204,8 @@ function RsvpForm({ initialData, isEditing, onSuccess, onCancel }: { initialData
   const [potluckDish, setPotluckDish] = useState(initialData?.potluck_dish ?? "");
   const [message, setMessage] = useState(initialData?.message ?? "");
   const [phone, setPhone] = useState(initialData?.phone ?? "");
+  const [mailingAddress, setMailingAddress] = useState(initialData?.mailing_address ?? "");
+  const [attendeeNames, setAttendeeNames] = useState(initialData?.attendee_names ?? "");
   const [publicDisplay, setPublicDisplay] = useState(initialData?.public_display ?? false);
   const [submitting, setSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
@@ -222,6 +226,8 @@ function RsvpForm({ initialData, isEditing, onSuccess, onCancel }: { initialData
         dietary_restrictions: dietaryRestrictions.trim(),
         potluck_dish: potluckDish.trim(),
         message: message.trim(),
+        mailing_address: mailingAddress.trim(),
+        attendee_names: attending ? attendeeNames.trim() : "",
         public_display: publicDisplay,
         phone: phone.trim(),
       };
@@ -253,6 +259,17 @@ function RsvpForm({ initialData, isEditing, onSuccess, onCancel }: { initialData
         <label className="mb-2 block text-sm font-medium text-deep-plum dark:text-cream">Phone Number</label>
         <input type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="(555) 123-4567" className="enchanted-input" />
         <p className="mt-1.5 text-xs text-deep-plum/55 dark:text-cream/55">Optional -- we may text updates about the celebration</p>
+      </div>
+      <div>
+        <label className="mb-2 block text-sm font-medium text-deep-plum dark:text-cream">Mailing Address</label>
+        <textarea
+          value={mailingAddress}
+          onChange={(e) => setMailingAddress(e.target.value)}
+          placeholder="Street address, city, state, ZIP"
+          className="enchanted-input min-h-[90px] resize-y"
+          rows={3}
+        />
+        <p className="mt-1.5 text-xs text-deep-plum/55 dark:text-cream/55">Optional -- helpful if we need to send anything your way</p>
       </div>
 
       <div>
@@ -291,6 +308,17 @@ function RsvpForm({ initialData, isEditing, onSuccess, onCancel }: { initialData
               <label className="mb-2 block text-sm font-medium text-deep-plum dark:text-cream">Dietary Needs</label>
               <input type="text" value={dietaryRestrictions} onChange={(e) => setDietaryRestrictions(e.target.value)} placeholder="Allergies, vegan, gluten-free..." className="enchanted-input" />
               <p className="mt-1.5 text-xs text-deep-plum/55 dark:text-cream/55">Optional -- let us know about any food needs</p>
+            </div>
+            <div>
+              <label className="mb-2 block text-sm font-medium text-deep-plum dark:text-cream">Names of Everyone Included in This RSVP</label>
+              <textarea
+                value={attendeeNames}
+                onChange={(e) => setAttendeeNames(e.target.value)}
+                placeholder={"Matt Brooker\nBrittany Brooker\nEmmett Brooker"}
+                className="enchanted-input min-h-[100px] resize-y"
+                rows={4}
+              />
+              <p className="mt-1.5 text-xs text-deep-plum/55 dark:text-cream/55">Optional -- list each guest name on its own line, or separate names with commas</p>
             </div>
           </motion.div>
         )}
@@ -359,6 +387,12 @@ function RsvpViewer({ data, onEdit }: { data: RsvpData; onEdit: () => void }) {
             <span className="font-medium text-deep-plum dark:text-cream">{data.phone}</span>
           </div>
         )}
+        {data.mailing_address && (
+          <div className="border-b border-sage/10 pb-2 dark:border-sage/20">
+            <span className="text-deep-plum/60 dark:text-cream/60">Mailing Address</span>
+            <p className="mt-1 whitespace-pre-line font-medium text-deep-plum dark:text-cream">{data.mailing_address}</p>
+          </div>
+        )}
         <div className="flex justify-between border-b border-sage/10 pb-2 dark:border-sage/20">
           <span className="text-deep-plum/60 dark:text-cream/60">Status</span>
           <span className="font-medium text-deep-plum dark:text-cream">{data.attending ? "Joyfully Attending" : "Regretfully Declining"}</span>
@@ -373,6 +407,12 @@ function RsvpViewer({ data, onEdit }: { data: RsvpData; onEdit: () => void }) {
           <div className="flex justify-between border-b border-sage/10 pb-2 dark:border-sage/20">
             <span className="text-deep-plum/60 dark:text-cream/60">Dietary Needs</span>
             <span className="font-medium text-deep-plum dark:text-cream">{data.dietary_restrictions}</span>
+          </div>
+        )}
+        {data.attendee_names && (
+          <div className="border-b border-sage/10 pb-2 dark:border-sage/20">
+            <span className="text-deep-plum/60 dark:text-cream/60">Guests Included</span>
+            <p className="mt-1 whitespace-pre-line font-medium text-deep-plum dark:text-cream">{data.attendee_names}</p>
           </div>
         )}
         {data.message && (

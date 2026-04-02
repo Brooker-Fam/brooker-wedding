@@ -14,6 +14,8 @@ interface Rsvp {
   potluck_dish: string;
   message: string;
   phone: string | null;
+  mailing_address: string;
+  attendee_names: string;
   public_display: boolean;
   created_at: string;
 }
@@ -124,9 +126,11 @@ export default function AdminPage() {
                     <th className="px-3 py-3">Name</th>
                     <th className="px-3 py-3">Email</th>
                     <th className="px-3 py-3">Phone</th>
+                    <th className="px-3 py-3">Mailing</th>
                     <th className="px-3 py-3">Attending</th>
                     <th className="px-3 py-3">Adults</th>
                     <th className="px-3 py-3">Kids</th>
+                    <th className="px-3 py-3">Guest Names</th>
                     <th className="px-3 py-3">Dietary</th>
                     <th className="px-3 py-3">Potluck</th>
                     <th className="px-3 py-3">Public</th>
@@ -163,6 +167,14 @@ export default function AdminPage() {
                           />
                         </td>
                         <td className="px-2 py-2">
+                          <textarea
+                            value={editForm.mailing_address}
+                            onChange={(e) => set("mailing_address", e.target.value)}
+                            className="enchanted-input min-h-[84px] min-w-[14rem] !py-1.5 text-sm"
+                            rows={3}
+                          />
+                        </td>
+                        <td className="px-2 py-2">
                           <button
                             type="button"
                             onClick={() => set("attending", !editForm.attending)}
@@ -189,6 +201,14 @@ export default function AdminPage() {
                             value={editForm.child_count}
                             onChange={(e) => set("child_count", Number(e.target.value))}
                             className="enchanted-input !w-16 !py-1.5 text-sm"
+                          />
+                        </td>
+                        <td className="px-2 py-2">
+                          <textarea
+                            value={editForm.attendee_names}
+                            onChange={(e) => set("attendee_names", e.target.value)}
+                            className="enchanted-input min-h-[84px] min-w-[12rem] !py-1.5 text-sm"
+                            rows={3}
                           />
                         </td>
                         <td className="px-2 py-2">
@@ -242,6 +262,7 @@ export default function AdminPage() {
                         <td className="px-3 py-3 font-medium text-deep-plum dark:text-cream">{r.name}</td>
                         <td className="px-3 py-3 text-deep-plum/70 dark:text-cream/70">{r.email}</td>
                         <td className="px-3 py-3 text-deep-plum/70 dark:text-cream/70">{r.phone || "—"}</td>
+                        <td className="max-w-[14rem] whitespace-pre-line px-3 py-3 text-deep-plum/70 dark:text-cream/70">{r.mailing_address || "—"}</td>
                         <td className="px-3 py-3">
                           <span className={`inline-block rounded-full px-2 py-0.5 text-xs font-medium ${r.attending ? "bg-sage/20 text-sage" : "bg-lavender/20 text-lavender"}`}>
                             {r.attending ? "Yes" : "No"}
@@ -249,6 +270,7 @@ export default function AdminPage() {
                         </td>
                         <td className="px-3 py-3 text-deep-plum/70 dark:text-cream/70">{r.adult_count}</td>
                         <td className="px-3 py-3 text-deep-plum/70 dark:text-cream/70">{r.child_count}</td>
+                        <td className="max-w-[12rem] whitespace-pre-line px-3 py-3 text-deep-plum/70 dark:text-cream/70">{r.attendee_names || "—"}</td>
                         <td className="px-3 py-3 text-deep-plum/70 dark:text-cream/70">{r.dietary_restrictions || "—"}</td>
                         <td className="px-3 py-3 text-deep-plum/70 dark:text-cream/70">{r.potluck_dish || "—"}</td>
                         <td className="px-3 py-3 text-deep-plum/70 dark:text-cream/70">{r.public_display ? "Yes" : "No"}</td>

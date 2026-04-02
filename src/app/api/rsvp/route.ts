@@ -32,6 +32,8 @@ export async function POST(request: NextRequest) {
       message = "",
       public_display = false,
       phone = "",
+      mailing_address = "",
+      attendee_names = "",
     } = body;
 
     if (!name || typeof name !== "string" || name.trim().length === 0) {
@@ -55,9 +57,9 @@ export async function POST(request: NextRequest) {
     const normalizedPhone = normalizePhone(phone);
 
     const result = await query(
-      `INSERT INTO rsvps (name, email, attending, guest_count, adult_count, child_count, dietary_restrictions, potluck_dish, message, public_display, phone)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
-       RETURNING id, name, email, attending, guest_count, adult_count, child_count, dietary_restrictions, potluck_dish, message, public_display, phone, created_at`,
+      `INSERT INTO rsvps (name, email, attending, guest_count, adult_count, child_count, dietary_restrictions, potluck_dish, message, public_display, phone, mailing_address, attendee_names)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
+       RETURNING id, name, email, attending, guest_count, adult_count, child_count, dietary_restrictions, potluck_dish, message, public_display, phone, mailing_address, attendee_names, created_at`,
       [
         name.trim(),
         email.trim().toLowerCase(),
@@ -70,6 +72,8 @@ export async function POST(request: NextRequest) {
         message.trim(),
         Boolean(public_display),
         normalizedPhone,
+        mailing_address.trim(),
+        attendee_names.trim(),
       ]
     );
 
@@ -101,7 +105,7 @@ export async function GET(request: NextRequest) {
     // Single RSVP lookup by id — no auth required
     if (id) {
       const result = await query(
-        "SELECT id, name, email, attending, guest_count, adult_count, child_count, dietary_restrictions, potluck_dish, message, public_display, phone, created_at, updated_at FROM rsvps WHERE id = $1",
+        "SELECT id, name, email, attending, guest_count, adult_count, child_count, dietary_restrictions, potluck_dish, message, public_display, phone, mailing_address, attendee_names, created_at, updated_at FROM rsvps WHERE id = $1",
         [Number(id)]
       );
 
@@ -160,6 +164,8 @@ export async function PUT(request: NextRequest) {
       message = "",
       public_display = false,
       phone = "",
+      mailing_address = "",
+      attendee_names = "",
     } = body;
 
     if (!id) {
@@ -194,9 +200,10 @@ export async function PUT(request: NextRequest) {
        SET name = $1, email = $2, attending = $3, guest_count = $4,
            adult_count = $5, child_count = $6,
            dietary_restrictions = $7, potluck_dish = $8, message = $9,
-           public_display = $10, phone = $11, updated_at = NOW()
-       WHERE id = $12
-       RETURNING id, name, email, attending, guest_count, adult_count, child_count, dietary_restrictions, potluck_dish, message, public_display, phone, created_at, updated_at`,
+           public_display = $10, phone = $11, mailing_address = $12,
+           attendee_names = $13, updated_at = NOW()
+       WHERE id = $14
+       RETURNING id, name, email, attending, guest_count, adult_count, child_count, dietary_restrictions, potluck_dish, message, public_display, phone, mailing_address, attendee_names, created_at, updated_at`,
       [
         name.trim(),
         email.trim().toLowerCase(),
@@ -209,6 +216,8 @@ export async function PUT(request: NextRequest) {
         message.trim(),
         Boolean(public_display),
         normalizedPhone,
+        mailing_address.trim(),
+        attendee_names.trim(),
         Number(id),
       ]
     );
