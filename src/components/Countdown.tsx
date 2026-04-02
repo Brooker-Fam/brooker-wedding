@@ -89,39 +89,41 @@ export default function Countdown() {
 
   return (
     <motion.div
-      className="flex flex-col items-center gap-5"
+      className="rounded-3xl border border-soft-gold/20 bg-warm-white/70 px-6 py-7 shadow-[0_8px_40px_rgba(196,154,60,0.1)] backdrop-blur-sm dark:border-soft-gold/15 dark:bg-[#162618]/70 dark:shadow-[0_8px_40px_rgba(0,0,0,0.2)] sm:px-8 sm:py-8"
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6, delay: 0.3 }}
     >
-      <p className="text-xs font-semibold tracking-[0.2em] text-forest/70 uppercase dark:text-cream/80 sm:text-sm">
-        Celebration Countdown
-      </p>
+      <div className="flex flex-col items-center gap-5 text-center">
+        <p className="text-xs font-semibold tracking-[0.2em] text-forest/70 uppercase dark:text-cream/80 sm:text-sm">
+          Celebration Countdown
+        </p>
 
-      <div className="flex items-center gap-3 sm:gap-5 md:gap-6">
-        {timeLeft.map((unit, index) => (
-          <div key={unit.label} className="flex items-center gap-3 sm:gap-5 md:gap-6">
-            <CountdownCard value={unit.value} label={unit.label} />
-            {index < timeLeft.length - 1 && (
-              <div className="flex flex-col gap-1.5">
-                <motion.span
-                  className="block h-1.5 w-1.5 rounded-full bg-soft-gold/50 sm:h-2 sm:w-2"
-                  animate={{ opacity: [1, 0.3, 1] }}
-                  transition={{ duration: 1.5, repeat: Infinity }}
-                />
-                <motion.span
-                  className="block h-1.5 w-1.5 rounded-full bg-soft-gold/50 sm:h-2 sm:w-2"
-                  animate={{ opacity: [1, 0.3, 1] }}
-                  transition={{
-                    duration: 1.5,
-                    repeat: Infinity,
-                    delay: 0.5,
-                  }}
-                />
-              </div>
-            )}
-          </div>
-        ))}
+        <div className="flex items-center gap-3 sm:gap-5 md:gap-6">
+          {timeLeft.map((unit, index) => (
+            <div key={unit.label} className="flex items-center gap-3 sm:gap-5 md:gap-6">
+              <CountdownCard value={unit.value} label={unit.label} />
+              {index < timeLeft.length - 1 && (
+                <div className="flex flex-col gap-1.5">
+                  <motion.span
+                    className="block h-1.5 w-1.5 rounded-full bg-soft-gold/50 sm:h-2 sm:w-2"
+                    animate={{ opacity: [1, 0.3, 1] }}
+                    transition={{ duration: 1.5, repeat: Infinity }}
+                  />
+                  <motion.span
+                    className="block h-1.5 w-1.5 rounded-full bg-soft-gold/50 sm:h-2 sm:w-2"
+                    animate={{ opacity: [1, 0.3, 1] }}
+                    transition={{
+                      duration: 1.5,
+                      repeat: Infinity,
+                      delay: 0.5,
+                    }}
+                  />
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
       </div>
     </motion.div>
   );

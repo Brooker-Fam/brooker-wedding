@@ -183,7 +183,12 @@ export default function Home() {
                 viewport={{ once: true }}
                 transition={{ duration: 0.5, delay: 0.1 }}
               >
-                <PixelButton href="/details" variant="success" size="md">
+                <PixelButton
+                  href="/details"
+                  variant="success"
+                  size="lg"
+                  className="px-12 py-4 text-base sm:px-16 sm:py-5 sm:text-lg"
+                >
                   Celebration Details
                 </PixelButton>
               </motion.div>
