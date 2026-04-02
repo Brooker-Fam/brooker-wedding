@@ -24,6 +24,57 @@ interface RsvpData {
   updated_at?: string;
 }
 
+type GuestType = "adult" | "child";
+
+interface AttendeeEntry {
+  name: string;
+  type: GuestType;
+}
+
+function parseAttendeeEntries(raw: string | undefined, fallbackAdults: number, fallbackChildren: number, primaryName?: string): AttendeeEntry[] {
+  const lines = (raw ?? "")
+    .split(/\n+/)
+    .flatMap((line) => line.split(","))
+    .map((line) => line.trim())
+    .filter(Boolean);
+
+  if (lines.length > 0) {
+    return lines.map((line) => {
+      const adultMatch = line.match(/\s*\((adult|child)\)\s*$/i);
+      if (adultMatch) {
+        return {
+          name: line.replace(/\s*\((adult|child)\)\s*$/i, "").trim(),
+          type: adultMatch[1].toLowerCase() === "child" ? "child" : "adult",
+        };
+      }
+
+      return { name: line, type: "adult" };
+    });
+  }
+
+  const entries: AttendeeEntry[] = [];
+  const adults = Math.max(1, fallbackAdults || 1);
+  const children = Math.max(0, fallbackChildren || 0);
+
+  for (let i = 0; i < adults; i++) {
+    entries.push({ name: i === 0 ? primaryName ?? "" : "", type: "adult" });
+  }
+
+  for (let i = 0; i < children; i++) {
+    entries.push({ name: "", type: "child" });
+  }
+
+  return entries.length > 0 ? entries : [{ name: primaryName ?? "", type: "adult" }];
+}
+
+function serializeAttendeeEntries(entries: AttendeeEntry[]): string {
+  return entries
+    .map((entry) => ({ ...entry, name: entry.name.trim() }))
+    .filter((entry) => entry.name)
+    .map((entry) => `${entry.name} (${entry.type === "child" ? "Child" : "Adult"})`)
+    .join("\n");
+}
+
 type PageState = "loading" | "fresh" | "lookup" | "viewing" | "editing" | "success";
 
 function getCookie(name: string): string | null {
@@ -198,14 +249,19 @@ function RsvpForm({ initialData, isEditing, onSuccess, onCancel }: { initialData
   const [name, setName] = useState(initialData?.name ?? "");
   const [email, setEmail] = useState(initialData?.email ?? "");
   const [attending, setAttending] = useState(initialData?.attending ?? true);
-  const [adultCount, setAdultCount] = useState(initialData?.adult_count ?? 1);
-  const [childCount, setChildCount] = useState(initialData?.child_count ?? 0);
   const [dietaryRestrictions, setDietaryRestrictions] = useState(initialData?.dietary_restrictions ?? "");
   const [potluckDish, setPotluckDish] = useState(initialData?.potluck_dish ?? "");
   const [message, setMessage] = useState(initialData?.message ?? "");
   const [phone, setPhone] = useState(initialData?.phone ?? "");
   const [mailingAddress, setMailingAddress] = useState(initialData?.mailing_address ?? "");
-  const [attendeeNames, setAttendeeNames] = useState(initialData?.attendee_names ?? "");
+  const [attendeeEntries, setAttendeeEntries] = useState<AttendeeEntry[]>(
+    parseAttendeeEntries(
+      initialData?.attendee_names,
+      initialData?.adult_count ?? 1,
+      initialData?.child_count ?? 0,
+      initialData?.name ?? ""
+    )
+  );
   const [publicDisplay, setPublicDisplay] = useState(initialData?.public_display ?? false);
   const [submitting, setSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
@@ -214,6 +270,10 @@ function RsvpForm({ initialData, isEditing, onSuccess, onCancel }: { initialData
     e.preventDefault();
     if (!name.trim()) { setErrorMessage("Please enter your name so we know who to expect!"); return; }
     if (!email.trim() || !email.includes("@")) { setErrorMessage("We need a valid email to keep you updated!"); return; }
+    const filledAttendees = attendeeEntries.filter((entry) => entry.name.trim());
+    const adultCount = filledAttendees.filter((entry) => entry.type === "adult").length;
+    const childCount = filledAttendees.filter((entry) => entry.type === "child").length;
+    if (attending && filledAttendees.length === 0) { setErrorMessage("Please list at least one guest name for this RSVP."); return; }
     setSubmitting(true);
     setErrorMessage("");
 
@@ -227,7 +287,7 @@ function RsvpForm({ initialData, isEditing, onSuccess, onCancel }: { initialData
         potluck_dish: potluckDish.trim(),
         message: message.trim(),
         mailing_address: mailingAddress.trim(),
-        attendee_names: attending ? attendeeNames.trim() : "",
+        attendee_names: attending ? serializeAttendeeEntries(attendeeEntries) : "",
         public_display: publicDisplay,
         phone: phone.trim(),
       };
@@ -275,7 +335,10 @@ function RsvpForm({ initialData, isEditing, onSuccess, onCancel }: { initialData
       <div>
         <label className="mb-3 block text-sm font-medium text-deep-plum dark:text-cream">Will you be joining us?</label>
         <div className="flex gap-3">
-          <button type="button" onClick={() => setAttending(true)} className={`flex-1 rounded-xl border-2 px-4 py-3 text-sm font-medium transition-all duration-300 ${attending ? "border-soft-gold bg-soft-gold text-white shadow-md" : "border-lavender/30 bg-warm-white text-deep-plum/65 hover:border-lavender/50 dark:border-sage/30 dark:bg-[#162618] dark:text-cream/65 dark:hover:border-sage/50"}`}>
+          <button type="button" onClick={() => {
+            setAttending(true);
+            setAttendeeEntries((prev) => prev.length > 0 ? prev : [{ name: name.trim(), type: "adult" }]);
+          }} className={`flex-1 rounded-xl border-2 px-4 py-3 text-sm font-medium transition-all duration-300 ${attending ? "border-soft-gold bg-soft-gold text-white shadow-md" : "border-lavender/30 bg-warm-white text-deep-plum/65 hover:border-lavender/50 dark:border-sage/30 dark:bg-[#162618] dark:text-cream/65 dark:hover:border-sage/50"}`}>
             Joyfully Accept
           </button>
           <button type="button" onClick={() => setAttending(false)} className={`flex-1 rounded-xl border-2 px-4 py-3 text-sm font-medium transition-all duration-300 ${!attending ? "border-lavender bg-lavender text-white shadow-md" : "border-lavender/30 bg-warm-white text-deep-plum/65 hover:border-lavender/50 dark:border-sage/30 dark:bg-[#162618] dark:text-cream/65 dark:hover:border-sage/50"}`}>
@@ -288,37 +351,85 @@ function RsvpForm({ initialData, isEditing, onSuccess, onCancel }: { initialData
         {attending && (
           <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.4, ease: "easeInOut" }} className="space-y-6 overflow-hidden">
             <div>
-              <label className="mb-3 block text-sm font-medium text-deep-plum dark:text-cream">Number of Guests</label>
-              <div className="space-y-3">
-                <div className="flex items-center gap-4">
-                  <button type="button" onClick={() => setAdultCount(Math.max(1, adultCount - 1))} className="flex h-10 w-10 items-center justify-center rounded-full border border-sage/30 bg-warm-white text-lg text-deep-plum transition-all hover:border-sage hover:bg-sage/10 dark:border-sage/40 dark:bg-[#162618] dark:text-cream dark:hover:bg-sage/20">-</button>
-                  <span className="min-w-[2rem] text-center font-[family-name:var(--font-cormorant-garamond)] text-2xl font-semibold text-deep-plum dark:text-cream">{adultCount}</span>
-                  <button type="button" onClick={() => setAdultCount(Math.min(10, adultCount + 1))} className="flex h-10 w-10 items-center justify-center rounded-full border border-sage/30 bg-warm-white text-lg text-deep-plum transition-all hover:border-sage hover:bg-sage/10 dark:border-sage/40 dark:bg-[#162618] dark:text-cream dark:hover:bg-sage/20">+</button>
-                  <span className="text-sm text-deep-plum/60 dark:text-cream/60">{adultCount === 1 ? "adult" : "adults"}</span>
-                </div>
-                <div className="flex items-center gap-4">
-                  <button type="button" onClick={() => setChildCount(Math.max(0, childCount - 1))} className="flex h-10 w-10 items-center justify-center rounded-full border border-sage/30 bg-warm-white text-lg text-deep-plum transition-all hover:border-sage hover:bg-sage/10 dark:border-sage/40 dark:bg-[#162618] dark:text-cream dark:hover:bg-sage/20">-</button>
-                  <span className="min-w-[2rem] text-center font-[family-name:var(--font-cormorant-garamond)] text-2xl font-semibold text-deep-plum dark:text-cream">{childCount}</span>
-                  <button type="button" onClick={() => setChildCount(Math.min(10, childCount + 1))} className="flex h-10 w-10 items-center justify-center rounded-full border border-sage/30 bg-warm-white text-lg text-deep-plum transition-all hover:border-sage hover:bg-sage/10 dark:border-sage/40 dark:bg-[#162618] dark:text-cream dark:hover:bg-sage/20">+</button>
-                  <span className="text-sm text-deep-plum/60 dark:text-cream/60">{childCount === 1 ? "child" : "children"}</span>
-                </div>
+              <div className="mb-3 flex items-center justify-between gap-3">
+                <label className="block text-sm font-medium text-deep-plum dark:text-cream">Who Is Included in This RSVP?</label>
+                <button
+                  type="button"
+                  onClick={() => setAttendeeEntries((prev) => [...prev, { name: "", type: "adult" }])}
+                  className="rounded-lg border border-sage/30 px-3 py-1.5 text-xs font-medium text-sage transition-all hover:bg-sage/10 dark:border-sage/40 dark:text-sage-light dark:hover:bg-sage/20"
+                >
+                  Add Guest
+                </button>
               </div>
+              <div className="space-y-3">
+                {attendeeEntries.map((entry, index) => (
+                  <div key={index} className="rounded-2xl border border-sage/15 bg-warm-white/70 p-4 dark:border-sage/20 dark:bg-[#162618]/60">
+                    <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+                      <input
+                        type="text"
+                        value={entry.name}
+                        onChange={(e) =>
+                          setAttendeeEntries((prev) =>
+                            prev.map((item, itemIndex) =>
+                              itemIndex === index ? { ...item, name: e.target.value } : item
+                            )
+                          )
+                        }
+                        placeholder={`Guest ${index + 1} name`}
+                        className="enchanted-input flex-1"
+                      />
+                      <div className="flex gap-2">
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setAttendeeEntries((prev) =>
+                              prev.map((item, itemIndex) =>
+                                itemIndex === index ? { ...item, type: "adult" } : item
+                              )
+                            )
+                          }
+                          className={`rounded-lg px-3 py-2 text-xs font-medium transition-all ${entry.type === "adult" ? "bg-soft-gold text-white shadow-sm" : "border border-sage/30 text-deep-plum hover:bg-sage/10 dark:border-sage/40 dark:text-cream dark:hover:bg-sage/20"}`}
+                        >
+                          Adult
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setAttendeeEntries((prev) =>
+                              prev.map((item, itemIndex) =>
+                                itemIndex === index ? { ...item, type: "child" } : item
+                              )
+                            )
+                          }
+                          className={`rounded-lg px-3 py-2 text-xs font-medium transition-all ${entry.type === "child" ? "bg-lavender text-white shadow-sm" : "border border-sage/30 text-deep-plum hover:bg-sage/10 dark:border-sage/40 dark:text-cream dark:hover:bg-sage/20"}`}
+                        >
+                          Child
+                        </button>
+                        {attendeeEntries.length > 1 && (
+                          <button
+                            type="button"
+                            onClick={() => setAttendeeEntries((prev) => prev.filter((_, itemIndex) => itemIndex !== index))}
+                            className="rounded-lg border border-blush-dark/30 px-3 py-2 text-xs font-medium text-deep-plum transition-all hover:bg-blush/30 dark:border-blush-dark/40 dark:text-cream dark:hover:bg-blush-dark/20"
+                          >
+                            Remove
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <div className="mt-3 text-xs text-deep-plum/55 dark:text-cream/55">
+                {attendeeEntries.filter((entry) => entry.name.trim() && entry.type === "adult").length} adults · {attendeeEntries.filter((entry) => entry.name.trim() && entry.type === "child").length} children
+              </div>
+              <p className="mt-1.5 text-xs text-deep-plum/55 dark:text-cream/55">
+                Please add a guest row for each person included with this RSVP.
+              </p>
             </div>
             <div>
               <label className="mb-2 block text-sm font-medium text-deep-plum dark:text-cream">Dietary Needs</label>
               <input type="text" value={dietaryRestrictions} onChange={(e) => setDietaryRestrictions(e.target.value)} placeholder="Allergies, vegan, gluten-free..." className="enchanted-input" />
               <p className="mt-1.5 text-xs text-deep-plum/55 dark:text-cream/55">Optional -- let us know about any food needs</p>
-            </div>
-            <div>
-              <label className="mb-2 block text-sm font-medium text-deep-plum dark:text-cream">Names of Everyone Included in This RSVP</label>
-              <textarea
-                value={attendeeNames}
-                onChange={(e) => setAttendeeNames(e.target.value)}
-                placeholder={"Matt Brooker\nBrittany Brooker\nEmmett Brooker"}
-                className="enchanted-input min-h-[100px] resize-y"
-                rows={4}
-              />
-              <p className="mt-1.5 text-xs text-deep-plum/55 dark:text-cream/55">Optional -- list each guest name on its own line, or separate names with commas</p>
             </div>
           </motion.div>
         )}
