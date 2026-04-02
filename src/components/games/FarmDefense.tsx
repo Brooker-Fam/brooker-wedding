@@ -547,6 +547,8 @@ export default function FarmDefense() {
     const canvasWidth = canvasAreaW;
     const canvasHeight = canvasAreaH;
 
+    canvas.style.width = canvasWidth + 'px';
+    canvas.style.height = canvasHeight + 'px';
     canvas.width = canvasWidth * dpr;
     canvas.height = canvasHeight * dpr;
 
@@ -1983,7 +1985,7 @@ export default function FarmDefense() {
       <div className="relative flex-1 min-h-0">
         <canvas
           ref={canvasRef}
-          className="absolute inset-0 w-full h-full"
+          className="absolute inset-0"
           onClick={(e) => {
             if (isPlaying) handleCanvasClick(e.clientX, e.clientY);
           }}

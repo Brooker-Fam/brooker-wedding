@@ -405,6 +405,8 @@ class EggCatcherEngine {
     this.canvasW = w;
     this.canvasH = h;
     const dpr = window.devicePixelRatio || 1;
+    this.canvas.style.width = w + 'px';
+    this.canvas.style.height = h + 'px';
     this.canvas.width = w * dpr;
     this.canvas.height = h * dpr;
     this.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
@@ -1465,8 +1467,6 @@ export default function EggCatcher({ onGameOver }: EggCatcherProps) {
         width={canvasSize.width}
         height={canvasSize.height}
         style={{
-          width: canvasSize.width,
-          height: canvasSize.height,
           maxWidth: "100%",
           maxHeight: "100%",
           imageRendering: "pixelated",

@@ -529,6 +529,7 @@ export default function CakeCreator({ onGameOver }: CakeCreatorProps) {
     const w = rect.width;
     const availableH = window.innerHeight - rect.top;
     const h = Math.min(Math.max(availableH, 380), 650);
+    canvas.style.width = `${w}px`;
     canvas.style.height = `${h}px`;
     const dpr = window.devicePixelRatio || 1;
     canvas.width = w * dpr;
@@ -1270,8 +1271,6 @@ export default function CakeCreator({ onGameOver }: CakeCreatorProps) {
         ref={canvasRef}
         style={{
           display: 'block',
-          width: '100%',
-          height: 650,
           maxHeight: 'calc(100dvh - 70px)',
           borderRadius: 8,
           cursor: 'pointer',

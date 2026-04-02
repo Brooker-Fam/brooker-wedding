@@ -152,6 +152,8 @@ export default function HereComesTheBride({ onGameOver }: HereComesTheBrideProps
     if (!canvas || !container) return;
     const rect = container.getBoundingClientRect();
     const dpr = window.devicePixelRatio || 1;
+    canvas.style.width = rect.width + 'px';
+    canvas.style.height = rect.height + 'px';
     canvas.width = rect.width * dpr;
     canvas.height = rect.height * dpr;
     const ctx = canvas.getContext('2d');
@@ -1596,7 +1598,7 @@ export default function HereComesTheBride({ onGameOver }: HereComesTheBrideProps
     >
       <canvas
         ref={canvasRef}
-        style={{ display: 'block', width: '100%', height: '100%' }}
+        style={{ display: 'block' }}
       />
 
       {phase === 'start' && (
