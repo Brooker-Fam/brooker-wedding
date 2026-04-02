@@ -222,7 +222,7 @@ export default function DetailsPage() {
               49 Clarks Mill Rd, Greenwich, NY 12834
             </p>
             <p>
-              Our farm in beautiful Greenwich, NY. We can&apos;t wait to welcome you!
+              We&apos;re excited to welcome you to our family&apos;s farm in Greenwich, NY.
             </p>
           </SectionCard>
 
