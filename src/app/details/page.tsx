@@ -240,9 +240,10 @@ export default function DetailsPage() {
             accent="blush"
           >
             <p>
-              We already tied the knot on January 1st -- now it&apos;s time to celebrate
-              with all of you! Join us for an afternoon of music, dancing, games,
-              and good times on our farm.
+              We exchanged vows on January 1st with 20 of our closest loved
+              ones -- now it&apos;s time to celebrate with all of you! Join us for
+              a day filled with good food, music, dancing, games, and good
+              times on our farm.
             </p>
           </SectionCard>
 
