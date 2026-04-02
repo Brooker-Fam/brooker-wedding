@@ -247,7 +247,7 @@ export default function Home() {
                   food, fun games, and the people we love most.
                 </p>
                 <PixelButton href="/rsvp" variant="primary" size="lg">
-                  RSVP Now
+                  RSVP Here
                 </PixelButton>
               </motion.div>
             </div>

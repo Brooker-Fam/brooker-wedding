@@ -330,7 +330,7 @@ export default function DetailsPage() {
             href="/rsvp"
             className="inline-block rounded-xl bg-[#D4A574] px-8 py-3.5 font-[family-name:var(--font-body)] text-base font-semibold text-white shadow-md shadow-[#D4A574]/20 transition-all hover:bg-[#c4955a] hover:shadow-lg"
           >
-            RSVP Now
+            RSVP Here
           </Link>
           <p className="mt-4 font-[family-name:var(--font-body)] text-sm text-[#9CAF88]/65 dark:text-[#9CAF88]/50">
             June 27, 2026
