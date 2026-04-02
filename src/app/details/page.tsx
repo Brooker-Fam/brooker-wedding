@@ -181,9 +181,24 @@ export default function DetailsPage() {
             <p className="mb-2 font-[family-name:var(--font-body)] text-sm font-medium tracking-wider text-[#9CAF88] uppercase dark:text-[#A8C090]">
               Saturday, June 27, 2026
             </p>
-            <p className="font-[family-name:var(--font-display)] text-5xl font-bold text-[#2D5016] dark:text-[#FDF8F0] sm:text-6xl">
-              1:00 PM
-            </p>
+            <div className="space-y-3">
+              <div>
+                <p className="font-[family-name:var(--font-body)] text-xs font-semibold tracking-[0.24em] text-[#9CAF88] uppercase dark:text-[#A8C090]">
+                  Arrival
+                </p>
+                <p className="font-[family-name:var(--font-display)] text-3xl font-bold text-[#2D5016] dark:text-[#FDF8F0] sm:text-4xl">
+                  12:30 PM
+                </p>
+              </div>
+              <div>
+                <p className="font-[family-name:var(--font-body)] text-xs font-semibold tracking-[0.24em] text-[#9CAF88] uppercase dark:text-[#A8C090]">
+                  Ceremony
+                </p>
+                <p className="font-[family-name:var(--font-display)] text-4xl font-bold text-[#2D5016] dark:text-[#FDF8F0] sm:text-5xl">
+                  1:00 PM
+                </p>
+              </div>
+            </div>
           </div>
         </motion.div>
 
