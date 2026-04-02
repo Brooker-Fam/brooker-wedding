@@ -48,7 +48,7 @@ function CountdownCard({ value, label }: TimeUnit) {
         animate={{ opacity: 1 }}
         transition={{ duration: 0.3 }}
       >
-        <span className="font-[family-name:var(--font-cormorant-garamond)] text-2xl font-bold tracking-wide text-forest dark:text-cream sm:text-4xl md:text-5xl">
+        <span className="font-[family-name:var(--font-display)] text-2xl font-semibold tracking-tight lining-nums text-forest dark:text-cream sm:text-4xl md:text-5xl">
           {display}
         </span>
       </motion.div>
