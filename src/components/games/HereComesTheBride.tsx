@@ -370,7 +370,7 @@ export default function HereComesTheBride({ onGameOver }: HereComesTheBrideProps
       hitWindow: 30,
       hit: false,
       missed: false,
-      radius: type === 'dodge' ? 28 : 22,
+      radius: type === 'dodge' ? 36 : 30,
       animalType: type === 'dodge' ? animalTypes[Math.floor(Math.random() * animalTypes.length)] : undefined,
     });
     g.lastPromptTime = g.frame;
@@ -924,7 +924,7 @@ export default function HereComesTheBride({ onGameOver }: HereComesTheBrideProps
         ctx.arc(p.x, p.y, r, 0, Math.PI * 2);
         ctx.fill();
         ctx.strokeStyle = '#FF69B4';
-        ctx.lineWidth = 2;
+        ctx.lineWidth = 3;
         ctx.beginPath();
         ctx.arc(p.x, p.y, r, 0, Math.PI * 2);
         ctx.stroke();
@@ -946,7 +946,7 @@ export default function HereComesTheBride({ onGameOver }: HereComesTheBrideProps
         ctx.arc(p.x, p.y, r, 0, Math.PI * 2);
         ctx.fill();
         ctx.strokeStyle = '#4169E1';
-        ctx.lineWidth = 2;
+        ctx.lineWidth = 3;
         ctx.beginPath();
         ctx.arc(p.x, p.y, r, 0, Math.PI * 2);
         ctx.stroke();
@@ -969,7 +969,7 @@ export default function HereComesTheBride({ onGameOver }: HereComesTheBrideProps
         ctx.arc(p.x, p.y, r, 0, Math.PI * 2);
         ctx.fill();
         ctx.strokeStyle = '#DAA520';
-        ctx.lineWidth = 2;
+        ctx.lineWidth = 3;
         ctx.beginPath();
         ctx.arc(p.x, p.y, r, 0, Math.PI * 2);
         ctx.stroke();
@@ -1627,29 +1627,28 @@ export default function HereComesTheBride({ onGameOver }: HereComesTheBrideProps
             {'\uD83D\uDC70'}
           </div>
           <div style={{
-            fontSize: 'clamp(10px, 2.5vw, 12px)',
-            lineHeight: 1.8,
-            maxWidth: '320px',
-            marginBottom: '20px',
+            fontSize: 'clamp(13px, 3vw, 16px)',
+            lineHeight: 2,
+            maxWidth: '360px',
+            marginBottom: '24px',
           }}>
-            <p style={{ marginBottom: '8px' }}>Walk Brittany down the aisle!</p>
-            <p style={{ color: '#FFB6C1' }}>
+            <p style={{ marginBottom: '12px', color: '#4A2020', fontWeight: 'bold' }}>
+              Click the circles as they scroll toward Brittany!
+            </p>
+            <p style={{ color: '#B03060' }}>
               {'\uD83C\uDF38'} <strong>CATCH</strong> falling petals
             </p>
-            <p style={{ color: '#87CEEB' }}>
+            <p style={{ color: '#2E6B8A' }}>
               {'\uD83D\uDC4B'} <strong>WAVE</strong> back at guests
             </p>
-            <p style={{ color: '#FFD700' }}>
+            <p style={{ color: '#B8860B' }}>
               {'\uD83C\uDFB5'} <strong>STEP</strong> to the music
             </p>
-            <p style={{ color: '#FF6347' }}>
+            <p style={{ color: '#CC3300' }}>
               {'\uD83D\uDC14'} <strong>DODGE</strong> farm animals
             </p>
-            <p style={{ marginTop: '10px', color: '#DDA0DD', fontSize: 'clamp(9px, 2vw, 10px)' }}>
-              Tap the prompts or use keyboard arrows!
-            </p>
-            <p style={{ color: '#DDA0DD', fontSize: 'clamp(9px, 2vw, 10px)' }}>
-              Build combos to fill the Grace Meter!
+            <p style={{ marginTop: '12px', color: '#6B3A6B', fontSize: 'clamp(11px, 2.5vw, 13px)' }}>
+              Space/Enter or arrow keys also work!
             </p>
           </div>
           {highScore > 0 && (
