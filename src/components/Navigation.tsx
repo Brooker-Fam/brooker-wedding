@@ -8,9 +8,9 @@ import { useTheme } from "@/components/ThemeProvider";
 
 const navLinks = [
   { href: "/", label: "Home" },
-  { href: "/games", label: "Games", sparkle: true },
   { href: "/rsvp", label: "RSVP" },
   { href: "/details", label: "Details" },
+  { href: "/games", label: "Games", sparkle: true },
 ];
 
 function ThemeToggle({ className = "" }: { className?: string }) {
