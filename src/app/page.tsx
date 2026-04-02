@@ -147,35 +147,6 @@ export default function Home() {
           {/* Countdown */}
           <Countdown />
 
-          {/* Scroll indicator */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 2 }}
-            className="mt-10 flex flex-col items-center gap-2 sm:mt-14"
-          >
-            <span className="text-xs font-semibold tracking-widest text-forest/60 uppercase dark:text-cream/60">
-              Explore
-            </span>
-            <motion.div
-              animate={{ y: [0, 6, 0] }}
-              transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-              className="text-forest/40 dark:text-cream/40"
-            >
-              <svg
-                width="20"
-                height="20"
-                viewBox="0 0 20 20"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <path d="M10 4v12M5 11l5 5 5-5" />
-              </svg>
-            </motion.div>
-          </motion.div>
         </div>
       </section>
 
@@ -185,7 +156,7 @@ export default function Home() {
       {/* =============================================
           RSVP CTA SECTION
           ============================================= */}
-      <section className="relative px-4 py-20 sm:py-28">
+      <section className="relative px-4 py-10 sm:py-14">
         {/* Soft gradient background */}
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-sage/10 to-transparent" />
 
