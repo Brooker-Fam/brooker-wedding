@@ -181,6 +181,142 @@ const BUILDING_DATA: Record<
   pavilion: { emoji: "🎪", label: "Party Pavilion", goldCost: 120, woodCost: 12, desc: "Host the ultimate celebration!", scoreValue: 100 },
 };
 
+// ============================================================
+// QUEST SYSTEM
+// ============================================================
+
+interface Quest {
+  id: string;
+  text: string;
+  hint: string;
+  check: (g: Game) => boolean;
+  reward?: { gold?: number; wood?: number; grit?: number; wisdom?: number; charm?: number };
+  rewardText?: string;
+}
+
+const QUEST_CHAIN: Quest[] = [
+  {
+    id: "plant_first",
+    text: "\uD83C\uDF31 Plant your first crop",
+    hint: "Walk to the brown garden plots on the right and press action",
+    check: (g) => g.crops.length > 0 || g.cropsHarvested > 0,
+    reward: { gold: 5 },
+    rewardText: "+5g",
+  },
+  {
+    id: "chop_wood",
+    text: "\uD83E\uDE93 Gather wood (0/5)",
+    hint: "Walk up to trees along the edges and press action to chop",
+    check: (g) => g.woodEverGathered >= 5,
+    reward: { gold: 10 },
+    rewardText: "+10g",
+  },
+  {
+    id: "build_coop",
+    text: "\uD83C\uDFDA\uFE0F Build a chicken coop",
+    hint: "Face the yellow coop tiles and press action (costs 40g + 5 wood)",
+    check: (g) => g.buildings.includes("coop"),
+    reward: { charm: 2 },
+    rewardText: "+2 charm",
+  },
+  {
+    id: "visit_town",
+    text: "\uD83C\uDFEA Visit the town shop",
+    hint: "Follow the dirt path south, cross a bridge, head to the bottom-right",
+    check: (g) => g.discoveredZones.has("\uD83C\uDFD8\uFE0F The Town"),
+    reward: { gold: 15 },
+    rewardText: "+15g",
+  },
+  {
+    id: "buy_animal",
+    text: "\uD83D\uDC04 Buy a large animal",
+    hint: "Build a barn first, then buy a goat, cow, or pig at the shop",
+    check: (g) => g.placedAnimals.some((a) => ["goat", "cow", "sheep", "pig", "donkey"].includes(a.type)),
+    reward: { gold: 20 },
+    rewardText: "+20g",
+  },
+  {
+    id: "explore_forest",
+    text: "\uD83C\uDF32 Explore the forest",
+    hint: "Head north through the trees \u2014 there are paths between them",
+    check: (g) => g.discoveredZones.has("\uD83C\uDF32 The Forest"),
+    reward: { wisdom: 3 },
+    rewardText: "+3 wisdom",
+  },
+  {
+    id: "cross_river",
+    text: "\uD83C\uDF09 Cross the river",
+    hint: "Find a bridge \u2014 there are three across the river",
+    check: (g) =>
+      g.discoveredZones.has("\uD83C\uDF0A The River") &&
+      (g.discoveredZones.has("\uD83C\uDF38 The Meadow") || g.discoveredZones.has("\uD83C\uDFD8\uFE0F The Town")),
+    reward: { gold: 15 },
+    rewardText: "+15g",
+  },
+  {
+    id: "build_barn",
+    text: "\uD83C\uDFD7\uFE0F Build a barn",
+    hint: "Face the red barn tiles and press action (costs 80g + 8 wood)",
+    check: (g) => g.buildings.includes("barn"),
+    reward: { grit: 3 },
+    rewardText: "+3 grit",
+  },
+  {
+    id: "find_ruins",
+    text: "\uD83C\uDFDB\uFE0F Discover the ancient ruins",
+    hint: "Explore the southwest corner of the map, past the river",
+    check: (g) => g.discoveredZones.has("\uD83C\uDFDB\uFE0F Ancient Ruins"),
+    reward: { wisdom: 3, gold: 20 },
+    rewardText: "+3 wisdom, +20g",
+  },
+  {
+    id: "reach_mountain",
+    text: "\u26F0\uFE0F Reach the mountain",
+    hint: "The mountain path opens on Day 11. Head northeast.",
+    check: (g) => g.discoveredZones.has("\u26F0\uFE0F Mountain Path"),
+    reward: { grit: 3 },
+    rewardText: "+3 grit",
+  },
+  {
+    id: "build_pavilion",
+    text: "\uD83C\uDFAA Build the Party Pavilion!",
+    hint: "Use the barn's build menu. Costs 120g + 12 wood \u2014 the final building!",
+    check: (g) => g.buildings.includes("pavilion"),
+    reward: { charm: 5, gold: 50 },
+    rewardText: "+5 charm, +50g",
+  },
+  {
+    id: "celebration",
+    text: "\uD83C\uDF89 Host the celebration!",
+    hint: "The party happens at the end of Day 15. Keep building until then!",
+    check: (g) => g.day > 15,
+  },
+];
+
+function checkQuestProgress(g: Game) {
+  if (g.questIndex >= QUEST_CHAIN.length) return;
+  const quest = QUEST_CHAIN[g.questIndex];
+  if (quest.check(g)) {
+    g.completedQuests.push(quest.id);
+    if (quest.reward) {
+      if (quest.reward.gold) g.gold += quest.reward.gold;
+      if (quest.reward.wood) g.wood += quest.reward.wood;
+      if (quest.reward.grit) g.grit += quest.reward.grit;
+      if (quest.reward.wisdom) g.wisdom += quest.reward.wisdom;
+      if (quest.reward.charm) g.charm += quest.reward.charm;
+    }
+    g.showAchievement(`\u2705 ${quest.text}${quest.rewardText ? ` \u2014 ${quest.rewardText}` : ""}`);
+    g.questIndex++;
+    g.partyReadiness = Math.min(
+      100,
+      Math.floor((g.questIndex / QUEST_CHAIN.length) * 50) +
+        g.buildings.length * 5 +
+        g.placedAnimals.length * 2 +
+        Math.floor(g.cropsHarvested / 2)
+    );
+  }
+}
+
 const ANIMAL_NAMES: Record<AnimalType, string[]> = {
   chicken: ["Henrietta", "Cluck Norris", "Eggatha", "Nugget", "Drumstick", "Lady Cluckington"],
   duck: ["Quackers", "Sir Waddles", "Daffy", "Puddles", "Captain Quack", "Billiam"],
@@ -550,6 +686,11 @@ class Game {
   wildHorseInteracts: number;
   wildGoatInteracts: number;
 
+  questIndex: number;
+  completedQuests: string[];
+  partyReadiness: number;
+  woodEverGathered: number;
+
   constructor() {
     this.px = 13.5;
     this.py = 9.5;
@@ -620,6 +761,11 @@ class Game {
     this.caveTreasureFound = false;
     this.wildHorseInteracts = 0;
     this.wildGoatInteracts = 0;
+
+    this.questIndex = 0;
+    this.completedQuests = [];
+    this.partyReadiness = 0;
+    this.woodEverGathered = 0;
   }
 
   makeAnimal(type: AnimalType, name: string, x: number, y: number): PlacedAnimal {
@@ -830,6 +976,11 @@ class Game {
     if (this.libraryVisits >= 5 && this.wisdom >= 20) score += 25;
     if (this.toolsUpgraded) score += 25;
     if (this.fairyRingVisits >= 3) score += 25;
+
+    // Quest & party readiness bonus
+    score += this.completedQuests.length * 5;
+    if (this.partyReadiness >= 80) score += 50;
+    else if (this.partyReadiness >= 50) score += 25;
 
     return score;
   }
@@ -1442,6 +1593,39 @@ function drawHUD(
   } else {
     ctx.fillStyle = "#FF6B6B";
     ctx.fillText("No seeds!", w - 8, barH * 0.7);
+  }
+
+  // Quest bar
+  if (g.questIndex < QUEST_CHAIN.length) {
+    const quest = QUEST_CHAIN[g.questIndex];
+    let questText = quest.text;
+    if (quest.id === "chop_wood") {
+      questText = `\uD83E\uDE93 Gather wood (${Math.min(g.woodEverGathered, 5)}/5)`;
+    }
+
+    const questBarH = Math.max(18, ts * 0.52);
+    ctx.fillStyle = "rgba(196,154,60,0.15)";
+    ctx.fillRect(0, barH, w, questBarH);
+    ctx.fillStyle = "#C49A3C";
+    ctx.font = `bold ${Math.max(10, ts * 0.28)}px sans-serif`;
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText(questText, w / 2, barH + questBarH / 2);
+
+    // Party readiness meter
+    const readyW = 60;
+    const readyX = w - readyW - 8;
+    const readyY = barH + (questBarH - 8) / 2;
+    ctx.fillStyle = "rgba(255,255,255,0.1)";
+    ctx.fillRect(readyX, readyY, readyW, 8);
+    ctx.fillStyle =
+      g.partyReadiness >= 80 ? "#FFD700" : g.partyReadiness >= 40 ? "#C49A3C" : "#5C7A4A";
+    ctx.fillRect(readyX, readyY, readyW * (g.partyReadiness / 100), 8);
+    ctx.fillStyle = "#FDF8F0AA";
+    ctx.font = `${Math.max(8, ts * 0.22)}px sans-serif`;
+    ctx.textAlign = "right";
+    ctx.textBaseline = "middle";
+    ctx.fillText(`Party: ${g.partyReadiness}%`, readyX - 4, readyY + 4);
   }
 }
 
@@ -2242,6 +2426,7 @@ export default function HomesteadGame({ onGameOver }: Props) {
         npc.collected = true;
         if (npc.id === "emmett") {
           g.wood += 4;
+          g.woodEverGathered += 4;
           g.grit += 2;
           g.addFloat(npc.x, npc.y, "+4 wood, +2 grit", "#FFD700");
           g.addParticles(npc.x, npc.y, "#8B7355", 8);
@@ -2507,6 +2692,7 @@ export default function HomesteadGame({ onGameOver }: Props) {
         case 1: {
           const woodYield = g.toolsUpgraded ? 3 : 2;
           g.wood += woodYield;
+          g.woodEverGathered += woodYield;
           g.grit += 1;
           TILE_MAP[row * MAP_COLS + col] = 0;
           g.addFloat(col, row, `\uD83E\uDE93 +${woodYield} wood`, "#8B7355");
@@ -2656,6 +2842,15 @@ export default function HomesteadGame({ onGameOver }: Props) {
         }
       }
 
+      // Update party readiness each day
+      g.partyReadiness = Math.min(
+        100,
+        Math.floor((g.questIndex / QUEST_CHAIN.length) * 50) +
+          g.buildings.length * 5 +
+          g.placedAnimals.length * 2 +
+          Math.floor(g.cropsHarvested / 2)
+      );
+
       if (g.day > 15) {
         g.gameOver = true;
         g.celebrationScore = g.calculateScore();
@@ -2704,6 +2899,9 @@ export default function HomesteadGame({ onGameOver }: Props) {
         lines.push(`Achievements: ${achievements.join(", ")} (+${achievements.length * 25})`);
       }
 
+      lines.push(`Quests: ${g.completedQuests.length}/${QUEST_CHAIN.length}`);
+      lines.push(`Party Readiness: ${g.partyReadiness}%`);
+
       return lines.join("\n");
     }
 
@@ -2727,6 +2925,7 @@ export default function HomesteadGame({ onGameOver }: Props) {
           g.nightPhase = "processing";
           processOvernight(g);
           checkMilestones(g);
+          checkQuestProgress(g);
         }
       } else if (g.nightPhase === "processing") {
         g.nightPhase = "fading_in";
@@ -2841,6 +3040,7 @@ export default function HomesteadGame({ onGameOver }: Props) {
         if (actionKey && !g.lastActionKey) {
           executeAction(g);
           checkMilestones(g);
+          checkQuestProgress(g);
         }
         g.lastActionKey = actionKey;
 
@@ -2849,6 +3049,9 @@ export default function HomesteadGame({ onGameOver }: Props) {
         g.actionPrompt = actionCtx ? actionCtx.prompt : null;
         g.actionTargetX = actionCtx ? actionCtx.tx : 0;
         g.actionTargetY = actionCtx ? actionCtx.ty : 0;
+
+        // Check quest progress each frame (for zone discoveries, etc.)
+        checkQuestProgress(g);
       }
 
       // Update floats
@@ -3073,6 +3276,19 @@ export default function HomesteadGame({ onGameOver }: Props) {
       // HUD
       drawHUD(ctx, g, canvasW, tileSize);
 
+      // Quest hint (shown when no action prompt is visible)
+      if (!g.actionPrompt && g.questIndex < QUEST_CHAIN.length && g.nightPhase === "none" && !overlayOpen) {
+        const hint = QUEST_CHAIN[g.questIndex].hint;
+        const hintY = canvasH - (isTouchDevice ? 130 : 30);
+        ctx.fillStyle = "rgba(13,31,15,0.6)";
+        ctx.fillRect(0, hintY, canvasW, 24);
+        ctx.fillStyle = "#FDF8F088";
+        ctx.font = `${Math.max(9, tileSize * 0.24)}px sans-serif`;
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText(hint, canvasW / 2, hintY + 12);
+      }
+
       // Achievement banner
       drawAchievement(ctx, g, canvasW, canvasH);
 
@@ -3264,10 +3480,10 @@ export default function HomesteadGame({ onGameOver }: Props) {
             Homestead
           </div>
           <div style={{ color: "#FDF8F0", fontSize: "14px", textAlign: "center", maxWidth: 300, lineHeight: 1.6, marginBottom: "20px" }}>
-            Build your farm and explore the world in 15 days!{"\n\n"}
+            Build up the farm and host the ultimate celebration party!{"\n\n"}
             Move: WASD / Arrow keys / Joystick{"\n"}
             Act: Space / E / Action button{"\n\n"}
-            Explore the forest, town, meadow, mountain and ruins!
+            Follow the quests to explore, build, and get party-ready!
           </div>
           <div style={{ color: "#A8D8A8", fontSize: "12px" }}>
             Loading...
@@ -3435,14 +3651,16 @@ export default function HomesteadGame({ onGameOver }: Props) {
         >
           <div style={{ maxWidth: 360, padding: 24, textAlign: "center" }}>
             <div style={{ color: "#C49A3C", fontSize: 28, fontWeight: "bold", marginBottom: 4 }}>
-              🎉 The Celebration!
+              {gameRef.current?.buildings.includes("pavilion")
+                ? "\uD83C\uDF89 The Party Pavilion Celebration!"
+                : "\uD83C\uDF89 The Celebration!"}
             </div>
             <div style={{ color: "#FDF8F0AA", fontSize: 12, marginBottom: 12 }}>
-              {scoreData.total >= 600 ? "🌟 Legendary Brooker Ranch — the stuff of fairy tales!" :
-               scoreData.total >= 450 ? "✨ Dream Estate — your farm is magnificent!" :
-               scoreData.total >= 300 ? "🗺️ Grand Explorer — you've seen it all!" :
-               scoreData.total >= 150 ? "🌿 Thriving Farm — you've built something beautiful!" :
-               "🏡 Cozy Homestead — a humble beginning!"}
+              {scoreData.total >= 600 ? "\uD83C\uDF1F Legendary Brooker Ranch \u2014 the stuff of fairy tales!" :
+               scoreData.total >= 450 ? "\u2728 Dream Estate \u2014 your farm is magnificent!" :
+               scoreData.total >= 300 ? "\uD83D\uDDFA\uFE0F Grand Explorer \u2014 you've seen it all!" :
+               scoreData.total >= 150 ? "\uD83C\uDF3F Thriving Farm \u2014 you've built something beautiful!" :
+               "\uD83C\uDFE1 Cozy Homestead \u2014 a humble beginning!"}
             </div>
             <div style={{ color: "#FDF8F0", fontSize: 13, lineHeight: 1.6, marginBottom: 16, whiteSpace: "pre-line" }}>
               {scoreData.breakdown}
