@@ -83,8 +83,21 @@ interface StoryNPC {
   collected: boolean;
 }
 
+interface WildNPC {
+  id: string;
+  emoji: string;
+  x: number;
+  y: number;
+  targetX: number;
+  targetY: number;
+  moveTimer: number;
+  interactCount: number;
+  fleeTimer: number;
+  active: boolean;
+}
+
 // ============================================================
-// GAME DATA (preserved from original)
+// GAME DATA
 // ============================================================
 
 const ANIMAL_DATA: Record<
@@ -142,6 +155,7 @@ const BUILDING_DATA: Record<
     label: string;
     goldCost: number;
     woodCost: number;
+    stoneCost?: number;
     desc: string;
     scoreValue: number;
   }
@@ -169,33 +183,134 @@ const ANIMAL_NAMES: Record<AnimalType, string[]> = {
 };
 
 // ============================================================
-// TILE MAP (18 cols x 14 rows)
+// TILE MAP (40 cols x 30 rows)
 // 0=grass, 1=tree, 2=dirt_path, 3=water, 4=fence, 5=house_wall
-// 6=house_door, 7=garden, 8=coop, 9=barn_tile, 10=flower, 11=rock, 12=town_exit
+// 6=house_door, 7=garden, 8=coop, 9=barn_tile, 10=flower, 11=rock_decor, 12=shop
+// 13=stone (clearable), 14=bridge, 15=sand, 16=ruin_wall, 17=cave, 18=special_interact
 // ============================================================
 
-const MAP_COLS = 18;
-const MAP_ROWS = 14;
+const MAP_COLS = 40;
+const MAP_ROWS = 30;
 
 // prettier-ignore
-const TILE_MAP: number[] = [
-  1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-  1, 5, 5, 5, 0, 0, 0, 0, 0, 0, 0, 0, 7, 7, 7, 7, 0, 1,
-  1, 5, 5, 5, 6, 2, 2, 0, 0, 0, 0, 0, 7, 7, 7, 7, 0, 1,
-  1, 5, 5, 5, 0, 0, 2, 0, 0, 8, 8, 0, 7, 7, 7, 7, 0, 1,
-  1, 0, 0, 0, 0, 0, 2, 0, 0, 8, 8, 0, 0, 0, 0, 0, 0, 1,
-  1, 0, 4, 4, 4, 4, 2, 4, 4, 0, 0, 0, 0, 9, 9, 0, 0, 1,
-  1, 0, 4, 0, 0, 0, 2, 0, 4, 0, 0, 0, 0, 9, 9, 0, 0, 1,
-  1, 0, 4, 0, 0, 0, 0, 0, 4, 0, 0, 3, 3, 3, 0, 0, 0, 1,
-  1, 0, 4, 0, 0, 0, 0, 0, 4, 0, 0, 3, 3, 3, 0, 0, 0, 1,
-  1, 0, 4, 4, 0, 4, 4, 4, 4, 0, 0, 3, 3, 3, 0, 0, 0, 1,
-  1, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 10,0, 1,
-  1, 0, 10,0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 10,0, 0, 1,
-  1, 0, 0, 0, 0, 0, 2, 2, 2,12,12, 2, 2, 0, 0, 0, 0, 1,
-  1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+let TILE_MAP: number[] = [
+// col:  0  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39
+  /* r0 */ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+  /* r1 */ 1, 1, 1, 0, 1, 0, 1, 1, 0, 0, 1, 0,18, 0, 1, 1, 0, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1,13,13,13,13, 1, 1, 1, 1,
+  /* r2 */ 1, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 1, 1, 1, 1,13,13, 0,13, 0,13, 1, 1, 1,
+  /* r3 */ 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0,18, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 2, 0, 0, 1, 1, 1,13, 0, 0, 2, 0, 0, 0,13, 1, 1,
+  /* r4 */ 1, 0, 0, 0,18, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 1, 1,13, 0, 0, 2, 0, 0, 0,13, 1, 1,
+  /* r5 */ 1, 1, 0, 0, 0, 0, 0, 0, 0,18, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 2, 0, 0, 0, 0, 1,13, 0, 0, 2, 0, 0,13, 1, 1, 1,
+  /* r6 */ 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 0, 0, 0, 0, 0,13, 0, 2, 2, 0, 0,13, 1, 1, 1,
+  /* r7 */ 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0,17, 1, 1, 1, 1,
+  /* r8 */ 1, 1, 0, 0, 0, 0, 0, 0, 0, 5, 5, 5, 0, 0, 2, 0, 0, 7, 7, 7, 7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2,13, 0,13, 1, 1, 1, 1,
+  /* r9 */ 1, 0, 0, 0, 0, 0, 0, 0, 0, 5, 5, 5, 6, 2, 2, 0, 0, 7, 7, 7, 7, 0, 0, 0, 0, 0, 0, 0,10, 0, 0, 0, 2, 0,18, 0, 1, 1, 1, 1,
+  /*r10 */ 1, 0, 0, 0, 0, 0, 0, 0, 0, 5, 5, 5, 0, 0, 2, 0, 0, 7, 7, 7, 7, 0, 0, 8, 8, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 1, 1, 1,
+  /*r11 */ 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 8, 8, 0, 9, 9, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 1, 1,
+  /*r12 */ 1, 0, 0, 0, 0, 0, 0, 4, 4, 4, 4, 4, 0, 0, 2, 4, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 9, 0, 0,10, 0, 2, 0, 0, 0,18, 0, 0, 1,
+  /*r13 */ 1, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 4, 0, 0, 2, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 1,
+  /*r14 */ 3, 3, 3, 3, 3, 3, 3, 4, 0, 0, 0, 4, 3, 3,14, 3, 4, 3, 3, 3, 3,14, 3, 3, 3, 3, 3, 3, 3, 3,14, 3, 3, 3, 3, 3, 3, 3, 3, 3,
+  /*r15 */ 3, 3, 3, 3, 3, 3, 3, 4, 0, 0, 0, 4, 3, 3, 3, 3, 4, 3, 3, 3, 3, 3, 3, 3, 3,18, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
+  /*r16 */ 1, 0,10, 0, 0, 0, 0, 4, 4, 0, 4, 4, 0, 0,14, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,14, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+  /*r17 */ 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0,10, 0,18, 0, 0, 1,
+  /*r18 */ 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0,10, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+  /*r19 */16, 0,16, 0, 0, 0, 0, 0, 0, 0, 0,10, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0,18, 0, 0, 0, 0, 0, 0, 1,
+  /*r20 */16, 0, 0, 7, 7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,10, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+  /*r21 */16,18, 0, 7, 7, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+  /*r22 */16, 0,16, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+  /*r23 */ 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 0, 0, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+  /*r24 */ 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+  /*r25 */ 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0,16, 0, 0, 0,16, 0, 0, 0, 0,12,12, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+  /*r26 */ 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0,18, 0,18, 0, 0, 5, 5, 5, 5, 5, 0,16,18,16, 0, 0, 0, 0, 0, 0, 0, 1,
+  /*r27 */ 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 2, 2, 2, 0, 0, 0, 0, 0, 0, 5, 5, 5, 6, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1,
+  /*r28 */ 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 5, 5, 5, 5, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1,
+  /* r29*/ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
 ];
 
-const WALKABLE_TILES = new Set([0, 2, 6, 7, 10, 12]);
+const WALKABLE_TILES = new Set([0, 2, 6, 7, 10, 14, 15, 18]);
+
+// ============================================================
+// SPECIAL INTERACTION SPOTS (tile type 18)
+// keyed by row * MAP_COLS + col
+// ============================================================
+
+type SpecialType =
+  | "fairy_ring"
+  | "old_well"
+  | "mushroom"
+  | "fountain"
+  | "library"
+  | "blacksmith"
+  | "notice_board"
+  | "beehive"
+  | "picnic"
+  | "summit"
+  | "fishing"
+  | "treasure_chest"
+  | "inscription"
+  | "wild_horse_spot"
+  | "meadow_honey";
+
+const SPECIAL_SPOTS: Record<number, { type: SpecialType; prompt: string }> = {
+  // Forest
+  [4 * MAP_COLS + 4]: { type: "fairy_ring", prompt: "✨ Fairy Ring" },
+  [1 * MAP_COLS + 12]: { type: "old_well", prompt: "🪣 Old Well" },
+  [3 * MAP_COLS + 13]: { type: "mushroom", prompt: "🍄 Mushrooms" },
+  [5 * MAP_COLS + 9]: { type: "mushroom", prompt: "🍄 Mushrooms" },
+
+  // Town (bottom area)
+  [26 * MAP_COLS + 18]: { type: "fountain", prompt: "⛲ Fountain" },
+  [26 * MAP_COLS + 20]: { type: "notice_board", prompt: "📋 Notice Board" },
+  [30 * MAP_COLS + 30]: { type: "blacksmith", prompt: "⚒️ Blacksmith" },
+
+  // River fishing spots
+  [15 * MAP_COLS + 25]: { type: "fishing", prompt: "🎣 Fish!" },
+
+  // Meadow (right side)
+  [17 * MAP_COLS + 36]: { type: "beehive", prompt: "🐝 Beehive" },
+  [12 * MAP_COLS + 36]: { type: "picnic", prompt: "🧺 Picnic Spot" },
+  [19 * MAP_COLS + 32]: { type: "meadow_honey", prompt: "🍯 Honey" },
+
+  // Mountain
+  [9 * MAP_COLS + 34]: { type: "summit", prompt: "🏔️ Summit View" },
+
+  // Ruins (bottom-left)
+  [21 * MAP_COLS + 1]: { type: "treasure_chest", prompt: "💎 Treasure!" },
+};
+
+// Ruin wall inscriptions (tile 16)
+const INSCRIPTION_COORDS = new Set([
+  19 * MAP_COLS + 0,
+  19 * MAP_COLS + 2,
+  20 * MAP_COLS + 0,
+  22 * MAP_COLS + 0,
+  22 * MAP_COLS + 2,
+  29 * MAP_COLS + 16,
+  25 * MAP_COLS + 17,
+  25 * MAP_COLS + 21,
+]);
+
+// Library / blacksmith building tiles (certain town building walls)
+const LIBRARY_TILES = new Set([
+  26 * MAP_COLS + 23,
+  26 * MAP_COLS + 24,
+  26 * MAP_COLS + 25,
+  27 * MAP_COLS + 23,
+  27 * MAP_COLS + 24,
+  27 * MAP_COLS + 25,
+  28 * MAP_COLS + 23,
+  28 * MAP_COLS + 24,
+  28 * MAP_COLS + 25,
+]);
+
+const BLACKSMITH_TILES = new Set([
+  26 * MAP_COLS + 29,
+  26 * MAP_COLS + 31,
+]);
+
+// ============================================================
+// HELPERS
+// ============================================================
 
 function tileAt(col: number, row: number): number {
   if (col < 0 || col >= MAP_COLS || row < 0 || row >= MAP_ROWS) return 1;
@@ -213,10 +328,6 @@ function getGardenTileIndices(): number[] {
   }
   return indices;
 }
-
-// ============================================================
-// HELPERS
-// ============================================================
 
 function getSeason(day: number): Season {
   if (day <= 5) return "spring";
@@ -243,6 +354,50 @@ function seededRand(x: number, y: number): number {
   h = ((h ^ (h >> 13)) * 1274126177) | 0;
   return ((h ^ (h >> 16)) >>> 0) / 4294967296;
 }
+
+// ============================================================
+// FAIRY MESSAGES & BOOK TITLES & LORE
+// ============================================================
+
+const FAIRY_MESSAGES = [
+  "The fairies whisper: 'Love grows like wildflowers.'",
+  "A tiny voice says: 'The mountain holds secrets...'",
+  "Fairy dust settles: 'Kindness is the rarest treasure.'",
+  "The ring hums: 'Visit us again, friend.'",
+  "A giggle echoes: 'Have you found the old ruins?'",
+  "Petals swirl: 'The river knows all the songs.'",
+];
+
+const BOOK_TITLES = [
+  "You read 'Goats: A Memoir' — fascinating!",
+  "You browse 'The Art of Beekeeping'",
+  "You study 'Mountain Flora & Fauna'",
+  "You skim '101 Uses for Pumpkins'",
+  "You peruse 'History of the Old Ruins'",
+  "You read 'Fairy Rings: Fact or Fiction?'",
+  "You enjoy 'A Dog's Guide to Farm Life'",
+  "You devour 'Cooking with Honey'",
+];
+
+const LORE_TEXTS = [
+  "Ancient text: 'Here once stood a great hall of feasting...'",
+  "Worn inscription: 'Those who tend the land shall prosper.'",
+  "Faded runes: 'The forest remembers what we forget.'",
+  "Carved words: 'In every seed, a universe of possibility.'",
+  "Mossy text: 'The builders came from beyond the mountain...'",
+  "Chiseled line: 'Love is the foundation of all great things.'",
+];
+
+const NOTICE_BOARD_TIPS = [
+  "Try fishing at the river — fresh catch sells well!",
+  "The blacksmith can upgrade your tools for a price.",
+  "Have you explored the ruins to the southwest?",
+  "Build the pavilion for bonus celebration score!",
+  "The fairy ring in the forest grants charm...",
+  "Mountain stone is needed for advanced buildings.",
+  "Honey from the meadow beehives is valuable!",
+  "Visit the library to gain wisdom!",
+];
 
 // ============================================================
 // SEASON COLORS
@@ -275,13 +430,38 @@ const SEASON_PALETTE: Record<Season, {
 };
 
 // ============================================================
+// ZONE DEFINITIONS (for discovery tracking)
+// ============================================================
+
+type ZoneName = "farm" | "forest" | "town" | "river" | "meadow" | "mountain" | "ruins";
+
+const ZONE_BOUNDS: Record<ZoneName, { minC: number; maxC: number; minR: number; maxR: number }> = {
+  farm: { minC: 7, maxC: 28, minR: 8, maxR: 13 },
+  forest: { minC: 1, maxC: 24, minR: 0, maxR: 7 },
+  town: { minC: 12, maxC: 32, minR: 23, maxR: 28 },
+  river: { minC: 0, maxC: 39, minR: 14, maxR: 15 },
+  meadow: { minC: 29, maxC: 38, minR: 10, maxR: 22 },
+  mountain: { minC: 30, maxC: 38, minR: 0, maxR: 10 },
+  ruins: { minC: 0, maxC: 8, minR: 19, maxR: 24 },
+};
+
+function getZone(col: number, row: number): ZoneName | null {
+  for (const [name, b] of Object.entries(ZONE_BOUNDS)) {
+    if (col >= b.minC && col <= b.maxC && row >= b.minR && row <= b.maxR) {
+      return name as ZoneName;
+    }
+  }
+  return null;
+}
+
+// ============================================================
 // GAME CLASS
 // ============================================================
 
 class Game {
   px: number;
   py: number;
-  facing: number; // 0=up 1=right 2=down 3=left
+  facing: number;
   walkFrame: number;
 
   day: number;
@@ -292,6 +472,9 @@ class Game {
   charm: number;
   gold: number;
   wood: number;
+  stone: number;
+  fish: number;
+  honey: number;
 
   placedAnimals: PlacedAnimal[];
   crops: Crop[];
@@ -302,6 +485,7 @@ class Game {
   floats: FloatText[];
   particles: Particle[];
   storyNPCs: StoryNPC[];
+  wildNPCs: WildNPC[];
 
   actionPrompt: string | null;
   actionTargetX: number;
@@ -319,9 +503,25 @@ class Game {
   lastActionKey: boolean;
   started: boolean;
 
+  // Exploration tracking
+  visited: Set<number>;
+  revealed: Set<number>;
+  zonesVisited: Set<ZoneName>;
+  treasuresFound: number;
+  fishCaught: number;
+  honeyCollected: number;
+  libraryVisits: number;
+  fairyRingVisits: number;
+  toolsUpgraded: boolean;
+  mountainAccessible: boolean;
+  ruinTreasureFound: boolean;
+  caveTreasureFound: boolean;
+  wildHorseInteracts: number;
+  wildGoatInteracts: number;
+
   constructor() {
-    this.px = 5.5;
-    this.py = 2.5;
+    this.px = 12;
+    this.py = 9.5;
     this.facing = 2;
     this.walkFrame = 0;
 
@@ -333,11 +533,14 @@ class Game {
     this.charm = 0;
     this.gold = 50;
     this.wood = 0;
+    this.stone = 0;
+    this.fish = 0;
+    this.honey = 0;
 
     this.placedAnimals = [
-      this.makeAnimal("chicken", "Henrietta", 3.5, 7),
-      this.makeAnimal("chicken", "Cluck Norris", 5, 7.5),
-      this.makeAnimal("chicken", "Eggatha", 4.2, 6.5),
+      this.makeAnimal("chicken", "Henrietta", 9.5, 13.5),
+      this.makeAnimal("chicken", "Cluck Norris", 10, 13),
+      this.makeAnimal("chicken", "Eggatha", 9, 14),
     ];
     this.crops = [];
     this.buildings = [];
@@ -347,6 +550,7 @@ class Game {
     this.floats = [];
     this.particles = [];
     this.storyNPCs = [];
+    this.wildNPCs = [];
 
     this.actionPrompt = null;
     this.actionTargetX = 0;
@@ -363,6 +567,21 @@ class Game {
     this.usedEvents = new Set();
     this.lastActionKey = false;
     this.started = false;
+
+    this.visited = new Set();
+    this.revealed = new Set();
+    this.zonesVisited = new Set();
+    this.treasuresFound = 0;
+    this.fishCaught = 0;
+    this.honeyCollected = 0;
+    this.libraryVisits = 0;
+    this.fairyRingVisits = 0;
+    this.toolsUpgraded = false;
+    this.mountainAccessible = false;
+    this.ruinTreasureFound = false;
+    this.caveTreasureFound = false;
+    this.wildHorseInteracts = 0;
+    this.wildGoatInteracts = 0;
   }
 
   makeAnimal(type: AnimalType, name: string, x: number, y: number): PlacedAnimal {
@@ -390,6 +609,44 @@ class Game {
         size: 2 + Math.random() * 2,
       });
     }
+  }
+
+  updateVisited() {
+    const col = Math.round(this.px);
+    const row = Math.round(this.py);
+    const visitRadius = 6;
+    const revealRadius = 8;
+    let changed = false;
+    for (let r = row - visitRadius; r <= row + visitRadius; r++) {
+      for (let c = col - visitRadius; c <= col + visitRadius; c++) {
+        if (c >= 0 && c < MAP_COLS && r >= 0 && r < MAP_ROWS) {
+          const dx = c - col;
+          const dy = r - row;
+          if (dx * dx + dy * dy <= visitRadius * visitRadius) {
+            const idx = r * MAP_COLS + c;
+            if (!this.visited.has(idx)) {
+              this.visited.add(idx);
+              changed = true;
+            }
+          }
+        }
+      }
+    }
+    if (changed) {
+      for (let r = row - revealRadius; r <= row + revealRadius; r++) {
+        for (let c = col - revealRadius; c <= col + revealRadius; c++) {
+          if (c >= 0 && c < MAP_COLS && r >= 0 && r < MAP_ROWS) {
+            this.revealed.add(r * MAP_COLS + c);
+          }
+        }
+      }
+    }
+    const zone = getZone(col, row);
+    if (zone) this.zonesVisited.add(zone);
+  }
+
+  isRevealed(c: number, r: number): boolean {
+    return this.revealed.has(r * MAP_COLS + c);
   }
 
   getFacingTile(): { col: number; row: number; tile: number } {
@@ -453,6 +710,17 @@ class Game {
     return null;
   }
 
+  findNearWildNPC(): WildNPC | null {
+    for (const w of this.wildNPCs) {
+      if (!w.active) continue;
+      if (w.fleeTimer > 0) continue;
+      const dx = w.x - this.px;
+      const dy = w.y - this.py;
+      if (Math.sqrt(dx * dx + dy * dy) < 2.0) return w;
+    }
+    return null;
+  }
+
   calculateScore(): number {
     let score = 0;
     for (const a of this.placedAnimals) score += ANIMAL_DATA[a.type].scoreValue;
@@ -460,6 +728,8 @@ class Game {
     score += this.cropsHarvested * 5;
     score += (this.grit + this.wisdom + this.charm) * 2;
     score += Math.floor(this.gold / 5);
+
+    // Original achievements
     if (countPoultry(this.placedAnimals) >= 6) score += 25;
     if (countLarge(this.placedAnimals) >= 4) score += 25;
     if (this.cropsHarvested >= 10) score += 25;
@@ -470,6 +740,17 @@ class Game {
     if (this.placedAnimals.some((a) => a.type === "cat")) score += 25;
     if (this.placedAnimals.length >= 8) score += 25;
     if (this.buildings.includes("pavilion")) score += 50;
+
+    // New achievements
+    if (this.zonesVisited.size >= 7) score += 25;
+    if (this.treasuresFound >= 3) score += 25;
+    if (this.fishCaught >= 10) score += 25;
+    if (this.honeyCollected >= 5) score += 25;
+    if (this.zonesVisited.has("mountain")) score += 25;
+    if (this.libraryVisits >= 5 && this.wisdom >= 20) score += 25;
+    if (this.toolsUpgraded) score += 25;
+    if (this.fairyRingVisits >= 3) score += 25;
+
     return score;
   }
 }
@@ -681,7 +962,103 @@ function drawTile(
       ctx.fillStyle = "#FDF8F0";
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
-      ctx.fillText("TOWN", px + ts * 0.5, py + ts * 0.62);
+      ctx.fillText("SHOP", px + ts * 0.5, py + ts * 0.62);
+      break;
+    }
+    case 13: {
+      ctx.fillStyle = pal.grass;
+      ctx.fillRect(px, py, ts, ts);
+      ctx.fillStyle = "#666666";
+      ctx.beginPath();
+      ctx.moveTo(px + ts * 0.1, py + ts * 0.9);
+      ctx.lineTo(px + ts * 0.3, py + ts * 0.15);
+      ctx.lineTo(px + ts * 0.7, py + ts * 0.1);
+      ctx.lineTo(px + ts * 0.9, py + ts * 0.4);
+      ctx.lineTo(px + ts * 0.85, py + ts * 0.9);
+      ctx.closePath();
+      ctx.fill();
+      ctx.fillStyle = "#888888";
+      ctx.fillRect(px + ts * 0.35, py + ts * 0.25, ts * 0.12, ts * 0.08);
+      ctx.fillRect(px + ts * 0.55, py + ts * 0.5, ts * 0.1, ts * 0.06);
+      ctx.fillRect(px + ts * 0.25, py + ts * 0.6, ts * 0.08, ts * 0.08);
+      break;
+    }
+    case 14: {
+      ctx.fillStyle = "#3A7ABB";
+      ctx.fillRect(px, py, ts, ts);
+      ctx.fillStyle = "#8B6914";
+      ctx.fillRect(px + ts * 0.05, py + ts * 0.1, ts * 0.9, ts * 0.8);
+      ctx.fillStyle = "#A37B1E";
+      for (let i = 0; i < 5; i++) {
+        ctx.fillRect(px + ts * 0.08, py + ts * (0.15 + i * 0.16), ts * 0.84, ts * 0.06);
+      }
+      ctx.fillStyle = "#5C3A1E";
+      ctx.fillRect(px + ts * 0.05, py + ts * 0.1, ts * 0.06, ts * 0.8);
+      ctx.fillRect(px + ts * 0.89, py + ts * 0.1, ts * 0.06, ts * 0.8);
+      break;
+    }
+    case 15: {
+      ctx.fillStyle = "#D4B896";
+      ctx.fillRect(px, py, ts, ts);
+      ctx.fillStyle = "#C8AA85";
+      const sx1 = seededRand(col + 300, row) * ts * 0.6 + ts * 0.1;
+      const sy1 = seededRand(col, row + 300) * ts * 0.6 + ts * 0.1;
+      ctx.fillRect(px + sx1, py + sy1, ts * 0.08, ts * 0.08);
+      break;
+    }
+    case 16: {
+      ctx.fillStyle = pal.grass;
+      ctx.fillRect(px, py, ts, ts);
+      ctx.fillStyle = "#6B7B6B";
+      ctx.fillRect(px + ts * 0.05, py + ts * 0.05, ts * 0.9, ts * 0.9);
+      ctx.fillStyle = "#5A6B5A";
+      ctx.fillRect(px + ts * 0.1, py + ts * 0.1, ts * 0.38, ts * 0.38);
+      ctx.fillRect(px + ts * 0.52, py + ts * 0.52, ts * 0.38, ts * 0.38);
+      ctx.fillStyle = "#4A8B4A44";
+      ctx.fillRect(px + ts * 0.2, py + ts * 0.7, ts * 0.15, ts * 0.2);
+      ctx.fillRect(px + ts * 0.6, py + ts * 0.1, ts * 0.2, ts * 0.15);
+      break;
+    }
+    case 17: {
+      ctx.fillStyle = "#666666";
+      ctx.fillRect(px, py, ts, ts);
+      ctx.fillStyle = "#1a1a1a";
+      ctx.beginPath();
+      ctx.arc(px + ts * 0.5, py + ts * 0.6, ts * 0.35, Math.PI, 0);
+      ctx.lineTo(px + ts * 0.85, py + ts * 0.95);
+      ctx.lineTo(px + ts * 0.15, py + ts * 0.95);
+      ctx.closePath();
+      ctx.fill();
+      ctx.fillStyle = "#0d0d0d";
+      ctx.beginPath();
+      ctx.arc(px + ts * 0.5, py + ts * 0.65, ts * 0.25, Math.PI, 0);
+      ctx.lineTo(px + ts * 0.75, py + ts * 0.9);
+      ctx.lineTo(px + ts * 0.25, py + ts * 0.9);
+      ctx.closePath();
+      ctx.fill();
+      ctx.fillStyle = "#55555544";
+      const flicker = Math.sin(time * 0.005 + col) * 0.2 + 0.3;
+      ctx.globalAlpha = flicker;
+      ctx.beginPath();
+      ctx.arc(px + ts * 0.5, py + ts * 0.7, ts * 0.15, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.globalAlpha = 1;
+      break;
+    }
+    case 18: {
+      ctx.fillStyle = (col + row) % 2 === 0 ? pal.grass : pal.grassLight;
+      ctx.fillRect(px, py, ts, ts);
+      const idx = row * MAP_COLS + col;
+      const spot = SPECIAL_SPOTS[idx];
+      if (spot) {
+        const sparkle = Math.sin(time * 0.004 + col * 5 + row * 3) * 0.3 + 0.5;
+        ctx.globalAlpha = sparkle;
+        ctx.fillStyle = "#FFD70033";
+        ctx.beginPath();
+        ctx.arc(px + ts * 0.5, py + ts * 0.5, ts * 0.4, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.globalAlpha = 1;
+      }
       break;
     }
     default: {
@@ -689,6 +1066,20 @@ function drawTile(
       ctx.fillRect(px, py, ts, ts);
     }
   }
+}
+
+function drawFogOverlay(
+  ctx: CanvasRenderingContext2D,
+  col: number,
+  row: number,
+  ts: number,
+  camX: number,
+  camY: number
+) {
+  const px = col * ts - camX;
+  const py = row * ts - camY;
+  ctx.fillStyle = "rgba(0,0,0,0.6)";
+  ctx.fillRect(px, py, ts, ts);
 }
 
 function drawPlayer(
@@ -704,7 +1095,7 @@ function drawPlayer(
   const sx = px * ts - camX;
   const sy = py * ts - camY;
   const bobY = Math.abs(Math.sin(walkFrame * 0.15)) * ts * 0.06;
-  const s = ts; // scale factor
+  const s = ts;
 
   ctx.fillStyle = "rgba(0,0,0,0.2)";
   ctx.beginPath();
@@ -805,6 +1196,31 @@ function drawAnimalEntity(
   ctx.fillText(ANIMAL_DATA[animal.type].emoji, px + ts * 0.5, py + ts * 0.5 + bob);
 }
 
+function drawWildNPC(
+  ctx: CanvasRenderingContext2D,
+  npc: WildNPC,
+  ts: number,
+  camX: number,
+  camY: number,
+  time: number
+) {
+  if (!npc.active) return;
+  const px = npc.x * ts - camX;
+  const py = npc.y * ts - camY;
+  const bob = Math.sin(time * 0.003 + npc.x * 5) * ts * 0.05;
+
+  if (npc.fleeTimer > 0) {
+    ctx.globalAlpha = 0.5;
+  }
+
+  const fontSize = Math.max(12, ts * 0.7);
+  ctx.font = `${fontSize}px sans-serif`;
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.fillText(npc.emoji, px + ts * 0.5, py + ts * 0.5 + bob);
+  ctx.globalAlpha = 1;
+}
+
 function drawStoryNPC(
   ctx: CanvasRenderingContext2D,
   npc: StoryNPC,
@@ -893,7 +1309,7 @@ function drawHUD(
 
   ctx.font = `${smallFont}px sans-serif`;
   ctx.fillStyle = "#FDF8F0";
-  const statsText = `\uD83D\uDCB0${g.gold} \uD83E\uDE93${g.wood} \uD83C\uDF3F${g.grit} \uD83D\uDCDA${g.wisdom} \uD83D\uDC9B${g.charm}`;
+  const statsText = `\uD83D\uDCB0${g.gold} \uD83E\uDE93${g.wood} \uD83E\uDEA8${g.stone} \uD83C\uDF3F${g.grit} \uD83D\uDCDA${g.wisdom} \uD83D\uDC9B${g.charm}`;
   ctx.textAlign = "right";
   ctx.fillText(statsText, w - 8, barH * 0.35);
 
@@ -1242,24 +1658,50 @@ export default function HomesteadGame({ onGameOver }: Props) {
 
     // STORY EVENT SPAWNS
     function checkStoryEvents(g: Game) {
+      if (g.day === 2 && !g.usedEvents.has("forest_opens")) {
+        g.usedEvents.add("forest_opens");
+        g.addFloat(g.px, g.py - 1, "A path through the forest has opened!", "#FFD700");
+      }
       if (g.day === 4 && !g.usedEvents.has("kids_visit")) {
         g.usedEvents.add("kids_visit");
         g.storyNPCs = [
-          { id: "emmett", emoji: "👦", x: 5, y: 3.5, collected: false },
-          { id: "sapphire", emoji: "👧", x: 6.5, y: 3.5, collected: false },
+          { id: "emmett", emoji: "👦", x: 13, y: 10.5, collected: false },
+          { id: "sapphire", emoji: "👧", x: 14.5, y: 10.5, collected: false },
         ];
         g.addFloat(g.px, g.py - 1, "The kids are visiting!", "#FFD700");
+      }
+      if (g.day === 5 && !g.usedEvents.has("ruins_rumor")) {
+        g.usedEvents.add("ruins_rumor");
+        g.addFloat(g.px, g.py - 1, "Rumor: treasure in the old ruins to the south...", "#FFD700");
+      }
+      if (g.day === 6 && !g.usedEvents.has("merchant")) {
+        g.usedEvents.add("merchant");
+        g.storyNPCs.push({ id: "merchant", emoji: "🧙", x: 34, y: 18, collected: false });
+        g.addFloat(g.px, g.py - 1, "A traveling merchant appeared in the meadow!", "#FFD700");
       }
       if (g.day === 7 && !g.usedEvents.has("stray_animal")) {
         g.usedEvents.add("stray_animal");
         const hasCat = g.placedAnimals.some((a) => a.type === "cat");
         if (!hasCat) {
-          g.storyNPCs = [{ id: "bruce", emoji: "🐱", x: 4.5, y: 1.8, collected: false }];
-          g.addFloat(g.px, g.py - 1, "A stray cat appeared!", "#FFD700");
+          g.storyNPCs.push({ id: "bruce", emoji: "🐱", x: 11.5, y: 8.8, collected: false });
+          g.addFloat(g.px, g.py - 1, "A stray cat appeared near the house!", "#FFD700");
         } else {
-          g.storyNPCs = [{ id: "bella", emoji: "🐕", x: 4.5, y: 1.8, collected: false }];
+          g.storyNPCs.push({ id: "bella", emoji: "🐕", x: 11.5, y: 8.8, collected: false });
           g.addFloat(g.px, g.py - 1, "A stray dog appeared!", "#FFD700");
         }
+      }
+      if (g.day === 8 && !g.usedEvents.has("wild_horse")) {
+        g.usedEvents.add("wild_horse");
+        g.wildNPCs.push({
+          id: "wild_horse", emoji: "🐴", x: 35, y: 17,
+          targetX: 35, targetY: 17, moveTimer: 0,
+          interactCount: 0, fleeTimer: 0, active: true,
+        });
+        g.addFloat(g.px, g.py - 1, "A wild horse spotted in the meadow!", "#FFD700");
+      }
+      if (g.day === 9 && !g.usedEvents.has("fairy_lights")) {
+        g.usedEvents.add("fairy_lights");
+        g.addFloat(g.px, g.py - 1, "Strange lights in the forest at night...", "#DDA0DD");
       }
       if (g.day === 10 && !g.usedEvents.has("festival")) {
         g.usedEvents.add("festival");
@@ -1267,12 +1709,44 @@ export default function HomesteadGame({ onGameOver }: Props) {
         g.wisdom += 3;
         g.charm += 3;
         g.gold += 25;
+        g.storyNPCs.push(
+          { id: "festival_a", emoji: "🧑‍🌾", x: 22, y: 25, collected: false },
+          { id: "festival_b", emoji: "👩‍🍳", x: 24, y: 25, collected: false },
+          { id: "festival_c", emoji: "🎵", x: 23, y: 24, collected: false },
+        );
         g.addFloat(g.px, g.py - 1, "Festival day! +3 all stats, +25g", "#FFD700");
+      }
+      if (g.day === 11 && !g.usedEvents.has("mountain_clear")) {
+        g.usedEvents.add("mountain_clear");
+        g.mountainAccessible = true;
+        // Clear the rockslide blocking mountain path
+        for (let r = 1; r <= 6; r++) {
+          for (let c = 30; c <= 37; c++) {
+            const idx = r * MAP_COLS + c;
+            if (TILE_MAP[idx] === 13) {
+              TILE_MAP[idx] = 0;
+            }
+          }
+        }
+        g.addFloat(g.px, g.py - 1, "The mountain rockslide has cleared!", "#FFD700");
+      }
+      if (g.day === 12 && !g.usedEvents.has("wild_goat")) {
+        g.usedEvents.add("wild_goat");
+        g.wildNPCs.push({
+          id: "wild_goat", emoji: "🐐", x: 34, y: 5,
+          targetX: 34, targetY: 5, moveTimer: 0,
+          interactCount: 0, fleeTimer: 0, active: true,
+        });
+        g.addFloat(g.px, g.py - 1, "Wild goat spotted on the mountain!", "#FFD700");
       }
       if (g.day === 13 && !g.usedEvents.has("zoe_adventure")) {
         g.usedEvents.add("zoe_adventure");
-        g.storyNPCs = [{ id: "zoe", emoji: "🐕", x: 8, y: 4, collected: false }];
+        g.storyNPCs.push({ id: "zoe", emoji: "🐕", x: 20, y: 10, collected: false });
         g.addFloat(g.px, g.py - 1, "Zoe is loose!", "#FFD700");
+      }
+      if (g.day === 14 && !g.usedEvents.has("buzz")) {
+        g.usedEvents.add("buzz");
+        g.addFloat(g.px, g.py - 1, "The whole town is buzzing about tomorrow!", "#FFD700");
       }
     }
 
@@ -1283,6 +1757,19 @@ export default function HomesteadGame({ onGameOver }: Props) {
       const npc = g.findNearNPC();
       if (npc) {
         return { prompt: `\u2728 ${npc.emoji}`, tx: npc.x, ty: npc.y };
+      }
+
+      const wildNPC = g.findNearWildNPC();
+      if (wildNPC) {
+        if (wildNPC.id === "wild_horse") {
+          return { prompt: "🐴 Approach horse", tx: wildNPC.x, ty: wildNPC.y };
+        }
+        if (wildNPC.id === "wild_goat") {
+          return { prompt: "🐐 Chase goat!", tx: wildNPC.x, ty: wildNPC.y };
+        }
+        if (wildNPC.id === "deer") {
+          return { prompt: "🦌 Watch deer", tx: wildNPC.x, ty: wildNPC.y };
+        }
       }
 
       const animal = g.findNearAnimal();
@@ -1296,6 +1783,11 @@ export default function HomesteadGame({ onGameOver }: Props) {
 
       const houseHit = g.findNearbyTile([5, 6]);
       if (houseHit) {
+        // Check if this is the town building (library) or farmhouse
+        const idx = houseHit.row * MAP_COLS + houseHit.col;
+        if (LIBRARY_TILES.has(idx)) {
+          return { prompt: "📚 Library", tx: houseHit.col, ty: houseHit.row };
+        }
         return { prompt: `\uD83D\uDE34 Rest`, tx: houseHit.col, ty: houseHit.row };
       }
 
@@ -1304,34 +1796,69 @@ export default function HomesteadGame({ onGameOver }: Props) {
         return { prompt: `\uD83C\uDFEA Shop`, tx: shopHit.col, ty: shopHit.row };
       }
 
-      const { col, row, tile } = g.getFacingTile();
+      // Check for special interact tiles nearby (standing on or facing)
+      const col = Math.round(g.px);
+      const row = Math.round(g.py);
+      const standingTile = tileAt(col, row);
+      const standingIdx = row * MAP_COLS + col;
 
-      switch (tile) {
+      if (standingTile === 18 && SPECIAL_SPOTS[standingIdx]) {
+        return { prompt: SPECIAL_SPOTS[standingIdx].prompt, tx: col, ty: row };
+      }
+
+      const { col: fc, row: fr, tile: facedTile } = g.getFacingTile();
+      const facedIdx = fr * MAP_COLS + fc;
+
+      if (facedTile === 18 && SPECIAL_SPOTS[facedIdx]) {
+        return { prompt: SPECIAL_SPOTS[facedIdx].prompt, tx: fc, ty: fr };
+      }
+
+      // Check ruin walls for inscription
+      if (facedTile === 16) {
+        if (INSCRIPTION_COORDS.has(facedIdx)) {
+          return { prompt: "📜 Read inscription", tx: fc, ty: fr };
+        }
+        if (BLACKSMITH_TILES.has(facedIdx)) {
+          return { prompt: "⚒️ Blacksmith", tx: fc, ty: fr };
+        }
+      }
+
+      // Cave
+      if (facedTile === 17) {
+        return { prompt: "🕳️ Enter cave", tx: fc, ty: fr };
+      }
+
+      // Stone (clearable)
+      if (facedTile === 13) {
+        return { prompt: "⛏️ Mine", tx: fc, ty: fr };
+      }
+
+      switch (facedTile) {
         case 7: {
-          const tileIdx = row * MAP_COLS + col;
+          const tileIdx = fr * MAP_COLS + fc;
           const crop = g.crops.find((c) => c.tileIdx === tileIdx);
           if (crop) {
             const d = CROP_DATA[crop.type];
             if (crop.growth >= d.growDays) {
-              return { prompt: `\uD83C\uDF3E Harvest`, tx: col, ty: row };
+              return { prompt: `\uD83C\uDF3E Harvest`, tx: fc, ty: fr };
             }
-            return { prompt: `\uD83D\uDCA7 Water`, tx: col, ty: row };
+            return { prompt: `\uD83D\uDCA7 Water`, tx: fc, ty: fr };
           }
           if (g.seeds.length > 0) {
-            return { prompt: `\uD83C\uDF31 Plant`, tx: col, ty: row };
+            return { prompt: `\uD83C\uDF31 Plant`, tx: fc, ty: fr };
           }
-          return { prompt: `No seeds!`, tx: col, ty: row };
+          return { prompt: `No seeds!`, tx: fc, ty: fr };
         }
-        case 1: return { prompt: `\uD83E\uDE93 Chop`, tx: col, ty: row };
+        case 1: return { prompt: `\uD83E\uDE93 Chop`, tx: fc, ty: fr };
         case 8: {
           const hasCoop = g.buildings.includes("coop");
           if (!hasCoop) {
             const d = BUILDING_DATA.coop;
-            return { prompt: `\uD83D\uDD28 Build Coop (${d.goldCost}g ${d.woodCost}w)`, tx: col, ty: row };
+            return { prompt: `\uD83D\uDD28 Build Coop (${d.goldCost}g ${d.woodCost}w)`, tx: fc, ty: fr };
           }
           const poultryCount = countPoultry(g.placedAnimals);
           if (poultryCount > 0) {
-            return { prompt: `\uD83E\uDD5A Collect`, tx: col, ty: row };
+            return { prompt: `\uD83E\uDD5A Collect`, tx: fc, ty: fr };
           }
           return null;
         }
@@ -1339,18 +1866,150 @@ export default function HomesteadGame({ onGameOver }: Props) {
           const hasBarn = g.buildings.includes("barn");
           if (!hasBarn) {
             const d = BUILDING_DATA.barn;
-            return { prompt: `\uD83D\uDD28 Build Barn (${d.goldCost}g ${d.woodCost}w)`, tx: col, ty: row };
+            return { prompt: `\uD83D\uDD28 Build Barn (${d.goldCost}g ${d.woodCost}w)`, tx: fc, ty: fr };
           }
-          return { prompt: `\uD83D\uDD28 Build...`, tx: col, ty: row };
+          return { prompt: `\uD83D\uDD28 Build...`, tx: fc, ty: fr };
         }
-        case 3: return { prompt: `\uD83C\uDFA3 Relax`, tx: col, ty: row };
+        case 3: return { prompt: `\uD83C\uDFA3 Relax`, tx: fc, ty: fr };
         default: return null;
+      }
+    }
+
+    function executeSpecialInteraction(g: Game, spotType: SpecialType, col: number, row: number) {
+      switch (spotType) {
+        case "fairy_ring": {
+          g.fairyRingVisits++;
+          if (g.fairyRingVisits === 1) {
+            g.charm += 5;
+            g.addFloat(col, row, "The fairies welcome you! +5 charm", "#DDA0DD");
+            g.addParticles(col + 0.5, row + 0.5, "#DDA0DD", 12);
+          } else {
+            g.charm += 1;
+            const msg = FAIRY_MESSAGES[Math.floor(Math.random() * FAIRY_MESSAGES.length)];
+            g.addFloat(col, row, `+1 charm`, "#DDA0DD");
+            g.addFloat(col, row - 0.5, msg, "#E8C8B8");
+            g.addParticles(col + 0.5, row + 0.5, "#DDA0DD", 6);
+          }
+          g.timeOfDay += 4;
+          break;
+        }
+        case "old_well": {
+          const roll = Math.random();
+          if (roll < 0.4) {
+            const treasure = 10 + Math.floor(Math.random() * 21);
+            g.gold += treasure;
+            g.treasuresFound++;
+            g.addFloat(col, row, `Found ${treasure}g in the well!`, "#FFD700");
+            g.addParticles(col + 0.5, row + 0.5, "#FFD700", 8);
+          } else if (roll < 0.7) {
+            g.wisdom += 2;
+            g.addFloat(col, row, "Ancient knowledge... +2 wisdom", "#4FC3F7");
+          } else {
+            g.addFloat(col, row, "Just an echo...", "#888888");
+          }
+          g.timeOfDay += 3;
+          break;
+        }
+        case "mushroom": {
+          g.gold += 16;
+          g.addFloat(col, row, "🍄 Found mushrooms! +16g", "#8B4513");
+          g.addParticles(col + 0.5, row + 0.5, "#8B4513", 6);
+          g.timeOfDay += 3;
+          break;
+        }
+        case "fountain": {
+          g.charm += 1;
+          g.addFloat(col, row, "⛲ Pretty! +1 charm", "#4FC3F7");
+          g.addParticles(col + 0.5, row + 0.5, "#4FC3F7", 8);
+          g.timeOfDay += 2;
+          break;
+        }
+        case "notice_board": {
+          const tip = NOTICE_BOARD_TIPS[Math.floor(Math.random() * NOTICE_BOARD_TIPS.length)];
+          g.addFloat(col, row - 0.3, tip, "#FDF8F0");
+          g.timeOfDay += 1;
+          break;
+        }
+        case "beehive":
+        case "meadow_honey": {
+          g.honeyCollected++;
+          const stung = Math.random() < 0.2;
+          if (stung) {
+            g.gold += 15;
+            g.honey++;
+            g.grit = Math.max(0, g.grit - 1);
+            g.addFloat(col, row, "🐝 Ouch! Bees! +15g, -1 grit", "#FFD700");
+          } else {
+            g.gold += 15;
+            g.honey++;
+            g.wisdom += 1;
+            g.addFloat(col, row, "🍯 Honey collected! +15g, +1 wisdom", "#FFD700");
+          }
+          g.addParticles(col + 0.5, row + 0.5, "#FFD700", 6);
+          g.timeOfDay += 4;
+          break;
+        }
+        case "picnic": {
+          g.charm += 2;
+          g.addFloat(col, row, "🧺 Lovely picnic! +2 charm", "#E8C8B8");
+          g.addParticles(col + 0.5, row + 0.5, "#FF69B4", 8);
+          g.timeOfDay += 5;
+          break;
+        }
+        case "summit": {
+          const farmVal = g.calculateScore();
+          g.addFloat(col, row, `🏔️ Farm value: ${farmVal} points!`, "#FDF8F0");
+          g.wisdom += 1;
+          g.timeOfDay += 3;
+          break;
+        }
+        case "fishing": {
+          const doubleCatch = Math.random() < 0.1;
+          if (doubleCatch) {
+            g.gold += 20;
+            g.fish += 2;
+            g.fishCaught += 2;
+            g.addFloat(col, row, "🐟🐟 Double catch! +20g", "#4FC3F7");
+          } else {
+            g.gold += 10;
+            g.fish++;
+            g.fishCaught++;
+            g.addFloat(col, row, "🐟 Nice catch! +10g", "#4FC3F7");
+          }
+          g.wisdom += 1;
+          g.addParticles(col + 0.5, row + 0.5, "#4FC3F7", 6);
+          g.timeOfDay += 4;
+          break;
+        }
+        case "treasure_chest": {
+          if (!g.ruinTreasureFound) {
+            g.ruinTreasureFound = true;
+            g.gold += 50;
+            g.treasuresFound++;
+            // Give rare seeds
+            g.seeds.push("pumpkin", "pumpkin", "strawberry", "strawberry");
+            g.addFloat(col, row, "💎 Ancient treasure! +50g + rare seeds!", "#FFD700");
+            g.addParticles(col + 0.5, row + 0.5, "#FFD700", 15);
+          } else {
+            g.addFloat(col, row, "The chest is empty now.", "#888888");
+          }
+          g.timeOfDay += 3;
+          break;
+        }
+        case "wild_horse_spot": {
+          g.addFloat(col, row, "Hoof prints in the grass...", "#8B7355");
+          g.timeOfDay += 2;
+          break;
+        }
+        default:
+          break;
       }
     }
 
     function executeAction(g: Game) {
       if (g.showShop || g.showBuild || g.showScore || g.nightPhase !== "none") return;
 
+      // Story NPCs
       const npc = g.findNearNPC();
       if (npc && !npc.collected) {
         npc.collected = true;
@@ -1378,11 +2037,76 @@ export default function HomesteadGame({ onGameOver }: Props) {
           g.placedAnimals.push(g.makeAnimal("dog", "Zoe", npc.x, npc.y));
           g.addFloat(npc.x, npc.y, "Zoe joined! 🐕 +20g", "#FFD700");
           g.addParticles(npc.x, npc.y, "#FF69B4", 12);
+        } else if (npc.id === "merchant") {
+          g.gold += 10;
+          g.seeds.push("strawberry", "strawberry", "pumpkin", "pumpkin");
+          g.addFloat(npc.x, npc.y, "🧙 Free samples! +10g + seeds", "#FFD700");
+          g.addParticles(npc.x, npc.y, "#C49A3C", 10);
+        } else if (npc.id === "festival_a") {
+          g.grit += 2;
+          g.addFloat(npc.x, npc.y, "🧑‍🌾 Farming tips! +2 grit", "#FFD700");
+        } else if (npc.id === "festival_b") {
+          g.charm += 2;
+          g.addFloat(npc.x, npc.y, "👩‍🍳 Delicious! +2 charm", "#FFD700");
+        } else if (npc.id === "festival_c") {
+          g.wisdom += 2;
+          g.addFloat(npc.x, npc.y, "🎵 Beautiful song! +2 wisdom", "#FFD700");
         }
         g.timeOfDay += 3;
         return;
       }
 
+      // Wild NPCs
+      const wildNPC = g.findNearWildNPC();
+      if (wildNPC) {
+        if (wildNPC.id === "wild_horse") {
+          wildNPC.interactCount++;
+          if (wildNPC.interactCount >= 3) {
+            wildNPC.active = false;
+            g.placedAnimals.push(g.makeAnimal("donkey", "Mustang", wildNPC.x, wildNPC.y));
+            g.addFloat(wildNPC.x, wildNPC.y, "🐴 The horse joined your farm!", "#FFD700");
+            g.addParticles(wildNPC.x, wildNPC.y, "#FF69B4", 12);
+          } else {
+            wildNPC.fleeTimer = 2;
+            wildNPC.targetX = wildNPC.x + (Math.random() - 0.5) * 6;
+            wildNPC.targetY = wildNPC.y + (Math.random() - 0.5) * 4;
+            wildNPC.targetX = Math.max(30, Math.min(37, wildNPC.targetX));
+            wildNPC.targetY = Math.max(12, Math.min(20, wildNPC.targetY));
+            g.addFloat(wildNPC.x, wildNPC.y, `🐴 Getting closer... (${wildNPC.interactCount}/3)`, "#C49A3C");
+          }
+          g.timeOfDay += 3;
+          return;
+        }
+        if (wildNPC.id === "wild_goat") {
+          wildNPC.interactCount++;
+          if (wildNPC.interactCount >= 2) {
+            wildNPC.active = false;
+            g.placedAnimals.push(g.makeAnimal("goat", "Mountain Billy", wildNPC.x, wildNPC.y));
+            g.addFloat(wildNPC.x, wildNPC.y, "🐐 Mountain goat joined!", "#FFD700");
+            g.addParticles(wildNPC.x, wildNPC.y, "#FF69B4", 12);
+          } else {
+            wildNPC.fleeTimer = 1.5;
+            wildNPC.targetX = wildNPC.x + (Math.random() - 0.5) * 5;
+            wildNPC.targetY = wildNPC.y + (Math.random() - 0.5) * 3;
+            wildNPC.targetX = Math.max(31, Math.min(37, wildNPC.targetX));
+            wildNPC.targetY = Math.max(2, Math.min(8, wildNPC.targetY));
+            g.addFloat(wildNPC.x, wildNPC.y, `🐐 Almost! (${wildNPC.interactCount}/2)`, "#C49A3C");
+          }
+          g.timeOfDay += 3;
+          return;
+        }
+        if (wildNPC.id === "deer") {
+          wildNPC.fleeTimer = 3;
+          wildNPC.targetX = wildNPC.x + (Math.random() > 0.5 ? 4 : -4);
+          wildNPC.targetY = wildNPC.y + (Math.random() > 0.5 ? 3 : -3);
+          g.charm += 1;
+          g.addFloat(wildNPC.x, wildNPC.y, "🦌 Beautiful! +1 charm", "#E8C8B8");
+          g.timeOfDay += 2;
+          return;
+        }
+      }
+
+      // Pet / collect from farm animals
       const animal = g.findNearAnimal();
       if (animal) {
         const d = ANIMAL_DATA[animal.type];
@@ -1400,8 +2124,19 @@ export default function HomesteadGame({ onGameOver }: Props) {
         return;
       }
 
+      // House / Library
       const houseHit = g.findNearbyTile([5, 6]);
       if (houseHit) {
+        const idx = houseHit.row * MAP_COLS + houseHit.col;
+        if (LIBRARY_TILES.has(idx)) {
+          g.libraryVisits++;
+          g.wisdom += 2;
+          const book = BOOK_TITLES[Math.floor(Math.random() * BOOK_TITLES.length)];
+          g.addFloat(g.px, g.py, `📚 +2 wisdom`, "#4FC3F7");
+          g.addFloat(g.px, g.py - 0.5, book, "#FDF8F0");
+          g.timeOfDay += 5;
+          return;
+        }
         g.timeOfDay += 25;
         g.grit += 1;
         g.wisdom += 1;
@@ -1411,6 +2146,7 @@ export default function HomesteadGame({ onGameOver }: Props) {
         return;
       }
 
+      // Shop
       const shopHit = g.findNearbyTile(12);
       if (shopHit) {
         g.showShop = true;
@@ -1419,7 +2155,83 @@ export default function HomesteadGame({ onGameOver }: Props) {
         return;
       }
 
+      // Check for special interact tile (standing or facing)
+      const pcol = Math.round(g.px);
+      const prow = Math.round(g.py);
+      const standingIdx = prow * MAP_COLS + pcol;
+      const standingTile = tileAt(pcol, prow);
+
+      if (standingTile === 18 && SPECIAL_SPOTS[standingIdx]) {
+        executeSpecialInteraction(g, SPECIAL_SPOTS[standingIdx].type, pcol, prow);
+        return;
+      }
+
       const { col, row, tile } = g.getFacingTile();
+      const facedIdx = row * MAP_COLS + col;
+
+      if (tile === 18 && SPECIAL_SPOTS[facedIdx]) {
+        executeSpecialInteraction(g, SPECIAL_SPOTS[facedIdx].type, col, row);
+        return;
+      }
+
+      // Ruin wall interactions
+      if (tile === 16) {
+        if (INSCRIPTION_COORDS.has(facedIdx)) {
+          g.wisdom += 3;
+          g.treasuresFound++;
+          const lore = LORE_TEXTS[Math.floor(Math.random() * LORE_TEXTS.length)];
+          g.addFloat(col, row, "+3 wisdom", "#4FC3F7");
+          g.addFloat(col, row - 0.5, lore, "#FDF8F0");
+          g.timeOfDay += 3;
+          return;
+        }
+        if (BLACKSMITH_TILES.has(facedIdx)) {
+          if (g.toolsUpgraded) {
+            g.addFloat(col, row, "Tools already upgraded!", "#A8D8A8");
+            return;
+          }
+          if (g.gold >= 50 && g.stone >= 5) {
+            g.gold -= 50;
+            g.stone -= 5;
+            g.toolsUpgraded = true;
+            g.addFloat(col, row, "⚒️ Tools upgraded! +1 per chop/mine", "#FFD700");
+            g.addParticles(col + 0.5, row + 0.5, "#FF6B6B", 10);
+            g.timeOfDay += 8;
+          } else {
+            g.addFloat(col, row, `Need 50g + 5 stone (have ${g.gold}g, ${g.stone} stone)`, "#FF6B6B");
+          }
+          return;
+        }
+      }
+
+      // Cave
+      if (tile === 17) {
+        if (!g.caveTreasureFound) {
+          g.caveTreasureFound = true;
+          g.gold += 50;
+          g.treasuresFound++;
+          g.addFloat(col, row, "🕳️ Ancient treasure! +50g", "#FFD700");
+          g.addParticles(col + 0.5, row + 0.5, "#FFD700", 12);
+        } else {
+          const loot = 5 + Math.floor(Math.random() * 11);
+          g.gold += loot;
+          g.addFloat(col, row, `🕳️ Found ${loot}g`, "#C49A3C");
+        }
+        g.timeOfDay += 5;
+        return;
+      }
+
+      // Mine stone
+      if (tile === 13) {
+        const stoneYield = g.toolsUpgraded ? 3 : 2;
+        g.stone += stoneYield;
+        g.grit += 1;
+        TILE_MAP[row * MAP_COLS + col] = 0;
+        g.addFloat(col, row, `⛏️ +${stoneYield} stone`, "#888888");
+        g.addParticles(col + 0.5, row + 0.5, "#888888", 8);
+        g.timeOfDay += 5;
+        return;
+      }
 
       switch (tile) {
         case 7: {
@@ -1455,11 +2267,11 @@ export default function HomesteadGame({ onGameOver }: Props) {
           break;
         }
         case 1: {
-          g.wood += 2;
+          const woodYield = g.toolsUpgraded ? 3 : 2;
+          g.wood += woodYield;
           g.grit += 1;
-          // Tree disappears when chopped — opens new paths!
           TILE_MAP[row * MAP_COLS + col] = 0;
-          g.addFloat(col, row, "\uD83E\uDE93 +2 wood", "#8B7355");
+          g.addFloat(col, row, `\uD83E\uDE93 +${woodYield} wood`, "#8B7355");
           g.addParticles(col + 0.5, row + 0.5, "#8B7355", 8);
           g.timeOfDay += 5;
           break;
@@ -1550,9 +2362,9 @@ export default function HomesteadGame({ onGameOver }: Props) {
           g.gold += sell;
           g.cropsHarvested++;
           cropIncome += sell;
-          const col = crop.tileIdx % MAP_COLS;
-          const row = Math.floor(crop.tileIdx / MAP_COLS);
-          g.addFloat(col, row, `${d.emoji} +${sell}g`, "#FFD700");
+          const c = crop.tileIdx % MAP_COLS;
+          const r = Math.floor(crop.tileIdx / MAP_COLS);
+          g.addFloat(c, r, `${d.emoji} +${sell}g`, "#FFD700");
           toRemove.push(i);
         }
       }
@@ -1568,7 +2380,6 @@ export default function HomesteadGame({ onGameOver }: Props) {
         }
       }
 
-      // Show overnight income summary
       if (cropIncome > 0 || animalIncome > 0) {
         const parts: string[] = [];
         if (animalIncome > 0) parts.push(`🐾 +${animalIncome}g`);
@@ -1576,7 +2387,30 @@ export default function HomesteadGame({ onGameOver }: Props) {
         g.addFloat(g.px, g.py - 1, `Overnight: ${parts.join(" ")}`, "#C49A3C");
       }
 
-      g.storyNPCs = [];
+      // Clear collected story NPCs
+      g.storyNPCs = g.storyNPCs.filter((n) => !n.collected);
+
+      // Spawn deer in forest occasionally
+      if (g.day % 2 === 0 && !g.wildNPCs.some((w) => w.id === "deer" && w.active)) {
+        g.wildNPCs.push({
+          id: "deer", emoji: "🦌", x: 8 + Math.random() * 10, y: 2 + Math.random() * 4,
+          targetX: 10, targetY: 3, moveTimer: 0,
+          interactCount: 0, fleeTimer: 0, active: true,
+        });
+      }
+
+      // Respawn duck on river if you own ducks
+      const hasDucks = g.placedAnimals.some((a) => a.type === "duck");
+      if (hasDucks) {
+        const existingRiverDuck = g.wildNPCs.find((w) => w.id === "river_duck");
+        if (!existingRiverDuck) {
+          g.wildNPCs.push({
+            id: "river_duck", emoji: "🦆", x: 10 + Math.random() * 20, y: 14.5,
+            targetX: 20, targetY: 14.5, moveTimer: 0,
+            interactCount: 0, fleeTimer: 0, active: true,
+          });
+        }
+      }
 
       if (g.day > 15) {
         g.gameOver = true;
@@ -1613,6 +2447,14 @@ export default function HomesteadGame({ onGameOver }: Props) {
       if (g.placedAnimals.some((a) => a.type === "cat")) achievements.push("Cat Person");
       if (g.placedAnimals.length >= 8) achievements.push("Animal Kingdom");
       if (g.buildings.includes("pavilion")) achievements.push("Party Planner");
+      if (g.zonesVisited.size >= 7) achievements.push("Explorer");
+      if (g.treasuresFound >= 3) achievements.push("Treasure Hunter");
+      if (g.fishCaught >= 10) achievements.push("Master Angler");
+      if (g.honeyCollected >= 5) achievements.push("Beekeeper");
+      if (g.zonesVisited.has("mountain")) achievements.push("Mountaineer");
+      if (g.libraryVisits >= 5 && g.wisdom >= 20) achievements.push("Scholar");
+      if (g.toolsUpgraded) achievements.push("Tool Master");
+      if (g.fairyRingVisits >= 3) achievements.push("Fairy Friend");
 
       if (achievements.length > 0) {
         lines.push(`Achievements: ${achievements.join(", ")} (+${achievements.length * 25})`);
@@ -1660,7 +2502,6 @@ export default function HomesteadGame({ onGameOver }: Props) {
       const overlayOpen = g.showShop || g.showBuild || g.showScore;
 
       if (g.nightPhase === "none" && !overlayOpen && !g.gameOver) {
-        // Time ticking
         g.timeOfDay += dt * 1.6;
         if (g.timeOfDay >= 100 && g.nightPhase === "none") {
           g.nightPhase = "fading_out";
@@ -1685,8 +2526,8 @@ export default function HomesteadGame({ onGameOver }: Props) {
           const nmx = (mdx / moveLen) * speed;
           const nmy = (mdy / moveLen) * speed;
 
-          let nx = g.px + nmx;
-          let ny = g.py + nmy;
+          const nx = g.px + nmx;
+          const ny = g.py + nmy;
 
           if (canWalkTo(nx, g.py)) {
             g.px = nx;
@@ -1705,6 +2546,9 @@ export default function HomesteadGame({ onGameOver }: Props) {
         } else {
           g.walkFrame = 0;
         }
+
+        // Update visited tiles
+        g.updateVisited();
 
         // Action input (rising edge)
         const actionKey = keys.has(" ") || keys.has("e") || actionTouch.active;
@@ -1738,8 +2582,8 @@ export default function HomesteadGame({ onGameOver }: Props) {
 
       // Update animal AI
       if (g.nightPhase === "none" && !overlayOpen) {
-        const PEN_MIN_X = 3, PEN_MAX_X = 7, PEN_MIN_Y = 6, PEN_MAX_Y = 8;
-        const FIELD_MIN_X = 10, FIELD_MAX_X = 15, FIELD_MIN_Y = 5, FIELD_MAX_Y = 9;
+        const PEN_MIN_X = 8, PEN_MAX_X = 11, PEN_MIN_Y = 12, PEN_MAX_Y = 14;
+        const FIELD_MIN_X = 22, FIELD_MAX_X = 28, FIELD_MIN_Y = 10, FIELD_MAX_Y = 13;
         for (const a of g.placedAnimals) {
           a.moveTimer += dt;
           if (a.moveTimer >= a.moveInterval) {
@@ -1751,8 +2595,8 @@ export default function HomesteadGame({ onGameOver }: Props) {
               a.targetX = PEN_MIN_X + Math.random() * (PEN_MAX_X - PEN_MIN_X);
               a.targetY = PEN_MIN_Y + Math.random() * (PEN_MAX_Y - PEN_MIN_Y);
             } else if (isCatDog) {
-              a.targetX = 2 + Math.random() * 6;
-              a.targetY = 2 + Math.random() * 5;
+              a.targetX = 10 + Math.random() * 8;
+              a.targetY = 9 + Math.random() * 4;
             } else {
               a.targetX = FIELD_MIN_X + Math.random() * (FIELD_MAX_X - FIELD_MIN_X);
               a.targetY = FIELD_MIN_Y + Math.random() * (FIELD_MAX_Y - FIELD_MIN_Y);
@@ -1768,14 +2612,67 @@ export default function HomesteadGame({ onGameOver }: Props) {
           }
         }
 
-        // Story NPC movement (Zoe moves fast!)
+        // Wild NPC movement
+        for (const w of g.wildNPCs) {
+          if (!w.active) continue;
+          w.moveTimer += dt;
+
+          if (w.fleeTimer > 0) {
+            w.fleeTimer -= dt;
+            const dx = w.targetX - w.x;
+            const dy = w.targetY - w.y;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+            if (dist > 0.2) {
+              const fspeed = 4 * dt;
+              w.x += (dx / dist) * fspeed;
+              w.y += (dy / dist) * fspeed;
+            }
+          } else {
+            if (w.id === "deer") {
+              // Deer flees when player gets close
+              const dxp = w.x - g.px;
+              const dyp = w.y - g.py;
+              const pdist = Math.sqrt(dxp * dxp + dyp * dyp);
+              if (pdist < 4) {
+                w.fleeTimer = 2;
+                w.targetX = w.x + (dxp / pdist) * 5;
+                w.targetY = w.y + (dyp / pdist) * 3;
+                w.targetX = Math.max(2, Math.min(22, w.targetX));
+                w.targetY = Math.max(1, Math.min(6, w.targetY));
+              }
+            }
+            if (w.id === "river_duck") {
+              if (w.moveTimer > 3) {
+                w.moveTimer = 0;
+                w.targetX = 5 + Math.random() * 30;
+                w.targetY = 14 + Math.random() * 1.5;
+              }
+              const dx = w.targetX - w.x;
+              const dist = Math.abs(dx);
+              if (dist > 0.2) {
+                w.x += (dx > 0 ? 1 : -1) * 0.8 * dt;
+              }
+            }
+
+            if (w.moveTimer > w.moveTimer + 3) {
+              w.moveTimer = 0;
+            }
+          }
+
+          // Remove deer that go out of bounds
+          if (w.id === "deer" && (w.x < 1 || w.x > 38 || w.y < 1 || w.y > 28)) {
+            w.active = false;
+          }
+        }
+
+        // Story NPC movement (Zoe moves around!)
         for (const npc of g.storyNPCs) {
           if (npc.collected) continue;
           if (npc.id === "zoe") {
             npc.x += Math.sin(timestamp * 0.003) * dt * 2;
             npc.y += Math.cos(timestamp * 0.002 + 1) * dt * 1.5;
-            npc.x = Math.max(2, Math.min(15, npc.x));
-            npc.y = Math.max(2, Math.min(11, npc.y));
+            npc.x = Math.max(8, Math.min(28, npc.x));
+            npc.y = Math.max(8, Math.min(13, npc.y));
           }
         }
       }
@@ -1791,7 +2688,6 @@ export default function HomesteadGame({ onGameOver }: Props) {
       camX = Math.max(0, Math.min(mapPxW - canvasW, camX));
       camY = Math.max(0, Math.min(mapPxH - canvasH, camY));
 
-      // If map is smaller than canvas, center it
       if (mapPxW < canvasW) camX = -(canvasW - mapPxW) / 2;
       if (mapPxH < canvasH) camY = -(canvasH - mapPxH) / 2;
 
@@ -1799,7 +2695,7 @@ export default function HomesteadGame({ onGameOver }: Props) {
       ctx.fillStyle = "#1D4420";
       ctx.fillRect(0, 0, canvasW, canvasH);
 
-      // Draw tiles
+      // Draw tiles (with viewport culling)
       const startCol = Math.max(0, Math.floor(camX / tileSize));
       const endCol = Math.min(MAP_COLS - 1, Math.ceil((camX + canvasW) / tileSize));
       const startRow = Math.max(0, Math.floor(camY / tileSize));
@@ -1808,6 +2704,15 @@ export default function HomesteadGame({ onGameOver }: Props) {
       for (let r = startRow; r <= endRow; r++) {
         for (let c = startCol; c <= endCol; c++) {
           drawTile(ctx, tileAt(c, r), c, r, g.season, tileSize, timestamp, camX, camY, g.buildings);
+        }
+      }
+
+      // Fog of war overlay
+      for (let r = startRow; r <= endRow; r++) {
+        for (let c = startCol; c <= endCol; c++) {
+          if (!g.isRevealed(c, r)) {
+            drawFogOverlay(ctx, c, r, tileSize, camX, camY);
+          }
         }
       }
 
@@ -1820,6 +2725,11 @@ export default function HomesteadGame({ onGameOver }: Props) {
       const sortedAnimals = [...g.placedAnimals].sort((a, b) => a.y - b.y);
       for (let i = 0; i < sortedAnimals.length; i++) {
         drawAnimalEntity(ctx, sortedAnimals[i], tileSize, camX, camY, timestamp, i);
+      }
+
+      // Draw wild NPCs
+      for (const w of g.wildNPCs) {
+        drawWildNPC(ctx, w, tileSize, camX, camY, timestamp);
       }
 
       // Draw story NPCs
@@ -1920,15 +2830,15 @@ export default function HomesteadGame({ onGameOver }: Props) {
       if (g.gold >= d.cost) {
         g.gold -= d.cost;
         const name = getAnimalName(animalType, g.placedAnimals);
-        const PEN_MIN_X = 3, PEN_MAX_X = 7, PEN_MIN_Y = 6, PEN_MAX_Y = 8;
-        const FIELD_MIN_X = 10, FIELD_MAX_X = 15, FIELD_MIN_Y = 5, FIELD_MAX_Y = 9;
+        const PEN_MIN_X = 8, PEN_MAX_X = 11, PEN_MIN_Y = 12, PEN_MAX_Y = 14;
+        const FIELD_MIN_X = 22, FIELD_MAX_X = 28, FIELD_MIN_Y = 10, FIELD_MAX_Y = 13;
         let sx: number, sy: number;
         if (isPoultry) {
           sx = PEN_MIN_X + Math.random() * (PEN_MAX_X - PEN_MIN_X);
           sy = PEN_MIN_Y + Math.random() * (PEN_MAX_Y - PEN_MIN_Y);
         } else if (["cat", "dog"].includes(animalType)) {
-          sx = 3 + Math.random() * 4;
-          sy = 3 + Math.random() * 3;
+          sx = 10 + Math.random() * 6;
+          sy = 9 + Math.random() * 3;
         } else {
           sx = FIELD_MIN_X + Math.random() * (FIELD_MAX_X - FIELD_MIN_X);
           sy = FIELD_MIN_Y + Math.random() * (FIELD_MAX_Y - FIELD_MIN_Y);
@@ -2032,10 +2942,10 @@ export default function HomesteadGame({ onGameOver }: Props) {
             Homestead
           </div>
           <div style={{ color: "#FDF8F0", fontSize: "14px", textAlign: "center", maxWidth: 300, lineHeight: 1.6, marginBottom: "20px" }}>
-            Build your dream farm in 15 days!{"\n\n"}
+            Build your farm and explore the world in 15 days!{"\n\n"}
             Move: WASD / Arrow keys / Joystick{"\n"}
             Act: Space / E / Action button{"\n\n"}
-            Walk up to things and press action!
+            Explore the forest, town, meadow, mountain and ruins!
           </div>
           <div style={{ color: "#A8D8A8", fontSize: "12px" }}>
             Loading...
@@ -2206,8 +3116,9 @@ export default function HomesteadGame({ onGameOver }: Props) {
               🎉 The Celebration!
             </div>
             <div style={{ color: "#FDF8F0AA", fontSize: 12, marginBottom: 12 }}>
-              {scoreData.total >= 450 ? "🌟 Legendary Brooker Ranch — the stuff of fairy tales!" :
-               scoreData.total >= 300 ? "✨ Dream Estate — your farm is magnificent!" :
+              {scoreData.total >= 600 ? "🌟 Legendary Brooker Ranch — the stuff of fairy tales!" :
+               scoreData.total >= 450 ? "✨ Dream Estate — your farm is magnificent!" :
+               scoreData.total >= 300 ? "🗺️ Grand Explorer — you've seen it all!" :
                scoreData.total >= 150 ? "🌿 Thriving Farm — you've built something beautiful!" :
                "🏡 Cozy Homestead — a humble beginning!"}
             </div>
