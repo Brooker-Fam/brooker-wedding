@@ -520,7 +520,7 @@ class Game {
   wildGoatInteracts: number;
 
   constructor() {
-    this.px = 12;
+    this.px = 13.5;
     this.py = 9.5;
     this.facing = 2;
     this.walkFrame = 0;
@@ -538,9 +538,9 @@ class Game {
     this.honey = 0;
 
     this.placedAnimals = [
-      this.makeAnimal("chicken", "Henrietta", 9.5, 13.5),
-      this.makeAnimal("chicken", "Cluck Norris", 10, 13),
-      this.makeAnimal("chicken", "Eggatha", 9, 14),
+      this.makeAnimal("chicken", "Henrietta", 9.5, 14),
+      this.makeAnimal("chicken", "Cluck Norris", 9, 13.5),
+      this.makeAnimal("chicken", "Eggatha", 10, 14.5),
     ];
     this.crops = [];
     this.buildings = [];
@@ -2582,8 +2582,8 @@ export default function HomesteadGame({ onGameOver }: Props) {
 
       // Update animal AI
       if (g.nightPhase === "none" && !overlayOpen) {
-        const PEN_MIN_X = 8, PEN_MAX_X = 11, PEN_MIN_Y = 12, PEN_MAX_Y = 14;
-        const FIELD_MIN_X = 22, FIELD_MAX_X = 28, FIELD_MIN_Y = 10, FIELD_MAX_Y = 13;
+        const PEN_MIN_X = 8.2, PEN_MAX_X = 10.8, PEN_MIN_Y = 13.2, PEN_MAX_Y = 15.8;
+        const FIELD_MIN_X = 16, FIELD_MAX_X = 21, FIELD_MIN_Y = 16.5, FIELD_MAX_Y = 19;
         for (const a of g.placedAnimals) {
           a.moveTimer += dt;
           if (a.moveTimer >= a.moveInterval) {
@@ -2595,8 +2595,8 @@ export default function HomesteadGame({ onGameOver }: Props) {
               a.targetX = PEN_MIN_X + Math.random() * (PEN_MAX_X - PEN_MIN_X);
               a.targetY = PEN_MIN_Y + Math.random() * (PEN_MAX_Y - PEN_MIN_Y);
             } else if (isCatDog) {
-              a.targetX = 10 + Math.random() * 8;
-              a.targetY = 9 + Math.random() * 4;
+              a.targetX = 12 + Math.random() * 6;
+              a.targetY = 10 + Math.random() * 4;
             } else {
               a.targetX = FIELD_MIN_X + Math.random() * (FIELD_MAX_X - FIELD_MIN_X);
               a.targetY = FIELD_MIN_Y + Math.random() * (FIELD_MAX_Y - FIELD_MIN_Y);
@@ -2607,8 +2607,14 @@ export default function HomesteadGame({ onGameOver }: Props) {
           const dist = Math.sqrt(dx * dx + dy * dy);
           if (dist > 0.1) {
             const aspeed = 0.8 * dt;
-            a.x += (dx / dist) * aspeed;
-            a.y += (dy / dist) * aspeed;
+            const newAx = a.x + (dx / dist) * aspeed;
+            const newAy = a.y + (dy / dist) * aspeed;
+            if (isWalkable(Math.floor(newAx), Math.floor(newAy))) {
+              a.x = newAx;
+              a.y = newAy;
+            } else {
+              a.moveTimer = a.moveInterval;
+            }
           }
         }
 
@@ -2722,6 +2728,7 @@ export default function HomesteadGame({ onGameOver }: Props) {
       }
 
       // Draw animals (sorted by y for depth)
+      ctx.globalAlpha = 1;
       const sortedAnimals = [...g.placedAnimals].sort((a, b) => a.y - b.y);
       for (let i = 0; i < sortedAnimals.length; i++) {
         drawAnimalEntity(ctx, sortedAnimals[i], tileSize, camX, camY, timestamp, i);
@@ -2830,8 +2837,8 @@ export default function HomesteadGame({ onGameOver }: Props) {
       if (g.gold >= d.cost) {
         g.gold -= d.cost;
         const name = getAnimalName(animalType, g.placedAnimals);
-        const PEN_MIN_X = 8, PEN_MAX_X = 11, PEN_MIN_Y = 12, PEN_MAX_Y = 14;
-        const FIELD_MIN_X = 22, FIELD_MAX_X = 28, FIELD_MIN_Y = 10, FIELD_MAX_Y = 13;
+        const PEN_MIN_X = 8.2, PEN_MAX_X = 10.8, PEN_MIN_Y = 13.2, PEN_MAX_Y = 15.8;
+        const FIELD_MIN_X = 16, FIELD_MAX_X = 21, FIELD_MIN_Y = 16.5, FIELD_MAX_Y = 19;
         let sx: number, sy: number;
         if (isPoultry) {
           sx = PEN_MIN_X + Math.random() * (PEN_MAX_X - PEN_MIN_X);
