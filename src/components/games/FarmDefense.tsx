@@ -1883,6 +1883,14 @@ export default function FarmDefense() {
     return 0;
   }, []);
 
+  const getSellValue = useCallback((def: Defender): number => {
+    const baseCost = DEFENDER_STATS[def.type].cost;
+    let totalInvested = baseCost;
+    if (def.level >= 2) totalInvested += Math.round(baseCost * 1.5);
+    if (def.level >= 3) totalInvested += Math.round(baseCost * 2);
+    return Math.round(totalInvested * 0.6);
+  }, []);
+
   const handleUpgradeDefender = useCallback(() => {
     const gs = gameStateRef.current;
     if (!gs || !gs.selectedUpgradeDefender) return;
@@ -1919,6 +1927,37 @@ export default function FarmDefense() {
     gs.selectedUpgradeDefender = null;
     syncUI();
   }, [syncUI]);
+
+  const handleSellDefender = useCallback(() => {
+    const gs = gameStateRef.current;
+    if (!gs || !gs.selectedUpgradeDefender) return;
+
+    const def = gs.defenders.find((d) => d.id === gs.selectedUpgradeDefender!.id);
+    if (!def) return;
+
+    const sellValue = getSellValue(def);
+    gs.eggs += sellValue;
+
+    // Poof particles
+    for (let i = 0; i < 10; i++) {
+      gs.particles.push({
+        x: def.col * gs.cellSize + gs.cellSize / 2,
+        y: def.row * gs.cellSize + gs.cellSize / 2,
+        vx: (Math.random() - 0.5) * 120,
+        vy: (Math.random() - 0.5) * 120,
+        life: 0.6,
+        maxLife: 0.6,
+        color: "#FF8844",
+        size: 5,
+      });
+    }
+
+    // Remove defender and free the tile
+    gs.defenders = gs.defenders.filter((d) => d.id !== def.id);
+    gs.grid[def.row][def.col] = "grass";
+    gs.selectedUpgradeDefender = null;
+    syncUI();
+  }, [syncUI, getSellValue]);
 
   const handleRestart = useCallback(() => {
     initGame();
@@ -2144,12 +2183,20 @@ export default function FarmDefense() {
               ) : (
                 <div className="text-xs text-yellow-400">MAX LEVEL</div>
               )}
-              <button
-                onClick={handleCloseUpgrade}
-                className="text-xs text-gray-500 hover:text-gray-300 mt-0.5"
-              >
-                Close
-              </button>
+              <div className="flex gap-3 mt-1">
+                <button
+                  onClick={handleSellDefender}
+                  className="rounded-lg px-3 py-1 text-xs font-bold bg-red-800 hover:bg-red-700 text-white transition-all active:scale-95"
+                >
+                  Sell +🥚{getSellValue(def)}
+                </button>
+                <button
+                  onClick={handleCloseUpgrade}
+                  className="rounded-lg px-3 py-1 text-xs text-gray-400 hover:text-gray-200 transition-all"
+                >
+                  Close
+                </button>
+              </div>
             </div>
           );
         })()}
