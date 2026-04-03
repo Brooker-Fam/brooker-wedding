@@ -184,10 +184,10 @@ const BUILDING_BUILD_TIME: Record<BuildingType, number> = {
   farmhouse: 0, barn: 15, stable: 20, roost: 15, silo: 10, fence: 5, watchtower: 12,
 };
 const BUILDING_VISION: Record<BuildingType, number> = {
-  farmhouse: 8, barn: 5, stable: 5, roost: 6, silo: 4, fence: 2, watchtower: 10,
+  farmhouse: 14, barn: 6, stable: 6, roost: 8, silo: 5, fence: 3, watchtower: 12,
 };
 const UNIT_STATS: Record<UnitType, { hp: number; damage: number; range: number; speed: number; vision: number }> = {
-  farmer: { hp: 30, damage: 5, range: 1.2, speed: 2.5, vision: 6 },
+  farmer: { hp: 30, damage: 5, range: 1.2, speed: 2.5, vision: 8 },
   rooster: { hp: 40, damage: 8, range: 1.2, speed: 4.0, vision: 7 },
   goose: { hp: 50, damage: 12, range: 4.0, speed: 2.5, vision: 7 },
   ram: { hp: 120, damage: 15, range: 1.2, speed: 1.8, vision: 5 },
@@ -217,8 +217,8 @@ const COLORS = {
   berry: "#2d6e2d",
   berryFruit: "#cc3355",
   water: "#3a6aaa",
-  fogBlack: "rgba(0,0,0,0.7)",
-  fogExplored: "rgba(0,0,0,0.4)",
+  fogBlack: "rgba(0,0,0,0.55)",
+  fogExplored: "rgba(0,0,0,0.3)",
   playerColor: "#3388ff",
   aiColor: "#ff3333",
   uiBg: "rgba(20,12,8,0.92)",
@@ -1543,8 +1543,7 @@ function render(gs: GameState, ctx: CanvasRenderingContext2D, canvasW: number, c
   }
   ctx.globalAlpha = 1;
 
-  renderFog(gs, fogCtx, canvasW, canvasH, cx, cy);
-  ctx.drawImage(fogCtx.canvas, 0, 0);
+  renderFog(gs, ctx, canvasW, canvasH, cx, cy);
 
   if (gs.selectionBox.active) {
     const bx1 = Math.min(gs.selectionBox.x1, gs.selectionBox.x2);
@@ -2703,16 +2702,18 @@ export default function HomesteadWars() {
 
     const loop = (time: number) => {
       const gs = gameStateRef.current;
-      if (!gs || gs.phase !== "playing") return;
+      if (!gs) return;
 
       const dt = Math.min((time - lastTimeRef.current) / 1000, 0.05);
       lastTimeRef.current = time;
 
       const rect = canvas.getBoundingClientRect();
-      updateGame(gs, dt);
 
-      if (gs.phase !== "playing") {
-        setPhase(gs.phase);
+      if (gs.phase === "playing") {
+        updateGame(gs, dt);
+        if (gs.phase !== "playing") {
+          setPhase(gs.phase);
+        }
       }
 
       render(gs, ctx, rect.width, rect.height, fogCtx);
