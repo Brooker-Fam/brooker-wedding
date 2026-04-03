@@ -2887,12 +2887,12 @@ export default function HomesteadWars() {
   return (
     <div
       ref={containerRef}
-      className="w-screen h-dvh relative overflow-hidden"
+      className="fixed inset-0 pt-[60px] overflow-hidden"
       style={{ background: "#0a0a0a", cursor: gameStateRef.current?.buildingToBuild ? "crosshair" : "default" }}
     >
       <canvas
         ref={canvasRef}
-        className="absolute top-0 left-0 w-full h-full"
+        style={{ display: "block" }}
       />
       <canvas
         ref={fogCanvasRef}
