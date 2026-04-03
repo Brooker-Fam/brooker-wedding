@@ -7,7 +7,7 @@ import { useEffect, useRef, useState, useCallback } from "react";
 // =============================================================================
 
 type DefenderType = "dog" | "cat" | "goose" | "rooster";
-type EnemyType = "red" | "arctic" | "gray" | "chief";
+type EnemyType = "red" | "arctic" | "gray" | "chief" | "cubs" | "badger" | "burrower" | "packleader";
 type TileType = "grass" | "path" | "forest" | "coop";
 type GameState = "menu" | "playing" | "paused" | "won" | "lost" | "placing";
 
@@ -41,6 +41,9 @@ interface Enemy {
   slowTimer: number;
   animTimer: number;
   reward: number;
+  burrowed: boolean;
+  burrowTimer: number;
+  immuneSlow: boolean;
 }
 
 interface Projectile {
@@ -235,93 +238,73 @@ const ENEMY_STATS: Record<
     name: "Fox Chief",
     size: 0.9,
   },
+  cubs: {
+    hp: 12,
+    speed: 2.2,
+    reward: 3,
+    color: "#DD7744",
+    name: "Fox Cub",
+    size: 0.35,
+  },
+  badger: {
+    hp: 180,
+    speed: 0.6,
+    reward: 25,
+    color: "#555566",
+    name: "Armored Badger",
+    size: 0.75,
+  },
+  burrower: {
+    hp: 50,
+    speed: 1.8,
+    reward: 15,
+    color: "#996633",
+    name: "Burrowing Fox",
+    size: 0.6,
+  },
+  packleader: {
+    hp: 70,
+    speed: 1.4,
+    reward: 20,
+    color: "#AA2200",
+    name: "Pack Leader",
+    size: 0.7,
+  },
 };
 
 function generateWaves(): WaveConfig[] {
-  const waves: WaveConfig[] = [];
-
-  for (let w = 1; w <= 15; w++) {
-    const enemies: { type: EnemyType; count: number; delay: number }[] = [];
-    const isBoss = w % 5 === 0;
-
-    if (isBoss) {
-      enemies.push({ type: "chief", count: 1, delay: 0 });
-      if (w >= 5) {
-        enemies.push({
-          type: "red",
-          count: Math.max(1, Math.floor(w / 3)),
-          delay: 1800,
-        });
-      }
-      if (w >= 10) {
-        enemies.push({
-          type: "gray",
-          count: 1,
-          delay: 2200,
-        });
-      }
-    } else if (w <= 3) {
-      enemies.push({
-        type: "red",
-        count: 2 + w,
-        delay: 1200,
-      });
-    } else if (w <= 5) {
-      enemies.push({
-        type: "red",
-        count: 3 + w,
-        delay: 1000,
-      });
-      if (w >= 4) {
-        enemies.push({
-          type: "arctic",
-          count: 1,
-          delay: 900,
-        });
-      }
-    } else if (w <= 10) {
-      enemies.push({
-        type: "red",
-        count: 3 + Math.floor(w * 0.8),
-        delay: 900,
-      });
-      enemies.push({
-        type: "arctic",
-        count: Math.floor(w / 3),
-        delay: 800,
-      });
-      if (w >= 8) {
-        enemies.push({
-          type: "gray",
-          count: Math.max(1, Math.floor((w - 6) / 2)),
-          delay: 1400,
-        });
-      }
-    } else {
-      enemies.push({
-        type: "red",
-        count: 4 + Math.floor(w * 0.7),
-        delay: 800,
-      });
-      enemies.push({
-        type: "arctic",
-        count: Math.floor(w / 3),
-        delay: 700,
-      });
-      enemies.push({
-        type: "gray",
-        count: Math.floor(w / 4),
-        delay: 1200,
-      });
-    }
-
-    waves.push({
-      enemies,
-      spawnDelay: Math.max(800, 1400 - w * 30),
-    });
-  }
-
-  return waves;
+  return [
+    // Wave 1: Learn the basics
+    { enemies: [{ type: "red", count: 3, delay: 1200 }], spawnDelay: 1400 },
+    // Wave 2: More coverage needed
+    { enemies: [{ type: "red", count: 5, delay: 1000 }], spawnDelay: 1200 },
+    // Wave 3: Fast enemies introduced
+    { enemies: [{ type: "red", count: 3, delay: 1100 }, { type: "arctic", count: 2, delay: 900 }], spawnDelay: 1100 },
+    // Wave 4: Swarm! AOE is powerful
+    { enemies: [{ type: "cubs", count: 8, delay: 500 }, { type: "red", count: 2, delay: 1000 }], spawnDelay: 600 },
+    // Wave 5: First boss
+    { enemies: [{ type: "chief", count: 1, delay: 0 }, { type: "red", count: 3, delay: 1800 }], spawnDelay: 1400 },
+    // Wave 6: Armored badger - slow doesn't work, need raw damage
+    { enemies: [{ type: "badger", count: 2, delay: 2000 }, { type: "red", count: 3, delay: 1000 }], spawnDelay: 1200 },
+    // Wave 7: Burrowers - need coverage in multiple zones
+    { enemies: [{ type: "burrower", count: 3, delay: 1200 }, { type: "arctic", count: 3, delay: 900 }], spawnDelay: 1000 },
+    // Wave 8: Pack leader speeds up allies - kill the leader first
+    { enemies: [{ type: "packleader", count: 1, delay: 0 }, { type: "red", count: 6, delay: 800 }], spawnDelay: 900 },
+    // Wave 9: Mixed pressure
+    { enemies: [{ type: "cubs", count: 6, delay: 500 }, { type: "badger", count: 1, delay: 2000 }, { type: "arctic", count: 3, delay: 800 }], spawnDelay: 800 },
+    // Wave 10: Double boss
+    { enemies: [{ type: "chief", count: 2, delay: 3000 }, { type: "packleader", count: 1, delay: 1500 }, { type: "red", count: 4, delay: 900 }], spawnDelay: 1000 },
+    // Wave 11: Burrower + fast rush
+    { enemies: [{ type: "burrower", count: 4, delay: 1000 }, { type: "arctic", count: 5, delay: 700 }], spawnDelay: 800 },
+    // Wave 12: Everything mixed
+    { enemies: [{ type: "red", count: 5, delay: 800 }, { type: "cubs", count: 6, delay: 400 }, { type: "gray", count: 2, delay: 1400 }], spawnDelay: 700 },
+    // Wave 13: Heavy combo
+    { enemies: [{ type: "badger", count: 3, delay: 1800 }, { type: "packleader", count: 2, delay: 1200 }, { type: "cubs", count: 8, delay: 400 }], spawnDelay: 600 },
+    // Wave 14: Arctic rush panic wave
+    { enemies: [{ type: "arctic", count: 10, delay: 500 }, { type: "burrower", count: 3, delay: 800 }], spawnDelay: 500 },
+    // Wave 15: Final boss - everything
+    { enemies: [{ type: "chief", count: 2, delay: 2500 }, { type: "badger", count: 2, delay: 2000 }, { type: "packleader", count: 2, delay: 1500 }, { type: "cubs", count: 10, delay: 300 }, { type: "arctic", count: 5, delay: 600 }], spawnDelay: 500 },
+  ];
 }
 
 // =============================================================================
@@ -848,6 +831,16 @@ export default function FarmDefense() {
     // Draw enemies
     for (const enemy of enemies) {
       if (!enemy.alive) continue;
+      if (enemy.burrowed) {
+        // Dirt trail for burrowed enemies
+        ctx.globalAlpha = 0.4;
+        ctx.fillStyle = "#8B6914";
+        ctx.beginPath();
+        ctx.ellipse(enemy.x, enemy.y, cellSize * 0.3, cellSize * 0.15, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.globalAlpha = 1;
+        continue;
+      }
       drawEnemy(ctx, enemy, cellSize);
     }
 
@@ -1222,7 +1215,7 @@ export default function FarmDefense() {
     ctx.fill();
 
     // Snout
-    ctx.fillStyle = enemy.type === "arctic" ? "#DDDDDD" : "#CC6633";
+    ctx.fillStyle = enemy.type === "arctic" ? "#DDDDDD" : enemy.type === "badger" ? "#888888" : "#CC6633";
     ctx.beginPath();
     ctx.ellipse(s * 0.75, -s * 0.1, s * 0.2, s * 0.15, 0, 0, Math.PI * 2);
     ctx.fill();
@@ -1268,6 +1261,29 @@ export default function FarmDefense() {
       ctx.lineTo(s * 0.7, -s * 1.1);
       ctx.lineTo(s * 0.75, -s * 0.85);
       ctx.fill();
+    }
+
+    // Badger armor stripes
+    if (enemy.type === "badger") {
+      ctx.strokeStyle = "#CCCCCC";
+      ctx.lineWidth = s * 0.1;
+      ctx.beginPath();
+      ctx.moveTo(-s * 0.3, -s * 0.5);
+      ctx.lineTo(s * 0.8, -s * 0.5);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(-s * 0.3, 0);
+      ctx.lineTo(s * 0.8, 0);
+      ctx.stroke();
+    }
+
+    // Pack leader red aura
+    if (enemy.type === "packleader") {
+      ctx.strokeStyle = "rgba(255,50,0,0.5)";
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.arc(0, 0, s * 1.2, 0, Math.PI * 2);
+      ctx.stroke();
     }
 
     ctx.restore();
@@ -1347,12 +1363,43 @@ export default function FarmDefense() {
 
         enemy.animTimer += effectiveDt;
 
-        if (enemy.slowTimer > 0) {
+        if (enemy.slowTimer > 0 && !enemy.immuneSlow) {
           enemy.slowTimer -= effectiveDt;
         }
+        if (enemy.immuneSlow) enemy.slowTimer = 0;
 
-        const speedMult = enemy.slowTimer > 0 ? 0.4 : 1;
-        const moveAmount = enemy.speed * speedMult * effectiveDt * gs.cellSize;
+        // Burrowing behavior
+        if (enemy.type === "burrower" && !enemy.burrowed) {
+          enemy.burrowTimer -= effectiveDt * 60;
+          if (enemy.burrowTimer <= 0 && enemy.pathIndex > 2 && enemy.pathIndex < gs.path.length - 4) {
+            enemy.burrowed = true;
+            enemy.burrowTimer = 120; // 2 seconds burrowed
+          }
+        }
+        if (enemy.burrowed) {
+          enemy.burrowTimer -= effectiveDt * 60;
+          if (enemy.burrowTimer <= 0) {
+            enemy.burrowed = false;
+            enemy.burrowTimer = 9999; // don't burrow again
+          }
+        }
+
+        // Pack leader speeds up nearby foxes
+        if (enemy.type === "packleader") {
+          for (const ally of gs.enemies) {
+            if (ally.id !== enemy.id && ally.alive && !ally.burrowed) {
+              const adx = ally.x - enemy.x;
+              const ady = ally.y - enemy.y;
+              if (Math.sqrt(adx * adx + ady * ady) < gs.cellSize * 2) {
+                ally.slowTimer = Math.min(ally.slowTimer, 0); // cancel slows near pack leader
+              }
+            }
+          }
+        }
+
+        const speedMult = (enemy.slowTimer > 0 && !enemy.immuneSlow) ? 0.4 : 1;
+        const packBoost = gs.enemies.some(e => e.type === "packleader" && e.alive && e.id !== enemy.id && Math.sqrt((e.x - enemy.x) ** 2 + (e.y - enemy.y) ** 2) < gs.cellSize * 2) ? 1.3 : 1;
+        const moveAmount = enemy.speed * speedMult * packBoost * effectiveDt * gs.cellSize;
 
         // Move along path
         if (enemy.pathIndex < gs.path.length - 1) {
@@ -1445,7 +1492,7 @@ export default function FarmDefense() {
         let closestDist = Infinity;
 
         for (const enemy of gs.enemies) {
-          if (!enemy.alive) continue;
+          if (!enemy.alive || enemy.burrowed) continue;
           const dx = enemy.x - cx;
           const dy = enemy.y - cy;
           const dist = Math.sqrt(dx * dx + dy * dy);
@@ -1680,6 +1727,9 @@ export default function FarmDefense() {
       slowTimer: 0,
       animTimer: Math.random() * Math.PI * 2,
       reward: stats.reward,
+      burrowed: false,
+      burrowTimer: type === "burrower" ? 120 + Math.random() * 120 : 0,
+      immuneSlow: type === "badger",
     };
 
     gs.enemies.push(enemy);
