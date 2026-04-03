@@ -52,12 +52,13 @@ interface PlacedAnimal {
   bounceTimer: number;
   lastSpeech: string;
   speechTimer: number;
+  productTimer: number;
 }
 
 interface GroundItem {
   x: number;
   y: number;
-  type: "coin" | "gem" | "seed" | "berry" | "star";
+  type: "coin" | "gem" | "seed" | "berry" | "star" | "product";
   value: number;
   emoji: string;
   sparklePhase: number;
@@ -774,6 +775,7 @@ class Game {
       targetX: x, targetY: y,
       moveTimer: 0, moveInterval: 2 + Math.random() * 3,
       bounceTimer: 0, lastSpeech: "", speechTimer: 0,
+      productTimer: 8 + Math.random() * 12,
     };
   }
 
@@ -2186,9 +2188,6 @@ export default function HomesteadGame({ onGameOver }: Props) {
       const animal = g.findNearAnimal();
       if (animal) {
         const d = ANIMAL_DATA[animal.type];
-        if (d.product && d.productValue > 0) {
-          return { prompt: `${d.emoji} Collect`, tx: animal.x, ty: animal.y };
-        }
         return { prompt: `${d.emoji} Pet ${animal.name}`, tx: animal.x, ty: animal.y };
       }
 
@@ -2269,7 +2268,7 @@ export default function HomesteadGame({ onGameOver }: Props) {
           }
           const poultryCount = countPoultry(g.placedAnimals);
           if (poultryCount > 0) {
-            return { prompt: `\uD83E\uDD5A Collect`, tx: fc, ty: fr };
+            return { prompt: `\uD83D\uDC14 Coop (${poultryCount} birds)`, tx: fc, ty: fr };
           }
           return null;
         }
@@ -2518,30 +2517,22 @@ export default function HomesteadGame({ onGameOver }: Props) {
         }
       }
 
-      // Pet / collect from farm animals
+      // Pet farm animals (products drop on the ground naturally)
       const animal = g.findNearAnimal();
       if (animal) {
-        const d = ANIMAL_DATA[animal.type];
         animal.bounceTimer = 1.0;
         const speechPool = ANIMAL_SPEECH[animal.type];
         animal.lastSpeech = speechPool[Math.floor(Math.random() * speechPool.length)];
         animal.speechTimer = 2.0;
-        if (d.product && d.productValue > 0) {
-          g.gold += d.productValue;
-          g.charm += 1;
-          g.addFloat(animal.x, animal.y, `${d.emoji} ${d.product}! +${d.productValue}g`, "#FFD700");
-          g.addParticles(animal.x, animal.y, "#FFD700", 8);
-          g.addParticles(animal.x, animal.y, "#FF69B4", 4);
-        } else {
-          g.charm += 1;
-          const loveMsg = Math.random() < 0.5
-            ? `\u2764\uFE0F ${animal.name} loves you!`
-            : `\u2764\uFE0F +1 charm`;
-          g.addFloat(animal.x, animal.y, loveMsg, "#FF69B4");
-          g.addParticles(animal.x, animal.y, "#FF69B4", 8);
-          g.addParticles(animal.x, animal.y, "#FF3366", 4);
-        }
-        g.timeOfDay += 3;
+        g.charm += 1;
+        const msgs = [
+          `\u2764\uFE0F ${animal.name} loves you!`,
+          `\u2764\uFE0F +1 charm`,
+          `${animal.name}: ${animal.lastSpeech}`,
+        ];
+        g.addFloat(animal.x, animal.y, msgs[Math.floor(Math.random() * msgs.length)], "#FF69B4");
+        g.addParticles(animal.x, animal.y, "#FF69B4", 10);
+        g.timeOfDay += 2;
         checkMilestones(g);
         return;
       }
@@ -2717,21 +2708,10 @@ export default function HomesteadGame({ onGameOver }: Props) {
               g.addFloat(col, row, `Need ${d.goldCost}g + ${d.woodCost}w`, "#FF6B6B");
             }
           } else {
-            const poultry = g.placedAnimals.filter((a) =>
+            const poultryCount = g.placedAnimals.filter((a) =>
               ["chicken", "duck", "goose"].includes(a.type)
-            );
-            if (poultry.length > 0) {
-              let totalVal = 0;
-              for (const a of poultry) {
-                const d = ANIMAL_DATA[a.type];
-                if (d.productValue > 0) totalVal += d.productValue;
-              }
-              g.gold += totalVal;
-              g.charm += 1;
-              g.addFloat(col, row, `\uD83E\uDD5A +${totalVal}g`, "#FFD700");
-              g.addParticles(col + 0.5, row + 0.5, "#FFD700", 8);
-              g.timeOfDay += 5;
-            }
+            ).length;
+            g.addFloat(col, row, `\uD83D\uDC14 ${poultryCount} bird${poultryCount !== 1 ? "s" : ""} in the coop`, "#C4A25A");
           }
           break;
         }
@@ -3028,6 +3008,9 @@ export default function HomesteadGame({ onGameOver }: Props) {
               if (stat === 0) { g.grit++; g.addFloat(item.x, item.y, "\u2B50 +1 grit!", "#FFD700"); }
               else if (stat === 1) { g.wisdom++; g.addFloat(item.x, item.y, "\u2B50 +1 wisdom!", "#FFD700"); }
               else { g.charm++; g.addFloat(item.x, item.y, "\u2B50 +1 charm!", "#FFD700"); }
+            } else if (item.type === "product") {
+              g.gold += item.value;
+              g.addFloat(item.x, item.y, `${item.emoji} +${item.value}g`, "#FFD700");
             }
             g.addParticles(item.x, item.y, "#FFD700", 6);
             g.groundItems.splice(i, 1);
@@ -3070,10 +3053,33 @@ export default function HomesteadGame({ onGameOver }: Props) {
         if (p.life <= 0) g.particles.splice(i, 1);
       }
 
-      // Decay animal bounce/speech timers
+      // Decay animal bounce/speech timers + product laying
       for (const a of g.placedAnimals) {
         if (a.bounceTimer > 0) a.bounceTimer = Math.max(0, a.bounceTimer - dt * 3);
         if (a.speechTimer > 0) a.speechTimer -= dt;
+        // Animals drop products on the ground
+        const ad = ANIMAL_DATA[a.type];
+        if (ad.product && ad.productValue > 0) {
+          a.productTimer -= dt;
+          if (a.productTimer <= 0) {
+            a.productTimer = 12 + Math.random() * 15;
+            const PRODUCT_EMOJI: Record<string, string> = {
+              egg: "🥚", "duck egg": "🥚", "goose egg": "🥚",
+              "goat milk": "🥛", milk: "🥛", wool: "🧶", truffle: "🍄",
+            };
+            g.groundItems.push({
+              x: a.x + (Math.random() - 0.5) * 0.8,
+              y: a.y + 0.3 + Math.random() * 0.4,
+              type: "product",
+              emoji: PRODUCT_EMOJI[ad.product] || "📦",
+              value: ad.productValue,
+              sparklePhase: Math.random() * Math.PI * 2,
+            });
+            a.bounceTimer = 0.5;
+            a.lastSpeech = a.type === "chicken" ? "🥚!" : a.type === "cow" ? "🥛!" : "!";
+            a.speechTimer = 1.5;
+          }
+        }
       }
 
       // Achievement timer
