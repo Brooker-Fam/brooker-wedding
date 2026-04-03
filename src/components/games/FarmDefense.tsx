@@ -539,21 +539,21 @@ export default function FarmDefense() {
     const canvasAreaH = screenH - uiTopHeight - uiBottomHeight;
 
     const cellSize = Math.floor(
-      Math.min(canvasAreaW / cols, canvasAreaH / rows)
+      Math.min(canvasAreaW / cols, canvasAreaH / rows, 70)
     );
     const gridW = cellSize * cols;
     const gridH = cellSize * rows;
 
-    const canvasWidth = canvasAreaW;
-    const canvasHeight = canvasAreaH;
+    const canvasWidth = gridW;
+    const canvasHeight = gridH;
 
     canvas.style.width = canvasWidth + 'px';
     canvas.style.height = canvasHeight + 'px';
     canvas.width = canvasWidth * dpr;
     canvas.height = canvasHeight * dpr;
 
-    const offsetX = Math.floor((canvasWidth - gridW) / 2);
-    const offsetY = Math.floor((canvasHeight - gridH) / 2);
+    const offsetX = 0;
+    const offsetY = 0;
 
     const path = generatePath(cols, rows);
     const grid = buildGrid(cols, rows, path);
