@@ -11,6 +11,8 @@ type EnemyType = "red" | "arctic" | "gray" | "chief" | "cubs" | "badger" | "burr
 type TileType = "grass" | "path" | "forest" | "coop";
 type GameState = "menu" | "playing" | "paused" | "won" | "lost" | "placing";
 type UpgradePath = "a" | "b" | null;
+type Difficulty = "easy" | "normal" | "hard";
+type AbilityType = "eggbasket" | "dinnerbell" | "scarecrow";
 
 interface GridPos {
   col: number;
@@ -107,6 +109,18 @@ const UPGRADE_PATHS: Record<DefenderType, { a: UpgradePathDef; b: UpgradePathDef
 // =============================================================================
 // CONSTANTS
 // =============================================================================
+
+const DIFFICULTY_SETTINGS: Record<Difficulty, { startEggs: number; hpMult: number; lives: number; label: string; color: string }> = {
+  easy: { startEggs: 150, hpMult: 0.7, lives: 30, label: "Easy", color: "#44AA44" },
+  normal: { startEggs: 100, hpMult: 1.0, lives: 20, label: "Normal", color: "#DDAA20" },
+  hard: { startEggs: 80, hpMult: 1.4, lives: 12, label: "Hard", color: "#CC3333" },
+};
+
+const ABILITY_DEFS: Record<AbilityType, { name: string; emoji: string; cooldown: number; description: string }> = {
+  eggbasket: { name: "Egg Basket", emoji: "🧺", cooldown: 15, description: "Slow enemies in area for 3s" },
+  dinnerbell: { name: "Dinner Bell", emoji: "🔔", cooldown: 40, description: "All towers attack 50% faster for 5s" },
+  scarecrow: { name: "Scarecrow", emoji: "🎃", cooldown: 50, description: "Block 3 enemies for 2s each" },
+};
 
 const COLORS = {
   barnRed: "#8B2500",
@@ -484,6 +498,12 @@ export default function FarmDefense() {
     speedMultiplier: number;
     autoWave: boolean;
     selectedUpgradeDefender: Defender | null;
+    difficulty: Difficulty;
+    abilityCooldowns: Record<AbilityType, number>;
+    dinnerBellTimer: number;
+    scarecrows: { col: number; row: number; blocksLeft: number; timer: number }[];
+    cleanWave: boolean;
+    floatingTexts: { x: number; y: number; text: string; color: string; life: number; maxLife: number }[];
   }>(null);
   const animFrameRef = useRef<number>(0);
   const [uiState, setUiState] = useState<{
@@ -499,6 +519,8 @@ export default function FarmDefense() {
     waveCooldown: number;
     speedMultiplier: number;
     selectedUpgradeDefender: Defender | null;
+    abilityCooldowns: Record<AbilityType, number>;
+    dinnerBellTimer: number;
   }>({
     gameState: "menu",
     eggs: 100,
@@ -512,7 +534,11 @@ export default function FarmDefense() {
     waveCooldown: 0,
     speedMultiplier: 1,
     selectedUpgradeDefender: null,
+    abilityCooldowns: { eggbasket: 0, dinnerbell: 0, scarecrow: 0 },
+    dinnerBellTimer: 0,
   });
+
+  const [difficulty, setDifficulty] = useState<Difficulty>("normal");
 
   const syncUI = useCallback(() => {
     const gs = gameStateRef.current;
@@ -530,6 +556,8 @@ export default function FarmDefense() {
       waveCooldown: gs.waveCooldown,
       speedMultiplier: gs.speedMultiplier,
       selectedUpgradeDefender: gs.selectedUpgradeDefender,
+      abilityCooldowns: { ...gs.abilityCooldowns },
+      dinnerBellTimer: gs.dinnerBellTimer,
     });
   }, []);
 
@@ -591,9 +619,9 @@ export default function FarmDefense() {
       enemies: [],
       projectiles: [],
       particles: [],
-      eggs: 100,
-      coopHp: 20,
-      maxCoopHp: 20,
+      eggs: DIFFICULTY_SETTINGS[difficulty].startEggs,
+      coopHp: DIFFICULTY_SETTINGS[difficulty].lives,
+      maxCoopHp: DIFFICULTY_SETTINGS[difficulty].lives,
       wave: 0,
       maxWaves: 15,
       waves: generateWaves(),
@@ -618,6 +646,12 @@ export default function FarmDefense() {
       speedMultiplier: 1,
       autoWave: false,
       selectedUpgradeDefender: null,
+      difficulty,
+      abilityCooldowns: { eggbasket: 0, dinnerbell: 0, scarecrow: 0 },
+      dinnerBellTimer: 0,
+      scarecrows: [],
+      cleanWave: true,
+      floatingTexts: [],
     };
 
     syncUI();
@@ -909,6 +943,37 @@ export default function FarmDefense() {
       ctx.fill();
     }
     ctx.globalAlpha = 1;
+
+    // Draw scarecrows & floating texts
+    const gameState = gameStateRef.current;
+    if (gameState) {
+      for (const sc of gameState.scarecrows) {
+        const sx = sc.col * cellSize + cellSize / 2;
+        const sy = sc.row * cellSize + cellSize / 2;
+        ctx.fillStyle = "#8B6914";
+        ctx.fillRect(sx - 2, sy - cellSize * 0.4, 4, cellSize * 0.6);
+        ctx.fillRect(sx - cellSize * 0.25, sy - cellSize * 0.2, cellSize * 0.5, 4);
+        ctx.fillStyle = "#FF8C00";
+        ctx.beginPath();
+        ctx.arc(sx, sy - cellSize * 0.35, cellSize * 0.15, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = "#FFF";
+        ctx.font = `${Math.max(8, cellSize * 0.2)}px monospace`;
+        ctx.textAlign = "center";
+        ctx.fillText(`${sc.blocksLeft}`, sx, sy + cellSize * 0.35);
+      }
+
+      // Draw floating damage/bonus texts
+      for (const ft of gameState.floatingTexts) {
+        ctx.globalAlpha = Math.min(1, ft.life / ft.maxLife * 2);
+        ctx.fillStyle = ft.color;
+        ctx.font = `bold ${ft.text.length > 15 ? 11 : 13}px monospace`;
+        ctx.textAlign = "center";
+        ctx.fillText(ft.text, ft.x, ft.y);
+      }
+      ctx.globalAlpha = 1;
+      ctx.textAlign = "left";
+    }
 
     // Grid border
     ctx.strokeStyle = "rgba(0,0,0,0.15)";
@@ -1379,6 +1444,18 @@ export default function FarmDefense() {
         gs.waveActive = false;
         gs.waveCooldown = 8;
 
+        // Clean wave bonus
+        if (gs.cleanWave) {
+          const bonus = 10 + gs.wave * 2;
+          gs.eggs += bonus;
+          gs.floatingTexts.push({
+            x: gs.canvasWidth / 2, y: gs.canvasHeight / 2 - 20,
+            text: `Wave ${gs.wave} Clear! +${bonus} bonus eggs!`,
+            color: "#44FF44", life: 2, maxLife: 2,
+          });
+        }
+        gs.cleanWave = true;
+
         if (gs.wave >= gs.maxWaves) {
           gs.state = "won";
           gs.score += gs.coopHp * 50;
@@ -1461,6 +1538,7 @@ export default function FarmDefense() {
         if (enemy.pathIndex >= gs.path.length - 1) {
           enemy.alive = false;
           gs.coopHp -= enemy.type === "chief" ? 3 : 1;
+          gs.cleanWave = false;
           gs.shakeTimer = 0.3;
           gs.shakeIntensity = enemy.type === "chief" ? 12 : 6;
 
@@ -1521,7 +1599,8 @@ export default function FarmDefense() {
         const pantherBonus = (def.path === "b" && def.type === "cat") ? 1.5 : 1;
         const range = stats.range * levelRangeMult * pantherBonus * gs.cellSize;
         const boost = boostMap.get(def.id) || 0;
-        const effectiveAttackSpeed = stats.attackSpeed * (1 - boost);
+        const dinnerBellMult = gs.dinnerBellTimer > 0 ? 0.5 : 1;
+        const effectiveAttackSpeed = stats.attackSpeed * (1 - boost) * dinnerBellMult;
 
         const cx = def.col * gs.cellSize + gs.cellSize / 2;
         const cy = def.row * gs.cellSize + gs.cellSize / 2;
@@ -1588,14 +1667,15 @@ export default function FarmDefense() {
             fromDefender: def.type,
           });
 
-          // Sheepdog: push enemy back on every 3rd hit
-          if (def.path === "a" && def.type === "dog" && def.kills % 3 === 0) {
+          // Sheepdog: 30% chance to push enemy back
+          if (def.path === "a" && def.type === "dog" && Math.random() < 0.3) {
             const pushEnemy = closestEnemy;
             if (pushEnemy.pathIndex > 1) {
               pushEnemy.pathIndex = Math.max(0, pushEnemy.pathIndex - 1);
-              const target = gs.path[pushEnemy.pathIndex];
-              pushEnemy.x = target.col * gs.cellSize + gs.cellSize / 2;
-              pushEnemy.y = target.row * gs.cellSize + gs.cellSize / 2;
+              const prevPos = gs.path[pushEnemy.pathIndex];
+              pushEnemy.x = prevPos.col * gs.cellSize + gs.cellSize / 2;
+              pushEnemy.y = prevPos.row * gs.cellSize + gs.cellSize / 2;
+              gs.floatingTexts.push({ x: pushEnemy.x, y: pushEnemy.y - 15, text: "PUSH!", color: "#44AAFF", life: 0.5, maxLife: 0.5 });
             }
           }
 
@@ -1730,6 +1810,7 @@ export default function FarmDefense() {
             }
             if (hitEnemy) {
               hitEnemy.hp -= proj.damage;
+              gs.floatingTexts.push({ x: hitEnemy.x, y: hitEnemy.y - 10, text: `-${Math.round(proj.damage)}`, color: "#FFCC00", life: 0.6, maxLife: 0.6 });
             }
             // Hit particle
             gs.particles.push({
@@ -1810,6 +1891,41 @@ export default function FarmDefense() {
         (e) => e.alive || e.hp > 0
       );
 
+      // Update ability cooldowns
+      for (const key of Object.keys(gs.abilityCooldowns) as AbilityType[]) {
+        if (gs.abilityCooldowns[key] > 0) gs.abilityCooldowns[key] -= effectiveDt;
+      }
+      if (gs.dinnerBellTimer > 0) gs.dinnerBellTimer -= effectiveDt;
+
+      // Update scarecrows
+      for (let i = gs.scarecrows.length - 1; i >= 0; i--) {
+        const sc = gs.scarecrows[i];
+        sc.timer -= effectiveDt;
+        if (sc.blocksLeft <= 0 || sc.timer <= 0) {
+          gs.scarecrows.splice(i, 1);
+          continue;
+        }
+        // Block enemies touching the scarecrow
+        for (const enemy of gs.enemies) {
+          if (!enemy.alive || enemy.burrowed) continue;
+          const ex = enemy.x - (sc.col * gs.cellSize + gs.cellSize / 2);
+          const ey = enemy.y - (sc.row * gs.cellSize + gs.cellSize / 2);
+          if (Math.sqrt(ex * ex + ey * ey) < gs.cellSize * 0.6) {
+            enemy.slowTimer = Math.max(enemy.slowTimer, 2);
+            sc.blocksLeft--;
+            break;
+          }
+        }
+      }
+
+      // Update floating texts
+      for (let i = gs.floatingTexts.length - 1; i >= 0; i--) {
+        const ft = gs.floatingTexts[i];
+        ft.y -= 30 * effectiveDt;
+        ft.life -= effectiveDt;
+        if (ft.life <= 0) gs.floatingTexts.splice(i, 1);
+      }
+
       // Update particles
       for (let i = gs.particles.length - 1; i >= 0; i--) {
         const p = gs.particles[i];
@@ -1865,7 +1981,7 @@ export default function FarmDefense() {
     const startPos = gs.path[0];
     if (!startPos) return null;
 
-    const waveScale = 1 + (gs.wave - 1) * 0.08;
+    const waveScale = (1 + (gs.wave - 1) * 0.08) * DIFFICULTY_SETTINGS[gs.difficulty].hpMult;
 
     const enemy: Enemy = {
       id: gs.nextId++,
@@ -1972,6 +2088,8 @@ export default function FarmDefense() {
           path: null,
           abilityTimer: 0,
         });
+
+        gs.selectedDefender = null;
 
         // Placement particles
         for (let i = 0; i < 6; i++) {
@@ -2203,6 +2321,43 @@ export default function FarmDefense() {
     initGame();
   }, [initGame]);
 
+  const handleAbility = useCallback((ability: AbilityType) => {
+    const gs = gameStateRef.current;
+    if (!gs || gs.abilityCooldowns[ability] > 0) return;
+
+    gs.abilityCooldowns[ability] = ABILITY_DEFS[ability].cooldown;
+
+    if (ability === "dinnerbell") {
+      gs.dinnerBellTimer = 5;
+      gs.floatingTexts.push({ x: gs.canvasWidth / 2, y: gs.canvasHeight / 2, text: "DINNER BELL! 🔔", color: "#FFD700", life: 1.5, maxLife: 1.5 });
+      for (let i = 0; i < 15; i++) {
+        gs.particles.push({
+          x: gs.canvasWidth / 2, y: gs.canvasHeight / 2,
+          vx: (Math.random() - 0.5) * 200, vy: (Math.random() - 0.5) * 200,
+          life: 0.8, maxLife: 0.8, color: "#FFD700", size: 4,
+        });
+      }
+    } else if (ability === "eggbasket") {
+      // Slow all enemies on screen for 3 seconds
+      for (const enemy of gs.enemies) {
+        if (enemy.alive && !enemy.burrowed && !enemy.immuneSlow) {
+          enemy.slowTimer = Math.max(enemy.slowTimer, 3);
+        }
+      }
+      gs.floatingTexts.push({ x: gs.canvasWidth / 2, y: gs.canvasHeight / 2, text: "EGG BASKET! 🧺", color: "#AADDFF", life: 1.5, maxLife: 1.5 });
+    } else if (ability === "scarecrow") {
+      // Place scarecrow at the middle of the path
+      const midIdx = Math.floor(gs.path.length / 2);
+      const pos = gs.path[midIdx];
+      if (pos) {
+        gs.scarecrows.push({ col: pos.col, row: pos.row, blocksLeft: 3, timer: 12 });
+        gs.floatingTexts.push({ x: pos.col * gs.cellSize + gs.cellSize / 2, y: pos.row * gs.cellSize, text: "SCARECROW! 🎃", color: "#FF8844", life: 1.5, maxLife: 1.5 });
+      }
+    }
+
+    syncUI();
+  }, [syncUI]);
+
   // =========================================================================
   // RENDER
   // =========================================================================
@@ -2322,9 +2477,33 @@ export default function FarmDefense() {
                   High Score: {uiState.highScore}
                 </div>
               )}
+              {/* Difficulty selector */}
+              <div className="flex gap-2 mt-2">
+                {(Object.keys(DIFFICULTY_SETTINGS) as Difficulty[]).map((d) => {
+                  const s = DIFFICULTY_SETTINGS[d];
+                  return (
+                    <button
+                      key={d}
+                      onClick={() => setDifficulty(d)}
+                      className={`rounded-lg px-4 py-2 text-sm font-bold transition-all active:scale-95 ${
+                        difficulty === d
+                          ? "ring-2 ring-white scale-105"
+                          : "opacity-70 hover:opacity-100"
+                      }`}
+                      style={{ background: s.color, color: "#FFF" }}
+                    >
+                      {s.label}
+                    </button>
+                  );
+                })}
+              </div>
+              <div className="text-xs text-white/60">
+                {DIFFICULTY_SETTINGS[difficulty].startEggs} eggs · {DIFFICULTY_SETTINGS[difficulty].lives} lives · {difficulty === "easy" ? "0.7x" : difficulty === "normal" ? "1x" : "1.4x"} enemy HP
+              </div>
+
               <button
                 onClick={handleStartGame}
-                className="mt-4 rounded-xl bg-[#8B2500] px-10 py-4 text-xl sm:text-2xl font-bold text-white shadow-lg transition-transform active:scale-95 hover:bg-[#A03000]"
+                className="mt-2 rounded-xl bg-[#8B2500] px-10 py-4 text-xl sm:text-2xl font-bold text-white shadow-lg transition-transform active:scale-95 hover:bg-[#A03000]"
               >
                 START GAME
               </button>
@@ -2553,6 +2732,29 @@ export default function FarmDefense() {
                 {DEFENDER_STATS[uiState.selectedDefender].description}
               </div>
             )}
+          </div>
+
+          {/* Ability buttons */}
+          <div className="flex items-center justify-center gap-2">
+            {(Object.keys(ABILITY_DEFS) as AbilityType[]).map((ability) => {
+              const def = ABILITY_DEFS[ability];
+              const cd = uiState.abilityCooldowns[ability];
+              const ready = cd <= 0;
+              return (
+                <button
+                  key={ability}
+                  onClick={() => handleAbility(ability)}
+                  disabled={!ready}
+                  className={`relative flex items-center gap-1 rounded-lg px-2 py-1.5 text-xs font-bold transition-all active:scale-95 ${
+                    ready ? "bg-emerald-700 hover:bg-emerald-600 text-white" : "bg-gray-700 text-gray-500"
+                  }`}
+                >
+                  <span>{def.emoji}</span>
+                  <span>{def.name}</span>
+                  {!ready && <span className="text-[10px] text-yellow-300 ml-1">{Math.ceil(cd)}s</span>}
+                </button>
+              );
+            })}
           </div>
         </div>
       )}
