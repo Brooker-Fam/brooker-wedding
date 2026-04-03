@@ -436,9 +436,8 @@ function getUnitsInRange(gs: GameState, x: number, y: number, range: number): Un
   return results;
 }
 
-function isVisible(gs: GameState, tx: number, ty: number): boolean {
-  if (tx < 0 || ty < 0 || tx >= MAP_W || ty >= MAP_H) return false;
-  return gs.fog[ty][tx];
+function isVisible(_gs: GameState, _tx: number, _ty: number): boolean {
+  return true; // Fog disabled for now
 }
 
 function updateFog(gs: GameState) {
@@ -1543,7 +1542,8 @@ function render(gs: GameState, ctx: CanvasRenderingContext2D, canvasW: number, c
   }
   ctx.globalAlpha = 1;
 
-  renderFog(gs, ctx, canvasW, canvasH, cx, cy);
+  // Fog disabled for now — rendering issues on HiDPI
+  // renderFog(gs, ctx, canvasW, canvasH, cx, cy);
 
   if (gs.selectionBox.active) {
     const bx1 = Math.min(gs.selectionBox.x1, gs.selectionBox.x2);
