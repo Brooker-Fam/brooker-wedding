@@ -516,9 +516,9 @@ export default function FarmDefense() {
     const cols = isMobile ? 10 : 14;
     const rows = isMobile ? 14 : 10;
 
-    const navHeight = 60;
+    const navHeight = 64;
     const gameTopBarHeight = 44;
-    const uiBottomHeight = isMobile ? 120 : 90;
+    const uiBottomHeight = isMobile ? 130 : 120;
     const canvasAreaW = screenW;
     const canvasAreaH = screenH - navHeight - gameTopBarHeight - uiBottomHeight;
 
@@ -528,16 +528,17 @@ export default function FarmDefense() {
     const gridW = cellSize * cols;
     const gridH = cellSize * rows;
 
-    const canvasWidth = canvasAreaW;
-    const canvasHeight = canvasAreaH;
+    // Canvas matches grid exactly — no overflow possible
+    const canvasWidth = gridW;
+    const canvasHeight = gridH;
 
     canvas.style.width = canvasWidth + 'px';
     canvas.style.height = canvasHeight + 'px';
     canvas.width = canvasWidth * dpr;
     canvas.height = canvasHeight * dpr;
 
-    const offsetX = Math.floor((canvasWidth - gridW) / 2);
-    const offsetY = Math.floor((canvasHeight - gridH) / 2);
+    const offsetX = 0;
+    const offsetY = 0;
 
     const path = generatePath(cols, rows);
     const grid = buildGrid(cols, rows, path);
@@ -630,10 +631,8 @@ export default function FarmDefense() {
     ctx.clearRect(0, 0, canvasWidth, canvasHeight);
 
     // Sky background
-    ctx.fillStyle = "#1a2a0a";
-    ctx.fillRect(0, 0, canvasWidth, canvasHeight);
     ctx.fillStyle = COLORS.skyBlue;
-    ctx.fillRect(offsetX, offsetY, cellSize * cols, cellSize * rows);
+    ctx.fillRect(0, 0, canvasWidth, canvasHeight);
 
     // Apply screen shake
     let shakeX = 0;
@@ -2074,10 +2073,9 @@ export default function FarmDefense() {
       )}
 
       {/* Canvas area - always present for ref access */}
-      <div className="relative flex-1 min-h-0">
+      <div className="relative flex-1 min-h-0 flex items-center justify-center">
         <canvas
           ref={canvasRef}
-          className="absolute inset-0"
           onClick={(e) => {
             if (isPlaying) handleCanvasClick(e.clientX, e.clientY);
           }}
