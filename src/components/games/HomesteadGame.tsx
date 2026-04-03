@@ -402,6 +402,35 @@ class Game {
     return { col: tc, row: tr, tile: tileAt(tc, tr) };
   }
 
+  findNearbyTile(targetTile: number | number[]): { col: number; row: number; tile: number } | null {
+    const targets = Array.isArray(targetTile) ? targetTile : [targetTile];
+    const col = Math.round(this.px);
+    const row = Math.round(this.py);
+
+    const standing = tileAt(col, row);
+    if (targets.includes(standing)) return { col, row, tile: standing };
+
+    const facingDx = [0, 1, 0, -1];
+    const facingDy = [-1, 0, 1, 0];
+    const fc = col + facingDx[this.facing];
+    const fr = row + facingDy[this.facing];
+    const facedTile = tileAt(fc, fr);
+    if (targets.includes(facedTile)) return { col: fc, row: fr, tile: facedTile };
+
+    const offsets = [
+      [0, -1], [1, 0], [0, 1], [-1, 0],
+      [-1, -1], [1, -1], [-1, 1], [1, 1],
+    ];
+    for (const [ox, oy] of offsets) {
+      const nc = col + ox;
+      const nr = row + oy;
+      if (nc === fc && nr === fr) continue;
+      const t = tileAt(nc, nr);
+      if (targets.includes(t)) return { col: nc, row: nr, tile: t };
+    }
+    return null;
+  }
+
   findNearAnimal(): PlacedAnimal | null {
     let best: PlacedAnimal | null = null;
     let bestDist = 2.0;
@@ -648,7 +677,7 @@ function drawTile(
       ctx.fillRect(px, py, ts, ts);
       ctx.fillStyle = "#C49A3C";
       ctx.fillRect(px + ts * 0.12, py, ts * 0.75, ts * 0.12);
-      ctx.font = `${Math.max(8, ts * 0.28)}px sans-serif`;
+      ctx.font = `${Math.max(10, ts * 0.3)}px sans-serif`;
       ctx.fillStyle = "#FDF8F0";
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
@@ -854,7 +883,7 @@ function drawHUD(
   ctx.fillRect(0, 0, w, barH);
 
   const fontSize = Math.max(10, ts * 0.32);
-  const smallFont = Math.max(8, ts * 0.26);
+  const smallFont = Math.max(10, ts * 0.28);
 
   ctx.font = `bold ${fontSize}px sans-serif`;
   ctx.textAlign = "left";
@@ -926,9 +955,9 @@ function drawVirtualControls(
   actionActive: boolean,
   hasAction: boolean
 ) {
-  const outerR = 35;
-  const innerR = 14;
-  const actR = 28;
+  const outerR = 42;
+  const innerR = 17;
+  const actR = 34;
 
   ctx.globalAlpha = joyActive ? 0.55 : 0.3;
   ctx.fillStyle = "#1D4420";
@@ -944,8 +973,8 @@ function drawVirtualControls(
   ctx.fill();
   ctx.globalAlpha = 1;
 
-  const actX = w - 50;
-  const actY = h - 55;
+  const actX = w - 58;
+  const actY = h - 70;
   ctx.globalAlpha = hasAction ? 0.8 : 0.35;
   ctx.fillStyle = hasAction ? "#C49A3C" : "#666";
   ctx.strokeStyle = "#1D4420";
@@ -1096,7 +1125,7 @@ export default function HomesteadGame({ onGameOver }: Props) {
       canvas.style.width = canvasW + "px";
       canvas.style.height = canvasH + "px";
       ctx!.setTransform(dpr, 0, 0, dpr, 0, 0);
-      tileSize = Math.max(28, Math.min(48, Math.floor(Math.min(canvasW / 12, canvasH / 10))));
+      tileSize = Math.max(30, Math.min(48, Math.floor(Math.min(canvasW / 11, canvasH / 9))));
     }
 
     resize();
@@ -1131,7 +1160,7 @@ export default function HomesteadGame({ onGameOver }: Props) {
       for (let i = 0; i < e.changedTouches.length; i++) {
         const t = e.changedTouches[i];
         const pos = getTouchPos(t);
-        if (pos.y > canvasH - 130) {
+        if (pos.y > canvasH - 160) {
           if (pos.x < canvasW * 0.5) {
             joystick.active = true;
             joystick.touchId = t.identifier;
@@ -1265,6 +1294,16 @@ export default function HomesteadGame({ onGameOver }: Props) {
         return { prompt: `${d.emoji} Pet ${animal.name}`, tx: animal.x, ty: animal.y };
       }
 
+      const houseHit = g.findNearbyTile([5, 6]);
+      if (houseHit) {
+        return { prompt: `\uD83D\uDE34 Rest`, tx: houseHit.col, ty: houseHit.row };
+      }
+
+      const shopHit = g.findNearbyTile(12);
+      if (shopHit) {
+        return { prompt: `\uD83C\uDFEA Shop`, tx: shopHit.col, ty: shopHit.row };
+      }
+
       const { col, row, tile } = g.getFacingTile();
 
       switch (tile) {
@@ -1284,7 +1323,6 @@ export default function HomesteadGame({ onGameOver }: Props) {
           return { prompt: `No seeds!`, tx: col, ty: row };
         }
         case 1: return { prompt: `\uD83E\uDE93 Chop`, tx: col, ty: row };
-        case 6: return { prompt: `\uD83D\uDE34 Rest`, tx: col, ty: row };
         case 8: {
           const hasCoop = g.buildings.includes("coop");
           if (!hasCoop) {
@@ -1306,7 +1344,6 @@ export default function HomesteadGame({ onGameOver }: Props) {
           return { prompt: `\uD83D\uDD28 Build...`, tx: col, ty: row };
         }
         case 3: return { prompt: `\uD83C\uDFA3 Relax`, tx: col, ty: row };
-        case 12: return { prompt: `\uD83C\uDFEA Shop`, tx: col, ty: row };
         default: return null;
       }
     }
@@ -1338,8 +1375,9 @@ export default function HomesteadGame({ onGameOver }: Props) {
         } else if (npc.id === "zoe") {
           g.grit += 2;
           g.gold += 20;
-          g.addFloat(npc.x, npc.y, "+2 grit, +20g found!", "#FFD700");
-          g.addParticles(npc.x, npc.y, "#FFD700", 12);
+          g.placedAnimals.push(g.makeAnimal("dog", "Zoe", npc.x, npc.y));
+          g.addFloat(npc.x, npc.y, "Zoe joined! 🐕 +20g", "#FFD700");
+          g.addParticles(npc.x, npc.y, "#FF69B4", 12);
         }
         g.timeOfDay += 3;
         return;
@@ -1359,6 +1397,25 @@ export default function HomesteadGame({ onGameOver }: Props) {
           g.addParticles(animal.x, animal.y, "#FF69B4", 6);
         }
         g.timeOfDay += 3;
+        return;
+      }
+
+      const houseHit = g.findNearbyTile([5, 6]);
+      if (houseHit) {
+        g.timeOfDay += 25;
+        g.grit += 1;
+        g.wisdom += 1;
+        g.charm += 1;
+        g.addFloat(g.px, g.py, "\uD83D\uDE34 Rested! +1 all stats", "#B8A9C9");
+        g.addParticles(g.px, g.py, "#B8A9C9", 8);
+        return;
+      }
+
+      const shopHit = g.findNearbyTile(12);
+      if (shopHit) {
+        g.showShop = true;
+        setOverlay("shop");
+        syncOverlayState();
         return;
       }
 
@@ -1400,18 +1457,11 @@ export default function HomesteadGame({ onGameOver }: Props) {
         case 1: {
           g.wood += 2;
           g.grit += 1;
+          // Tree disappears when chopped — opens new paths!
+          TILE_MAP[row * MAP_COLS + col] = 0;
           g.addFloat(col, row, "\uD83E\uDE93 +2 wood", "#8B7355");
           g.addParticles(col + 0.5, row + 0.5, "#8B7355", 8);
           g.timeOfDay += 5;
-          break;
-        }
-        case 6: {
-          g.timeOfDay += 25;
-          g.grit += 1;
-          g.wisdom += 1;
-          g.charm += 1;
-          g.addFloat(g.px, g.py, "\uD83D\uDE34 Rested! +1 all stats", "#B8A9C9");
-          g.addParticles(g.px, g.py, "#B8A9C9", 8);
           break;
         }
         case 8: {
@@ -1475,12 +1525,6 @@ export default function HomesteadGame({ onGameOver }: Props) {
           g.timeOfDay += 5;
           break;
         }
-        case 12: {
-          g.showShop = true;
-          setOverlay("shop");
-          syncOverlayState();
-          break;
-        }
       }
     }
 
@@ -1489,6 +1533,9 @@ export default function HomesteadGame({ onGameOver }: Props) {
       g.day++;
       g.season = getSeason(g.day);
       g.timeOfDay = 0;
+
+      let cropIncome = 0;
+      let animalIncome = 0;
 
       for (const crop of g.crops) {
         crop.growth += 1;
@@ -1502,6 +1549,7 @@ export default function HomesteadGame({ onGameOver }: Props) {
           const sell = g.buildings.includes("stand") ? Math.floor(d.sellPrice * 1.5) : d.sellPrice;
           g.gold += sell;
           g.cropsHarvested++;
+          cropIncome += sell;
           const col = crop.tileIdx % MAP_COLS;
           const row = Math.floor(crop.tileIdx / MAP_COLS);
           g.addFloat(col, row, `${d.emoji} +${sell}g`, "#FFD700");
@@ -1516,7 +1564,16 @@ export default function HomesteadGame({ onGameOver }: Props) {
         const d = ANIMAL_DATA[a.type];
         if (d.product && d.productValue > 0) {
           g.gold += d.productValue;
+          animalIncome += d.productValue;
         }
+      }
+
+      // Show overnight income summary
+      if (cropIncome > 0 || animalIncome > 0) {
+        const parts: string[] = [];
+        if (animalIncome > 0) parts.push(`🐾 +${animalIncome}g`);
+        if (cropIncome > 0) parts.push(`🌾 +${cropIncome}g`);
+        g.addFloat(g.px, g.py - 1, `Overnight: ${parts.join(" ")}`, "#C49A3C");
       }
 
       g.storyNPCs = [];
@@ -1604,7 +1661,7 @@ export default function HomesteadGame({ onGameOver }: Props) {
 
       if (g.nightPhase === "none" && !overlayOpen && !g.gameOver) {
         // Time ticking
-        g.timeOfDay += dt * 0.9;
+        g.timeOfDay += dt * 1.6;
         if (g.timeOfDay >= 100 && g.nightPhase === "none") {
           g.nightPhase = "fading_out";
         }
@@ -1801,7 +1858,7 @@ export default function HomesteadGame({ onGameOver }: Props) {
       // Touch controls
       if (isTouchDevice && !overlayOpen) {
         const jbx = joystick.active ? joystick.baseX : 60;
-        const jby = joystick.active ? joystick.baseY : canvasH - 60;
+        const jby = joystick.active ? joystick.baseY : canvasH - 75;
         const jkx = joystick.active ? joystick.knobX : jbx;
         const jky = joystick.active ? joystick.knobY : jby;
         drawVirtualControls(
@@ -1936,7 +1993,8 @@ export default function HomesteadGame({ onGameOver }: Props) {
   const buttonStyle: React.CSSProperties = {
     display: "block",
     width: "100%",
-    padding: "10px 12px",
+    padding: "12px 12px",
+                  minHeight: 44,
     margin: "4px 0",
     background: "rgba(255,255,255,0.08)",
     border: "1px solid #C49A3C33",
@@ -1957,7 +2015,7 @@ export default function HomesteadGame({ onGameOver }: Props) {
     <div
       ref={containerRef}
       className="w-full relative"
-      style={{ height: "calc(100dvh - 52px)" }}
+      style={{ height: "calc(100dvh - 52px - env(safe-area-inset-bottom, 0px))" }}
     >
       <canvas
         ref={canvasRef}
@@ -1993,7 +2051,7 @@ export default function HomesteadGame({ onGameOver }: Props) {
             </span>
             <button
               onClick={closeOverlay}
-              style={{ background: "none", border: "none", color: "#FDF8F0", fontSize: 20, cursor: "pointer" }}
+              style={{ background: "none", border: "none", color: "#FDF8F0", fontSize: 20, cursor: "pointer", minWidth: 44, minHeight: 44, display: "flex", alignItems: "center", justifyContent: "center" }}
             >
               x
             </button>
@@ -2105,7 +2163,7 @@ export default function HomesteadGame({ onGameOver }: Props) {
             </span>
             <button
               onClick={closeOverlay}
-              style={{ background: "none", border: "none", color: "#FDF8F0", fontSize: 20, cursor: "pointer" }}
+              style={{ background: "none", border: "none", color: "#FDF8F0", fontSize: 20, cursor: "pointer", minWidth: 44, minHeight: 44, display: "flex", alignItems: "center", justifyContent: "center" }}
             >
               x
             </button>
@@ -2144,14 +2202,20 @@ export default function HomesteadGame({ onGameOver }: Props) {
           style={{ backgroundColor: "rgba(13,31,15,0.95)", zIndex: 30 }}
         >
           <div style={{ maxWidth: 360, padding: 24, textAlign: "center" }}>
-            <div style={{ color: "#C49A3C", fontSize: 28, fontWeight: "bold", marginBottom: 8 }}>
-              The Celebration!
+            <div style={{ color: "#C49A3C", fontSize: 28, fontWeight: "bold", marginBottom: 4 }}>
+              🎉 The Celebration!
             </div>
-            <div style={{ color: "#FDF8F0", fontSize: 14, lineHeight: 1.6, marginBottom: 16, whiteSpace: "pre-line" }}>
+            <div style={{ color: "#FDF8F0AA", fontSize: 12, marginBottom: 12 }}>
+              {scoreData.total >= 450 ? "🌟 Legendary Brooker Ranch — the stuff of fairy tales!" :
+               scoreData.total >= 300 ? "✨ Dream Estate — your farm is magnificent!" :
+               scoreData.total >= 150 ? "🌿 Thriving Farm — you've built something beautiful!" :
+               "🏡 Cozy Homestead — a humble beginning!"}
+            </div>
+            <div style={{ color: "#FDF8F0", fontSize: 13, lineHeight: 1.6, marginBottom: 16, whiteSpace: "pre-line" }}>
               {scoreData.breakdown}
             </div>
             <div style={{ color: "#FFD700", fontSize: 32, fontWeight: "bold", marginBottom: 16 }}>
-              Score: {scoreData.total}
+              {scoreData.total}
             </div>
             <button
               onClick={submitScore}
