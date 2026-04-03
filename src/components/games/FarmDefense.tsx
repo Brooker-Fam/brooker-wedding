@@ -516,27 +516,28 @@ export default function FarmDefense() {
     const cols = isMobile ? 10 : 14;
     const rows = isMobile ? 14 : 10;
 
-    const uiTopHeight = 44;
+    const navHeight = 60;
+    const gameTopBarHeight = 44;
     const uiBottomHeight = isMobile ? 120 : 90;
     const canvasAreaW = screenW;
-    const canvasAreaH = screenH - uiTopHeight - uiBottomHeight;
+    const canvasAreaH = screenH - navHeight - gameTopBarHeight - uiBottomHeight;
 
     const cellSize = Math.floor(
-      Math.min(canvasAreaW / cols, canvasAreaH / rows, 70)
+      Math.min(canvasAreaW / cols, canvasAreaH / rows)
     );
     const gridW = cellSize * cols;
     const gridH = cellSize * rows;
 
-    const canvasWidth = gridW;
-    const canvasHeight = gridH;
+    const canvasWidth = canvasAreaW;
+    const canvasHeight = canvasAreaH;
 
     canvas.style.width = canvasWidth + 'px';
     canvas.style.height = canvasHeight + 'px';
     canvas.width = canvasWidth * dpr;
     canvas.height = canvasHeight * dpr;
 
-    const offsetX = 0;
-    const offsetY = 0;
+    const offsetX = Math.floor((canvasWidth - gridW) / 2);
+    const offsetY = Math.floor((canvasHeight - gridH) / 2);
 
     const path = generatePath(cols, rows);
     const grid = buildGrid(cols, rows, path);
@@ -629,8 +630,10 @@ export default function FarmDefense() {
     ctx.clearRect(0, 0, canvasWidth, canvasHeight);
 
     // Sky background
-    ctx.fillStyle = COLORS.skyBlue;
+    ctx.fillStyle = "#1a2a0a";
     ctx.fillRect(0, 0, canvasWidth, canvasHeight);
+    ctx.fillStyle = COLORS.skyBlue;
+    ctx.fillRect(offsetX, offsetY, cellSize * cols, cellSize * rows);
 
     // Apply screen shake
     let shakeX = 0;
@@ -2023,7 +2026,7 @@ export default function FarmDefense() {
   const isEnd = uiState.gameState === "won" || uiState.gameState === "lost";
 
   return (
-    <div className="fixed inset-0 flex flex-col bg-[#87CEEB] select-none overflow-hidden" style={{ touchAction: 'none' }}>
+    <div className="fixed inset-0 flex flex-col select-none overflow-hidden pt-[60px]" style={{ touchAction: 'none', background: '#1a2a0a' }}>
       {/* Top bar - visible during gameplay */}
       {isPlaying && (
         <div
