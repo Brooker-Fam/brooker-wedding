@@ -148,8 +148,8 @@ const MAP_W = 64;
 const MAP_H = 64;
 const TILE = 24;
 const MINIMAP_SIZE = 140;
-const UI_TOP_H = 36;
-const UI_BOTTOM_H = 100;
+const UI_TOP_H = 28;
+const UI_BOTTOM_H = 56;
 const GATHER_RATE = 8;
 const GATHER_CARRY = 10;
 const BUILD_RATE = 25;
@@ -1386,8 +1386,8 @@ function render(gs: GameState, ctx: CanvasRenderingContext2D, canvasW: number, c
 
   const mapPxW = MAP_W * TILE;
   const mapPxH = MAP_H * TILE;
-  gs.camera.x = clamp(gs.camera.x, 0, mapPxW - canvasW);
-  gs.camera.y = clamp(gs.camera.y, 0, mapPxH - canvasH + UI_BOTTOM_H);
+  gs.camera.x = clamp(gs.camera.x, 0, Math.max(0, mapPxW - canvasW));
+  gs.camera.y = clamp(gs.camera.y, 0, Math.max(0, mapPxH - canvasH + UI_BOTTOM_H));
 
   const cx = gs.camera.x;
   const cy = gs.camera.y;
@@ -1970,15 +1970,16 @@ function renderFog(gs: GameState, ctx: CanvasRenderingContext2D, canvasW: number
 }
 
 function renderMinimap(gs: GameState, ctx: CanvasRenderingContext2D, canvasW: number, canvasH: number) {
-  const mx = 8;
-  const my = canvasH - MINIMAP_SIZE - UI_BOTTOM_H - 8;
-  const scale = MINIMAP_SIZE / MAP_W;
+  const mmSize = Math.min(MINIMAP_SIZE, UI_BOTTOM_H - 8);
+  const mx = 4;
+  const my = canvasH - UI_BOTTOM_H + 4;
+  const scale = mmSize / MAP_W;
 
   ctx.fillStyle = "rgba(0,0,0,0.8)";
-  ctx.fillRect(mx - 2, my - 2, MINIMAP_SIZE + 4, MINIMAP_SIZE + 4);
+  ctx.fillRect(mx - 2, my - 2, mmSize + 4, mmSize + 4);
   ctx.strokeStyle = COLORS.uiBorder;
   ctx.lineWidth = 1;
-  ctx.strokeRect(mx - 2, my - 2, MINIMAP_SIZE + 4, MINIMAP_SIZE + 4);
+  ctx.strokeRect(mx - 2, my - 2, mmSize + 4, mmSize + 4);
 
   for (let ty = 0; ty < MAP_H; ty += 2) {
     for (let tx = 0; tx < MAP_W; tx += 2) {
@@ -2319,8 +2320,9 @@ export default function HomesteadWars() {
     createUnit(gs, "farmer", "ai", MAP_W - 7, 5);
     createUnit(gs, "farmer", "ai", MAP_W - 9, 6);
 
-    gs.camera.x = 0;
-    gs.camera.y = (MAP_H - 16) * TILE;
+    // Center camera on player's farmhouse (tile 3, MAP_H-6)
+    gs.camera.x = Math.max(0, 3 * TILE - 200);
+    gs.camera.y = Math.max(0, (MAP_H - 6) * TILE - 300);
 
     gameStateRef.current = gs;
     setPhase("playing");
@@ -2422,11 +2424,12 @@ export default function HomesteadWars() {
       const canvasW = rect.width;
       const canvasH = rect.height;
 
-      const minimapX = 8;
-      const minimapY = canvasH - MINIMAP_SIZE - UI_BOTTOM_H - 8;
-      if (pos.x >= minimapX && pos.x <= minimapX + MINIMAP_SIZE &&
-          pos.y >= minimapY && pos.y <= minimapY + MINIMAP_SIZE) {
-        const scale = MINIMAP_SIZE / MAP_W;
+      const mmSize = Math.min(MINIMAP_SIZE, UI_BOTTOM_H - 8);
+      const minimapX = 4;
+      const minimapY = canvasH - UI_BOTTOM_H + 4;
+      if (pos.x >= minimapX && pos.x <= minimapX + mmSize &&
+          pos.y >= minimapY && pos.y <= minimapY + mmSize) {
+        const scale = mmSize / MAP_W;
         const tx = (pos.x - minimapX) / scale;
         const ty = (pos.y - minimapY) / scale;
         gs.camera.x = tx * TILE - canvasW / 2;
