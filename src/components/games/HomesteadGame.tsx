@@ -49,6 +49,18 @@ interface PlacedAnimal {
   targetY: number;
   moveTimer: number;
   moveInterval: number;
+  bounceTimer: number;
+  lastSpeech: string;
+  speechTimer: number;
+}
+
+interface GroundItem {
+  x: number;
+  y: number;
+  type: "coin" | "gem" | "seed" | "berry" | "star";
+  value: number;
+  emoji: string;
+  sparklePhase: number;
 }
 
 interface Crop {
@@ -180,6 +192,19 @@ const ANIMAL_NAMES: Record<AnimalType, string[]> = {
   sheep: ["Woolsworth", "Baa-rbara", "Fleece Lightning", "Cotton"],
   cow: ["Bessie", "Daisy", "Buttercup II", "Moonica"],
   pig: ["Wilbur", "Truffle", "Hamlet", "Porkchop"],
+};
+
+const ANIMAL_SPEECH: Record<AnimalType, string[]> = {
+  chicken: ["Bawk!", "Cluck cluck!", "\uD83E\uDD5A!", "*pecks proudly*", "Buk-BAWK!"],
+  duck: ["Quack!", "*splash*", "Quaaack~", "\uD83E\uDD86!"],
+  goose: ["HONK!", "HONK HONK!", "*angry honking*", "*judges you*"],
+  cat: ["Mrow.", "*purrs*", "*knocks thing off table*", "...", "*slow blink*"],
+  dog: ["Woof!", "*tail wag*", "BARK!", "*happy spin*", "Arf! Arf!"],
+  donkey: ["Hee-haw!", "*ear wiggle*", "...*stares*", "*nuzzle*"],
+  goat: ["Baaaa!", "*headbutt*", "*eats your shirt*", "BAAAAH!", "*climbs on thing*"],
+  sheep: ["Baaaa~", "*fluffy*", "Baa.", "*wool intensifies*"],
+  cow: ["Mooo~", "*chewing*", "Moooo?", "*big eyes*"],
+  pig: ["Oink!", "*snuffle snuffle*", "Oink oink!", "*happy mud roll*"],
 };
 
 // ============================================================
@@ -499,6 +524,12 @@ class Game {
   showScore: boolean;
   celebrationScore: number;
 
+  groundItems: GroundItem[];
+  achievementText: string;
+  achievementTimer: number;
+  currentZone: string;
+  discoveredZones: Set<string>;
+
   usedEvents: Set<string>;
   lastActionKey: boolean;
   started: boolean;
@@ -564,6 +595,13 @@ class Game {
     this.showScore = false;
     this.celebrationScore = 0;
 
+    this.groundItems = [];
+    this.spawnGroundItems(15);
+    this.achievementText = "";
+    this.achievementTimer = 0;
+    this.currentZone = "";
+    this.discoveredZones = new Set();
+
     this.usedEvents = new Set();
     this.lastActionKey = false;
     this.started = false;
@@ -589,6 +627,7 @@ class Game {
       type, name, x, y,
       targetX: x, targetY: y,
       moveTimer: 0, moveInterval: 2 + Math.random() * 3,
+      bounceTimer: 0, lastSpeech: "", speechTimer: 0,
     };
   }
 
@@ -609,6 +648,47 @@ class Game {
         size: 2 + Math.random() * 2,
       });
     }
+  }
+
+  spawnGroundItems(count: number) {
+    const types = [
+      { type: "coin", emoji: "\uD83E\uDE99", value: 3, weight: 5 },
+      { type: "gem", emoji: "\uD83D\uDC8E", value: 10, weight: 1 },
+      { type: "seed", emoji: "\uD83C\uDF30", value: 0, weight: 3 },
+      { type: "berry", emoji: "\uD83E\uDED0", value: 5, weight: 3 },
+      { type: "star", emoji: "\u2B50", value: 0, weight: 2 },
+    ];
+    for (let i = 0; i < count; i++) {
+      let attempts = 0;
+      while (attempts < 50) {
+        const col = 2 + Math.floor(Math.random() * (MAP_COLS - 4));
+        const row = 2 + Math.floor(Math.random() * (MAP_ROWS - 4));
+        if (isWalkable(col, row) && tileAt(col, row) === 0) {
+          const totalWeight = types.reduce((s, t) => s + t.weight, 0);
+          let r = Math.random() * totalWeight;
+          let picked = types[0];
+          for (const t of types) {
+            r -= t.weight;
+            if (r <= 0) { picked = t; break; }
+          }
+          this.groundItems.push({
+            x: col + 0.2 + Math.random() * 0.6,
+            y: row + 0.2 + Math.random() * 0.6,
+            type: picked.type as GroundItem["type"],
+            emoji: picked.emoji,
+            value: picked.value,
+            sparklePhase: Math.random() * Math.PI * 2,
+          });
+          break;
+        }
+        attempts++;
+      }
+    }
+  }
+
+  showAchievement(text: string) {
+    this.achievementText = text;
+    this.achievementTimer = 3.0;
   }
 
   updateVisited() {
@@ -1183,6 +1263,7 @@ function drawAnimalEntity(
   const px = animal.x * ts - camX;
   const py = animal.y * ts - camY;
   const bob = Math.sin(time * 0.002 + index * 1.7) * ts * 0.06;
+  const bounceY = animal.bounceTimer > 0 ? -Math.sin(animal.bounceTimer * Math.PI) * ts * 0.4 : 0;
 
   ctx.fillStyle = "rgba(0,0,0,0.15)";
   ctx.beginPath();
@@ -1195,7 +1276,33 @@ function drawAnimalEntity(
   ctx.textBaseline = "middle";
   ctx.fillStyle = "#000";
   ctx.globalAlpha = 1;
-  ctx.fillText(ANIMAL_DATA[animal.type].emoji, px + ts * 0.5, py + ts * 0.5 + bob);
+  ctx.fillText(ANIMAL_DATA[animal.type].emoji, px + ts * 0.5, py + ts * 0.5 + bob + bounceY);
+
+  if (animal.speechTimer > 0 && animal.lastSpeech) {
+    const speechFont = Math.max(8, ts * 0.28);
+    ctx.font = `bold ${speechFont}px sans-serif`;
+    const tw = ctx.measureText(animal.lastSpeech).width + speechFont * 0.8;
+    const bh = speechFont * 1.6;
+    const bx = px + ts * 0.5 - tw / 2;
+    const by = py - ts * 0.15 + bounceY;
+
+    const speechAlpha = animal.speechTimer > 1.5 ? Math.min((2.0 - (animal.speechTimer - 0.5)) * 2, 1) : Math.min(animal.speechTimer / 0.5, 1);
+    ctx.globalAlpha = speechAlpha * 0.92;
+    ctx.fillStyle = "#FFF8E8";
+    ctx.beginPath();
+    ctx.roundRect(bx, by - bh, tw, bh, 4);
+    ctx.fill();
+    ctx.strokeStyle = "#C49A3C";
+    ctx.lineWidth = 1;
+    ctx.stroke();
+
+    ctx.globalAlpha = speechAlpha;
+    ctx.fillStyle = "#333";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText(animal.lastSpeech, px + ts * 0.5, by - bh / 2);
+    ctx.globalAlpha = 1;
+  }
 }
 
 function drawWildNPC(
@@ -1469,6 +1576,119 @@ function drawDawnText(
     h / 2
   );
   ctx.globalAlpha = 1;
+}
+
+function drawGroundItems(
+  ctx: CanvasRenderingContext2D,
+  items: GroundItem[],
+  ts: number,
+  camX: number,
+  camY: number,
+  time: number
+) {
+  for (const item of items) {
+    const px = item.x * ts - camX;
+    const py = item.y * ts - camY;
+
+    const pulse = Math.sin(time * 0.004 + item.sparklePhase) * 0.15 + 0.85;
+    const bobY = Math.sin(time * 0.003 + item.sparklePhase) * ts * 0.05;
+
+    ctx.globalAlpha = 0.3 * pulse;
+    ctx.fillStyle = "#FFD700";
+    ctx.beginPath();
+    ctx.arc(px + ts * 0.3, py + ts * 0.3 + bobY, ts * 0.2, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.globalAlpha = pulse;
+    ctx.fillStyle = "#000";
+    ctx.font = `${Math.max(8, ts * 0.4)}px sans-serif`;
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText(item.emoji, px + ts * 0.3, py + ts * 0.3 + bobY);
+    ctx.globalAlpha = 1;
+  }
+}
+
+function drawAchievement(ctx: CanvasRenderingContext2D, g: Game, w: number, h: number) {
+  if (g.achievementTimer <= 0) return;
+
+  const alpha = g.achievementTimer > 2.5
+    ? (3 - g.achievementTimer) * 2
+    : g.achievementTimer > 0.5
+      ? 1
+      : g.achievementTimer * 2;
+
+  ctx.globalAlpha = Math.min(alpha, 1);
+
+  const bannerH = 50;
+  ctx.fillStyle = "rgba(13,31,15,0.8)";
+  ctx.fillRect(0, h * 0.35, w, bannerH);
+
+  ctx.fillStyle = "#C49A3C";
+  ctx.fillRect(0, h * 0.35, w, 2);
+  ctx.fillRect(0, h * 0.35 + bannerH - 2, w, 2);
+
+  ctx.fillStyle = "#FFD700";
+  ctx.font = "bold 18px sans-serif";
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.fillText(g.achievementText, w / 2, h * 0.35 + bannerH / 2);
+
+  ctx.globalAlpha = 1;
+}
+
+function getZoneName(x: number, y: number): string | null {
+  if (y < 8 && x < 22) return "\uD83C\uDF32 The Forest";
+  if (y < 8 && x >= 22) return "\u26F0\uFE0F Mountain Path";
+  if (x >= 30 && y >= 16) return "\uD83C\uDF38 The Meadow";
+  if (y >= 14 && y <= 16 && x >= 12) return "\uD83C\uDF0A The River";
+  if (y >= 23 && x >= 16) return "\uD83C\uDFD8\uFE0F The Town";
+  if (y >= 19 && x < 6) return "\uD83C\uDFDB\uFE0F Ancient Ruins";
+  if (y >= 8 && y <= 16 && x >= 7 && x <= 22) return "\uD83C\uDFE1 The Farm";
+  return null;
+}
+
+function checkMilestones(g: Game) {
+  if (g.placedAnimals.length >= 4 && !g.usedEvents.has("ach_first_animal")) {
+    g.usedEvents.add("ach_first_animal");
+    g.showAchievement("\uD83D\uDC3E New Friend!");
+  }
+  if (g.cropsHarvested >= 1 && !g.usedEvents.has("ach_first_harvest")) {
+    g.usedEvents.add("ach_first_harvest");
+    g.showAchievement("\uD83C\uDF3E First Harvest!");
+  }
+  if (g.buildings.length >= 1 && !g.usedEvents.has("ach_first_build")) {
+    g.usedEvents.add("ach_first_build");
+    g.showAchievement("\uD83D\uDD28 First Building!");
+  }
+  if (g.gold >= 100 && !g.usedEvents.has("ach_100g")) {
+    g.usedEvents.add("ach_100g");
+    g.showAchievement("\uD83D\uDCB0 100 Gold!");
+  }
+  if (g.gold >= 300 && !g.usedEvents.has("ach_300g")) {
+    g.usedEvents.add("ach_300g");
+    g.showAchievement("\uD83D\uDCB0 300 Gold!");
+  }
+  if (g.placedAnimals.length >= 5 && !g.usedEvents.has("ach_5_animals")) {
+    g.usedEvents.add("ach_5_animals");
+    g.showAchievement("\uD83D\uDC3E Animal Family!");
+  }
+  if (g.placedAnimals.length >= 10 && !g.usedEvents.has("ach_10_animals")) {
+    g.usedEvents.add("ach_10_animals");
+    g.showAchievement("\uD83D\uDC3E Animal Kingdom!");
+  }
+  if (g.cropsHarvested >= 10 && !g.usedEvents.has("ach_10_crops")) {
+    g.usedEvents.add("ach_10_crops");
+    g.showAchievement("\uD83C\uDF3E Green Thumb!");
+  }
+  if (g.buildings.length >= 4 && !g.usedEvents.has("ach_4_build")) {
+    g.usedEvents.add("ach_4_build");
+    g.showAchievement("\uD83C\uDFD7\uFE0F Master Builder!");
+  }
+  if (g.zonesVisited && g.zonesVisited.size >= 5 && !g.usedEvents.has("ach_explorer")) {
+    g.usedEvents.add("ach_explorer");
+    g.showAchievement("\uD83D\uDDFA\uFE0F Explorer!");
+  }
 }
 
 // ============================================================
@@ -2117,17 +2337,27 @@ export default function HomesteadGame({ onGameOver }: Props) {
       const animal = g.findNearAnimal();
       if (animal) {
         const d = ANIMAL_DATA[animal.type];
+        animal.bounceTimer = 1.0;
+        const speechPool = ANIMAL_SPEECH[animal.type];
+        animal.lastSpeech = speechPool[Math.floor(Math.random() * speechPool.length)];
+        animal.speechTimer = 2.0;
         if (d.product && d.productValue > 0) {
           g.gold += d.productValue;
           g.charm += 1;
-          g.addFloat(animal.x, animal.y, `${d.emoji} +${d.productValue}g`, "#FFD700");
-          g.addParticles(animal.x, animal.y, "#FFD700", 6);
+          g.addFloat(animal.x, animal.y, `${d.emoji} ${d.product}! +${d.productValue}g`, "#FFD700");
+          g.addParticles(animal.x, animal.y, "#FFD700", 8);
+          g.addParticles(animal.x, animal.y, "#FF69B4", 4);
         } else {
           g.charm += 1;
-          g.addFloat(animal.x, animal.y, `\u2764\uFE0F +1 charm`, "#FF69B4");
-          g.addParticles(animal.x, animal.y, "#FF69B4", 6);
+          const loveMsg = Math.random() < 0.5
+            ? `\u2764\uFE0F ${animal.name} loves you!`
+            : `\u2764\uFE0F +1 charm`;
+          g.addFloat(animal.x, animal.y, loveMsg, "#FF69B4");
+          g.addParticles(animal.x, animal.y, "#FF69B4", 8);
+          g.addParticles(animal.x, animal.y, "#FF3366", 4);
         }
         g.timeOfDay += 3;
+        checkMilestones(g);
         return;
       }
 
@@ -2253,7 +2483,8 @@ export default function HomesteadGame({ onGameOver }: Props) {
               g.cropsHarvested++;
               g.crops.splice(cropIdx, 1);
               g.addFloat(col, row, `${d.emoji} +${sell}g`, "#FFD700");
-              g.addParticles(col + 0.5, row + 0.5, "#FFD700", 8);
+              g.addParticles(col + 0.5, row + 0.5, "#FFD700", 10);
+              g.addParticles(col + 0.5, row + 0.5, "#66BB6A", 4);
               g.timeOfDay += 4;
             } else {
               crop.growth += 0.5;
@@ -2266,7 +2497,7 @@ export default function HomesteadGame({ onGameOver }: Props) {
             const seedType = g.seeds.shift()!;
             g.crops.push({ type: seedType, growth: 0, tileIdx });
             g.addFloat(col, row, `\uD83C\uDF31 Planted ${CROP_DATA[seedType].emoji}!`, "#66BB6A");
-            g.addParticles(col + 0.5, row + 0.5, "#66BB6A", 6);
+            g.addParticles(col + 0.5, row + 0.5, "#66BB6A", 8);
             g.timeOfDay += 3;
           } else {
             g.addFloat(col, row, "No seeds!", "#FF6B6B");
@@ -2279,7 +2510,8 @@ export default function HomesteadGame({ onGameOver }: Props) {
           g.grit += 1;
           TILE_MAP[row * MAP_COLS + col] = 0;
           g.addFloat(col, row, `\uD83E\uDE93 +${woodYield} wood`, "#8B7355");
-          g.addParticles(col + 0.5, row + 0.5, "#8B7355", 8);
+          g.addParticles(col + 0.5, row + 0.5, "#8B7355", 6);
+          g.addParticles(col + 0.5, row + 0.5, "#4CAF50", 6);
           g.timeOfDay += 5;
           break;
         }
@@ -2292,7 +2524,8 @@ export default function HomesteadGame({ onGameOver }: Props) {
               g.wood -= d.woodCost;
               g.buildings.push("coop");
               g.addFloat(col, row, "\uD83D\uDD28 Coop built!", "#C49A3C");
-              g.addParticles(col + 0.5, row + 0.5, "#C4A25A", 12);
+              g.addParticles(col + 0.5, row + 0.5, "#C49A3C", 15);
+              g.addParticles(col + 0.5, row + 0.5, "#FFF", 5);
               g.timeOfDay += 10;
             } else {
               g.addFloat(col, row, `Need ${d.goldCost}g + ${d.woodCost}w`, "#FF6B6B");
@@ -2325,7 +2558,8 @@ export default function HomesteadGame({ onGameOver }: Props) {
               g.wood -= d.woodCost;
               g.buildings.push("barn");
               g.addFloat(col, row, "\uD83D\uDD28 Barn built!", "#C49A3C");
-              g.addParticles(col + 0.5, row + 0.5, "#8B3A3A", 12);
+              g.addParticles(col + 0.5, row + 0.5, "#C49A3C", 15);
+              g.addParticles(col + 0.5, row + 0.5, "#FFF", 5);
               g.timeOfDay += 10;
             } else {
               g.addFloat(col, row, `Need ${d.goldCost}g + ${d.woodCost}w`, "#FF6B6B");
@@ -2393,6 +2627,9 @@ export default function HomesteadGame({ onGameOver }: Props) {
         if (cropIncome > 0) parts.push(`🌾 +${cropIncome}g`);
         g.addFloat(g.px, g.py - 1, `Overnight: ${parts.join(" ")}`, "#C49A3C");
       }
+
+      // Respawn ground items
+      g.spawnGroundItems(8);
 
       // Clear collected story NPCs
       g.storyNPCs = g.storyNPCs.filter((n) => !n.collected);
@@ -2489,6 +2726,7 @@ export default function HomesteadGame({ onGameOver }: Props) {
           g.nightFade = 1;
           g.nightPhase = "processing";
           processOvernight(g);
+          checkMilestones(g);
         }
       } else if (g.nightPhase === "processing") {
         g.nightPhase = "fading_in";
@@ -2557,10 +2795,52 @@ export default function HomesteadGame({ onGameOver }: Props) {
         // Update visited tiles
         g.updateVisited();
 
+        // Zone discovery
+        const zone = getZoneName(g.px, g.py);
+        if (zone && zone !== g.currentZone) {
+          g.currentZone = zone;
+          if (!g.discoveredZones.has(zone)) {
+            g.discoveredZones.add(zone);
+            g.showAchievement(zone);
+          }
+        }
+
+        // Ground item collection
+        for (let i = g.groundItems.length - 1; i >= 0; i--) {
+          const item = g.groundItems[i];
+          const gidx = item.x - g.px;
+          const gidy = item.y - g.py;
+          if (gidx * gidx + gidy * gidy < 0.8) {
+            if (item.type === "coin" || item.type === "berry") {
+              g.gold += item.value;
+              g.addFloat(item.x, item.y, `${item.emoji} +${item.value}g`, "#FFD700");
+            } else if (item.type === "gem") {
+              g.gold += item.value;
+              g.addFloat(item.x, item.y, `${item.emoji} +${item.value}g!`, "#E040FB");
+            } else if (item.type === "seed") {
+              const seasonCrops = Object.entries(CROP_DATA).filter(([, d]) => d.seasons.includes(g.season));
+              if (seasonCrops.length > 0) {
+                const [cropType] = seasonCrops[Math.floor(Math.random() * seasonCrops.length)];
+                g.seeds.push(cropType as CropType);
+                g.addFloat(item.x, item.y, `${item.emoji} Found ${CROP_DATA[cropType as CropType].emoji} seed!`, "#66BB6A");
+              }
+            } else if (item.type === "star") {
+              const stat = Math.floor(Math.random() * 3);
+              if (stat === 0) { g.grit++; g.addFloat(item.x, item.y, "\u2B50 +1 grit!", "#FFD700"); }
+              else if (stat === 1) { g.wisdom++; g.addFloat(item.x, item.y, "\u2B50 +1 wisdom!", "#FFD700"); }
+              else { g.charm++; g.addFloat(item.x, item.y, "\u2B50 +1 charm!", "#FFD700"); }
+            }
+            g.addParticles(item.x, item.y, "#FFD700", 6);
+            g.groundItems.splice(i, 1);
+            checkMilestones(g);
+          }
+        }
+
         // Action input (rising edge)
         const actionKey = keys.has(" ") || keys.has("e") || actionTouch.active;
         if (actionKey && !g.lastActionKey) {
           executeAction(g);
+          checkMilestones(g);
         }
         g.lastActionKey = actionKey;
 
@@ -2586,6 +2866,15 @@ export default function HomesteadGame({ onGameOver }: Props) {
         p.life -= dt;
         if (p.life <= 0) g.particles.splice(i, 1);
       }
+
+      // Decay animal bounce/speech timers
+      for (const a of g.placedAnimals) {
+        if (a.bounceTimer > 0) a.bounceTimer = Math.max(0, a.bounceTimer - dt * 3);
+        if (a.speechTimer > 0) a.speechTimer -= dt;
+      }
+
+      // Achievement timer
+      if (g.achievementTimer > 0) g.achievementTimer -= dt;
 
       // Update animal AI
       if (g.nightPhase === "none" && !overlayOpen) {
@@ -2622,6 +2911,16 @@ export default function HomesteadGame({ onGameOver }: Props) {
             } else {
               a.moveTimer = a.moveInterval;
             }
+          }
+        }
+
+        // Random animal chatter
+        if (g.placedAnimals.length > 0 && Math.random() < dt * 0.15) {
+          const chatAnimal = g.placedAnimals[Math.floor(Math.random() * g.placedAnimals.length)];
+          if (chatAnimal && chatAnimal.speechTimer <= 0) {
+            const pool = ANIMAL_SPEECH[chatAnimal.type];
+            chatAnimal.lastSpeech = pool[Math.floor(Math.random() * pool.length)];
+            chatAnimal.speechTimer = 2.5;
           }
         }
 
@@ -2734,6 +3033,9 @@ export default function HomesteadGame({ onGameOver }: Props) {
         drawCropOnTile(ctx, crop, tileSize, camX, camY, timestamp);
       }
 
+      // Draw ground items
+      drawGroundItems(ctx, g.groundItems, tileSize, camX, camY, timestamp);
+
       // Draw animals (sorted by y for depth)
       ctx.globalAlpha = 1;
       const sortedAnimals = [...g.placedAnimals].sort((a, b) => a.y - b.y);
@@ -2770,6 +3072,9 @@ export default function HomesteadGame({ onGameOver }: Props) {
 
       // HUD
       drawHUD(ctx, g, canvasW, tileSize);
+
+      // Achievement banner
+      drawAchievement(ctx, g, canvasW, canvasH);
 
       // Night fade
       drawNightFade(ctx, canvasW, canvasH, g.nightFade);
@@ -2859,6 +3164,7 @@ export default function HomesteadGame({ onGameOver }: Props) {
         }
         g.placedAnimals.push(g.makeAnimal(animalType, name, sx, sy));
         g.addFloat(g.px, g.py, `${d.emoji} ${name} joined!`, "#FFD700");
+        checkMilestones(g);
       } else {
         g.addFloat(g.px, g.py, `Need ${d.cost}g`, "#FF6B6B");
       }
@@ -2876,8 +3182,10 @@ export default function HomesteadGame({ onGameOver }: Props) {
       g.wood -= d.woodCost;
       g.buildings.push(buildType);
       g.addFloat(g.px, g.py, `\uD83D\uDD28 ${d.label} built!`, "#C49A3C");
-      g.addParticles(g.px, g.py, "#C49A3C", 10);
+      g.addParticles(g.px, g.py, "#C49A3C", 15);
+      g.addParticles(g.px, g.py, "#FFF", 5);
       g.timeOfDay += 10;
+      checkMilestones(g);
     } else {
       g.addFloat(g.px, g.py, `Need ${d.goldCost}g + ${d.woodCost}w`, "#FF6B6B");
     }
