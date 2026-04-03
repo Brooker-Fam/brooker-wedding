@@ -97,13 +97,13 @@ const GAMES: GameCard[] = [
     scoreKey: "hereComesTheBride_highScore",
   },
   {
-    id: "homestead",
-    title: "Brooker Homestead",
-    description: "Build your dream farm in 15 days!",
-    difficulty: 3,
-    icon: "🏡",
-    path: "/games/homestead",
-    scoreKey: "homestead_highScore",
+    id: "homestead-wars",
+    title: "Homestead Wars",
+    description: "RTS battle! Build a farm, raise an army, crush the AI!",
+    difficulty: 5,
+    icon: "⚔️",
+    path: "/games/homestead-wars",
+    scoreKey: "homesteadWars_highScore",
   },
 ];
 
@@ -174,7 +174,7 @@ export default function GamesArcadePage() {
               "zoes-adventure",
               "cake-creator",
               "here-comes-the-bride",
-              "homestead",
+              "homestead-wars",
             ].includes(game.id);
 
             const card = (
