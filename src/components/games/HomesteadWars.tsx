@@ -148,8 +148,8 @@ const MAP_W = 64;
 const MAP_H = 64;
 const TILE = 24;
 const MINIMAP_SIZE = 140;
-const UI_TOP_H = 28;
-const UI_BOTTOM_H = 56;
+const UI_TOP_H = 24;
+const UI_BOTTOM_H = 120;
 const GATHER_RATE = 8;
 const GATHER_CARRY = 10;
 const BUILD_RATE = 25;
@@ -1970,9 +1970,9 @@ function renderFog(gs: GameState, ctx: CanvasRenderingContext2D, canvasW: number
 }
 
 function renderMinimap(gs: GameState, ctx: CanvasRenderingContext2D, canvasW: number, canvasH: number) {
-  const mmSize = Math.min(MINIMAP_SIZE, UI_BOTTOM_H - 8);
-  const mx = 4;
-  const my = canvasH - UI_BOTTOM_H + 4;
+  const mmSize = Math.min(MINIMAP_SIZE, UI_BOTTOM_H - 16);
+  const mx = 8;
+  const my = canvasH - UI_BOTTOM_H + (UI_BOTTOM_H - mmSize) / 2;
   const scale = mmSize / MAP_W;
 
   ctx.fillStyle = "rgba(0,0,0,0.8)";
