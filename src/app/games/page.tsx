@@ -96,6 +96,15 @@ const GAMES: GameCard[] = [
     path: "/games/here-comes-the-bride",
     scoreKey: "hereComesTheBride_highScore",
   },
+  {
+    id: "homestead",
+    title: "Brooker Homestead",
+    description: "Build your dream farm in 15 days!",
+    difficulty: 3,
+    icon: "🏡",
+    path: "/games/homestead",
+    scoreKey: "homestead_highScore",
+  },
 ];
 
 function DifficultyDots({ count }: { count: number }) {
@@ -165,6 +174,7 @@ export default function GamesArcadePage() {
               "zoes-adventure",
               "cake-creator",
               "here-comes-the-bride",
+              "homestead",
             ].includes(game.id);
 
             const card = (
