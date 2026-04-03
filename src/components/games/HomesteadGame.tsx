@@ -210,7 +210,7 @@ let TILE_MAP: number[] = [
   /*r12 */ 1, 0, 0, 0, 0, 0, 0, 4, 4, 4, 4, 4, 0, 0, 2, 4, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 9, 0, 0,10, 0, 2, 0, 0, 0,18, 0, 0, 1,
   /*r13 */ 1, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 4, 0, 0, 2, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 1,
   /*r14 */ 3, 3, 3, 3, 3, 3, 3, 4, 0, 0, 0, 4, 3, 3,14, 3, 4, 3, 3, 3, 3,14, 3, 3, 3, 3, 3, 3, 3, 3,14, 3, 3, 3, 3, 3, 3, 3, 3, 3,
-  /*r15 */ 3, 3, 3, 3, 3, 3, 3, 4, 0, 0, 0, 4, 3, 3, 3, 3, 4, 3, 3, 3, 3, 3, 3, 3, 3,18, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
+  /*r15 */ 3, 3, 3, 3, 3, 3, 3, 4, 0, 0, 0, 4, 3, 3,14, 3, 4, 3, 3, 3, 3,14, 3, 3, 3,18, 3, 3, 3, 3,14, 3, 3, 3, 3, 3, 3, 3, 3, 3,
   /*r16 */ 1, 0,10, 0, 0, 0, 0, 4, 4, 0, 4, 4, 0, 0,14, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,14, 0, 0, 0, 0, 0, 0, 0, 0, 1,
   /*r17 */ 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0,10, 0,18, 0, 0, 1,
   /*r18 */ 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0,10, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 1,
@@ -1193,6 +1193,8 @@ function drawAnimalEntity(
   ctx.font = `${fontSize}px sans-serif`;
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
+  ctx.fillStyle = "#000";
+  ctx.globalAlpha = 1;
   ctx.fillText(ANIMAL_DATA[animal.type].emoji, px + ts * 0.5, py + ts * 0.5 + bob);
 }
 
@@ -1211,12 +1213,15 @@ function drawWildNPC(
 
   if (npc.fleeTimer > 0) {
     ctx.globalAlpha = 0.5;
+  } else {
+    ctx.globalAlpha = 1;
   }
 
   const fontSize = Math.max(12, ts * 0.7);
   ctx.font = `${fontSize}px sans-serif`;
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
+  ctx.fillStyle = "#000";
   ctx.fillText(npc.emoji, px + ts * 0.5, py + ts * 0.5 + bob);
   ctx.globalAlpha = 1;
 }
@@ -1243,6 +1248,8 @@ function drawStoryNPC(
   ctx.font = `${fontSize}px sans-serif`;
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
+  ctx.fillStyle = "#000";
+  ctx.globalAlpha = 1;
   ctx.fillText(npc.emoji, px + ts * 0.5, py + ts * 0.5 + bob);
 }
 
