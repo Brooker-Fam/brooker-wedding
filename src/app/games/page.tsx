@@ -183,6 +183,7 @@ export default function GamesArcadePage() {
               "zoes-adventure",
               "cake-creator",
               "here-comes-the-bride",
+              "homestead",
               "homestead-wars",
             ].includes(game.id);
 
