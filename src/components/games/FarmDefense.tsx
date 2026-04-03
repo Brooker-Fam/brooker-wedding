@@ -10,6 +10,7 @@ type DefenderType = "dog" | "cat" | "goose" | "rooster";
 type EnemyType = "red" | "arctic" | "gray" | "chief" | "cubs" | "badger" | "burrower" | "packleader";
 type TileType = "grass" | "path" | "forest" | "coop";
 type GameState = "menu" | "playing" | "paused" | "won" | "lost" | "placing";
+type UpgradePath = "a" | "b" | null;
 
 interface GridPos {
   col: number;
@@ -26,6 +27,8 @@ interface Defender {
   target: Enemy | null;
   kills: number;
   level: number;
+  path: UpgradePath;
+  abilityTimer: number;
 }
 
 interface Enemy {
@@ -74,6 +77,32 @@ interface ParticleEffect {
   color: string;
   size: number;
 }
+
+interface UpgradePathDef {
+  name: string;
+  description: string;
+  emoji: string;
+  cost: number;
+}
+
+const UPGRADE_PATHS: Record<DefenderType, { a: UpgradePathDef; b: UpgradePathDef }> = {
+  dog: {
+    a: { name: "Sheepdog", description: "Pushes enemies back along the path", emoji: "🐑", cost: 30 },
+    b: { name: "Wolfhound", description: "20% chance for 3x critical hits", emoji: "🐺", cost: 30 },
+  },
+  cat: {
+    a: { name: "Ninja Cat", description: "Marks enemies: +25% damage from all towers", emoji: "🥷", cost: 22 },
+    b: { name: "Panther", description: "Huge range, projectiles pierce 2 enemies", emoji: "🐆", cost: 22 },
+  },
+  goose: {
+    a: { name: "Mother Goose", description: "Honk ability: fears enemies in range for 1.5s", emoji: "🪿", cost: 45 },
+    b: { name: "War Goose", description: "Massive AOE damage, 60% slow", emoji: "⚔️", cost: 45 },
+  },
+  rooster: {
+    a: { name: "Dawn Rooster", description: "Speed aura + Crow ability: all towers attack faster", emoji: "🌅", cost: 38 },
+    b: { name: "Fighting Rooster", description: "Drops aura, becomes a strong solo attacker", emoji: "🥊", cost: 38 },
+  },
+};
 
 // =============================================================================
 // CONSTANTS
@@ -807,7 +836,7 @@ export default function FarmDefense() {
 
         // Placement preview
         ctx.globalAlpha = 0.6;
-        drawDefender(ctx, { id: 0, type: selectedDefender, col, row, attackTimer: 0, animTimer: 0, target: null, kills: 0, level: 1 }, cellSize);
+        drawDefender(ctx, { id: 0, type: selectedDefender, col, row, attackTimer: 0, animTimer: 0, target: null, kills: 0, level: 1, path: null, abilityTimer: 0 }, cellSize);
         ctx.globalAlpha = 1;
       }
     }
@@ -1365,6 +1394,12 @@ export default function FarmDefense() {
 
         enemy.animTimer += effectiveDt;
 
+        // Ninja Cat mark countdown
+        const marked = (enemy as Enemy & { marked?: number }).marked;
+        if (marked && marked > 0) {
+          (enemy as Enemy & { marked?: number }).marked = marked - effectiveDt;
+        }
+
         if (enemy.slowTimer > 0 && !enemy.immuneSlow) {
           enemy.slowTimer -= effectiveDt;
         }
@@ -1457,7 +1492,10 @@ export default function FarmDefense() {
       const boostMap = new Map<number, number>();
       for (const def of gs.defenders) {
         if (def.type !== "rooster") continue;
+        // Fighting Rooster (path b) loses the boost aura
+        if (def.path === "b") continue;
         const stats = DEFENDER_STATS.rooster;
+        const boostAmount = def.path === "a" ? stats.boostAmount + 0.2 : stats.boostAmount; // Dawn Rooster: stronger aura
         for (const other of gs.defenders) {
           if (other.id === def.id) continue;
           const dist = Math.sqrt(
@@ -1465,10 +1503,7 @@ export default function FarmDefense() {
           );
           if (dist <= stats.boostRange) {
             const current = boostMap.get(other.id) || 0;
-            boostMap.set(
-              other.id,
-              Math.max(current, stats.boostAmount)
-            );
+            boostMap.set(other.id, Math.max(current, boostAmount));
           }
         }
       }
@@ -1483,7 +1518,8 @@ export default function FarmDefense() {
         const stats = DEFENDER_STATS[def.type];
         const levelDamageMult = 1 + (def.level - 1) * 0.3;
         const levelRangeMult = 1 + (def.level - 1) * 0.15;
-        const range = stats.range * levelRangeMult * gs.cellSize;
+        const pantherBonus = (def.path === "b" && def.type === "cat") ? 1.5 : 1;
+        const range = stats.range * levelRangeMult * pantherBonus * gs.cellSize;
         const boost = boostMap.get(def.id) || 0;
         const effectiveAttackSpeed = stats.attackSpeed * (1 - boost);
 
@@ -1508,7 +1544,36 @@ export default function FarmDefense() {
           def.target = closestEnemy;
           def.attackTimer = effectiveAttackSpeed;
 
-          const effectiveDamage = stats.damage * levelDamageMult * (1 + boost);
+          let effectiveDamage = stats.damage * levelDamageMult * (1 + boost);
+
+          // Wolfhound: 20% crit chance for 3x damage
+          if (def.path === "b" && def.type === "dog" && Math.random() < 0.2) {
+            effectiveDamage *= 3;
+          }
+
+          // Ninja Cat mark: marked enemies take 25% more from all sources
+          if (def.path === "a" && def.type === "cat") {
+            (closestEnemy as Enemy & { marked?: number }).marked = 3; // 3 seconds
+          }
+
+          // Apply mark bonus from any source
+          if ((closestEnemy as Enemy & { marked?: number }).marked && (closestEnemy as Enemy & { marked?: number }).marked! > 0) {
+            effectiveDamage *= 1.25;
+          }
+
+          // Fighting Rooster: loses boost, gains strong attack
+          if (def.path === "b" && def.type === "rooster") {
+            effectiveDamage = stats.damage * 3 * (1 + (def.level - 1) * 0.3);
+          }
+
+          let isAoe = stats.aoe;
+          let aoeRadius = stats.aoeRadius * gs.cellSize;
+
+          // War Goose: bigger AOE, stronger slow
+          if (def.path === "b" && def.type === "goose") {
+            effectiveDamage *= 1.5;
+            aoeRadius *= 1.4;
+          }
 
           gs.projectiles.push({
             x: cx,
@@ -1517,11 +1582,100 @@ export default function FarmDefense() {
             targetY: closestEnemy.y,
             speed: 300 * gs.cellSize / 40,
             damage: effectiveDamage,
-            aoe: stats.aoe,
-            aoeRadius: stats.aoeRadius * gs.cellSize,
+            aoe: isAoe,
+            aoeRadius: aoeRadius,
             color: stats.projectileColor,
             fromDefender: def.type,
           });
+
+          // Sheepdog: push enemy back on every 3rd hit
+          if (def.path === "a" && def.type === "dog" && def.kills % 3 === 0) {
+            const pushEnemy = closestEnemy;
+            if (pushEnemy.pathIndex > 1) {
+              pushEnemy.pathIndex = Math.max(0, pushEnemy.pathIndex - 1);
+              const target = gs.path[pushEnemy.pathIndex];
+              pushEnemy.x = target.col * gs.cellSize + gs.cellSize / 2;
+              pushEnemy.y = target.row * gs.cellSize + gs.cellSize / 2;
+            }
+          }
+
+          // Panther: pierce through to a second enemy
+          if (def.path === "b" && def.type === "cat") {
+            let secondEnemy: Enemy | null = null;
+            let secondDist = Infinity;
+            for (const e of gs.enemies) {
+              if (!e.alive || e.burrowed || e.id === closestEnemy.id) continue;
+              const edx = e.x - cx;
+              const edy = e.y - cy;
+              const eDist = Math.sqrt(edx * edx + edy * edy);
+              if (eDist <= range && eDist < secondDist) {
+                secondDist = eDist;
+                secondEnemy = e;
+              }
+            }
+            if (secondEnemy) {
+              gs.projectiles.push({
+                x: closestEnemy.x,
+                y: closestEnemy.y,
+                targetX: secondEnemy.x,
+                targetY: secondEnemy.y,
+                speed: 300 * gs.cellSize / 40,
+                damage: effectiveDamage * 0.7,
+                aoe: false,
+                aoeRadius: 0,
+                color: "#FF6600",
+                fromDefender: def.type,
+              });
+            }
+          }
+        }
+
+        // Mother Goose: honk fear ability (10s cooldown)
+        if (def.path === "a" && def.type === "goose") {
+          def.abilityTimer -= effectiveDt;
+          if (def.abilityTimer <= 0) {
+            def.abilityTimer = 10;
+            for (const enemy of gs.enemies) {
+              if (!enemy.alive || enemy.burrowed) continue;
+              const edx = enemy.x - cx;
+              const edy = enemy.y - cy;
+              if (Math.sqrt(edx * edx + edy * edy) <= range) {
+                enemy.slowTimer = Math.max(enemy.slowTimer, 1.5);
+                // Fear = extra strong slow (reusing slowTimer)
+              }
+            }
+            // Honk particles
+            for (let p = 0; p < 8; p++) {
+              gs.particles.push({
+                x: cx, y: cy,
+                vx: (Math.random() - 0.5) * 100,
+                vy: (Math.random() - 0.5) * 100,
+                life: 0.5, maxLife: 0.5,
+                color: "#FFFFFF", size: 6,
+              });
+            }
+          }
+        }
+
+        // Dawn Rooster: global speed buff ability (30s cooldown)
+        if (def.path === "a" && def.type === "rooster") {
+          def.abilityTimer -= effectiveDt;
+          if (def.abilityTimer <= 0) {
+            def.abilityTimer = 30;
+            // Buff applied via boostMap already; this adds a temporary global buff
+            for (const ally of gs.defenders) {
+              ally.attackTimer = Math.max(0, ally.attackTimer - 0.5);
+            }
+            for (let p = 0; p < 10; p++) {
+              gs.particles.push({
+                x: cx, y: cy,
+                vx: (Math.random() - 0.5) * 80,
+                vy: -Math.random() * 80,
+                life: 0.8, maxLife: 0.8,
+                color: "#FFD700", size: 5,
+              });
+            }
+          }
         }
       }
 
@@ -1541,11 +1695,8 @@ export default function FarmDefense() {
               const eDist = Math.sqrt(edx * edx + edy * edy);
               if (eDist <= proj.aoeRadius) {
                 enemy.hp -= proj.damage * (1 - eDist / (proj.aoeRadius * 1.5));
-                if (
-                  proj.fromDefender === "goose" &&
-                  DEFENDER_STATS.goose.slow
-                ) {
-                  enemy.slowTimer = 2;
+                if (proj.fromDefender === "goose" && DEFENDER_STATS.goose.slow) {
+                  enemy.slowTimer = 3; // War Goose gets longer slow from bigger AOE
                 }
               }
             }
@@ -1818,6 +1969,8 @@ export default function FarmDefense() {
           target: null,
           kills: 0,
           level: 1,
+          path: null,
+          abilityTimer: 0,
         });
 
         // Placement particles
@@ -1931,15 +2084,19 @@ export default function FarmDefense() {
   const getUpgradeCost = useCallback((def: Defender): number => {
     const baseCost = DEFENDER_STATS[def.type].cost;
     if (def.level === 1) return Math.round(baseCost * 1.5);
-    if (def.level === 2) return Math.round(baseCost * 2);
+    // Level 2→3 uses path-specific cost
     return 0;
+  }, []);
+
+  const getPathCost = useCallback((def: Defender, pathChoice: "a" | "b"): number => {
+    return UPGRADE_PATHS[def.type][pathChoice].cost;
   }, []);
 
   const getSellValue = useCallback((def: Defender): number => {
     const baseCost = DEFENDER_STATS[def.type].cost;
     let totalInvested = baseCost;
     if (def.level >= 2) totalInvested += Math.round(baseCost * 1.5);
-    if (def.level >= 3) totalInvested += Math.round(baseCost * 2);
+    if (def.level >= 3 && def.path) totalInvested += UPGRADE_PATHS[def.type][def.path].cost;
     return Math.round(totalInvested * 0.6);
   }, []);
 
@@ -1948,13 +2105,13 @@ export default function FarmDefense() {
     if (!gs || !gs.selectedUpgradeDefender) return;
 
     const def = gs.defenders.find((d) => d.id === gs.selectedUpgradeDefender!.id);
-    if (!def || def.level >= 3) return;
+    if (!def || def.level !== 1) return;
 
     const cost = getUpgradeCost(def);
     if (gs.eggs < cost) return;
 
     gs.eggs -= cost;
-    def.level++;
+    def.level = 2;
 
     for (let i = 0; i < 8; i++) {
       gs.particles.push({
@@ -1972,6 +2129,37 @@ export default function FarmDefense() {
     gs.selectedUpgradeDefender = def;
     syncUI();
   }, [syncUI, getUpgradeCost]);
+
+  const handleChoosePath = useCallback((pathChoice: "a" | "b") => {
+    const gs = gameStateRef.current;
+    if (!gs || !gs.selectedUpgradeDefender) return;
+
+    const def = gs.defenders.find((d) => d.id === gs.selectedUpgradeDefender!.id);
+    if (!def || def.level !== 2 || def.path !== null) return;
+
+    const cost = getPathCost(def, pathChoice);
+    if (gs.eggs < cost) return;
+
+    gs.eggs -= cost;
+    def.level = 3;
+    def.path = pathChoice;
+
+    for (let i = 0; i < 12; i++) {
+      gs.particles.push({
+        x: def.col * gs.cellSize + gs.cellSize / 2,
+        y: def.row * gs.cellSize + gs.cellSize / 2,
+        vx: (Math.random() - 0.5) * 150,
+        vy: (Math.random() - 0.5) * 150,
+        life: 0.7,
+        maxLife: 0.7,
+        color: pathChoice === "a" ? "#44AAFF" : "#FF4444",
+        size: 5,
+      });
+    }
+
+    gs.selectedUpgradeDefender = def;
+    syncUI();
+  }, [syncUI, getPathCost]);
 
   const handleCloseUpgrade = useCallback(() => {
     const gs = gameStateRef.current;
@@ -2193,46 +2381,76 @@ export default function FarmDefense() {
         {isPlaying && uiState.selectedUpgradeDefender && (() => {
           const def = uiState.selectedUpgradeDefender!;
           const stats = DEFENDER_STATS[def.type];
-          const upgradeCost = getUpgradeCost(def);
-          const canUpgrade = def.level < 3 && uiState.eggs >= upgradeCost;
           const levelDmg = stats.damage * (1 + (def.level - 1) * 0.3);
           const levelRange = stats.range * (1 + (def.level - 1) * 0.15);
-          const nextDmg = def.level < 3 ? stats.damage * (1 + def.level * 0.3) : null;
-          const nextRange = def.level < 3 ? stats.range * (1 + def.level * 0.15) : null;
+          const paths = UPGRADE_PATHS[def.type];
+          const displayName = def.path ? paths[def.path].name : stats.name;
 
           return (
-            <div className="absolute bottom-2 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center gap-1.5 rounded-xl px-4 py-3 text-white text-sm font-semibold shadow-xl min-w-[220px]"
-              style={{ background: "rgba(0,0,0,0.85)", border: "2px solid #DAA520" }}>
+            <div className="absolute bottom-2 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center gap-1.5 rounded-xl px-4 py-3 text-white text-sm font-semibold shadow-xl min-w-[240px] max-w-[360px]"
+              style={{ background: "rgba(0,0,0,0.9)", border: "2px solid #DAA520" }}>
               <div className="flex items-center gap-2">
                 <span className="text-lg">
-                  {def.type === "dog" ? "🐕" : def.type === "cat" ? "🐈" : def.type === "goose" ? "🪿" : "🐓"}
+                  {def.path ? paths[def.path].emoji : (def.type === "dog" ? "🐕" : def.type === "cat" ? "🐈" : def.type === "goose" ? "🪿" : "🐓")}
                 </span>
-                <span>{stats.name}</span>
+                <span>{displayName}</span>
                 <span className="text-yellow-300 text-xs">Lv.{def.level}</span>
               </div>
               <div className="flex gap-4 text-xs text-gray-300">
                 <span>DMG: {Math.round(levelDmg)}</span>
                 <span>RNG: {levelRange.toFixed(1)}</span>
+                <span>Kills: {def.kills}</span>
               </div>
-              {def.level < 3 ? (
-                <>
-                  <div className="text-xs text-gray-400">
-                    Next: DMG {Math.round(nextDmg!)} / RNG {nextRange!.toFixed(1)}
-                  </div>
+
+              {/* Level 1: basic upgrade */}
+              {def.level === 1 && (() => {
+                const cost = getUpgradeCost(def);
+                const canAfford = uiState.eggs >= cost;
+                return (
                   <button
                     onClick={handleUpgradeDefender}
-                    disabled={!canUpgrade}
+                    disabled={!canAfford}
                     className={`mt-1 rounded-lg px-4 py-1.5 text-sm font-bold transition-all active:scale-95 ${
-                      canUpgrade
-                        ? "bg-yellow-600 hover:bg-yellow-500 text-white"
-                        : "bg-gray-700 text-gray-500 cursor-not-allowed"
+                      canAfford ? "bg-yellow-600 hover:bg-yellow-500 text-white" : "bg-gray-700 text-gray-500 cursor-not-allowed"
                     }`}
                   >
-                    Upgrade Lv.{def.level + 1} - 🥚{upgradeCost}
+                    Upgrade Lv.2 - 🥚{cost}
                   </button>
-                </>
-              ) : (
-                <div className="text-xs text-yellow-400">MAX LEVEL</div>
+                );
+              })()}
+
+              {/* Level 2: choose specialization */}
+              {def.level === 2 && !def.path && (
+                <div className="flex flex-col gap-2 mt-1 w-full">
+                  <div className="text-xs text-center text-yellow-300">Choose Specialization:</div>
+                  {(["a", "b"] as const).map((p) => {
+                    const pathDef = paths[p];
+                    const canAfford = uiState.eggs >= pathDef.cost;
+                    return (
+                      <button
+                        key={p}
+                        onClick={() => handleChoosePath(p)}
+                        disabled={!canAfford}
+                        className={`flex items-center gap-2 rounded-lg px-3 py-2 text-left text-xs transition-all active:scale-95 ${
+                          canAfford
+                            ? (p === "a" ? "bg-blue-700 hover:bg-blue-600" : "bg-red-700 hover:bg-red-600") + " text-white"
+                            : "bg-gray-700 text-gray-500 cursor-not-allowed"
+                        }`}
+                      >
+                        <span className="text-base">{pathDef.emoji}</span>
+                        <div className="flex-1">
+                          <div className="font-bold">{pathDef.name} - 🥚{pathDef.cost}</div>
+                          <div className="text-[10px] opacity-80">{pathDef.description}</div>
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+
+              {/* Level 3: maxed */}
+              {def.level >= 3 && (
+                <div className="text-xs text-yellow-400">MAX LEVEL — {def.path ? paths[def.path].name : ""}</div>
               )}
               <div className="flex gap-3 mt-1">
                 <button
