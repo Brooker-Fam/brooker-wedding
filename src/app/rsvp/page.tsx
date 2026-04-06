@@ -271,6 +271,18 @@ function RsvpForm({ initialData, isEditing, onSuccess, onCancel }: { initialData
   const [submitting, setSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
 
+  useEffect(() => {
+    setAttendeeEntries((prev) => {
+      if (prev.length === 0) {
+        return [{ name, type: "adult" }];
+      }
+
+      return prev.map((entry, index) =>
+        index === 0 ? { ...entry, name, type: "adult" } : entry
+      );
+    });
+  }, [name]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name.trim()) { setErrorMessage("Please enter your name so we know who to expect!"); return; }
@@ -370,25 +382,32 @@ function RsvpForm({ initialData, isEditing, onSuccess, onCancel }: { initialData
                         type="text"
                         value={entry.name}
                         onChange={(e) =>
-                          setAttendeeEntries((prev) =>
-                            prev.map((item, itemIndex) =>
-                              itemIndex === index ? { ...item, name: e.target.value } : item
-                            )
-                          )
+                          index === 0
+                            ? undefined
+                            : setAttendeeEntries((prev) =>
+                                prev.map((item, itemIndex) =>
+                                  itemIndex === index ? { ...item, name: e.target.value } : item
+                                )
+                              )
                         }
                         placeholder={index === 0 ? "Your Name" : `Guest ${index + 1}`}
-                        className="enchanted-input flex-1"
+                        readOnly={index === 0}
+                        className={`enchanted-input flex-1 ${index === 0 ? "cursor-not-allowed opacity-90" : ""}`}
                       />
                       <div className="flex gap-2">
                         <button
                           type="button"
                           onClick={() =>
+                            index === 0
+                              ? undefined
+                              :
                             setAttendeeEntries((prev) =>
                               prev.map((item, itemIndex) =>
                                 itemIndex === index ? { ...item, type: "adult" } : item
                               )
                             )
                           }
+                          disabled={index === 0}
                           className={`rounded-lg px-3 py-2 text-xs font-medium transition-all ${entry.type === "adult" ? "bg-soft-gold text-[#2A1A00] shadow-sm" : "border border-sage/30 text-deep-plum hover:bg-sage/10 dark:border-sage/40 dark:text-cream dark:hover:bg-sage/20"}`}
                         >
                           Adult
@@ -396,17 +415,21 @@ function RsvpForm({ initialData, isEditing, onSuccess, onCancel }: { initialData
                         <button
                           type="button"
                           onClick={() =>
+                            index === 0
+                              ? undefined
+                              :
                             setAttendeeEntries((prev) =>
                               prev.map((item, itemIndex) =>
                                 itemIndex === index ? { ...item, type: "child" } : item
                               )
                             )
                           }
+                          disabled={index === 0}
                           className={`rounded-lg px-3 py-2 text-xs font-medium transition-all ${entry.type === "child" ? "bg-[#8B7AA0] text-white shadow-sm" : "border border-sage/30 text-deep-plum hover:bg-sage/10 dark:border-sage/40 dark:text-cream dark:hover:bg-sage/20"}`}
                         >
                           Child
                         </button>
-                        {attendeeEntries.length > 1 && (
+                        {index !== 0 && attendeeEntries.length > 1 && (
                           <button
                             type="button"
                             onClick={() => setAttendeeEntries((prev) => prev.filter((_, itemIndex) => itemIndex !== index))}
