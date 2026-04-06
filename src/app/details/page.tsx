@@ -230,7 +230,7 @@ export default function DetailsPage() {
               {[
                 { name: "Livestock Dogs", desc: "Our sweet protectors", emoji: "🐕" },
                 { name: "Barn Cats", desc: "The quiet hunters", emoji: "🐈" },
-                { name: "Zoe", desc: "The couch cuddler", emoji: "🐕‍🦺" },
+                { name: "Zoe", desc: "The couch cuddler", emoji: "🐕" },
                 { name: "House Cats", desc: "The cozy window watchers", emoji: "🐱" },
                 { name: "Guinea Hens", desc: "The watchful ones", emoji: "🐔" },
                 { name: "Ducks", desc: "The creek lovers", emoji: "🦆" },
