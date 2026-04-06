@@ -15,7 +15,7 @@ interface Rsvp {
   message: string;
   phone: string | null;
   mailing_address: string;
-  attendee_names: string;
+  attendee_names: string | null;
   public_display: boolean;
   created_at: string;
 }
@@ -41,7 +41,7 @@ export default function AdminPage() {
 
   const startEdit = (r: Rsvp) => {
     setEditingId(r.id);
-    setEditForm({ ...r });
+    setEditForm({ ...r, attendee_names: r.attendee_names ?? "" });
   };
 
   const cancelEdit = () => {
@@ -205,7 +205,7 @@ export default function AdminPage() {
                         </td>
                         <td className="px-2 py-2">
                           <textarea
-                            value={editForm.attendee_names}
+                            value={editForm.attendee_names ?? ""}
                             onChange={(e) => set("attendee_names", e.target.value)}
                             className="enchanted-input min-h-[84px] min-w-[12rem] !py-1.5 text-sm"
                             rows={3}
