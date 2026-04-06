@@ -272,7 +272,7 @@ export default function DetailsPage() {
             accent="lavender"
           >
             <p>
-              We&apos;re here to help with anything you need. Don&apos;t hesitate to reach out!
+              Please don&apos;t hesitate to reach out!
             </p>
             <a
               href="mailto:brookerhousehold@gmail.com"
@@ -280,9 +280,6 @@ export default function DetailsPage() {
             >
               brookerhousehold@gmail.com
             </a>
-            <p className="mt-2 text-sm text-[#2D5016]/55 dark:text-[#FDF8F0]/55">
-              We usually respond within a day (farm chores permitting!)
-            </p>
           </SectionCard>
         </div>
 
