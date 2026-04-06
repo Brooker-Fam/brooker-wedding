@@ -212,6 +212,24 @@ export default function DetailsPage() {
 
           <BotanicalDivider />
 
+          <motion.div
+            {...fadeUp}
+            transition={{ delay: 0.25 }}
+            className="text-center"
+          >
+            <Link
+              href="/rsvp"
+              className="inline-block rounded-xl bg-[#D4A574] px-8 py-3.5 font-[family-name:var(--font-body)] text-base font-semibold text-white shadow-md shadow-[#D4A574]/20 transition-all hover:bg-[#c4955a] hover:shadow-lg"
+            >
+              RSVP Here
+            </Link>
+            <p className="mt-4 font-[family-name:var(--font-body)] text-sm text-[#6B8F5B] dark:text-[#9CAF88]/85">
+              June 27, 2026
+            </p>
+          </motion.div>
+
+          <BotanicalDivider />
+
           {/* Farm Animals Section */}
           <motion.div
             {...fadeUp}
@@ -282,23 +300,6 @@ export default function DetailsPage() {
             </a>
           </SectionCard>
         </div>
-
-        {/* CTA */}
-        <motion.div
-          {...fadeUp}
-          transition={{ delay: 0.4 }}
-          className="mt-12 text-center"
-        >
-          <Link
-            href="/rsvp"
-            className="inline-block rounded-xl bg-[#D4A574] px-8 py-3.5 font-[family-name:var(--font-body)] text-base font-semibold text-white shadow-md shadow-[#D4A574]/20 transition-all hover:bg-[#c4955a] hover:shadow-lg"
-          >
-            RSVP Here
-          </Link>
-          <p className="mt-4 font-[family-name:var(--font-body)] text-sm text-[#6B8F5B] dark:text-[#9CAF88]/85">
-            June 27, 2026
-          </p>
-        </motion.div>
       </div>
     </div>
   );
