@@ -228,12 +228,12 @@ export default function DetailsPage() {
             </div>
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
               {[
-                { name: "Livestock Guardian Dogs", desc: "Our sweet protectors", emoji: "🐕" },
+                { name: "Livestock Dogs", desc: "Our sweet protectors", emoji: "🐕" },
                 { name: "Barn Cats", desc: "The quiet hunters", emoji: "🐈" },
-                { name: "House Dog", desc: "The couch cuddler", emoji: "🐶" },
-                { name: "House Cats", desc: "The indoor royalty", emoji: "🐱" },
+                { name: "Zoe", desc: "The couch cuddler", emoji: "🐕‍🦺" },
+                { name: "House Cats", desc: "The cozy window watchers", emoji: "🐱" },
                 { name: "Guinea Hens", desc: "The watchful ones", emoji: "🐔" },
-                { name: "Ducks", desc: "The pond lovers", emoji: "🦆" },
+                { name: "Ducks", desc: "The creek lovers", emoji: "🦆" },
                 { name: "Geese", desc: "The loud greeters", emoji: "🪿" },
                 { name: "Chickens", desc: "The breakfast providers", emoji: "🐓" },
               ].map((animal) => (
