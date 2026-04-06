@@ -266,7 +266,7 @@ export default function Home() {
                     <span className="font-[family-name:var(--font-cormorant-garamond)] text-base font-semibold text-forest dark:text-cream">
                       Baby Girl Brooker
                     </span>
-                    <span className="text-xs text-forest/70 dark:text-cream/70">Due October 2024</span>
+                    <span className="text-xs text-forest/70 dark:text-cream/70">Due October 2026</span>
                   </div>
                 </div>
               </div>
