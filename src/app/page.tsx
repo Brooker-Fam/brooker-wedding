@@ -243,27 +243,31 @@ export default function Home() {
                 </div>
               </div>
 
-              <div className="mt-4 flex flex-wrap items-center justify-center gap-8 border-t border-sage/10 pt-6 dark:border-sage/20 sm:gap-12">
-                <div className="flex flex-col items-center gap-1.5">
-                  <span className="text-2xl sm:text-3xl">&#127775;</span>
-                  <span className="font-[family-name:var(--font-cormorant-garamond)] text-base font-semibold text-forest dark:text-cream">
-                    Emmett
-                  </span>
-                  <span className="text-xs text-forest/70 dark:text-cream/70">Age {getAge(2014, 3, 29)}</span>
+              <div className="mt-4 border-t border-sage/10 pt-6 dark:border-sage/20">
+                <div className="flex flex-wrap items-center justify-center gap-8 sm:gap-12">
+                  <div className="flex flex-col items-center gap-1.5">
+                    <span className="text-2xl sm:text-3xl">&#127775;</span>
+                    <span className="font-[family-name:var(--font-cormorant-garamond)] text-base font-semibold text-forest dark:text-cream">
+                      Emmett
+                    </span>
+                    <span className="text-xs text-forest/70 dark:text-cream/70">Age {getAge(2014, 3, 29)}</span>
+                  </div>
+                  <div className="flex flex-col items-center gap-1.5">
+                    <span className="text-2xl sm:text-3xl">&#128142;</span>
+                    <span className="font-[family-name:var(--font-cormorant-garamond)] text-base font-semibold text-forest dark:text-cream">
+                      Sapphire
+                    </span>
+                    <span className="text-xs text-forest/70 dark:text-cream/70">Age {getAge(2017, 6, 19)}</span>
+                  </div>
                 </div>
-                <div className="flex flex-col items-center gap-1.5">
-                  <span className="text-2xl sm:text-3xl">&#128142;</span>
-                  <span className="font-[family-name:var(--font-cormorant-garamond)] text-base font-semibold text-forest dark:text-cream">
-                    Sapphire
-                  </span>
-                  <span className="text-xs text-forest/70 dark:text-cream/70">Age {getAge(2017, 6, 19)}</span>
-                </div>
-                <div className="flex flex-col items-center gap-1.5">
-                  <span className="text-2xl sm:text-3xl">🩷</span>
-                  <span className="font-[family-name:var(--font-cormorant-garamond)] text-base font-semibold text-forest dark:text-cream">
-                    Baby Girl Brooker
-                  </span>
-                  <span className="text-xs text-forest/70 dark:text-cream/70">Due October 2024</span>
+                <div className="mt-6 flex justify-center">
+                  <div className="flex flex-col items-center gap-1.5">
+                    <span className="text-2xl sm:text-3xl">🩷</span>
+                    <span className="font-[family-name:var(--font-cormorant-garamond)] text-base font-semibold text-forest dark:text-cream">
+                      Baby Girl Brooker
+                    </span>
+                    <span className="text-xs text-forest/70 dark:text-cream/70">Due October 2024</span>
+                  </div>
                 </div>
               </div>
             </div>
