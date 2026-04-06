@@ -376,7 +376,7 @@ function RsvpForm({ initialData, isEditing, onSuccess, onCancel }: { initialData
                             )
                           )
                         }
-                        placeholder={`Guest ${index + 1} name`}
+                        placeholder={index === 0 ? "Your Name" : `Guest ${index + 1}`}
                         className="enchanted-input flex-1"
                       />
                       <div className="flex gap-2">
