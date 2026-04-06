@@ -52,10 +52,14 @@ export default function AdminPage() {
   const saveEdit = async () => {
     if (!editForm) return;
     setSaving(true);
+    setError("");
     try {
       const res = await fetch("/api/rsvp", {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "x-admin-edit": "true",
+        },
         body: JSON.stringify(editForm),
       });
       const json = await res.json();
@@ -63,8 +67,8 @@ export default function AdminPage() {
       setRsvps((prev) => prev.map((r) => (r.id === editForm.id ? json.data : r)));
       setEditingId(null);
       setEditForm(null);
-    } catch {
-      setError("Failed to save changes");
+    } catch (error) {
+      setError(error instanceof Error ? error.message : "Failed to save changes");
     } finally {
       setSaving(false);
     }

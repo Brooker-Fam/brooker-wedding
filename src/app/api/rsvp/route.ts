@@ -150,6 +150,7 @@ export async function GET(request: NextRequest) {
 
 export async function PUT(request: NextRequest) {
   try {
+    const isAdminEdit = request.headers.get("x-admin-edit") === "true";
     const body = await request.json();
     const {
       id,
@@ -188,14 +189,14 @@ export async function PUT(request: NextRequest) {
       );
     }
 
-    if (!phone || typeof phone !== "string" || phone.trim().length === 0) {
+    if (!isAdminEdit && (!phone || typeof phone !== "string" || phone.trim().length === 0)) {
       return NextResponse.json(
         { error: "Phone number is required" },
         { status: 400 }
       );
     }
 
-    if (!mailing_address || typeof mailing_address !== "string" || mailing_address.trim().length === 0) {
+    if (!isAdminEdit && (!mailing_address || typeof mailing_address !== "string" || mailing_address.trim().length === 0)) {
       return NextResponse.json(
         { error: "Mailing address is required" },
         { status: 400 }
@@ -206,7 +207,9 @@ export async function PUT(request: NextRequest) {
     const children = attending ? Math.max(0, Number(child_count) || 0) : 0;
     const guestCount = adults + children;
 
-    const normalizedPhone = normalizePhone(phone);
+    const normalizedPhone = isAdminEdit
+      ? normalizePhone(typeof phone === "string" ? phone : "")
+      : normalizePhone(phone);
 
     const result = await query(
       `UPDATE rsvps
@@ -229,8 +232,8 @@ export async function PUT(request: NextRequest) {
         message.trim(),
         Boolean(public_display),
         normalizedPhone,
-        mailing_address.trim(),
-        attendee_names.trim(),
+        typeof mailing_address === "string" ? mailing_address.trim() : "",
+        typeof attendee_names === "string" ? attendee_names.trim() : "",
         Number(id),
       ]
     );
