@@ -90,6 +90,31 @@ export default function Home() {
 
           <motion.div
             {...fadeInUp}
+            transition={{ duration: 0.6, delay: 1 }}
+            className="mb-8"
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6 }}
+              className="inline-block rounded-3xl border border-soft-gold/20 bg-warm-white/70 p-8 shadow-[0_8px_40px_rgba(196,154,60,0.1)] backdrop-blur-sm dark:border-soft-gold/15 dark:bg-[#162618]/70 dark:shadow-[0_8px_40px_rgba(0,0,0,0.2)] sm:p-12"
+            >
+              <h3 className="fairy-sparkle mb-5 font-[family-name:var(--font-cormorant-garamond)] text-3xl font-bold text-forest dark:text-cream sm:mb-6 sm:text-4xl">
+                Join the Celebration
+              </h3>
+              <p className="mx-auto mb-7 max-w-md text-sm leading-relaxed text-forest/60 dark:text-cream/60 sm:mb-8 sm:text-base">
+                Celebrate with us on our farm for a day filled with good
+                food, fun games, and the people we love most.
+              </p>
+              <PixelButton href="/rsvp" variant="primary" size="lg">
+                RSVP Here
+              </PixelButton>
+            </motion.div>
+          </motion.div>
+
+          <motion.div
+            {...fadeInUp}
             transition={{ duration: 0.6, delay: 1.05 }}
             className="mb-8 w-full max-w-4xl sm:mb-10"
           >
@@ -153,28 +178,6 @@ export default function Home() {
             transition={{ duration: 0.6 }}
             className="text-center"
           >
-            {/* RSVP card */}
-            <div className="mb-14 sm:mb-18">
-              <motion.div
-                initial={{ opacity: 0, scale: 0.95 }}
-                whileInView={{ opacity: 1, scale: 1 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.6 }}
-                className="inline-block rounded-3xl border border-soft-gold/20 bg-warm-white/70 p-8 shadow-[0_8px_40px_rgba(196,154,60,0.1)] backdrop-blur-sm dark:border-soft-gold/15 dark:bg-[#162618]/70 dark:shadow-[0_8px_40px_rgba(0,0,0,0.2)] sm:p-12"
-              >
-                <h3 className="fairy-sparkle mb-5 font-[family-name:var(--font-cormorant-garamond)] text-3xl font-bold text-forest dark:text-cream sm:mb-6 sm:text-4xl">
-                  Join the Celebration
-                </h3>
-                <p className="mx-auto mb-7 max-w-md text-sm leading-relaxed text-forest/60 dark:text-cream/60 sm:mb-8 sm:text-base">
-                  Celebrate with us on our farm for a day filled with good
-                  food, fun games, and the people we love most.
-                </p>
-                <PixelButton href="/rsvp" variant="primary" size="lg">
-                  RSVP Here
-                </PixelButton>
-              </motion.div>
-            </div>
-
             {/* Secondary links */}
             <div className="flex justify-center">
               <motion.div
