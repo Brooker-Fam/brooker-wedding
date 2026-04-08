@@ -14,6 +14,12 @@ function normalizePhone(raw: string | undefined | null): string | null {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
+
+    // Honeypot: bots fill this hidden field, real users don't see it
+    if (body.website) {
+      return NextResponse.json({ success: true, data: { id: 0 } });
+    }
+
     const {
       name,
       email,

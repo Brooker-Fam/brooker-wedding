@@ -268,6 +268,7 @@ function RsvpForm({ initialData, isEditing, onSuccess, onCancel }: { initialData
     )
   );
   const [publicDisplay, setPublicDisplay] = useState(initialData?.public_display ?? false);
+  const [honeypot, setHoneypot] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
 
@@ -309,6 +310,7 @@ function RsvpForm({ initialData, isEditing, onSuccess, onCancel }: { initialData
         attendee_names: attending ? serializeAttendeeEntries(attendeeEntries) : "",
         public_display: publicDisplay,
         phone: phone.trim(),
+        ...(honeypot ? { website: honeypot } : {}),
       };
       const res = await fetch("/api/rsvp", {
         method: isEditing ? "PUT" : "POST",
@@ -326,6 +328,10 @@ function RsvpForm({ initialData, isEditing, onSuccess, onCancel }: { initialData
 
   return (
     <motion.form onSubmit={handleSubmit} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }} className="space-y-6 rounded-[2rem] border border-white/50 bg-white/72 p-6 shadow-[0_18px_40px_rgba(95,61,87,0.12)] backdrop-blur-md dark:border-soft-gold/15 dark:bg-[#162618]/70 dark:shadow-[0_8px_40px_rgba(0,0,0,0.2)] sm:p-8">
+      {/* Honeypot field -- hidden from real users, bots fill it in */}
+      <div className="absolute -left-[9999px]" aria-hidden="true">
+        <input type="text" name="website" tabIndex={-1} autoComplete="off" value={honeypot} onChange={(e) => setHoneypot(e.target.value)} />
+      </div>
       <div>
         <label className="mb-2 block text-sm font-medium text-deep-plum dark:text-cream">Your Name <span className="text-soft-gold">*</span></label>
         <input type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder="Enter your name" className="enchanted-input" required />
