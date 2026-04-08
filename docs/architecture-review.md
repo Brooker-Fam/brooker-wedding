@@ -1,226 +1,145 @@
-# Architecture Review - Brooker Wedding Site
+# Brooker Wedding Site -- Architecture & Knowledge Base
 
-**Date:** April 2026
-**Stack:** Next.js 16 (App Router) / TypeScript / Tailwind CSS v4 / Neon Postgres / Framer Motion
-**Repo:** brooker-fam/brooker-wedding
-
----
-
-## Executive Summary
-
-The site is well-structured for its scope: a wedding celebration site with RSVP, event details, and 11 browser games. The core pages are clean and maintainable. The main areas for improvement are: oversized game components, security hardening on API routes, missing rate limiting, and some accessibility gaps.
+> **What this doc is for:** A living reference for anyone working on this codebase. It covers the
+> high-level architecture, design philosophy, how the pieces fit together, and a prioritized list
+> of things that should be addressed. Read this before making significant changes.
 
 ---
 
-## 1. Project Structure
+## Design Philosophy
 
-**Rating: Good**
+- **"We already got married, now come party."** The site is a celebration invitation, not a traditional wedding site. Tone is joyful, informal, playful.
+- **Enchanted forest aesthetic.** Dark greens, warm golds, fairy lights, gnome silhouettes, toadstools. Fonts: Cormorant Garamond (display) + Quicksand (body).
+- **Games are a first-class feature.** 11 HTML5 Canvas games give guests something fun to do. They're meant to be lightweight diversions, not production game engines.
+- **Works without a database.** When `DATABASE_URL` is unset, APIs return gracefully and the frontend still renders. This makes local dev frictionless.
+- **Dark mode is class-based.** Three-way toggle (light/system/dark), persisted in localStorage, with an anti-flash `<head>` script to prevent FOUC.
 
-The App Router structure is clean and conventional:
+---
+
+## High-Level Architecture
 
 ```
-src/app/          - Pages (home, details, rsvp, games hub, 11 game pages)
-src/components/   - Shared UI + game components
-src/lib/          - Database utilities + migrations
+                        +-----------------+
+                        |   Vercel Edge   |
+                        |  (middleware.ts) |
+                        |  Basic Auth for  |
+                        |  admin routes    |
+                        +--------+--------+
+                                 |
+              +------------------+------------------+
+              |                                     |
+     +--------v--------+                  +---------v---------+
+     |   Next.js App    |                 |    API Routes      |
+     |   (App Router)   |                 |  /api/rsvp         |
+     |                  |                 |  /api/rsvp/lookup  |
+     |  / (home)        |                 |  /api/rsvp/public  |
+     |  /details        |                 |  /api/scores       |
+     |  /rsvp           |                 +---------+----------+
+     |  /rsvp/admin     |                           |
+     |  /games          |                  +--------v--------+
+     |  /games/[game]   |                  |   Neon Postgres  |
+     +------------------+                  |  (serverless)    |
+                                           +-----------------+
 ```
 
-**Findings:**
+### Pages
 
-| Severity | Finding |
-|----------|---------|
-| Low | Game page files (`src/app/games/*/page.tsx`) are thin wrappers that just import a component -- good pattern. |
-| Low | `src/app/rsvp/admin/page.tsx` exists but isn't referenced in navigation. Intentional? If it's a secret admin panel, consider adding auth middleware. |
-| Info | No `middleware.ts` for route protection. The RSVP admin page and full RSVP list endpoint (`GET /api/rsvp` without `?id=`) are unprotected. |
+| Route | Purpose | Rendering |
+|-------|---------|-----------|
+| `/` | Hero, countdown, family section, story | Client (`"use client"` for Framer Motion) |
+| `/details` | Event info, location, farm animals | Client |
+| `/rsvp` | RSVP form with cookie-based recall | Client |
+| `/rsvp/admin` | Admin dashboard (Basic Auth protected) | Client |
+| `/games` | Game gallery with high scores from localStorage | Client |
+| `/games/[game]` | 11 individual game pages (thin wrappers) | Client |
 
----
+### API Routes
 
-## 2. Component Architecture
-
-**Rating: Needs Attention**
-
-| Severity | Finding | File | Details |
+| Endpoint | Methods | Auth | Purpose |
 |----------|---------|------|---------|
-| **High** | Oversized game components | `src/components/games/` | HomesteadGame (3698 lines), HomesteadWars (2907), FarmDefense (2764), ZoesAdventure (2065). These are monolithic single-file components mixing game logic, rendering, input handling, and UI. |
-| Medium | All pages are client components | `src/app/*/page.tsx` | Every page uses `"use client"`. Pages like `details/page.tsx` are static content that could be server components with isolated client islands (e.g., wrapping only `motion` elements in a client component). |
-| Low | `FairyLightDivider` was defined but unused (fixed in this PR) | `src/app/page.tsx` | Removed. |
-| Low | `useCountdown` hook was defined and unused in details page (fixed) | `src/app/details/page.tsx` | Removed. |
+| `/api/rsvp` | POST | None (public) | Submit new RSVP |
+| `/api/rsvp` | GET `?id=N` | None | Single RSVP lookup (cookie-based) |
+| `/api/rsvp` | GET (no id) | Basic Auth | Full RSVP list (admin) |
+| `/api/rsvp` | PUT | Basic Auth | Update RSVP (admin) |
+| `/api/rsvp` | DELETE | Basic Auth | Delete RSVP (admin) |
+| `/api/rsvp/lookup` | GET | None | Search RSVPs by name/email |
+| `/api/rsvp/public` | GET | None | Public guest list (`public_display = true` only) |
+| `/api/scores` | POST | None | Submit game score |
+| `/api/scores` | GET | None | Leaderboard by game_id |
 
-**Recommendation:** For the game components, consider extracting:
-- Game constants/config into separate files
-- Rendering functions into a `*Renderer.ts` module
-- Input handling into a `*Input.ts` module
-- This isn't blocking, but would improve maintainability
+### Database (Neon Postgres)
 
----
+Two tables:
 
-## 3. Security
+```sql
+rsvps (id, name, email, attending, guest_count, adult_count, child_count,
+       dietary_restrictions, potluck_dish, message, phone, mailing_address,
+       attendee_names, public_display, created_at, updated_at)
 
-**Rating: Needs Improvement**
+game_scores (id, player_name, game_id, score, created_at)
+```
 
-| Severity | Finding | File | Details |
-|----------|---------|------|---------|
-| **High** | No rate limiting on API routes | `src/app/api/rsvp/route.ts`, `src/app/api/scores/route.ts` | POST endpoints have no rate limiting. An attacker could spam RSVP submissions or flood the game scores table. Consider Vercel's `@vercel/edge-config` rate limiting or a simple in-memory counter. |
-| **High** | RSVP DELETE endpoint has no auth | `src/app/api/rsvp/route.ts:261` | Anyone can delete any RSVP by guessing/iterating sequential IDs. The `id` is a serial integer, making enumeration trivial. |
-| **High** | Full RSVP list endpoint is unprotected | `src/app/api/rsvp/route.ts:130` | `GET /api/rsvp` (without `?id=`) returns all RSVPs including personal data (email, phone, mailing address). Comment says "protected by middleware Basic Auth" but no middleware.ts exists. |
-| Medium | RSVP lookup by sequential ID | `src/app/api/rsvp/route.ts:114` | RSVP IDs are sequential integers. Anyone can enumerate all RSVPs via `GET /api/rsvp?id=1`, `?id=2`, etc. Consider using UUIDs instead of serial IDs for public-facing lookups. |
-| Medium | Admin edit bypass via header | `src/app/api/rsvp/route.ts:153` | `x-admin-edit: true` header skips phone/address validation on PUT. No authentication check -- anyone can set this header. |
-| Low | Input lengths not capped | API routes | No max-length validation on `message`, `attendee_names`, `dietary_restrictions`. An attacker could submit very large text payloads. |
-| Low | SQL injection is mitigated | `src/lib/db.ts` | Parameterized queries are used throughout -- good. |
+Migrations run automatically on every `pnpm build` via `src/lib/migrate.ts`. They're idempotent (`CREATE TABLE IF NOT EXISTS`, `ALTER TABLE ADD COLUMN IF NOT EXISTS`).
 
----
+### Game Architecture
 
-## 4. Database
+All 11 games follow the same pattern:
+- Single component file in `src/components/games/`
+- HTML5 Canvas with `requestAnimationFrame` loop
+- Game state stored in `useRef` (not React state) for performance
+- DPR-aware rendering: `canvas.width = logicalWidth * dpr`
+- Touch + mouse input handlers
+- Local high scores in localStorage, optional API leaderboard via `/api/scores`
+- Wrapped in `GameWrapper` component for consistent header/leaderboard UI
 
-**Rating: Good with minor issues**
+### Auth & Middleware
 
-| Severity | Finding | File | Details |
-|----------|---------|------|---------|
-| Medium | Migration script drift from schema | `src/lib/migrate.ts` vs `src/lib/schema.sql` | `schema.sql` has the final schema but `migrate.ts` does incremental ALTERs. Both should stay in sync. If you drop and recreate, `schema.sql` is the source of truth. |
-| Medium | No unique constraint on email | `src/lib/schema.sql` | Multiple RSVPs can be created with the same email. This might be intentional (allowing family members) but could also lead to duplicate submissions. |
-| Low | New DB connection per request | `src/lib/db.ts` | `neon()` is called fresh each time. Neon's serverless driver is designed for this, so it's fine for the current scale. |
-| Low | Timestamps lack timezone | `src/lib/schema.sql` | `TIMESTAMP` without time zone. Consider `TIMESTAMPTZ` for clarity, though Neon defaults to UTC. |
+`src/middleware.ts` protects admin routes with HTTP Basic Auth using `ADMIN_USER` and `ADMIN_PASS` env vars. Protected routes:
+- `/rsvp/admin` (page)
+- `GET /api/rsvp` without `?id=` (full list)
+- `PUT /api/rsvp` (edit)
+- `DELETE /api/rsvp` (delete)
 
----
-
-## 5. Performance
-
-**Rating: Acceptable**
-
-| Severity | Finding | Details |
-|----------|---------|---------|
-| Medium | Game components aren't code-split well | Each game is ~1000-3700 lines of client JS. They ARE lazy-loaded via Next.js dynamic routes, which helps. But the individual bundles are still large. |
-| Medium | All Framer Motion animations load on every page | `framer-motion` is imported in most pages. The full library (~40KB gzipped) ships client-side. Consider `motion/react` (the lighter import path). |
-| Low | FarmScene renders many DOM elements | `src/components/FarmScene.tsx` (411 lines) | Lots of absolutely-positioned divs for fireflies, stars, sparkles. Performance is fine on modern devices but could be heavy on low-end mobile. |
-| Low | `globals.css` is 850 lines | Manageable, but many animation keyframes that could be split or lazy-loaded. |
-| Info | No `next/dynamic` usage for game components | Game pages import components directly. Using `next/dynamic` with `ssr: false` would avoid SSR overhead for canvas games. |
+Public endpoints (POST new RSVP, single lookup by ID, public guest list, scores) require no auth by design.
 
 ---
 
-## 6. Accessibility
+## Things to Address
 
-**Rating: Needs Improvement**
+### High Priority
 
-| Severity | Finding | Details |
-|----------|---------|---------|
-| **High** | Canvas games are inaccessible | All 11 games use HTML5 Canvas, which is inherently inaccessible to screen readers. No ARIA labels, no keyboard controls, no alternative content. |
-| Medium | Limited skip navigation | No skip-to-content link. The fixed nav means keyboard users must tab through all nav links on every page. |
-| Medium | Form accessibility gaps | RSVP form inputs use custom styling but may not have proper `aria-label` or `aria-describedby` for validation errors. |
-| Low | Color contrast | Some lighter colors (sage, lavender at low opacity) may not meet WCAG AA contrast ratios against the cream background. |
-| Low | FarmScene is properly `aria-hidden` | Good -- decorative elements are hidden from screen readers. |
-| Low | Navigation has `aria-label` and `aria-expanded` | Good -- mobile menu is properly labeled. |
+| Issue | Details |
+|-------|---------|
+| **No rate limiting on public POST endpoints** | `/api/rsvp` (POST) and `/api/scores` (POST) have no rate limiting. An attacker could spam submissions or flood the scores table. Consider Vercel edge rate limiting or a simple counter. |
+| **RSVP IDs are sequential integers** | Single-RSVP lookup uses `?id=1`, `?id=2`, etc. Anyone can enumerate all RSVPs. The lookup endpoint returns PII (email, phone, mailing address). Consider UUIDs for public-facing lookups, or restrict what fields the single-lookup returns. |
+| **`/api/rsvp/lookup` exposes search** | Open endpoint lets anyone search RSVPs by name/email with a 2-char minimum. Returns id, name, email, attending status. Useful for the "find your RSVP" flow, but could be tightened (e.g., require email match, not just name substring). |
+| **`x-admin-edit` header skips validation** | In the PUT handler, `x-admin-edit: true` bypasses phone/address required checks. The PUT route IS behind Basic Auth via middleware, so this is low risk, but the header itself isn't verified against auth -- it's just trusted. |
 
----
+### Medium Priority
 
-## 7. Dark Mode Implementation
+| Issue | Details |
+|-------|---------|
+| **No `error.tsx` or `loading.tsx`** | No error boundaries or loading states in the app directory. If a page throws, users see the default Next.js error page. |
+| **Oversized game components** | HomesteadGame (3698 lines), HomesteadWars (2907), FarmDefense (2764), ZoesAdventure (2065). These work but are hard to maintain. Consider extracting game logic, rendering, and input handling into separate modules. |
+| **Duplicated game utilities** | Canvas DPR setup, particle systems, score submission, and `drawPixelRect` are copy-pasted across game files. Extract into `src/lib/gameUtils.ts`. |
+| **All pages are client components** | Every page uses `"use client"`. Static pages like `/details` could be server components with client islands only around animated elements. |
+| **No per-page metadata** | All pages inherit root metadata. Add page-specific titles (e.g., "RSVP - Matt & Brittany's Wedding", "Games - Matt & Brittany's Wedding"). |
+| **Email validation is weak** | API uses `email.includes("@")` which accepts `a@b`. Use a proper regex or validation library. |
+| **Input lengths not capped** | No max-length validation on `message`, `attendee_names`, `dietary_restrictions`. Large payloads could be submitted. |
+| **Migration/schema drift** | `schema.sql` has the final schema but `migrate.ts` builds it incrementally with ALTERs. Keep both in sync. |
+| **No OG image** | `openGraph` metadata lacks an `images` property. Social sharing shows no preview image. |
 
-**Rating: Good**
+### Low Priority / Nice to Have
 
-| Severity | Finding | Details |
-|----------|---------|---------|
-| Info | Anti-flash script in `<head>` | `src/app/layout.tsx:66-70` -- properly prevents FOUC with inline script. |
-| Info | Three-way toggle (light/system/dark) | Clean implementation in ThemeProvider with localStorage persistence. |
-| Low | FarmScene properly uses `useTheme()` | Night scene variant is well-implemented. |
-
----
-
-## 8. SEO & Metadata
-
-**Rating: Good**
-
-| Severity | Finding | Details |
-|----------|---------|---------|
-| Info | OpenGraph and Twitter cards are configured | `src/app/layout.tsx:21-51` -- properly set up with title, description, type. |
-| Low | No OG image configured | `openGraph` lacks an `images` property. Consider adding a wedding photo or branded image for social sharing. |
-| Low | Per-page metadata not set | Game pages, details page, RSVP page all inherit root metadata. Consider adding page-specific titles (e.g., "RSVP - Matt & Brittany's Wedding"). |
-
----
-
-## 9. Error Handling
-
-**Rating: Acceptable**
-
-| Severity | Finding | Details |
-|----------|---------|---------|
-| Medium | No error boundary | No `error.tsx` files in the app directory. If a page throws, users see the default Next.js error page. |
-| Medium | No loading states | No `loading.tsx` files. Pages with data fetching have no skeleton/loading UI. |
-| Low | API error handling is consistent | All API routes have try/catch with proper error responses. |
-| Low | DB unavailable returns 503 | Good -- graceful degradation when DATABASE_URL is missing. |
-
----
-
-## 10. Code Quality
-
-**Rating: Good (after lint fixes)**
-
-| Severity | Finding | Details |
-|----------|---------|---------|
-| Info | Lint is now clean | 98 issues fixed in this PR (unused vars, prefer-const, React compiler warnings, etc.). |
-| Medium | Game components use many `eslint-disable` directives | Necessary for canvas game patterns (mutating refs, etc.), but signals these files are outside normal React patterns. |
-| Low | Consistent code style | Tailwind class ordering, naming conventions, and file structure are consistent throughout. |
-
----
-
-## 11. Deployment & DevOps
-
-**Rating: Good**
-
-| Severity | Finding | Details |
-|----------|---------|---------|
-| Info | Vercel defaults are used (no vercel.json) | Simple and correct for this project. |
-| Info | Migrations run automatically on build | `pnpm build` runs `npm run migrate && next build`. Idempotent migrations are safe. |
-| Low | No environment variable validation | No runtime check that `DATABASE_URL` matches expected format. `getDb()` returns null silently. |
-
----
-
-## Priority Action Items
-
-### Must Fix (before launch)
-
-1. **Protect the RSVP list endpoint** -- Add middleware.ts with basic auth for `GET /api/rsvp` (full list) and `DELETE /api/rsvp`
-2. **Remove or protect the admin edit header bypass** -- `x-admin-edit: true` should require authentication
-3. **Add rate limiting** to POST endpoints (RSVP + scores)
-
-### Should Fix
-
-4. Add `error.tsx` and `loading.tsx` to the app directory
-5. Add per-page metadata for better SEO
-6. Add an OG image for social sharing
-7. Consider UUIDs for public-facing RSVP lookups instead of sequential IDs
-8. Add input length limits on text fields
-
-### Should Fix (continued)
-
-9. Add JSON-LD structured data for the Event schema (date, location, organizer)
-10. Extract shared game utilities (canvas DPR setup, particle systems, score submission) into `src/lib/gameUtils.ts` to reduce duplication across 11 game files
-11. Improve email validation beyond `email.includes("@")` -- use a proper regex
-12. Add RSVP form `<label htmlFor>` associations and visible labels (not just placeholders)
-13. Remove legacy CSS class duplicates (`.barn-red`, `.hay-gold` aliases, `.pixel-border*` copies of `.soft-card`)
-
-### Nice to Have
-
-14. Refactor large game components into multi-file modules
-15. Use `next/dynamic` with `ssr: false` for game components
-16. Add basic canvas game accessibility (ARIA labels, keyboard hints)
-17. Add skip-to-content link
-18. Audit color contrast ratios for WCAG AA compliance
-19. Consider `motion/react` import for smaller Framer Motion bundle
-
----
-
-## Files Changed in This Review
-
-### Lint Fixes
-
-| File | Changes |
-|------|---------|
-| `src/app/details/page.tsx` | Removed unused `useCountdown` hook and `countdown` variable |
-| `src/app/games/page.tsx` | Converted effect-based localStorage read to lazy `useState` init |
-| `src/app/page.tsx` | Removed unused `FairyLightDivider` component |
-| `src/app/rsvp/page.tsx` | Removed unused `setPotluckDish` setter (replaced with plain variable) |
-| `src/components/Countdown.tsx` | No functional changes (lint comments removed) |
-| `src/components/Navigation.tsx` | No functional changes (lint comments removed) |
-| `src/components/ThemeProvider.tsx` | No functional changes (lint comments removed) |
-| `src/components/games/*.tsx` | Added file-level eslint-disable for game-specific patterns (immutability, custom fonts) |
-| `src/components/games/FarmDefense.tsx` | `let isAoe` changed to `const isAoe` |
-| `src/components/games/HomesteadGame.tsx` | `let TILE_MAP` changed to `const TILE_MAP` |
-| `eslint.config.mjs` | Disabled `react-hooks/set-state-in-effect` rule (legitimate patterns throughout codebase) |
+| Issue | Details |
+|-------|---------|
+| **Canvas games are inaccessible** | No ARIA labels, no keyboard controls, no alternative content. Inherent to Canvas, but basic labels and keyboard hints would help. |
+| **No skip-to-content link** | Fixed nav means keyboard users tab through all nav links on every page. |
+| **RSVP form label associations** | Inputs use placeholders without `<label htmlFor>` associations. |
+| **Color contrast** | Some lighter colors (sage, lavender at low opacity) may not meet WCAG AA against cream backgrounds. |
+| **Legacy CSS duplicates** | `.barn-red`, `.hay-gold` aliases and `.pixel-border*` classes duplicate other styles in `globals.css`. |
+| **No `next/dynamic` for games** | Game pages import components directly. Using `next/dynamic({ ssr: false })` would skip SSR for canvas-only components. |
+| **Framer Motion bundle size** | Full `framer-motion` (~40KB gzipped) ships on every page. The `motion/react` import path is lighter. |
+| **JSON-LD structured data** | No Schema.org Event markup for search engines. Adding event date/location/organizer in JSON-LD would help discoverability. |
+| **No unique constraint on email** | Multiple RSVPs can be created with the same email. Possibly intentional for families, but worth considering. |
+| **Timestamps lack timezone** | Schema uses `TIMESTAMP` not `TIMESTAMPTZ`. Neon defaults to UTC so it works, but `TIMESTAMPTZ` is more explicit. |
