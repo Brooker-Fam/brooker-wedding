@@ -188,14 +188,22 @@ src/lib/          - Database utilities + migrations
 7. Consider UUIDs for public-facing RSVP lookups instead of sequential IDs
 8. Add input length limits on text fields
 
+### Should Fix (continued)
+
+9. Add JSON-LD structured data for the Event schema (date, location, organizer)
+10. Extract shared game utilities (canvas DPR setup, particle systems, score submission) into `src/lib/gameUtils.ts` to reduce duplication across 11 game files
+11. Improve email validation beyond `email.includes("@")` -- use a proper regex
+12. Add RSVP form `<label htmlFor>` associations and visible labels (not just placeholders)
+13. Remove legacy CSS class duplicates (`.barn-red`, `.hay-gold` aliases, `.pixel-border*` copies of `.soft-card`)
+
 ### Nice to Have
 
-9. Refactor large game components into multi-file modules
-10. Use `next/dynamic` with `ssr: false` for game components
-11. Add basic canvas game accessibility (ARIA labels, keyboard hints)
-12. Add skip-to-content link
-13. Audit color contrast ratios for WCAG AA compliance
-14. Consider `motion/react` import for smaller Framer Motion bundle
+14. Refactor large game components into multi-file modules
+15. Use `next/dynamic` with `ssr: false` for game components
+16. Add basic canvas game accessibility (ARIA labels, keyboard hints)
+17. Add skip-to-content link
+18. Audit color contrast ratios for WCAG AA compliance
+19. Consider `motion/react` import for smaller Framer Motion bundle
 
 ---
 
