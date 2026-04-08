@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 
@@ -131,17 +131,18 @@ function DifficultyDots({ count }: { count: number }) {
   );
 }
 
-export default function GamesArcadePage() {
-  const [highScores, setHighScores] = useState<Record<string, number>>({});
+function readHighScores(): Record<string, number> {
+  if (typeof window === "undefined") return {};
+  const scores: Record<string, number> = {};
+  GAMES.forEach((g) => {
+    const s = localStorage.getItem(g.scoreKey);
+    if (s) scores[g.scoreKey] = parseInt(s, 10);
+  });
+  return scores;
+}
 
-  useEffect(() => {
-    const scores: Record<string, number> = {};
-    GAMES.forEach((g) => {
-      const s = localStorage.getItem(g.scoreKey);
-      if (s) scores[g.scoreKey] = parseInt(s, 10);
-    });
-    setHighScores(scores);
-  }, []);
+export default function GamesArcadePage() {
+  const [highScores] = useState<Record<string, number>>(readHighScores);
 
   return (
     <div className="enchanted-bg min-h-screen">

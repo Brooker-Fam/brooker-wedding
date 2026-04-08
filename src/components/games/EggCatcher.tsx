@@ -1270,6 +1270,7 @@ class EggCatcherEngine {
 
   // --- input ---
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   handlePointerDown(clientX: number, _clientY: number) {
     const rect = this.canvas.getBoundingClientRect();
     const scaleX = this.canvasW / rect.width;

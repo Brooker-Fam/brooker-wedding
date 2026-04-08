@@ -255,7 +255,7 @@ function RsvpForm({ initialData, isEditing, onSuccess, onCancel }: { initialData
   const [email, setEmail] = useState(initialData?.email ?? "");
   const [attending, setAttending] = useState(initialData?.attending ?? true);
   const [dietaryRestrictions, setDietaryRestrictions] = useState(initialData?.dietary_restrictions ?? "");
-  const [potluckDish, setPotluckDish] = useState(initialData?.potluck_dish ?? "");
+  const potluckDish = initialData?.potluck_dish ?? "";
   const [message, setMessage] = useState(initialData?.message ?? "");
   const [phone, setPhone] = useState(initialData?.phone ?? "");
   const [mailingAddress, setMailingAddress] = useState(initialData?.mailing_address ?? "");

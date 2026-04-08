@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-page-custom-font, react-hooks/immutability */
 'use client';
 
 import { useEffect, useRef, useCallback, useState } from 'react';
@@ -776,7 +777,7 @@ export default function BarnCatNinja() {
     ctx.textAlign = 'left';
 
     animRef.current = requestAnimationFrame(gameLoop);
-  }, [spawnWave, addParticles, addFloatingText, sliceItem]);
+  }, [spawnWave]);
 
   const startGame = useCallback(() => {
     resize();

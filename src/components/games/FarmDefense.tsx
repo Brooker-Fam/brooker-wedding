@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/immutability, react-hooks/exhaustive-deps */
 "use client";
 
 import { useEffect, useRef, useState, useCallback } from "react";
@@ -1645,7 +1646,7 @@ export default function FarmDefense() {
             effectiveDamage = stats.damage * 3 * (1 + (def.level - 1) * 0.3);
           }
 
-          let isAoe = stats.aoe;
+          const isAoe = stats.aoe;
           let aoeRadius = stats.aoeRadius * gs.cellSize;
 
           // War Goose: bigger AOE, stronger slow

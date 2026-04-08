@@ -1,45 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import HeartGarland from "@/components/HeartGarland";
-
-function useCountdown(targetMs: number) {
-  const [timeLeft, setTimeLeft] = useState({
-    days: 0,
-    hours: 0,
-    minutes: 0,
-    seconds: 0,
-  });
-
-  useEffect(() => {
-    const calculate = () => {
-      const now = Date.now();
-      const distance = targetMs - now;
-
-      if (distance < 0) {
-        setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0 });
-        return;
-      }
-
-      setTimeLeft({
-        days: Math.floor(distance / (1000 * 60 * 60 * 24)),
-        hours: Math.floor(
-          (distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
-        ),
-        minutes: Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60)),
-        seconds: Math.floor((distance % (1000 * 60)) / 1000),
-      });
-    };
-
-    calculate();
-    const interval = setInterval(calculate, 1000);
-    return () => clearInterval(interval);
-  }, [targetMs]);
-
-  return timeLeft;
-}
 
 const fadeUp = {
   initial: { opacity: 0, y: 30 },
@@ -112,9 +75,6 @@ function BotanicalDivider() {
 }
 
 export default function DetailsPage() {
-  const weddingMs = new Date("2026-06-27T13:00:00-04:00").getTime();
-  const countdown = useCountdown(weddingMs);
-
   return (
     <div className="enchanted-bg relative min-h-screen overflow-hidden">
       <div className="mx-auto max-w-3xl px-4 pt-24 pb-16 sm:pt-28 sm:pb-20">

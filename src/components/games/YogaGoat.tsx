@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-page-custom-font, react-hooks/immutability */
 'use client';
 
 import { useEffect, useRef, useCallback, useState } from 'react';

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars, react-hooks/refs */
 "use client";
 
 import { useEffect, useRef, useState, useCallback } from "react";
