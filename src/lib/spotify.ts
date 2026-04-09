@@ -264,17 +264,21 @@ export async function syncSpotifyPlaylist(): Promise<void> {
       }
     }
 
-    console.log(`Spotify sync: ${uris.length}/${songs.length} songs matched`);
+    console.log(`Spotify sync: ${uris.length}/${songs.length} songs matched, playlist: ${playlistId}`);
+    console.log(`Spotify sync: first 3 URIs: ${uris.slice(0, 3).join(", ")}`);
 
     // Replace playlist tracks
+    const putBody = JSON.stringify({ uris: uris.slice(0, 100) });
     const putRes = await spotifyFetch(`/playlists/${playlistId}/tracks`, {
       method: "PUT",
-      body: JSON.stringify({ uris: uris.slice(0, 100) }),
+      body: putBody,
     });
 
+    const putText = await putRes.text();
+    console.log(`Spotify PUT response: ${putRes.status} ${putText}`);
+
     if (!putRes.ok) {
-      const text = await putRes.text();
-      console.error("Spotify: failed to replace tracks:", putRes.status, text);
+      console.error("Spotify: failed to replace tracks:", putRes.status, putText);
       return;
     }
 
