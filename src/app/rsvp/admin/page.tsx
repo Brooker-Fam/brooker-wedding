@@ -20,6 +20,38 @@ interface Rsvp {
   created_at: string;
 }
 
+interface NewRsvpForm {
+  name: string;
+  email: string;
+  phone: string;
+  mailing_address: string;
+  attending: boolean;
+  adult_count: number;
+  child_count: number;
+  attendee_names: string;
+  dietary_restrictions: string;
+  potluck_dish: string;
+  message: string;
+  public_display: boolean;
+}
+
+function createEmptyRsvpForm(): NewRsvpForm {
+  return {
+    name: "",
+    email: "",
+    phone: "",
+    mailing_address: "",
+    attending: true,
+    adult_count: 1,
+    child_count: 0,
+    attendee_names: "",
+    dietary_restrictions: "",
+    potluck_dish: "",
+    message: "",
+    public_display: false,
+  };
+}
+
 export default function AdminPage() {
   const [rsvps, setRsvps] = useState<Rsvp[]>([]);
   const [loading, setLoading] = useState(true);
@@ -27,6 +59,8 @@ export default function AdminPage() {
   const [editingId, setEditingId] = useState<number | null>(null);
   const [editForm, setEditForm] = useState<Rsvp | null>(null);
   const [saving, setSaving] = useState(false);
+  const [createForm, setCreateForm] = useState<NewRsvpForm>(createEmptyRsvpForm);
+  const [creating, setCreating] = useState(false);
 
   useEffect(() => {
     fetch("/api/rsvp")
@@ -74,6 +108,32 @@ export default function AdminPage() {
     }
   };
 
+  const saveCreate = async () => {
+    setCreating(true);
+    setError("");
+    try {
+      const payload = {
+        ...createForm,
+        adult_count: createForm.attending ? Math.max(1, Number(createForm.adult_count) || 1) : 0,
+        child_count: createForm.attending ? Math.max(0, Number(createForm.child_count) || 0) : 0,
+      };
+
+      const res = await fetch("/api/rsvp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error || "Failed to create RSVP");
+      setRsvps((prev) => [json.data, ...prev]);
+      setCreateForm(createEmptyRsvpForm());
+    } catch (error) {
+      setError(error instanceof Error ? error.message : "Failed to create RSVP");
+    } finally {
+      setCreating(false);
+    }
+  };
+
   const deleteRsvp = async (id: number, name: string) => {
     if (!confirm(`Delete RSVP for ${name}?`)) return;
     try {
@@ -87,6 +147,8 @@ export default function AdminPage() {
 
   const set = <K extends keyof Rsvp>(key: K, value: Rsvp[K]) =>
     setEditForm((prev) => prev && ({ ...prev, [key]: value }));
+  const setCreate = <K extends keyof NewRsvpForm>(key: K, value: NewRsvpForm[K]) =>
+    setCreateForm((prev) => ({ ...prev, [key]: value }));
 
   const attending = rsvps.filter((r) => r.attending);
   const totalGuests = attending.reduce((sum, r) => sum + r.guest_count, 0);
@@ -116,6 +178,132 @@ export default function AdminPage() {
 
         {!loading && (
           <>
+            <div className="soft-card mb-8 p-6">
+              <div className="mb-5">
+                <h2 className="font-[family-name:var(--font-cormorant-garamond)] text-2xl font-semibold text-forest dark:text-cream">
+                  Add RSVP
+                </h2>
+                <p className="mt-1 text-sm text-deep-plum/70 dark:text-cream/70">
+                  Enter an RSVP manually here for guests you want to add yourself.
+                </p>
+              </div>
+
+              <div className="grid gap-4 md:grid-cols-2">
+                <input
+                  type="text"
+                  value={createForm.name}
+                  onChange={(e) => setCreate("name", e.target.value)}
+                  placeholder="Name"
+                  className="enchanted-input"
+                />
+                <input
+                  type="email"
+                  value={createForm.email}
+                  onChange={(e) => setCreate("email", e.target.value)}
+                  placeholder="Email"
+                  className="enchanted-input"
+                />
+                <input
+                  type="tel"
+                  value={createForm.phone}
+                  onChange={(e) => setCreate("phone", e.target.value)}
+                  placeholder="Phone number"
+                  className="enchanted-input"
+                />
+                <textarea
+                  value={createForm.mailing_address}
+                  onChange={(e) => setCreate("mailing_address", e.target.value)}
+                  placeholder="Mailing address"
+                  className="enchanted-input min-h-[88px] resize-y md:col-span-2"
+                  rows={3}
+                />
+                <div className="flex items-center gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setCreate("attending", true)}
+                    className={`rounded-full px-3 py-1 text-sm font-medium ${createForm.attending ? "bg-sage/20 text-sage" : "bg-lavender/10 text-deep-plum/70 dark:text-cream/70"}`}
+                  >
+                    Attending
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setCreate("attending", false)}
+                    className={`rounded-full px-3 py-1 text-sm font-medium ${!createForm.attending ? "bg-lavender/20 text-lavender" : "bg-sage/10 text-deep-plum/70 dark:text-cream/70"}`}
+                  >
+                    Declined
+                  </button>
+                </div>
+                <div className="flex gap-3">
+                  <input
+                    type="number"
+                    min={0}
+                    max={10}
+                    value={createForm.adult_count}
+                    onChange={(e) => setCreate("adult_count", Number(e.target.value))}
+                    placeholder="Adults"
+                    className="enchanted-input"
+                  />
+                  <input
+                    type="number"
+                    min={0}
+                    max={10}
+                    value={createForm.child_count}
+                    onChange={(e) => setCreate("child_count", Number(e.target.value))}
+                    placeholder="Kids"
+                    className="enchanted-input"
+                  />
+                </div>
+                <textarea
+                  value={createForm.attendee_names}
+                  onChange={(e) => setCreate("attendee_names", e.target.value)}
+                  placeholder="Guest names"
+                  className="enchanted-input min-h-[88px] resize-y"
+                  rows={3}
+                />
+                <input
+                  type="text"
+                  value={createForm.dietary_restrictions}
+                  onChange={(e) => setCreate("dietary_restrictions", e.target.value)}
+                  placeholder="Dietary restrictions"
+                  className="enchanted-input"
+                />
+                <input
+                  type="text"
+                  value={createForm.potluck_dish}
+                  onChange={(e) => setCreate("potluck_dish", e.target.value)}
+                  placeholder="Potluck dish"
+                  className="enchanted-input"
+                />
+                <textarea
+                  value={createForm.message}
+                  onChange={(e) => setCreate("message", e.target.value)}
+                  placeholder="Message"
+                  className="enchanted-input min-h-[88px] resize-y"
+                  rows={3}
+                />
+                <label className="flex items-center gap-3 text-sm text-deep-plum dark:text-cream">
+                  <input
+                    type="checkbox"
+                    checked={createForm.public_display}
+                    onChange={(e) => setCreate("public_display", e.target.checked)}
+                    className="h-4 w-4 rounded border-sage/40 text-sage accent-sage"
+                  />
+                  Show on public guest list
+                </label>
+              </div>
+
+              <div className="mt-5">
+                <button
+                  type="button"
+                  onClick={saveCreate}
+                  disabled={creating}
+                  className="rounded-xl bg-soft-gold px-5 py-3 text-sm font-semibold text-[#2A1A00] transition-colors hover:bg-soft-gold-dark disabled:opacity-50"
+                >
+                  {creating ? "Saving..." : "Add RSVP"}
+                </button>
+              </div>
+            </div>
+
             <div className="soft-card mb-8 flex flex-wrap justify-center gap-8 p-6">
               <Stat label="Total RSVPs" value={rsvps.length} />
               <Stat label="Attending" value={attending.length} />
