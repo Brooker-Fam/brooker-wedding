@@ -24,6 +24,9 @@ function isAdminApi(request: NextRequest): boolean {
   // Songs reorder is admin-only
   if (pathname === "/api/songs/reorder") return true;
 
+  // Spotify authorize is admin-only (callback is unprotected so Spotify can redirect back)
+  if (pathname === "/api/spotify/authorize") return true;
+
   return false;
 }
 
@@ -52,5 +55,5 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/rsvp/admin", "/songs/admin", "/api/rsvp", "/api/songs", "/api/songs/reorder"],
+  matcher: ["/rsvp/admin", "/songs/admin", "/api/rsvp", "/api/songs", "/api/songs/reorder", "/api/spotify/authorize"],
 };

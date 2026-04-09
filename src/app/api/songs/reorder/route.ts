@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { query } from "@/lib/db";
+import { syncSpotifyPlaylist } from "@/lib/spotify";
 
 // Admin: set sort_position for all songs in the given order
 export async function POST(request: NextRequest) {
@@ -18,6 +19,8 @@ export async function POST(request: NextRequest) {
         [i, Number(ids[i])]
       );
     }
+
+    syncSpotifyPlaylist().catch((err) => console.error("Spotify sync error:", err));
 
     return NextResponse.json({ success: true });
   } catch (error) {

@@ -22,8 +22,29 @@ export default function SongsAdminPage() {
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
   const [dirty, setDirty] = useState(false);
+  const [spotifyConnected, setSpotifyConnected] = useState(false);
+  const [spotifyPlaylistUrl, setSpotifyPlaylistUrl] = useState<string | null>(null);
+  const [spotifyStatus, setSpotifyStatus] = useState("");
   const dragItem = useRef<number | null>(null);
   const dragOverItem = useRef<number | null>(null);
+
+  // Check Spotify connection status
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const spotifyParam = params.get("spotify");
+    if (spotifyParam === "connected") setSpotifyStatus("Spotify connected successfully!");
+    else if (spotifyParam === "error") setSpotifyStatus("Failed to connect Spotify. Try again.");
+
+    fetch("/api/spotify/playlist")
+      .then((r) => r.ok ? r.json() : null)
+      .then((json) => {
+        if (json) {
+          setSpotifyConnected(json.connected);
+          setSpotifyPlaylistUrl(json.playlistUrl);
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   const fetchSongs = useCallback(async () => {
     try {
@@ -126,9 +147,50 @@ export default function SongsAdminPage() {
         <h1 className="mb-2 text-center font-[family-name:var(--font-cormorant-garamond)] text-4xl font-semibold text-forest dark:text-cream">
           Song Admin
         </h1>
-        <p className="mb-4 text-center text-sm text-forest/60 dark:text-cream/60">
+        <p className="mb-6 text-center text-sm text-forest/60 dark:text-cream/60">
           {songs.length} {songs.length === 1 ? "song" : "songs"} &middot; Drag to reorder or use arrows
         </p>
+
+        {/* Spotify connection */}
+        <div className="soft-card mb-6 p-4 sm:p-5">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <h2 className="text-sm font-semibold text-forest dark:text-cream">Spotify</h2>
+              <p className="text-xs text-forest/60 dark:text-cream/60">
+                {spotifyConnected
+                  ? "Connected — playlist syncs automatically"
+                  : "Connect to auto-sync a Spotify playlist"}
+              </p>
+            </div>
+            <div className="flex items-center gap-2">
+              {spotifyPlaylistUrl && (
+                <a
+                  href={spotifyPlaylistUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="rounded-lg bg-[#1DB954]/10 px-3 py-1.5 text-xs font-medium text-[#1DB954] transition-all hover:bg-[#1DB954]/20"
+                >
+                  View Playlist
+                </a>
+              )}
+              <a
+                href="/api/spotify/authorize"
+                className={`rounded-lg px-3 py-1.5 text-xs font-medium transition-all ${
+                  spotifyConnected
+                    ? "bg-sage/10 text-forest/50 hover:bg-sage/15 dark:bg-sage/15 dark:text-cream/50"
+                    : "bg-[#1DB954]/15 text-[#1DB954] hover:bg-[#1DB954]/25"
+                }`}
+              >
+                {spotifyConnected ? "Reconnect" : "Connect Spotify"}
+              </a>
+            </div>
+          </div>
+          {spotifyStatus && (
+            <p className={`mt-2 text-xs ${spotifyStatus.includes("success") ? "text-[#1DB954]" : "text-red-500"}`}>
+              {spotifyStatus}
+            </p>
+          )}
+        </div>
 
         {/* Status bar */}
         <div className="mb-6 flex items-center justify-center gap-3">

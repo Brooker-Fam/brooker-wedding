@@ -53,3 +53,9 @@ CREATE TABLE IF NOT EXISTS song_votes (
 
 CREATE INDEX IF NOT EXISTS idx_song_requests_track_id ON song_requests(itunes_track_id);
 CREATE INDEX IF NOT EXISTS idx_song_votes_song_id ON song_votes(song_request_id);
+
+CREATE TABLE IF NOT EXISTS spotify_config (
+  key VARCHAR(100) PRIMARY KEY,
+  value TEXT NOT NULL,
+  updated_at TIMESTAMP DEFAULT NOW()
+);
