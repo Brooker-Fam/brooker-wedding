@@ -262,75 +262,51 @@ export async function syncSpotifyPlaylist(): Promise<void> {
        ORDER BY sort_position ASC NULLS LAST, id ASC`
     );
 
-    if (!songs || songs.length === 0) {
-      // Clear the playlist
-      const getRes = await spotifyFetch(`/playlists/${playlistId}/items?fields=items(track(uri))&limit=50`);
-      if (getRes.ok) {
-        const current = await getRes.json();
-        const existing = current?.items?.map((i: { track: { uri: string } }) => ({ uri: i.track.uri })).filter((t: { uri: string }) => t.uri) || [];
-        if (existing.length > 0) {
-          await spotifyFetch(`/playlists/${playlistId}/items`, {
-            method: "DELETE",
-            body: JSON.stringify({ tracks: existing }),
-          });
+    // Only search for songs without a cached Spotify URI
+    const uncached = songs ? songs.filter((s: Record<string, unknown>) => !s.spotify_uri) : [];
+    if (uncached.length > 0) {
+      console.log(`Spotify: searching for ${uncached.length} new songs (${(songs?.length || 0) - uncached.length} cached)`);
+      for (let i = 0; i < uncached.length; i++) {
+        if (i > 0) await delay(200);
+        const song = uncached[i];
+        const uri = await searchTrack(song.song_title, song.artist);
+        if (uri) {
+          await spotifyQuery("UPDATE song_requests SET spotify_uri = $1 WHERE id = $2", [uri, song.id]);
+          song.spotify_uri = uri;
+        } else {
+          console.warn(`Spotify: no match for "${song.song_title}" by "${song.artist}"`);
         }
       }
+    }
+
+    // Build final URI list in order (cached + newly found)
+    const uris: string[] = [];
+    if (songs) {
+      for (const song of songs) {
+        if (song.spotify_uri) uris.push(song.spotify_uri as string);
+      }
+    }
+
+    console.log(`Spotify sync: ${uris.length}/${songs?.length || 0} matched, playlist: ${playlistId}`);
+
+    // Single PUT replaces entire playlist in the correct order
+    const putRes = await spotifyFetch(`/playlists/${playlistId}/items`, {
+      method: "PUT",
+      body: JSON.stringify({ uris: uris.slice(0, 100) }),
+    });
+    const putText = await putRes.text();
+    if (!putRes.ok) {
+      console.error(`Spotify PUT failed: ${putRes.status} ${putText}`);
       return;
     }
+    console.log(`Spotify PUT: ${putRes.status} OK`);
 
-    // Only search for songs that don't have a cached Spotify URI
-    const uncached = songs.filter((s: Record<string, unknown>) => !s.spotify_uri);
-    if (uncached.length > 0) {
-      console.log(`Spotify: searching for ${uncached.length} new songs (${songs.length - uncached.length} cached)`);
-    }
-    for (let i = 0; i < uncached.length; i++) {
-      if (i > 0) await delay(200);
-      const song = uncached[i];
-      const uri = await searchTrack(song.song_title, song.artist);
-      if (uri) {
-        // Cache the URI in the database
-        await spotifyQuery("UPDATE song_requests SET spotify_uri = $1 WHERE id = $2", [uri, song.id]);
-        song.spotify_uri = uri;
-      } else {
-        console.warn(`Spotify: no match for "${song.song_title}" by "${song.artist}"`);
-      }
-    }
-
-    // Build final URI list from all songs (cached + newly found)
-    const uris: string[] = [];
-    for (const song of songs) {
-      if (song.spotify_uri) uris.push(song.spotify_uri);
-    }
-
-    console.log(`Spotify sync: ${uris.length}/${songs.length} songs matched, playlist: ${playlistId}`);
-
-    // Clear existing tracks first
-    const getRes = await spotifyFetch(`/playlists/${playlistId}/items?fields=items(track(uri))&limit=50`);
-    if (getRes.ok) {
-      const current = await getRes.json();
-      const existing = current?.items?.map((i: { track: { uri: string } }) => ({ uri: i.track.uri })).filter((t: { uri: string }) => t.uri) || [];
-      if (existing.length > 0) {
-        const delRes = await spotifyFetch(`/playlists/${playlistId}/items`, {
-          method: "DELETE",
-          body: JSON.stringify({ tracks: existing }),
-        });
-        console.log(`Spotify DELETE existing tracks: ${delRes.status}`);
-      }
-    }
-
-    // Add tracks via POST (in batches of 100)
-    for (let i = 0; i < uris.length; i += 100) {
-      const batch = uris.slice(i, i + 100);
-      const postRes = await spotifyFetch(`/playlists/${playlistId}/items`, {
+    // Additional batches if > 100 songs
+    for (let i = 100; i < uris.length; i += 100) {
+      await spotifyFetch(`/playlists/${playlistId}/items`, {
         method: "POST",
-        body: JSON.stringify({ uris: batch }),
+        body: JSON.stringify({ uris: uris.slice(i, i + 100) }),
       });
-      const postText = await postRes.text();
-      console.log(`Spotify POST tracks batch ${i}: ${postRes.status} ${postText.slice(0, 200)}`);
-      if (!postRes.ok) {
-        console.error("Spotify: failed to add tracks:", postRes.status, postText);
-        return;
-      }
     }
   } catch (error) {
     console.error("Spotify sync error:", error);
