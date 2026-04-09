@@ -245,7 +245,16 @@ async function createPlaylist(userId: string): Promise<string> {
 
 // ── Sync ──────────────────────────────────────────────────────────────
 
+// Track rate limit in memory (resets on cold start)
+let rateLimitedUntil = 0;
+
 export async function syncSpotifyPlaylist(): Promise<void> {
+  // Skip if we know we're rate limited
+  if (Date.now() < rateLimitedUntil) {
+    console.log(`Spotify sync: skipped (rate limited for ${Math.round((rateLimitedUntil - Date.now()) / 1000)}s more)`);
+    return;
+  }
+
   const refreshToken = await getConfig("refresh_token");
   if (!refreshToken) return;
 
@@ -275,7 +284,9 @@ export async function syncSpotifyPlaylist(): Promise<void> {
         const exactQ = encodeURIComponent(`track:${song.song_title} artist:${song.artist}`);
         const res = await spotifyFetch(`/search?q=${exactQ}&type=track&limit=1`);
         if (res.status === 429) {
-          console.warn(`Spotify: rate limited, skipping remaining ${uncached.length - i} searches`);
+          const raw = Number(res.headers.get("retry-after") || "30");
+          rateLimitedUntil = Date.now() + Math.min(raw, 86400) * 1000;
+          console.warn(`Spotify: rate limited for ${raw}s, skipping remaining ${uncached.length - i} searches`);
           rateLimited = true;
           break;
         }
@@ -290,7 +301,9 @@ export async function syncSpotifyPlaylist(): Promise<void> {
           const simpleQ = encodeURIComponent(`${song.song_title} ${song.artist}`);
           const res2 = await spotifyFetch(`/search?q=${simpleQ}&type=track&limit=1`);
           if (res2.status === 429) {
-            console.warn(`Spotify: rate limited, skipping remaining searches`);
+            const raw = Number(res2.headers.get("retry-after") || "30");
+            rateLimitedUntil = Date.now() + Math.min(raw, 86400) * 1000;
+            console.warn(`Spotify: rate limited for ${raw}s, skipping remaining searches`);
             rateLimited = true;
             break;
           }

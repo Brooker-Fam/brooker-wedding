@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { after } from "next/server";
 import { query } from "@/lib/db";
 import { syncSpotifyPlaylist } from "@/lib/spotify";
 
@@ -124,8 +125,8 @@ export async function POST(request: NextRequest) {
       [songId, name]
     );
 
-    // Sync Spotify playlist (must await on serverless)
-    await syncSpotifyPlaylist();
+    // Sync Spotify in background (after response is sent, but function stays alive)
+    after(() => syncSpotifyPlaylist().catch((err) => console.error("Spotify sync error:", err)));
 
     return NextResponse.json({
       success: true,
@@ -157,7 +158,7 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: "Song not found" }, { status: 404 });
     }
 
-    await syncSpotifyPlaylist();
+    after(() => syncSpotifyPlaylist().catch((err) => console.error("Spotify sync error:", err)));
 
     return NextResponse.json({ success: true });
   } catch (error) {

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { after } from "next/server";
 import { query } from "@/lib/db";
 import { syncSpotifyPlaylist } from "@/lib/spotify";
 
@@ -20,7 +21,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    await syncSpotifyPlaylist();
+    after(() => syncSpotifyPlaylist().catch((err) => console.error("Spotify sync error:", err)));
 
     return NextResponse.json({ success: true });
   } catch (error) {
