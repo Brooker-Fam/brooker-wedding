@@ -265,28 +265,34 @@ export async function syncSpotifyPlaylist(): Promise<void> {
     }
 
     console.log(`Spotify sync: ${uris.length}/${songs.length} songs matched, playlist: ${playlistId}`);
-    console.log(`Spotify sync: first 3 URIs: ${uris.slice(0, 3).join(", ")}`);
 
-    // Replace playlist tracks
-    const putBody = JSON.stringify({ uris: uris.slice(0, 100) });
-    const putRes = await spotifyFetch(`/playlists/${playlistId}/tracks`, {
-      method: "PUT",
-      body: putBody,
-    });
-
-    const putText = await putRes.text();
-    console.log(`Spotify PUT response: ${putRes.status} ${putText}`);
-
-    if (!putRes.ok) {
-      console.error("Spotify: failed to replace tracks:", putRes.status, putText);
-      return;
+    // Clear existing tracks first
+    const getRes = await spotifyFetch(`/playlists/${playlistId}/tracks?fields=items(track(uri))&limit=50`);
+    if (getRes.ok) {
+      const current = await getRes.json();
+      const existing = current?.items?.map((i: { track: { uri: string } }) => ({ uri: i.track.uri })).filter((t: { uri: string }) => t.uri) || [];
+      if (existing.length > 0) {
+        const delRes = await spotifyFetch(`/playlists/${playlistId}/tracks`, {
+          method: "DELETE",
+          body: JSON.stringify({ tracks: existing }),
+        });
+        console.log(`Spotify DELETE existing tracks: ${delRes.status}`);
+      }
     }
 
-    for (let i = 100; i < uris.length; i += 100) {
-      await spotifyFetch(`/playlists/${playlistId}/tracks`, {
+    // Add tracks via POST (in batches of 100)
+    for (let i = 0; i < uris.length; i += 100) {
+      const batch = uris.slice(i, i + 100);
+      const postRes = await spotifyFetch(`/playlists/${playlistId}/tracks`, {
         method: "POST",
-        body: JSON.stringify({ uris: uris.slice(i, i + 100) }),
+        body: JSON.stringify({ uris: batch }),
       });
+      const postText = await postRes.text();
+      console.log(`Spotify POST tracks batch ${i}: ${postRes.status} ${postText.slice(0, 200)}`);
+      if (!postRes.ok) {
+        console.error("Spotify: failed to add tracks:", postRes.status, postText);
+        return;
+      }
     }
   } catch (error) {
     console.error("Spotify sync error:", error);
