@@ -181,19 +181,35 @@ async function spotifyFetch(path: string, options: RequestInit = {}): Promise<Re
   });
 }
 
+const delay = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
+async function spotifyFetchWithRetry(path: string, options: RequestInit = {}, retries = 2): Promise<Response> {
+  const res = await spotifyFetch(path, options);
+  if (res.status === 429 && retries > 0) {
+    const retryAfter = Number(res.headers.get("retry-after") || "2");
+    console.log(`Spotify rate limited, waiting ${retryAfter}s...`);
+    await delay(retryAfter * 1000);
+    return spotifyFetchWithRetry(path, options, retries - 1);
+  }
+  return res;
+}
+
 async function searchTrack(title: string, artist: string): Promise<string | null> {
   // Try exact field search first
   const exactQ = encodeURIComponent(`track:${title} artist:${artist}`);
-  const res = await spotifyFetch(`/search?q=${exactQ}&type=track&limit=1`);
+  const res = await spotifyFetchWithRetry(`/search?q=${exactQ}&type=track&limit=1`);
   if (res.ok) {
     const data = await res.json();
     const uri = data?.tracks?.items?.[0]?.uri;
     if (uri) return uri;
+  } else if (res.status === 429) {
+    return null; // still rate limited after retries
   }
 
   // Fallback: simple search (more forgiving with weird titles)
+  await delay(100);
   const simpleQ = encodeURIComponent(`${title} ${artist}`);
-  const res2 = await spotifyFetch(`/search?q=${simpleQ}&type=track&limit=1`);
+  const res2 = await spotifyFetchWithRetry(`/search?q=${simpleQ}&type=track&limit=1`);
   if (!res2.ok) {
     console.error(`Spotify search failed for "${title}" by "${artist}":`, res2.status);
     return null;
@@ -253,9 +269,11 @@ export async function syncSpotifyPlaylist(): Promise<void> {
       return;
     }
 
-    // Search for each song on Spotify
+    // Search for each song on Spotify (with delay to avoid rate limits)
     const uris: string[] = [];
-    for (const song of songs) {
+    for (let i = 0; i < songs.length; i++) {
+      if (i > 0) await delay(150); // throttle to ~6 requests/sec
+      const song = songs[i];
       const uri = await searchTrack(song.song_title, song.artist);
       if (uri) {
         uris.push(uri);
