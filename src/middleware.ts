@@ -16,9 +16,9 @@ function isAdminApi(request: NextRequest): boolean {
     if (request.method === "PUT" || request.method === "DELETE") return true;
   }
 
-  // Songs admin operations (PUT = pin, DELETE = remove)
+  // Songs admin operations (DELETE = remove)
   if (pathname === "/api/songs") {
-    if (request.method === "PUT" || request.method === "DELETE") return true;
+    if (request.method === "DELETE") return true;
   }
 
   // Songs reorder is admin-only
