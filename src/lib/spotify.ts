@@ -124,6 +124,12 @@ export async function exchangeCode(code: string): Promise<void> {
   await setConfig("access_token", data.access_token);
   await setConfig("refresh_token", data.refresh_token);
   await setConfig("token_expires_at", String(Date.now() + data.expires_in * 1000), false);
+
+  // Clear old playlist + cached URIs so a fresh playlist is created
+  await spotifyQuery("DELETE FROM spotify_config WHERE key = 'playlist_id'");
+  await spotifyQuery("UPDATE song_requests SET spotify_uri = NULL");
+  // Reset rate limit
+  rateLimitedUntil = 0;
 }
 
 async function getAccessToken(): Promise<string> {
