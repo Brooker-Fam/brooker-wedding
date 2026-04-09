@@ -597,6 +597,16 @@ function RsvpViewer({ data, onEdit }: { data: RsvpData; onEdit: () => void }) {
           View Details
         </Link>
       </div>
+
+      {data.attending && (
+        <Link
+          href="/songs"
+          className="mt-4 flex items-center justify-center gap-2 rounded-xl border border-soft-gold/25 bg-soft-gold/10 px-5 py-3 text-sm font-semibold text-soft-gold-dark transition-all hover:bg-soft-gold/20 dark:border-soft-gold/20 dark:text-soft-gold-light dark:hover:bg-soft-gold/15"
+        >
+          <span>&#127926;</span>
+          Help us build the party playlist!
+        </Link>
+      )}
     </div>
   );
 }
