@@ -186,8 +186,9 @@ const delay = (ms: number) => new Promise((r) => setTimeout(r, ms));
 async function spotifyFetchWithRetry(path: string, options: RequestInit = {}, retries = 2): Promise<Response> {
   const res = await spotifyFetch(path, options);
   if (res.status === 429 && retries > 0) {
-    const retryAfter = Number(res.headers.get("retry-after") || "2");
-    console.log(`Spotify rate limited, waiting ${retryAfter}s...`);
+    const raw = Number(res.headers.get("retry-after") || "2");
+    const retryAfter = Math.min(raw, 5); // cap at 5 seconds
+    console.log(`Spotify rate limited, waiting ${retryAfter}s (raw: ${raw})...`);
     await delay(retryAfter * 1000);
     return spotifyFetchWithRetry(path, options, retries - 1);
   }
@@ -257,29 +258,48 @@ export async function syncSpotifyPlaylist(): Promise<void> {
     }
 
     const songs = await spotifyQuery(
-      `SELECT song_title, artist FROM song_requests
+      `SELECT id, song_title, artist, spotify_uri FROM song_requests
        ORDER BY sort_position ASC NULLS LAST, id ASC`
     );
 
     if (!songs || songs.length === 0) {
-      await spotifyFetch(`/playlists/${playlistId}/tracks`, {
-        method: "PUT",
-        body: JSON.stringify({ uris: [] }),
-      });
+      // Clear the playlist
+      const getRes = await spotifyFetch(`/playlists/${playlistId}/tracks?fields=items(track(uri))&limit=50`);
+      if (getRes.ok) {
+        const current = await getRes.json();
+        const existing = current?.items?.map((i: { track: { uri: string } }) => ({ uri: i.track.uri })).filter((t: { uri: string }) => t.uri) || [];
+        if (existing.length > 0) {
+          await spotifyFetch(`/playlists/${playlistId}/tracks`, {
+            method: "DELETE",
+            body: JSON.stringify({ tracks: existing }),
+          });
+        }
+      }
       return;
     }
 
-    // Search for each song on Spotify (with delay to avoid rate limits)
-    const uris: string[] = [];
-    for (let i = 0; i < songs.length; i++) {
-      if (i > 0) await delay(150); // throttle to ~6 requests/sec
-      const song = songs[i];
+    // Only search for songs that don't have a cached Spotify URI
+    const uncached = songs.filter((s: { spotify_uri: string | null }) => !s.spotify_uri);
+    if (uncached.length > 0) {
+      console.log(`Spotify: searching for ${uncached.length} new songs (${songs.length - uncached.length} cached)`);
+    }
+    for (let i = 0; i < uncached.length; i++) {
+      if (i > 0) await delay(200);
+      const song = uncached[i];
       const uri = await searchTrack(song.song_title, song.artist);
       if (uri) {
-        uris.push(uri);
+        // Cache the URI in the database
+        await spotifyQuery("UPDATE song_requests SET spotify_uri = $1 WHERE id = $2", [uri, song.id]);
+        song.spotify_uri = uri;
       } else {
         console.warn(`Spotify: no match for "${song.song_title}" by "${song.artist}"`);
       }
+    }
+
+    // Build final URI list from all songs (cached + newly found)
+    const uris: string[] = [];
+    for (const song of songs) {
+      if (song.spotify_uri) uris.push(song.spotify_uri);
     }
 
     console.log(`Spotify sync: ${uris.length}/${songs.length} songs matched, playlist: ${playlistId}`);

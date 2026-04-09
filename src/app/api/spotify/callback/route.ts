@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { exchangeCode, syncSpotifyPlaylist } from "@/lib/spotify";
+import { exchangeCode } from "@/lib/spotify";
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
@@ -16,8 +16,7 @@ export async function GET(request: NextRequest) {
 
   try {
     await exchangeCode(code);
-    // Trigger initial sync
-    await syncSpotifyPlaylist();
+    // Don't sync here - next song add will trigger it
     return NextResponse.redirect(new URL("/songs/admin?spotify=connected", request.url));
   } catch (err) {
     console.error("Spotify callback error:", err);
