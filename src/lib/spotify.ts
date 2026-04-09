@@ -371,3 +371,10 @@ export async function isConnected(): Promise<boolean> {
   const refreshToken = await getConfig("refresh_token");
   return !!refreshToken;
 }
+
+export async function hasPlaylistTracks(): Promise<boolean> {
+  const result = await spotifyQuery(
+    "SELECT COUNT(*) as count FROM song_requests WHERE spotify_uri IS NOT NULL"
+  );
+  return result && result[0] && Number(result[0].count) > 0;
+}
