@@ -124,16 +124,14 @@ export async function POST(request: NextRequest) {
       [songId, name]
     );
 
-    const response = NextResponse.json({
+    // Sync Spotify playlist (must await on serverless)
+    await syncSpotifyPlaylist();
+
+    return NextResponse.json({
       success: true,
       duplicate: false,
       data: result[0],
     });
-
-    // Sync Spotify playlist in background (don't block response)
-    syncSpotifyPlaylist().catch((err) => console.error("Spotify sync error:", err));
-
-    return response;
   } catch (error) {
     console.error("Song submission error:", error);
     return NextResponse.json({ error: "Failed to add song" }, { status: 500 });
@@ -159,7 +157,7 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: "Song not found" }, { status: 404 });
     }
 
-    syncSpotifyPlaylist().catch((err) => console.error("Spotify sync error:", err));
+    await syncSpotifyPlaylist();
 
     return NextResponse.json({ success: true });
   } catch (error) {

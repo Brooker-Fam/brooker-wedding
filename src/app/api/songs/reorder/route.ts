@@ -20,7 +20,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    syncSpotifyPlaylist().catch((err) => console.error("Spotify sync error:", err));
+    await syncSpotifyPlaylist();
 
     return NextResponse.json({ success: true });
   } catch (error) {

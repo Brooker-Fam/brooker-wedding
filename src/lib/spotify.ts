@@ -167,12 +167,24 @@ async function spotifyFetch(path: string, options: RequestInit = {}): Promise<Re
 }
 
 async function searchTrack(title: string, artist: string): Promise<string | null> {
-  const q = encodeURIComponent(`track:${title} artist:${artist}`);
-  const res = await spotifyFetch(`/search?q=${q}&type=track&limit=1`);
-  if (!res.ok) return null;
-  const data = await res.json();
-  const tracks = data?.tracks?.items;
-  return tracks?.[0]?.uri ?? null;
+  // Try exact field search first
+  const exactQ = encodeURIComponent(`track:${title} artist:${artist}`);
+  const res = await spotifyFetch(`/search?q=${exactQ}&type=track&limit=1`);
+  if (res.ok) {
+    const data = await res.json();
+    const uri = data?.tracks?.items?.[0]?.uri;
+    if (uri) return uri;
+  }
+
+  // Fallback: simple search with title + artist (more forgiving)
+  const simpleQ = encodeURIComponent(`${title} ${artist}`);
+  const res2 = await spotifyFetch(`/search?q=${simpleQ}&type=track&limit=1`);
+  if (!res2.ok) {
+    console.error(`Spotify search failed for "${title}" by "${artist}":`, res2.status);
+    return null;
+  }
+  const data2 = await res2.json();
+  return data2?.tracks?.items?.[0]?.uri ?? null;
 }
 
 async function getCurrentUserId(): Promise<string> {
@@ -234,17 +246,27 @@ export async function syncSpotifyPlaylist(): Promise<void> {
     const uris: string[] = [];
     for (const song of songs) {
       const uri = await searchTrack(song.song_title, song.artist);
-      if (uri) uris.push(uri);
+      if (uri) {
+        uris.push(uri);
+      } else {
+        console.warn(`Spotify: no match for "${song.song_title}" by "${song.artist}"`);
+      }
     }
 
-    // Replace playlist tracks (Spotify supports up to 100 at a time)
-    if (uris.length === 0) return;
+    console.log(`Spotify sync: ${uris.length}/${songs.length} songs matched`);
 
-    // First batch replaces all existing tracks
-    await spotifyFetch(`/playlists/${playlistId}/tracks`, {
+    // Replace playlist tracks (Spotify supports up to 100 at a time)
+    // First batch replaces all existing tracks (empty array clears it)
+    const putRes = await spotifyFetch(`/playlists/${playlistId}/tracks`, {
       method: "PUT",
       body: JSON.stringify({ uris: uris.slice(0, 100) }),
     });
+
+    if (!putRes.ok) {
+      const text = await putRes.text();
+      console.error("Spotify: failed to replace tracks:", putRes.status, text);
+      return;
+    }
 
     // Additional batches if > 100 songs
     for (let i = 100; i < uris.length; i += 100) {
