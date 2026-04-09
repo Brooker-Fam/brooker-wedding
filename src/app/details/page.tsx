@@ -183,6 +183,9 @@ export default function DetailsPage() {
             >
               RSVP Here
             </Link>
+            <p className="mt-4 font-[family-name:var(--font-body)] text-sm font-medium text-[#A86A4A] dark:text-[#E8C8A0]">
+              Please RSVP by May 20th
+            </p>
             <p className="mt-4 font-[family-name:var(--font-body)] text-sm text-[#6B8F5B] dark:text-[#9CAF88]/85">
               June 27, 2026
             </p>

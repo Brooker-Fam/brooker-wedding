@@ -231,6 +231,9 @@ function PageHeader() {
       <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.4 }} className="mt-3 text-base text-deep-plum/75 dark:text-cream/75">
         We are excited to celebrate with you on our farm ♥
       </motion.p>
+      <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.45 }} className="mt-2 text-sm font-medium text-soft-gold-dark dark:text-soft-gold-light">
+        Please RSVP by May 20th
+      </motion.p>
       <motion.div initial={{ scaleX: 0 }} animate={{ scaleX: 1 }} transition={{ delay: 0.5, duration: 0.8 }} className="mx-auto mt-6 flex items-center justify-center gap-3">
         <div className="h-px w-16 bg-sage/40 dark:bg-sage/30" />
         <svg width="20" height="20" viewBox="0 0 20 20" className="text-sage/60">

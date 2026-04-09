@@ -90,6 +90,9 @@ export default function Home() {
                   RSVP Here
                 </PixelButton>
               </div>
+              <p className="mt-4 text-sm font-medium text-soft-gold-dark dark:text-soft-gold-light">
+                Please RSVP by May 20th
+              </p>
             </div>
           </motion.div>
 
