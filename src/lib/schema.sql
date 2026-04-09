@@ -27,3 +27,27 @@ CREATE TABLE IF NOT EXISTS game_scores (
 
 CREATE INDEX IF NOT EXISTS idx_game_scores_game_id ON game_scores(game_id);
 CREATE INDEX IF NOT EXISTS idx_game_scores_score ON game_scores(game_id, score DESC);
+
+CREATE TABLE IF NOT EXISTS song_requests (
+  id SERIAL PRIMARY KEY,
+  requester_name VARCHAR(255) NOT NULL,
+  song_title VARCHAR(500) NOT NULL,
+  artist VARCHAR(500) NOT NULL,
+  album_art_url TEXT,
+  preview_url TEXT,
+  itunes_url TEXT,
+  itunes_track_id BIGINT UNIQUE,
+  songlink_url TEXT,
+  created_at TIMESTAMP DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS song_votes (
+  id SERIAL PRIMARY KEY,
+  song_request_id INTEGER NOT NULL REFERENCES song_requests(id) ON DELETE CASCADE,
+  voter_name VARCHAR(255) NOT NULL,
+  created_at TIMESTAMP DEFAULT NOW(),
+  UNIQUE(song_request_id, voter_name)
+);
+
+CREATE INDEX IF NOT EXISTS idx_song_requests_track_id ON song_requests(itunes_track_id);
+CREATE INDEX IF NOT EXISTS idx_song_votes_song_id ON song_votes(song_request_id);
