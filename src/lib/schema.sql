@@ -38,6 +38,7 @@ CREATE TABLE IF NOT EXISTS song_requests (
   itunes_url TEXT,
   itunes_track_id BIGINT UNIQUE,
   songlink_url TEXT,
+  pinned BOOLEAN DEFAULT false,
   created_at TIMESTAMP DEFAULT NOW()
 );
 

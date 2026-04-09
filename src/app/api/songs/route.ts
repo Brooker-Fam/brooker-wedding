@@ -17,7 +17,7 @@ export async function GET() {
         FROM song_votes
         GROUP BY song_request_id
       ) v ON v.song_request_id = sr.id
-      ORDER BY vote_count DESC, sr.created_at ASC`
+      ORDER BY sr.pinned DESC, vote_count DESC, sr.created_at ASC`
     );
 
     if (!result) {
@@ -131,5 +131,57 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error("Song submission error:", error);
     return NextResponse.json({ error: "Failed to add song" }, { status: 500 });
+  }
+}
+
+// Admin: toggle pin
+export async function PUT(request: NextRequest) {
+  try {
+    const body = await request.json();
+    const { id, pinned } = body;
+
+    if (!id) {
+      return NextResponse.json({ error: "Song ID is required" }, { status: 400 });
+    }
+
+    const result = await query(
+      "UPDATE song_requests SET pinned = $1 WHERE id = $2 RETURNING *",
+      [Boolean(pinned), Number(id)]
+    );
+
+    if (!result || result.length === 0) {
+      return NextResponse.json({ error: "Song not found" }, { status: 404 });
+    }
+
+    return NextResponse.json({ success: true, data: result[0] });
+  } catch (error) {
+    console.error("Song update error:", error);
+    return NextResponse.json({ error: "Failed to update song" }, { status: 500 });
+  }
+}
+
+// Admin: delete song
+export async function DELETE(request: NextRequest) {
+  try {
+    const { searchParams } = new URL(request.url);
+    const id = searchParams.get("id");
+
+    if (!id) {
+      return NextResponse.json({ error: "Song ID is required" }, { status: 400 });
+    }
+
+    const result = await query(
+      "DELETE FROM song_requests WHERE id = $1 RETURNING id",
+      [Number(id)]
+    );
+
+    if (!result || result.length === 0) {
+      return NextResponse.json({ error: "Song not found" }, { status: 404 });
+    }
+
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error("Song delete error:", error);
+    return NextResponse.json({ error: "Failed to delete song" }, { status: 500 });
   }
 }

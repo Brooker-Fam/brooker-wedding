@@ -4,15 +4,23 @@ const ADMIN_USER = process.env.ADMIN_USER;
 const ADMIN_PASS = process.env.ADMIN_PASS;
 
 function isAdminRoute(pathname: string): boolean {
-  return pathname === "/rsvp/admin";
+  return pathname === "/rsvp/admin" || pathname === "/songs/admin";
 }
 
 function isAdminApi(request: NextRequest): boolean {
   const { pathname, searchParams } = new URL(request.url);
-  if (pathname !== "/api/rsvp") return false;
-  // GET all (no id param), PUT, DELETE are admin operations
-  if (request.method === "GET" && !searchParams.get("id")) return true;
-  if (request.method === "PUT" || request.method === "DELETE") return true;
+
+  // RSVP admin operations
+  if (pathname === "/api/rsvp") {
+    if (request.method === "GET" && !searchParams.get("id")) return true;
+    if (request.method === "PUT" || request.method === "DELETE") return true;
+  }
+
+  // Songs admin operations (PUT = pin, DELETE = remove)
+  if (pathname === "/api/songs") {
+    if (request.method === "PUT" || request.method === "DELETE") return true;
+  }
+
   return false;
 }
 
@@ -41,5 +49,5 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/rsvp/admin", "/api/rsvp"],
+  matcher: ["/rsvp/admin", "/songs/admin", "/api/rsvp", "/api/songs"],
 };
