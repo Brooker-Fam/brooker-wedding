@@ -67,6 +67,7 @@ function getCredentials() {
 
 function getRedirectUri() {
   const base = process.env.NEXT_PUBLIC_BASE_URL
+    || (process.env.VERCEL_PROJECT_PRODUCTION_URL ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}` : null)
     || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : null)
     || "http://localhost:3000";
   return `${base}/api/spotify/callback`;
