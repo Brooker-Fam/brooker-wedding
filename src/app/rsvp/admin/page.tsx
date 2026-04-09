@@ -30,7 +30,6 @@ interface NewRsvpForm {
   child_count: number;
   attendee_names: string;
   dietary_restrictions: string;
-  potluck_dish: string;
   message: string;
   public_display: boolean;
 }
@@ -46,7 +45,6 @@ function createEmptyRsvpForm(): NewRsvpForm {
     child_count: 0,
     attendee_names: "",
     dietary_restrictions: "",
-    potluck_dish: "",
     message: "",
     public_display: false,
   };
@@ -120,7 +118,10 @@ export default function AdminPage() {
 
       const res = await fetch("/api/rsvp", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "x-admin-edit": "true",
+        },
         body: JSON.stringify(payload),
       });
       const json = await res.json();
@@ -265,13 +266,6 @@ export default function AdminPage() {
                   value={createForm.dietary_restrictions}
                   onChange={(e) => setCreate("dietary_restrictions", e.target.value)}
                   placeholder="Dietary restrictions"
-                  className="enchanted-input"
-                />
-                <input
-                  type="text"
-                  value={createForm.potluck_dish}
-                  onChange={(e) => setCreate("potluck_dish", e.target.value)}
-                  placeholder="Potluck dish"
                   className="enchanted-input"
                 />
                 <textarea

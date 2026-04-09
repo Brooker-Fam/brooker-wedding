@@ -13,6 +13,7 @@ function normalizePhone(raw: string | undefined | null): string | null {
 
 export async function POST(request: NextRequest) {
   try {
+    const isAdminEdit = request.headers.get("x-admin-edit") === "true";
     const body = await request.json();
 
     // Honeypot: bots fill this hidden field, real users don't see it
@@ -42,21 +43,21 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (!email || typeof email !== "string" || !email.includes("@")) {
+    if (!isAdminEdit && (!email || typeof email !== "string" || !email.includes("@"))) {
       return NextResponse.json(
         { error: "A valid email is required" },
         { status: 400 }
       );
     }
 
-    if (!phone || typeof phone !== "string" || phone.trim().length === 0) {
+    if (!isAdminEdit && (!phone || typeof phone !== "string" || phone.trim().length === 0)) {
       return NextResponse.json(
         { error: "Phone number is required" },
         { status: 400 }
       );
     }
 
-    if (!mailing_address || typeof mailing_address !== "string" || mailing_address.trim().length === 0) {
+    if (!isAdminEdit && (!mailing_address || typeof mailing_address !== "string" || mailing_address.trim().length === 0)) {
       return NextResponse.json(
         { error: "Mailing address is required" },
         { status: 400 }
@@ -67,7 +68,11 @@ export async function POST(request: NextRequest) {
     const children = attending ? Math.max(0, Number(child_count) || 0) : 0;
     const guestCount = adults + children;
 
-    const normalizedPhone = normalizePhone(phone);
+    const normalizedPhone = normalizePhone(typeof phone === "string" ? phone : "");
+    const normalizedEmail =
+      typeof email === "string" && email.includes("@")
+        ? email.trim().toLowerCase()
+        : `manual-rsvp-${Date.now()}@brooker-wedding.local`;
 
     const result = await query(
       `INSERT INTO rsvps (name, email, attending, guest_count, adult_count, child_count, dietary_restrictions, potluck_dish, message, public_display, phone, mailing_address, attendee_names)
@@ -75,7 +80,7 @@ export async function POST(request: NextRequest) {
        RETURNING id, name, email, attending, guest_count, adult_count, child_count, dietary_restrictions, potluck_dish, message, public_display, phone, mailing_address, attendee_names, created_at`,
       [
         name.trim(),
-        email.trim().toLowerCase(),
+        normalizedEmail,
         attending,
         guestCount,
         adults,
@@ -85,8 +90,8 @@ export async function POST(request: NextRequest) {
         message.trim(),
         Boolean(public_display),
         normalizedPhone,
-        mailing_address.trim(),
-        attendee_names.trim(),
+        typeof mailing_address === "string" ? mailing_address.trim() : "",
+        typeof attendee_names === "string" ? attendee_names.trim() : "",
       ]
     );
 
