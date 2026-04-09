@@ -21,6 +21,9 @@ function isAdminApi(request: NextRequest): boolean {
     if (request.method === "PUT" || request.method === "DELETE") return true;
   }
 
+  // Songs reorder is admin-only
+  if (pathname === "/api/songs/reorder") return true;
+
   return false;
 }
 
@@ -49,5 +52,5 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/rsvp/admin", "/songs/admin", "/api/rsvp", "/api/songs"],
+  matcher: ["/rsvp/admin", "/songs/admin", "/api/rsvp", "/api/songs", "/api/songs/reorder"],
 };

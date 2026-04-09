@@ -17,7 +17,7 @@ export async function GET() {
         FROM song_votes
         GROUP BY song_request_id
       ) v ON v.song_request_id = sr.id
-      ORDER BY sr.pinned DESC, vote_count DESC, sr.created_at ASC`
+      ORDER BY sr.sort_position ASC NULLS LAST, sr.pinned DESC, vote_count DESC, sr.created_at ASC`
     );
 
     if (!result) {
