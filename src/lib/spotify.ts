@@ -264,12 +264,12 @@ export async function syncSpotifyPlaylist(): Promise<void> {
 
     if (!songs || songs.length === 0) {
       // Clear the playlist
-      const getRes = await spotifyFetch(`/playlists/${playlistId}/tracks?fields=items(track(uri))&limit=50`);
+      const getRes = await spotifyFetch(`/playlists/${playlistId}/items?fields=items(track(uri))&limit=50`);
       if (getRes.ok) {
         const current = await getRes.json();
         const existing = current?.items?.map((i: { track: { uri: string } }) => ({ uri: i.track.uri })).filter((t: { uri: string }) => t.uri) || [];
         if (existing.length > 0) {
-          await spotifyFetch(`/playlists/${playlistId}/tracks`, {
+          await spotifyFetch(`/playlists/${playlistId}/items`, {
             method: "DELETE",
             body: JSON.stringify({ tracks: existing }),
           });
@@ -279,7 +279,7 @@ export async function syncSpotifyPlaylist(): Promise<void> {
     }
 
     // Only search for songs that don't have a cached Spotify URI
-    const uncached = songs.filter((s: { spotify_uri: string | null }) => !s.spotify_uri);
+    const uncached = songs.filter((s: Record<string, unknown>) => !s.spotify_uri);
     if (uncached.length > 0) {
       console.log(`Spotify: searching for ${uncached.length} new songs (${songs.length - uncached.length} cached)`);
     }
@@ -305,12 +305,12 @@ export async function syncSpotifyPlaylist(): Promise<void> {
     console.log(`Spotify sync: ${uris.length}/${songs.length} songs matched, playlist: ${playlistId}`);
 
     // Clear existing tracks first
-    const getRes = await spotifyFetch(`/playlists/${playlistId}/tracks?fields=items(track(uri))&limit=50`);
+    const getRes = await spotifyFetch(`/playlists/${playlistId}/items?fields=items(track(uri))&limit=50`);
     if (getRes.ok) {
       const current = await getRes.json();
       const existing = current?.items?.map((i: { track: { uri: string } }) => ({ uri: i.track.uri })).filter((t: { uri: string }) => t.uri) || [];
       if (existing.length > 0) {
-        const delRes = await spotifyFetch(`/playlists/${playlistId}/tracks`, {
+        const delRes = await spotifyFetch(`/playlists/${playlistId}/items`, {
           method: "DELETE",
           body: JSON.stringify({ tracks: existing }),
         });
@@ -321,7 +321,7 @@ export async function syncSpotifyPlaylist(): Promise<void> {
     // Add tracks via POST (in batches of 100)
     for (let i = 0; i < uris.length; i += 100) {
       const batch = uris.slice(i, i + 100);
-      const postRes = await spotifyFetch(`/playlists/${playlistId}/tracks`, {
+      const postRes = await spotifyFetch(`/playlists/${playlistId}/items`, {
         method: "POST",
         body: JSON.stringify({ uris: batch }),
       });
