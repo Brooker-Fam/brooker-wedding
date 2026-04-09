@@ -1,5 +1,5 @@
-import crypto from "crypto";
-import { query } from "@/lib/db";
+import * as crypto from "node:crypto";
+import { neon } from "@neondatabase/serverless";
 
 // ── Encryption (AES-256-GCM) ──────────────────────────────────────────
 
@@ -15,7 +15,6 @@ function encrypt(plaintext: string): string {
   const cipher = crypto.createCipheriv("aes-256-gcm", key, iv);
   const encrypted = Buffer.concat([cipher.update(plaintext, "utf8"), cipher.final()]);
   const tag = cipher.getAuthTag();
-  // Format: base64(iv):base64(tag):base64(encrypted)
   return `${iv.toString("base64")}:${tag.toString("base64")}:${encrypted.toString("base64")}`;
 }
 
@@ -31,21 +30,36 @@ function decrypt(ciphertext: string): string {
   return decipher.update(encrypted) + decipher.final("utf8");
 }
 
+// ── Fresh DB connection for Spotify config ────────────────────────────
+// Uses its own neon() instance to avoid stale socket issues
+
+function getSpotifyDb() {
+  const url = process.env.DATABASE_URL;
+  if (!url) return null;
+  return neon(url);
+}
+
+async function spotifyQuery(sql: string, params: unknown[] = []) {
+  const db = getSpotifyDb();
+  if (!db) return null;
+  return db.query(sql, params);
+}
+
 // ── Config store ──────────────────────────────────────────────────────
 
 async function getConfig(key: string): Promise<string | null> {
-  const result = await query("SELECT value FROM spotify_config WHERE key = $1", [key]);
+  const result = await spotifyQuery("SELECT value FROM spotify_config WHERE key = $1", [key]);
   if (!result || result.length === 0) return null;
   try {
     return decrypt(result[0].value);
   } catch {
-    return result[0].value; // fallback for unencrypted values like playlist_id
+    return result[0].value;
   }
 }
 
 async function setConfig(key: string, value: string, shouldEncrypt = true): Promise<void> {
   const stored = shouldEncrypt ? encrypt(value) : value;
-  await query(
+  await spotifyQuery(
     `INSERT INTO spotify_config (key, value, updated_at)
      VALUES ($1, $2, NOW())
      ON CONFLICT (key) DO UPDATE SET value = $2, updated_at = NOW()`,
@@ -89,6 +103,7 @@ export async function exchangeCode(code: string): Promise<void> {
   const { clientId, clientSecret } = getCredentials();
   const res = await fetch(SPOTIFY_TOKEN_URL, {
     method: "POST",
+    cache: "no-store",
     headers: {
       "Content-Type": "application/x-www-form-urlencoded",
       Authorization: `Basic ${Buffer.from(`${clientId}:${clientSecret}`).toString("base64")}`,
@@ -115,18 +130,17 @@ async function getAccessToken(): Promise<string> {
   const expiresAt = await getConfig("token_expires_at");
   const accessToken = await getConfig("access_token");
 
-  // If token is still valid (with 60s buffer), use it
   if (accessToken && expiresAt && Date.now() < Number(expiresAt) - 60000) {
     return accessToken;
   }
 
-  // Refresh the token
   const refreshToken = await getConfig("refresh_token");
   if (!refreshToken) throw new Error("No Spotify refresh token. Connect Spotify first.");
 
   const { clientId, clientSecret } = getCredentials();
   const res = await fetch(SPOTIFY_TOKEN_URL, {
     method: "POST",
+    cache: "no-store",
     headers: {
       "Content-Type": "application/x-www-form-urlencoded",
       Authorization: `Basic ${Buffer.from(`${clientId}:${clientSecret}`).toString("base64")}`,
@@ -158,6 +172,7 @@ async function spotifyFetch(path: string, options: RequestInit = {}): Promise<Re
   const token = await getAccessToken();
   return fetch(`${SPOTIFY_API_BASE}${path}`, {
     ...options,
+    cache: "no-store",
     headers: {
       Authorization: `Bearer ${token}`,
       "Content-Type": "application/json",
@@ -176,7 +191,7 @@ async function searchTrack(title: string, artist: string): Promise<string | null
     if (uri) return uri;
   }
 
-  // Fallback: simple search with title + artist (more forgiving)
+  // Fallback: simple search (more forgiving with weird titles)
   const simpleQ = encodeURIComponent(`${title} ${artist}`);
   const res2 = await spotifyFetch(`/search?q=${simpleQ}&type=track&limit=1`);
   if (!res2.ok) {
@@ -214,12 +229,10 @@ async function createPlaylist(userId: string): Promise<string> {
 // ── Sync ──────────────────────────────────────────────────────────────
 
 export async function syncSpotifyPlaylist(): Promise<void> {
-  // Check if Spotify is connected
   const refreshToken = await getConfig("refresh_token");
-  if (!refreshToken) return; // Not connected, skip silently
+  if (!refreshToken) return;
 
   try {
-    // Get or create playlist
     let playlistId = await getConfig("playlist_id");
     if (!playlistId) {
       const userId = await getCurrentUserId();
@@ -227,14 +240,12 @@ export async function syncSpotifyPlaylist(): Promise<void> {
       await setConfig("playlist_id", playlistId, false);
     }
 
-    // Get all songs in order from DB
-    const songs = await query(
+    const songs = await spotifyQuery(
       `SELECT song_title, artist FROM song_requests
        ORDER BY sort_position ASC NULLS LAST, id ASC`
     );
 
     if (!songs || songs.length === 0) {
-      // Clear the playlist
       await spotifyFetch(`/playlists/${playlistId}/tracks`, {
         method: "PUT",
         body: JSON.stringify({ uris: [] }),
@@ -255,8 +266,7 @@ export async function syncSpotifyPlaylist(): Promise<void> {
 
     console.log(`Spotify sync: ${uris.length}/${songs.length} songs matched`);
 
-    // Replace playlist tracks (Spotify supports up to 100 at a time)
-    // First batch replaces all existing tracks (empty array clears it)
+    // Replace playlist tracks
     const putRes = await spotifyFetch(`/playlists/${playlistId}/tracks`, {
       method: "PUT",
       body: JSON.stringify({ uris: uris.slice(0, 100) }),
@@ -268,7 +278,6 @@ export async function syncSpotifyPlaylist(): Promise<void> {
       return;
     }
 
-    // Additional batches if > 100 songs
     for (let i = 100; i < uris.length; i += 100) {
       await spotifyFetch(`/playlists/${playlistId}/tracks`, {
         method: "POST",
@@ -277,7 +286,6 @@ export async function syncSpotifyPlaylist(): Promise<void> {
     }
   } catch (error) {
     console.error("Spotify sync error:", error);
-    // Don't throw - sync failures shouldn't break song operations
   }
 }
 
