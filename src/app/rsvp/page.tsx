@@ -194,6 +194,15 @@ export default function RSVPPage() {
                 <p className="mt-4 text-base text-deep-plum/70 dark:text-cream/70">
                   {rsvpData.name}, your RSVP has been saved.
                 </p>
+                {rsvpData.attending && (
+                  <Link
+                    href="/songs"
+                    className="mt-6 inline-flex items-center gap-2 rounded-full border border-soft-gold/25 bg-soft-gold/10 px-5 py-2.5 text-sm font-semibold text-soft-gold-dark transition-all hover:bg-soft-gold/20 dark:border-soft-gold/20 dark:text-soft-gold-light dark:hover:bg-soft-gold/15"
+                  >
+                    <span>&#127926;</span>
+                    Help us build the party playlist!
+                  </Link>
+                )}
               </div>
             </motion.div>
           )}
