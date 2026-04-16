@@ -14,12 +14,12 @@ interface TaskFormProps {
 export interface TaskFormData {
   id?: number;
   title: string;
-  description: string;
+  description: string | null;
   assigned_to: number | null;
   priority: "low" | "medium" | "high";
   points: number;
   due_date: string;
-  due_time: string;
+  due_time: string | null;
 }
 
 export default function TaskForm({
@@ -64,12 +64,12 @@ export default function TaskForm({
     onSave({
       id: editingTask?.id,
       title: title.trim(),
-      description: description.trim(),
+      description: description.trim() || null,
       assigned_to: assignedTo,
       priority,
       points,
       due_date: dueDate,
-      due_time: dueTime || "",
+      due_time: dueTime || null,
     });
   };
 
