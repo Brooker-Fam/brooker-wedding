@@ -1,12 +1,13 @@
 "use client";
 
+import Link from "next/link";
+
 interface CalendarHeaderProps {
   weekStart: Date;
   onPrevWeek: () => void;
   onNextWeek: () => void;
   onToday: () => void;
-  isAdmin: boolean;
-  onToggleAdmin: () => void;
+  adminMode: boolean;
 }
 
 function formatWeekRange(start: Date): string {
@@ -26,8 +27,7 @@ export default function CalendarHeader({
   onPrevWeek,
   onNextWeek,
   onToday,
-  isAdmin,
-  onToggleAdmin,
+  adminMode,
 }: CalendarHeaderProps) {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
@@ -73,17 +73,23 @@ export default function CalendarHeader({
           </button>
         )}
 
-        <button
-          onClick={onToggleAdmin}
-          className={`rounded-lg border px-3 py-2 text-sm font-medium transition-colors ${
-            isAdmin
-              ? "border-soft-gold/40 bg-soft-gold/15 text-soft-gold-dark dark:border-soft-gold/30 dark:text-soft-gold"
-              : "border-sage/20 bg-cream/60 text-forest/50 hover:text-forest dark:border-soft-gold/15 dark:bg-dark-surface dark:text-cream/40 dark:hover:text-cream"
-          }`}
-          title={isAdmin ? "Exit admin mode" : "Enter admin mode"}
-        >
-          {isAdmin ? "✏️ Admin" : "🔒"}
-        </button>
+        {adminMode ? (
+          <Link
+            href="/calendar"
+            className="rounded-lg border border-soft-gold/40 bg-soft-gold/15 px-3 py-2 text-sm font-medium text-soft-gold-dark transition-colors hover:bg-soft-gold/25 dark:border-soft-gold/30 dark:text-soft-gold"
+            title="Exit admin mode"
+          >
+            ✏️ Admin
+          </Link>
+        ) : (
+          <Link
+            href="/calendar/admin"
+            className="rounded-lg border border-sage/20 bg-cream/60 px-3 py-2 text-sm font-medium text-forest/50 transition-colors hover:text-forest dark:border-soft-gold/15 dark:bg-dark-surface dark:text-cream/40 dark:hover:text-cream"
+            title="Enter admin mode"
+          >
+            🔒
+          </Link>
+        )}
       </div>
     </header>
   );

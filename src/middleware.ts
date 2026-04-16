@@ -4,7 +4,11 @@ const ADMIN_USER = process.env.ADMIN_USER;
 const ADMIN_PASS = process.env.ADMIN_PASS;
 
 function isAdminRoute(pathname: string): boolean {
-  return pathname === "/rsvp/admin" || pathname === "/songs/admin";
+  return (
+    pathname === "/rsvp/admin" ||
+    pathname === "/songs/admin" ||
+    pathname === "/calendar/admin"
+  );
 }
 
 function isCalendarAdminApi(request: NextRequest): boolean {
@@ -67,5 +71,5 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/rsvp/admin", "/songs/admin", "/api/rsvp", "/api/songs", "/api/songs/reorder", "/api/spotify/authorize", "/api/calendar/tasks", "/api/calendar/complete", "/api/calendar/seed"],
+  matcher: ["/rsvp/admin", "/songs/admin", "/calendar/admin", "/api/rsvp", "/api/songs", "/api/songs/reorder", "/api/spotify/authorize", "/api/calendar/tasks", "/api/calendar/complete", "/api/calendar/seed"],
 };
