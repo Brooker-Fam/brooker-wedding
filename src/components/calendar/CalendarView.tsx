@@ -281,7 +281,7 @@ export default function CalendarView({ adminMode }: CalendarViewProps) {
                 isToday ? "ring-2 ring-inset ring-soft-gold/40" : ""
               }`}
             >
-              <div className="mb-2 flex items-center justify-between">
+              <div className="mb-2">
                 <span
                   className={`text-sm font-semibold ${
                     isToday
@@ -291,15 +291,6 @@ export default function CalendarView({ adminMode }: CalendarViewProps) {
                 >
                   {getDayLabel(day, today)}
                 </span>
-                {adminMode && (
-                  <button
-                    onClick={() => handleAddTask(key)}
-                    className="flex h-7 w-7 items-center justify-center rounded-full bg-soft-gold/15 text-soft-gold-dark transition-colors hover:bg-soft-gold/30 dark:bg-soft-gold/20 dark:text-soft-gold dark:hover:bg-soft-gold/40"
-                    aria-label={`Add task on ${key}`}
-                  >
-                    +
-                  </button>
-                )}
               </div>
 
               <div className="flex flex-1 flex-col gap-1.5">
@@ -318,6 +309,17 @@ export default function CalendarView({ adminMode }: CalendarViewProps) {
                     onDelete={handleDelete}
                   />
                 ))}
+
+                {adminMode && (
+                  <button
+                    onClick={() => handleAddTask(key)}
+                    className="group mt-auto flex items-center justify-center gap-1.5 rounded-lg border border-dashed border-sage/30 bg-transparent px-3 py-2 text-sm font-medium text-forest/40 transition-all hover:border-soft-gold/60 hover:bg-soft-gold/10 hover:text-soft-gold-dark dark:border-cream/15 dark:text-cream/40 dark:hover:border-soft-gold/40 dark:hover:bg-soft-gold/10 dark:hover:text-soft-gold"
+                    aria-label={`Add task on ${key}`}
+                  >
+                    <span className="text-base leading-none">+</span>
+                    <span>Add task</span>
+                  </button>
+                )}
               </div>
             </div>
           );
