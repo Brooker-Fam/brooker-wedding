@@ -90,6 +90,16 @@ pnpm build        # Runs migrations then builds
 pnpm run migrate  # Run DB migrations only
 ```
 
+## Git Workflow
+
+**Always merge/deploy directly to `main`.** This is a solo/family project — no review gate needed. When working on a branch, once the work is done and the build passes:
+
+1. Push the branch
+2. Open a PR to `main`
+3. Squash-merge it immediately
+
+Vercel auto-deploys `main`, so merging to `main` == deploying. Don't leave branches sitting open.
+
 ## Database
 
 **Env var:** `DATABASE_URL` (Neon Postgres connection string)
