@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { query } from "@/lib/db";
+import { captureServerException } from "@/lib/posthog-server";
 
 /** Normalize a phone string to E.164 (+1XXXXXXXXXX) for SMS. Returns null if empty. */
 function normalizePhone(raw: string | undefined | null): string | null {
@@ -108,6 +109,7 @@ export async function POST(request: NextRequest) {
     });
   } catch (error) {
     console.error("RSVP submission error:", error);
+    await captureServerException(error, { route: "POST /api/rsvp" });
     return NextResponse.json(
       { error: "Failed to submit RSVP. Please try again." },
       { status: 500 }
@@ -152,6 +154,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ data: result });
   } catch (error) {
     console.error("RSVP fetch error:", error);
+    await captureServerException(error, { route: "GET /api/rsvp" });
     return NextResponse.json(
       { error: "Failed to fetch RSVPs" },
       { status: 500 }
@@ -262,6 +265,7 @@ export async function PUT(request: NextRequest) {
     });
   } catch (error) {
     console.error("RSVP update error:", error);
+    await captureServerException(error, { route: "PUT /api/rsvp" });
     return NextResponse.json(
       { error: "Failed to update RSVP. Please try again." },
       { status: 500 }
@@ -296,6 +300,7 @@ export async function DELETE(request: NextRequest) {
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error("RSVP delete error:", error);
+    await captureServerException(error, { route: "DELETE /api/rsvp" });
     return NextResponse.json(
       { error: "Failed to delete RSVP" },
       { status: 500 }

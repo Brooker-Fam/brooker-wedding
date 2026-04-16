@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { after } from "next/server";
 import { query } from "@/lib/db";
 import { syncSpotifyPlaylist } from "@/lib/spotify";
+import { captureServerException } from "@/lib/posthog-server";
 
 export async function GET() {
   try {
@@ -29,6 +30,7 @@ export async function GET() {
     return NextResponse.json({ data: result });
   } catch (error) {
     console.error("Songs fetch error:", error);
+    await captureServerException(error, { route: "GET /api/songs" });
     return NextResponse.json({ error: "Failed to fetch songs" }, { status: 500 });
   }
 }
@@ -135,6 +137,7 @@ export async function POST(request: NextRequest) {
     });
   } catch (error) {
     console.error("Song submission error:", error);
+    await captureServerException(error, { route: "POST /api/songs" });
     return NextResponse.json({ error: "Failed to add song" }, { status: 500 });
   }
 }
@@ -163,6 +166,7 @@ export async function DELETE(request: NextRequest) {
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error("Song delete error:", error);
+    await captureServerException(error, { route: "DELETE /api/songs" });
     return NextResponse.json({ error: "Failed to delete song" }, { status: 500 });
   }
 }

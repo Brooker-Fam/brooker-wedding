@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { query } from "@/lib/db";
+import { captureServerException } from "@/lib/posthog-server";
 
 function formatShortName(name: string) {
   const parts = name.trim().split(/\s+/).filter(Boolean);
@@ -65,6 +66,7 @@ export async function GET() {
     return NextResponse.json({ names, total: Number(total) });
   } catch (error) {
     console.error("Public RSVP list error:", error);
+    await captureServerException(error, { route: "GET /api/rsvp/public" });
     return NextResponse.json(
       { error: "Failed to fetch public list" },
       { status: 500 }
