@@ -90,6 +90,8 @@ export default function Navigation() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  const isCalendar = pathname?.startsWith("/calendar");
+
   useEffect(() => {
     setIsOpen(false);
   }, [pathname]);
@@ -104,6 +106,8 @@ export default function Navigation() {
       document.body.style.overflow = "";
     };
   }, [isOpen]);
+
+  if (isCalendar) return null;
 
   return (
     <>
