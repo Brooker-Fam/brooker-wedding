@@ -15,6 +15,21 @@ type SyncResult = {
   error?: string;
 };
 
+const EXPAND_STORAGE_KEY = "google-calendar-panel-expanded";
+
+function formatRelative(iso: string | null): string | null {
+  if (!iso) return null;
+  const diffMs = Date.now() - new Date(iso).getTime();
+  if (diffMs < 0) return null;
+  const mins = Math.round(diffMs / 60000);
+  if (mins < 1) return "just now";
+  if (mins < 60) return `${mins}m ago`;
+  const hrs = Math.round(mins / 60);
+  if (hrs < 24) return `${hrs}h ago`;
+  const days = Math.round(hrs / 24);
+  return `${days}d ago`;
+}
+
 export default function GoogleCalendarPanel({ members, onSynced }: Props) {
   const [loading, setLoading] = useState(true);
   const [connected, setConnected] = useState(false);
@@ -22,9 +37,31 @@ export default function GoogleCalendarPanel({ members, onSynced }: Props) {
   const [syncing, setSyncing] = useState(false);
   const [syncResults, setSyncResults] = useState<SyncResult[] | null>(null);
   const [lastError, setLastError] = useState<string | null>(null);
+  const [expanded, setExpanded] = useState(false);
+
+  // Hydrate expand preference from localStorage (collapsed by default).
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(EXPAND_STORAGE_KEY);
+      if (saved === "true") setExpanded(true);
+    } catch {
+      // ignore
+    }
+  }, []);
+
+  const toggleExpanded = () => {
+    setExpanded((prev) => {
+      const next = !prev;
+      try {
+        localStorage.setItem(EXPAND_STORAGE_KEY, String(next));
+      } catch {
+        // ignore
+      }
+      return next;
+    });
+  };
 
   const fetchStatus = useCallback(async () => {
-    setLoading(true);
     const res = await fetch("/api/calendar/google/calendars");
     if (res.ok) {
       const data = await res.json();
@@ -80,13 +117,8 @@ export default function GoogleCalendarPanel({ members, onSynced }: Props) {
     fetchStatus();
   };
 
-  if (loading) {
-    return (
-      <div className="mx-4 mb-4 rounded-xl border border-sage/20 bg-cream/50 p-4 text-sm text-forest/60 sm:mx-6 dark:bg-dark-surface dark:text-cream/60">
-        Loading Google Calendar status…
-      </div>
-    );
-  }
+  // Silently render nothing on first fetch — avoids a layout flash.
+  if (loading) return null;
 
   if (!connected) {
     return (
@@ -101,12 +133,15 @@ export default function GoogleCalendarPanel({ members, onSynced }: Props) {
               calendar.
             </p>
           </div>
-          <a
-            href="/api/calendar/google/authorize"
+          <button
+            type="button"
+            onClick={() => {
+              window.location.href = "/api/calendar/google/authorize";
+            }}
             className="rounded-xl bg-forest px-4 py-2 text-sm font-medium text-cream transition-colors hover:bg-forest-light dark:bg-sage dark:hover:bg-sage-light"
           >
             Connect Google Calendar
-          </a>
+          </button>
         </div>
         {lastError && (
           <p className="mt-2 text-xs text-red-600 dark:text-red-400">{lastError}</p>
@@ -115,38 +150,63 @@ export default function GoogleCalendarPanel({ members, onSynced }: Props) {
     );
   }
 
+  const enabledCount = calendars.filter((c) => c.enabled).length;
+  const lastSynced = calendars
+    .map((c) => c.last_synced_at)
+    .filter((x): x is string => !!x)
+    .sort()
+    .pop();
+  const lastSyncedRel = formatRelative(lastSynced ?? null);
+
   return (
-    <div className="mx-4 mb-4 rounded-xl border border-sage/20 bg-cream/50 p-4 sm:mx-6 dark:bg-dark-surface">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <h3 className="text-base font-semibold text-forest dark:text-cream">
-            Google Calendar · connected
-          </h3>
-          <p className="mt-0.5 text-sm text-forest/60 dark:text-cream/60">
-            Toggle calendars to sync. Events appear alongside chores.
-          </p>
-        </div>
-        <div className="flex gap-2">
-          <button
-            type="button"
-            onClick={syncNow}
-            disabled={syncing}
-            className="rounded-xl border border-soft-gold/40 bg-soft-gold/10 px-3 py-1.5 text-sm font-medium text-soft-gold-dark transition-colors hover:bg-soft-gold/20 disabled:opacity-50 dark:text-soft-gold"
+    <div className="mx-4 mb-3 rounded-lg border border-sage/15 bg-cream/40 sm:mx-6 dark:border-cream/10 dark:bg-dark-surface/50">
+      {/* Compact header row — always visible */}
+      <div className="flex items-center gap-2 px-3 py-1.5 text-xs">
+        <button
+          type="button"
+          onClick={toggleExpanded}
+          className="flex flex-1 items-center gap-2 text-left text-forest/70 transition-colors hover:text-forest dark:text-cream/60 dark:hover:text-cream"
+          aria-expanded={expanded}
+        >
+          <span aria-hidden="true">📅</span>
+          <span className="font-medium">Google Calendar</span>
+          <span className="text-forest/40 dark:text-cream/40">
+            · {enabledCount} {enabledCount === 1 ? "calendar" : "calendars"}
+            {lastSyncedRel ? ` · synced ${lastSyncedRel}` : ""}
+          </span>
+          <span
+            className="ml-auto text-forest/30 transition-transform dark:text-cream/30"
+            style={{ transform: expanded ? "rotate(180deg)" : "none" }}
+            aria-hidden="true"
           >
-            {syncing ? "Syncing…" : "Sync now"}
-          </button>
-          <button
-            type="button"
-            onClick={disconnect}
-            className="rounded-xl border border-sage/30 px-3 py-1.5 text-sm font-medium text-forest/70 transition-colors hover:bg-sage/10 dark:text-cream/70"
-          >
-            Disconnect
-          </button>
-        </div>
+            ▾
+          </span>
+        </button>
+        <button
+          type="button"
+          onClick={syncNow}
+          disabled={syncing}
+          className="rounded-md border border-soft-gold/30 bg-soft-gold/10 px-2 py-0.5 font-medium text-soft-gold-dark transition-colors hover:bg-soft-gold/20 disabled:opacity-50 dark:text-soft-gold"
+        >
+          {syncing ? "…" : "Sync"}
+        </button>
       </div>
 
-      <div className="mt-3 space-y-1.5">
-        {calendars.length === 0 && (
+      {expanded && (
+        <div className="border-t border-sage/10 px-3 pb-3 pt-2 dark:border-cream/5">
+          <div className="mb-2 flex items-center justify-between gap-2 text-xs text-forest/60 dark:text-cream/60">
+            <span>Toggle calendars to sync. Events appear alongside chores.</span>
+            <button
+              type="button"
+              onClick={disconnect}
+              className="text-forest/50 underline-offset-2 hover:text-red-600 hover:underline dark:text-cream/50 dark:hover:text-red-400"
+            >
+              Disconnect
+            </button>
+          </div>
+
+          <div className="space-y-1.5">
+            {calendars.length === 0 && (
           <p className="text-sm text-forest/50 dark:text-cream/50">
             No calendars found on the connected account.
           </p>
@@ -200,30 +260,34 @@ export default function GoogleCalendarPanel({ members, onSynced }: Props) {
         ))}
       </div>
 
-      {syncResults && (
-        <div className="mt-3 rounded-lg bg-sage/10 p-2 text-xs text-forest/70 dark:bg-sage/10 dark:text-cream/70">
-          {syncResults.length === 0 ? (
-            <span>No calendars enabled.</span>
-          ) : (
-            syncResults.map((r) => (
-              <div key={r.calendar}>
-                {r.error ? (
-                  <span className="text-red-600 dark:text-red-400">
-                    {r.calendar}: {r.error}
-                  </span>
-                ) : (
-                  <span>
-                    {r.calendar}: {r.upserted} upserted, {r.cancelled} cancelled
-                  </span>
-                )}
-              </div>
-            ))
+          {syncResults && (
+            <div className="mt-3 rounded-lg bg-sage/10 p-2 text-xs text-forest/70 dark:bg-sage/10 dark:text-cream/70">
+              {syncResults.length === 0 ? (
+                <span>No calendars enabled.</span>
+              ) : (
+                syncResults.map((r) => (
+                  <div key={r.calendar}>
+                    {r.error ? (
+                      <span className="text-red-600 dark:text-red-400">
+                        {r.calendar}: {r.error}
+                      </span>
+                    ) : (
+                      <span>
+                        {r.calendar}: {r.upserted} upserted, {r.cancelled} cancelled
+                      </span>
+                    )}
+                  </div>
+                ))
+              )}
+            </div>
           )}
         </div>
       )}
 
       {lastError && (
-        <p className="mt-2 text-xs text-red-600 dark:text-red-400">{lastError}</p>
+        <p className="px-3 pb-2 text-xs text-red-600 dark:text-red-400">
+          {lastError}
+        </p>
       )}
     </div>
   );
