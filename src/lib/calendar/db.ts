@@ -5,6 +5,9 @@ import type {
   Task,
   TaskWithCompletion,
   ScoreboardEntry,
+  PointRedemption,
+  PointRedemptionWithMember,
+  ActivityEvent,
 } from "./types";
 import {
   formatLocalDate,
@@ -291,37 +294,194 @@ export async function getScoreboard(
   const weekStartKey = toKey(weekStart);
   const monthStartKey = toKey(monthStart);
 
+  const todayKey = toKey(d);
+
   // UNION ALL across task completions + event completions so both feed the
   // same scoreboard. Both tables expose (completed_by, completed_date,
   // points_earned) so the outer aggregate doesn't care which is which.
+  // Streak = consecutive days (ending today or yesterday) with at least one
+  // completion — computed per member via window functions.
   const rows = await db`
     WITH all_completions AS (
       SELECT completed_by, completed_date, points_earned FROM task_completions
       UNION ALL
       SELECT completed_by, completed_date, points_earned FROM event_completions
+    ),
+    per_day AS (
+      SELECT completed_by, completed_date
+      FROM all_completions
+      GROUP BY completed_by, completed_date
+    ),
+    streak_groups AS (
+      SELECT
+        completed_by,
+        completed_date,
+        completed_date - (ROW_NUMBER() OVER (
+          PARTITION BY completed_by ORDER BY completed_date
+        ) || ' days')::interval AS grp
+      FROM per_day
+    ),
+    streak_runs AS (
+      SELECT completed_by, MAX(completed_date) AS last_day, COUNT(*) AS run_len
+      FROM streak_groups
+      GROUP BY completed_by, grp
+    ),
+    current_streak AS (
+      SELECT completed_by, run_len
+      FROM streak_runs
+      WHERE last_day >= ${todayKey}::date - INTERVAL '1 day'
+    ),
+    redeemed AS (
+      SELECT member_id, COALESCE(SUM(amount), 0)::int AS total
+      FROM point_redemptions
+      GROUP BY member_id
+    ),
+    earned AS (
+      SELECT
+        fm.id AS member_id,
+        COALESCE(SUM(
+          CASE WHEN c.completed_date >= ${weekStartKey}
+               THEN c.points_earned ELSE 0 END
+        ), 0)::int AS week_points,
+        COALESCE(SUM(
+          CASE WHEN c.completed_date >= ${monthStartKey}
+               THEN c.points_earned ELSE 0 END
+        ), 0)::int AS month_points,
+        COALESCE(SUM(c.points_earned), 0)::int AS all_time_points,
+        COUNT(c.completed_by)::int AS completed_count
+      FROM family_members fm
+      LEFT JOIN all_completions c ON c.completed_by = fm.id
+      WHERE fm.household_id = ${householdId}
+      GROUP BY fm.id
     )
     SELECT
       fm.id AS member_id,
       fm.name,
       fm.avatar_emoji AS emoji,
       fm.color,
-      COALESCE(SUM(
-        CASE WHEN c.completed_date >= ${weekStartKey}
-             THEN c.points_earned ELSE 0 END
-      ), 0)::int AS week_points,
-      COALESCE(SUM(
-        CASE WHEN c.completed_date >= ${monthStartKey}
-             THEN c.points_earned ELSE 0 END
-      ), 0)::int AS month_points,
-      COALESCE(SUM(c.points_earned), 0)::int AS all_time_points,
-      COUNT(c.completed_by)::int AS completed_count
+      e.week_points,
+      e.month_points,
+      e.all_time_points,
+      e.completed_count,
+      COALESCE(r.total, 0)::int AS redeemed_points,
+      (e.all_time_points - COALESCE(r.total, 0))::int AS balance,
+      COALESCE(s.run_len, 0)::int AS streak_days
     FROM family_members fm
-    LEFT JOIN all_completions c ON c.completed_by = fm.id
+    JOIN earned e ON e.member_id = fm.id
+    LEFT JOIN redeemed r ON r.member_id = fm.id
+    LEFT JOIN current_streak s ON s.completed_by = fm.id
     WHERE fm.household_id = ${householdId}
-    GROUP BY fm.id, fm.name, fm.avatar_emoji, fm.color, fm.sort_order
-    ORDER BY all_time_points DESC, fm.sort_order, fm.id
+    ORDER BY e.all_time_points DESC, fm.sort_order, fm.id
   `;
   return rows as ScoreboardEntry[];
+}
+
+export async function createRedemption(
+  memberId: number,
+  amount: number,
+  label: string
+): Promise<PointRedemption | null> {
+  const db = getDb();
+  if (!db) return null;
+  const rows = await db`
+    INSERT INTO point_redemptions (member_id, amount, label)
+    VALUES (${memberId}, ${amount}, ${label})
+    RETURNING *
+  `;
+  return (rows[0] as PointRedemption) ?? null;
+}
+
+export async function deleteRedemption(id: number): Promise<boolean> {
+  const db = getDb();
+  if (!db) return false;
+  await db`DELETE FROM point_redemptions WHERE id = ${id}`;
+  return true;
+}
+
+export async function getRedemptions(
+  householdId: number = DEFAULT_HOUSEHOLD_ID,
+  limit: number = 50
+): Promise<PointRedemptionWithMember[]> {
+  const db = getDb();
+  if (!db) return [];
+  const rows = await db`
+    SELECT r.*,
+      fm.name AS member_name,
+      fm.avatar_emoji AS member_emoji,
+      fm.color AS member_color
+    FROM point_redemptions r
+    JOIN family_members fm ON fm.id = r.member_id
+    WHERE fm.household_id = ${householdId}
+    ORDER BY r.redeemed_at DESC
+    LIMIT ${limit}
+  `;
+  return rows as PointRedemptionWithMember[];
+}
+
+/**
+ * Recent activity across task completions, event check-ins, and redemptions.
+ * Merged in SQL so pagination works naturally.
+ */
+export async function getActivityFeed(
+  householdId: number = DEFAULT_HOUSEHOLD_ID,
+  limit: number = 20
+): Promise<ActivityEvent[]> {
+  const db = getDb();
+  if (!db) return [];
+  const rows = await db`
+    SELECT * FROM (
+      SELECT
+        'task-' || tc.id::text AS id,
+        'task'::text AS kind,
+        t.title AS title,
+        fm.id AS member_id,
+        fm.name AS member_name,
+        fm.avatar_emoji AS member_emoji,
+        fm.color AS member_color,
+        tc.points_earned AS points,
+        tc.created_at AS happened_at
+      FROM task_completions tc
+      JOIN tasks t ON t.id = tc.task_id
+      JOIN family_members fm ON fm.id = tc.completed_by
+      WHERE t.household_id = ${householdId}
+
+      UNION ALL
+
+      SELECT
+        'event-' || ec.id::text AS id,
+        'event'::text AS kind,
+        ce.title AS title,
+        fm.id AS member_id,
+        fm.name AS member_name,
+        fm.avatar_emoji AS member_emoji,
+        fm.color AS member_color,
+        ec.points_earned AS points,
+        ec.created_at AS happened_at
+      FROM event_completions ec
+      JOIN calendar_events ce ON ce.id = ec.event_id
+      JOIN family_members fm ON fm.id = ec.completed_by
+      WHERE ce.household_id = ${householdId}
+
+      UNION ALL
+
+      SELECT
+        'redemption-' || pr.id::text AS id,
+        'redemption'::text AS kind,
+        pr.label AS title,
+        fm.id AS member_id,
+        fm.name AS member_name,
+        fm.avatar_emoji AS member_emoji,
+        fm.color AS member_color,
+        (-pr.amount) AS points,
+        pr.redeemed_at AS happened_at
+      FROM point_redemptions pr
+      JOIN family_members fm ON fm.id = pr.member_id
+      WHERE fm.household_id = ${householdId}
+    ) AS combined
+    ORDER BY happened_at DESC
+    LIMIT ${limit}
+  `;
+  return rows as ActivityEvent[];
 }
 
 /**

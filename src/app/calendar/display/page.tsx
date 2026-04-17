@@ -181,10 +181,50 @@ function Fireflies({ count = 14 }: { count?: number }) {
 /* Page                                                                  */
 /* ------------------------------------------------------------------ */
 
+/** Days between today (local midnight) and another local-midnight date. */
+function daysUntil(dateKey: string, today: Date): number {
+  const [y, mo, d] = dateKey.split("-").map(Number);
+  const target = new Date(y, mo - 1, d);
+  const base = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+  return Math.round((target.getTime() - base.getTime()) / 86400000);
+}
+
+const COUNTDOWN_KEYWORDS = [
+  "trip",
+  "camp",
+  "vacation",
+  "birthday",
+  "wedding",
+  "holiday",
+  "break",
+  "party",
+  "concert",
+  "recital",
+  "game",
+  "dance",
+  "anniversary",
+  "christmas",
+  "thanksgiving",
+  "easter",
+  "halloween",
+  "graduation",
+  "festival",
+  "show",
+];
+
+function isCountdownWorthy(event: CalendarEventWithMember): boolean {
+  const haystack = event.title.toLowerCase();
+  if (COUNTDOWN_KEYWORDS.some((k) => haystack.includes(k))) return true;
+  // All-day events that aren't recurring weekly chores are usually milestones.
+  if (event.all_day && !event.recurring_event_id) return true;
+  return false;
+}
+
 export default function CalendarDisplayPage() {
   const [now, setNow] = useState(() => new Date());
   const [tasks, setTasks] = useState<TaskWithCompletion[]>([]);
   const [events, setEvents] = useState<CalendarEventWithMember[]>([]);
+  const [countdownEvents, setCountdownEvents] = useState<CalendarEventWithMember[]>([]);
   const [members, setMembers] = useState<FamilyMember[]>([]);
   const [weather, setWeather] = useState<Weather | null>(null);
 
@@ -259,10 +299,14 @@ export default function CalendarDisplayPage() {
     const end = new Date(today);
     end.setDate(end.getDate() + 8);
     const endKey = formatDateKey(end);
+    const countdownEnd = new Date(today);
+    countdownEnd.setDate(countdownEnd.getDate() + 120);
+    const countdownEndKey = formatDateKey(countdownEnd);
     try {
-      const [taskRes, eventRes] = await Promise.all([
+      const [taskRes, eventRes, countdownRes] = await Promise.all([
         fetch(`/api/calendar/tasks?start=${start}&end=${endKey}`, { cache: "no-store" }),
         fetch(`/api/calendar/events?start=${start}&end=${endKey}`, { cache: "no-store" }),
+        fetch(`/api/calendar/events?start=${start}&end=${countdownEndKey}`, { cache: "no-store" }),
       ]);
       if (taskRes.ok) {
         const data = await taskRes.json();
@@ -271,6 +315,10 @@ export default function CalendarDisplayPage() {
       if (eventRes.ok) {
         const data = await eventRes.json();
         setEvents(Array.isArray(data) ? data : []);
+      }
+      if (countdownRes.ok) {
+        const data = await countdownRes.json();
+        setCountdownEvents(Array.isArray(data) ? data : []);
       }
     } catch {
       // Keep last known data on network failure.
@@ -396,6 +444,39 @@ export default function CalendarDisplayPage() {
 
   const weatherInfo = weather ? weatherIcon(weather.code) : null;
 
+  const countdowns = useMemo(() => {
+    const seen = new Set<string>();
+    const picks: Array<{
+      id: number;
+      title: string;
+      days: number;
+      color: string;
+      emoji: string | null;
+    }> = [];
+    const sorted = [...countdownEvents].sort((a, b) =>
+      new Date(a.start_at).getTime() - new Date(b.start_at).getTime()
+    );
+    for (const ev of sorted) {
+      if (!isCountdownWorthy(ev)) continue;
+      // Dedup recurring series — only show the next instance of each title.
+      const key = ev.title.toLowerCase();
+      if (seen.has(key)) continue;
+      const startKey = formatDateKey(new Date(ev.start_at));
+      const days = daysUntil(startKey, now);
+      if (days < 2) continue;
+      seen.add(key);
+      picks.push({
+        id: ev.id,
+        title: ev.title,
+        days,
+        color: ev.color_override ?? ev.member_color ?? "#C49A3C",
+        emoji: ev.member_emoji,
+      });
+      if (picks.length >= 3) break;
+    }
+    return picks;
+  }, [countdownEvents, now]);
+
   return (
     <div className="fixed inset-0 z-[80] flex flex-col overflow-hidden bg-dark-bg text-cream">
       {/* Ambient background layers */}
@@ -448,6 +529,50 @@ export default function CalendarDisplayPage() {
                   {weatherInfo.label}
                 </span>
               </div>
+            </div>
+          )}
+
+          {countdowns.length > 0 && (
+            <div className="mt-10 flex w-full max-w-md flex-col gap-3">
+              {countdowns.map((c) => (
+                <div
+                  key={c.id}
+                  className="flex items-center gap-4 rounded-xl border border-soft-gold/20 bg-dark-surface/60 px-4 py-3 backdrop-blur"
+                >
+                  <div
+                    className="flex shrink-0 items-baseline gap-1"
+                    style={{ color: c.color }}
+                  >
+                    <span
+                      className="font-[family-name:var(--font-cormorant-garamond)] font-bold leading-none"
+                      style={{ fontSize: "clamp(2rem, 5vmin, 3.5rem)" }}
+                    >
+                      {c.days}
+                    </span>
+                    <span
+                      className="text-sage-light"
+                      style={{ fontSize: "clamp(0.85rem, 1.4vmin, 1.1rem)" }}
+                    >
+                      {c.days === 1 ? "day" : "days"}
+                    </span>
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <div
+                      className="truncate text-cream"
+                      style={{ fontSize: "clamp(1rem, 1.9vmin, 1.4rem)" }}
+                    >
+                      {c.emoji && <span className="mr-1.5">{c.emoji}</span>}
+                      {c.title}
+                    </div>
+                    <div
+                      className="text-sage-light/70"
+                      style={{ fontSize: "clamp(0.7rem, 1.2vmin, 0.95rem)" }}
+                    >
+                      until the big day
+                    </div>
+                  </div>
+                </div>
+              ))}
             </div>
           )}
         </section>

@@ -24,6 +24,10 @@ Keep this opinionated: if an idea belongs somewhere else (Cozi, Google Calendar,
 | MCP server | `/api/[transport]` | OAuth shim, task CRUD tools |
 | PostHog analytics | Client autocapture + server exceptions | Proxied through `/ingest/*` rewrite |
 | Time-sorted views | `sortedItemsForDay()` | Events + tasks interleaved by start time in both day and week views |
+| Points redemption / cash-out | `point_redemptions` table, `CashOutModal`, scoreboard "Cash out" button | Balance column = earned − redeemed; preset rewards (allowance, screen time, treats) |
+| Streaks | `🔥 N` badge on scoreboard | Consecutive days with ≥1 completion, computed via window fn in `getScoreboard` |
+| Activity feed | `/api/calendar/activity`, `ActivityFeed` component | UNION of task + event completions + redemptions on scoreboard page |
+| Event countdowns | `/calendar/display` countdown blocks | Auto-picks milestones (trip/camp/birthday/all-day) within 120 days, dedups by title |
 
 ### Known issues
 - Display mode weather uses hardcoded lat/lng (Greenwich, NY)
@@ -37,10 +41,10 @@ Keep this opinionated: if an idea belongs somewhere else (Cozi, Google Calendar,
 Ordered by leverage-per-hour. Checked items are done.
 
 ### Quick wins (< 2 hrs each)
-- [ ] **Points redemption / cash-out** — `point_redemptions` table (member_id, amount, label, redeemed_at). "Cash Out" button on scoreboard. Shows earned / redeemed / balance. Closes the loop so points → real rewards (allowance, screen time, treats).
-- [ ] **Streaks** — "🔥 5 days" badge on scoreboard for consecutive days completing tasks. Low-effort dopamine.
-- [ ] **Activity feed** — "Emmett earned 5pts for Clean litter box · Apr 15" so you can see where points came from. Query `task_completions JOIN tasks ORDER BY completed_date DESC LIMIT 20`.
-- [ ] **Event countdowns** — "14 days until Summer Camp" on display mode. Skylight Calendar 2's flagship feature; trivial for us.
+- [x] **Points redemption / cash-out** — shipped
+- [x] **Streaks** — shipped
+- [x] **Activity feed** — shipped
+- [x] **Event countdowns** — shipped
 
 ### Medium (2-6 hrs)
 - [ ] **AI chat intake** — Text box: "Emmett has soccer Tuesdays at 5 starting next week" → Claude extracts task fields → creates. Photo/flyer upload via multimodal. The 2026 killer feature per competitive research.

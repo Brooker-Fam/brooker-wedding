@@ -3,13 +3,16 @@
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import type { ScoreboardEntry } from "@/lib/calendar/types";
+import CashOutModal from "@/components/calendar/CashOutModal";
+import ActivityFeed from "@/components/calendar/ActivityFeed";
 
-type SortKey = "week_points" | "month_points" | "all_time_points";
+type SortKey = "week_points" | "month_points" | "all_time_points" | "balance";
 
 const TABS: { key: SortKey; label: string }[] = [
   { key: "week_points", label: "This Week" },
   { key: "month_points", label: "This Month" },
   { key: "all_time_points", label: "All Time" },
+  { key: "balance", label: "Balance" },
 ];
 
 function medalFor(rank: number, value: number): string | null {
@@ -24,9 +27,11 @@ export default function ScoreboardPage() {
   const [entries, setEntries] = useState<ScoreboardEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [sortKey, setSortKey] = useState<SortKey>("week_points");
+  const [cashOutEntry, setCashOutEntry] = useState<ScoreboardEntry | null>(null);
+  const [activityKey, setActivityKey] = useState(0);
 
   const fetchScoreboard = useCallback(async () => {
-    const res = await fetch("/api/calendar/scoreboard");
+    const res = await fetch("/api/calendar/scoreboard", { cache: "no-store" });
     if (res.ok) {
       const data = (await res.json()) as ScoreboardEntry[];
       setEntries(data);
@@ -70,7 +75,7 @@ export default function ScoreboardPage() {
         <div
           role="tablist"
           aria-label="Scoreboard timeframe"
-          className="mb-6 inline-flex rounded-xl border border-sage/20 bg-cream/60 p-1 dark:border-soft-gold/15 dark:bg-dark-surface"
+          className="mb-6 inline-flex flex-wrap rounded-xl border border-sage/20 bg-cream/60 p-1 dark:border-soft-gold/15 dark:bg-dark-surface"
         >
           {TABS.map((tab) => {
             const active = sortKey === tab.key;
@@ -146,12 +151,23 @@ export default function ScoreboardPage() {
 
                   <div className="min-w-0 flex-1">
                     <div className="flex flex-wrap items-baseline justify-between gap-2">
-                      <span className="font-[family-name:var(--font-cormorant-garamond)] text-xl font-semibold text-forest dark:text-cream sm:text-2xl">
+                      <span className="flex items-center gap-2 font-[family-name:var(--font-cormorant-garamond)] text-xl font-semibold text-forest dark:text-cream sm:text-2xl">
                         {entry.name}
+                        {entry.streak_days >= 2 && (
+                          <span
+                            title={`${entry.streak_days}-day streak`}
+                            className="inline-flex items-center gap-0.5 rounded-full bg-orange-500/15 px-2 py-0.5 text-xs font-semibold text-orange-600 dark:bg-orange-400/15 dark:text-orange-300"
+                          >
+                            🔥 {entry.streak_days}
+                          </span>
+                        )}
                       </span>
                       <span className="text-xs text-forest/50 dark:text-cream/50">
                         {entry.completed_count}{" "}
                         {entry.completed_count === 1 ? "task" : "tasks"} done
+                        {entry.redeemed_points > 0 && (
+                          <> · {entry.redeemed_points} redeemed</>
+                        )}
                       </span>
                     </div>
                     <div className="mt-2 h-2 overflow-hidden rounded-full bg-sage/15 dark:bg-soft-gold/10">
@@ -163,22 +179,55 @@ export default function ScoreboardPage() {
                         }}
                       />
                     </div>
+                    {sortKey !== "balance" && (
+                      <p className="mt-1 text-xs text-forest/50 dark:text-cream/50">
+                        Balance: <span className="font-semibold text-soft-gold-dark dark:text-soft-gold">{entry.balance}</span> pts
+                      </p>
+                    )}
                   </div>
 
-                  <div className="shrink-0 text-right">
-                    <div className="font-[family-name:var(--font-cormorant-garamond)] text-2xl font-bold text-soft-gold-dark dark:text-soft-gold sm:text-3xl">
-                      {value}
+                  <div className="flex shrink-0 flex-col items-end gap-1.5">
+                    <div className="text-right">
+                      <div className="font-[family-name:var(--font-cormorant-garamond)] text-2xl font-bold text-soft-gold-dark dark:text-soft-gold sm:text-3xl">
+                        {value}
+                      </div>
+                      <div className="text-[10px] uppercase tracking-widest text-forest/50 dark:text-cream/50 sm:text-xs">
+                        {sortKey === "balance" ? "balance" : "points"}
+                      </div>
                     </div>
-                    <div className="text-[10px] uppercase tracking-widest text-forest/50 dark:text-cream/50 sm:text-xs">
-                      points
-                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setCashOutEntry(entry)}
+                      disabled={entry.balance <= 0}
+                      className="rounded-full border border-soft-gold/40 bg-soft-gold/10 px-3 py-1 text-xs font-medium text-soft-gold-dark transition-colors hover:bg-soft-gold/20 disabled:cursor-not-allowed disabled:opacity-40 dark:text-soft-gold"
+                    >
+                      Cash out
+                    </button>
                   </div>
                 </li>
               );
             })}
           </ol>
         )}
+
+        <section className="mt-10">
+          <h2 className="mb-3 font-[family-name:var(--font-cormorant-garamond)] text-2xl font-semibold text-forest dark:text-cream">
+            Recent activity
+          </h2>
+          <ActivityFeed limit={20} refreshKey={activityKey} />
+        </section>
       </div>
+
+      {cashOutEntry && (
+        <CashOutModal
+          entry={cashOutEntry}
+          onClose={() => setCashOutEntry(null)}
+          onRedeemed={() => {
+            fetchScoreboard();
+            setActivityKey((k) => k + 1);
+          }}
+        />
+      )}
     </div>
   );
 }

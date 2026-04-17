@@ -73,6 +73,35 @@ export interface ScoreboardEntry {
   month_points: number;
   all_time_points: number;
   completed_count: number;
+  redeemed_points: number;
+  balance: number;
+  streak_days: number;
+}
+
+export interface PointRedemption {
+  id: number;
+  member_id: number;
+  amount: number;
+  label: string;
+  redeemed_at: string;
+}
+
+export interface PointRedemptionWithMember extends PointRedemption {
+  member_name: string;
+  member_emoji: string | null;
+  member_color: string;
+}
+
+export interface ActivityEvent {
+  id: string;
+  kind: "task" | "event" | "redemption";
+  title: string;
+  member_id: number;
+  member_name: string;
+  member_emoji: string | null;
+  member_color: string;
+  points: number;
+  happened_at: string;
 }
 
 // ── Google Calendar integration ──────────────────────────────────────

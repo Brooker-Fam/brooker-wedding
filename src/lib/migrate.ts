@@ -251,6 +251,20 @@ async function migrate() {
   await sql`CREATE INDEX IF NOT EXISTS idx_event_completions_event ON event_completions(event_id)`;
   await sql`CREATE INDEX IF NOT EXISTS idx_event_completions_member_date ON event_completions(completed_by, completed_date)`;
 
+  // Points redemptions — "cash out" earned points for rewards (allowance,
+  // screen time, treats). Positive amount = redeemed. Scoreboard balance =
+  // total earned − total redeemed.
+  await sql`
+    CREATE TABLE IF NOT EXISTS point_redemptions (
+      id SERIAL PRIMARY KEY,
+      member_id INTEGER NOT NULL REFERENCES family_members(id) ON DELETE CASCADE,
+      amount INTEGER NOT NULL CHECK (amount > 0),
+      label VARCHAR(255) NOT NULL,
+      redeemed_at TIMESTAMPTZ DEFAULT NOW()
+    )
+  `;
+  await sql`CREATE INDEX IF NOT EXISTS idx_point_redemptions_member ON point_redemptions(member_id, redeemed_at DESC)`;
+
   console.log("Migrations complete.");
 }
 
