@@ -4,6 +4,7 @@ import type {
   FamilyMember,
   Task,
   TaskWithCompletion,
+  ScoreboardEntry,
 } from "./types";
 
 const DEFAULT_HOUSEHOLD_ID = 1;
@@ -177,6 +178,51 @@ export async function uncompleteTask(
   await db`DELETE FROM task_completions WHERE task_id = ${taskId} AND completed_date = ${date}`;
   await db`UPDATE tasks SET status = 'pending', updated_at = NOW() WHERE id = ${taskId}`;
   return true;
+}
+
+export async function getScoreboard(
+  householdId: number = DEFAULT_HOUSEHOLD_ID,
+  today: Date = new Date()
+): Promise<ScoreboardEntry[]> {
+  const db = getDb();
+  if (!db) return [];
+
+  // Compute Monday of this week (local semantics, but we pass ISO date strings).
+  const d = new Date(today);
+  d.setHours(0, 0, 0, 0);
+  const day = d.getDay();
+  const diffToMonday = d.getDate() - day + (day === 0 ? -6 : 1);
+  const weekStart = new Date(d);
+  weekStart.setDate(diffToMonday);
+  const monthStart = new Date(d.getFullYear(), d.getMonth(), 1);
+
+  const toKey = (x: Date) => x.toISOString().split("T")[0];
+  const weekStartKey = toKey(weekStart);
+  const monthStartKey = toKey(monthStart);
+
+  const rows = await db`
+    SELECT
+      fm.id AS member_id,
+      fm.name,
+      fm.avatar_emoji AS emoji,
+      fm.color,
+      COALESCE(SUM(
+        CASE WHEN tc.completed_date >= ${weekStartKey}
+             THEN tc.points_earned ELSE 0 END
+      ), 0)::int AS week_points,
+      COALESCE(SUM(
+        CASE WHEN tc.completed_date >= ${monthStartKey}
+             THEN tc.points_earned ELSE 0 END
+      ), 0)::int AS month_points,
+      COALESCE(SUM(tc.points_earned), 0)::int AS all_time_points,
+      COUNT(tc.id)::int AS completed_count
+    FROM family_members fm
+    LEFT JOIN task_completions tc ON tc.completed_by = fm.id
+    WHERE fm.household_id = ${householdId}
+    GROUP BY fm.id, fm.name, fm.avatar_emoji, fm.color, fm.sort_order
+    ORDER BY all_time_points DESC, fm.sort_order, fm.id
+  `;
+  return rows as ScoreboardEntry[];
 }
 
 export async function seedBrookerFamily(): Promise<{
