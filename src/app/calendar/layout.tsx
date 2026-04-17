@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import InstallPrompt from "@/components/InstallPrompt";
 
 export const metadata: Metadata = {
   title: "Brooker Family Calendar",
@@ -10,5 +11,10 @@ export default function CalendarLayout({
 }: {
   children: React.ReactNode;
 }) {
-  return <>{children}</>;
+  return (
+    <>
+      {children}
+      <InstallPrompt />
+    </>
+  );
 }
