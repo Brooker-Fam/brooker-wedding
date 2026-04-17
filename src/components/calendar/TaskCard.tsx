@@ -162,7 +162,7 @@ export default function TaskCard({
             className={`flex shrink-0 gap-1 transition-opacity ${
               isSpacious
                 ? "opacity-60 hover:opacity-100"
-                : "opacity-0 group-hover:opacity-100"
+                : "opacity-60 sm:opacity-0 sm:group-hover:opacity-100"
             }`}
           >
             <button
