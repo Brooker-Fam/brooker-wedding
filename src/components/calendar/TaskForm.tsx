@@ -2,6 +2,10 @@
 
 import { useState, useEffect } from "react";
 import type { FamilyMember, TaskWithCompletion } from "@/lib/calendar/types";
+import {
+  parseLocalDate,
+  weekdayCode,
+} from "@/lib/calendar/recurrence";
 
 interface TaskFormProps {
   members: FamilyMember[];
@@ -20,6 +24,60 @@ export interface TaskFormData {
   points: number;
   due_date: string;
   due_time: string | null;
+  recurrence_rule: string | null;
+}
+
+type RecurrencePreset =
+  | "none"
+  | "daily"
+  | "weekdays"
+  | "weekly"
+  | "biweekly"
+  | "monthly";
+
+const RECURRENCE_OPTIONS: { value: RecurrencePreset; label: string }[] = [
+  { value: "none", label: "Does not repeat" },
+  { value: "daily", label: "Every day" },
+  { value: "weekdays", label: "Weekdays (Mon–Fri)" },
+  { value: "weekly", label: "Weekly (same day)" },
+  { value: "biweekly", label: "Every 2 weeks" },
+  { value: "monthly", label: "Monthly" },
+];
+
+function buildRule(preset: RecurrencePreset, dueDate: string): string | null {
+  if (preset === "none" || !dueDate) return null;
+
+  switch (preset) {
+    case "daily":
+      return "FREQ=DAILY";
+    case "weekdays":
+      return "FREQ=DAILY;BYDAY=MO,TU,WE,TH,FR";
+    case "weekly": {
+      const day = weekdayCode(parseLocalDate(dueDate).getDay());
+      return `FREQ=WEEKLY;BYDAY=${day}`;
+    }
+    case "biweekly": {
+      const day = weekdayCode(parseLocalDate(dueDate).getDay());
+      return `FREQ=WEEKLY;INTERVAL=2;BYDAY=${day}`;
+    }
+    case "monthly": {
+      const day = parseLocalDate(dueDate).getDate();
+      return `FREQ=MONTHLY;BYMONTHDAY=${day}`;
+    }
+  }
+}
+
+function ruleToPreset(rule: string | null): RecurrencePreset {
+  if (!rule) return "none";
+  const upper = rule.toUpperCase();
+  if (upper === "FREQ=DAILY;BYDAY=MO,TU,WE,TH,FR") return "weekdays";
+  if (upper === "FREQ=DAILY") return "daily";
+  if (upper.startsWith("FREQ=WEEKLY") && upper.includes("INTERVAL=2")) {
+    return "biweekly";
+  }
+  if (upper.startsWith("FREQ=WEEKLY")) return "weekly";
+  if (upper.startsWith("FREQ=MONTHLY")) return "monthly";
+  return "none";
 }
 
 export default function TaskForm({
@@ -36,6 +94,7 @@ export default function TaskForm({
   const [points, setPoints] = useState(0);
   const [dueDate, setDueDate] = useState("");
   const [dueTime, setDueTime] = useState("");
+  const [recurrence, setRecurrence] = useState<RecurrencePreset>("none");
 
   useEffect(() => {
     if (editingTask) {
@@ -44,8 +103,10 @@ export default function TaskForm({
       setAssignedTo(editingTask.assigned_to);
       setPriority(editingTask.priority);
       setPoints(editingTask.points);
-      setDueDate(editingTask.due_date ?? "");
+      // due_date may arrive as ISO timestamp from Postgres — keep date part only.
+      setDueDate(editingTask.due_date?.split("T")[0] ?? "");
       setDueTime(editingTask.due_time?.slice(0, 5) ?? "");
+      setRecurrence(ruleToPreset(editingTask.recurrence_rule));
     } else {
       setTitle("");
       setDescription("");
@@ -54,8 +115,16 @@ export default function TaskForm({
       setPoints(0);
       setDueDate(defaultDate ?? "");
       setDueTime("");
+      setRecurrence("none");
     }
   }, [editingTask, defaultDate]);
+
+  // Clearing the due date removes the recurrence anchor.
+  useEffect(() => {
+    if (!dueDate && recurrence !== "none") {
+      setRecurrence("none");
+    }
+  }, [dueDate, recurrence]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -70,6 +139,7 @@ export default function TaskForm({
       points,
       due_date: dueDate,
       due_time: dueTime || null,
+      recurrence_rule: buildRule(recurrence, dueDate),
     });
   };
 
@@ -199,6 +269,31 @@ export default function TaskForm({
                 className="enchanted-input"
               />
             </div>
+          </div>
+
+          <div>
+            <label className="mb-1 block text-xs font-medium text-forest/60 dark:text-cream/60">
+              Repeats
+            </label>
+            <select
+              value={recurrence}
+              onChange={(e) =>
+                setRecurrence(e.target.value as RecurrencePreset)
+              }
+              disabled={!dueDate}
+              className="enchanted-input disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              {RECURRENCE_OPTIONS.map((opt) => (
+                <option key={opt.value} value={opt.value}>
+                  {opt.label}
+                </option>
+              ))}
+            </select>
+            {!dueDate && (
+              <p className="mt-1 text-xs text-forest/40 dark:text-cream/40">
+                Set a due date to enable repeats.
+              </p>
+            )}
           </div>
         </div>
 
