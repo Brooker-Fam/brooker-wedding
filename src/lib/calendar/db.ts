@@ -15,6 +15,18 @@ import {
 const DEFAULT_HOUSEHOLD_ID = 1;
 
 /**
+ * Coerce whatever `due_date` shape Neon returns (Date object, YYYY-MM-DD string,
+ * full ISO timestamp) into a plain YYYY-MM-DD string. Returns null if we can't.
+ */
+function toIsoDate(raw: unknown): string | null {
+  if (!raw) return null;
+  if (raw instanceof Date) return formatLocalDate(raw);
+  const s = String(raw);
+  const match = s.match(/^(\d{4}-\d{2}-\d{2})/);
+  return match ? match[1] : null;
+}
+
+/**
  * Ensure every occurrence of every recurring task in [start, end] has a row.
  * Safe to call repeatedly — WHERE NOT EXISTS prevents duplicates. Runs before
  * every read so the calendar always shows recurring chores on their repeat days
@@ -28,10 +40,14 @@ async function materializeRecurringInstances(
   const db = getDb();
   if (!db) return;
 
+  // TO_CHAR forces due_date into a plain YYYY-MM-DD string so we don't have to
+  // guess what the driver hands us (Date object vs string vs timestamp).
   const anchors = await db`
     SELECT DISTINCT ON (household_id, title, recurrence_rule)
       household_id, title, description, assigned_to, source,
-      priority, points, due_date, due_time, duration_minutes, recurrence_rule
+      priority, points,
+      TO_CHAR(due_date, 'YYYY-MM-DD') AS due_date_str,
+      due_time, duration_minutes, recurrence_rule
     FROM tasks
     WHERE household_id = ${householdId}
       AND recurrence_rule IS NOT NULL
@@ -45,10 +61,10 @@ async function materializeRecurringInstances(
 
   for (const a of anchors as Array<Record<string, unknown>>) {
     const rule = a.recurrence_rule as string | null;
-    const dueDateRaw = a.due_date as string | null;
-    if (!rule || !dueDateRaw) continue;
+    const anchorIso = toIsoDate(a.due_date_str);
+    if (!rule || !anchorIso) continue;
 
-    const anchorDate = parseLocalDate(String(dueDateRaw).split("T")[0]);
+    const anchorDate = parseLocalDate(anchorIso);
     const dates = occurrencesInRange(rule, anchorDate, rangeStart, rangeEnd);
 
     for (const d of dates) {
@@ -105,14 +121,19 @@ export async function getTasksForDateRange(
   const db = getDb();
   if (!db) return [];
   await materializeRecurringInstances(startDate, endDate, householdId);
+  // Cast date columns to text so consumers always get YYYY-MM-DD strings.
   const rows = await db`
     SELECT
-      t.*,
+      t.id, t.household_id, t.title, t.description, t.assigned_to, t.source,
+      t.status, t.priority, t.points,
+      TO_CHAR(t.due_date, 'YYYY-MM-DD') AS due_date,
+      t.due_time, t.duration_minutes, t.recurrence_rule,
+      t.created_at, t.updated_at,
       fm.name AS member_name,
       fm.color AS member_color,
       fm.avatar_emoji AS member_emoji,
       tc.id AS completion_id,
-      tc.completed_date,
+      TO_CHAR(tc.completed_date, 'YYYY-MM-DD') AS completed_date,
       tc2.name AS completed_by_name
     FROM tasks t
     LEFT JOIN family_members fm ON t.assigned_to = fm.id
