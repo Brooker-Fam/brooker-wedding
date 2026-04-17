@@ -4,6 +4,18 @@ Living design doc for pulling Google Calendar events (TKD, drama club, school, e
 
 Companion to `docs/calendar-roadmap.md` — that doc lists Google sync as item #4 on the short list; this one explains _how_.
 
+**Status:** design review complete (answers from Matt captured inline). Ready to build.
+
+---
+
+## Known constraints (from Matt)
+
+- **One calendar, one account.** The family schedule lives in a single Google Calendar named **"Brooker Kids"** on **`rockwrestlerun@gmail.com`**. We connect that account and sync that calendar. No work calendar, no per-member calendars.
+- **Events show in kid views.** `/calendar/kid/[name]` must render Google events alongside chores.
+- **Events can earn points.** Showing up to TKD, drama club, etc. counts toward the scoreboard. This changes the data model — see [Points for events](#points-for-events).
+- **Per-event assignment.** Default: everyone. Override per event (e.g. drama club → Emmett). Affects scoreboard credit and which events show on which kid view.
+- **All events visible to all kids.** No visibility/privacy filtering needed in v1.
+
 ---
 
 ## Goal
@@ -19,9 +31,10 @@ Matt and Brit already maintain their real schedule in Google Calendar. Retyping 
 **Non-goals for v1:**
 
 - Creating/editing events in our app that sync back to Google. (We can revisit, but see [One-way vs two-way](#one-way-vs-two-way) below.)
-- Supporting multiple Google accounts per household with separate calendars. Start with one shared account.
+- Multiple Google accounts per household. One account (`rockwrestlerun@gmail.com`), one calendar ("Brooker Kids").
 - CalDAV / iCloud / Outlook. Google only.
 - Real-time push notifications from Google. Polling is fine.
+- Per-event visibility rules (private/hidden-from-kids). Everyone sees everything.
 
 ---
 
@@ -37,14 +50,14 @@ Reasons:
 
 **Events vs tasks — the mental model:**
 
-| Concept   | Source          | Lives in       | Has points? | Example                              |
-| --------- | --------------- | -------------- | ----------- | ------------------------------------ |
-| **Event** | Google Calendar | Google (mirror in our DB) | No          | Emmett TKD, Tues 5pm                 |
-| **Task**  | Our app         | Our DB         | Yes         | Take out trash, feed Zoe             |
+| Concept   | Source          | Lives in                  | Earns points?       | Example                      |
+| --------- | --------------- | ------------------------- | ------------------- | ---------------------------- |
+| **Event** | Google Calendar | Google (mirror in our DB) | Yes, if we set them | Emmett TKD, Tues 5pm (+5 pts for showing) |
+| **Task**  | Our app         | Our DB                    | Yes                 | Take out trash, feed Zoe     |
 
-We already distinguish these implicitly via `tasks.source`: `'manual'` vs `'google'`. The plan is to **stop conflating them**. Events get a new `events` table; chores stay in `tasks`. Both render on the same calendar grid.
+We already distinguish these implicitly via `tasks.source`: `'manual'` vs `'google'`. The plan is to **stop conflating them**. Events get a new `calendar_events` table; chores stay in `tasks`. Both render on the same calendar grid and both feed the scoreboard.
 
-Open question: what about a Google event that _is_ a chore? E.g. "Emmett: empty dishwasher" scheduled weekly in Google Calendar. Resolution: if it's assigned points or on the chore list, create it as a task in `/calendar/admin`. Don't make Google responsible for chore logic.
+**Rule of thumb:** if Google created it, it's an event (even if it earns points). If Matt created it in `/calendar/admin`, it's a task. Don't migrate one into the other on ingest.
 
 **Two-way sync — the path if we ever want it:**
 
@@ -60,35 +73,12 @@ Defer this until someone actually asks.
 
 ## Auth model
 
-Three options, in rough order of simplicity:
+**Decision:** Matt connects `rockwrestlerun@gmail.com` once via OAuth from `/calendar/admin`. We store the refresh token server-side, encrypted. No per-member OAuth, no public-calendar API-key shortcut.
 
-### Option A: Public calendar(s) via API key
+Rejected alternatives (kept for context in case they resurface):
 
-If Brit publishes the shared family calendar as public, we can read it with a Google API key (no OAuth). Zero per-user setup.
-
-- ✅ Simplest possible integration.
-- ✅ No tokens to refresh, no OAuth consent screen.
-- ❌ Calendar has to be public (anyone with the calendar ID can subscribe). Kids' schedules might be fine; medical appts no.
-- ❌ Can't write back ever.
-
-### Option B: Single shared Google account, admin-connected
-
-Matt connects _one_ Google account (say `brooker.family@gmail.com`) via OAuth from `/calendar/admin`. We store the refresh token in `spotify_config`-style key-value table (rename to `oauth_tokens`). All events readable on that account's calendars appear in our app.
-
-- ✅ One-time setup, handled by the admin.
-- ✅ Works with shared family calendar + individual calendars Matt/Brit subscribe to.
-- ✅ Refresh token never expires if the account stays active.
-- ❌ Relies on a single account having visibility into everything we care about. Workable — Google's shared-calendar model is strong.
-
-### Option C: Per-member OAuth
-
-Every family member connects their own Google account. Events from each account ingested separately.
-
-- ✅ Most flexible; each person's private calendar ingested.
-- ❌ Four OAuth flows. Kids don't have Google accounts that own their TKD event (Brit's does).
-- ❌ Overkill for this family.
-
-**Decision: Option B.** Start with a single OAuth token stored server-side. If we later want specific calendars included/excluded, surface a multi-select in `/calendar/admin`.
+- **Public calendar + API key** — would require making "Brooker Kids" a public calendar. Cheap but irreversible-ish (calendar URL leaks). Not worth it to save one OAuth flow.
+- **Per-member OAuth** — kids don't own the TKD event, Brit does. Overkill for this family.
 
 ### OAuth mechanics
 
@@ -142,7 +132,10 @@ CREATE TABLE calendar_events (
 
   -- Our additions
   assigned_to INTEGER REFERENCES family_members(id) ON DELETE SET NULL,
+                                                -- who owns this event; NULL = everyone
   color_override VARCHAR(7),                    -- if we want to override Google's color
+  points INTEGER NOT NULL DEFAULT 0,            -- points awarded for attendance
+  auto_award BOOLEAN NOT NULL DEFAULT FALSE,    -- auto-credit on event end, or require tap?
 
   -- Lifecycle
   status VARCHAR(20) NOT NULL DEFAULT 'confirmed',  -- 'confirmed' | 'tentative' | 'cancelled'
@@ -193,6 +186,27 @@ CREATE TABLE google_oauth_tokens (
 
   UNIQUE (household_id)    -- one token set per household for v1
 );
+```
+
+### New table: `event_completions`
+
+Parallel to `task_completions`. Records which member attended / earned credit for an event instance. Kept separate rather than making `task_completions` polymorphic — cleaner, easier to query, easier to roll back.
+
+```sql
+CREATE TABLE event_completions (
+  id SERIAL PRIMARY KEY,
+  event_id INTEGER NOT NULL REFERENCES calendar_events(id) ON DELETE CASCADE,
+  completed_by INTEGER NOT NULL REFERENCES family_members(id) ON DELETE CASCADE,
+  completed_date DATE NOT NULL,
+  points_earned INTEGER NOT NULL DEFAULT 0,
+  notes TEXT,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+
+  UNIQUE (event_id, completed_by)
+);
+
+CREATE INDEX idx_event_completions_event ON event_completions(event_id);
+CREATE INDEX idx_event_completions_member_date ON event_completions(completed_by, completed_date);
 ```
 
 ### What about `tasks.google_event_id`?
@@ -249,17 +263,70 @@ Google returns them with `start.date` instead of `start.dateTime`. Store as `all
 
 ---
 
+## Points for events
+
+Events can award points when the assigned kid (or anyone, if unassigned) checks in. Mechanics:
+
+- **Configuring points.** Admin sets `points` per event series via keyword rules: "events with title containing 'TKD' → 5 pts, assigned to Emmett." Stored in a small `event_rules` config (defer the UI; start with hardcoded rules in `src/lib/calendar/event-rules.ts`).
+- **Rule application timing.** Rules evaluate on ingest — when a new event is upserted from Google, we look up matching rules and set `points` + `assigned_to` on the row. Re-ingest is idempotent.
+- **Completion UX.** On the event detail modal and on kid views, show a "✓ I went" button for the assigned kid. Tap → inserts into `event_completions`.
+- **Auto-award (future).** If `auto_award = true`, a cron credits the points at event end time. Useful for standing commitments. Defer to v2.
+- **Retroactive awarding.** Marking attendance is allowed for past events — the scoreboard re-aggregates next read.
+
+### Scoreboard changes
+
+Existing `getScoreboard()` in `src/lib/calendar/db.ts` sums from `task_completions`. Needs to UNION in `event_completions`:
+
+```sql
+SELECT fm.id, fm.name, ...
+  SUM(combined.points_earned) AS total
+FROM family_members fm
+LEFT JOIN (
+  SELECT completed_by, completed_date, points_earned FROM task_completions
+  UNION ALL
+  SELECT completed_by, completed_date, points_earned FROM event_completions
+) combined ON combined.completed_by = fm.id
+WHERE fm.household_id = ...
+GROUP BY fm.id, ...
+```
+
+Week / month / all-time windows work unchanged since both tables have `completed_date` + `points_earned` in the same shape.
+
+---
+
 ## Member / calendar mapping
 
 **The core UX question: whose event is this?**
 
-Options, in order of sophistication:
+Since there's only one "Brooker Kids" calendar, per-calendar default assignment doesn't help — everything comes from the same place. We need per-event assignment.
 
-1. **Per-calendar default assignment.** `google_calendars.assigned_to` says "everything from Emmett's TKD calendar is Emmett's." Simple, works if the family structures their calendars that way.
-2. **Keyword rules.** "If title contains 'Emmett' or 'TKD', assign to Emmett." Store as a small JSON rules config in `household_settings`. Evaluate on ingest.
-3. **Manual override.** Admin UI lets you click an event and pick a member. Stored in `calendar_events.assigned_to`, survives re-sync.
+Approach:
 
-**Decision: ship #1 + #3 in v1, defer #2.** #2 sounds smart but each rule config is a mini-programming-language we don't need yet. If title-matching becomes important, #2 + Claude (LLM inference at sync time) beats hand-rolled regex anyway.
+1. **Keyword rules on ingest** (ship in v1). Short JSON config maps title patterns → member + points. Example:
+   ```ts
+   [
+     { match: /TKD|taekwondo/i, assigned_to: "Emmett", points: 5 },
+     { match: /drama club/i,     assigned_to: "Emmett", points: 5 },
+     { match: /soccer/i,          assigned_to: "Sapphire", points: 5 },
+   ]
+   ```
+   Lives in `src/lib/calendar/event-rules.ts`. Editing is a code change for now; move to DB-backed + admin UI when the list grows past ~10 entries.
+2. **Manual override in admin** (ship in v1). Click an event, pick a member, set points. Stored in `calendar_events.assigned_to` / `points`. Survives re-sync because upsert preserves non-null local fields (see [Upsert rules](#upsert-rules)).
+3. **LLM classification** (future). "Claude, who is this event for?" — good fallback for events that don't match any keyword rule. Defer.
+
+### Upsert rules
+
+When re-ingesting an event, we have to decide which fields Google owns vs which we own:
+
+| Field                       | Owner  | On re-sync                            |
+| --------------------------- | ------ | ------------------------------------- |
+| `title, description, times` | Google | Overwrite                             |
+| `status, etag`              | Google | Overwrite                             |
+| `assigned_to`               | Us     | Keep if set; otherwise apply rules    |
+| `points`                    | Us     | Keep if set; otherwise apply rules    |
+| `color_override`            | Us     | Keep                                  |
+
+Implementation: `INSERT ... ON CONFLICT (google_calendar_id, google_event_id) DO UPDATE SET title = EXCLUDED.title, ... — but NOT assigned_to/points/color_override.`
 
 ---
 
@@ -303,30 +370,42 @@ The sync endpoint must be idempotent and respond in < 10s (Vercel cron timeout).
 ### `/calendar` (public view)
 
 - Current: tasks only, colored by assignee.
-- New: events rendered alongside tasks. Events are visually distinguishable (e.g. subtle gradient band, no completion checkbox, no point badge).
-- Click an event → modal showing title, time, location, description, Google event link ("Open in Google Calendar").
-- No edit/delete affordances for events for non-admins.
+- New: events rendered alongside tasks. Events get a visual treatment distinct from chores (gradient band, clock icon, location line).
+- Events with `points > 0` show a points badge and a ✓ affordance for the assigned kid.
+- Click an event → modal showing title, time, location, description, "Open in Google Calendar" link.
+- No edit/delete affordances for events outside admin.
+
+### `/calendar/kid/[name]`
+
+- Must render Google events, not just chores.
+- Filter: events where `assigned_to = this_kid` OR `assigned_to IS NULL` (everyone).
+- Big ✓ button for point-earning events the kid attended.
+- Same giant-emoji treatment as tasks today.
 
 ### `/calendar/admin`
 
 New section: "Google Calendar"
 
-- If not connected: big "Connect Google Calendar" button → `/api/calendar/google/connect`.
+- If not connected: "Connect Google Calendar" button → `/api/calendar/google/connect`.
 - If connected:
-  - List of calendars with toggle + member assignment dropdown.
+  - Shows connected account (`rockwrestlerun@gmail.com`) + list of accessible calendars.
+  - "Brooker Kids" is the only one toggled on by default.
   - "Last synced: 3 minutes ago" + "Sync now" button.
+  - Per-event override: click an event in the list → set assignee / points.
+  - Link to edit keyword rules (opens `src/lib/calendar/event-rules.ts` guidance or, later, a UI).
   - "Disconnect" button.
 
 ### `/calendar/display` (wall iPad)
 
-- Show today's events prominently. This is where the family will actually look at it.
+- Today's events prominently at the top.
+- Upcoming 3 events in the "next up" lane.
 
 ### `CalendarView` component changes
 
 - Accept an `events` prop alongside `tasks`.
-- When fetching, call both `/api/calendar/tasks` and `/api/calendar/events` in parallel.
+- When fetching, call `/api/calendar/tasks` and `/api/calendar/events` in parallel.
 - Merge into the same day-buckets keyed by local date.
-- Sort within a day: all-day events first, then timed events by start, then tasks by priority.
+- Sort within a day: all-day events → timed events by start → tasks by priority.
 
 ---
 
@@ -404,10 +483,16 @@ Total estimate: **~6 hours** of focused work. Roadmap's original 4-6 estimate wa
 
 ---
 
-## Open questions for Matt
+## Resolved decisions (from design review)
 
-1. Is `brooker.family@gmail.com` a real shared account, or does Brit keep her kids' schedules on her personal calendar? (Changes Option B feasibility.)
-2. Do you want events from your work calendar to show up here, or just family stuff?
-3. For the kids' views (`/calendar/kid/[name]`) — should Google-sourced events show in big friendly mode, or keep those views chore-only?
-4. Is it OK that kids see all events from any synced calendar, or do we need per-event visibility controls from day 1?
-5. Do events count toward points ever? (Default answer: no. Events are commitments; tasks are work.)
+1. **Account & calendar:** `rockwrestlerun@gmail.com`, single calendar "Brooker Kids." No per-member OAuth.
+2. **Work calendar:** out of scope.
+3. **Kid views:** show events alongside chores.
+4. **Visibility:** all events visible to all kids. Per-event assignment controls who _owns_ it (gets points, sees their name on it), not who sees it.
+5. **Points for events:** yes, configurable per event series via keyword rules + per-event manual override.
+
+## Still open
+
+- **Keyword rules location** — hardcoded TS file in v1, or DB-backed from day 1? Leaning TS file + a migration later once the rule count proves the pattern.
+- **Auto-award vs tap-to-claim** — is TKD credit automatic at event end, or does Emmett have to tap ✓? v1 ships tap-to-claim. Add auto-award for trusted recurring series later.
+- **Past-event grace window** — how far back can a kid claim points? Default: current week. Prevents scoreboard gaming via backfilled attendance.
