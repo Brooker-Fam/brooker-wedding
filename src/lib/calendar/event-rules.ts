@@ -7,6 +7,8 @@
  * a DB-backed config with a UI in /calendar/admin.
  */
 
+import type { CalendarEventWithMember, FamilyMember } from "./types";
+
 export interface EventRule {
   /** Regex matched against event title (case-insensitive via /i). */
   match: RegExp;
@@ -35,3 +37,48 @@ export function matchEventRule(title: string): RuleMatch | null {
   }
   return null;
 }
+
+export interface MemberNamePattern {
+  member: FamilyMember;
+  re: RegExp;
+}
+
+/**
+ * Precompile regexes once per sync run. Word boundary so "Matt" doesn't match
+ * "Matthew"; metacharacters escaped in case a name ever contains them.
+ */
+export function compileMemberNamePatterns(
+  members: FamilyMember[]
+): MemberNamePattern[] {
+  return members
+    .filter((m) => !!m.name)
+    .map((m) => {
+      const escaped = m.name
+        .toLowerCase()
+        .replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      return { member: m, re: new RegExp(`\\b${escaped}\\b`) };
+    });
+}
+
+export function matchMemberByName(
+  title: string,
+  patterns: MemberNamePattern[]
+): FamilyMember | null {
+  const lower = title.toLowerCase();
+  for (const p of patterns) {
+    if (p.re.test(lower)) return p.member;
+  }
+  return null;
+}
+
+/**
+ * Shared source of truth for event completion status. Parent and EventCard
+ * both use this so UI + action logic can't drift.
+ */
+export function isEventCompleted(event: CalendarEventWithMember): boolean {
+  if (event.assigned_to != null) {
+    return event.completions.some((c) => c.completed_by === event.assigned_to);
+  }
+  return event.completions.length > 0;
+}
+
