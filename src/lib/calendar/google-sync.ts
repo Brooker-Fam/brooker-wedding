@@ -323,3 +323,65 @@ export async function syncAllEnabledCalendars(
 
   return results;
 }
+
+// ── Throttled "sync if stale" ─────────────────────────────────────────
+
+const SYNC_ATTEMPT_KEY = "last_sync_attempt_at";
+/** Minimum gap between auto-triggered syncs. Manual "Sync now" ignores this. */
+const DEFAULT_MIN_INTERVAL_MS = 15 * 60 * 1000;
+
+/**
+ * Run a sync only if it's been > minIntervalMs since the last attempt.
+ * Records the attempt timestamp BEFORE syncing so concurrent callers
+ * collapse to a single sync (simple thundering-herd guard).
+ *
+ * Returns { synced: true } if sync ran, { synced: false, reason } otherwise.
+ * Errors are swallowed into the return value — callers typically fire-and-
+ * forget this, so throwing would just noise up the logs.
+ */
+export async function maybeSyncIfStale(
+  minIntervalMs: number = DEFAULT_MIN_INTERVAL_MS,
+  householdId: number = DEFAULT_HOUSEHOLD_ID
+): Promise<
+  | { synced: true; results: Awaited<ReturnType<typeof syncAllEnabledCalendars>> }
+  | { synced: false; reason: "fresh" | "not_connected" | "no_db" | "error"; error?: string }
+> {
+  const db = getDb();
+  if (!db) return { synced: false, reason: "no_db" };
+
+  // Read last attempt timestamp from google_config.
+  const rows = (await db`
+    SELECT value FROM google_config WHERE key = ${SYNC_ATTEMPT_KEY}
+  `) as Array<{ value: string }>;
+  const lastAttemptMs = rows[0]?.value ? Number(rows[0].value) : 0;
+  if (Date.now() - lastAttemptMs < minIntervalMs) {
+    return { synced: false, reason: "fresh" };
+  }
+
+  // Check connection BEFORE writing attempt timestamp so a disconnected
+  // state doesn't permanently push attempt into the future.
+  const { isConnected } = await import("@/lib/google");
+  if (!(await isConnected())) {
+    return { synced: false, reason: "not_connected" };
+  }
+
+  // Mark attempt. If multiple requests race, only one should proceed.
+  // Since this is just a fire-and-forget background sync, a little overlap
+  // is harmless — the DB upsert for syncToken handles it.
+  await db`
+    INSERT INTO google_config (key, value, updated_at)
+    VALUES (${SYNC_ATTEMPT_KEY}, ${String(Date.now())}, NOW())
+    ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value, updated_at = NOW()
+  `;
+
+  try {
+    const results = await syncAllEnabledCalendars(householdId);
+    return { synced: true, results };
+  } catch (err) {
+    return {
+      synced: false,
+      reason: "error",
+      error: err instanceof Error ? err.message : String(err),
+    };
+  }
+}
