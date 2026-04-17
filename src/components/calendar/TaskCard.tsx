@@ -159,10 +159,8 @@ export default function TaskCard({
 
         {isAdmin && (
           <div
-            className={`flex shrink-0 gap-1 transition-opacity ${
-              isSpacious
-                ? "opacity-60 hover:opacity-100"
-                : "opacity-0 group-hover:opacity-100"
+            className={`flex shrink-0 gap-1 opacity-60 transition-opacity hover:opacity-100 ${
+              isSpacious ? "" : ""
             }`}
           >
             <button

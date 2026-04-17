@@ -58,20 +58,22 @@ export default function EventCard({
               e.stopPropagation();
               onToggleComplete(event);
             }}
-            className={`mt-0.5 flex shrink-0 items-center justify-center rounded-full border-2 transition-colors ${
-              isSpacious ? "h-6 w-6" : "h-5 w-5"
+            className={`flex shrink-0 items-center justify-center rounded-full border-2 transition-colors active:scale-90 ${
+              isSpacious ? "h-12 w-12 sm:h-14 sm:w-14" : "mt-0.5 h-6 w-6"
             } ${
               isCompleted
                 ? "border-sage bg-sage text-white dark:border-sage-light dark:bg-sage-light"
-                : "border-current opacity-50 hover:opacity-80"
+                : isSpacious
+                  ? "border-current bg-cream/40 hover:bg-soft-gold/10 dark:bg-dark-surface"
+                  : "border-current opacity-70 hover:opacity-100"
             }`}
             style={{ borderColor: isCompleted ? undefined : memberColor }}
             aria-label={isCompleted ? "Mark un-attended" : "Mark attended"}
           >
-            {isCompleted && (
+            {isCompleted ? (
               <svg
-                width="10"
-                height="10"
+                width={isSpacious ? "24" : "12"}
+                height={isSpacious ? "24" : "12"}
                 viewBox="0 0 12 12"
                 fill="none"
                 stroke="currentColor"
@@ -81,7 +83,22 @@ export default function EventCard({
               >
                 <path d="M2 6l3 3 5-5" />
               </svg>
-            )}
+            ) : isSpacious ? (
+              <svg
+                width="22"
+                height="22"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="opacity-50"
+                aria-hidden="true"
+              >
+                <path d="M20 6 9 17l-5-5" />
+              </svg>
+            ) : null}
           </button>
         )}
 
@@ -169,12 +186,14 @@ export default function EventCard({
               e.stopPropagation();
               onEdit(event);
             }}
-            className="shrink-0 rounded p-1 text-forest/40 opacity-0 transition-opacity hover:bg-sage/10 hover:text-forest group-hover:opacity-100 dark:text-cream/40 dark:hover:bg-cream/10 dark:hover:text-cream"
+            className={`shrink-0 rounded text-forest/40 opacity-60 transition-opacity hover:bg-sage/10 hover:text-forest hover:opacity-100 dark:text-cream/40 dark:hover:bg-cream/10 dark:hover:text-cream ${
+              isSpacious ? "p-2" : "p-1.5"
+            }`}
             aria-label="Edit event points or assignee"
           >
             <svg
-              width="14"
-              height="14"
+              width={isSpacious ? "18" : "14"}
+              height={isSpacious ? "18" : "14"}
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
