@@ -63,3 +63,14 @@ export interface TaskWithCompletion extends TaskWithMember {
   completed_date: string | null;
   completed_by_name: string | null;
 }
+
+export interface ScoreboardEntry {
+  member_id: number;
+  name: string;
+  emoji: string | null;
+  color: string;
+  week_points: number;
+  month_points: number;
+  all_time_points: number;
+  completed_count: number;
+}

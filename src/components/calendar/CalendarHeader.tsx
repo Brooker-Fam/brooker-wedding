@@ -73,6 +73,14 @@ export default function CalendarHeader({
           </button>
         )}
 
+        <Link
+          href="/calendar/scoreboard"
+          className="rounded-lg border border-sage/20 bg-cream/60 px-3 py-2 text-sm font-medium text-forest/60 transition-colors hover:text-forest dark:border-soft-gold/15 dark:bg-dark-surface dark:text-cream/60 dark:hover:text-cream"
+          title="Scoreboard"
+        >
+          🏆
+        </Link>
+
         {adminMode ? (
           <Link
             href="/calendar"
