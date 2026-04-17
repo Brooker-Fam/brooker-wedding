@@ -2,15 +2,33 @@
 
 import Link from "next/link";
 
+export type CalendarViewMode = "day" | "week";
+
 interface CalendarHeaderProps {
-  weekStart: Date;
-  onPrevWeek: () => void;
-  onNextWeek: () => void;
+  anchor: Date;
+  view: CalendarViewMode;
+  onViewChange: (view: CalendarViewMode) => void;
+  onPrev: () => void;
+  onNext: () => void;
   onToday: () => void;
   adminMode: boolean;
 }
 
-function formatWeekRange(start: Date): string {
+function formatDateKey(date: Date): string {
+  return date.toISOString().split("T")[0];
+}
+
+function getMonday(date: Date): Date {
+  const d = new Date(date);
+  const day = d.getDay();
+  const diff = d.getDate() - day + (day === 0 ? -6 : 1);
+  d.setDate(diff);
+  d.setHours(0, 0, 0, 0);
+  return d;
+}
+
+function formatWeekRange(anchor: Date): string {
+  const start = getMonday(anchor);
   const end = new Date(start);
   end.setDate(end.getDate() + 6);
   const opts: Intl.DateTimeFormatOptions = { month: "short", day: "numeric" };
@@ -22,18 +40,52 @@ function formatWeekRange(start: Date): string {
   return `${startStr} – ${endStr}`;
 }
 
+function formatDayLabel(anchor: Date): string {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const tomorrow = new Date(today.getTime() + 86400000);
+  const yesterday = new Date(today.getTime() - 86400000);
+  const key = formatDateKey(anchor);
+
+  const base = anchor.toLocaleDateString("en-US", {
+    weekday: "short",
+    month: "short",
+    day: "numeric",
+  });
+
+  if (key === formatDateKey(today)) return `Today · ${base}`;
+  if (key === formatDateKey(tomorrow)) return `Tomorrow · ${base}`;
+  if (key === formatDateKey(yesterday)) return `Yesterday · ${base}`;
+  return base;
+}
+
 export default function CalendarHeader({
-  weekStart,
-  onPrevWeek,
-  onNextWeek,
+  anchor,
+  view,
+  onViewChange,
+  onPrev,
+  onNext,
   onToday,
   adminMode,
 }: CalendarHeaderProps) {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
+  const todayKey = formatDateKey(today);
+  const anchorKey = formatDateKey(anchor);
+
+  const weekStart = getMonday(anchor);
   const isCurrentWeek =
     weekStart.getTime() <= today.getTime() &&
     today.getTime() < weekStart.getTime() + 7 * 86400000;
+
+  const showTodayButton =
+    view === "day" ? anchorKey !== todayKey : !isCurrentWeek;
+
+  const label =
+    view === "day" ? formatDayLabel(anchor) : formatWeekRange(anchor);
+
+  const prevLabel = view === "day" ? "Previous day" : "Previous week";
+  const nextLabel = view === "day" ? "Next day" : "Next week";
 
   return (
     <header className="flex flex-wrap items-center justify-between gap-3 px-4 py-3 sm:px-6">
@@ -43,28 +95,57 @@ export default function CalendarHeader({
         </h1>
       </div>
 
-      <div className="flex items-center gap-2">
+      <div className="flex flex-wrap items-center gap-2">
+        <div
+          className="flex items-center rounded-xl border border-sage/20 bg-cream/60 p-0.5 dark:border-soft-gold/15 dark:bg-dark-surface"
+          role="group"
+          aria-label="Calendar view"
+        >
+          <button
+            onClick={() => onViewChange("day")}
+            aria-pressed={view === "day"}
+            className={`rounded-lg px-2.5 py-1.5 text-xs font-medium transition-colors sm:text-sm ${
+              view === "day"
+                ? "bg-forest text-cream dark:bg-sage dark:text-dark-bg"
+                : "text-forest/60 hover:text-forest dark:text-cream/60 dark:hover:text-cream"
+            }`}
+          >
+            Day
+          </button>
+          <button
+            onClick={() => onViewChange("week")}
+            aria-pressed={view === "week"}
+            className={`rounded-lg px-2.5 py-1.5 text-xs font-medium transition-colors sm:text-sm ${
+              view === "week"
+                ? "bg-forest text-cream dark:bg-sage dark:text-dark-bg"
+                : "text-forest/60 hover:text-forest dark:text-cream/60 dark:hover:text-cream"
+            }`}
+          >
+            Week
+          </button>
+        </div>
+
         <div className="flex items-center rounded-xl border border-sage/20 bg-cream/60 dark:border-soft-gold/15 dark:bg-dark-surface">
           <button
-            onClick={onPrevWeek}
+            onClick={onPrev}
             className="px-3 py-2 text-forest/70 transition-colors hover:text-forest dark:text-cream/70 dark:hover:text-cream"
-            aria-label="Previous week"
+            aria-label={prevLabel}
           >
             ‹
           </button>
           <span className="min-w-[180px] px-2 text-center text-sm font-medium text-forest dark:text-cream sm:text-base">
-            {formatWeekRange(weekStart)}
+            {label}
           </span>
           <button
-            onClick={onNextWeek}
+            onClick={onNext}
             className="px-3 py-2 text-forest/70 transition-colors hover:text-forest dark:text-cream/70 dark:hover:text-cream"
-            aria-label="Next week"
+            aria-label={nextLabel}
           >
             ›
           </button>
         </div>
 
-        {!isCurrentWeek && (
+        {showTodayButton && (
           <button
             onClick={onToday}
             className="rounded-lg border border-sage/20 bg-cream/60 px-3 py-2 text-sm font-medium text-forest transition-colors hover:bg-sage/10 dark:border-soft-gold/15 dark:bg-dark-surface dark:text-cream dark:hover:bg-dark-surface-light"
