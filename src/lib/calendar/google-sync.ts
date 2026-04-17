@@ -1,7 +1,12 @@
 import { google, type calendar_v3 } from "googleapis";
 import { getDb } from "@/lib/db";
 import { getOAuthClient } from "@/lib/google";
-import { matchEventRule } from "./event-rules";
+import {
+  compileMemberNamePatterns,
+  matchEventRule,
+  matchMemberByName,
+  type MemberNamePattern,
+} from "./event-rules";
 import type { FamilyMember, GoogleCalendar } from "./types";
 
 const DEFAULT_HOUSEHOLD_ID = 1;
@@ -134,7 +139,8 @@ async function resolveMemberId(
  */
 async function syncOneCalendar(
   cal: GoogleCalendar,
-  members: FamilyMember[]
+  members: FamilyMember[],
+  memberPatterns: MemberNamePattern[]
 ): Promise<{ upserted: number; cancelled: number }> {
   const db = getDb();
   if (!db) return { upserted: 0, cancelled: 0 };
@@ -223,8 +229,11 @@ async function syncOneCalendar(
     const title = ev.summary ?? "(untitled)";
     const rule = matchEventRule(title);
     const ruleMemberId = await resolveMemberId(members, rule?.assignedToName ?? null);
-    const defaultFromCalendar = cal.assigned_to;
-    const assignedFromRule = ruleMemberId ?? defaultFromCalendar;
+    const nameMatch = !ruleMemberId
+      ? matchMemberByName(title, memberPatterns)
+      : null;
+    const assignedFromRule =
+      ruleMemberId ?? nameMatch?.id ?? cal.assigned_to;
     const pointsFromRule = rule?.points ?? 0;
     const recurrenceRule = ev.recurrence?.find((r) => r.startsWith("RRULE:"))
       ?.slice(6) ?? null;
@@ -307,9 +316,15 @@ export async function syncAllEnabledCalendars(
     error?: string;
   }> = [];
 
+  const memberPatterns = compileMemberNamePatterns(members);
+
   for (const cal of cals) {
     try {
-      const { upserted, cancelled } = await syncOneCalendar(cal, members);
+      const { upserted, cancelled } = await syncOneCalendar(
+        cal,
+        members,
+        memberPatterns
+      );
       results.push({ calendar: cal.summary, upserted, cancelled });
     } catch (err) {
       results.push({

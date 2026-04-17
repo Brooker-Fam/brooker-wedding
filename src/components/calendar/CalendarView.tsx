@@ -9,6 +9,7 @@ import TaskCard from "@/components/calendar/TaskCard";
 import TaskForm from "@/components/calendar/TaskForm";
 import CompleterPicker from "@/components/calendar/CompleterPicker";
 import EventCard from "@/components/calendar/EventCard";
+import EventForm from "@/components/calendar/EventForm";
 import GoogleCalendarPanel from "@/components/calendar/GoogleCalendarPanel";
 import type { TaskFormData } from "@/components/calendar/TaskForm";
 import type {
@@ -106,6 +107,10 @@ export default function CalendarView({ adminMode }: CalendarViewProps) {
   );
   const [formDefaultDate, setFormDefaultDate] = useState<string | null>(null);
   const [pickerTask, setPickerTask] = useState<TaskWithCompletion | null>(null);
+  const [editingEvent, setEditingEvent] =
+    useState<CalendarEventWithMember | null>(null);
+  const [pickerEvent, setPickerEvent] =
+    useState<CalendarEventWithMember | null>(null);
   const [loading, setLoading] = useState(true);
 
   const weekStart = getMonday(anchor);
@@ -290,6 +295,79 @@ export default function CalendarView({ adminMode }: CalendarViewProps) {
     setShowForm(true);
   };
 
+  const completeEventFor = async (
+    event: CalendarEventWithMember,
+    memberId: number
+  ) => {
+    const completedDate = eventDateKey(event);
+    await fetch("/api/calendar/events/complete", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        event_id: event.id,
+        completed_by: memberId,
+        date: completedDate,
+        points_earned: event.points ?? 0,
+      }),
+    });
+    fetchTasks();
+  };
+
+  const uncompleteEventFor = async (
+    event: CalendarEventWithMember,
+    memberId: number
+  ) => {
+    await fetch(
+      `/api/calendar/events/complete?event_id=${event.id}&completed_by=${memberId}`,
+      { method: "DELETE" }
+    );
+    fetchTasks();
+  };
+
+  const handleToggleCompleteEvent = async (event: CalendarEventWithMember) => {
+    if (event.assigned_to != null) {
+      const existing = event.completions.find(
+        (c) => c.completed_by === event.assigned_to
+      );
+      if (existing) {
+        await uncompleteEventFor(event, event.assigned_to);
+      } else {
+        await completeEventFor(event, event.assigned_to);
+      }
+      return;
+    }
+
+    if (event.completions.length > 0) {
+      await uncompleteEventFor(event, event.completions[0].completed_by);
+      return;
+    }
+
+    if (members.length === 0) return;
+    if (members.length === 1) {
+      await completeEventFor(event, members[0].id);
+      return;
+    }
+    setPickerEvent(event);
+  };
+
+  const handleEditEvent = (event: CalendarEventWithMember) => {
+    setEditingEvent(event);
+  };
+
+  const handleSaveEvent = async (patch: {
+    assigned_to: number | null;
+    points: number;
+  }) => {
+    if (!editingEvent) return;
+    await fetch(`/api/calendar/events/${editingEvent.id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(patch),
+    });
+    setEditingEvent(null);
+    fetchTasks();
+  };
+
   const today = startOfDay(new Date());
 
   const days = Array.from({ length: 7 }, (_, i) => {
@@ -449,7 +527,13 @@ export default function CalendarView({ adminMode }: CalendarViewProps) {
                   )}
                   {items.map((item) =>
                     item.type === "event" ? (
-                      <EventCard key={`ev-${item.ev.id}`} event={item.ev} members={members} />
+                      <EventCard
+                        key={`ev-${item.ev.id}`}
+                        event={item.ev}
+                        members={members}
+                        onToggleComplete={handleToggleCompleteEvent}
+                        onEdit={adminMode ? handleEditEvent : undefined}
+                      />
                     ) : (
                       <TaskCard
                         key={item.task.id}
@@ -525,6 +609,8 @@ export default function CalendarView({ adminMode }: CalendarViewProps) {
                           event={item.ev}
                           members={members}
                           variant="spacious"
+                          onToggleComplete={handleToggleCompleteEvent}
+                          onEdit={adminMode ? handleEditEvent : undefined}
                         />
                       ) : (
                         <TaskCard
@@ -580,6 +666,28 @@ export default function CalendarView({ adminMode }: CalendarViewProps) {
             setPickerTask(null);
             await completeFor(task, memberId);
           }}
+        />
+      )}
+
+      {pickerEvent && (
+        <CompleterPicker
+          taskTitle={pickerEvent.title}
+          members={members}
+          onCancel={() => setPickerEvent(null)}
+          onPick={async (memberId) => {
+            const ev = pickerEvent;
+            setPickerEvent(null);
+            await completeEventFor(ev, memberId);
+          }}
+        />
+      )}
+
+      {editingEvent && (
+        <EventForm
+          event={editingEvent}
+          members={members}
+          onCancel={() => setEditingEvent(null)}
+          onSave={handleSaveEvent}
         />
       )}
     </div>

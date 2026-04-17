@@ -4,14 +4,13 @@ import type {
   CalendarEventWithMember,
   FamilyMember,
 } from "@/lib/calendar/types";
+import { isEventCompleted } from "@/lib/calendar/event-rules";
 
 interface EventCardProps {
   event: CalendarEventWithMember;
   members: FamilyMember[];
-  /** When set, the card shows a single "I went" button for this member. */
-  currentMember?: FamilyMember | null;
-  onComplete?: (event: CalendarEventWithMember, memberId: number) => void;
-  onUncomplete?: (event: CalendarEventWithMember, memberId: number) => void;
+  onToggleComplete?: (event: CalendarEventWithMember) => void;
+  onEdit?: (event: CalendarEventWithMember) => void;
   onClick?: (event: CalendarEventWithMember) => void;
   variant?: "compact" | "spacious";
 }
@@ -30,119 +29,165 @@ function formatTimeRange(ev: CalendarEventWithMember): string {
 
 export default function EventCard({
   event,
-  currentMember,
-  onComplete,
-  onUncomplete,
+  onToggleComplete,
+  onEdit,
   onClick,
   variant = "compact",
 }: EventCardProps) {
   const memberColor = event.color_override ?? event.member_color ?? "#B8A9C9";
   const assignedName = event.member_name;
   const isSpacious = variant === "spacious";
-
-  const myCompletion =
-    currentMember != null
-      ? event.completions.find((c) => c.completed_by === currentMember.id)
-      : null;
-  const didAttend = !!myCompletion;
-
-  const canCheckIn =
-    currentMember != null &&
-    event.points > 0 &&
-    (event.assigned_to == null || event.assigned_to === currentMember.id);
+  const isCompleted = isEventCompleted(event);
 
   return (
     <div
       className={`group relative rounded-lg border-l-[3px] transition-all ${
         isSpacious ? "px-3 py-3 sm:px-4 sm:py-4" : "px-2.5 py-1.5 sm:px-3 sm:py-2"
       } ${
-        didAttend
-          ? "bg-lavender/10 opacity-80 dark:bg-lavender/10"
+        isCompleted
+          ? "bg-lavender/5 opacity-70 dark:bg-lavender/5"
           : "bg-gradient-to-r from-lavender/10 to-cream/80 shadow-sm dark:from-lavender/10 dark:to-dark-surface"
       }`}
       style={{ borderLeftColor: memberColor }}
     >
-      <button
-        type="button"
-        onClick={() => onClick?.(event)}
-        className="w-full text-left"
-      >
-        <div className={`flex items-start ${isSpacious ? "gap-3" : "gap-2"}`}>
+      <div className={`flex items-start ${isSpacious ? "gap-3" : "gap-2"}`}>
+        {onToggleComplete && (
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              onToggleComplete(event);
+            }}
+            className={`mt-0.5 flex shrink-0 items-center justify-center rounded-full border-2 transition-colors ${
+              isSpacious ? "h-6 w-6" : "h-5 w-5"
+            } ${
+              isCompleted
+                ? "border-sage bg-sage text-white dark:border-sage-light dark:bg-sage-light"
+                : "border-current opacity-50 hover:opacity-80"
+            }`}
+            style={{ borderColor: isCompleted ? undefined : memberColor }}
+            aria-label={isCompleted ? "Mark un-attended" : "Mark attended"}
+          >
+            {isCompleted && (
+              <svg
+                width="10"
+                height="10"
+                viewBox="0 0 12 12"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M2 6l3 3 5-5" />
+              </svg>
+            )}
+          </button>
+        )}
+
+        <button
+          type="button"
+          onClick={() => onClick?.(event)}
+          className={`flex min-w-0 flex-1 items-start text-left ${
+            isSpacious ? "gap-3" : "gap-2"
+          }`}
+        >
           <span
             aria-hidden="true"
-            className={`mt-1 inline-block opacity-60 ${isSpacious ? "text-base" : "text-xs"}`}
+            className={`mt-0.5 inline-block opacity-60 ${
+              isSpacious ? "text-base" : "text-xs"
+            }`}
             title="Event from Google Calendar"
           >
             📅
           </span>
           <div className="min-w-0 flex-1">
-            <p className={`font-medium leading-tight text-forest dark:text-cream ${
-              isSpacious ? "text-lg sm:text-xl" : "text-sm sm:text-base"
-            }`}>
-              {event.title}
-            </p>
-            <div className={`mt-1 flex flex-wrap items-center ${isSpacious ? "gap-2" : "gap-1.5"}`}>
-              <span className={`text-forest/50 dark:text-cream/50 ${isSpacious ? "text-sm" : "text-xs"}`}>
-                {formatTimeRange(event)}
-              </span>
-              {assignedName && (
+              <p
+                className={`font-medium leading-tight ${
+                  isCompleted
+                    ? "text-forest/50 line-through dark:text-cream/50"
+                    : "text-forest dark:text-cream"
+                } ${isSpacious ? "text-lg sm:text-xl" : "text-sm sm:text-base"}`}
+              >
+                {event.title}
+              </p>
+              <div
+                className={`mt-1 flex flex-wrap items-center ${
+                  isSpacious ? "gap-2" : "gap-1.5"
+                }`}
+              >
                 <span
-                  className="inline-flex items-center gap-1 text-xs"
-                  title={`For ${assignedName}`}
+                  className={`text-forest/50 dark:text-cream/50 ${
+                    isSpacious ? "text-sm" : "text-xs"
+                  }`}
                 >
+                  {formatTimeRange(event)}
+                </span>
+                {assignedName && (
                   <span
-                    className="inline-block h-2 w-2 rounded-full"
-                    style={{ backgroundColor: memberColor }}
-                  />
-                  <span className="text-forest/60 dark:text-cream/60">
-                    {assignedName}
+                    className="inline-flex items-center gap-1 text-xs"
+                    title={`For ${assignedName}`}
+                  >
+                    <span
+                      className="inline-block h-2 w-2 rounded-full"
+                      style={{ backgroundColor: memberColor }}
+                    />
+                    <span className="text-forest/60 dark:text-cream/60">
+                      {assignedName}
+                    </span>
                   </span>
-                </span>
-              )}
-              {event.location && (
-                <span
-                  className="truncate text-xs text-forest/40 dark:text-cream/40"
-                  title={event.location}
-                >
-                  · {event.location}
-                </span>
-              )}
-              {event.points > 0 && (
-                <span className="text-xs font-medium text-soft-gold">
-                  +{event.points}pt
-                </span>
-              )}
-              {event.completions.length > 0 && (
-                <span className="text-xs text-sage dark:text-sage-light">
-                  ✓ {event.completions.map((c) => c.completed_by_name).join(", ")}
-                </span>
-              )}
+                )}
+                {event.location && (
+                  <span
+                    className="truncate text-xs text-forest/40 dark:text-cream/40"
+                    title={event.location}
+                  >
+                    · {event.location}
+                  </span>
+                )}
+                {event.points > 0 && (
+                  <span className="text-xs font-medium text-soft-gold">
+                    +{event.points}pt
+                  </span>
+                )}
+                {event.completions.length > 0 && (
+                  <span className="text-xs text-sage dark:text-sage-light">
+                    ✓{" "}
+                    {event.completions
+                      .map((c) => c.completed_by_name)
+                      .join(", ")}
+                  </span>
+                )}
+              </div>
             </div>
-          </div>
-        </div>
-      </button>
+        </button>
 
-      {canCheckIn && (
-        <div className="mt-1.5 flex justify-end">
-          {didAttend ? (
-            <button
-              type="button"
-              onClick={() => onUncomplete?.(event, currentMember.id)}
-              className="rounded-full border border-sage/40 bg-sage/10 px-2.5 py-0.5 text-xs font-medium text-sage transition-colors hover:bg-sage/20 dark:border-sage-light/40 dark:bg-sage-light/10 dark:text-sage-light"
+        {onEdit && (
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              onEdit(event);
+            }}
+            className="shrink-0 rounded p-1 text-forest/40 opacity-0 transition-opacity hover:bg-sage/10 hover:text-forest group-hover:opacity-100 dark:text-cream/40 dark:hover:bg-cream/10 dark:hover:text-cream"
+            aria-label="Edit event points or assignee"
+          >
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
             >
-              ✓ I went
-            </button>
-          ) : (
-            <button
-              type="button"
-              onClick={() => onComplete?.(event, currentMember.id)}
-              className="rounded-full border border-soft-gold/40 bg-soft-gold/10 px-2.5 py-0.5 text-xs font-medium text-soft-gold-dark transition-colors hover:bg-soft-gold/20 dark:bg-soft-gold/10 dark:text-soft-gold"
-            >
-              I went (+{event.points})
-            </button>
-          )}
-        </div>
-      )}
+              <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+              <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+            </svg>
+          </button>
+        )}
+      </div>
     </div>
   );
 }
