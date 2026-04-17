@@ -8,8 +8,14 @@ import CalendarHeader, {
 import TaskCard from "@/components/calendar/TaskCard";
 import TaskForm from "@/components/calendar/TaskForm";
 import CompleterPicker from "@/components/calendar/CompleterPicker";
+import EventCard from "@/components/calendar/EventCard";
+import GoogleCalendarPanel from "@/components/calendar/GoogleCalendarPanel";
 import type { TaskFormData } from "@/components/calendar/TaskForm";
-import type { FamilyMember, TaskWithCompletion } from "@/lib/calendar/types";
+import type {
+  CalendarEventWithMember,
+  FamilyMember,
+  TaskWithCompletion,
+} from "@/lib/calendar/types";
 
 interface CalendarViewProps {
   adminMode: boolean;
@@ -67,11 +73,25 @@ function formatFullDayLabel(date: Date, today: Date): string {
   return base;
 }
 
+/**
+ * Extract a comparable time string from either a task or event.
+ * All-day events → "00:00", timed events → HH:MM from start_at,
+ * tasks with due_time → that time, untimed tasks → "99:99" (sort last).
+ */
+function sortTime(item: { type: "event"; ev: CalendarEventWithMember } | { type: "task"; task: TaskWithCompletion }): string {
+  if (item.type === "event") {
+    if (item.ev.all_day) return "00:00";
+    return new Date(item.ev.start_at).toTimeString().slice(0, 5);
+  }
+  return item.task.due_time?.slice(0, 5) ?? "99:99";
+}
+
 export default function CalendarView({ adminMode }: CalendarViewProps) {
   const [anchor, setAnchor] = useState(() => startOfDay(new Date()));
   const [view, setView] = useState<CalendarViewMode>("week");
   const [viewHydrated, setViewHydrated] = useState(false);
   const [tasks, setTasks] = useState<TaskWithCompletion[]>([]);
+  const [events, setEvents] = useState<CalendarEventWithMember[]>([]);
   const [members, setMembers] = useState<FamilyMember[]>([]);
   const [showForm, setShowForm] = useState(false);
   const [editingTask, setEditingTask] = useState<TaskWithCompletion | null>(
@@ -111,10 +131,12 @@ export default function CalendarView({ adminMode }: CalendarViewProps) {
     end.setDate(end.getDate() + 6);
     const start = formatDateKey(weekStart);
     const endStr = formatDateKey(end);
-    const res = await fetch(`/api/calendar/tasks?start=${start}&end=${endStr}`);
-    if (res.ok) {
-      setTasks(await res.json());
-    }
+    const [taskRes, eventRes] = await Promise.all([
+      fetch(`/api/calendar/tasks?start=${start}&end=${endStr}`),
+      fetch(`/api/calendar/events?start=${start}&end=${endStr}`),
+    ]);
+    if (taskRes.ok) setTasks(await taskRes.json());
+    if (eventRes.ok) setEvents(await eventRes.json());
     setLoading(false);
   }, [weekStart]);
 
@@ -168,11 +190,11 @@ export default function CalendarView({ adminMode }: CalendarViewProps) {
         e.target instanceof HTMLSelectElement
       )
         return;
-      const step = view === "day" ? 1 : 7;
+      const kstep = view === "day" ? 1 : 7;
       if (e.key === "ArrowLeft") {
-        shiftAnchor(-step);
+        shiftAnchor(-kstep);
       } else if (e.key === "ArrowRight") {
-        shiftAnchor(step);
+        shiftAnchor(kstep);
       } else if (e.key === "t" || e.key === "T") {
         setAnchor(startOfDay(new Date()));
       } else if (e.key === "d" || e.key === "D") {
@@ -269,9 +291,12 @@ export default function CalendarView({ adminMode }: CalendarViewProps) {
     return d;
   });
 
+  // Bucket tasks and events by day key
   const tasksByDay: Record<string, TaskWithCompletion[]> = {};
+  const eventsByDay: Record<string, CalendarEventWithMember[]> = {};
   for (const d of days) {
     tasksByDay[formatDateKey(d)] = [];
+    eventsByDay[formatDateKey(d)] = [];
   }
   for (const task of tasks) {
     if (task.due_date) {
@@ -281,10 +306,33 @@ export default function CalendarView({ adminMode }: CalendarViewProps) {
       }
     }
   }
+  for (const ev of events) {
+    const key = new Date(ev.start_at).toISOString().split("T")[0];
+    if (eventsByDay[key]) {
+      eventsByDay[key].push(ev);
+    }
+  }
 
   const anchorKey = formatDateKey(anchor);
-  const dayTasks = tasksByDay[anchorKey] ?? [];
-  const totalTasks = tasks.length;
+  const totalItems = tasks.length + events.length;
+
+  /**
+   * Build a time-sorted interleaved list of events + tasks for a given day.
+   * All-day events first, then everything sorted by time. Untimed tasks last.
+   */
+  function sortedItemsForDay(key: string) {
+    const dayTasks = tasksByDay[key] ?? [];
+    const dayEvents = eventsByDay[key] ?? [];
+    const items: Array<
+      | { type: "event"; ev: CalendarEventWithMember }
+      | { type: "task"; task: TaskWithCompletion }
+    > = [
+      ...dayEvents.map((ev) => ({ type: "event" as const, ev })),
+      ...dayTasks.map((task) => ({ type: "task" as const, task })),
+    ];
+    items.sort((a, b) => sortTime(a).localeCompare(sortTime(b)));
+    return items;
+  }
 
   const step = view === "day" ? 1 : 7;
 
@@ -331,8 +379,10 @@ export default function CalendarView({ adminMode }: CalendarViewProps) {
         </div>
       )}
 
+      {adminMode && <GoogleCalendarPanel members={members} onSynced={fetchTasks} />}
+
       {/* Empty state — week view only; day view has its own inline empty state */}
-      {view === "week" && !loading && totalTasks === 0 && (
+      {view === "week" && !loading && totalItems === 0 && (
         <div className="mx-auto mt-6 max-w-md px-4 text-center">
           <p className="text-base text-forest/60 dark:text-cream/60">
             No tasks this week.
@@ -359,7 +409,7 @@ export default function CalendarView({ adminMode }: CalendarViewProps) {
           {days.map((day) => {
             const key = formatDateKey(day);
             const isToday = key === formatDateKey(today);
-            const cellTasks = tasksByDay[key] ?? [];
+            const items = sortedItemsForDay(key);
 
             return (
               <div
@@ -381,21 +431,25 @@ export default function CalendarView({ adminMode }: CalendarViewProps) {
                 </div>
 
                 <div className="flex flex-1 flex-col gap-1.5">
-                  {loading && cellTasks.length === 0 && (
+                  {loading && items.length === 0 && (
                     <div className="flex flex-1 items-center justify-center">
                       <div className="h-4 w-4 animate-spin rounded-full border-2 border-sage/30 border-t-sage" />
                     </div>
                   )}
-                  {cellTasks.map((task) => (
-                    <TaskCard
-                      key={task.id}
-                      task={task}
-                      isAdmin={adminMode}
-                      onToggleComplete={handleToggleComplete}
-                      onEdit={handleEdit}
-                      onDelete={handleDelete}
-                    />
-                  ))}
+                  {items.map((item) =>
+                    item.type === "event" ? (
+                      <EventCard key={`ev-${item.ev.id}`} event={item.ev} members={members} />
+                    ) : (
+                      <TaskCard
+                        key={item.task.id}
+                        task={item.task}
+                        isAdmin={adminMode}
+                        onToggleComplete={handleToggleComplete}
+                        onEdit={handleEdit}
+                        onDelete={handleDelete}
+                      />
+                    )
+                  )}
 
                   {adminMode && (
                     <button
@@ -427,13 +481,13 @@ export default function CalendarView({ adminMode }: CalendarViewProps) {
             </h2>
 
             <div className="flex flex-col gap-2">
-              {loading && dayTasks.length === 0 && (
+              {loading && sortedItemsForDay(anchorKey).length === 0 && (
                 <div className="flex items-center justify-center py-12">
                   <div className="h-5 w-5 animate-spin rounded-full border-2 border-sage/30 border-t-sage" />
                 </div>
               )}
 
-              {!loading && dayTasks.length === 0 && (
+              {!loading && sortedItemsForDay(anchorKey).length === 0 && (
                 <div className="py-10 text-center">
                   <p className="text-base text-forest/60 dark:text-cream/60">
                     Nothing on the list for this day.
@@ -449,17 +503,21 @@ export default function CalendarView({ adminMode }: CalendarViewProps) {
                 </div>
               )}
 
-              {dayTasks.map((task) => (
-                <TaskCard
-                  key={task.id}
-                  task={task}
-                  isAdmin={adminMode}
-                  onToggleComplete={handleToggleComplete}
-                  onEdit={handleEdit}
-                  onDelete={handleDelete}
-                  variant="spacious"
-                />
-              ))}
+              {sortedItemsForDay(anchorKey).map((item) =>
+                item.type === "event" ? (
+                  <EventCard key={`ev-${item.ev.id}`} event={item.ev} members={members} variant="spacious" />
+                ) : (
+                  <TaskCard
+                    key={item.task.id}
+                    task={item.task}
+                    isAdmin={adminMode}
+                    onToggleComplete={handleToggleComplete}
+                    onEdit={handleEdit}
+                    onDelete={handleDelete}
+                    variant="spacious"
+                  />
+                )
+              )}
 
               {adminMode && (
                 <button

@@ -20,6 +20,18 @@ function isCalendarAdminApi(request: NextRequest): boolean {
   if (pathname === "/api/calendar/recurrence/backfill") {
     return request.method === "POST";
   }
+  // Google Calendar admin endpoints (callback is intentionally unprotected)
+  if (pathname === "/api/calendar/google/authorize") return true;
+  if (pathname === "/api/calendar/google/disconnect") return true;
+  if (pathname === "/api/calendar/google/calendars") {
+    return request.method === "PATCH" || request.method === "GET";
+  }
+  // /api/calendar/google/sync does its own auth (CRON_SECRET OR admin basic)
+  // in the route handler — do not gate it here.
+  // Per-event overrides (admin only)
+  if (pathname.startsWith("/api/calendar/events/") && pathname !== "/api/calendar/events/complete") {
+    return request.method === "PATCH" || request.method === "DELETE";
+  }
   return false;
 }
 
@@ -71,5 +83,20 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/rsvp/admin", "/songs/admin", "/calendar/admin", "/api/rsvp", "/api/songs", "/api/songs/reorder", "/api/spotify/authorize", "/api/calendar/tasks", "/api/calendar/seed", "/api/calendar/recurrence/backfill"],
+  matcher: [
+    "/rsvp/admin",
+    "/songs/admin",
+    "/calendar/admin",
+    "/api/rsvp",
+    "/api/songs",
+    "/api/songs/reorder",
+    "/api/spotify/authorize",
+    "/api/calendar/tasks",
+    "/api/calendar/seed",
+    "/api/calendar/recurrence/backfill",
+    "/api/calendar/google/authorize",
+    "/api/calendar/google/disconnect",
+    "/api/calendar/google/calendars",
+    "/api/calendar/events/:path*",
+  ],
 };

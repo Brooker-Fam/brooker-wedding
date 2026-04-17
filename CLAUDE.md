@@ -115,6 +115,22 @@ game_scores (id, player_name, game_id, score, created_at)
 
 To add a new migration: edit `src/lib/migrate.ts` and add new `CREATE TABLE IF NOT EXISTS` or `ALTER TABLE` statements. Keep them idempotent.
 
+## Google Calendar integration
+
+Pulls events (TKD, drama club, etc.) from a connected Google account into `/calendar`.
+
+**Env vars:**
+
+- `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` — OAuth app credentials from [Google Cloud Console](https://console.cloud.google.com/). Authorized redirect URI: `{BASE_URL}/api/calendar/google/callback`.
+- `CRON_SECRET` — shared secret checked by `/api/calendar/google/sync`. Vercel cron auto-injects `Authorization: Bearer $CRON_SECRET`.
+- `NEXT_PUBLIC_BASE_URL` (optional) — overrides the redirect URI base; otherwise inferred from Vercel env.
+
+**Flow:** Admin hits "Connect Google Calendar" on `/calendar/admin` → OAuth consent → tokens stored encrypted in `google_config` (mirrors Spotify's pattern, keyed by `GOOGLE_CLIENT_SECRET`-derived AES-256-GCM). Admin toggles which calendars to sync in `google_calendars`. Events mirror into `calendar_events` (read-only from our side; Google is source of truth). Sync runs every 15 min via Vercel cron (`vercel.json`) using Google's `syncToken` for incremental updates. See `docs/google-calendar-integration.md` for the design rationale.
+
+**Points for events:** `calendar_events.points` is set by keyword rules in `src/lib/calendar/event-rules.ts` on ingest (e.g. `/TKD/i → Emmett, 5pts`). Kids tap "✓ I went" on `/calendar/kid/[name]` → inserts into `event_completions`, which the scoreboard UNIONs with `task_completions`.
+
+**Key files:** `src/lib/google.ts` (OAuth + encryption), `src/lib/calendar/google-sync.ts` (calendar list + event sync), `src/lib/calendar/events-db.ts` (read/write events), `src/app/api/calendar/google/*` (routes), `src/components/calendar/GoogleCalendarPanel.tsx` (admin UI), `src/components/calendar/EventCard.tsx` (render).
+
 ## Analytics
 
 **Env var:** `NEXT_PUBLIC_POSTHOG_KEY` (PostHog project API key)
