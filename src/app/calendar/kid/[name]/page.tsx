@@ -3,7 +3,11 @@
 import { use, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
-import type { FamilyMember, TaskWithCompletion } from "@/lib/calendar/types";
+import type {
+  CalendarEventWithMember,
+  FamilyMember,
+  TaskWithCompletion,
+} from "@/lib/calendar/types";
 
 type KidTheme = {
   name: "sapphire" | "emmett";
@@ -322,24 +326,34 @@ export default function KidPage({
   const [members, setMembers] = useState<FamilyMember[]>([]);
   const [member, setMember] = useState<FamilyMember | null>(null);
   const [tasks, setTasks] = useState<TaskWithCompletion[]>([]);
+  const [events, setEvents] = useState<CalendarEventWithMember[]>([]);
   const [loading, setLoading] = useState(true);
   const [pointsToday, setPointsToday] = useState(0);
   const [confettiKey, setConfettiKey] = useState(0);
   const [completingIds, setCompletingIds] = useState<Set<number>>(new Set());
+  const [completingEventIds, setCompletingEventIds] = useState<Set<number>>(
+    new Set()
+  );
 
   const today = useMemo(todayKey, []);
 
   const fetchData = useCallback(async () => {
     try {
-      const [memRes, tasksRes] = await Promise.all([
+      const [memRes, tasksRes, eventsRes] = await Promise.all([
         fetch("/api/calendar/members", { cache: "no-store" }),
         fetch(`/api/calendar/tasks?start=${today}&end=${today}`, {
+          cache: "no-store",
+        }),
+        fetch(`/api/calendar/events?start=${today}&end=${today}`, {
           cache: "no-store",
         }),
       ]);
       const memList: FamilyMember[] = memRes.ok ? await memRes.json() : [];
       const taskList: TaskWithCompletion[] = tasksRes.ok
         ? await tasksRes.json()
+        : [];
+      const eventList: CalendarEventWithMember[] = eventsRes.ok
+        ? await eventsRes.json()
         : [];
       setMembers(memList);
       const matched =
@@ -355,11 +369,31 @@ export default function KidPage({
         );
         const pending = mine.filter((t) => !t.completion_id);
         setTasks(pending);
-        setPointsToday(
-          doneToday.reduce((sum, t) => sum + (t.points ?? 0), 0)
+
+        // Events for this kid: assigned to them OR unassigned (everyone).
+        const myEvents = eventList.filter(
+          (e) => e.assigned_to == null || e.assigned_to === matched.id
         );
+        const attendedEvents = myEvents.filter((e) =>
+          e.completions.some((c) => c.completed_by === matched.id)
+        );
+        const pendingEvents = myEvents.filter(
+          (e) => e.points > 0 && !attendedEvents.includes(e)
+        );
+        setEvents(pendingEvents);
+
+        const eventPoints = attendedEvents.reduce((sum, e) => {
+          const mine = e.completions.find((c) => c.completed_by === matched.id);
+          return sum + (mine?.points_earned ?? 0);
+        }, 0);
+        const taskPoints = doneToday.reduce(
+          (sum, t) => sum + (t.points ?? 0),
+          0
+        );
+        setPointsToday(taskPoints + eventPoints);
       } else {
         setTasks([]);
+        setEvents([]);
       }
     } finally {
       setLoading(false);
@@ -426,6 +460,42 @@ export default function KidPage({
     [member, completingIds]
   );
 
+  const handleCompleteEvent = useCallback(
+    async (event: CalendarEventWithMember) => {
+      if (!member) return;
+      if (completingEventIds.has(event.id)) return;
+      setCompletingEventIds((prev) => new Set(prev).add(event.id));
+
+      setConfettiKey((k) => k + 1);
+      setPointsToday((p) => p + (event.points ?? 0));
+
+      try {
+        await fetch("/api/calendar/events/complete", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            event_id: event.id,
+            completed_by: member.id,
+            date: today,
+            points_earned: event.points ?? 0,
+          }),
+        });
+      } catch {
+        // Keep optimistic state.
+      }
+
+      setTimeout(() => {
+        setEvents((prev) => prev.filter((e) => e.id !== event.id));
+        setCompletingEventIds((prev) => {
+          const next = new Set(prev);
+          next.delete(event.id);
+          return next;
+        });
+      }, 550);
+    },
+    [member, completingEventIds, today]
+  );
+
   // Not-found state
   if (!theme) {
     return (
@@ -487,7 +557,7 @@ export default function KidPage({
     );
   }
 
-  const isEmpty = tasks.length === 0;
+  const isEmpty = tasks.length === 0 && events.length === 0;
 
   return (
     <div
@@ -549,6 +619,78 @@ export default function KidPage({
         ) : (
           <ul className="space-y-5">
             <AnimatePresence mode="popLayout">
+              {events.map((event) => {
+                const emoji = pickEmoji(event.id + event.title.length, theme.taskEmojis);
+                const completing = completingEventIds.has(event.id);
+                const timeStr = event.all_day
+                  ? null
+                  : new Date(event.start_at).toLocaleTimeString(undefined, {
+                      hour: "numeric",
+                      minute: "2-digit",
+                    });
+                return (
+                  <motion.li
+                    key={`ev-${event.id}`}
+                    layout
+                    initial={{ opacity: 0, y: 20, scale: 0.96 }}
+                    animate={{
+                      opacity: completing ? 0 : 1,
+                      y: 0,
+                      scale: completing ? 1.05 : 1,
+                      x: completing ? 600 : 0,
+                      rotate: completing ? 8 : 0,
+                    }}
+                    exit={{
+                      opacity: 0,
+                      scale: 0.6,
+                      transition: { duration: 0.3 },
+                    }}
+                    transition={{
+                      type: "spring",
+                      stiffness: 260,
+                      damping: 22,
+                    }}
+                  >
+                    <button
+                      type="button"
+                      onClick={() => handleCompleteEvent(event)}
+                      disabled={completing}
+                      className={`group relative flex w-full min-h-[120px] items-center gap-5 rounded-3xl p-6 text-left transition-transform active:scale-[0.98] ${theme.cardClass} disabled:cursor-default`}
+                    >
+                      <div className="flex-shrink-0 text-6xl drop-shadow-md sm:text-7xl">
+                        {emoji}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="mb-1 flex items-center gap-2 text-xs font-semibold uppercase tracking-wider opacity-70">
+                          <span>📅 Event</span>
+                          {timeStr && <span>· {timeStr}</span>}
+                        </div>
+                        <div
+                          className={`font-[family-name:var(--font-cormorant-garamond)] text-3xl font-bold leading-tight sm:text-5xl ${theme.cardInnerClass}`}
+                          style={{ wordBreak: "break-word" }}
+                        >
+                          {event.title}
+                        </div>
+                        {event.points > 0 && (
+                          <div className="mt-2 inline-flex items-center gap-1.5 rounded-full bg-soft-gold/30 px-3 py-1 text-lg font-semibold text-soft-gold-dark sm:text-xl dark:bg-soft-gold/25 dark:text-soft-gold-light">
+                            <span>⭐</span>
+                            <span>
+                              {event.points} {event.points === 1 ? "point" : "points"}
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                      <div
+                        className={`flex h-24 w-24 flex-shrink-0 items-center justify-center rounded-full text-5xl font-bold transition-transform group-hover:scale-105 group-active:scale-95 sm:h-28 sm:w-28 sm:text-6xl ${theme.checkClass}`}
+                        aria-hidden
+                      >
+                        ✓
+                      </div>
+                      <span className="sr-only">I went to {event.title}</span>
+                    </button>
+                  </motion.li>
+                );
+              })}
               {tasks.map((task) => {
                 const emoji = pickEmoji(task.id + task.title.length, theme.taskEmojis);
                 const points = task.points ?? 0;

@@ -6,8 +6,14 @@ import CalendarHeader from "@/components/calendar/CalendarHeader";
 import TaskCard from "@/components/calendar/TaskCard";
 import TaskForm from "@/components/calendar/TaskForm";
 import CompleterPicker from "@/components/calendar/CompleterPicker";
+import EventCard from "@/components/calendar/EventCard";
+import GoogleCalendarPanel from "@/components/calendar/GoogleCalendarPanel";
 import type { TaskFormData } from "@/components/calendar/TaskForm";
-import type { FamilyMember, TaskWithCompletion } from "@/lib/calendar/types";
+import type {
+  CalendarEventWithMember,
+  FamilyMember,
+  TaskWithCompletion,
+} from "@/lib/calendar/types";
 
 interface CalendarViewProps {
   adminMode: boolean;
@@ -43,6 +49,7 @@ function getDayLabel(date: Date, today: Date): string {
 export default function CalendarView({ adminMode }: CalendarViewProps) {
   const [weekStart, setWeekStart] = useState(() => getMonday(new Date()));
   const [tasks, setTasks] = useState<TaskWithCompletion[]>([]);
+  const [events, setEvents] = useState<CalendarEventWithMember[]>([]);
   const [members, setMembers] = useState<FamilyMember[]>([]);
   const [showForm, setShowForm] = useState(false);
   const [editingTask, setEditingTask] = useState<TaskWithCompletion | null>(
@@ -57,10 +64,12 @@ export default function CalendarView({ adminMode }: CalendarViewProps) {
     end.setDate(end.getDate() + 6);
     const start = formatDateKey(weekStart);
     const endStr = formatDateKey(end);
-    const res = await fetch(`/api/calendar/tasks?start=${start}&end=${endStr}`);
-    if (res.ok) {
-      setTasks(await res.json());
-    }
+    const [taskRes, eventRes] = await Promise.all([
+      fetch(`/api/calendar/tasks?start=${start}&end=${endStr}`),
+      fetch(`/api/calendar/events?start=${start}&end=${endStr}`),
+    ]);
+    if (taskRes.ok) setTasks(await taskRes.json());
+    if (eventRes.ok) setEvents(await eventRes.json());
     setLoading(false);
   }, [weekStart]);
 
@@ -212,8 +221,10 @@ export default function CalendarView({ adminMode }: CalendarViewProps) {
   });
 
   const tasksByDay: Record<string, TaskWithCompletion[]> = {};
+  const eventsByDay: Record<string, CalendarEventWithMember[]> = {};
   for (const d of days) {
     tasksByDay[formatDateKey(d)] = [];
+    eventsByDay[formatDateKey(d)] = [];
   }
   for (const task of tasks) {
     if (task.due_date) {
@@ -223,8 +234,14 @@ export default function CalendarView({ adminMode }: CalendarViewProps) {
       }
     }
   }
+  for (const ev of events) {
+    const key = new Date(ev.start_at).toISOString().split("T")[0];
+    if (eventsByDay[key]) {
+      eventsByDay[key].push(ev);
+    }
+  }
 
-  const totalTasks = tasks.length;
+  const totalItems = tasks.length + events.length;
 
   return (
     <div className="min-h-screen">
@@ -279,8 +296,10 @@ export default function CalendarView({ adminMode }: CalendarViewProps) {
         </div>
       )}
 
+      {adminMode && <GoogleCalendarPanel members={members} onSynced={fetchTasks} />}
+
       {/* Empty state */}
-      {!loading && totalTasks === 0 && (
+      {!loading && totalItems === 0 && (
         <div className="mx-auto mt-6 max-w-md px-4 text-center">
           <p className="text-base text-forest/60 dark:text-cream/60">
             No tasks this week.
@@ -307,6 +326,12 @@ export default function CalendarView({ adminMode }: CalendarViewProps) {
           const key = formatDateKey(day);
           const isToday = key === formatDateKey(today);
           const dayTasks = tasksByDay[key] ?? [];
+          const dayEvents = eventsByDay[key] ?? [];
+          // Sort events: all-day first, then by start time.
+          const sortedEvents = [...dayEvents].sort((a, b) => {
+            if (a.all_day !== b.all_day) return a.all_day ? -1 : 1;
+            return a.start_at.localeCompare(b.start_at);
+          });
 
           return (
             <div
@@ -328,11 +353,14 @@ export default function CalendarView({ adminMode }: CalendarViewProps) {
               </div>
 
               <div className="flex flex-1 flex-col gap-1.5">
-                {loading && dayTasks.length === 0 && (
+                {loading && dayTasks.length === 0 && dayEvents.length === 0 && (
                   <div className="flex flex-1 items-center justify-center">
                     <div className="h-4 w-4 animate-spin rounded-full border-2 border-sage/30 border-t-sage" />
                   </div>
                 )}
+                {sortedEvents.map((ev) => (
+                  <EventCard key={`ev-${ev.id}`} event={ev} members={members} />
+                ))}
                 {dayTasks.map((task) => (
                   <TaskCard
                     key={task.id}
