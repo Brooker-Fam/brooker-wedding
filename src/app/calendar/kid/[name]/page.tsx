@@ -332,8 +332,10 @@ export default function KidPage({
   const fetchData = useCallback(async () => {
     try {
       const [memRes, tasksRes] = await Promise.all([
-        fetch("/api/calendar/members"),
-        fetch(`/api/calendar/tasks?start=${today}&end=${today}`),
+        fetch("/api/calendar/members", { cache: "no-store" }),
+        fetch(`/api/calendar/tasks?start=${today}&end=${today}`, {
+          cache: "no-store",
+        }),
       ]);
       const memList: FamilyMember[] = memRes.ok ? await memRes.json() : [];
       const taskList: TaskWithCompletion[] = tasksRes.ok
@@ -366,6 +368,24 @@ export default function KidPage({
 
   useEffect(() => {
     fetchData();
+  }, [fetchData]);
+
+  // Keep the kid page in sync with admin changes: refetch every 30s, on
+  // window focus, and when the tab becomes visible again. Without this,
+  // a parent unchecking a task in the main calendar wouldn't reappear here.
+  useEffect(() => {
+    const interval = setInterval(fetchData, 30000);
+    const onFocus = () => fetchData();
+    const onVisible = () => {
+      if (document.visibilityState === "visible") fetchData();
+    };
+    window.addEventListener("focus", onFocus);
+    document.addEventListener("visibilitychange", onVisible);
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener("focus", onFocus);
+      document.removeEventListener("visibilitychange", onVisible);
+    };
   }, [fetchData]);
 
   const handleComplete = useCallback(

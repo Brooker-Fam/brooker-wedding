@@ -5,6 +5,7 @@ import Link from "next/link";
 import CalendarHeader from "@/components/calendar/CalendarHeader";
 import TaskCard from "@/components/calendar/TaskCard";
 import TaskForm from "@/components/calendar/TaskForm";
+import CompleterPicker from "@/components/calendar/CompleterPicker";
 import type { TaskFormData } from "@/components/calendar/TaskForm";
 import type { FamilyMember, TaskWithCompletion } from "@/lib/calendar/types";
 
@@ -48,6 +49,7 @@ export default function CalendarView({ adminMode }: CalendarViewProps) {
     null
   );
   const [formDefaultDate, setFormDefaultDate] = useState<string | null>(null);
+  const [pickerTask, setPickerTask] = useState<TaskWithCompletion | null>(null);
   const [loading, setLoading] = useState(true);
 
   const fetchTasks = useCallback(async () => {
@@ -139,29 +141,48 @@ export default function CalendarView({ adminMode }: CalendarViewProps) {
     }
   };
 
-  const handleToggleComplete = async (task: TaskWithCompletion) => {
-    const assignedMember = members.find((m) => m.id === task.assigned_to);
-    const completedBy = assignedMember?.id ?? members[0]?.id;
-    if (!completedBy || !task.due_date) return;
+  const completeFor = async (task: TaskWithCompletion, memberId: number) => {
+    if (!task.due_date) return;
+    await fetch("/api/calendar/complete", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        task_id: task.id,
+        completed_by: memberId,
+        date: task.due_date,
+        points_earned: task.points,
+      }),
+    });
+    fetchTasks();
+  };
 
+  const handleToggleComplete = async (task: TaskWithCompletion) => {
+    if (!task.due_date) return;
+
+    // Already done → just uncheck.
     if (task.completion_id) {
       await fetch(
         `/api/calendar/complete?task_id=${task.id}&date=${task.due_date}`,
         { method: "DELETE" }
       );
-    } else {
-      await fetch("/api/calendar/complete", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          task_id: task.id,
-          completed_by: completedBy,
-          date: task.due_date,
-          points_earned: task.points,
-        }),
-      });
+      fetchTasks();
+      return;
     }
-    fetchTasks();
+
+    // Assigned → credit the assignee directly.
+    const assignedMember = members.find((m) => m.id === task.assigned_to);
+    if (assignedMember) {
+      await completeFor(task, assignedMember.id);
+      return;
+    }
+
+    // Unassigned → ask who did it.
+    if (members.length === 0) return;
+    if (members.length === 1) {
+      await completeFor(task, members[0].id);
+      return;
+    }
+    setPickerTask(task);
   };
 
   const handleEdit = (task: TaskWithCompletion) => {
@@ -348,6 +369,19 @@ export default function CalendarView({ adminMode }: CalendarViewProps) {
           onCancel={() => {
             setShowForm(false);
             setEditingTask(null);
+          }}
+        />
+      )}
+
+      {pickerTask && (
+        <CompleterPicker
+          taskTitle={pickerTask.title}
+          members={members}
+          onCancel={() => setPickerTask(null)}
+          onPick={async (memberId) => {
+            const task = pickerTask;
+            setPickerTask(null);
+            await completeFor(task, memberId);
           }}
         />
       )}
