@@ -39,7 +39,27 @@ function getMonday(date: Date): Date {
 }
 
 function formatDateKey(date: Date): string {
-  return date.toISOString().split("T")[0];
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, "0");
+  const d = String(date.getDate()).padStart(2, "0");
+  return `${y}-${m}-${d}`;
+}
+
+// All-day events are stored as UTC midnight of the intended calendar date,
+// so we read the UTC date parts. Timed events are absolute moments, so we
+// group them by the local calendar date the user actually sees.
+function eventDateKey(ev: CalendarEventWithMember): string {
+  const d = new Date(ev.start_at);
+  if (ev.all_day) {
+    const y = d.getUTCFullYear();
+    const m = String(d.getUTCMonth() + 1).padStart(2, "0");
+    const day = String(d.getUTCDate()).padStart(2, "0");
+    return `${y}-${m}-${day}`;
+  }
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
 }
 
 function getDayLabel(date: Date, today: Date): string {
@@ -293,7 +313,7 @@ export default function CalendarView({ adminMode }: CalendarViewProps) {
     }
   }
   for (const ev of events) {
-    const key = new Date(ev.start_at).toISOString().split("T")[0];
+    const key = eventDateKey(ev);
     if (eventsByDay[key]) {
       eventsByDay[key].push(ev);
     }
