@@ -25,6 +25,20 @@ function isIOS(): boolean {
   return /iPad|iPhone|iPod/.test(ua) || isIpadOS;
 }
 
+function isMobileOrTablet(): boolean {
+  if (typeof navigator === "undefined") return false;
+  const ua = navigator.userAgent || "";
+  if (/Mobi|Android|iPhone|iPod/i.test(ua)) return true;
+  if (isIOS()) return true;
+  // Generic tablet hint: coarse pointer + narrow viewport
+  if (typeof window !== "undefined") {
+    const coarse = window.matchMedia("(pointer: coarse)").matches;
+    const narrow = window.matchMedia("(max-width: 1024px)").matches;
+    if (coarse && narrow) return true;
+  }
+  return false;
+}
+
 function isStandalone(): boolean {
   if (typeof window === "undefined") return false;
   const navStandalone = (window.navigator as Navigator & { standalone?: boolean })
@@ -47,6 +61,9 @@ export default function InstallPrompt() {
 
     // Don't show if already installed as a PWA
     if (isStandalone()) return;
+
+    // Only show on mobile / tablet — desktop "install" is pointless here
+    if (!isMobileOrTablet()) return;
 
     try {
       if (localStorage.getItem(DISMISS_KEY) === "1") {

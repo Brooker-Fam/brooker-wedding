@@ -6,8 +6,77 @@ import type {
   TaskWithCompletion,
   ScoreboardEntry,
 } from "./types";
+import {
+  formatLocalDate,
+  occurrencesInRange,
+  parseLocalDate,
+} from "./recurrence";
 
 const DEFAULT_HOUSEHOLD_ID = 1;
+
+/**
+ * Ensure every occurrence of every recurring task in [start, end] has a row.
+ * Safe to call repeatedly — WHERE NOT EXISTS prevents duplicates. Runs before
+ * every read so the calendar always shows recurring chores on their repeat days
+ * even if nobody completed the prior instance.
+ */
+async function materializeRecurringInstances(
+  startDate: string,
+  endDate: string,
+  householdId: number
+): Promise<void> {
+  const db = getDb();
+  if (!db) return;
+
+  const anchors = await db`
+    SELECT DISTINCT ON (household_id, title, recurrence_rule)
+      household_id, title, description, assigned_to, source,
+      priority, points, due_date, due_time, duration_minutes, recurrence_rule
+    FROM tasks
+    WHERE household_id = ${householdId}
+      AND recurrence_rule IS NOT NULL
+      AND due_date IS NOT NULL
+      AND due_date <= ${endDate}
+    ORDER BY household_id, title, recurrence_rule, due_date ASC, id ASC
+  `;
+
+  const rangeStart = parseLocalDate(startDate);
+  const rangeEnd = parseLocalDate(endDate);
+
+  for (const a of anchors as Array<Record<string, unknown>>) {
+    const rule = a.recurrence_rule as string | null;
+    const dueDateRaw = a.due_date as string | null;
+    if (!rule || !dueDateRaw) continue;
+
+    const anchorDate = parseLocalDate(String(dueDateRaw).split("T")[0]);
+    const dates = occurrencesInRange(rule, anchorDate, rangeStart, rangeEnd);
+
+    for (const d of dates) {
+      const dateStr = formatLocalDate(d);
+      await db`
+        INSERT INTO tasks (
+          household_id, title, description, assigned_to, source, status,
+          priority, points, due_date, due_time, duration_minutes, recurrence_rule
+        )
+        SELECT ${a.household_id as number}, ${a.title as string},
+          ${(a.description as string | null) ?? null},
+          ${(a.assigned_to as number | null) ?? null},
+          ${(a.source as string | null) ?? "manual"}, 'pending',
+          ${(a.priority as string | null) ?? "medium"},
+          ${(a.points as number | null) ?? 0}, ${dateStr},
+          ${(a.due_time as string | null) ?? null},
+          ${(a.duration_minutes as number | null) ?? null}, ${rule}
+        WHERE NOT EXISTS (
+          SELECT 1 FROM tasks
+          WHERE household_id = ${a.household_id as number}
+            AND title = ${a.title as string}
+            AND recurrence_rule = ${rule}
+            AND due_date = ${dateStr}
+        )
+      `;
+    }
+  }
+}
 
 export async function getHousehold(
   id: number = DEFAULT_HOUSEHOLD_ID
@@ -35,6 +104,7 @@ export async function getTasksForDateRange(
 ): Promise<TaskWithCompletion[]> {
   const db = getDb();
   if (!db) return [];
+  await materializeRecurringInstances(startDate, endDate, householdId);
   const rows = await db`
     SELECT
       t.*,

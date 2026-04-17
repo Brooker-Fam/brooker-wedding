@@ -179,3 +179,39 @@ export function formatLocalDate(date: Date): string {
 export function weekdayCode(dayIndex: number): DayCode {
   return DAY_CODES[((dayIndex % 7) + 7) % 7];
 }
+
+/**
+ * Enumerate every occurrence of `rule` that falls within [rangeStart, rangeEnd],
+ * starting from `anchorDate`. The anchor itself is included if it lies in range.
+ */
+export function occurrencesInRange(
+  rule: string,
+  anchorDate: Date,
+  rangeStart: Date,
+  rangeEnd: Date,
+  maxIterations: number = 500
+): Date[] {
+  const result: Date[] = [];
+  const anchor = new Date(anchorDate);
+  anchor.setHours(0, 0, 0, 0);
+  const start = new Date(rangeStart);
+  start.setHours(0, 0, 0, 0);
+  const end = new Date(rangeEnd);
+  end.setHours(0, 0, 0, 0);
+
+  if (anchor > end) return result;
+
+  if (anchor >= start && anchor <= end) {
+    result.push(new Date(anchor));
+  }
+
+  let cursor = new Date(anchor);
+  for (let i = 0; i < maxIterations; i++) {
+    const next = nextOccurrence(rule, cursor);
+    if (!next) break;
+    if (next > end) break;
+    if (next >= start) result.push(new Date(next));
+    cursor = next;
+  }
+  return result;
+}

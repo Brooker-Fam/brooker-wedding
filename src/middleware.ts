@@ -16,9 +16,6 @@ function isCalendarAdminApi(request: NextRequest): boolean {
   if (pathname === "/api/calendar/tasks") {
     return request.method === "POST" || request.method === "PUT" || request.method === "DELETE";
   }
-  if (pathname === "/api/calendar/complete") {
-    return request.method === "POST" || request.method === "DELETE";
-  }
   if (pathname === "/api/calendar/seed") return true;
   if (pathname === "/api/calendar/recurrence/backfill") {
     return request.method === "POST";
@@ -74,5 +71,5 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/rsvp/admin", "/songs/admin", "/calendar/admin", "/api/rsvp", "/api/songs", "/api/songs/reorder", "/api/spotify/authorize", "/api/calendar/tasks", "/api/calendar/complete", "/api/calendar/seed", "/api/calendar/recurrence/backfill"],
+  matcher: ["/rsvp/admin", "/songs/admin", "/calendar/admin", "/api/rsvp", "/api/songs", "/api/songs/reorder", "/api/spotify/authorize", "/api/calendar/tasks", "/api/calendar/seed", "/api/calendar/recurrence/backfill"],
 };

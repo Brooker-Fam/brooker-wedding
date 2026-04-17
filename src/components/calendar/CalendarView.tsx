@@ -140,7 +140,6 @@ export default function CalendarView({ adminMode }: CalendarViewProps) {
   };
 
   const handleToggleComplete = async (task: TaskWithCompletion) => {
-    if (!adminMode) return;
     const assignedMember = members.find((m) => m.id === task.assigned_to);
     const completedBy = assignedMember?.id ?? members[0]?.id;
     if (!completedBy || !task.due_date) return;
