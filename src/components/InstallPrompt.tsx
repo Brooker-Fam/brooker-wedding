@@ -25,6 +25,18 @@ function isIOS(): boolean {
   return /iPad|iPhone|iPod/.test(ua) || isIpadOS;
 }
 
+function isIOSSafari(): boolean {
+  if (!isIOS()) return false;
+  if (typeof navigator === "undefined") return false;
+  const ua = navigator.userAgent || "";
+  // Safari has "Safari" and doesn't have CriOS/FxiOS/EdgiOS/OPiOS/GSA
+  const isSafari = /Safari/.test(ua);
+  const isOtherBrowser = /CriOS|FxiOS|EdgiOS|OPiOS|GSA|YaBrowser|DuckDuckGo|Brave/.test(
+    ua
+  );
+  return isSafari && !isOtherBrowser;
+}
+
 function isMobileOrTablet(): boolean {
   if (typeof navigator === "undefined") return false;
   const ua = navigator.userAgent || "";
@@ -54,6 +66,8 @@ export default function InstallPrompt() {
   const [deferredPrompt, setDeferredPrompt] =
     useState<BeforeInstallPromptEvent | null>(null);
   const [showIosHint, setShowIosHint] = useState(false);
+  const [iosInSafari, setIosInSafari] = useState(false);
+  const [expanded, setExpanded] = useState(false);
   const [dismissed, setDismissed] = useState(true); // start hidden, unlock in effect
 
   useEffect(() => {
@@ -85,6 +99,7 @@ export default function InstallPrompt() {
     // iOS has no beforeinstallprompt - show manual instructions
     if (isIOS()) {
       setShowIosHint(true);
+      setIosInSafari(isIOSSafari());
     }
 
     const installedHandler = () => {
@@ -128,6 +143,9 @@ export default function InstallPrompt() {
     }
   };
 
+  const isIosFlow = showIosHint && !deferredPrompt;
+  const needsSafari = isIosFlow && !iosInSafari;
+
   return (
     <div
       role="dialog"
@@ -146,10 +164,60 @@ export default function InstallPrompt() {
             <p className="mt-0.5 text-sm text-[#5C7A4A] dark:text-[#E8C8B8]/80">
               Add the calendar to your home screen for quick access.
             </p>
+          ) : needsSafari ? (
+            <p className="mt-0.5 text-sm text-[#5C7A4A] dark:text-[#E8C8B8]/80">
+              Open <span className="font-semibold">brooker.family</span> in{" "}
+              <span className="font-semibold">Safari</span> to install.
+              Chrome/Firefox on iOS can&rsquo;t add to Home Screen.
+            </p>
+          ) : expanded ? (
+            <div className="mt-1 space-y-2 text-sm text-[#5C7A4A] dark:text-[#E8C8B8]/90">
+              <div className="flex items-start gap-2">
+                <span className="mt-0.5 flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-[#1D4420] text-xs font-bold text-[#C49A3C]">
+                  1
+                </span>
+                <span>
+                  Tap the{" "}
+                  <span
+                    aria-label="Share icon"
+                    className="inline-flex items-center gap-1 rounded bg-[#5C7A4A]/15 px-1.5 py-0.5 align-middle text-[#1D4420] dark:text-[#C49A3C]"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 20 20"
+                      fill="currentColor"
+                      className="h-3.5 w-3.5"
+                    >
+                      <path d="M10.5 2.75a.75.75 0 0 0-1 0L6.73 5.22a.75.75 0 1 0 1.04 1.08L9.25 4.8v8.45a.75.75 0 0 0 1.5 0V4.8l1.48 1.5a.75.75 0 1 0 1.04-1.08l-2.77-2.47Z" />
+                      <path d="M4 10.75A.75.75 0 0 0 3.25 10h-.5A2.75 2.75 0 0 0 0 12.75v2.5A2.75 2.75 0 0 0 2.75 18h14.5A2.75 2.75 0 0 0 20 15.25v-2.5A2.75 2.75 0 0 0 17.25 10h-.5a.75.75 0 0 0 0 1.5h.5c.69 0 1.25.56 1.25 1.25v2.5c0 .69-.56 1.25-1.25 1.25H2.75c-.69 0-1.25-.56-1.25-1.25v-2.5c0-.69.56-1.25 1.25-1.25h.5A.75.75 0 0 0 4 10.75Z" />
+                    </svg>
+                    Share
+                  </span>{" "}
+                  icon (bottom of Safari)
+                </span>
+              </div>
+              <div className="flex items-start gap-2">
+                <span className="mt-0.5 flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-[#1D4420] text-xs font-bold text-[#C49A3C]">
+                  2
+                </span>
+                <span>
+                  Scroll and tap{" "}
+                  <span className="font-semibold">Add to Home Screen</span>
+                </span>
+              </div>
+              <div className="flex items-start gap-2">
+                <span className="mt-0.5 flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-[#1D4420] text-xs font-bold text-[#C49A3C]">
+                  3
+                </span>
+                <span>
+                  Tap <span className="font-semibold">Add</span> in the top
+                  right
+                </span>
+              </div>
+            </div>
           ) : (
             <p className="mt-0.5 text-sm text-[#5C7A4A] dark:text-[#E8C8B8]/80">
-              Tap the Share icon in Safari, then{" "}
-              <span className="font-semibold">Add to Home Screen</span>.
+              Add to your home screen for one-tap access.
             </p>
           )}
           <div className="mt-2 flex items-center gap-2">
@@ -162,12 +230,21 @@ export default function InstallPrompt() {
                 Install
               </button>
             )}
+            {isIosFlow && !needsSafari && !expanded && (
+              <button
+                type="button"
+                onClick={() => setExpanded(true)}
+                className="rounded-full bg-[#1D4420] px-3 py-1.5 text-sm font-medium text-[#FDF8F0] transition hover:bg-[#5C7A4A] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#C49A3C]"
+              >
+                Show me how
+              </button>
+            )}
             <button
               type="button"
               onClick={handleDismiss}
               className="rounded-full px-3 py-1.5 text-sm text-[#5C7A4A] transition hover:text-[#1D4420] dark:text-[#E8C8B8]/80 dark:hover:text-[#C49A3C] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#C49A3C]"
             >
-              Not now
+              {expanded ? "Got it" : "Not now"}
             </button>
           </div>
         </div>
