@@ -300,13 +300,30 @@ export default function CalendarView({ adminMode }: CalendarViewProps) {
   }
 
   const anchorKey = formatDateKey(anchor);
-  const dayTasks = tasksByDay[anchorKey] ?? [];
-  const dayEventsForAnchor = eventsByDay[anchorKey] ?? [];
-  const sortedAnchorEvents = [...dayEventsForAnchor].sort((a, b) => {
-    if (a.all_day !== b.all_day) return a.all_day ? -1 : 1;
-    return a.start_at.localeCompare(b.start_at);
-  });
   const totalItems = tasks.length + events.length;
+
+  type DayItem =
+    | { type: "event"; ev: CalendarEventWithMember }
+    | { type: "task"; task: TaskWithCompletion };
+
+  function itemSortKey(item: DayItem): string {
+    if (item.type === "event") {
+      if (item.ev.all_day) return "00:00";
+      return new Date(item.ev.start_at).toTimeString().slice(0, 5);
+    }
+    return item.task.due_time?.slice(0, 5) ?? "99:99";
+  }
+
+  function sortedItemsForDay(key: string): DayItem[] {
+    const dt = tasksByDay[key] ?? [];
+    const de = eventsByDay[key] ?? [];
+    const items: DayItem[] = [
+      ...de.map((ev) => ({ type: "event" as const, ev })),
+      ...dt.map((task) => ({ type: "task" as const, task })),
+    ];
+    items.sort((a, b) => itemSortKey(a).localeCompare(itemSortKey(b)));
+    return items;
+  }
 
   const step = view === "day" ? 1 : 7;
 
@@ -383,12 +400,7 @@ export default function CalendarView({ adminMode }: CalendarViewProps) {
           {days.map((day) => {
             const key = formatDateKey(day);
             const isToday = key === formatDateKey(today);
-            const cellTasks = tasksByDay[key] ?? [];
-            const cellEvents = eventsByDay[key] ?? [];
-            const sortedCellEvents = [...cellEvents].sort((a, b) => {
-              if (a.all_day !== b.all_day) return a.all_day ? -1 : 1;
-              return a.start_at.localeCompare(b.start_at);
-            });
+            const items = sortedItemsForDay(key);
 
             return (
               <div
@@ -410,24 +422,25 @@ export default function CalendarView({ adminMode }: CalendarViewProps) {
                 </div>
 
                 <div className="flex flex-1 flex-col gap-1.5">
-                  {loading && cellTasks.length === 0 && cellEvents.length === 0 && (
+                  {loading && items.length === 0 && (
                     <div className="flex flex-1 items-center justify-center">
                       <div className="h-4 w-4 animate-spin rounded-full border-2 border-sage/30 border-t-sage" />
                     </div>
                   )}
-                  {sortedCellEvents.map((ev) => (
-                    <EventCard key={`ev-${ev.id}`} event={ev} members={members} />
-                  ))}
-                  {cellTasks.map((task) => (
-                    <TaskCard
-                      key={task.id}
-                      task={task}
-                      isAdmin={adminMode}
-                      onToggleComplete={handleToggleComplete}
-                      onEdit={handleEdit}
-                      onDelete={handleDelete}
-                    />
-                  ))}
+                  {items.map((item) =>
+                    item.type === "event" ? (
+                      <EventCard key={`ev-${item.ev.id}`} event={item.ev} members={members} />
+                    ) : (
+                      <TaskCard
+                        key={item.task.id}
+                        task={item.task}
+                        isAdmin={adminMode}
+                        onToggleComplete={handleToggleComplete}
+                        onEdit={handleEdit}
+                        onDelete={handleDelete}
+                      />
+                    )
+                  )}
 
                   {adminMode && (
                     <button
@@ -459,39 +472,55 @@ export default function CalendarView({ adminMode }: CalendarViewProps) {
             </h2>
 
             <div className="flex flex-col gap-2">
-              {loading && dayTasks.length === 0 && (
-                <div className="flex items-center justify-center py-12">
-                  <div className="h-5 w-5 animate-spin rounded-full border-2 border-sage/30 border-t-sage" />
-                </div>
-              )}
+              {(() => {
+                const dayItems = sortedItemsForDay(anchorKey);
+                return (
+                  <>
+                    {loading && dayItems.length === 0 && (
+                      <div className="flex items-center justify-center py-12">
+                        <div className="h-5 w-5 animate-spin rounded-full border-2 border-sage/30 border-t-sage" />
+                      </div>
+                    )}
 
-              {!loading && dayTasks.length === 0 && (
-                <div className="py-10 text-center">
-                  <p className="text-base text-forest/60 dark:text-cream/60">
-                    Nothing on the list for this day.
-                  </p>
-                  {!adminMode && (
-                    <Link
-                      href="/calendar/admin"
-                      className="mt-3 inline-block rounded-xl bg-forest px-4 py-2 text-sm font-medium text-cream transition-colors hover:bg-forest-light dark:bg-sage dark:hover:bg-sage-light"
-                    >
-                      Enter admin mode to add a task →
-                    </Link>
-                  )}
-                </div>
-              )}
+                    {!loading && dayItems.length === 0 && (
+                      <div className="py-10 text-center">
+                        <p className="text-base text-forest/60 dark:text-cream/60">
+                          Nothing on the list for this day.
+                        </p>
+                        {!adminMode && (
+                          <Link
+                            href="/calendar/admin"
+                            className="mt-3 inline-block rounded-xl bg-forest px-4 py-2 text-sm font-medium text-cream transition-colors hover:bg-forest-light dark:bg-sage dark:hover:bg-sage-light"
+                          >
+                            Enter admin mode to add a task →
+                          </Link>
+                        )}
+                      </div>
+                    )}
 
-              {dayTasks.map((task) => (
-                <TaskCard
-                  key={task.id}
-                  task={task}
-                  isAdmin={adminMode}
-                  onToggleComplete={handleToggleComplete}
-                  onEdit={handleEdit}
-                  onDelete={handleDelete}
-                  variant="spacious"
-                />
-              ))}
+                    {dayItems.map((item) =>
+                      item.type === "event" ? (
+                        <EventCard
+                          key={`ev-${item.ev.id}`}
+                          event={item.ev}
+                          members={members}
+                          variant="spacious"
+                        />
+                      ) : (
+                        <TaskCard
+                          key={item.task.id}
+                          task={item.task}
+                          isAdmin={adminMode}
+                          onToggleComplete={handleToggleComplete}
+                          onEdit={handleEdit}
+                          onDelete={handleDelete}
+                          variant="spacious"
+                        />
+                      )
+                    )}
+                  </>
+                );
+              })()}
 
               {adminMode && (
                 <button

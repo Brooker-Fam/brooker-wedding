@@ -13,6 +13,7 @@ interface EventCardProps {
   onComplete?: (event: CalendarEventWithMember, memberId: number) => void;
   onUncomplete?: (event: CalendarEventWithMember, memberId: number) => void;
   onClick?: (event: CalendarEventWithMember) => void;
+  variant?: "compact" | "spacious";
 }
 
 function formatTimeRange(ev: CalendarEventWithMember): string {
@@ -33,9 +34,11 @@ export default function EventCard({
   onComplete,
   onUncomplete,
   onClick,
+  variant = "compact",
 }: EventCardProps) {
   const memberColor = event.color_override ?? event.member_color ?? "#B8A9C9";
   const assignedName = event.member_name;
+  const isSpacious = variant === "spacious";
 
   const myCompletion =
     currentMember != null
@@ -50,7 +53,9 @@ export default function EventCard({
 
   return (
     <div
-      className={`group relative rounded-lg border-l-[3px] px-2.5 py-1.5 transition-all sm:px-3 sm:py-2 ${
+      className={`group relative rounded-lg border-l-[3px] transition-all ${
+        isSpacious ? "px-3 py-3 sm:px-4 sm:py-4" : "px-2.5 py-1.5 sm:px-3 sm:py-2"
+      } ${
         didAttend
           ? "bg-lavender/10 opacity-80 dark:bg-lavender/10"
           : "bg-gradient-to-r from-lavender/10 to-cream/80 shadow-sm dark:from-lavender/10 dark:to-dark-surface"
@@ -62,20 +67,22 @@ export default function EventCard({
         onClick={() => onClick?.(event)}
         className="w-full text-left"
       >
-        <div className="flex items-start gap-2">
+        <div className={`flex items-start ${isSpacious ? "gap-3" : "gap-2"}`}>
           <span
             aria-hidden="true"
-            className="mt-1 inline-block text-xs opacity-60"
+            className={`mt-1 inline-block opacity-60 ${isSpacious ? "text-base" : "text-xs"}`}
             title="Event from Google Calendar"
           >
             📅
           </span>
           <div className="min-w-0 flex-1">
-            <p className="text-sm font-medium leading-tight text-forest sm:text-base dark:text-cream">
+            <p className={`font-medium leading-tight text-forest dark:text-cream ${
+              isSpacious ? "text-lg sm:text-xl" : "text-sm sm:text-base"
+            }`}>
               {event.title}
             </p>
-            <div className="mt-0.5 flex flex-wrap items-center gap-1.5">
-              <span className="text-xs text-forest/50 dark:text-cream/50">
+            <div className={`mt-1 flex flex-wrap items-center ${isSpacious ? "gap-2" : "gap-1.5"}`}>
+              <span className={`text-forest/50 dark:text-cream/50 ${isSpacious ? "text-sm" : "text-xs"}`}>
                 {formatTimeRange(event)}
               </span>
               {assignedName && (
