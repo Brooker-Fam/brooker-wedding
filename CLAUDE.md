@@ -115,6 +115,12 @@ game_scores (id, player_name, game_id, score, created_at)
 
 To add a new migration: edit `src/lib/migrate.ts` and add new `CREATE TABLE IF NOT EXISTS` or `ALTER TABLE` statements. Keep them idempotent.
 
+## Analytics
+
+**Env var:** `NEXT_PUBLIC_POSTHOG_KEY` (PostHog project API key)
+
+PostHog is wired up in `src/components/PostHogProvider.tsx` (client: autocapture, session replay, client-side exceptions, manual pageview tracking for App Router) and `src/lib/posthog-server.ts` (server: `captureServerException` called from every API route `catch` block). Events are proxied through the Next.js `/ingest/*` rewrite defined in `next.config.ts` to dodge ad-blockers. If `NEXT_PUBLIC_POSTHOG_KEY` is unset, both client and server become no-ops.
+
 ## Dark Mode
 
 Three-way toggle: light / system (default) / dark. Persisted in `localStorage("theme")`.

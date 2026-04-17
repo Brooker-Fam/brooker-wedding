@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { query } from "@/lib/db";
+import { captureServerException } from "@/lib/posthog-server";
 
 export async function GET(request: NextRequest) {
   try {
@@ -29,6 +30,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ data: result });
   } catch (error) {
     console.error("RSVP lookup error:", error);
+    await captureServerException(error, { route: "GET /api/rsvp/lookup" });
     return NextResponse.json(
       { error: "Failed to search RSVPs" },
       { status: 500 }

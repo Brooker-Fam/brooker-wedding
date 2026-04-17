@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { query } from "@/lib/db";
+import { captureServerException } from "@/lib/posthog-server";
 
 export async function POST(request: NextRequest) {
   try {
@@ -43,6 +44,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ success: true, voted: true });
   } catch (error) {
     console.error("Vote error:", error);
+    await captureServerException(error, { route: "POST /api/songs/vote" });
     return NextResponse.json({ error: "Failed to vote" }, { status: 500 });
   }
 }

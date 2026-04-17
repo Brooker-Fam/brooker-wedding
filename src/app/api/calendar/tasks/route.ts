@@ -5,6 +5,7 @@ import {
   updateTask,
   deleteTask,
 } from "@/lib/calendar/db";
+import { captureServerException } from "@/lib/posthog-server";
 
 function nullIfEmpty<T>(v: T): T | null {
   if (v === "" || v === undefined) return null;
@@ -45,6 +46,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(task, { status: 201 });
   } catch (err) {
     console.error("POST /api/calendar/tasks failed:", err);
+    await captureServerException(err, { route: "POST /api/calendar/tasks" });
     return NextResponse.json(
       { error: "Failed to create task" },
       { status: 500 }
@@ -73,6 +75,7 @@ export async function PUT(request: NextRequest) {
     return NextResponse.json(task);
   } catch (err) {
     console.error("PUT /api/calendar/tasks failed:", err);
+    await captureServerException(err, { route: "PUT /api/calendar/tasks" });
     return NextResponse.json(
       { error: "Failed to update task" },
       { status: 500 }

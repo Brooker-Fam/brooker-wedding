@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { query } from "@/lib/db";
+import { captureServerException } from "@/lib/posthog-server";
 
 
 export async function POST(request: NextRequest) {
@@ -37,6 +38,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ success: true, data: result[0] });
   } catch (error) {
     console.error("Score submission error:", error);
+    await captureServerException(error, { route: "POST /api/scores" });
     return NextResponse.json({ error: "Failed to submit score" }, { status: 500 });
   }
 }
@@ -66,6 +68,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ data: result });
   } catch (error) {
     console.error("Scores fetch error:", error);
+    await captureServerException(error, { route: "GET /api/scores" });
     return NextResponse.json({ error: "Failed to fetch scores" }, { status: 500 });
   }
 }

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { after } from "next/server";
 import { query } from "@/lib/db";
 import { syncSpotifyPlaylist } from "@/lib/spotify";
+import { captureServerException } from "@/lib/posthog-server";
 
 // Admin: set sort_position for all songs in the given order
 export async function POST(request: NextRequest) {
@@ -26,6 +27,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error("Reorder error:", error);
+    await captureServerException(error, { route: "POST /api/songs/reorder" });
     return NextResponse.json({ error: "Failed to reorder songs" }, { status: 500 });
   }
 }

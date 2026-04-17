@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { exchangeCode } from "@/lib/spotify";
+import { captureServerException } from "@/lib/posthog-server";
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
@@ -20,6 +21,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.redirect(new URL("/songs/admin?spotify=connected", request.url));
   } catch (err) {
     console.error("Spotify callback error:", err);
+    await captureServerException(err, { route: "GET /api/spotify/callback" });
     return NextResponse.redirect(new URL("/songs/admin?spotify=error", request.url));
   }
 }
