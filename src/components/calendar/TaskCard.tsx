@@ -1,6 +1,7 @@
 "use client";
 
 import type { TaskWithCompletion } from "@/lib/calendar/types";
+import { formatRecurrence } from "@/lib/calendar/recurrence";
 
 interface TaskCardProps {
   task: TaskWithCompletion;
@@ -97,6 +98,15 @@ export default function TaskCard({
             {task.points > 0 && (
               <span className="text-xs font-medium text-soft-gold">
                 +{task.points}pt
+              </span>
+            )}
+            {task.recurrence_rule && (
+              <span
+                className="inline-flex items-center gap-0.5 rounded-full bg-lavender/15 px-1.5 py-0.5 text-[10px] font-medium text-forest/60 dark:bg-lavender/10 dark:text-cream/60"
+                title={`Repeats: ${task.recurrence_rule}`}
+              >
+                <span aria-hidden="true">🔁</span>
+                <span>{formatRecurrence(task.recurrence_rule)}</span>
               </span>
             )}
           </div>

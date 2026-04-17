@@ -225,6 +225,27 @@ export async function getScoreboard(
   return rows as ScoreboardEntry[];
 }
 
+/**
+ * For each recurrence series, return the LATEST task row (by due_date).
+ * Series are identified by (household_id, title, recurrence_rule) — pragmatic
+ * grouping since we don't persist a series_id.
+ */
+export async function getLatestRecurringInstances(
+  householdId: number = DEFAULT_HOUSEHOLD_ID
+): Promise<Task[]> {
+  const db = getDb();
+  if (!db) return [];
+  const rows = await db`
+    SELECT DISTINCT ON (household_id, title, recurrence_rule) *
+    FROM tasks
+    WHERE household_id = ${householdId}
+      AND recurrence_rule IS NOT NULL
+      AND due_date IS NOT NULL
+    ORDER BY household_id, title, recurrence_rule, due_date DESC, id DESC
+  `;
+  return rows as Task[];
+}
+
 export async function seedBrookerFamily(): Promise<{
   household: Household;
   members: FamilyMember[];
