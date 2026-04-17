@@ -1,7 +1,58 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import type { FamilyMember, TaskWithCompletion } from "@/lib/calendar/types";
+import type {
+  CalendarEventWithMember,
+  FamilyMember,
+  TaskWithCompletion,
+} from "@/lib/calendar/types";
+
+/** Normalized item for display rendering — works for both tasks and events. */
+interface DisplayItem {
+  id: string;
+  title: string;
+  due_date: string | null;
+  due_time: string | null;
+  assigned_to: number | null;
+  member_name: string | null;
+  member_emoji: string | null;
+  member_color: string | null;
+  completed: boolean;
+  kind: "task" | "event";
+}
+
+function taskToItem(t: TaskWithCompletion): DisplayItem {
+  return {
+    id: `t-${t.id}`,
+    title: t.title,
+    due_date: t.due_date,
+    due_time: t.due_time,
+    assigned_to: t.assigned_to,
+    member_name: t.member_name,
+    member_emoji: t.member_emoji,
+    member_color: t.member_color,
+    completed: !!t.completion_id,
+    kind: "task",
+  };
+}
+
+function eventToItem(e: CalendarEventWithMember): DisplayItem {
+  const startTime = e.all_day
+    ? null
+    : new Date(e.start_at).toTimeString().slice(0, 5);
+  return {
+    id: `e-${e.id}`,
+    title: e.title,
+    due_date: new Date(e.start_at).toISOString().split("T")[0],
+    due_time: startTime,
+    assigned_to: e.assigned_to,
+    member_name: e.member_name,
+    member_emoji: e.member_emoji,
+    member_color: e.member_color,
+    completed: e.completions.length > 0,
+    kind: "event",
+  };
+}
 
 /* ------------------------------------------------------------------ */
 /* Helpers                                                             */
@@ -133,6 +184,7 @@ function Fireflies({ count = 14 }: { count?: number }) {
 export default function CalendarDisplayPage() {
   const [now, setNow] = useState(() => new Date());
   const [tasks, setTasks] = useState<TaskWithCompletion[]>([]);
+  const [events, setEvents] = useState<CalendarEventWithMember[]>([]);
   const [members, setMembers] = useState<FamilyMember[]>([]);
   const [weather, setWeather] = useState<Weather | null>(null);
 
@@ -200,7 +252,7 @@ export default function CalendarDisplayPage() {
       .catch(() => setMembers([]));
   }, []);
 
-  /* Task fetcher */
+  /* Task + event fetcher */
   const fetchTasks = useCallback(async () => {
     const today = new Date();
     const start = formatDateKey(today);
@@ -208,16 +260,20 @@ export default function CalendarDisplayPage() {
     end.setDate(end.getDate() + 8);
     const endKey = formatDateKey(end);
     try {
-      const res = await fetch(
-        `/api/calendar/tasks?start=${start}&end=${endKey}`,
-        { cache: "no-store" }
-      );
-      if (res.ok) {
-        const data = await res.json();
+      const [taskRes, eventRes] = await Promise.all([
+        fetch(`/api/calendar/tasks?start=${start}&end=${endKey}`, { cache: "no-store" }),
+        fetch(`/api/calendar/events?start=${start}&end=${endKey}`, { cache: "no-store" }),
+      ]);
+      if (taskRes.ok) {
+        const data = await taskRes.json();
         setTasks(Array.isArray(data) ? data : []);
       }
+      if (eventRes.ok) {
+        const data = await eventRes.json();
+        setEvents(Array.isArray(data) ? data : []);
+      }
     } catch {
-      // Keep last known tasks on network failure.
+      // Keep last known data on network failure.
     }
   }, []);
 
@@ -256,28 +312,36 @@ export default function CalendarDisplayPage() {
   const { time, ampm } = formatClock(now);
   const todayLabel = formatDate(now);
 
-  const todayTasks = useMemo(() => {
-    return tasks.filter((t) => t.due_date?.startsWith(todayKey));
-  }, [tasks, todayKey]);
+  const allItems = useMemo(() => {
+    return [
+      ...tasks.map(taskToItem),
+      ...events.map(eventToItem),
+    ];
+  }, [tasks, events]);
+
+  const todayItems = useMemo(() => {
+    return allItems
+      .filter((item) => item.due_date?.startsWith(todayKey))
+      .sort((a, b) => (a.due_time ?? "99:99").localeCompare(b.due_time ?? "99:99"));
+  }, [allItems, todayKey]);
 
   const upcoming = useMemo(() => {
-    return tasks
-      .filter((t) => t.due_date && !t.due_date.startsWith(todayKey))
+    return allItems
+      .filter((item) => item.due_date && !item.due_date.startsWith(todayKey))
       .sort((a, b) => {
         const da = (a.due_date ?? "") + (a.due_time ?? "");
         const db = (b.due_date ?? "") + (b.due_time ?? "");
         return da.localeCompare(db);
       })
-      .slice(0, 3);
-  }, [tasks, todayKey]);
+      .slice(0, 5);
+  }, [allItems, todayKey]);
 
-  // Group today's tasks by person. Order: members by sort_order, then unassigned.
   const todayGrouped = useMemo(() => {
-    const byMember = new Map<number | null, TaskWithCompletion[]>();
-    for (const t of todayTasks) {
-      const key = t.assigned_to ?? null;
+    const byMember = new Map<number | null, DisplayItem[]>();
+    for (const item of todayItems) {
+      const key = item.assigned_to ?? null;
       const arr = byMember.get(key) ?? [];
-      arr.push(t);
+      arr.push(item);
       byMember.set(key, arr);
     }
     const groups: Array<{
@@ -285,7 +349,7 @@ export default function CalendarDisplayPage() {
       name: string;
       emoji: string | null;
       color: string;
-      items: TaskWithCompletion[];
+      items: DisplayItem[];
     }> = [];
     for (const m of members) {
       const items = byMember.get(m.id);
@@ -310,7 +374,7 @@ export default function CalendarDisplayPage() {
       });
     }
     return groups;
-  }, [todayTasks, members]);
+  }, [todayItems, members]);
 
   // Cap visible at 8; roll the rest into a "+N more" line.
   const MAX_VISIBLE = 8;
@@ -327,7 +391,7 @@ export default function CalendarDisplayPage() {
     return out;
   }, [todayGrouped]);
 
-  const totalTodayCount = todayTasks.length;
+  const totalTodayCount = todayItems.length;
   const hiddenCount = Math.max(0, totalTodayCount - MAX_VISIBLE);
 
   const weatherInfo = weather ? weatherIcon(weather.code) : null;
@@ -404,7 +468,7 @@ export default function CalendarDisplayPage() {
               {totalTodayCount === 0
                 ? "nothing on the schedule"
                 : `${totalTodayCount} ${
-                    totalTodayCount === 1 ? "task" : "tasks"
+                    totalTodayCount === 1 ? "item" : "items"
                   }`}
             </span>
           </header>
@@ -443,26 +507,28 @@ export default function CalendarDisplayPage() {
                 </div>
 
                 <ul className="ml-6 flex flex-col gap-1.5">
-                  {g.items.map((t) => {
-                    const completed = !!t.completion_id;
-                    const time = formatDueTime(t.due_time);
+                  {g.items.map((item) => {
+                    const timeStr = formatDueTime(item.due_time);
                     return (
                       <li
-                        key={t.id}
+                        key={item.id}
                         className="flex items-baseline gap-3"
                         style={{ fontSize: "clamp(1.25rem, 2.25vmin, 2rem)" }}
                       >
+                        {item.kind === "event" && (
+                          <span className="text-lavender/60">📅</span>
+                        )}
                         <span
                           className={
-                            completed
+                            item.completed
                               ? "line-through text-cream/40"
                               : "text-cream"
                           }
                         >
-                          {t.title}
+                          {item.title}
                         </span>
-                        {time && (
-                          <span className="text-soft-gold/80">{time}</span>
+                        {timeStr && (
+                          <span className="text-soft-gold/80">{timeStr}</span>
                         )}
                       </li>
                     );
@@ -501,21 +567,24 @@ export default function CalendarDisplayPage() {
                 nothing on deck
               </span>
             )}
-            {upcoming.map((t) => {
-              const day = formatUpcomingDay(t.due_date!.slice(0, 10), now);
-              const tm = formatDueTime(t.due_time);
+            {upcoming.map((item) => {
+              const day = formatUpcomingDay(item.due_date!.slice(0, 10), now);
+              const tm = formatDueTime(item.due_time);
               return (
                 <div
-                  key={t.id}
+                  key={item.id}
                   className="flex items-baseline gap-3"
                   style={{ fontSize: "clamp(0.95rem, 1.7vmin, 1.35rem)" }}
                 >
                   <span className="text-sage-light">{day}</span>
                   {tm && <span className="text-soft-gold/80">{tm}</span>}
-                  {t.member_emoji && (
-                    <span aria-hidden>{t.member_emoji}</span>
+                  {item.kind === "event" && (
+                    <span className="text-lavender/60">📅</span>
                   )}
-                  <span className="text-cream">{t.title}</span>
+                  {item.member_emoji && (
+                    <span aria-hidden>{item.member_emoji}</span>
+                  )}
+                  <span className="text-cream">{item.title}</span>
                 </div>
               );
             })}
