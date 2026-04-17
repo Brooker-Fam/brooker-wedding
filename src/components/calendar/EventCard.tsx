@@ -39,6 +39,17 @@ export default function EventCard({
   const isSpacious = variant === "spacious";
   const isCompleted = isEventCompleted(event);
 
+  // If nothing custom is wired for onClick, tapping the card body toggles
+  // completion — matches how TaskCard's big body feels. Admin still gets
+  // the pencil button for edits via stopPropagation.
+  const handleBodyClick = () => {
+    if (onClick) {
+      onClick(event);
+      return;
+    }
+    onToggleComplete?.(event);
+  };
+
   return (
     <div
       className={`group relative rounded-lg border-l-[3px] transition-all ${
@@ -58,20 +69,22 @@ export default function EventCard({
               e.stopPropagation();
               onToggleComplete(event);
             }}
-            className={`mt-0.5 flex shrink-0 items-center justify-center rounded-full border-2 transition-colors ${
-              isSpacious ? "h-6 w-6" : "h-5 w-5"
+            className={`shrink-0 flex items-center justify-center rounded-full border-2 transition-all active:scale-90 ${
+              isSpacious ? "h-12 w-12 sm:h-14 sm:w-14" : "mt-0.5 h-6 w-6"
             } ${
               isCompleted
                 ? "border-sage bg-sage text-white dark:border-sage-light dark:bg-sage-light"
-                : "border-current opacity-50 hover:opacity-80"
+                : isSpacious
+                  ? "border-current bg-cream/40 hover:bg-soft-gold/10 dark:bg-dark-surface"
+                  : "border-current hover:opacity-80"
             }`}
             style={{ borderColor: isCompleted ? undefined : memberColor }}
             aria-label={isCompleted ? "Mark un-attended" : "Mark attended"}
           >
             {isCompleted && (
               <svg
-                width="10"
-                height="10"
+                width={isSpacious ? "22" : "12"}
+                height={isSpacious ? "22" : "12"}
                 viewBox="0 0 12 12"
                 fill="none"
                 stroke="currentColor"
@@ -87,7 +100,7 @@ export default function EventCard({
 
         <button
           type="button"
-          onClick={() => onClick?.(event)}
+          onClick={handleBodyClick}
           className={`flex min-w-0 flex-1 items-start text-left ${
             isSpacious ? "gap-3" : "gap-2"
           }`}
@@ -102,64 +115,64 @@ export default function EventCard({
             📅
           </span>
           <div className="min-w-0 flex-1">
-              <p
-                className={`font-medium leading-tight ${
-                  isCompleted
-                    ? "text-forest/50 line-through dark:text-cream/50"
-                    : "text-forest dark:text-cream"
-                } ${isSpacious ? "text-lg sm:text-xl" : "text-sm sm:text-base"}`}
-              >
-                {event.title}
-              </p>
-              <div
-                className={`mt-1 flex flex-wrap items-center ${
-                  isSpacious ? "gap-2" : "gap-1.5"
+            <p
+              className={`font-medium leading-tight ${
+                isCompleted
+                  ? "text-forest/50 line-through dark:text-cream/50"
+                  : "text-forest dark:text-cream"
+              } ${isSpacious ? "text-lg sm:text-xl" : "text-sm sm:text-base"}`}
+            >
+              {event.title}
+            </p>
+            <div
+              className={`mt-1 flex flex-wrap items-center ${
+                isSpacious ? "gap-2" : "gap-1.5"
+              }`}
+            >
+              <span
+                className={`text-forest/50 dark:text-cream/50 ${
+                  isSpacious ? "text-sm" : "text-xs"
                 }`}
               >
+                {formatTimeRange(event)}
+              </span>
+              {assignedName && (
                 <span
-                  className={`text-forest/50 dark:text-cream/50 ${
-                    isSpacious ? "text-sm" : "text-xs"
-                  }`}
+                  className="inline-flex items-center gap-1 text-xs"
+                  title={`For ${assignedName}`}
                 >
-                  {formatTimeRange(event)}
+                  <span
+                    className="inline-block h-2 w-2 rounded-full"
+                    style={{ backgroundColor: memberColor }}
+                  />
+                  <span className="text-forest/60 dark:text-cream/60">
+                    {assignedName}
+                  </span>
                 </span>
-                {assignedName && (
-                  <span
-                    className="inline-flex items-center gap-1 text-xs"
-                    title={`For ${assignedName}`}
-                  >
-                    <span
-                      className="inline-block h-2 w-2 rounded-full"
-                      style={{ backgroundColor: memberColor }}
-                    />
-                    <span className="text-forest/60 dark:text-cream/60">
-                      {assignedName}
-                    </span>
-                  </span>
-                )}
-                {event.location && (
-                  <span
-                    className="truncate text-xs text-forest/40 dark:text-cream/40"
-                    title={event.location}
-                  >
-                    · {event.location}
-                  </span>
-                )}
-                {event.points > 0 && (
-                  <span className="text-xs font-medium text-soft-gold">
-                    +{event.points}pt
-                  </span>
-                )}
-                {event.completions.length > 0 && (
-                  <span className="text-xs text-sage dark:text-sage-light">
-                    ✓{" "}
-                    {event.completions
-                      .map((c) => c.completed_by_name)
-                      .join(", ")}
-                  </span>
-                )}
-              </div>
+              )}
+              {event.location && (
+                <span
+                  className="truncate text-xs text-forest/40 dark:text-cream/40"
+                  title={event.location}
+                >
+                  · {event.location}
+                </span>
+              )}
+              {event.points > 0 && (
+                <span className="text-xs font-medium text-soft-gold">
+                  +{event.points}pt
+                </span>
+              )}
+              {event.completions.length > 0 && (
+                <span className="text-xs text-sage dark:text-sage-light">
+                  ✓{" "}
+                  {event.completions
+                    .map((c) => c.completed_by_name)
+                    .join(", ")}
+                </span>
+              )}
             </div>
+          </div>
         </button>
 
         {onEdit && (
@@ -169,7 +182,7 @@ export default function EventCard({
               e.stopPropagation();
               onEdit(event);
             }}
-            className="shrink-0 rounded p-1 text-forest/40 opacity-0 transition-opacity hover:bg-sage/10 hover:text-forest group-hover:opacity-100 dark:text-cream/40 dark:hover:bg-cream/10 dark:hover:text-cream"
+            className="shrink-0 rounded p-1 text-forest/40 transition-opacity hover:bg-sage/10 hover:text-forest sm:opacity-0 sm:group-hover:opacity-100 dark:text-cream/40 dark:hover:bg-cream/10 dark:hover:text-cream"
             aria-label="Edit event points or assignee"
           >
             <svg
