@@ -74,3 +74,70 @@ export interface ScoreboardEntry {
   all_time_points: number;
   completed_count: number;
 }
+
+// ── Google Calendar integration ──────────────────────────────────────
+
+export type EventStatus = "confirmed" | "tentative" | "cancelled";
+
+export interface GoogleCalendar {
+  id: number;
+  household_id: number;
+  google_calendar_id: string;
+  summary: string;
+  color: string | null;
+  enabled: boolean;
+  assigned_to: number | null;
+  sync_token: string | null;
+  last_synced_at: string | null;
+  created_at: string;
+}
+
+export interface CalendarEvent {
+  id: number;
+  household_id: number;
+  google_calendar_id: string;
+  google_event_id: string;
+  ical_uid: string | null;
+  etag: string | null;
+  title: string;
+  description: string | null;
+  location: string | null;
+  start_at: string;
+  end_at: string;
+  all_day: boolean;
+  timezone: string | null;
+  recurrence_rule: string | null;
+  recurring_event_id: string | null;
+  original_start_at: string | null;
+  assigned_to: number | null;
+  color_override: string | null;
+  points: number;
+  auto_award: boolean;
+  status: EventStatus;
+  html_link: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface EventCompletion {
+  id: number;
+  event_id: number;
+  completed_by: number;
+  completed_date: string;
+  points_earned: number;
+  notes: string | null;
+  created_at: string;
+}
+
+export interface CalendarEventWithMember extends CalendarEvent {
+  member_name: string | null;
+  member_color: string | null;
+  member_emoji: string | null;
+  calendar_summary: string | null;
+  completions: Array<{
+    id: number;
+    completed_by: number;
+    completed_by_name: string;
+    points_earned: number;
+  }>;
+}

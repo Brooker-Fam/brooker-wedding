@@ -291,24 +291,32 @@ export async function getScoreboard(
   const weekStartKey = toKey(weekStart);
   const monthStartKey = toKey(monthStart);
 
+  // UNION ALL across task completions + event completions so both feed the
+  // same scoreboard. Both tables expose (completed_by, completed_date,
+  // points_earned) so the outer aggregate doesn't care which is which.
   const rows = await db`
+    WITH all_completions AS (
+      SELECT completed_by, completed_date, points_earned FROM task_completions
+      UNION ALL
+      SELECT completed_by, completed_date, points_earned FROM event_completions
+    )
     SELECT
       fm.id AS member_id,
       fm.name,
       fm.avatar_emoji AS emoji,
       fm.color,
       COALESCE(SUM(
-        CASE WHEN tc.completed_date >= ${weekStartKey}
-             THEN tc.points_earned ELSE 0 END
+        CASE WHEN c.completed_date >= ${weekStartKey}
+             THEN c.points_earned ELSE 0 END
       ), 0)::int AS week_points,
       COALESCE(SUM(
-        CASE WHEN tc.completed_date >= ${monthStartKey}
-             THEN tc.points_earned ELSE 0 END
+        CASE WHEN c.completed_date >= ${monthStartKey}
+             THEN c.points_earned ELSE 0 END
       ), 0)::int AS month_points,
-      COALESCE(SUM(tc.points_earned), 0)::int AS all_time_points,
-      COUNT(tc.id)::int AS completed_count
+      COALESCE(SUM(c.points_earned), 0)::int AS all_time_points,
+      COUNT(c.completed_by)::int AS completed_count
     FROM family_members fm
-    LEFT JOIN task_completions tc ON tc.completed_by = fm.id
+    LEFT JOIN all_completions c ON c.completed_by = fm.id
     WHERE fm.household_id = ${householdId}
     GROUP BY fm.id, fm.name, fm.avatar_emoji, fm.color, fm.sort_order
     ORDER BY all_time_points DESC, fm.sort_order, fm.id
