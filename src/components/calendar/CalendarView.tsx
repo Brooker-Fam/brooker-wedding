@@ -230,7 +230,7 @@ export default function CalendarView({ adminMode }: CalendarViewProps) {
 
       {/* Member legend */}
       {members.length > 0 && (
-        <div className="flex flex-wrap gap-3 px-4 pb-3 sm:px-6">
+        <div className="flex flex-wrap items-center gap-3 px-4 pb-3 sm:px-6">
           {members.map((m) => (
             <div key={m.id} className="flex items-center gap-1.5 text-sm">
               <span
@@ -242,6 +242,20 @@ export default function CalendarView({ adminMode }: CalendarViewProps) {
               </span>
             </div>
           ))}
+          <div className="flex flex-wrap items-center gap-2 sm:ml-auto">
+            {members
+              .filter((m) => m.role === "kid")
+              .map((m) => (
+                <Link
+                  key={`kidlink-${m.id}`}
+                  href={`/calendar/kid/${m.name.toLowerCase()}`}
+                  className="rounded-full border border-soft-gold/40 bg-soft-gold/10 px-3 py-1 text-xs font-medium text-soft-gold-dark transition-colors hover:bg-soft-gold/20 dark:border-soft-gold/30 dark:bg-soft-gold/10 dark:text-soft-gold"
+                  title={`${m.name}'s simplified chore view`}
+                >
+                  {m.avatar_emoji} {m.name}&rsquo;s chores →
+                </Link>
+              ))}
+          </div>
         </div>
       )}
 
