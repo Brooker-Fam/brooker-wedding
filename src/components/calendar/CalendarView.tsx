@@ -457,6 +457,7 @@ export default function CalendarView({ adminMode }: CalendarViewProps) {
                   onToggleComplete={handleToggleComplete}
                   onEdit={handleEdit}
                   onDelete={handleDelete}
+                  variant="spacious"
                 />
               ))}
 
