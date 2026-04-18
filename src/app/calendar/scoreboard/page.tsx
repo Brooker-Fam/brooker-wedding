@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
+import { useVisiblePoll } from "@/lib/use-visible-poll";
 import type { ScoreboardEntry } from "@/lib/calendar/types";
 
 type SortKey = "week_points" | "month_points" | "all_time_points";
@@ -38,11 +39,7 @@ export default function ScoreboardPage() {
     fetchScoreboard();
   }, [fetchScoreboard]);
 
-  // Refresh every 60s — this view might live on a wall display.
-  useEffect(() => {
-    const interval = setInterval(fetchScoreboard, 60000);
-    return () => clearInterval(interval);
-  }, [fetchScoreboard]);
+  useVisiblePoll(fetchScoreboard);
 
   const sorted = [...entries].sort((a, b) => b[sortKey] - a[sortKey]);
   const maxValue = sorted.length > 0 ? sorted[0][sortKey] : 0;

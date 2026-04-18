@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { useVisiblePoll } from "@/lib/use-visible-poll";
 import type {
   CalendarEventWithMember,
   FamilyMember,
@@ -279,9 +280,8 @@ export default function CalendarDisplayPage() {
 
   useEffect(() => {
     fetchTasks();
-    const id = setInterval(fetchTasks, 60_000);
-    return () => clearInterval(id);
   }, [fetchTasks]);
+  useVisiblePoll(fetchTasks);
 
   /* Weather fetcher — every 15 min */
   useEffect(() => {
