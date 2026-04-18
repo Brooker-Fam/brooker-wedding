@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
+import { useVisiblePoll } from "@/lib/use-visible-poll";
 import CalendarHeader, {
   type CalendarViewMode,
 } from "@/components/calendar/CalendarHeader";
@@ -179,11 +180,7 @@ export default function CalendarView({ adminMode }: CalendarViewProps) {
     });
   }, [adminMode, members.length, fetchMembers]);
 
-  // Auto-refresh every 60 seconds
-  useEffect(() => {
-    const interval = setInterval(fetchTasks, 60000);
-    return () => clearInterval(interval);
-  }, [fetchTasks]);
+  useVisiblePoll(fetchTasks);
 
   const shiftAnchor = useCallback((days: number) => {
     setAnchor((prev) => {

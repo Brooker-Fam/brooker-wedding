@@ -56,6 +56,8 @@ async function materializeRecurringInstances(
     ORDER BY household_id, title, recurrence_rule, due_date ASC, id ASC
   `;
 
+  if ((anchors as unknown[]).length === 0) return;
+
   const rangeStart = parseLocalDate(startDate);
   const rangeEnd = parseLocalDate(endDate);
 

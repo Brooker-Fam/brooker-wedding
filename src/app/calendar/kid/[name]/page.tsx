@@ -3,6 +3,7 @@
 import { use, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
+import { useVisiblePoll } from "@/lib/use-visible-poll";
 import type {
   CalendarEventWithMember,
   FamilyMember,
@@ -404,22 +405,14 @@ export default function KidPage({
     fetchData();
   }, [fetchData]);
 
-  // Keep the kid page in sync with admin changes: refetch every 30s, on
-  // window focus, and when the tab becomes visible again. Without this,
-  // a parent unchecking a task in the main calendar wouldn't reappear here.
+  // Keep the kid page in sync with admin changes. useVisiblePoll handles the
+  // visible/hidden transitions; we keep a window focus listener so switching
+  // apps (not just tabs) also refetches.
+  useVisiblePoll(fetchData);
   useEffect(() => {
-    const interval = setInterval(fetchData, 30000);
     const onFocus = () => fetchData();
-    const onVisible = () => {
-      if (document.visibilityState === "visible") fetchData();
-    };
     window.addEventListener("focus", onFocus);
-    document.addEventListener("visibilitychange", onVisible);
-    return () => {
-      clearInterval(interval);
-      window.removeEventListener("focus", onFocus);
-      document.removeEventListener("visibilitychange", onVisible);
-    };
+    return () => window.removeEventListener("focus", onFocus);
   }, [fetchData]);
 
   const handleComplete = useCallback(
