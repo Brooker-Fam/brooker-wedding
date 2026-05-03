@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState, useEffect } from "react";
 
 interface Rsvp {
@@ -157,9 +158,17 @@ export default function AdminPage() {
   return (
     <div className="enchanted-bg min-h-screen">
       <div className="mx-auto max-w-5xl px-4 pt-24 pb-16 sm:pt-28 sm:pb-20">
-        <h1 className="mb-8 text-center font-[family-name:var(--font-cormorant-garamond)] text-4xl font-semibold text-forest dark:text-cream">
+        <h1 className="mb-2 text-center font-[family-name:var(--font-cormorant-garamond)] text-4xl font-semibold text-forest dark:text-cream">
           RSVP Admin
         </h1>
+        <div className="mb-8 text-center">
+          <Link
+            href="/rsvp/admin/labels"
+            className="text-sm text-sage underline underline-offset-2 hover:text-sage-dark dark:text-sage-light"
+          >
+            Mailing lists & labels →
+          </Link>
+        </div>
 
         {loading && (
           <div className="py-20 text-center">

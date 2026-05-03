@@ -28,6 +28,26 @@ CREATE TABLE IF NOT EXISTS game_scores (
 CREATE INDEX IF NOT EXISTS idx_game_scores_game_id ON game_scores(game_id);
 CREATE INDEX IF NOT EXISTS idx_game_scores_score ON game_scores(game_id, score DESC);
 
+CREATE TABLE IF NOT EXISTS mailing_lists (
+  id SERIAL PRIMARY KEY,
+  name VARCHAR(255) NOT NULL,
+  description TEXT,
+  created_at TIMESTAMP DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS mailing_list_entries (
+  id SERIAL PRIMARY KEY,
+  list_id INTEGER NOT NULL REFERENCES mailing_lists(id) ON DELETE CASCADE,
+  rsvp_id INTEGER NOT NULL REFERENCES rsvps(id) ON DELETE CASCADE,
+  addressee TEXT,
+  notes TEXT,
+  created_at TIMESTAMP DEFAULT NOW(),
+  UNIQUE (list_id, rsvp_id)
+);
+
+CREATE INDEX IF NOT EXISTS idx_mailing_list_entries_list ON mailing_list_entries(list_id);
+CREATE INDEX IF NOT EXISTS idx_mailing_list_entries_rsvp ON mailing_list_entries(rsvp_id);
+
 CREATE TABLE IF NOT EXISTS song_requests (
   id SERIAL PRIMARY KEY,
   requester_name VARCHAR(255) NOT NULL,
