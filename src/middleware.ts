@@ -6,6 +6,7 @@ const ADMIN_PASS = process.env.ADMIN_PASS;
 function isAdminRoute(pathname: string): boolean {
   return (
     pathname === "/rsvp/admin" ||
+    pathname === "/rsvp/admin/labels" ||
     pathname === "/songs/admin" ||
     pathname === "/calendar/admin"
   );
@@ -42,6 +43,11 @@ function isAdminApi(request: NextRequest): boolean {
   if (pathname === "/api/rsvp") {
     if (request.method === "GET" && !searchParams.get("id")) return true;
     if (request.method === "PUT" || request.method === "DELETE") return true;
+  }
+
+  // Mailing lists are admin-only end-to-end
+  if (pathname === "/api/mailing-lists" || pathname.startsWith("/api/mailing-lists/")) {
+    return true;
   }
 
   // Songs admin operations (DELETE = remove)
@@ -85,9 +91,12 @@ export function middleware(request: NextRequest) {
 export const config = {
   matcher: [
     "/rsvp/admin",
+    "/rsvp/admin/labels",
     "/songs/admin",
     "/calendar/admin",
     "/api/rsvp",
+    "/api/mailing-lists",
+    "/api/mailing-lists/:path*",
     "/api/songs",
     "/api/songs/reorder",
     "/api/spotify/authorize",
