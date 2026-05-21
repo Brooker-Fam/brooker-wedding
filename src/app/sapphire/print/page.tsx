@@ -88,9 +88,10 @@ export default function SapphirePrint() {
               <p className="invite-label">What to Expect</p>
               <ul className="invite-list">
                 <li>Pizza, cake &amp; lemonade</li>
+                <li>Swimming &mdash; bring suits &amp; towels</li>
                 <li>Forest treasure hunt</li>
                 <li>Games &amp; whimsy</li>
-                <li>Bring comfy shoes &amp; sunscreen</li>
+                <li>Sunscreen &amp; comfy shoes</li>
               </ul>
               <p className="invite-no-gifts">No gifts, please &mdash; just bring yourself.</p>
             </div>

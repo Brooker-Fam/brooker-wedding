@@ -1200,9 +1200,9 @@ export default function SapphirePage() {
             <ul className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-2">
               <Highlight emoji="🍕" title="Pizza party" desc="Bring an appetite for fairy fuel!" />
               <Highlight emoji="🎂" title="Birthday cake" desc="And lots of singing." />
+              <Highlight emoji="🏊" title="Swimming!" desc="There&apos;s a lake — bring suits & towels." />
               <Highlight emoji="🌲" title="Forest adventure" desc="Treasure hunt in the woods." />
               <Highlight emoji="🦋" title="Games & magic" desc="All kinds of whimsy planned." />
-              <Highlight emoji="👟" title="Comfy shoes" desc="We&apos;ll be exploring the park." />
               <Highlight emoji="🧴" title="Sunscreen & bug spray" desc="Just in case the fairies bite." />
             </ul>
             <p className="mt-5 text-center text-sm text-pink-100/80">
