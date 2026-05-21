@@ -201,7 +201,6 @@ async function main() {
   const bullets = [
     "Pizza, cake & lemonade",
     "Swimming – bring suits & towels",
-    "Forest treasure hunt",
     "Games & whimsy",
     "Sunscreen & comfy shoes",
   ];
