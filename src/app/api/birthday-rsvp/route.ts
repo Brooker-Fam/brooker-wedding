@@ -141,6 +141,28 @@ export async function GET(request: NextRequest) {
   }
 }
 
+export async function DELETE(request: NextRequest) {
+  try {
+    const { searchParams } = new URL(request.url);
+    const id = searchParams.get("id");
+    if (!id) {
+      return NextResponse.json({ error: "RSVP id is required" }, { status: 400 });
+    }
+    const result = await query(
+      "DELETE FROM birthday_rsvps WHERE id = $1 RETURNING id",
+      [Number(id)]
+    );
+    if (!result || result.length === 0) {
+      return NextResponse.json({ error: "RSVP not found" }, { status: 404 });
+    }
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error("Birthday RSVP delete error:", error);
+    await captureServerException(error, { route: "DELETE /api/birthday-rsvp" });
+    return NextResponse.json({ error: "Failed to delete RSVP" }, { status: 500 });
+  }
+}
+
 export async function PUT(request: NextRequest) {
   try {
     const body = await request.json();

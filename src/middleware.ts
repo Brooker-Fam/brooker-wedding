@@ -8,7 +8,8 @@ function isAdminRoute(pathname: string): boolean {
     pathname === "/rsvp/admin" ||
     pathname === "/rsvp/admin/labels" ||
     pathname === "/songs/admin" ||
-    pathname === "/calendar/admin"
+    pathname === "/calendar/admin" ||
+    pathname === "/sapphire/admin"
   );
 }
 
@@ -42,6 +43,12 @@ function isAdminApi(request: NextRequest): boolean {
   // RSVP admin operations
   if (pathname === "/api/rsvp") {
     if (request.method === "GET" && !searchParams.get("id")) return true;
+    if (request.method === "PUT" || request.method === "DELETE") return true;
+  }
+
+  // Sapphire birthday RSVP admin operations
+  if (pathname === "/api/birthday-rsvp") {
+    if (request.method === "GET" && !searchParams.get("id") && !searchParams.get("summary")) return true;
     if (request.method === "PUT" || request.method === "DELETE") return true;
   }
 
@@ -94,7 +101,9 @@ export const config = {
     "/rsvp/admin/labels",
     "/songs/admin",
     "/calendar/admin",
+    "/sapphire/admin",
     "/api/rsvp",
+    "/api/birthday-rsvp",
     "/api/mailing-lists",
     "/api/mailing-lists/:path*",
     "/api/songs",
