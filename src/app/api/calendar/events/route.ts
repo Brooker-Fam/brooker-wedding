@@ -1,9 +1,9 @@
-import { NextRequest, NextResponse } from "next/server";
+import { after, NextRequest, NextResponse } from "next/server";
 import { getEventsForDateRange } from "@/lib/calendar/events-db";
 import { maybeSyncIfStale } from "@/lib/calendar/google-sync";
 import { captureServerException } from "@/lib/posthog-server";
 
-// Incremental sync can take a few seconds when many events changed.
+// Background sync can take a few seconds; allow headroom for the after() task.
 export const maxDuration = 30;
 
 export async function GET(request: NextRequest) {
@@ -18,13 +18,22 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Opportunistic sync: if it's been > 15 min since the last sync attempt,
-    // pull fresh events from Google first. Internally throttled so concurrent
-    // page loads collapse to a single sync. Failures are swallowed so a broken
-    // Google connection doesn't break the calendar view.
-    await maybeSyncIfStale();
-
     const events = await getEventsForDateRange(start, end);
+
+    // Opportunistic Google sync runs AFTER the response is sent so it never
+    // blocks the calendar from rendering. maybeSyncIfStale is internally
+    // throttled (15 min) and the client polls every 5 min while visible, so
+    // fresh events arrive on the next tick rather than this request.
+    after(async () => {
+      try {
+        await maybeSyncIfStale();
+      } catch (err) {
+        await captureServerException(err, {
+          route: "after GET /api/calendar/events (sync)",
+        });
+      }
+    });
+
     return NextResponse.json(events);
   } catch (err) {
     await captureServerException(err, { route: "GET /api/calendar/events" });
