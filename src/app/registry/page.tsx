@@ -14,11 +14,8 @@ export default function RegistryPage() {
           className="text-center"
         >
           <HeartGarland size="lg" className="mb-5" />
-          <p className="mb-3 text-sm font-medium tracking-[0.25em] text-soft-gold/70 uppercase sm:text-base">
-            Registry
-          </p>
           <h1 className="fairy-sparkle font-[family-name:var(--font-cormorant-garamond)] text-4xl font-bold text-forest dark:text-cream sm:text-5xl">
-            For Those Who Have Asked
+            Registry
           </h1>
         </motion.div>
 
@@ -28,8 +25,11 @@ export default function RegistryPage() {
           transition={{ duration: 0.6, delay: 0.15 }}
           className="mx-auto mt-8 max-w-2xl overflow-hidden rounded-3xl border border-soft-gold/20 bg-warm-white/75 px-6 py-8 text-center shadow-[0_10px_40px_rgba(196,154,60,0.1)] backdrop-blur-sm dark:border-soft-gold/15 dark:bg-[#162618]/70 dark:shadow-[0_10px_40px_rgba(0,0,0,0.22)] sm:px-10 sm:py-10"
         >
+          <p className="mb-4 text-sm font-medium tracking-[0.22em] text-soft-gold/70 uppercase sm:text-base">
+            For Those Who Have Asked
+          </p>
           <p className="text-base leading-relaxed text-forest/75 dark:text-cream/75 sm:text-lg">
-            For those who have asked, here is our registry.
+            Here is our registry.
           </p>
           <p className="mt-5 text-sm leading-relaxed text-forest/65 dark:text-cream/70 sm:text-base">
             Please know that we are not expecting any gifts. Your presence to celebrate with us is truly all we need, and we feel so grateful to share this day with you.
