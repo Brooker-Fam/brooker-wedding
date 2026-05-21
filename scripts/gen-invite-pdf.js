@@ -202,7 +202,7 @@ async function main() {
   const bullets = [
     "Pizza, cake & lemonade",
     "Swimming – bring suits & towels",
-    "Forest games & fairy fun",
+    "Forest playground fun",
     "Sunscreen & comfy shoes",
   ];
   let bulletY = sectionY + 20;

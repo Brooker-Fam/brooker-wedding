@@ -1253,10 +1253,10 @@ export default function SapphirePage() {
               What to Expect
             </h3>
             <ul className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-2">
-              <Highlight emoji="🍕" title="Pizza party" desc="Bring an appetite for woodland snacks." />
-              <Highlight emoji="🎂" title="Birthday cake" desc="And lots of singing." />
+              <Highlight emoji="🍕" title="Pizza party" desc="Bring an appetite!" />
+              <Highlight emoji="🎂" title="Birthday cake" desc="Sweet treats after lake time." />
               <Highlight emoji="🏊" title="Swimming!" desc="There&apos;s a lake — bring suits & towels." />
-              <Highlight emoji="🦋" title="Forest games" desc="Fairy fun among the trees." />
+              <Highlight emoji="🦋" title="Forest playground" desc="Climb, explore, and play among the trees." />
               <Highlight emoji="🧴" title="Sunscreen & bug spray" desc="Good fairy forest essentials." />
             </ul>
             <p className="mt-5 text-center text-sm text-pink-100/80">
