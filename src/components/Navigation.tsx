@@ -91,6 +91,7 @@ export default function Navigation() {
   }, []);
 
   const isCalendar = pathname?.startsWith("/calendar");
+  const isSapphire = pathname?.startsWith("/sapphire");
 
   useEffect(() => {
     setIsOpen(false);
@@ -107,7 +108,7 @@ export default function Navigation() {
     };
   }, [isOpen]);
 
-  if (isCalendar) return null;
+  if (isCalendar || isSapphire) return null;
 
   return (
     <>
