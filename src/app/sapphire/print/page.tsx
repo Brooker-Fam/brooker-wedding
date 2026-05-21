@@ -19,6 +19,14 @@ export default function SapphirePrint() {
             >
               ← Back
             </a>
+            <a
+              href="/sapphire/invite"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="rounded-lg border border-slate-300 px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-50"
+            >
+              Open PDF
+            </a>
             <button
               type="button"
               onClick={() => window.print()}
@@ -93,7 +101,6 @@ export default function SapphirePrint() {
                 <li>Games &amp; whimsy</li>
                 <li>Sunscreen &amp; comfy shoes</li>
               </ul>
-              <p className="invite-no-gifts">No gifts, please &mdash; just bring yourself.</p>
             </div>
           </div>
 

@@ -1146,23 +1146,28 @@ export default function SapphirePage() {
           className="mb-10"
         >
           <div className="rounded-3xl border border-yellow-200/30 bg-gradient-to-br from-white/15 to-white/5 p-6 backdrop-blur-md sm:p-8">
-            <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 sm:gap-5">
               <DetailItem icon="📅" label="When">
-                Saturday<br />
-                <span className="font-[family-name:var(--font-cormorant-garamond)] text-2xl font-semibold text-yellow-100">
+                <span className="block font-[family-name:var(--font-cormorant-garamond)] text-2xl font-semibold leading-tight text-yellow-100">
+                  Saturday
+                  <br />
                   June 20, 2026
-                </span><br />
-                <span className="text-pink-100/85">11:00 AM – 3:00 PM</span>
+                </span>
+                <span className="mt-1 block text-pink-100/85">
+                  11:00 AM – 3:00 PM
+                </span>
               </DetailItem>
               <DetailItem icon="🏞️" label="Where">
-                <span className="font-[family-name:var(--font-cormorant-garamond)] text-2xl font-semibold text-yellow-100">
-                  Moreau Lake<br />State Park
-                </span><br />
+                <span className="block font-[family-name:var(--font-cormorant-garamond)] text-2xl font-semibold leading-tight text-yellow-100">
+                  Moreau Lake
+                  <br />
+                  State Park
+                </span>
                 <a
                   href="https://maps.google.com/?q=Moreau+Lake+State+Park"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-pink-100/85 underline underline-offset-2 hover:text-yellow-200"
+                  className="mt-1 inline-block text-pink-100/85 underline underline-offset-2 hover:text-yellow-200"
                 >
                   Get directions →
                 </a>
@@ -1206,7 +1211,7 @@ export default function SapphirePage() {
               <Highlight emoji="🧴" title="Sunscreen & bug spray" desc="Just in case the fairies bite." />
             </ul>
             <p className="mt-5 text-center text-sm text-pink-100/80">
-              Just bring yourself — no gifts needed. Sapphire is excited just to see you!
+              Sapphire is so excited to see you there!
             </p>
           </div>
         </motion.section>
@@ -1323,14 +1328,14 @@ function DetailItem({
   children: React.ReactNode;
 }) {
   return (
-    <div className="text-center sm:text-left">
-      <div className="mb-2 inline-flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-yellow-200/30 to-pink-200/20 text-2xl">
+    <div className="flex flex-col items-center text-center sm:items-start sm:text-left">
+      <div className="mb-3 flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-yellow-200/30 to-pink-200/20 text-3xl leading-none">
         {icon}
       </div>
       <p className="text-[10px] font-semibold tracking-[0.3em] text-pink-200/70 uppercase sm:text-xs">
         {label}
       </p>
-      <div className="mt-1 leading-relaxed text-white">{children}</div>
+      <div className="mt-2 leading-relaxed text-white">{children}</div>
     </div>
   );
 }
