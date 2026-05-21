@@ -1256,7 +1256,7 @@ export default function SapphirePage() {
               <Highlight emoji="🍕" title="Pizza party" desc="Bring an appetite!" />
               <Highlight emoji="🎂" title="Birthday cake" desc="Sweet treats after lake time." />
               <Highlight emoji="🏊" title="Swimming!" desc="There&apos;s a lake — bring suits & towels." />
-              <Highlight emoji="🦋" title="Forest playground" desc="Climb, explore, and play among the trees." />
+              <Highlight emoji="🛝" title="Beach playground" desc="The park playground is right near the beach." />
               <Highlight emoji="🧴" title="Sunscreen & bug spray" desc="Good fairy forest essentials." />
             </ul>
             <p className="mt-5 text-center text-sm text-pink-100/80">

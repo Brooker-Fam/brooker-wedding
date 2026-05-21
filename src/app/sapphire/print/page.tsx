@@ -97,7 +97,7 @@ export default function SapphirePrint() {
               <ul className="invite-list">
                 <li>Pizza, cake &amp; lemonade</li>
                 <li>Swimming &mdash; bring suits &amp; towels</li>
-                <li>Forest playground fun</li>
+                <li>Playground by the beach</li>
                 <li>Sunscreen &amp; comfy shoes</li>
               </ul>
             </div>
