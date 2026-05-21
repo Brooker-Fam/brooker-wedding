@@ -259,7 +259,7 @@ async function main() {
     .font("Helvetica")
     .fontSize(11)
     .fillColor(MUTED)
-    .text("Scan the code, or text Matt or Brittany.", leftX, rsvpY + 60, {
+    .text("Scan the code, or text Matt at 814-876-2231.", leftX, rsvpY + 60, {
       width: contentW - qrSize - 30,
     });
 

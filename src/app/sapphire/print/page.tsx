@@ -109,7 +109,9 @@ export default function SapphirePrint() {
             <div className="invite-rsvp-text">
               <p className="invite-label">Kindly RSVP</p>
               <p className="invite-rsvp-url">brooker.family/sapphire</p>
-              <p className="invite-rsvp-hint">Scan the code, or text Matt or Brittany.</p>
+              <p className="invite-rsvp-hint">
+                Scan the code, or text Matt at <strong>814-876-2231</strong>.
+              </p>
             </div>
             <div className="invite-qr-wrap">
               {/* eslint-disable-next-line @next/next/no-img-element */}
