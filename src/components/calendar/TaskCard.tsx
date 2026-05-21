@@ -78,21 +78,6 @@ export default function TaskCard({
             >
               <path d="M2 6l3 3 5-5" />
             </svg>
-          ) : isSpacious ? (
-            <svg
-              width="22"
-              height="22"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              className="opacity-50"
-              aria-hidden="true"
-            >
-              <path d="M20 6 9 17l-5-5" />
-            </svg>
           ) : null}
         </button>
 
