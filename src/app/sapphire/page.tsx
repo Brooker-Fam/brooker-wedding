@@ -1310,7 +1310,7 @@ export default function SapphirePage() {
             with love, Sapphire ♡
           </p>
           <p className="mt-2 text-xs text-pink-100/50">
-            Questions? Text Matt at{" "}
+            Questions? Text me at{" "}
             <a href="tel:+18148762231" className="underline underline-offset-2 hover:text-pink-100/80">
               814-876-2231
             </a>

@@ -110,7 +110,7 @@ export default function SapphirePrint() {
               <p className="invite-label">Kindly RSVP</p>
               <p className="invite-rsvp-url">brooker.family/sapphire</p>
               <p className="invite-rsvp-hint">
-                Scan the code, or text Matt at <strong>814-876-2231</strong>.
+                Scan the code, or text me at <strong>814-876-2231</strong>.
               </p>
             </div>
             <div className="invite-qr-wrap">
