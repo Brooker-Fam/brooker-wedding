@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import ConfettiCelebration from "@/components/ConfettiCelebration";
+import { useTheme } from "@/components/ThemeProvider";
 
 const PARTY_DATE = new Date("2026-06-20T11:00:00-04:00");
 const RSVP_COOKIE = "sapphire_rsvp_id";
@@ -395,12 +396,12 @@ function PartyCountdown() {
       {units.map(([label, value]) => (
         <div
           key={label}
-          className="flex flex-col items-center rounded-2xl border border-sky-300/30 bg-white/10 px-2 py-3 backdrop-blur-md sm:px-4 sm:py-4"
+          className="flex flex-col items-center rounded-2xl border border-purple-300/40 bg-white/70 px-2 py-3 shadow-sm backdrop-blur-md sm:px-4 sm:py-4 dark:border-sky-300/30 dark:bg-white/10 dark:shadow-none"
         >
-          <span className="font-[family-name:var(--font-cormorant-garamond)] text-3xl font-bold text-white sm:text-5xl">
+          <span className="font-[family-name:var(--font-cormorant-garamond)] text-3xl font-bold text-purple-900 sm:text-5xl dark:text-white">
             {String(value).padStart(2, "0")}
           </span>
-          <span className="mt-1 text-[10px] font-semibold tracking-widest text-sky-100/80 uppercase sm:text-xs">
+          <span className="mt-1 text-[10px] font-semibold tracking-widest text-purple-700/80 uppercase sm:text-xs dark:text-sky-100/80">
             {label}
           </span>
         </div>
@@ -439,12 +440,12 @@ function BirthdayCake({ onAllBlown }: { onAllBlown: () => void }) {
   };
 
   return (
-    <div className="rounded-3xl border border-pink-200/30 bg-white/10 p-5 backdrop-blur-md sm:p-7">
+    <div className="rounded-3xl border border-pink-300/50 bg-white/70 p-5 shadow-sm backdrop-blur-md sm:p-7 dark:border-pink-200/30 dark:bg-white/10 dark:shadow-none">
       <div className="text-center">
-        <p className="mb-1 text-xs font-semibold tracking-[0.25em] text-pink-100/80 uppercase sm:text-sm">
+        <p className="mb-1 text-xs font-semibold tracking-[0.25em] text-pink-600 uppercase sm:text-sm dark:text-pink-100/80">
           Make a Wish
         </p>
-        <h3 className="font-[family-name:var(--font-cormorant-garamond)] text-2xl font-semibold text-white sm:text-3xl">
+        <h3 className="font-[family-name:var(--font-cormorant-garamond)] text-2xl font-semibold text-purple-900 sm:text-3xl dark:text-white">
           {remaining > 0
             ? `Tap to blow out ${remaining} ${remaining === 1 ? "candle" : "candles"}`
             : "You did it!"}
@@ -590,7 +591,7 @@ function BirthdayCake({ onAllBlown }: { onAllBlown: () => void }) {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           onClick={reset}
-          className="mt-4 mx-auto block text-xs text-pink-100/70 underline underline-offset-2 hover:text-pink-100"
+          className="mt-4 mx-auto block text-xs text-purple-600 underline underline-offset-2 hover:text-purple-800 dark:text-pink-100/70 dark:hover:text-pink-100"
         >
           relight the candles
         </motion.button>
@@ -735,7 +736,7 @@ function RsvpCard({
             onClick={() => setAttending(true)}
             className={`rounded-2xl border-2 px-3 py-4 text-base font-semibold transition-all ${
               attending
-                ? "border-pink-400 bg-gradient-to-br from-pink-400 to-purple-500 text-white shadow-lg"
+                ? "border-rose-500 bg-rose-500 text-white shadow-md"
                 : "border-pink-200 bg-white text-purple-900 hover:border-pink-300"
             }`}
           >
@@ -746,7 +747,7 @@ function RsvpCard({
             onClick={() => setAttending(false)}
             className={`rounded-2xl border-2 px-3 py-4 text-base font-semibold transition-all ${
               !attending
-                ? "border-blue-400 bg-gradient-to-br from-blue-400 to-purple-500 text-white shadow-lg"
+                ? "border-slate-400 bg-slate-400 text-white shadow-md"
                 : "border-pink-200 bg-white text-purple-900 hover:border-pink-300"
             }`}
           >
@@ -891,7 +892,7 @@ function RsvpCard({
       <button
         type="submit"
         disabled={submitting}
-        className={`relative w-full overflow-hidden rounded-2xl bg-gradient-to-r from-pink-500 via-purple-500 to-blue-500 px-6 py-4 text-base font-bold text-white shadow-lg transition-all hover:shadow-xl active:scale-[0.98] sm:text-lg ${
+        className={`relative w-full overflow-hidden rounded-2xl bg-gradient-to-b from-[#2A4480] to-[#1B2A5C] px-6 py-4 text-base font-bold text-white shadow-md transition-all hover:from-[#3B5FBA] hover:to-[#2A4480] hover:shadow-lg active:scale-[0.98] sm:text-lg ${
           submitting ? "cursor-wait opacity-70" : ""
         }`}
       >
@@ -994,12 +995,12 @@ function WhosComing() {
       initial={{ opacity: 0, y: 20 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
-      className="rounded-3xl border border-yellow-200/30 bg-white/10 p-5 backdrop-blur-md sm:p-7"
+      className="rounded-3xl border border-amber-400/40 bg-white/60 p-5 shadow-sm backdrop-blur-md sm:p-7 dark:border-yellow-200/30 dark:bg-white/10 dark:shadow-none"
     >
-      <p className="text-center text-xs font-semibold tracking-[0.25em] text-yellow-100/80 uppercase">
+      <p className="text-center text-xs font-semibold tracking-[0.25em] text-amber-700 uppercase dark:text-yellow-100/80">
         The Guest List
       </p>
-      <h3 className="mt-1 text-center font-[family-name:var(--font-cormorant-garamond)] text-2xl font-semibold text-white sm:text-3xl">
+      <h3 className="mt-1 text-center font-[family-name:var(--font-cormorant-garamond)] text-2xl font-semibold text-purple-900 sm:text-3xl dark:text-white">
         {data.totalKids} {data.totalKids === 1 ? "kid" : "kids"} coming so far
         {data.totalAdults > 0 && ` (+ ${data.totalAdults} grown-ups)`}
       </h3>
@@ -1008,9 +1009,9 @@ function WhosComing() {
           {data.guests.map((g, i) => (
             <span
               key={i}
-              className="inline-flex items-center gap-1.5 rounded-full border border-yellow-200/30 bg-yellow-200/10 px-3 py-1.5 text-sm font-medium text-yellow-50"
+              className="inline-flex items-center gap-1.5 rounded-full border border-amber-400/40 bg-amber-100/60 px-3 py-1.5 text-sm font-medium text-amber-900 dark:border-yellow-200/30 dark:bg-yellow-200/10 dark:text-yellow-50"
             >
-              <span className="text-yellow-300">✦</span>
+              <span className="text-amber-600 dark:text-yellow-300">✦</span>
               {g.name}
             </span>
           ))}
@@ -1097,17 +1098,16 @@ export default function SapphirePage() {
     <div
       onClick={handleTap}
       onTouchStart={handleTap}
-      className="relative min-h-screen overflow-x-hidden"
-      style={{
-        background:
-          "linear-gradient(180deg, #244A2B 0%, #38653A 28%, #6A8E53 58%, #D99AA9 100%)",
-      }}
+      className="sapphire-page relative min-h-screen overflow-x-hidden"
     >
+      <SapphireThemeToggle />
       <ConfettiCelebration active={confetti} />
       <TapPetalLayer petals={tapPetals} />
 
       {/* Ambient effects */}
-      <ForestCanopy />
+      <div className="hidden dark:block">
+        <ForestCanopy />
+      </div>
       <DriftingPetals />
       <div className="absolute top-0 left-0 right-0 h-[500px]">
         <ButterflyFlock />
@@ -1121,7 +1121,7 @@ export default function SapphirePage() {
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
-            className="text-xs font-semibold tracking-[0.4em] text-pink-200/80 uppercase sm:text-sm"
+            className="text-xs font-semibold tracking-[0.4em] text-purple-600 uppercase sm:text-sm dark:text-pink-200/80"
           >
             You&apos;re Invited to
           </motion.p>
@@ -1130,14 +1130,7 @@ export default function SapphirePage() {
             initial={{ opacity: 0, y: 20, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             transition={{ duration: 0.8, delay: 0.2 }}
-            className="mt-4 font-[family-name:var(--font-cormorant-garamond)] text-6xl font-bold text-white drop-shadow-[0_4px_24px_rgba(166,200,255,0.55)] sm:text-7xl md:text-8xl"
-            style={{
-              background:
-                "linear-gradient(180deg, #FFFFFF 0%, #DCE7FF 60%, #A6C8FF 100%)",
-              WebkitBackgroundClip: "text",
-              WebkitTextFillColor: "transparent",
-              backgroundClip: "text",
-            }}
+            className="sapphire-name-text mt-4 font-[family-name:var(--font-cormorant-garamond)] text-6xl font-bold drop-shadow-[0_4px_18px_rgba(120,90,200,0.25)] sm:text-7xl md:text-8xl dark:drop-shadow-[0_4px_24px_rgba(166,200,255,0.55)]"
           >
             Sapphire&apos;s
           </motion.h1>
@@ -1155,7 +1148,7 @@ export default function SapphirePage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.7 }}
-            className="font-[family-name:var(--font-cormorant-garamond)] text-5xl font-bold text-pink-100 sm:text-6xl"
+            className="font-[family-name:var(--font-cormorant-garamond)] text-5xl font-bold text-purple-800 sm:text-6xl dark:text-pink-100"
           >
             Fairy Forest 9
             <sup className="text-3xl sm:text-4xl">th</sup>
@@ -1166,7 +1159,7 @@ export default function SapphirePage() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.8, delay: 0.9 }}
-            className="mx-auto mt-6 max-w-md text-base font-light text-purple-100/90 sm:text-lg"
+            className="mx-auto mt-6 max-w-md text-base font-light text-purple-900/80 sm:text-lg dark:text-purple-100/90"
           >
             Sapphire is turning 9 years old! Join us for a fun filled day at
             Moreau Lake to celebrate with swimming, pizza, and cake.
@@ -1181,7 +1174,7 @@ export default function SapphirePage() {
           transition={{ duration: 0.6 }}
           className="mb-10"
         >
-          <p className="mb-3 text-center text-xs font-semibold tracking-[0.3em] text-pink-200/80 uppercase">
+          <p className="mb-3 text-center text-xs font-semibold tracking-[0.3em] text-green-800 uppercase dark:text-pink-200/80">
             Until the forest party begins
           </p>
           <PartyCountdown />
@@ -1195,20 +1188,20 @@ export default function SapphirePage() {
           transition={{ duration: 0.6 }}
           className="mb-10"
         >
-          <div className="rounded-3xl border border-yellow-200/30 bg-gradient-to-br from-white/15 to-white/5 p-6 backdrop-blur-md sm:p-8">
+          <div className="rounded-3xl border border-purple-300/40 bg-white/60 p-6 shadow-sm backdrop-blur-md sm:p-8 dark:border-yellow-200/30 dark:bg-gradient-to-br dark:from-white/15 dark:to-white/5 dark:shadow-none">
             <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 sm:gap-5">
               <DetailItem icon="📅" label="When">
-                <span className="block font-[family-name:var(--font-cormorant-garamond)] text-2xl font-semibold leading-tight text-yellow-100">
+                <span className="block font-[family-name:var(--font-cormorant-garamond)] text-2xl font-semibold leading-tight text-purple-900 dark:text-yellow-100">
                   Saturday
                   <br />
                   June 20, 2026
                 </span>
-                <span className="mt-1 block text-pink-100/85">
+                <span className="mt-1 block text-purple-800/80 dark:text-pink-100/85">
                   11:00 AM – 3:00 PM
                 </span>
               </DetailItem>
               <DetailItem icon="🏞️" label="Where">
-                <span className="block font-[family-name:var(--font-cormorant-garamond)] text-2xl font-semibold leading-tight text-yellow-100">
+                <span className="block font-[family-name:var(--font-cormorant-garamond)] text-2xl font-semibold leading-tight text-purple-900 dark:text-yellow-100">
                   Moreau Lake
                   <br />
                   State Park
@@ -1217,7 +1210,7 @@ export default function SapphirePage() {
                   href="https://maps.google.com/?q=Moreau+Lake+State+Park"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="mt-1 inline-block text-pink-100/85 underline underline-offset-2 hover:text-yellow-200"
+                  className="mt-1 inline-block text-purple-800/80 underline underline-offset-2 hover:text-purple-600 dark:text-pink-100/85 dark:hover:text-yellow-200"
                 >
                   Get directions →
                 </a>
@@ -1245,11 +1238,11 @@ export default function SapphirePage() {
           transition={{ duration: 0.6 }}
           className="mb-10"
         >
-          <div className="rounded-3xl border border-purple-200/30 bg-white/10 p-6 backdrop-blur-md sm:p-8">
-            <p className="text-center text-xs font-semibold tracking-[0.3em] text-pink-200/80 uppercase">
+          <div className="rounded-3xl border border-purple-300/40 bg-white/60 p-6 shadow-sm backdrop-blur-md sm:p-8 dark:border-purple-200/30 dark:bg-white/10 dark:shadow-none">
+            <p className="text-center text-xs font-semibold tracking-[0.3em] text-purple-600 uppercase dark:text-pink-200/80">
               The Plan
             </p>
-            <h3 className="mt-1 text-center font-[family-name:var(--font-cormorant-garamond)] text-3xl font-semibold text-white">
+            <h3 className="mt-1 text-center font-[family-name:var(--font-cormorant-garamond)] text-3xl font-semibold text-purple-900 dark:text-white">
               What to Expect
             </h3>
             <ul className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-2">
@@ -1259,7 +1252,7 @@ export default function SapphirePage() {
               <Highlight emoji="🛝" title="Playground" desc="The park playground is right near the beach." />
               <Highlight emoji="🧴" title="Sunscreen & bug spray" desc="Good fairy forest essentials." />
             </ul>
-            <p className="mt-5 text-center text-sm text-pink-100/80">
+            <p className="mt-5 text-center text-sm text-purple-700 dark:text-pink-100/80">
               Sapphire is so excited to see you there!
             </p>
           </div>
@@ -1355,18 +1348,82 @@ export default function SapphirePage() {
 
         {/* FOOTER */}
         <footer className="mt-12 text-center">
-          <p className="font-[family-name:var(--font-cormorant-garamond)] text-2xl italic text-pink-100/70">
+          <p className="font-[family-name:var(--font-cormorant-garamond)] text-2xl italic text-purple-600 dark:text-pink-100/70">
             with love, Sapphire ♡
           </p>
-          <p className="mt-2 text-xs text-pink-100/50">
+          <p className="mt-2 text-xs text-purple-700/70 dark:text-pink-100/50">
             Questions? Text me at{" "}
-            <a href="tel:+18148762231" className="underline underline-offset-2 hover:text-pink-100/80">
+            <a href="tel:+18148762231" className="underline underline-offset-2 hover:text-purple-900 dark:hover:text-pink-100/80">
               814-876-2231
             </a>
           </p>
         </footer>
       </div>
+
+      <style jsx global>{`
+        /* Light mode: pale forest morning — soft sage → cream → blush */
+        .sapphire-page {
+          background: linear-gradient(
+            180deg,
+            #e8f0dd 0%,
+            #f1ead5 32%,
+            #faead8 65%,
+            #f5c6d0 100%
+          );
+        }
+        /* Dark mode: deep forest sunset (the existing palette) */
+        .dark .sapphire-page {
+          background: linear-gradient(
+            180deg,
+            #244a2b 0%,
+            #38653a 28%,
+            #6a8e53 58%,
+            #d99aa9 100%
+          );
+        }
+        .sapphire-name-text {
+          background: linear-gradient(180deg, #244a2b 0%, #38653a 55%, #b27889 100%);
+          -webkit-background-clip: text;
+          background-clip: text;
+          -webkit-text-fill-color: transparent;
+        }
+        .dark .sapphire-name-text {
+          background: linear-gradient(180deg, #ffffff 0%, #f0e5b8 55%, #f4b8c4 100%);
+          -webkit-background-clip: text;
+          background-clip: text;
+          -webkit-text-fill-color: transparent;
+        }
+      `}</style>
     </div>
+  );
+}
+
+function SapphireThemeToggle() {
+  const { isDark, setTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+  if (!mounted) return null;
+  return (
+    <button
+      type="button"
+      onClick={(e) => {
+        e.stopPropagation();
+        setTheme(isDark ? "light" : "dark");
+      }}
+      className="fixed top-4 right-4 z-50 flex h-11 w-11 items-center justify-center rounded-full border border-purple-300/40 bg-white/80 text-purple-700 shadow-md backdrop-blur transition-transform hover:scale-110 active:scale-95 dark:border-yellow-100/30 dark:bg-white/10 dark:text-yellow-100"
+      aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
+    >
+      {isDark ? (
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <circle cx="12" cy="12" r="4" />
+          <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41" />
+        </svg>
+      ) : (
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+        </svg>
+      )}
+    </button>
   );
 }
 
@@ -1381,24 +1438,24 @@ function DetailItem({
 }) {
   return (
     <div className="flex flex-col items-center text-center sm:items-start sm:text-left">
-      <div className="mb-3 flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-yellow-200/30 to-pink-200/20 text-3xl leading-none">
+      <div className="mb-3 flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-yellow-200/70 to-pink-200/70 text-3xl leading-none dark:from-yellow-200/30 dark:to-pink-200/20">
         {icon}
       </div>
-      <p className="text-[10px] font-semibold tracking-[0.3em] text-pink-200/70 uppercase sm:text-xs">
+      <p className="text-[10px] font-semibold tracking-[0.3em] text-purple-600 uppercase sm:text-xs dark:text-pink-200/70">
         {label}
       </p>
-      <div className="mt-2 leading-relaxed text-white">{children}</div>
+      <div className="mt-2 leading-relaxed text-purple-900 dark:text-white">{children}</div>
     </div>
   );
 }
 
 function Highlight({ emoji, title, desc }: { emoji: string; title: string; desc: string }) {
   return (
-    <li className="flex items-start gap-3 rounded-2xl bg-white/5 p-3 backdrop-blur-sm">
+    <li className="flex items-start gap-3 rounded-2xl bg-white/40 p-3 backdrop-blur-sm dark:bg-white/5">
       <span className="text-2xl">{emoji}</span>
       <div className="min-w-0">
-        <p className="font-semibold text-white">{title}</p>
-        <p className="text-sm text-pink-100/75">{desc}</p>
+        <p className="font-semibold text-purple-900 dark:text-white">{title}</p>
+        <p className="text-sm text-purple-700/80 dark:text-pink-100/75">{desc}</p>
       </div>
     </li>
   );
