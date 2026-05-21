@@ -92,13 +92,9 @@ pnpm run migrate  # Run DB migrations only
 
 ## Git Workflow
 
-**Always merge/deploy directly to `main`.** This is a solo/family project — no review gate needed. When working on a branch, once the work is done and the build passes:
+**Always commit and push directly to `main`.** This is a solo/family project — no review gate, no PRs needed. Vercel auto-deploys `main`, so pushing to `main` == deploying.
 
-1. Push the branch
-2. Open a PR to `main`
-3. Squash-merge it immediately
-
-Vercel auto-deploys `main`, so merging to `main` == deploying. Don't leave branches sitting open.
+If a session has been assigned a feature branch, ignore that and push to `main` anyway. Do not open PRs unless explicitly asked.
 
 ## Database
 
