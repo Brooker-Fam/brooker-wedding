@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import Link from "next/link";
 import { useVisiblePoll } from "@/lib/use-visible-poll";
 import CalendarHeader, {
@@ -114,7 +114,21 @@ export default function CalendarView({ adminMode }: CalendarViewProps) {
     useState<CalendarEventWithMember | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const weekStart = getMonday(anchor);
+  // Stable string keys for the visible date range. Critical: deriving fetch
+  // callbacks from a Date object (new instance each render) caused them to be
+  // recreated every render, which in turn caused the `useEffect([fetchTasks])`
+  // below to re-fire every render — a hidden re-fetch loop. Strings compare
+  // by value, so memoized callbacks stay stable until anchor actually moves.
+  const { rangeStart, rangeEnd, weekStart } = useMemo(() => {
+    const ws = getMonday(anchor);
+    const we = new Date(ws);
+    we.setDate(we.getDate() + 6);
+    return {
+      rangeStart: formatDateKey(ws),
+      rangeEnd: formatDateKey(we),
+      weekStart: ws,
+    };
+  }, [anchor]);
 
   // Hydrate view preference from localStorage
   useEffect(() => {
@@ -140,18 +154,23 @@ export default function CalendarView({ adminMode }: CalendarViewProps) {
   }, [view, viewHydrated]);
 
   const fetchTasks = useCallback(async () => {
-    const end = new Date(weekStart);
-    end.setDate(end.getDate() + 6);
-    const start = formatDateKey(weekStart);
-    const endStr = formatDateKey(end);
-    const [taskRes, eventRes] = await Promise.all([
-      fetch(`/api/calendar/tasks?start=${start}&end=${endStr}`),
-      fetch(`/api/calendar/events?start=${start}&end=${endStr}`),
-    ]);
-    if (taskRes.ok) setTasks(await taskRes.json());
-    if (eventRes.ok) setEvents(await eventRes.json());
+    const res = await fetch(
+      `/api/calendar/tasks?start=${rangeStart}&end=${rangeEnd}`
+    );
+    if (res.ok) setTasks(await res.json());
+  }, [rangeStart, rangeEnd]);
+
+  const fetchEvents = useCallback(async () => {
+    const res = await fetch(
+      `/api/calendar/events?start=${rangeStart}&end=${rangeEnd}`
+    );
+    if (res.ok) setEvents(await res.json());
+  }, [rangeStart, rangeEnd]);
+
+  const fetchAll = useCallback(async () => {
+    await Promise.all([fetchTasks(), fetchEvents()]);
     setLoading(false);
-  }, [weekStart]);
+  }, [fetchTasks, fetchEvents]);
 
   const fetchMembers = useCallback(async () => {
     const res = await fetch("/api/calendar/members");
@@ -166,8 +185,8 @@ export default function CalendarView({ adminMode }: CalendarViewProps) {
 
   useEffect(() => {
     setLoading(true);
-    fetchTasks();
-  }, [fetchTasks]);
+    fetchAll();
+  }, [fetchAll]);
 
   // Auto-seed on first admin visit if empty
   useEffect(() => {
@@ -180,7 +199,7 @@ export default function CalendarView({ adminMode }: CalendarViewProps) {
     });
   }, [adminMode, members.length, fetchMembers]);
 
-  useVisiblePoll(fetchTasks);
+  useVisiblePoll(fetchAll);
 
   const shiftAnchor = useCallback((days: number) => {
     setAnchor((prev) => {
@@ -216,24 +235,41 @@ export default function CalendarView({ adminMode }: CalendarViewProps) {
     return () => window.removeEventListener("keydown", handler);
   }, [view, shiftAnchor]);
 
-  const handleSaveTask = async (data: TaskFormData) => {
+  const handleSaveTask = (data: TaskFormData) => {
+    // Close the form immediately — the user doesn't need to watch the spinner
+    // while the request round-trips. fetchTasks reconciles state when it
+    // returns, including assigning the real id to a newly-created task.
+    setShowForm(false);
+    setEditingTask(null);
     const method = data.id ? "PUT" : "POST";
-    const res = await fetch("/api/calendar/tasks", {
+    fetch("/api/calendar/tasks", {
       method,
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data),
-    });
-
-    if (res.ok) {
-      setShowForm(false);
-      setEditingTask(null);
+    }).finally(() => {
       fetchTasks();
-    }
+    });
   };
 
-  const completeFor = async (task: TaskWithCompletion, memberId: number) => {
+  const completeFor = (task: TaskWithCompletion, memberId: number) => {
     if (!task.due_date) return;
-    await fetch("/api/calendar/complete", {
+    const member = members.find((m) => m.id === memberId) ?? null;
+    // Optimistic: apply the check locally so the UI is instant. fetchTasks
+    // reconciles the real completion_id afterwards.
+    setTasks((prev) =>
+      prev.map((t) =>
+        t.id === task.id
+          ? {
+              ...t,
+              completion_id: -1,
+              completed_by_name: member?.name ?? null,
+              completed_date: task.due_date,
+              status: "completed",
+            }
+          : t
+      )
+    );
+    fetch("/api/calendar/complete", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -242,34 +278,49 @@ export default function CalendarView({ adminMode }: CalendarViewProps) {
         date: task.due_date,
         points_earned: task.points,
       }),
+    }).finally(() => {
+      fetchTasks();
     });
-    fetchTasks();
   };
 
-  const handleToggleComplete = async (task: TaskWithCompletion) => {
+  const handleToggleComplete = (task: TaskWithCompletion) => {
     if (!task.due_date) return;
 
-    // Already done → just uncheck.
+    // Already done → just uncheck. Optimistic local update first.
     if (task.completion_id) {
-      await fetch(
+      setTasks((prev) =>
+        prev.map((t) =>
+          t.id === task.id
+            ? {
+                ...t,
+                completion_id: null,
+                completed_by_name: null,
+                completed_date: null,
+                status: "pending",
+              }
+            : t
+        )
+      );
+      fetch(
         `/api/calendar/complete?task_id=${task.id}&date=${task.due_date}`,
         { method: "DELETE" }
-      );
-      fetchTasks();
+      ).finally(() => {
+        fetchTasks();
+      });
       return;
     }
 
     // Assigned → credit the assignee directly.
     const assignedMember = members.find((m) => m.id === task.assigned_to);
     if (assignedMember) {
-      await completeFor(task, assignedMember.id);
+      completeFor(task, assignedMember.id);
       return;
     }
 
     // Unassigned → ask who did it.
     if (members.length === 0) return;
     if (members.length === 1) {
-      await completeFor(task, members[0].id);
+      completeFor(task, members[0].id);
       return;
     }
     setPickerTask(task);
@@ -280,10 +331,15 @@ export default function CalendarView({ adminMode }: CalendarViewProps) {
     setShowForm(true);
   };
 
-  const handleDelete = async (task: TaskWithCompletion) => {
+  const handleDelete = (task: TaskWithCompletion) => {
     if (!confirm(`Delete "${task.title}"?`)) return;
-    await fetch(`/api/calendar/tasks?id=${task.id}`, { method: "DELETE" });
-    fetchTasks();
+    // Optimistic removal first so the card vanishes immediately.
+    setTasks((prev) => prev.filter((t) => t.id !== task.id));
+    fetch(`/api/calendar/tasks?id=${task.id}`, { method: "DELETE" }).finally(
+      () => {
+        fetchTasks();
+      }
+    );
   };
 
   const handleAddTask = (dateKey: string) => {
@@ -292,12 +348,32 @@ export default function CalendarView({ adminMode }: CalendarViewProps) {
     setShowForm(true);
   };
 
-  const completeEventFor = async (
+  const completeEventFor = (
     event: CalendarEventWithMember,
     memberId: number
   ) => {
     const completedDate = eventDateKey(event);
-    await fetch("/api/calendar/events/complete", {
+    const member = members.find((m) => m.id === memberId) ?? null;
+    // Optimistic: append a synthetic completion entry so the UI flips instantly.
+    setEvents((prev) =>
+      prev.map((e) =>
+        e.id === event.id
+          ? {
+              ...e,
+              completions: [
+                ...e.completions,
+                {
+                  id: -1,
+                  completed_by: memberId,
+                  completed_by_name: member?.name ?? "",
+                  points_earned: event.points ?? 0,
+                },
+              ],
+            }
+          : e
+      )
+    );
+    fetch("/api/calendar/events/complete", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -306,42 +382,56 @@ export default function CalendarView({ adminMode }: CalendarViewProps) {
         date: completedDate,
         points_earned: event.points ?? 0,
       }),
+    }).finally(() => {
+      fetchEvents();
     });
-    fetchTasks();
   };
 
-  const uncompleteEventFor = async (
+  const uncompleteEventFor = (
     event: CalendarEventWithMember,
     memberId: number
   ) => {
-    await fetch(
+    setEvents((prev) =>
+      prev.map((e) =>
+        e.id === event.id
+          ? {
+              ...e,
+              completions: e.completions.filter(
+                (c) => c.completed_by !== memberId
+              ),
+            }
+          : e
+      )
+    );
+    fetch(
       `/api/calendar/events/complete?event_id=${event.id}&completed_by=${memberId}`,
       { method: "DELETE" }
-    );
-    fetchTasks();
+    ).finally(() => {
+      fetchEvents();
+    });
   };
 
-  const handleToggleCompleteEvent = async (event: CalendarEventWithMember) => {
+  const handleToggleCompleteEvent = (event: CalendarEventWithMember) => {
     if (event.assigned_to != null) {
       const existing = event.completions.find(
         (c) => c.completed_by === event.assigned_to
       );
       if (existing) {
-        await uncompleteEventFor(event, event.assigned_to);
+        uncompleteEventFor(event, event.assigned_to);
       } else {
-        await completeEventFor(event, event.assigned_to);
+        completeEventFor(event, event.assigned_to);
       }
       return;
     }
 
     if (event.completions.length > 0) {
-      await uncompleteEventFor(event, event.completions[0].completed_by);
+      uncompleteEventFor(event, event.completions[0].completed_by);
       return;
     }
 
     if (members.length === 0) return;
     if (members.length === 1) {
-      await completeEventFor(event, members[0].id);
+      completeEventFor(event, members[0].id);
       return;
     }
     setPickerEvent(event);
@@ -351,18 +441,20 @@ export default function CalendarView({ adminMode }: CalendarViewProps) {
     setEditingEvent(event);
   };
 
-  const handleSaveEvent = async (patch: {
+  const handleSaveEvent = (patch: {
     assigned_to: number | null;
     points: number;
   }) => {
     if (!editingEvent) return;
-    await fetch(`/api/calendar/events/${editingEvent.id}`, {
+    const targetId = editingEvent.id;
+    setEditingEvent(null);
+    fetch(`/api/calendar/events/${targetId}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(patch),
+    }).finally(() => {
+      fetchEvents();
     });
-    setEditingEvent(null);
-    fetchTasks();
   };
 
   const today = startOfDay(new Date());
@@ -465,7 +557,7 @@ export default function CalendarView({ adminMode }: CalendarViewProps) {
         </div>
       )}
 
-      {adminMode && <GoogleCalendarPanel members={members} onSynced={fetchTasks} />}
+      {adminMode && <GoogleCalendarPanel members={members} onSynced={fetchAll} />}
 
       {/* Empty state — week view only; day view has its own inline empty state */}
       {view === "week" && !loading && totalItems === 0 && (

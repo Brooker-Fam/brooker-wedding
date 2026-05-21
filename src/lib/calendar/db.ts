@@ -31,6 +31,10 @@ function toIsoDate(raw: unknown): string | null {
  * Safe to call repeatedly — WHERE NOT EXISTS prevents duplicates. Runs before
  * every read so the calendar always shows recurring chores on their repeat days
  * even if nobody completed the prior instance.
+ *
+ * One INSERT per anchor (not per occurrence): we pass the candidate dates as
+ * an array and let Postgres filter out the ones that already exist. Cuts a
+ * potential N+1 (one query per occurrence per rule) down to M queries.
  */
 async function materializeRecurringInstances(
   startDate: string,
@@ -68,31 +72,37 @@ async function materializeRecurringInstances(
 
     const anchorDate = parseLocalDate(anchorIso);
     const dates = occurrencesInRange(rule, anchorDate, rangeStart, rangeEnd);
+    if (dates.length === 0) continue;
 
-    for (const d of dates) {
-      const dateStr = formatLocalDate(d);
-      await db`
-        INSERT INTO tasks (
-          household_id, title, description, assigned_to, source, status,
-          priority, points, due_date, due_time, duration_minutes, recurrence_rule
-        )
-        SELECT ${a.household_id as number}, ${a.title as string},
-          ${(a.description as string | null) ?? null},
-          ${(a.assigned_to as number | null) ?? null},
-          ${(a.source as string | null) ?? "manual"}, 'pending',
-          ${(a.priority as string | null) ?? "medium"},
-          ${(a.points as number | null) ?? 0}, ${dateStr},
-          ${(a.due_time as string | null) ?? null},
-          ${(a.duration_minutes as number | null) ?? null}, ${rule}
-        WHERE NOT EXISTS (
-          SELECT 1 FROM tasks
-          WHERE household_id = ${a.household_id as number}
-            AND title = ${a.title as string}
-            AND recurrence_rule = ${rule}
-            AND due_date = ${dateStr}
-        )
-      `;
-    }
+    const dateStrs = dates.map((d) => formatLocalDate(d));
+
+    await db`
+      INSERT INTO tasks (
+        household_id, title, description, assigned_to, source, status,
+        priority, points, due_date, due_time, duration_minutes, recurrence_rule
+      )
+      SELECT
+        ${a.household_id as number},
+        ${a.title as string},
+        ${(a.description as string | null) ?? null},
+        ${(a.assigned_to as number | null) ?? null},
+        ${(a.source as string | null) ?? "manual"},
+        'pending',
+        ${(a.priority as string | null) ?? "medium"},
+        ${(a.points as number | null) ?? 0},
+        candidate.d::date,
+        ${(a.due_time as string | null) ?? null},
+        ${(a.duration_minutes as number | null) ?? null},
+        ${rule}
+      FROM unnest(${dateStrs}::date[]) AS candidate(d)
+      WHERE NOT EXISTS (
+        SELECT 1 FROM tasks t
+        WHERE t.household_id = ${a.household_id as number}
+          AND t.title = ${a.title as string}
+          AND t.recurrence_rule = ${rule}
+          AND t.due_date = candidate.d
+      )
+    `;
   }
 }
 
@@ -251,14 +261,19 @@ export async function completeTask(
 ): Promise<boolean> {
   const db = getDb();
   if (!db) return false;
+  // Single round-trip: upsert the completion and flip the task status together.
   await db`
-    INSERT INTO task_completions (task_id, completed_by, completed_date, points_earned)
-    VALUES (${taskId}, ${completedBy}, ${date}, ${pointsEarned})
-    ON CONFLICT (task_id, completed_date) DO UPDATE SET
-      completed_by = ${completedBy},
-      points_earned = ${pointsEarned}
+    WITH upserted AS (
+      INSERT INTO task_completions (task_id, completed_by, completed_date, points_earned)
+      VALUES (${taskId}, ${completedBy}, ${date}, ${pointsEarned})
+      ON CONFLICT (task_id, completed_date) DO UPDATE SET
+        completed_by = ${completedBy},
+        points_earned = ${pointsEarned}
+      RETURNING task_id
+    )
+    UPDATE tasks SET status = 'completed', updated_at = NOW()
+    WHERE id = (SELECT task_id FROM upserted)
   `;
-  await db`UPDATE tasks SET status = 'completed', updated_at = NOW() WHERE id = ${taskId}`;
   return true;
 }
 
@@ -268,8 +283,17 @@ export async function uncompleteTask(
 ): Promise<boolean> {
   const db = getDb();
   if (!db) return false;
-  await db`DELETE FROM task_completions WHERE task_id = ${taskId} AND completed_date = ${date}`;
-  await db`UPDATE tasks SET status = 'pending', updated_at = NOW() WHERE id = ${taskId}`;
+  // Single round-trip: drop the completion and reset the task status together.
+  await db`
+    WITH deleted AS (
+      DELETE FROM task_completions
+      WHERE task_id = ${taskId} AND completed_date = ${date}
+      RETURNING task_id
+    )
+    UPDATE tasks SET status = 'pending', updated_at = NOW()
+    WHERE id = ${taskId}
+      AND EXISTS (SELECT 1 FROM deleted)
+  `;
   return true;
 }
 
