@@ -272,57 +272,75 @@ function ButterflyFlock() {
 }
 
 /* ============================================================
-   PRINCESS CROWN - woodland centerpiece
+   FAIRY WINGS - woodland centerpiece
    ============================================================ */
 
-function PrincessCrown({ size = 140 }: { size?: number }) {
+function FairyWings({ size = 140 }: { size?: number }) {
   return (
     <motion.div
-      animate={{ y: [0, -8, 0], rotate: [-2, 2, -2] }}
-      transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
+      animate={{ y: [0, -7, 0], rotate: [-1.5, 1.5, -1.5] }}
+      transition={{ duration: 4.8, repeat: Infinity, ease: "easeInOut" }}
       style={{ width: size, height: size }}
       className="relative"
     >
       <svg viewBox="0 0 120 120" width={size} height={size}>
         <defs>
-          <linearGradient id="crownGold" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0%" stopColor="#FFF2B8" />
-            <stop offset="50%" stopColor="#E6B94B" />
-            <stop offset="100%" stopColor="#B98427" />
+          <linearGradient id="wingBlush" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stopColor="#FFFFFF" stopOpacity="0.92" />
+            <stop offset="45%" stopColor="#F4B8C4" stopOpacity="0.82" />
+            <stop offset="100%" stopColor="#DDE7B0" stopOpacity="0.74" />
           </linearGradient>
-          <linearGradient id="leafGem" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0%" stopColor="#B8D98C" />
-            <stop offset="100%" stopColor="#4F7A3A" />
+          <linearGradient id="wingSage" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stopColor="#FFF7D0" stopOpacity="0.86" />
+            <stop offset="100%" stopColor="#8FB56A" stopOpacity="0.72" />
           </linearGradient>
-          <radialGradient id="crownGlow" cx="0.5" cy="0.45" r="0.6">
-            <stop offset="0%" stopColor="#FFF5C6" stopOpacity="0.65" />
+          <radialGradient id="fairyGlow" cx="0.5" cy="0.5" r="0.62">
+            <stop offset="0%" stopColor="#FFF7D0" stopOpacity="0.78" />
             <stop offset="100%" stopColor="#244A2B" stopOpacity="0" />
           </radialGradient>
         </defs>
-        <ellipse cx="60" cy="68" rx="55" ry="42" fill="url(#crownGlow)" />
+        <ellipse cx="60" cy="62" rx="54" ry="48" fill="url(#fairyGlow)" />
         <path
-          d="M22 82 L28 34 L45 62 L60 26 L75 62 L92 34 L98 82 Z"
-          fill="url(#crownGold)"
-          stroke="#FFF2B8"
+          d="M57 58 C36 26 13 20 14 45 C15 70 38 82 57 65 Z"
+          fill="url(#wingBlush)"
+          stroke="#FFF7D0"
           strokeWidth="1.5"
         />
-        <path d="M24 82 H96 V94 C76 101 45 101 24 94 Z" fill="#D9A43B" stroke="#FFF2B8" strokeWidth="1.5" />
-        <ellipse cx="60" cy="62" rx="8" ry="11" fill="url(#leafGem)" stroke="#F6FFD8" strokeWidth="1" />
-        <circle cx="30" cy="35" r="5" fill="#F4B8C4" stroke="#FFF2B8" strokeWidth="1" />
-        <circle cx="60" cy="26" r="5.5" fill="#F4B8C4" stroke="#FFF2B8" strokeWidth="1" />
-        <circle cx="90" cy="35" r="5" fill="#F4B8C4" stroke="#FFF2B8" strokeWidth="1" />
-        <path d="M36 86 C49 91 72 91 85 86" stroke="#FFF2B8" strokeWidth="2" strokeLinecap="round" opacity="0.75" />
+        <path
+          d="M63 58 C84 26 107 20 106 45 C105 70 82 82 63 65 Z"
+          fill="url(#wingBlush)"
+          stroke="#FFF7D0"
+          strokeWidth="1.5"
+        />
+        <path
+          d="M54 65 C34 77 25 100 48 100 C61 100 64 82 59 68 Z"
+          fill="url(#wingSage)"
+          stroke="#FFF7D0"
+          strokeWidth="1.4"
+        />
+        <path
+          d="M66 65 C86 77 95 100 72 100 C59 100 56 82 61 68 Z"
+          fill="url(#wingSage)"
+          stroke="#FFF7D0"
+          strokeWidth="1.4"
+        />
+        <ellipse cx="60" cy="64" rx="4" ry="16" fill="#FFF7D0" opacity="0.88" />
+        <circle cx="60" cy="45" r="5" fill="#FFF7D0" opacity="0.9" />
+        <path d="M45 42 C50 53 53 61 56 70" stroke="#FFFFFF" strokeWidth="1" strokeLinecap="round" opacity="0.55" />
+        <path d="M75 42 C70 53 67 61 64 70" stroke="#FFFFFF" strokeWidth="1" strokeLinecap="round" opacity="0.55" />
+        <path d="M43 83 C51 80 56 75 59 68" stroke="#FFFFFF" strokeWidth="1" strokeLinecap="round" opacity="0.45" />
+        <path d="M77 83 C69 80 64 75 61 68" stroke="#FFFFFF" strokeWidth="1" strokeLinecap="round" opacity="0.45" />
         <motion.circle
-          cx="51"
-          cy="48"
+          cx="35"
+          cy="38"
           r="2.5"
           fill="#fff"
           animate={{ opacity: [0.3, 1, 0.3] }}
           transition={{ duration: 2.5, repeat: Infinity }}
         />
         <motion.circle
-          cx="76"
-          cy="80"
+          cx="88"
+          cy="58"
           r="2"
           fill="#fff"
           animate={{ opacity: [1, 0.3, 1] }}
@@ -1130,7 +1148,7 @@ export default function SapphirePage() {
             transition={{ duration: 0.8, delay: 0.5, type: "spring" }}
             className="my-2 flex justify-center"
           >
-            <PrincessCrown size={120} />
+            <FairyWings size={120} />
           </motion.div>
 
           <motion.h2
@@ -1139,7 +1157,7 @@ export default function SapphirePage() {
             transition={{ duration: 0.8, delay: 0.7 }}
             className="font-[family-name:var(--font-cormorant-garamond)] text-5xl font-bold text-pink-100 sm:text-6xl"
           >
-            Fairy Princess 9
+            Fairy Forest 9
             <sup className="text-3xl sm:text-4xl">th</sup>
             {" "}Birthday
           </motion.h2>
@@ -1150,8 +1168,8 @@ export default function SapphirePage() {
             transition={{ duration: 0.8, delay: 0.9 }}
             className="mx-auto mt-6 max-w-md text-base font-light text-purple-100/90 sm:text-lg"
           >
-            Sapphire is turning nine — and we&apos;re gathering for a fairy-princess
-            day in the forest with cake, swimming, butterflies, and friends.
+            Sapphire is turning nine — and we&apos;re gathering for a fairy day in
+            the forest with cake, swimming, butterflies, and friends.
           </motion.p>
         </section>
 
@@ -1238,8 +1256,8 @@ export default function SapphirePage() {
               <Highlight emoji="🍕" title="Pizza party" desc="Bring an appetite for woodland snacks." />
               <Highlight emoji="🎂" title="Birthday cake" desc="And lots of singing." />
               <Highlight emoji="🏊" title="Swimming!" desc="There&apos;s a lake — bring suits & towels." />
-              <Highlight emoji="🦋" title="Forest games" desc="Fairy-princess fun among the trees." />
-              <Highlight emoji="🧴" title="Sunscreen & bug spray" desc="Good forest-princess essentials." />
+              <Highlight emoji="🦋" title="Forest games" desc="Fairy fun among the trees." />
+              <Highlight emoji="🧴" title="Sunscreen & bug spray" desc="Good fairy forest essentials." />
             </ul>
             <p className="mt-5 text-center text-sm text-pink-100/80">
               Sapphire is so excited to see you there!
@@ -1308,11 +1326,11 @@ export default function SapphirePage() {
                   transition={{ type: "spring", delay: 0.15 }}
                   className="mx-auto"
                 >
-                  <PrincessCrown size={80} />
+                  <FairyWings size={80} />
                 </motion.div>
                 <h3 className="mt-4 font-[family-name:var(--font-cormorant-garamond)] text-3xl font-bold text-purple-900 sm:text-4xl">
                   {rsvpData.attending
-                    ? "You're on the royal guest list!"
+                    ? "You're on the fairy guest list!"
                     : "We'll miss you!"}
                 </h3>
                 <p className="mt-3 text-base text-purple-700">

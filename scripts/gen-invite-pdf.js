@@ -86,10 +86,10 @@ async function main() {
   drawGem(doc, groupX + dividerW + gap + gemW / 2, midY, gemW, NAVY);
   y += 30;
 
-  // "Fairy Princess 9th Birthday" — synthesize the "th" as a smaller, raised glyph
+  // "Fairy Forest 9th Birthday" — synthesize the "th" as a smaller, raised glyph
   // because the standard fonts don't have Unicode superscripts.
   drawHeadlineWithSuperscript(doc, y, ML, contentW, {
-    pre: "Fairy Princess 9",
+    pre: "Fairy Forest 9",
     sup: "th",
     post: " Birthday",
     font: "Times-Italic",
@@ -103,7 +103,7 @@ async function main() {
     .font("Times-Italic")
     .fontSize(15)
     .fillColor(MUTED)
-    .text("A fairy-princess celebration in the forest", ML, y, {
+    .text("A fairy celebration in the forest", ML, y, {
       width: contentW,
       align: "center",
     });
@@ -202,7 +202,7 @@ async function main() {
   const bullets = [
     "Pizza, cake & lemonade",
     "Swimming – bring suits & towels",
-    "Forest games & fairy-princess fun",
+    "Forest games & fairy fun",
     "Sunscreen & comfy shoes",
   ];
   let bulletY = sectionY + 20;
