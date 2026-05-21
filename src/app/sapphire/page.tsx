@@ -32,36 +32,56 @@ function setCookie(name: string, value: string, maxAge = 31536000) {
   document.cookie = `${name}=${encodeURIComponent(value)};path=/;max-age=${maxAge}`;
 }
 
+function seededUnit(seed: number) {
+  const value = Math.sin(seed * 12.9898) * 43758.5453;
+  return value - Math.floor(value);
+}
+
+function seededRange(seed: number, min: number, max: number) {
+  return min + seededUnit(seed) * (max - min);
+}
+
 /* ============================================================
-   AMBIENT BACKGROUND - twinkling stars + drifting sparkles
+   AMBIENT BACKGROUND - leafy canopy + drifting petals
    ============================================================ */
 
-function StarryBackdrop() {
-  const [stars] = useState(() =>
-    Array.from({ length: 60 }, (_, i) => ({
+function ForestCanopy() {
+  const [mounted, setMounted] = useState(false);
+  const lights = useMemo(() =>
+    Array.from({ length: 42 }, (_, i) => ({
       id: i,
-      x: Math.random() * 100,
-      y: Math.random() * 100,
-      size: Math.random() * 2 + 1,
-      delay: Math.random() * 4,
-      duration: 2 + Math.random() * 3,
-    }))
+      x: seededRange(i + 1, 0, 100),
+      y: seededRange(i + 101, 0, 100),
+      size: seededRange(i + 201, 2, 5),
+      delay: seededRange(i + 301, 0, 4),
+      duration: seededRange(i + 401, 4, 8),
+    })),
+    []
   );
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) return null;
 
   return (
     <div className="pointer-events-none absolute inset-0 overflow-hidden">
-      {stars.map((s) => (
+      <div className="absolute inset-x-0 top-0 h-[420px] bg-[radial-gradient(ellipse_at_top,_rgba(106,142,83,0.85)_0%,_rgba(48,91,52,0.55)_35%,_rgba(36,74,43,0)_75%)]" />
+      <div className="absolute -top-24 left-[-10%] h-72 w-[65%] rounded-full bg-[#274F2D]/70 blur-3xl" />
+      <div className="absolute -top-20 right-[-12%] h-80 w-[70%] rounded-full bg-[#456B38]/60 blur-3xl" />
+      {lights.map((s) => (
         <motion.span
           key={s.id}
-          className="absolute rounded-full bg-white"
+          className="absolute rounded-full bg-[#FFF2B8]"
           style={{
             left: `${s.x}%`,
             top: `${s.y}%`,
             width: `${s.size}px`,
             height: `${s.size}px`,
-            boxShadow: "0 0 8px rgba(255,255,255,0.85)",
+            boxShadow: "0 0 12px rgba(255,242,184,0.65)",
           }}
-          animate={{ opacity: [0.2, 1, 0.2] }}
+          animate={{ opacity: [0.12, 0.6, 0.12] }}
           transition={{
             duration: s.duration,
             repeat: Infinity,
@@ -74,7 +94,8 @@ function StarryBackdrop() {
   );
 }
 
-function DriftingSparkles({ count = 18 }: { count?: number }) {
+function DriftingPetals({ count = 20 }: { count?: number }) {
+  const [mounted, setMounted] = useState(false);
   const [travel, setTravel] = useState(900);
 
   useEffect(() => {
@@ -84,21 +105,28 @@ function DriftingSparkles({ count = 18 }: { count?: number }) {
     return () => window.removeEventListener("resize", update);
   }, []);
 
-  const [sparkles] = useState(() =>
+  const petals = useMemo(() =>
     Array.from({ length: count }, (_, i) => ({
       id: i,
-      x: Math.random() * 100,
-      delay: Math.random() * 12,
-      duration: 14 + Math.random() * 10,
-      size: 6 + Math.random() * 10,
-      drift: (Math.random() - 0.5) * 30,
-      color: ["#F7D77A", "#F0B6E0", "#A6C8FF", "#FFFFFF"][Math.floor(Math.random() * 4)],
-    }))
+      x: seededRange(i + 501, 0, 100),
+      delay: seededRange(i + 601, 0, 12),
+      duration: seededRange(i + 701, 16, 28),
+      size: seededRange(i + 801, 8, 20),
+      drift: seededRange(i + 901, -24, 24),
+      color: ["#F4B8C4", "#F7D77A", "#DDE7B0", "#FFFFFF"][Math.floor(seededRange(i + 1001, 0, 4))],
+    })),
+    [count]
   );
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) return null;
 
   return (
     <div className="pointer-events-none absolute inset-0 overflow-hidden">
-      {sparkles.map((s) => (
+      {petals.map((s) => (
         <motion.div
           key={s.id}
           className="absolute"
@@ -106,6 +134,7 @@ function DriftingSparkles({ count = 18 }: { count?: number }) {
           animate={{
             y: [0, -travel],
             x: [0, s.drift, -s.drift, 0],
+            rotate: [0, 80, 160, 240],
             opacity: [0, 1, 1, 0],
           }}
           transition={{
@@ -115,17 +144,22 @@ function DriftingSparkles({ count = 18 }: { count?: number }) {
             ease: "easeInOut",
           }}
         >
-          <SparkleShape size={s.size} color={s.color} />
+          <PetalShape size={s.size} color={s.color} />
         </motion.div>
       ))}
     </div>
   );
 }
 
-function SparkleShape({ size, color }: { size: number; color: string }) {
+function PetalShape({ size, color }: { size: number; color: string }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill={color}>
-      <path d="M12 2 L13.5 10.5 L22 12 L13.5 13.5 L12 22 L10.5 13.5 L2 12 L10.5 10.5 Z" />
+    <svg width={size} height={size * 1.45} viewBox="0 0 24 34" fill="none">
+      <path
+        d="M12 2 C20 8 21 20 12 32 C3 20 4 8 12 2 Z"
+        fill={color}
+        opacity="0.82"
+      />
+      <path d="M12 5 C10 13 10 22 12 30" stroke="#ffffff" strokeOpacity="0.45" strokeWidth="1" />
     </svg>
   );
 }
@@ -238,10 +272,10 @@ function ButterflyFlock() {
 }
 
 /* ============================================================
-   SAPPHIRE GEM - shimmering centerpiece
+   PRINCESS CROWN - woodland centerpiece
    ============================================================ */
 
-function SapphireGem({ size = 140 }: { size?: number }) {
+function PrincessCrown({ size = 140 }: { size?: number }) {
   return (
     <motion.div
       animate={{ y: [0, -8, 0], rotate: [-2, 2, -2] }}
@@ -251,46 +285,44 @@ function SapphireGem({ size = 140 }: { size?: number }) {
     >
       <svg viewBox="0 0 120 120" width={size} height={size}>
         <defs>
-          <linearGradient id="sapphireGrad" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0%" stopColor="#7CA9FF" />
-            <stop offset="45%" stopColor="#3B5FBA" />
-            <stop offset="100%" stopColor="#1B2A5C" />
+          <linearGradient id="crownGold" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stopColor="#FFF2B8" />
+            <stop offset="50%" stopColor="#E6B94B" />
+            <stop offset="100%" stopColor="#B98427" />
           </linearGradient>
-          <linearGradient id="sapphireFacet" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#B5D2FF" stopOpacity="0.85" />
-            <stop offset="100%" stopColor="#3B5FBA" stopOpacity="0" />
+          <linearGradient id="leafGem" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stopColor="#B8D98C" />
+            <stop offset="100%" stopColor="#4F7A3A" />
           </linearGradient>
-          <radialGradient id="sapphireGlow" cx="0.5" cy="0.5" r="0.6">
-            <stop offset="0%" stopColor="#A6C8FF" stopOpacity="0.6" />
-            <stop offset="100%" stopColor="#1B2A5C" stopOpacity="0" />
+          <radialGradient id="crownGlow" cx="0.5" cy="0.45" r="0.6">
+            <stop offset="0%" stopColor="#FFF5C6" stopOpacity="0.65" />
+            <stop offset="100%" stopColor="#244A2B" stopOpacity="0" />
           </radialGradient>
         </defs>
-        <ellipse cx="60" cy="65" rx="55" ry="50" fill="url(#sapphireGlow)" />
-        {/* Hexagonal sapphire shape */}
-        <polygon
-          points="60,15 100,40 100,80 60,105 20,80 20,40"
-          fill="url(#sapphireGrad)"
-          stroke="#A6C8FF"
+        <ellipse cx="60" cy="68" rx="55" ry="42" fill="url(#crownGlow)" />
+        <path
+          d="M22 82 L28 34 L45 62 L60 26 L75 62 L92 34 L98 82 Z"
+          fill="url(#crownGold)"
+          stroke="#FFF2B8"
           strokeWidth="1.5"
         />
-        {/* Facet highlights */}
-        <polygon points="60,15 80,30 60,45 40,30" fill="url(#sapphireFacet)" />
-        <polygon points="20,40 40,30 60,45 60,75 35,55" fill="#5079D0" opacity="0.4" />
-        <polygon points="100,40 80,30 60,45 60,75 85,55" fill="#2D4694" opacity="0.55" />
-        <polygon points="60,75 85,55 100,80 60,105" fill="#1B2A5C" opacity="0.55" />
-        <polygon points="60,75 35,55 20,80 60,105" fill="#2D4694" opacity="0.4" />
-        {/* Sparkle highlights */}
+        <path d="M24 82 H96 V94 C76 101 45 101 24 94 Z" fill="#D9A43B" stroke="#FFF2B8" strokeWidth="1.5" />
+        <ellipse cx="60" cy="62" rx="8" ry="11" fill="url(#leafGem)" stroke="#F6FFD8" strokeWidth="1" />
+        <circle cx="30" cy="35" r="5" fill="#F4B8C4" stroke="#FFF2B8" strokeWidth="1" />
+        <circle cx="60" cy="26" r="5.5" fill="#F4B8C4" stroke="#FFF2B8" strokeWidth="1" />
+        <circle cx="90" cy="35" r="5" fill="#F4B8C4" stroke="#FFF2B8" strokeWidth="1" />
+        <path d="M36 86 C49 91 72 91 85 86" stroke="#FFF2B8" strokeWidth="2" strokeLinecap="round" opacity="0.75" />
         <motion.circle
-          cx="48"
-          cy="35"
-          r="3"
+          cx="51"
+          cy="48"
+          r="2.5"
           fill="#fff"
           animate={{ opacity: [0.3, 1, 0.3] }}
           transition={{ duration: 2.5, repeat: Infinity }}
         />
         <motion.circle
-          cx="75"
-          cy="65"
+          cx="76"
+          cy="80"
           r="2"
           fill="#fff"
           animate={{ opacity: [1, 0.3, 1] }}
@@ -550,21 +582,21 @@ function BirthdayCake({ onAllBlown }: { onAllBlown: () => void }) {
 }
 
 /* ============================================================
-   TAP-TO-SPAWN SPARKLES (background-wide interactivity)
+   TAP-TO-SPAWN PETALS (background-wide interactivity)
    ============================================================ */
 
-interface TapSparkle {
+interface TapPetal {
   id: number;
   x: number;
   y: number;
   color: string;
 }
 
-function TapSparkleLayer({ sparkles }: { sparkles: TapSparkle[] }) {
+function TapPetalLayer({ petals }: { petals: TapPetal[] }) {
   return (
     <div className="pointer-events-none fixed inset-0 z-40">
       <AnimatePresence>
-        {sparkles.map((s) => (
+        {petals.map((s) => (
           <motion.div
             key={s.id}
             initial={{ opacity: 1, scale: 0, x: s.x - 14, y: s.y - 14 }}
@@ -577,7 +609,7 @@ function TapSparkleLayer({ sparkles }: { sparkles: TapSparkle[] }) {
             transition={{ duration: 1.2, ease: "easeOut" }}
             className="absolute"
           >
-            <SparkleShape size={28} color={s.color} />
+            <PetalShape size={24} color={s.color} />
           </motion.div>
         ))}
       </AnimatePresence>
@@ -672,7 +704,7 @@ function RsvpCard({
           RSVP
         </p>
         <h2 className="mt-1 font-[family-name:var(--font-cormorant-garamond)] text-3xl font-semibold text-purple-900 sm:text-4xl">
-          {isEditing ? "Update your RSVP" : "Will you join the magic?"}
+          {isEditing ? "Update your RSVP" : "Will you join the forest party?"}
         </h2>
       </div>
 
@@ -819,7 +851,7 @@ function RsvpCard({
           id="bday-wish"
           value={birthdayWish}
           onChange={(e) => setBirthdayWish(e.target.value)}
-          placeholder="Send Sapphire a little birthday magic..."
+          placeholder="Send Sapphire a sweet birthday wish..."
           rows={3}
           className="w-full resize-y rounded-xl border-2 border-pink-200 bg-white px-4 py-3 text-base text-purple-900 placeholder-purple-400/50 focus:border-pink-400 focus:outline-none"
         />
@@ -856,9 +888,9 @@ function RsvpCard({
             </>
           ) : (
             <>
-              <span>✨</span>
+              <span>🌸</span>
               {isEditing ? "Update RSVP" : "Send my RSVP"}
-              <span>✨</span>
+              <span>🌸</span>
             </>
           )}
         </span>
@@ -978,8 +1010,8 @@ export default function SapphirePage() {
   const [confetti, setConfetti] = useState(false);
   const [rsvpData, setRsvpData] = useState<BdayRsvp | null>(null);
   const [pageState, setPageState] = useState<"loading" | "form" | "editing" | "thanks">("loading");
-  const [tapSparkles, setTapSparkles] = useState<TapSparkle[]>([]);
-  const sparkleIdRef = useRef(0);
+  const [tapPetals, setTapPetals] = useState<TapPetal[]>([]);
+  const petalIdRef = useRef(0);
   const reducedMotion = useReducedMotion();
 
   useEffect(() => {
@@ -1030,16 +1062,16 @@ export default function SapphirePage() {
       y = e.clientY;
     }
 
-    const colors = ["#F7D77A", "#F0B6E0", "#A6C8FF", "#FFFFFF"];
-    const newSparkles: TapSparkle[] = Array.from({ length: 4 }, () => ({
-      id: sparkleIdRef.current++,
+    const colors = ["#F7D77A", "#F4B8C4", "#DDE7B0", "#FFFFFF"];
+    const newPetals: TapPetal[] = Array.from({ length: 4 }, () => ({
+      id: petalIdRef.current++,
       x: x + (Math.random() - 0.5) * 30,
       y: y + (Math.random() - 0.5) * 20,
       color: colors[Math.floor(Math.random() * colors.length)],
     }));
-    setTapSparkles((prev) => [...prev.slice(-30), ...newSparkles]);
+    setTapPetals((prev) => [...prev.slice(-30), ...newPetals]);
     setTimeout(() => {
-      setTapSparkles((prev) => prev.filter((s) => !newSparkles.some((n) => n.id === s.id)));
+      setTapPetals((prev) => prev.filter((s) => !newPetals.some((n) => n.id === s.id)));
     }, 1300);
   }, [reducedMotion]);
 
@@ -1050,15 +1082,15 @@ export default function SapphirePage() {
       className="relative min-h-screen overflow-x-hidden"
       style={{
         background:
-          "linear-gradient(180deg, #0F1638 0%, #1B2A5C 25%, #3B2B7A 55%, #6B3A8E 80%, #8E4A8E 100%)",
+          "linear-gradient(180deg, #244A2B 0%, #38653A 28%, #6A8E53 58%, #D99AA9 100%)",
       }}
     >
       <ConfettiCelebration active={confetti} />
-      <TapSparkleLayer sparkles={tapSparkles} />
+      <TapPetalLayer petals={tapPetals} />
 
       {/* Ambient effects */}
-      <StarryBackdrop />
-      <DriftingSparkles />
+      <ForestCanopy />
+      <DriftingPetals />
       <div className="absolute top-0 left-0 right-0 h-[500px]">
         <ButterflyFlock />
       </div>
@@ -1098,7 +1130,7 @@ export default function SapphirePage() {
             transition={{ duration: 0.8, delay: 0.5, type: "spring" }}
             className="my-2 flex justify-center"
           >
-            <SapphireGem size={120} />
+            <PrincessCrown size={120} />
           </motion.div>
 
           <motion.h2
@@ -1107,7 +1139,7 @@ export default function SapphirePage() {
             transition={{ duration: 0.8, delay: 0.7 }}
             className="font-[family-name:var(--font-cormorant-garamond)] text-5xl font-bold text-pink-100 sm:text-6xl"
           >
-            Magical 9
+            Fairy Princess 9
             <sup className="text-3xl sm:text-4xl">th</sup>
             {" "}Birthday
           </motion.h2>
@@ -1118,8 +1150,8 @@ export default function SapphirePage() {
             transition={{ duration: 0.8, delay: 0.9 }}
             className="mx-auto mt-6 max-w-md text-base font-light text-purple-100/90 sm:text-lg"
           >
-            Sapphire is turning nine — and we&apos;re throwing the most magical
-            fairy-princess party in the forest. Will you come help us celebrate?
+            Sapphire is turning nine — and we&apos;re gathering for a fairy-princess
+            day in the forest with cake, swimming, butterflies, and friends.
           </motion.p>
         </section>
 
@@ -1132,7 +1164,7 @@ export default function SapphirePage() {
           className="mb-10"
         >
           <p className="mb-3 text-center text-xs font-semibold tracking-[0.3em] text-pink-200/80 uppercase">
-            Until the magic begins
+            Until the forest party begins
           </p>
           <PartyCountdown />
         </motion.section>
@@ -1203,11 +1235,11 @@ export default function SapphirePage() {
               What to Expect
             </h3>
             <ul className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-2">
-              <Highlight emoji="🍕" title="Pizza party" desc="Bring an appetite for fairy fuel!" />
+              <Highlight emoji="🍕" title="Pizza party" desc="Bring an appetite for woodland snacks." />
               <Highlight emoji="🎂" title="Birthday cake" desc="And lots of singing." />
               <Highlight emoji="🏊" title="Swimming!" desc="There&apos;s a lake — bring suits & towels." />
-              <Highlight emoji="🦋" title="Games & magic" desc="All kinds of whimsy planned." />
-              <Highlight emoji="🧴" title="Sunscreen & bug spray" desc="Just in case the fairies bite." />
+              <Highlight emoji="🦋" title="Forest games" desc="Fairy-princess fun among the trees." />
+              <Highlight emoji="🧴" title="Sunscreen & bug spray" desc="Good forest-princess essentials." />
             </ul>
             <p className="mt-5 text-center text-sm text-pink-100/80">
               Sapphire is so excited to see you there!
@@ -1276,11 +1308,11 @@ export default function SapphirePage() {
                   transition={{ type: "spring", delay: 0.15 }}
                   className="mx-auto"
                 >
-                  <SapphireGem size={80} />
+                  <PrincessCrown size={80} />
                 </motion.div>
                 <h3 className="mt-4 font-[family-name:var(--font-cormorant-garamond)] text-3xl font-bold text-purple-900 sm:text-4xl">
                   {rsvpData.attending
-                    ? "You're on the list! ✨"
+                    ? "You're on the royal guest list!"
                     : "We'll miss you!"}
                 </h3>
                 <p className="mt-3 text-base text-purple-700">

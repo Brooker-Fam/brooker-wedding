@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-require-imports */
 /**
  * Generate the printable PDF invite for Sapphire's birthday party.
  *
@@ -85,10 +86,10 @@ async function main() {
   drawGem(doc, groupX + dividerW + gap + gemW / 2, midY, gemW, NAVY);
   y += 30;
 
-  // "Magical 9th Birthday" — synthesize the "th" as a smaller, raised glyph
+  // "Fairy Princess 9th Birthday" — synthesize the "th" as a smaller, raised glyph
   // because the standard fonts don't have Unicode superscripts.
   drawHeadlineWithSuperscript(doc, y, ML, contentW, {
-    pre: "Magical 9",
+    pre: "Fairy Princess 9",
     sup: "th",
     post: " Birthday",
     font: "Times-Italic",
@@ -201,7 +202,7 @@ async function main() {
   const bullets = [
     "Pizza, cake & lemonade",
     "Swimming – bring suits & towels",
-    "Games & whimsy",
+    "Forest games & fairy-princess fun",
     "Sunscreen & comfy shoes",
   ];
   let bulletY = sectionY + 20;

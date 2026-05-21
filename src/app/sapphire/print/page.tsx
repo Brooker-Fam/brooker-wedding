@@ -62,7 +62,7 @@ export default function SapphirePrint() {
               <span className="invite-divider" />
             </div>
             <h2 className="invite-occasion">
-              Magical 9<sup>th</sup> Birthday
+              Fairy Princess 9<sup>th</sup> Birthday
             </h2>
             <p className="invite-sub">A fairy-princess celebration in the forest</p>
           </div>
@@ -97,7 +97,7 @@ export default function SapphirePrint() {
               <ul className="invite-list">
                 <li>Pizza, cake &amp; lemonade</li>
                 <li>Swimming &mdash; bring suits &amp; towels</li>
-                <li>Games &amp; whimsy</li>
+                <li>Forest games &amp; fairy-princess fun</li>
                 <li>Sunscreen &amp; comfy shoes</li>
               </ul>
             </div>
