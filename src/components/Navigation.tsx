@@ -10,6 +10,7 @@ const navLinks = [
   { href: "/", label: "Home" },
   { href: "/rsvp", label: "RSVP" },
   { href: "/details", label: "Details" },
+  { href: "https://www.zola.com/registry/brittanybrooker", label: "Registry", external: true },
   { href: "/songs", label: "Songs" },
   { href: "/games", label: "Games", sparkle: true },
 ];
@@ -131,20 +132,18 @@ export default function Navigation() {
             {/* Desktop Nav */}
             <div className="hidden items-center gap-1 md:flex">
               {navLinks.map((link) => {
-                const isActive = pathname === link.href;
+                const isActive = !link.external && pathname === link.href;
 
-                return (
-                  <Link
-                    key={link.href}
-                    href={link.href}
-                    className={`relative px-4 py-2 text-sm font-medium transition-all duration-300 ${
-                      link.sparkle
-                        ? "rounded-full bg-soft-gold/10 text-soft-gold-dark hover:bg-soft-gold/20 dark:bg-soft-gold/15 dark:text-soft-gold-light"
-                        : isActive
-                          ? "text-forest dark:text-cream"
-                          : "text-forest/75 hover:text-forest dark:text-cream/75 dark:hover:text-cream"
-                    }`}
-                  >
+                const className = `relative px-4 py-2 text-sm font-medium transition-all duration-300 ${
+                  link.sparkle
+                    ? "rounded-full bg-soft-gold/10 text-soft-gold-dark hover:bg-soft-gold/20 dark:bg-soft-gold/15 dark:text-soft-gold-light"
+                    : isActive
+                      ? "text-forest dark:text-cream"
+                      : "text-forest/75 hover:text-forest dark:text-cream/75 dark:hover:text-cream"
+                }`;
+
+                const content = (
+                  <>
                     {link.sparkle && (
                       <span className="mr-1 text-xs">&#10024;</span>
                     )}
@@ -160,6 +159,22 @@ export default function Navigation() {
                         }}
                       />
                     )}
+                  </>
+                );
+
+                return link.external ? (
+                  <a
+                    key={link.href}
+                    href={link.href}
+                    target="_blank"
+                    rel="noreferrer"
+                    className={className}
+                  >
+                    {content}
+                  </a>
+                ) : (
+                  <Link key={link.href} href={link.href} className={className}>
+                    {content}
                   </Link>
                 );
               })}
@@ -220,7 +235,15 @@ export default function Navigation() {
               <div className="flex h-full flex-col px-6 pt-24 pb-8">
                 <div className="flex flex-col gap-2">
                   {navLinks.map((link, index) => {
-                    const isActive = pathname === link.href;
+                    const isActive = !link.external && pathname === link.href;
+
+                    const className = `block rounded-xl px-4 py-3.5 text-lg font-medium transition-all ${
+                      link.sparkle
+                        ? "bg-soft-gold/10 text-soft-gold-dark dark:bg-soft-gold/15 dark:text-soft-gold-light"
+                        : isActive
+                          ? "bg-sage/15 text-forest dark:bg-sage/20 dark:text-cream"
+                          : "text-forest/80 hover:bg-sage/10 hover:text-forest dark:text-cream/80 dark:hover:bg-sage/15 dark:hover:text-cream"
+                    }`;
 
                     return (
                       <motion.div
@@ -229,21 +252,26 @@ export default function Navigation() {
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ delay: index * 0.06 }}
                       >
-                        <Link
-                          href={link.href}
-                          className={`block rounded-xl px-4 py-3.5 text-lg font-medium transition-all ${
-                            link.sparkle
-                              ? "bg-soft-gold/10 text-soft-gold-dark dark:bg-soft-gold/15 dark:text-soft-gold-light"
-                              : isActive
-                                ? "bg-sage/15 text-forest dark:bg-sage/20 dark:text-cream"
-                                : "text-forest/80 hover:bg-sage/10 hover:text-forest dark:text-cream/80 dark:hover:bg-sage/15 dark:hover:text-cream"
-                          }`}
-                        >
-                          {link.sparkle && (
-                            <span className="mr-2 text-sm">&#10024;</span>
-                          )}
-                          {link.label}
-                        </Link>
+                        {link.external ? (
+                          <a
+                            href={link.href}
+                            target="_blank"
+                            rel="noreferrer"
+                            className={className}
+                          >
+                            {link.sparkle && (
+                              <span className="mr-2 text-sm">&#10024;</span>
+                            )}
+                            {link.label}
+                          </a>
+                        ) : (
+                          <Link href={link.href} className={className}>
+                            {link.sparkle && (
+                              <span className="mr-2 text-sm">&#10024;</span>
+                            )}
+                            {link.label}
+                          </Link>
+                        )}
                       </motion.div>
                     );
                   })}
