@@ -1168,8 +1168,8 @@ export default function SapphirePage() {
             transition={{ duration: 0.8, delay: 0.9 }}
             className="mx-auto mt-6 max-w-md text-base font-light text-purple-100/90 sm:text-lg"
           >
-            Sapphire is turning nine — and we&apos;re gathering for a fairy day in
-            the forest with cake, swimming, butterflies, and friends.
+            Sapphire is turning 9 years old! Join us for a fun filled day at
+            Moreau Lake to celebrate with swimming, pizza, and cake.
           </motion.p>
         </section>
 

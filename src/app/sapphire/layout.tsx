@@ -3,11 +3,11 @@ import type { Metadata, Viewport } from "next";
 export const metadata: Metadata = {
   title: "Sapphire turns 9! - A Fairy Forest Birthday",
   description:
-    "Sapphire is turning 9! Join us for a fairy forest birthday party at Moreau Lake State Park on Saturday, June 20, 2026. Pizza, cake, swimming, and woodland fun.",
+    "Sapphire is turning 9 years old! Join us for a fun filled day at Moreau Lake to celebrate with swimming, pizza, and cake.",
   openGraph: {
     title: "Sapphire turns 9! - A Fairy Forest Birthday",
     description:
-      "Join Sapphire for a fairy forest birthday at Moreau Lake State Park, June 20, 2026.",
+      "Join us for a fun filled day at Moreau Lake to celebrate Sapphire with swimming, pizza, and cake.",
     type: "website",
     locale: "en_US",
   },

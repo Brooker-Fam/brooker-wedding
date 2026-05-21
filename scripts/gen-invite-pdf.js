@@ -103,7 +103,7 @@ async function main() {
     .font("Times-Italic")
     .fontSize(15)
     .fillColor(MUTED)
-    .text("A fairy celebration in the forest", ML, y, {
+    .text("A fun filled day at Moreau Lake", ML, y, {
       width: contentW,
       align: "center",
     });

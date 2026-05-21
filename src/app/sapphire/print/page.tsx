@@ -64,7 +64,7 @@ export default function SapphirePrint() {
             <h2 className="invite-occasion">
               Fairy Forest 9<sup>th</sup> Birthday
             </h2>
-            <p className="invite-sub">A fairy celebration in the forest</p>
+            <p className="invite-sub">A fun filled day at Moreau Lake</p>
           </div>
 
           {/* Big date */}
