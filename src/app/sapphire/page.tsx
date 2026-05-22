@@ -1359,43 +1359,33 @@ export default function SapphirePage() {
               Fun Facts About the Birthday Girl
             </h3>
             <div className="mx-auto mt-3 h-1 w-24 rounded-full bg-gradient-to-r from-pink-300 via-purple-300 to-emerald-300" />
-            <ul className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
               <FactCategory
                 emoji="📺"
                 title="Favorite Shows"
-                items={["Hilda", "Barbie", "Bluey"]}
+                details="Hilda, Barbie, and Bluey"
               />
               <FactCategory
                 emoji="🎬"
                 title="Favorite Movies"
-                items={[
-                  "BFG",
-                  "Ice Age",
-                  "Spies In Disguise",
-                  "Beauty and the Beast",
-                ]}
+                details="BFG, Ice Age, Spies In Disguise, and Beauty and the Beast"
               />
               <FactCategory
                 emoji="🎨"
                 title="Hobbies & Interests"
-                items={[
-                  "Legos",
-                  "Painting & crafting",
-                  "Swimming, gymnastics, and playing on playgrounds",
-                  "Graphic novels",
-                ]}
+                details="Legos, painting and crafting, swimming, gymnastics, playing on playgrounds, and graphic novels"
               />
               <FactCategory
                 emoji="🌿"
                 title="Fun Facts"
                 featured
-                items={[
+                facts={[
                   "Sapphire lives on a farm with chickens, ducks, geese, guinea hens, pigs, 3 dogs, and 4 cats. Her favorite animal is Pumpkin the barn cat.",
                   "Sapphire likes cucumbers with salt and pizza with whipped cream.",
                   "Sapphire can do over 25 cartwheels in a row.",
                 ]}
               />
-            </ul>
+            </div>
           </div>
         </motion.section>
 
@@ -1517,16 +1507,18 @@ function Highlight({ emoji, title, desc }: { emoji: string; title: string; desc:
 function FactCategory({
   emoji,
   title,
-  items,
+  details,
+  facts,
   featured = false,
 }: {
   emoji: string;
   title: string;
-  items: string[];
+  details?: string;
+  facts?: string[];
   featured?: boolean;
 }) {
   return (
-    <li
+    <div
       className={`rounded-2xl border border-white/80 bg-white/75 p-4 text-left shadow-sm shadow-purple-900/5 backdrop-blur-sm dark:border-white/10 dark:bg-white/10 ${
         featured ? "sm:col-span-2" : ""
       }`}
@@ -1539,26 +1531,23 @@ function FactCategory({
           {title}
         </p>
       </div>
-      <ul
-        className={`mt-4 ${
-          featured
-            ? "grid grid-cols-1 gap-3 sm:grid-cols-3"
-            : "flex flex-wrap gap-2"
-        }`}
-      >
-        {items.map((item) => (
-          <li
-            key={item}
-            className={`text-sm leading-relaxed text-purple-800/85 dark:text-pink-100/80 ${
-              featured
-                ? "rounded-2xl bg-white/80 p-3 shadow-inner shadow-pink-100/50 dark:bg-white/10 dark:shadow-none"
-                : "rounded-full bg-white/80 px-3 py-1.5 shadow-inner shadow-pink-100/50 dark:bg-white/10 dark:shadow-none"
-            }`}
-          >
-            <span>{item}</span>
-          </li>
-        ))}
-      </ul>
-    </li>
+      {details ? (
+        <p className="mt-4 text-base leading-relaxed text-purple-800/85 dark:text-pink-100/80">
+          {details}
+        </p>
+      ) : null}
+      {facts ? (
+        <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-3">
+          {facts.map((fact) => (
+            <p
+              key={fact}
+              className="rounded-2xl bg-white/80 p-4 text-sm leading-relaxed text-purple-800/85 shadow-inner shadow-pink-100/50 dark:bg-white/10 dark:text-pink-100/80 dark:shadow-none"
+            >
+              {fact}
+            </p>
+          ))}
+        </div>
+      ) : null}
+    </div>
   );
 }
