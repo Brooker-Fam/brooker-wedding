@@ -167,11 +167,20 @@ export default function McpInstallPage() {
                 and sign in.
               </li>
               <li>
-                Click your profile (top-right) &rarr; <strong>Settings</strong>{" "}
-                &rarr; <strong>Connectors</strong>.
+                Click your profile (<strong>bottom-left</strong>) &rarr;{" "}
+                <strong>Settings</strong>.
               </li>
               <li>
-                Click <strong>Create</strong> / <strong>Add custom connector</strong>.
+                Go to <strong>Connectors</strong> (or{" "}
+                <strong>Apps &amp; Connectors</strong>) &rarr;{" "}
+                <strong>Advanced</strong> and turn on{" "}
+                <strong>Developer mode</strong>. Custom MCP apps are hidden
+                behind this toggle.
+              </li>
+              <li>
+                Back in <strong>Connectors</strong>, click{" "}
+                <strong>Create</strong> &rarr; <strong>Create app</strong>{" "}
+                (the option that appears once developer mode is on).
               </li>
               <li>
                 Fill in:
@@ -202,7 +211,8 @@ export default function McpInstallPage() {
                 Open the <strong>ChatGPT app on your iPhone</strong>, start a
                 new chat, tap the <strong>+</strong> or &quot;Tools&quot;
                 button next to the message box, and toggle on{" "}
-                <strong>Brooker Calendar</strong>.
+                <strong>Brooker Calendar</strong>. (You may need to enable
+                developer mode in the iPhone app&apos;s Settings too.)
               </li>
               <li>
                 Try it:{" "}
