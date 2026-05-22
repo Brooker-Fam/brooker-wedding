@@ -24,6 +24,29 @@ interface CalendarViewProps {
 }
 
 const VIEW_STORAGE_KEY = "calendar-view";
+const FILTER_STORAGE_KEY = "calendar-filter";
+
+type CalendarFilterId = "all" | "routine" | "farm" | "house" | "rewards";
+
+type CalendarFilter = {
+  id: CalendarFilterId;
+  label: string;
+};
+
+const CALENDAR_FILTERS: CalendarFilter[] = [
+  { id: "all", label: "All" },
+  { id: "routine", label: "Daily routine" },
+  { id: "farm", label: "Farm chores" },
+  { id: "house", label: "House chores" },
+  { id: "rewards", label: "Rewards" },
+];
+
+const ROUTINE_RE =
+  /\b(brush|teeth|tooth|shower|bath|bathe|moisturize|deodorant|medicine|vitamin|hair|pajamas|pyjamas|get dressed|clothes|backpack|snack)\b/i;
+const FARM_RE =
+  /\b(farm|barn|coop|chicken|duck|goose|geese|pig|goat|horse|animal|egg|eggs|litter|cat|dog|feed|hay|water plants|garden)\b/i;
+const HOUSE_RE =
+  /\b(clean|dishes|dishwasher|laundry|trash|garbage|recycling|room|bed|toys|floor|vacuum|sweep|mop|table|counter|kitchen|bathroom|toilet|sink|dust)\b/i;
 
 function startOfDay(date: Date): Date {
   const d = new Date(date);
@@ -95,9 +118,41 @@ function formatFullDayLabel(date: Date, today: Date): string {
   return base;
 }
 
+function isTaskComplete(task: TaskWithCompletion): boolean {
+  return !!task.completion_id || task.status === "completed";
+}
+
+function isEventComplete(event: CalendarEventWithMember): boolean {
+  return event.completions.length > 0;
+}
+
+function taskMatchesFilter(
+  task: TaskWithCompletion,
+  filter: CalendarFilterId
+): boolean {
+  if (filter === "all") return true;
+  if (filter === "rewards") return task.points > 0 && !isTaskComplete(task);
+
+  const text = `${task.title} ${task.description ?? ""}`;
+  if (filter === "routine") return ROUTINE_RE.test(text);
+  if (filter === "farm") return FARM_RE.test(text);
+  if (filter === "house") return HOUSE_RE.test(text) && !FARM_RE.test(text);
+  return true;
+}
+
+function eventMatchesFilter(
+  event: CalendarEventWithMember,
+  filter: CalendarFilterId
+): boolean {
+  if (filter === "all") return true;
+  if (filter === "rewards") return event.points > 0 && !isEventComplete(event);
+  return false;
+}
+
 export default function CalendarView({ adminMode }: CalendarViewProps) {
   const [anchor, setAnchor] = useState(() => startOfDay(new Date()));
   const [view, setView] = useState<CalendarViewMode>("week");
+  const [filter, setFilter] = useState<CalendarFilterId>("all");
   const [viewHydrated, setViewHydrated] = useState(false);
   const [tasks, setTasks] = useState<TaskWithCompletion[]>([]);
   const [events, setEvents] = useState<CalendarEventWithMember[]>([]);
@@ -137,6 +192,16 @@ export default function CalendarView({ adminMode }: CalendarViewProps) {
       if (saved === "day" || saved === "week") {
         setView(saved);
       }
+      const savedFilter = localStorage.getItem(FILTER_STORAGE_KEY);
+      if (
+        savedFilter === "all" ||
+        savedFilter === "routine" ||
+        savedFilter === "farm" ||
+        savedFilter === "house" ||
+        savedFilter === "rewards"
+      ) {
+        setFilter(savedFilter);
+      }
     } catch {
       // ignore
     }
@@ -148,10 +213,11 @@ export default function CalendarView({ adminMode }: CalendarViewProps) {
     if (!viewHydrated) return;
     try {
       localStorage.setItem(VIEW_STORAGE_KEY, view);
+      localStorage.setItem(FILTER_STORAGE_KEY, filter);
     } catch {
       // ignore
     }
-  }, [view, viewHydrated]);
+  }, [view, filter, viewHydrated]);
 
   const fetchTasks = useCallback(async () => {
     const res = await fetch(
@@ -517,6 +583,28 @@ export default function CalendarView({ adminMode }: CalendarViewProps) {
   };
 
   const today = startOfDay(new Date());
+  const filteredTasks = useMemo(
+    () => tasks.filter((task) => taskMatchesFilter(task, filter)),
+    [tasks, filter]
+  );
+  const filteredEvents = useMemo(
+    () => events.filter((event) => eventMatchesFilter(event, filter)),
+    [events, filter]
+  );
+  const filterCounts = useMemo(() => {
+    const counts = Object.fromEntries(
+      CALENDAR_FILTERS.map((f) => [f.id, 0])
+    ) as Record<CalendarFilterId, number>;
+
+    for (const f of CALENDAR_FILTERS) {
+      counts[f.id] =
+        tasks.filter((task) => taskMatchesFilter(task, f.id)).length +
+        events.filter((event) => eventMatchesFilter(event, f.id)).length;
+    }
+    return counts;
+  }, [tasks, events]);
+  const activeFilterLabel =
+    CALENDAR_FILTERS.find((f) => f.id === filter)?.label ?? "All";
 
   type DayItem =
     | { type: "event"; ev: CalendarEventWithMember }
@@ -538,12 +626,12 @@ export default function CalendarView({ adminMode }: CalendarViewProps) {
       tasksByDay[formatDateKey(d)] = [];
       eventsByDay[formatDateKey(d)] = [];
     }
-    for (const task of tasks) {
+    for (const task of filteredTasks) {
       if (!task.due_date) continue;
       const key = task.due_date.split("T")[0];
       if (tasksByDay[key]) tasksByDay[key].push(task);
     }
-    for (const ev of events) {
+    for (const ev of filteredEvents) {
       const key = eventDateKey(ev);
       if (eventsByDay[key]) eventsByDay[key].push(ev);
     }
@@ -568,10 +656,10 @@ export default function CalendarView({ adminMode }: CalendarViewProps) {
     }
 
     return { days: ds, itemsByDay: sorted };
-  }, [weekStart, tasks, events]);
+  }, [weekStart, filteredTasks, filteredEvents]);
 
   const anchorKey = formatDateKey(anchor);
-  const totalItems = tasks.length + events.length;
+  const totalItems = filteredTasks.length + filteredEvents.length;
 
   const sortedItemsForDay = (key: string): DayItem[] => itemsByDay[key] ?? [];
 
@@ -622,11 +710,43 @@ export default function CalendarView({ adminMode }: CalendarViewProps) {
 
       {adminMode && <GoogleCalendarPanel members={members} onSynced={fetchAll} />}
 
+      <div className="px-4 pb-4 sm:px-6">
+        <div className="flex flex-wrap items-center gap-2">
+          {CALENDAR_FILTERS.map((f) => {
+            const selected = filter === f.id;
+            return (
+              <button
+                key={f.id}
+                type="button"
+                onClick={() => setFilter(f.id)}
+                aria-pressed={selected}
+                className={`rounded-lg border px-3 py-1.5 text-xs font-medium transition-colors sm:text-sm ${
+                  selected
+                    ? "border-forest bg-forest text-cream dark:border-soft-gold dark:bg-soft-gold dark:text-dark-bg"
+                    : "border-sage/20 bg-cream/50 text-forest/60 hover:border-sage/40 hover:text-forest dark:border-cream/10 dark:bg-dark-surface/60 dark:text-cream/60 dark:hover:text-cream"
+                }`}
+              >
+                {f.label}
+                <span
+                  className={`ml-1.5 ${
+                    selected
+                      ? "text-cream/70 dark:text-dark-bg/70"
+                      : "text-forest/35 dark:text-cream/35"
+                  }`}
+                >
+                  {filterCounts[f.id]}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
       {/* Empty state — week view only; day view has its own inline empty state */}
       {view === "week" && !loading && totalItems === 0 && (
         <div className="mx-auto mt-6 max-w-md px-4 text-center">
           <p className="text-base text-forest/60 dark:text-cream/60">
-            No tasks this week.
+            No {activeFilterLabel.toLowerCase()} this week.
           </p>
           {adminMode ? (
             <p className="mt-2 text-sm text-forest/50 dark:text-cream/50">
