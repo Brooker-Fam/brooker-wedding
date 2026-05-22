@@ -79,39 +79,33 @@ export async function updateEventOverrides(
   const db = getDb();
   if (!db) return null;
 
-  const existing = await db`SELECT * FROM calendar_events WHERE id = ${id}`;
-  if (existing.length === 0) return null;
-
-  const row = existing[0] as {
-    assigned_to: number | null;
-    points: number;
-    color_override: string | null;
-    auto_award: boolean;
-  };
-
-  await db`
-    UPDATE calendar_events SET
-      assigned_to = ${patch.assigned_to === undefined ? row.assigned_to : patch.assigned_to},
-      points = ${patch.points === undefined ? row.points : patch.points},
-      color_override = ${patch.color_override === undefined ? row.color_override : patch.color_override},
-      auto_award = ${patch.auto_award === undefined ? row.auto_award : patch.auto_award},
-      updated_at = NOW()
-    WHERE id = ${id}
-  `;
-
-  // Return a single refreshed row via getEventsForDateRange-style shape — easier
-  // to just re-read directly for the override UI.
-  const refreshed = await db`
+  // Single round-trip: UPDATE with CASE-preserved fields, then return a
+  // joined row in the same statement via a CTE so the caller still gets the
+  // hydrated event back without a follow-up SELECT.
+  const rows = await db`
+    WITH updated AS (
+      UPDATE calendar_events SET
+        assigned_to = CASE WHEN ${patch.assigned_to === undefined}
+          THEN assigned_to ELSE ${patch.assigned_to ?? null} END,
+        points = CASE WHEN ${patch.points === undefined}
+          THEN points ELSE ${patch.points ?? 0} END,
+        color_override = CASE WHEN ${patch.color_override === undefined}
+          THEN color_override ELSE ${patch.color_override ?? null} END,
+        auto_award = CASE WHEN ${patch.auto_award === undefined}
+          THEN auto_award ELSE ${patch.auto_award ?? false} END,
+        updated_at = NOW()
+      WHERE id = ${id}
+      RETURNING *
+    )
     SELECT
       e.*, fm.name AS member_name, fm.color AS member_color,
       fm.avatar_emoji AS member_emoji,
       '[]'::json AS completions,
       NULL::text AS calendar_summary
-    FROM calendar_events e
+    FROM updated e
     LEFT JOIN family_members fm ON e.assigned_to = fm.id
-    WHERE e.id = ${id}
   `;
-  return (refreshed[0] as CalendarEventWithMember) ?? null;
+  return (rows[0] as CalendarEventWithMember) ?? null;
 }
 
 export async function completeEvent(

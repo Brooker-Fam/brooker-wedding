@@ -518,58 +518,62 @@ export default function CalendarView({ adminMode }: CalendarViewProps) {
 
   const today = startOfDay(new Date());
 
-  const days = Array.from({ length: 7 }, (_, i) => {
-    const d = new Date(weekStart);
-    d.setDate(d.getDate() + i);
-    return d;
-  });
-
-  const tasksByDay: Record<string, TaskWithCompletion[]> = {};
-  const eventsByDay: Record<string, CalendarEventWithMember[]> = {};
-  for (const d of days) {
-    tasksByDay[formatDateKey(d)] = [];
-    eventsByDay[formatDateKey(d)] = [];
-  }
-  for (const task of tasks) {
-    if (task.due_date) {
-      const key = task.due_date.split("T")[0];
-      if (tasksByDay[key]) {
-        tasksByDay[key].push(task);
-      }
-    }
-  }
-  for (const ev of events) {
-    const key = eventDateKey(ev);
-    if (eventsByDay[key]) {
-      eventsByDay[key].push(ev);
-    }
-  }
-
-  const anchorKey = formatDateKey(anchor);
-  const totalItems = tasks.length + events.length;
-
   type DayItem =
     | { type: "event"; ev: CalendarEventWithMember }
     | { type: "task"; task: TaskWithCompletion };
 
-  function itemSortKey(item: DayItem): string {
-    if (item.type === "event") {
-      if (item.ev.all_day) return "00:00";
-      return new Date(item.ev.start_at).toTimeString().slice(0, 5);
-    }
-    return item.task.due_time?.slice(0, 5) ?? "99:99";
-  }
+  // Memoize the per-day grouping + sort so we only rebuild when the input data
+  // or visible week actually changes. Without this, every render (e.g. each
+  // optimistic toggle setTasks) re-runs the grouping and re-sorts all 7 days.
+  const { days, itemsByDay } = useMemo(() => {
+    const ds = Array.from({ length: 7 }, (_, i) => {
+      const d = new Date(weekStart);
+      d.setDate(d.getDate() + i);
+      return d;
+    });
 
-  function sortedItemsForDay(key: string): DayItem[] {
-    const dt = tasksByDay[key] ?? [];
-    const de = eventsByDay[key] ?? [];
-    const items: DayItem[] = [
-      ...de.map((ev) => ({ type: "event" as const, ev })),
-      ...dt.map((task) => ({ type: "task" as const, task })),
-    ];
-    items.sort((a, b) => itemSortKey(a).localeCompare(itemSortKey(b)));
-    return items;
-  }
+    const tasksByDay: Record<string, TaskWithCompletion[]> = {};
+    const eventsByDay: Record<string, CalendarEventWithMember[]> = {};
+    for (const d of ds) {
+      tasksByDay[formatDateKey(d)] = [];
+      eventsByDay[formatDateKey(d)] = [];
+    }
+    for (const task of tasks) {
+      if (!task.due_date) continue;
+      const key = task.due_date.split("T")[0];
+      if (tasksByDay[key]) tasksByDay[key].push(task);
+    }
+    for (const ev of events) {
+      const key = eventDateKey(ev);
+      if (eventsByDay[key]) eventsByDay[key].push(ev);
+    }
+
+    const sortKey = (item: DayItem): string => {
+      if (item.type === "event") {
+        if (item.ev.all_day) return "00:00";
+        return new Date(item.ev.start_at).toTimeString().slice(0, 5);
+      }
+      return item.task.due_time?.slice(0, 5) ?? "99:99";
+    };
+
+    const sorted: Record<string, DayItem[]> = {};
+    for (const d of ds) {
+      const key = formatDateKey(d);
+      const items: DayItem[] = [
+        ...eventsByDay[key].map((ev) => ({ type: "event" as const, ev })),
+        ...tasksByDay[key].map((task) => ({ type: "task" as const, task })),
+      ];
+      items.sort((a, b) => sortKey(a).localeCompare(sortKey(b)));
+      sorted[key] = items;
+    }
+
+    return { days: ds, itemsByDay: sorted };
+  }, [weekStart, tasks, events]);
+
+  const anchorKey = formatDateKey(anchor);
+  const totalItems = tasks.length + events.length;
+
+  const sortedItemsForDay = (key: string): DayItem[] => itemsByDay[key] ?? [];
 
   const step = view === "day" ? 1 : 7;
 

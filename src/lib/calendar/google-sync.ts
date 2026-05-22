@@ -121,10 +121,10 @@ function eventStartEnd(ev: calendar_v3.Schema$Event): {
   };
 }
 
-async function resolveMemberId(
+function resolveMemberId(
   members: FamilyMember[],
   name: string | null
-): Promise<number | null> {
+): number | null {
   if (!name) return null;
   const match = members.find(
     (m) => m.name.toLowerCase() === name.toLowerCase()
@@ -205,6 +205,12 @@ async function syncOneCalendar(
   let upserted = 0;
   let cancelled = 0;
 
+  // Build all per-event statements first, then send them in a single
+  // HTTP round-trip via Neon's transaction(). Previously this was one
+  // HTTP per event — a full-sync of a calendar with hundreds of events
+  // meant hundreds of sequential round-trips.
+  const statements = [] as ReturnType<typeof db>[];
+
   for (const ev of allEvents) {
     if (!ev.id) continue;
 
@@ -215,20 +221,20 @@ async function syncOneCalendar(
 
     if (status === "cancelled") {
       // Soft-delete: mark the row cancelled if it exists.
-      const result = await db`
+      statements.push(db`
         UPDATE calendar_events
         SET status = 'cancelled', etag = ${ev.etag ?? null}, updated_at = NOW()
         WHERE google_calendar_id = ${cal.google_calendar_id}
           AND google_event_id = ${ev.id}
-      `;
-      if (Array.isArray(result) && result.length > 0) cancelled++;
+      `);
+      cancelled++;
       continue;
     }
 
     const { start_at, end_at, all_day, timezone } = eventStartEnd(ev);
     const title = ev.summary ?? "(untitled)";
     const rule = matchEventRule(title);
-    const ruleMemberId = await resolveMemberId(members, rule?.assignedToName ?? null);
+    const ruleMemberId = resolveMemberId(members, rule?.assignedToName ?? null);
     const nameMatch = !ruleMemberId
       ? matchMemberByName(title, memberPatterns)
       : null;
@@ -240,8 +246,8 @@ async function syncOneCalendar(
 
     // Upsert. On conflict, Google-owned fields are overwritten; locally-owned
     // fields (assigned_to, points, color_override, auto_award) are preserved
-    // via COALESCE(existing, incoming).
-    await db`
+    // by the UPDATE clause not touching them.
+    statements.push(db`
       INSERT INTO calendar_events (
         household_id, google_calendar_id, google_event_id, ical_uid, etag,
         title, description, location, start_at, end_at, all_day, timezone,
@@ -272,16 +278,18 @@ async function syncOneCalendar(
         status = EXCLUDED.status,
         html_link = EXCLUDED.html_link,
         updated_at = NOW()
-    `;
+    `);
     upserted++;
   }
 
-  // Persist the new sync token + timestamp.
-  await db`
+  // Always update the sync token, even if no event statements ran.
+  statements.push(db`
     UPDATE google_calendars
     SET sync_token = ${nextSyncToken ?? null}, last_synced_at = NOW()
     WHERE id = ${cal.id}
-  `;
+  `);
+
+  await db.transaction(statements);
 
   return { upserted, cancelled };
 }
@@ -318,23 +326,29 @@ export async function syncAllEnabledCalendars(
 
   const memberPatterns = compileMemberNamePatterns(members);
 
-  for (const cal of cals) {
-    try {
-      const { upserted, cancelled } = await syncOneCalendar(
-        cal,
-        members,
-        memberPatterns
-      );
-      results.push({ calendar: cal.summary, upserted, cancelled });
-    } catch (err) {
+  // Sync calendars in parallel — each one is independent (different Google
+  // calendar, different sync token, different rows). Promise.allSettled so a
+  // single broken calendar doesn't kill the rest.
+  const settled = await Promise.allSettled(
+    cals.map((cal) => syncOneCalendar(cal, members, memberPatterns))
+  );
+  settled.forEach((s, i) => {
+    const cal = cals[i];
+    if (s.status === "fulfilled") {
+      results.push({
+        calendar: cal.summary,
+        upserted: s.value.upserted,
+        cancelled: s.value.cancelled,
+      });
+    } else {
       results.push({
         calendar: cal.summary,
         upserted: 0,
         cancelled: 0,
-        error: err instanceof Error ? err.message : String(err),
+        error: s.reason instanceof Error ? s.reason.message : String(s.reason),
       });
     }
-  }
+  });
 
   return results;
 }
