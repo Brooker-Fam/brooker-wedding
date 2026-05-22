@@ -10,6 +10,7 @@ const navLinks = [
   { href: "/", label: "Home" },
   { href: "/rsvp", label: "RSVP" },
   { href: "/details", label: "Details" },
+  { href: "/bridal-shower", label: "Bridal Shower" },
   { href: "/registry", label: "Registry" },
   { href: "/songs", label: "Songs" },
   { href: "/games", label: "Games", sparkle: true },
