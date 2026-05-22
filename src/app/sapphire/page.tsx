@@ -1346,7 +1346,7 @@ export default function SapphirePage() {
         {/* WHO'S COMING */}
         <WhosComing />
 
-        {/* BIRTHDAY GIRL Q&A */}
+        {/* BIRTHDAY GIRL FACTS */}
         <motion.section
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -1356,7 +1356,7 @@ export default function SapphirePage() {
         >
           <div className="rounded-3xl border border-pink-300/40 bg-white/60 p-6 shadow-sm backdrop-blur-md sm:p-8 dark:border-pink-200/30 dark:bg-white/10 dark:shadow-none">
             <p className="text-center text-xs font-semibold tracking-[0.3em] text-purple-600 uppercase dark:text-pink-200/80">
-              Birthday Girl Q&A
+              Birthday Girl Favorites
             </p>
             <h3 className="mt-1 text-center font-[family-name:var(--font-cormorant-garamond)] text-3xl font-semibold text-purple-900 dark:text-white">
               Fun Facts About the Birthday Girl
