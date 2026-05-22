@@ -1378,7 +1378,6 @@ export default function SapphirePage() {
               <FactCategory
                 emoji="🌿"
                 title="Fun Facts"
-                featured
                 facts={[
                   "Sapphire lives on a farm with chickens, ducks, geese, guinea hens, pigs, 3 dogs, and 4 cats. Her favorite animal is Pumpkin the barn cat.",
                   "Sapphire likes cucumbers with salt and pizza with whipped cream.",
@@ -1509,20 +1508,14 @@ function FactCategory({
   title,
   details,
   facts,
-  featured = false,
 }: {
   emoji: string;
   title: string;
   details?: string;
   facts?: string[];
-  featured?: boolean;
 }) {
   return (
-    <div
-      className={`rounded-2xl border border-white/80 bg-white/75 p-4 text-left shadow-sm shadow-purple-900/5 backdrop-blur-sm dark:border-white/10 dark:bg-white/10 ${
-        featured ? "sm:col-span-2" : ""
-      }`}
-    >
+    <div className="rounded-2xl border border-white/80 bg-white/75 p-4 text-left shadow-sm shadow-purple-900/5 backdrop-blur-sm dark:border-white/10 dark:bg-white/10">
       <div className="flex items-center gap-3">
         <span className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-gradient-to-br from-pink-100 to-emerald-100 text-xl shadow-inner dark:from-pink-200/20 dark:to-emerald-200/20">
           {emoji}
@@ -1537,7 +1530,7 @@ function FactCategory({
         </p>
       ) : null}
       {facts ? (
-        <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-3">
+        <div className="mt-4 space-y-3">
           {facts.map((fact) => (
             <p
               key={fact}
