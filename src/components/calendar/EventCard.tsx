@@ -52,15 +52,12 @@ export default function EventCard({
 
   return (
     <div
-      className={`group relative rounded-lg border-l-[3px] transition-all ${
+      className={`bulletin-card bulletin-card--event group ${
         isSpacious ? "px-3 py-3 sm:px-4 sm:py-4" : "px-2.5 py-1.5 sm:px-3 sm:py-2"
-      } ${
-        isCompleted
-          ? "bg-lavender/5 opacity-70 dark:bg-lavender/5"
-          : "bg-gradient-to-r from-lavender/10 to-cream/80 shadow-sm dark:from-lavender/10 dark:to-dark-surface"
-      }`}
+      } ${isCompleted ? "bulletin-card--completed" : ""}`}
       style={{ borderLeftColor: memberColor }}
     >
+      <span className="bulletin-pin" aria-hidden="true" />
       <div className={`flex items-start ${isSpacious ? "gap-3" : "gap-2"}`}>
         {onToggleComplete && (
           <button

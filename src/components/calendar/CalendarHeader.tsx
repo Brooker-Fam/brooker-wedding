@@ -59,6 +59,38 @@ function formatDayLabel(anchor: Date): string {
   return base;
 }
 
+function GnomeMark() {
+  return (
+    <svg
+      width="32"
+      height="32"
+      viewBox="0 0 32 32"
+      aria-hidden="true"
+      className="shrink-0 opacity-60"
+    >
+      {/* Hat */}
+      <path
+        d="M16 3 L26 18 L6 18 Z"
+        fill="var(--board-ink)"
+      />
+      {/* Hat tip highlight */}
+      <circle cx="16" cy="6" r="1.2" fill="var(--board-accent)" opacity="0.7" />
+      {/* Beard */}
+      <ellipse
+        cx="16"
+        cy="22"
+        rx="6.5"
+        ry="6"
+        fill="var(--board-bg)"
+        stroke="var(--board-muted)"
+        strokeWidth="1"
+      />
+      {/* Nose */}
+      <circle cx="16" cy="20" r="2" fill="var(--board-accent)" opacity="0.7" />
+    </svg>
+  );
+}
+
 export default function CalendarHeader({
   anchor,
   view,
@@ -88,11 +120,17 @@ export default function CalendarHeader({
   const nextLabel = view === "day" ? "Next day" : "Next week";
 
   return (
-    <header className="flex flex-wrap items-center justify-between gap-3 px-4 py-3 sm:px-6">
+    <header className="bulletin-header flex flex-wrap items-center justify-between gap-3 px-4 py-4 sm:px-6">
       <div className="flex items-center gap-3">
-        <h1 className="font-[family-name:var(--font-cormorant-garamond)] text-2xl font-bold text-forest dark:text-cream sm:text-3xl">
-          Brooker Family
-        </h1>
+        <GnomeMark />
+        <div>
+          <h1 className="text-2xl font-bold leading-tight sm:text-3xl">
+            Brooker Family
+          </h1>
+          <p className="bulletin-subtitle mt-0.5 text-xs sm:text-sm">
+            The household bulletin board
+          </p>
+        </div>
       </div>
 
       <div className="flex flex-wrap items-center gap-2">
@@ -106,7 +144,7 @@ export default function CalendarHeader({
             aria-pressed={view === "day"}
             className={`rounded-lg px-2.5 py-1.5 text-xs font-medium transition-colors sm:text-sm ${
               view === "day"
-                ? "bg-forest text-cream dark:bg-sage dark:text-dark-bg"
+                ? "bg-forest text-cream dark:bg-soft-gold dark:text-dark-bg"
                 : "text-forest/60 hover:text-forest dark:text-cream/60 dark:hover:text-cream"
             }`}
           >
@@ -117,7 +155,7 @@ export default function CalendarHeader({
             aria-pressed={view === "week"}
             className={`rounded-lg px-2.5 py-1.5 text-xs font-medium transition-colors sm:text-sm ${
               view === "week"
-                ? "bg-forest text-cream dark:bg-sage dark:text-dark-bg"
+                ? "bg-forest text-cream dark:bg-soft-gold dark:text-dark-bg"
                 : "text-forest/60 hover:text-forest dark:text-cream/60 dark:hover:text-cream"
             }`}
           >
@@ -125,20 +163,20 @@ export default function CalendarHeader({
           </button>
         </div>
 
-        <div className="flex items-center rounded-xl border border-sage/20 bg-cream/60 dark:border-soft-gold/15 dark:bg-dark-surface">
+        <div className="bulletin-button flex items-center rounded-xl">
           <button
             onClick={onPrev}
-            className="px-3 py-2 text-forest/70 transition-colors hover:text-forest dark:text-cream/70 dark:hover:text-cream"
+            className="px-3 py-2 opacity-70 transition-opacity hover:opacity-100"
             aria-label={prevLabel}
           >
             ‹
           </button>
-          <span className="min-w-[180px] px-2 text-center text-sm font-medium text-forest dark:text-cream sm:text-base">
+          <span className="min-w-[180px] px-2 text-center text-sm font-medium sm:text-base">
             {label}
           </span>
           <button
             onClick={onNext}
-            className="px-3 py-2 text-forest/70 transition-colors hover:text-forest dark:text-cream/70 dark:hover:text-cream"
+            className="px-3 py-2 opacity-70 transition-opacity hover:opacity-100"
             aria-label={nextLabel}
           >
             ›
@@ -148,7 +186,7 @@ export default function CalendarHeader({
         {showTodayButton && (
           <button
             onClick={onToday}
-            className="rounded-lg border border-sage/20 bg-cream/60 px-3 py-2 text-sm font-medium text-forest transition-colors hover:bg-sage/10 dark:border-soft-gold/15 dark:bg-dark-surface dark:text-cream dark:hover:bg-dark-surface-light"
+            className="bulletin-button rounded-lg px-3 py-2 text-sm font-medium"
           >
             Today
           </button>
@@ -156,7 +194,7 @@ export default function CalendarHeader({
 
         <Link
           href="/calendar/scoreboard"
-          className="rounded-lg border border-sage/20 bg-cream/60 px-3 py-2 text-sm font-medium text-forest/60 transition-colors hover:text-forest dark:border-soft-gold/15 dark:bg-dark-surface dark:text-cream/60 dark:hover:text-cream"
+          className="bulletin-button rounded-lg px-3 py-2 text-sm font-medium"
           title="Scoreboard"
         >
           🏆
@@ -164,7 +202,7 @@ export default function CalendarHeader({
 
         <Link
           href="/calendar/display"
-          className="rounded-lg border border-sage/20 bg-cream/60 px-3 py-2 text-sm font-medium text-forest/60 transition-colors hover:text-forest dark:border-soft-gold/15 dark:bg-dark-surface dark:text-cream/60 dark:hover:text-cream"
+          className="bulletin-button rounded-lg px-3 py-2 text-sm font-medium"
           title="Open wall-mount display mode"
         >
           📺
@@ -173,7 +211,7 @@ export default function CalendarHeader({
         {adminMode ? (
           <Link
             href="/calendar"
-            className="rounded-lg border border-soft-gold/40 bg-soft-gold/15 px-3 py-2 text-sm font-medium text-soft-gold-dark transition-colors hover:bg-soft-gold/25 dark:border-soft-gold/30 dark:text-soft-gold"
+            className="rounded-lg border border-soft-gold/50 bg-soft-gold/15 px-3 py-2 text-sm font-medium text-soft-gold-dark transition-colors hover:bg-soft-gold/25 dark:border-soft-gold/40 dark:text-soft-gold"
             title="Exit admin mode"
           >
             ✏️ Admin
@@ -181,7 +219,7 @@ export default function CalendarHeader({
         ) : (
           <Link
             href="/calendar/admin"
-            className="rounded-lg border border-sage/20 bg-cream/60 px-3 py-2 text-sm font-medium text-forest/50 transition-colors hover:text-forest dark:border-soft-gold/15 dark:bg-dark-surface dark:text-cream/40 dark:hover:text-cream"
+            className="bulletin-button rounded-lg px-3 py-2 text-sm font-medium opacity-70"
             title="Enter admin mode"
           >
             🔒

@@ -578,7 +578,7 @@ export default function CalendarView({ adminMode }: CalendarViewProps) {
   const step = view === "day" ? 1 : 7;
 
   return (
-    <div className="min-h-screen">
+    <div className="bulletin-board min-h-screen">
       <CalendarHeader
         anchor={anchor}
         view={view}
@@ -646,7 +646,7 @@ export default function CalendarView({ adminMode }: CalendarViewProps) {
 
       {view === "week" ? (
         /* Week grid */
-        <div className="grid min-h-[calc(100vh-120px)] grid-cols-1 gap-px bg-sage/10 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-7 dark:bg-soft-gold/5">
+        <div className="grid min-h-[calc(100vh-120px)] grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-7">
           {days.map((day) => {
             const key = formatDateKey(day);
             const isToday = key === formatDateKey(today);
@@ -655,16 +655,14 @@ export default function CalendarView({ adminMode }: CalendarViewProps) {
             return (
               <div
                 key={key}
-                className={`flex min-h-[180px] flex-col bg-cream p-2 sm:min-h-[250px] sm:p-3 dark:bg-dark-bg ${
-                  isToday ? "ring-2 ring-inset ring-soft-gold/40" : ""
+                className={`bulletin-day flex min-h-[180px] flex-col p-2 sm:min-h-[250px] sm:p-3 ${
+                  isToday ? "ring-1 ring-inset ring-soft-gold/40" : ""
                 }`}
               >
                 <div className="mb-2">
                   <span
-                    className={`text-sm font-semibold ${
-                      isToday
-                        ? "text-soft-gold-dark dark:text-soft-gold"
-                        : "text-forest/70 dark:text-cream/70"
+                    className={`bulletin-day-label ${
+                      isToday ? "is-today" : ""
                     }`}
                   >
                     {getDayLabel(day, today)}
@@ -717,12 +715,14 @@ export default function CalendarView({ adminMode }: CalendarViewProps) {
         /* Day view */
         <div className="mx-auto w-full max-w-2xl px-4 pb-8 sm:px-6">
           <div
-            className={`rounded-2xl bg-cream p-4 sm:p-6 dark:bg-dark-bg ${
+            className={`bulletin-card rounded-2xl p-5 sm:p-7 ${
               anchorKey === formatDateKey(today)
-                ? "ring-2 ring-soft-gold/40"
-                : "ring-1 ring-sage/15 dark:ring-soft-gold/10"
+                ? "ring-1 ring-soft-gold/40"
+                : ""
             }`}
+            style={{ borderLeftColor: "var(--board-accent)" }}
           >
+            <span className="bulletin-pin" aria-hidden="true" />
             <h2 className="mb-4 font-[family-name:var(--font-cormorant-garamond)] text-2xl font-bold text-forest dark:text-cream sm:text-3xl">
               {formatFullDayLabel(anchor, today)}
             </h2>

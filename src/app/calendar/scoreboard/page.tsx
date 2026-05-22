@@ -45,9 +45,9 @@ export default function ScoreboardPage() {
   const maxValue = sorted.length > 0 ? sorted[0][sortKey] : 0;
 
   return (
-    <div className="enchanted-bg min-h-screen px-4 py-8 sm:px-6">
+    <div className="bulletin-board min-h-screen px-4 py-8 sm:px-6">
       <div className="mx-auto max-w-3xl">
-        <header className="mb-6 flex flex-wrap items-center justify-between gap-3">
+        <header className="bulletin-header mb-6 flex flex-wrap items-center justify-between gap-3">
           <div>
             <Link
               href="/calendar"
@@ -55,10 +55,10 @@ export default function ScoreboardPage() {
             >
               ‹ Calendar
             </Link>
-            <h1 className="font-[family-name:var(--font-cormorant-garamond)] text-4xl font-bold text-forest dark:text-cream sm:text-5xl">
-              Scoreboard
+            <h1 className="text-4xl font-bold sm:text-5xl">
+              Tally of Quests
             </h1>
-            <p className="mt-1 text-sm text-forest/60 dark:text-cream/60">
+            <p className="bulletin-subtitle mt-2 text-sm">
               Who&apos;s been earning their keep.
             </p>
           </div>
@@ -67,7 +67,7 @@ export default function ScoreboardPage() {
         <div
           role="tablist"
           aria-label="Scoreboard timeframe"
-          className="mb-6 inline-flex rounded-xl border border-sage/20 bg-cream/60 p-1 dark:border-soft-gold/15 dark:bg-dark-surface"
+          className="mb-6 inline-flex rounded-xl p-1"
         >
           {TABS.map((tab) => {
             const active = sortKey === tab.key;
@@ -77,10 +77,8 @@ export default function ScoreboardPage() {
                 role="tab"
                 aria-selected={active}
                 onClick={() => setSortKey(tab.key)}
-                className={`rounded-lg px-3 py-1.5 text-sm font-medium transition-colors sm:px-4 sm:py-2 ${
-                  active
-                    ? "bg-forest text-cream dark:bg-soft-gold/90 dark:text-forest"
-                    : "text-forest/60 hover:text-forest dark:text-cream/60 dark:hover:text-cream"
+                className={`bulletin-button mx-0.5 rounded-lg px-3 py-1.5 text-sm font-medium sm:px-4 sm:py-2 ${
+                  active ? "bulletin-button--active" : ""
                 }`}
               >
                 {tab.label}
@@ -90,13 +88,13 @@ export default function ScoreboardPage() {
         </div>
 
         {loading && (
-          <div className="soft-card flex items-center justify-center p-10">
+          <div className="bulletin-card flex items-center justify-center p-10">
             <div className="h-6 w-6 animate-spin rounded-full border-2 border-sage/30 border-t-sage" />
           </div>
         )}
 
         {!loading && sorted.length === 0 && (
-          <div className="soft-card p-8 text-center">
+          <div className="bulletin-card p-8 text-center">
             <p className="text-forest/70 dark:text-cream/70">
               No household members yet.
             </p>
@@ -120,8 +118,10 @@ export default function ScoreboardPage() {
               return (
                 <li
                   key={entry.member_id}
-                  className="soft-card flex items-center gap-4 p-4 sm:p-5"
+                  className="bulletin-card flex items-center gap-4 p-4 sm:p-5"
+                  style={{ borderLeftColor: entry.color }}
                 >
+                  <span className="bulletin-pin" aria-hidden="true" />
                   <div className="flex w-10 shrink-0 items-center justify-center text-2xl sm:w-12 sm:text-3xl">
                     {medal ?? (
                       <span className="font-[family-name:var(--font-cormorant-garamond)] text-2xl font-bold text-forest/40 dark:text-cream/40 sm:text-3xl">
@@ -151,13 +151,10 @@ export default function ScoreboardPage() {
                         {entry.completed_count === 1 ? "task" : "tasks"} done
                       </span>
                     </div>
-                    <div className="mt-2 h-2 overflow-hidden rounded-full bg-sage/15 dark:bg-soft-gold/10">
+                    <div className="mt-2 h-2 overflow-hidden rounded-full bg-sage/20 dark:bg-sage/15">
                       <div
-                        className="h-full rounded-full transition-all duration-500"
-                        style={{
-                          width: `${barPct}%`,
-                          backgroundColor: entry.color,
-                        }}
+                        className="h-full rounded-full bg-gradient-to-r from-soft-gold-dark via-soft-gold to-soft-gold-light transition-all duration-500"
+                        style={{ width: `${barPct}%` }}
                       />
                     </div>
                   </div>

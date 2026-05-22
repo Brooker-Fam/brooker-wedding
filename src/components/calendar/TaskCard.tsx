@@ -16,10 +16,10 @@ interface TaskCardProps {
   variant?: "compact" | "spacious";
 }
 
-const priorityIndicator: Record<string, string> = {
-  high: "border-l-red-400 dark:border-l-red-500",
-  medium: "border-l-soft-gold dark:border-l-soft-gold",
-  low: "border-l-sage/40 dark:border-l-sage/30",
+const priorityBorderColor: Record<string, string> = {
+  high: "#E57373",
+  medium: "var(--board-accent)",
+  low: "rgba(92, 122, 74, 0.5)",
 };
 
 export default function TaskCard({
@@ -33,17 +33,17 @@ export default function TaskCard({
   const isCompleted = !!task.completion_id;
   const memberColor = task.member_color ?? "#888";
   const isSpacious = variant === "spacious";
+  const borderColor =
+    priorityBorderColor[task.priority] ?? priorityBorderColor.medium;
 
   return (
     <div
-      className={`group relative rounded-lg border-l-[3px] transition-all ${
+      className={`bulletin-card group ${
         isSpacious ? "px-3 py-3 sm:px-4 sm:py-4" : "px-2.5 py-1.5 sm:px-3 sm:py-2"
-      } ${priorityIndicator[task.priority] ?? priorityIndicator.medium} ${
-        isCompleted
-          ? "bg-sage/5 opacity-60 dark:bg-sage/5"
-          : "bg-cream/80 shadow-sm dark:bg-dark-surface"
-      }`}
+      } ${isCompleted ? "bulletin-card--completed" : ""}`}
+      style={{ borderLeftColor: borderColor }}
     >
+      <span className="bulletin-pin" aria-hidden="true" />
       <div className={`flex items-center ${isSpacious ? "gap-4" : "items-start gap-2"}`}>
         <button
           onClick={() => onToggleComplete(task)}

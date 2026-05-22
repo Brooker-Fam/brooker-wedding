@@ -122,13 +122,18 @@ export default function GoogleCalendarPanel({ members, onSynced }: Props) {
 
   if (!connected) {
     return (
-      <div className="mx-4 mb-4 rounded-xl border border-sage/20 bg-cream/50 p-4 sm:mx-6 dark:bg-dark-surface">
+      <div
+        className="bulletin-card mx-4 mb-4 p-4 sm:mx-6"
+        style={{ borderLeftColor: "var(--color-deep-plum)" }}
+      >
+        <span className="bulletin-pin" aria-hidden="true" />
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
-            <h3 className="text-base font-semibold text-forest dark:text-cream">
-              Google Calendar
+            <h3 className="flex items-center gap-2 text-base font-semibold text-forest dark:text-cream">
+              <span aria-hidden="true">📮</span>
+              Postcard from Google
             </h3>
-            <p className="mt-0.5 text-sm text-forest/60 dark:text-cream/60">
+            <p className="mt-0.5 text-sm italic text-sage dark:text-lavender">
               Connect to pull TKD, drama club, and other family events into the
               calendar.
             </p>
@@ -159,7 +164,11 @@ export default function GoogleCalendarPanel({ members, onSynced }: Props) {
   const lastSyncedRel = formatRelative(lastSynced ?? null);
 
   return (
-    <div className="mx-4 mb-3 rounded-lg border border-sage/15 bg-cream/40 sm:mx-6 dark:border-cream/10 dark:bg-dark-surface/50">
+    <div
+      className="bulletin-card mx-4 mb-3 sm:mx-6"
+      style={{ borderLeftColor: "var(--color-deep-plum)" }}
+    >
+      <span className="bulletin-pin" aria-hidden="true" />
       {/* Compact header row — always visible */}
       <div className="flex items-center gap-2 px-3 py-1.5 text-xs">
         <button
@@ -168,9 +177,9 @@ export default function GoogleCalendarPanel({ members, onSynced }: Props) {
           className="flex flex-1 items-center gap-2 text-left text-forest/70 transition-colors hover:text-forest dark:text-cream/60 dark:hover:text-cream"
           aria-expanded={expanded}
         >
-          <span aria-hidden="true">📅</span>
+          <span aria-hidden="true">📮</span>
           <span className="font-medium">Google Calendar</span>
-          <span className="text-forest/40 dark:text-cream/40">
+          <span className="italic text-sage/80 dark:text-lavender/70">
             · {enabledCount} {enabledCount === 1 ? "calendar" : "calendars"}
             {lastSyncedRel ? ` · synced ${lastSyncedRel}` : ""}
           </span>
