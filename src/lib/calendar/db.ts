@@ -222,23 +222,30 @@ export async function updateTask(
   const db = getDb();
   if (!db) return null;
 
-  const existing = await getTask(id);
-  if (!existing) return null;
-
-  const merged = { ...existing, ...data };
+  // Single round-trip: COALESCE undefined fields to the existing column value
+  // instead of pre-reading the row. Caller passes nullish-coercible JSON, so
+  // we normalize undefined to null and let SQL pick the right side.
+  const pick = <K extends keyof typeof data>(k: K) =>
+    data[k] === undefined ? null : data[k];
 
   const rows = await db`
     UPDATE tasks SET
-      title = ${merged.title},
-      description = ${merged.description},
-      assigned_to = ${merged.assigned_to},
-      status = ${merged.status},
-      priority = ${merged.priority},
-      points = ${merged.points},
-      due_date = ${merged.due_date},
-      due_time = ${merged.due_time},
-      duration_minutes = ${merged.duration_minutes},
-      recurrence_rule = ${merged.recurrence_rule},
+      title = COALESCE(${pick("title")}, title),
+      description = CASE WHEN ${data.description === undefined}
+        THEN description ELSE ${pick("description")} END,
+      assigned_to = CASE WHEN ${data.assigned_to === undefined}
+        THEN assigned_to ELSE ${pick("assigned_to")} END,
+      status = COALESCE(${pick("status")}, status),
+      priority = COALESCE(${pick("priority")}, priority),
+      points = COALESCE(${pick("points")}, points),
+      due_date = CASE WHEN ${data.due_date === undefined}
+        THEN due_date ELSE ${pick("due_date")} END,
+      due_time = CASE WHEN ${data.due_time === undefined}
+        THEN due_time ELSE ${pick("due_time")} END,
+      duration_minutes = CASE WHEN ${data.duration_minutes === undefined}
+        THEN duration_minutes ELSE ${pick("duration_minutes")} END,
+      recurrence_rule = CASE WHEN ${data.recurrence_rule === undefined}
+        THEN recurrence_rule ELSE ${pick("recurrence_rule")} END,
       updated_at = NOW()
     WHERE id = ${id}
     RETURNING *

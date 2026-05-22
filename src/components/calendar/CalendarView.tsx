@@ -237,10 +237,69 @@ export default function CalendarView({ adminMode }: CalendarViewProps) {
 
   const handleSaveTask = (data: TaskFormData) => {
     // Close the form immediately — the user doesn't need to watch the spinner
-    // while the request round-trips. fetchTasks reconciles state when it
-    // returns, including assigning the real id to a newly-created task.
+    // while the request round-trips.
     setShowForm(false);
     setEditingTask(null);
+
+    // Optimistic local update: insert/replace the task in state right away so
+    // the new (or edited) card appears the instant the form closes. The
+    // refetch below reconciles fields the server owns (real id, materialized
+    // recurring instances, etc.).
+    const member =
+      data.assigned_to != null
+        ? members.find((m) => m.id === data.assigned_to) ?? null
+        : null;
+    if (data.id) {
+      setTasks((prev) =>
+        prev.map((t) =>
+          t.id === data.id
+            ? {
+                ...t,
+                title: data.title,
+                description: data.description,
+                assigned_to: data.assigned_to,
+                priority: data.priority,
+                points: data.points,
+                due_date: data.due_date,
+                due_time: data.due_time,
+                recurrence_rule: data.recurrence_rule,
+                member_name: member?.name ?? null,
+                member_color: member?.color ?? null,
+                member_emoji: member?.avatar_emoji ?? null,
+              }
+            : t
+        )
+      );
+    } else {
+      const tempId = -Date.now();
+      const nowIso = new Date().toISOString();
+      const optimistic: TaskWithCompletion = {
+        id: tempId,
+        household_id: 1,
+        title: data.title,
+        description: data.description,
+        assigned_to: data.assigned_to,
+        source: "manual",
+        status: "pending",
+        priority: data.priority,
+        points: data.points,
+        due_date: data.due_date,
+        due_time: data.due_time,
+        duration_minutes: null,
+        recurrence_rule: data.recurrence_rule,
+        google_event_id: null,
+        created_at: nowIso,
+        updated_at: nowIso,
+        member_name: member?.name ?? null,
+        member_color: member?.color ?? null,
+        member_emoji: member?.avatar_emoji ?? null,
+        completion_id: null,
+        completed_date: null,
+        completed_by_name: null,
+      };
+      setTasks((prev) => [...prev, optimistic]);
+    }
+
     const method = data.id ? "PUT" : "POST";
     fetch("/api/calendar/tasks", {
       method,
