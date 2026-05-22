@@ -1355,19 +1355,16 @@ export default function SapphirePage() {
           className="mt-10"
         >
           <div className="rounded-3xl border border-pink-300/40 bg-white/60 p-6 shadow-sm backdrop-blur-md sm:p-8 dark:border-pink-200/30 dark:bg-white/10 dark:shadow-none">
-            <p className="text-center text-xs font-semibold tracking-[0.3em] text-purple-600 uppercase dark:text-pink-200/80">
-              Birthday Girl Favorites
-            </p>
             <h3 className="mt-1 text-center font-[family-name:var(--font-cormorant-garamond)] text-3xl font-semibold text-purple-900 dark:text-white">
               Fun Facts About the Birthday Girl
             </h3>
             <ul className="mt-5 grid grid-cols-1 gap-3">
-              <InterviewFact
-                question="Favorite shows?"
+              <FactCategory
+                title="Favorite Shows"
                 items={["Hilda", "Barbie", "Bluey"]}
               />
-              <InterviewFact
-                question="Favorite movies?"
+              <FactCategory
+                title="Favorite Movies"
                 items={[
                   "BFG",
                   "Ice Age",
@@ -1375,8 +1372,8 @@ export default function SapphirePage() {
                   "Beauty and the Beast",
                 ]}
               />
-              <InterviewFact
-                question="Hobbies & interests?"
+              <FactCategory
+                title="Hobbies & Interests"
                 items={[
                   "Legos",
                   "Painting & crafting",
@@ -1384,8 +1381,8 @@ export default function SapphirePage() {
                   "Graphic novels",
                 ]}
               />
-              <InterviewFact
-                question="Fun facts?"
+              <FactCategory
+                title="Fun Facts"
                 items={[
                   "Sapphire lives on a farm with chickens, ducks, geese, guinea hens, pigs, 3 dogs, and 4 cats. Her favorite animal is Pumpkin the barn cat.",
                   "Sapphire likes cucumbers with salt and pizza with whipped cream.",
@@ -1511,20 +1508,17 @@ function Highlight({ emoji, title, desc }: { emoji: string; title: string; desc:
   );
 }
 
-function InterviewFact({
-  question,
+function FactCategory({
+  title,
   items,
 }: {
-  question: string;
+  title: string;
   items: string[];
 }) {
   return (
     <li className="rounded-2xl bg-white/45 p-4 text-left backdrop-blur-sm dark:bg-white/5">
-      <p className="text-xs font-semibold tracking-[0.2em] text-purple-600 uppercase dark:text-pink-200/80">
-        Q
-      </p>
-      <p className="mt-1 font-[family-name:var(--font-cormorant-garamond)] text-xl font-semibold text-purple-900 dark:text-white">
-        {question}
+      <p className="font-[family-name:var(--font-cormorant-garamond)] text-xl font-semibold text-purple-900 dark:text-white">
+        {title}
       </p>
       <ul className="mt-3 space-y-2 text-sm leading-relaxed text-purple-700/85 dark:text-pink-100/75">
         {items.map((item) => (
