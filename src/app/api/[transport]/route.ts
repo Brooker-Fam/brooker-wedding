@@ -6,21 +6,14 @@ import {
   verifyBasicAuthHeader,
   publicOrigin,
 } from "@/lib/mcp/auth";
-import {
-  runQuery,
-  runWrite,
-  runAction,
-  describe,
-  type QueryInput,
-  type WriteInput,
-  type ActionInput,
-} from "@/lib/mcp/tools";
+import { runExec, EXEC_API_DOC } from "@/lib/mcp/exec";
 import { captureServerException } from "@/lib/posthog-server";
 
 /**
- * MCP server for the Brooker family calendar. Four generic tools instead of
- * fifteen specific ones — the LLM can self-discover the full surface via
- * calendar_describe, which returns a schema of entities + kinds + ops.
+ * MCP server for the Brooker family calendar. One exec tool that runs a JS
+ * snippet against a rich `calendar` API — the model composes multi-step ops
+ * (filter, batch, chain) without per-call round-trips, and adding new
+ * functionality just means exposing another method on the API surface.
  *
  * Transport: Streamable HTTP at /api/mcp, SSE at /api/sse (mcp-handler
  * routes on the [transport] path segment).
@@ -30,43 +23,13 @@ import { captureServerException } from "@/lib/posthog-server";
  * for Claude Desktop / Claude Code, which support custom headers directly.
  */
 
-const QueryShape = {
-  kind: z.enum([
-    "tasks",
-    "task",
-    "members",
-    "member",
-    "scoreboard",
-    "completions",
-    "recurring_series",
-  ]),
-  filters: z
-    .object({
-      id: z.number().int().optional(),
-      start_date: z.string().optional(),
-      end_date: z.string().optional(),
-      assigned_to: z.number().int().optional(),
-      status: z.string().optional(),
-      name: z.string().optional(),
-      limit: z.number().int().positive().max(500).optional(),
-    })
-    .optional(),
-};
-
-const WriteShape = {
-  kind: z.enum(["task", "member"]),
-  op: z.enum(["create", "update", "delete"]),
-  data: z.record(z.unknown()),
-};
-
-const ActionShape = {
-  action: z.enum([
-    "complete_task",
-    "uncomplete_task",
-    "backfill_recurrence",
-    "assign_task",
-  ]),
-  args: z.record(z.unknown()).optional(),
+const ExecShape = {
+  code: z
+    .string()
+    .min(1)
+    .describe(
+      "JS snippet body. Receives `calendar` global. Top-level await OK. Last expression or explicit return becomes the result."
+    ),
 };
 
 function jsonResult(data: unknown) {
@@ -86,85 +49,19 @@ function errorResult(err: unknown) {
 const baseHandler = createMcpHandler(
   (server) => {
     server.registerTool(
-      "calendar_describe",
+      "calendar_exec",
       {
-        title: "Describe calendar API",
-        description:
-          "Returns the full schema of entities, tool kinds, ops, and filter fields. Call this first when discovering the API.",
-        inputSchema: {},
-      },
-      async () => {
-        try {
-          return jsonResult(describe());
-        } catch (err) {
-          await captureServerException(err, { tool: "calendar_describe" });
-          return errorResult(err);
-        }
-      }
-    );
-
-    server.registerTool(
-      "calendar_query",
-      {
-        title: "Query calendar",
-        description:
-          "Read from the calendar. kind selects the entity (tasks, task, members, member, scoreboard, completions, recurring_series). filters narrow results (id, start_date, end_date, assigned_to, status, name, limit). Call calendar_describe for the full schema.",
-        inputSchema: QueryShape,
+        title: "Execute a calendar snippet",
+        description: `Run a JS snippet against the Brooker family calendar. The snippet body executes inside an async function with a single \`calendar\` global. Top-level await works. Return any JSON-serializable value (or call \`calendar.log(...)\` for inline tracing).\n\n${EXEC_API_DOC}`,
+        inputSchema: ExecShape,
       },
       async (input) => {
+        const code = (input as { code: string }).code;
         try {
-          const result = await runQuery(input as QueryInput);
-          return jsonResult(result);
+          const { result, logs } = await runExec(code);
+          return jsonResult(logs ? { result, logs } : { result });
         } catch (err) {
-          await captureServerException(err, {
-            tool: "calendar_query",
-            kind: (input as QueryInput).kind,
-          });
-          return errorResult(err);
-        }
-      }
-    );
-
-    server.registerTool(
-      "calendar_write",
-      {
-        title: "Write to calendar",
-        description:
-          "Create, update, or delete a task or member. kind = task|member, op = create|update|delete, data = fields. For update/delete, include data.id. Tasks created here are tagged source='mcp'.",
-        inputSchema: WriteShape,
-      },
-      async (input) => {
-        try {
-          const result = await runWrite(input as WriteInput);
-          return jsonResult(result);
-        } catch (err) {
-          await captureServerException(err, {
-            tool: "calendar_write",
-            kind: (input as WriteInput).kind,
-            op: (input as WriteInput).op,
-          });
-          return errorResult(err);
-        }
-      }
-    );
-
-    server.registerTool(
-      "calendar_action",
-      {
-        title: "Perform calendar action",
-        description:
-          "Side-effect verbs: complete_task, uncomplete_task, assign_task, backfill_recurrence. args vary by action — see calendar_describe.",
-        inputSchema: ActionShape,
-      },
-      async (input) => {
-        try {
-          const result = await runAction(input as ActionInput);
-          return jsonResult(result);
-        } catch (err) {
-          await captureServerException(err, {
-            tool: "calendar_action",
-            action: (input as ActionInput).action,
-          });
+          await captureServerException(err, { tool: "calendar_exec" });
           return errorResult(err);
         }
       }
