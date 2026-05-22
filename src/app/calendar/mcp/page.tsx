@@ -278,23 +278,32 @@ export default function McpInstallPage() {
           </Section>
 
           <Section number="?" title="What it can do" accent="blush">
-            <p>The AI gets four tools that talk to our real calendar:</p>
+            <p>
+              The AI gets one tool, <strong>calendar_exec</strong>, that runs a
+              small JS snippet against the calendar. The snippet sees a{" "}
+              <code>calendar</code> object with methods for tasks, members,
+              scoreboard, completions, and recurring series &mdash; so it can
+              filter, batch, and chain in a single call instead of bouncing
+              back and forth.
+            </p>
+            <p>Some things you can ask:</p>
             <ul className="ml-5 list-disc space-y-1">
               <li>
-                <strong>calendar_describe</strong> &mdash; learns the full
-                schema (handy first call)
+                <em>&quot;What does Emmett have this week?&quot;</em>
               </li>
               <li>
-                <strong>calendar_query</strong> &mdash; read tasks, members,
-                scoreboard, completions
+                <em>
+                  &quot;Add gymnastics for Sapphire every Thursday at
+                  4pm.&quot;
+                </em>
               </li>
               <li>
-                <strong>calendar_write</strong> &mdash; create / update /
-                delete tasks and family members
+                <em>
+                  &quot;Mark all of today&apos;s chores done for Sapphire.&quot;
+                </em>
               </li>
               <li>
-                <strong>calendar_action</strong> &mdash; mark tasks complete,
-                assign, backfill recurring series
+                <em>&quot;Who&apos;s winning the scoreboard this month?&quot;</em>
               </li>
             </ul>
             <p>
