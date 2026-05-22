@@ -1346,7 +1346,7 @@ export default function SapphirePage() {
         {/* WHO'S COMING */}
         <WhosComing />
 
-        {/* FUN FACTS */}
+        {/* BIRTHDAY GIRL Q&A */}
         <motion.section
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -1356,15 +1356,24 @@ export default function SapphirePage() {
         >
           <div className="rounded-3xl border border-pink-300/40 bg-white/60 p-6 shadow-sm backdrop-blur-md sm:p-8 dark:border-pink-200/30 dark:bg-white/10 dark:shadow-none">
             <p className="text-center text-xs font-semibold tracking-[0.3em] text-purple-600 uppercase dark:text-pink-200/80">
-              Fun Facts
+              Birthday Girl Q&A
             </p>
             <h3 className="mt-1 text-center font-[family-name:var(--font-cormorant-garamond)] text-3xl font-semibold text-purple-900 dark:text-white">
               Fun Facts About the Birthday Girl
             </h3>
-            <ul className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-3">
-              <Highlight emoji="💎" title="Sapphire" desc="The guest of honor." />
-              <Highlight emoji="🎈" title="Turning 9" desc="Nine whole years old!" />
-              <Highlight emoji="🏖️" title="Lake day" desc="Celebrating at Moreau Lake." />
+            <ul className="mt-5 grid grid-cols-1 gap-3">
+              <InterviewFact
+                question="Favorite shows & movies?"
+                answer="Her current watchlist, movie picks, and all-time favorites."
+              />
+              <InterviewFact
+                question="What is Sapphire into lately?"
+                answer="The hobbies, games, stories, and activities she cannot stop talking about."
+              />
+              <InterviewFact
+                question="Any fun facts guests should know?"
+                answer="The little Sapphire details that make her laugh, light up, and feel celebrated."
+              />
             </ul>
           </div>
         </motion.section>
@@ -1480,6 +1489,22 @@ function Highlight({ emoji, title, desc }: { emoji: string; title: string; desc:
         <p className="font-semibold text-purple-900 dark:text-white">{title}</p>
         <p className="text-sm text-purple-700/80 dark:text-pink-100/75">{desc}</p>
       </div>
+    </li>
+  );
+}
+
+function InterviewFact({ question, answer }: { question: string; answer: string }) {
+  return (
+    <li className="rounded-2xl bg-white/45 p-4 text-left backdrop-blur-sm dark:bg-white/5">
+      <p className="text-xs font-semibold tracking-[0.2em] text-purple-600 uppercase dark:text-pink-200/80">
+        Q
+      </p>
+      <p className="mt-1 font-[family-name:var(--font-cormorant-garamond)] text-xl font-semibold text-purple-900 dark:text-white">
+        {question}
+      </p>
+      <p className="mt-2 text-sm leading-relaxed text-purple-700/85 dark:text-pink-100/75">
+        {answer}
+      </p>
     </li>
   );
 }
