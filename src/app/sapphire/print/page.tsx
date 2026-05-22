@@ -1,7 +1,7 @@
 "use client";
 
 const RSVP_URL = "https://brooker.family/sapphire";
-const QR_SRC = `https://api.qrserver.com/v1/create-qr-code/?size=320x320&margin=0&color=1B2A5C&data=${encodeURIComponent(RSVP_URL)}`;
+const QR_SRC = `https://api.qrserver.com/v1/create-qr-code/?size=320x320&margin=0&color=244A2B&data=${encodeURIComponent(RSVP_URL)}`;
 
 export default function SapphirePrint() {
   return (
@@ -39,7 +39,7 @@ export default function SapphirePrint() {
         <div className="mx-auto max-w-[8.5in] px-4 pb-3">
           <p className="text-xs text-slate-500">
             Tip: in the print dialog, choose &ldquo;Save as PDF&rdquo; as the destination.
-            Black &amp; white friendly — single soft-navy accent.
+            Soft fairy-forest colors, matching the Sapphire page.
           </p>
         </div>
       </div>
@@ -47,6 +47,9 @@ export default function SapphirePrint() {
       {/* The actual letter-sized invitation page */}
       <div className="mx-auto my-6 print:my-0">
         <div className="invite">
+          <div className="invite-glow invite-glow-left" />
+          <div className="invite-glow invite-glow-right" />
+
           {/* Decorative top border */}
           <div className="invite-border-top">
             <DecorativeFlourish />
@@ -58,13 +61,17 @@ export default function SapphirePrint() {
             <h1 className="invite-name">Sapphire&apos;s</h1>
             <div className="invite-gem-row">
               <span className="invite-divider" />
-              <GemMark />
+              <FairyWingMark />
               <span className="invite-divider" />
             </div>
             <h2 className="invite-occasion">
               Fairy Forest 9<sup>th</sup> Birthday
             </h2>
             <p className="invite-sub">A fun filled day at Moreau Lake</p>
+            <p className="invite-intro">
+              Sapphire is turning 9 years old! Join us for a fun filled day at
+              Moreau Lake to celebrate with swimming, pizza, and cake.
+            </p>
           </div>
 
           {/* Big date */}
@@ -95,10 +102,11 @@ export default function SapphirePrint() {
             <div className="invite-col invite-col-divider">
               <p className="invite-label">What to Expect</p>
               <ul className="invite-list">
-                <li>Pizza, cake &amp; lemonade</li>
+                <li>Pizza party &mdash; bring an appetite!</li>
+                <li>Birthday cake after lake time</li>
                 <li>Swimming &mdash; bring suits &amp; towels</li>
-                <li>Playground by the beach</li>
-                <li>Sunscreen &amp; comfy shoes</li>
+                <li>Playground near the beach</li>
+                <li>Sunscreen &amp; bug spray</li>
               </ul>
             </div>
           </div>
@@ -155,27 +163,57 @@ export default function SapphirePrint() {
 
         .invite {
           font-family: var(--font-quicksand), system-ui, sans-serif;
+          position: relative;
+          overflow: hidden;
           width: 8.5in;
           min-height: 11in;
           max-width: 100%;
-          background: #ffffff;
-          color: #1f2937;
-          border: 1px solid #e5e7eb;
-          box-shadow: 0 12px 40px rgba(15, 23, 42, 0.08);
+          background:
+            radial-gradient(circle at 18% 12%, rgba(244, 184, 196, 0.34), transparent 25%),
+            radial-gradient(circle at 84% 18%, rgba(221, 231, 176, 0.5), transparent 28%),
+            linear-gradient(180deg, #e8f0dd 0%, #f1ead5 42%, #faead8 76%, #f5c6d0 100%);
+          color: #244a2b;
+          border: 1px solid rgba(120, 89, 124, 0.22);
+          box-shadow: 0 18px 50px rgba(36, 74, 43, 0.13);
           padding: 0.75in 0.6in;
           margin: 0 auto;
           display: flex;
           flex-direction: column;
         }
 
+        .invite-glow {
+          position: absolute;
+          pointer-events: none;
+          border-radius: 999px;
+          filter: blur(22px);
+          opacity: 0.36;
+        }
+
+        .invite-glow-left {
+          top: 0.35in;
+          left: 0.2in;
+          width: 1.5in;
+          height: 1.5in;
+          background: #f4b8c4;
+        }
+
+        .invite-glow-right {
+          right: 0.25in;
+          bottom: 1.1in;
+          width: 1.65in;
+          height: 1.65in;
+          background: #dde7b0;
+        }
+
         .invite-border-top {
           display: flex;
           justify-content: center;
           margin-bottom: 0.3in;
-          color: #1B2A5C;
+          color: #78597c;
         }
 
         .invite-header {
+          position: relative;
           text-align: center;
         }
 
@@ -184,7 +222,7 @@ export default function SapphirePrint() {
           font-weight: 600;
           letter-spacing: 0.4em;
           text-transform: uppercase;
-          color: #6b7280;
+          color: #78597c;
           margin: 0 0 14px 0;
         }
 
@@ -193,7 +231,7 @@ export default function SapphirePrint() {
           font-size: 78px;
           line-height: 1;
           font-weight: 600;
-          color: #1B2A5C;
+          color: #244a2b;
           margin: 0;
           letter-spacing: 0.01em;
         }
@@ -204,14 +242,14 @@ export default function SapphirePrint() {
           justify-content: center;
           gap: 14px;
           margin: 14px 0;
-          color: #1B2A5C;
+          color: #78597c;
         }
 
         .invite-divider {
           display: inline-block;
           width: 90px;
           height: 1px;
-          background: #1B2A5C;
+          background: #78597c;
           opacity: 0.55;
         }
 
@@ -220,7 +258,7 @@ export default function SapphirePrint() {
           font-size: 48px;
           line-height: 1.05;
           font-weight: 500;
-          color: #1f2937;
+          color: #78597c;
           margin: 0;
           font-style: italic;
         }
@@ -234,17 +272,26 @@ export default function SapphirePrint() {
           font-family: var(--font-cormorant-garamond), Georgia, serif;
           font-size: 18px;
           font-style: italic;
-          color: #4b5563;
+          color: #38653a;
           margin: 8px 0 0 0;
+        }
+
+        .invite-intro {
+          max-width: 5.7in;
+          margin: 16px auto 0 auto;
+          font-size: 14px;
+          line-height: 1.55;
+          color: #244a2b;
         }
 
         .invite-date-box {
           margin: 0.35in auto 0.2in auto;
           padding: 18px 20px;
-          border: 1px solid #1B2A5C;
-          border-radius: 4px;
+          border: 1px solid rgba(120, 89, 124, 0.34);
+          border-radius: 18px;
           text-align: center;
           max-width: 5.5in;
+          background: rgba(255, 255, 255, 0.4);
         }
 
         .invite-label {
@@ -252,7 +299,7 @@ export default function SapphirePrint() {
           font-weight: 700;
           letter-spacing: 0.35em;
           text-transform: uppercase;
-          color: #1B2A5C;
+          color: #78597c;
           margin: 0 0 6px 0;
         }
 
@@ -260,7 +307,7 @@ export default function SapphirePrint() {
           font-family: var(--font-cormorant-garamond), Georgia, serif;
           font-size: 22px;
           font-style: italic;
-          color: #4b5563;
+          color: #38653a;
           margin: 0 0 2px 0;
         }
 
@@ -269,7 +316,7 @@ export default function SapphirePrint() {
           font-size: 52px;
           line-height: 1;
           font-weight: 600;
-          color: #1B2A5C;
+          color: #244a2b;
           margin: 0;
         }
 
@@ -287,7 +334,7 @@ export default function SapphirePrint() {
           font-weight: 500;
           letter-spacing: 0.15em;
           text-transform: uppercase;
-          color: #374151;
+          color: #78597c;
           margin: 10px 0 0 0;
         }
 
@@ -296,6 +343,7 @@ export default function SapphirePrint() {
           grid-template-columns: 1fr 1fr;
           gap: 0.3in;
           margin: 0.15in 0;
+          position: relative;
         }
 
         .invite-col {
@@ -304,7 +352,7 @@ export default function SapphirePrint() {
 
         .invite-col-divider {
           padding-left: 0.3in;
-          border-left: 1px solid #d1d5db;
+          border-left: 1px solid rgba(120, 89, 124, 0.24);
         }
 
         .invite-where {
@@ -312,14 +360,14 @@ export default function SapphirePrint() {
           font-size: 26px;
           line-height: 1.1;
           font-weight: 600;
-          color: #1B2A5C;
+          color: #244a2b;
           margin: 0 0 6px 0;
         }
 
         .invite-where-sub {
           font-size: 13px;
           line-height: 1.4;
-          color: #4b5563;
+          color: #38653a;
           margin: 0;
         }
 
@@ -329,12 +377,12 @@ export default function SapphirePrint() {
           list-style: none;
           font-size: 13px;
           line-height: 1.7;
-          color: #1f2937;
+          color: #244a2b;
         }
 
         .invite-list li::before {
-          content: "✦";
-          color: #1B2A5C;
+          content: "•";
+          color: #78597c;
           margin-right: 8px;
           font-size: 12px;
         }
@@ -353,6 +401,7 @@ export default function SapphirePrint() {
           grid-template-columns: 1fr auto;
           gap: 0.3in;
           align-items: center;
+          position: relative;
         }
 
         .invite-rsvp-text {
@@ -363,23 +412,23 @@ export default function SapphirePrint() {
           font-family: var(--font-cormorant-garamond), Georgia, serif;
           font-size: 28px;
           font-weight: 600;
-          color: #1B2A5C;
+          color: #244a2b;
           margin: 4px 0 6px 0;
           letter-spacing: 0.01em;
         }
 
         .invite-rsvp-hint {
           font-size: 12px;
-          color: #4b5563;
+          color: #38653a;
           margin: 0;
           max-width: 3in;
         }
 
         .invite-qr-wrap {
           padding: 8px;
-          border: 1px solid #1B2A5C;
-          border-radius: 4px;
-          background: #ffffff;
+          border: 1px solid rgba(120, 89, 124, 0.34);
+          border-radius: 16px;
+          background: rgba(255, 255, 255, 0.65);
         }
 
         .invite-qr {
@@ -391,14 +440,15 @@ export default function SapphirePrint() {
         .invite-footer {
           text-align: center;
           margin-top: 0.25in;
-          color: #1B2A5C;
+          color: #78597c;
+          position: relative;
         }
 
         .invite-signoff {
           font-family: var(--font-cormorant-garamond), Georgia, serif;
           font-size: 20px;
           font-style: italic;
-          color: #4b5563;
+          color: #38653a;
           margin: 10px 0 0 0;
         }
       `}</style>
@@ -430,21 +480,15 @@ function DecorativeFlourish({ flip = false }: { flip?: boolean }) {
   );
 }
 
-function GemMark() {
+function FairyWingMark() {
   return (
-    <svg width="28" height="28" viewBox="0 0 32 32" fill="none" aria-hidden="true">
-      <polygon
-        points="16,4 26,11 26,21 16,28 6,21 6,11"
-        stroke="#1B2A5C"
-        strokeWidth="1.4"
-        fill="none"
-      />
-      <polygon points="16,4 21,8.5 16,13 11,8.5" stroke="#1B2A5C" strokeWidth="1" fill="none" />
-      <line x1="11" y1="8.5" x2="6" y2="11" stroke="#1B2A5C" strokeWidth="1" opacity="0.6" />
-      <line x1="21" y1="8.5" x2="26" y2="11" stroke="#1B2A5C" strokeWidth="1" opacity="0.6" />
-      <line x1="11" y1="8.5" x2="16" y2="28" stroke="#1B2A5C" strokeWidth="1" opacity="0.5" />
-      <line x1="21" y1="8.5" x2="16" y2="28" stroke="#1B2A5C" strokeWidth="1" opacity="0.5" />
-      <line x1="6" y1="21" x2="26" y2="21" stroke="#1B2A5C" strokeWidth="1" opacity="0.5" />
+    <svg width="34" height="28" viewBox="0 0 34 28" fill="none" aria-hidden="true">
+      <path d="M16 13 C8 1 1 3 2 12 C3 20 11 23 16 16 Z" fill="#F4B8C4" opacity="0.72" stroke="#78597C" strokeWidth="0.8" />
+      <path d="M18 13 C26 1 33 3 32 12 C31 20 23 23 18 16 Z" fill="#F4B8C4" opacity="0.72" stroke="#78597C" strokeWidth="0.8" />
+      <path d="M15 16 C8 21 8 28 15 25 C18 24 18 18 16 16 Z" fill="#DDE7B0" opacity="0.78" stroke="#78597C" strokeWidth="0.7" />
+      <path d="M19 16 C26 21 26 28 19 25 C16 24 16 18 18 16 Z" fill="#DDE7B0" opacity="0.78" stroke="#78597C" strokeWidth="0.7" />
+      <ellipse cx="17" cy="15" rx="1.6" ry="7" fill="#FFF7D0" stroke="#78597C" strokeWidth="0.5" />
+      <circle cx="17" cy="7" r="2" fill="#FFF7D0" stroke="#78597C" strokeWidth="0.5" />
     </svg>
   );
 }

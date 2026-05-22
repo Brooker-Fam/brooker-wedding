@@ -22,11 +22,15 @@ const OUT = path.resolve(__dirname, "..", "public", "sapphire", "invite.pdf");
 
 const PAGE_W = 612;
 const PAGE_H = 792;
-const NAVY = "#1B2A5C";
-const INK = "#1f2937";
-const MUTED = "#4b5563";
-const FAINT = "#6b7280";
-const RULE = "#d1d5db";
+const FOREST = "#244A2B";
+const PLUM = "#78597C";
+const BLUSH = "#F4B8C4";
+const CREAM = "#F1EAD5";
+const PALE_SAGE = "#E8F0DD";
+const INK = "#244A2B";
+const MUTED = "#38653A";
+const FAINT = "#78597C";
+const RULE = "#C7B5C9";
 
 async function main() {
   const doc = new PDFDocument({
@@ -46,15 +50,23 @@ async function main() {
   const contentW = PAGE_W - ML - MR;
   const centerX = PAGE_W / 2;
 
+  doc.rect(0, 0, PAGE_W, PAGE_H).fill(PALE_SAGE);
+  doc.save();
+  doc.fillColor(CREAM).fillOpacity(0.8).rect(0, PAGE_H * 0.32, PAGE_W, PAGE_H * 0.68).fill();
+  doc.fillColor(BLUSH).fillOpacity(0.22).circle(105, 100, 80).fill();
+  doc.fillColor("#DDE7B0").fillOpacity(0.38).circle(PAGE_W - 105, 135, 95).fill();
+  doc.fillOpacity(1);
+  doc.restore();
+
   let y = MT;
-  drawFlourish(doc, centerX, y + 8, NAVY);
+  drawFlourish(doc, centerX, y + 8, PLUM);
   y += 28;
 
   doc
     .font("Helvetica-Bold")
     .fontSize(10)
     .fillColor(FAINT)
-    .text("YOU  ARE  MOST  KINDLY  INVITED  TO", ML, y, {
+    .text("YOU'RE  INVITED  TO", ML, y, {
       width: contentW,
       align: "center",
       characterSpacing: 2.2,
@@ -64,26 +76,26 @@ async function main() {
   doc
     .font("Times-Roman")
     .fontSize(72)
-    .fillColor(NAVY)
+    .fillColor(FOREST)
     .text("Sapphire’s", ML, y, { width: contentW, align: "center" });
   y += 80;
 
-  // Divider + gem + divider
+  // Divider + fairy wings + divider
   const dividerW = 110;
-  const gemW = 28;
+  const gemW = 34;
   const gap = 14;
   const groupW = dividerW * 2 + gemW + gap * 2;
   const groupX = (PAGE_W - groupW) / 2;
   const midY = y + 12;
   doc.save();
-  doc.strokeColor(NAVY).strokeOpacity(0.55).lineWidth(1);
+  doc.strokeColor(PLUM).strokeOpacity(0.55).lineWidth(1);
   doc.moveTo(groupX, midY).lineTo(groupX + dividerW, midY).stroke();
   doc
     .moveTo(groupX + dividerW + gap + gemW + gap, midY)
     .lineTo(groupX + dividerW * 2 + gap * 2 + gemW, midY)
     .stroke();
   doc.restore();
-  drawGem(doc, groupX + dividerW + gap + gemW / 2, midY, gemW, NAVY);
+  drawFairyWings(doc, groupX + dividerW + gap + gemW / 2, midY, gemW, PLUM);
   y += 30;
 
   // "Fairy Forest 9th Birthday" — synthesize the "th" as a smaller, raised glyph
@@ -95,7 +107,7 @@ async function main() {
     font: "Times-Italic",
     baseSize: 38,
     supSize: 20,
-    color: INK,
+    color: PLUM,
   });
   y += 46;
 
@@ -107,7 +119,19 @@ async function main() {
       width: contentW,
       align: "center",
     });
-  y += 36;
+  y += 24;
+
+  doc
+    .font("Helvetica")
+    .fontSize(12)
+    .fillColor(FOREST)
+    .text(
+      "Sapphire is turning 9 years old! Join us for a fun filled day at Moreau Lake to celebrate with swimming, pizza, and cake.",
+      ML + 55,
+      y,
+      { width: contentW - 110, align: "center", lineGap: 3 }
+    );
+  y += 50;
 
   // Date box
   const dateBoxX = ML + 60;
@@ -116,16 +140,21 @@ async function main() {
   const dateBoxH = 110;
   doc.save();
   doc
-    .roundedRect(dateBoxX, dateBoxY, dateBoxW, dateBoxH, 3)
-    .strokeColor(NAVY)
+    .roundedRect(dateBoxX, dateBoxY, dateBoxW, dateBoxH, 14)
+    .fillColor("#FFFFFF")
+    .fillOpacity(0.38)
+    .fill()
+    .strokeColor(PLUM)
+    .strokeOpacity(0.35)
     .lineWidth(0.8)
     .stroke();
+  doc.fillOpacity(1).strokeOpacity(1);
   doc.restore();
 
   doc
     .font("Helvetica-Bold")
     .fontSize(9)
-    .fillColor(NAVY)
+    .fillColor(PLUM)
     .text("SAVE  THE  DATE", dateBoxX, dateBoxY + 12, {
       width: dateBoxW,
       align: "center",
@@ -141,7 +170,7 @@ async function main() {
   doc
     .font("Times-Bold")
     .fontSize(38)
-    .fillColor(NAVY)
+    .fillColor(FOREST)
     .text("June 20, 2026", dateBoxX, dateBoxY + 50, {
       width: dateBoxW,
       align: "center",
@@ -150,7 +179,7 @@ async function main() {
   doc
     .font("Helvetica")
     .fontSize(11)
-    .fillColor("#374151")
+    .fillColor(PLUM)
     .text("11:00 AM  –  3:00 PM", dateBoxX, dateBoxY + 92, {
       width: dateBoxW,
       align: "center",
@@ -169,13 +198,13 @@ async function main() {
   doc
     .font("Helvetica-Bold")
     .fontSize(9)
-    .fillColor(NAVY)
+    .fillColor(PLUM)
     .text("WHERE", leftX, sectionY, { characterSpacing: 2.4 });
 
   doc
     .font("Times-Bold")
     .fontSize(22)
-    .fillColor(NAVY)
+    .fillColor(FOREST)
     .text("Moreau Lake", leftX, sectionY + 16);
   doc.text("State Park", leftX, sectionY + 38);
 
@@ -196,21 +225,22 @@ async function main() {
   doc
     .font("Helvetica-Bold")
     .fontSize(9)
-    .fillColor(NAVY)
+    .fillColor(PLUM)
     .text("WHAT  TO  EXPECT", rightX, sectionY, { characterSpacing: 2.4 });
 
   const bullets = [
-    "Pizza, cake & lemonade",
+    "Pizza party - bring an appetite!",
+    "Birthday cake after lake time",
     "Swimming – bring suits & towels",
-    "Playground by the beach",
-    "Sunscreen & comfy shoes",
+    "Playground near the beach",
+    "Sunscreen & bug spray",
   ];
   let bulletY = sectionY + 20;
   bullets.forEach((b) => {
     doc
       .font("Helvetica")
       .fontSize(11)
-      .fillColor(NAVY)
+      .fillColor(PLUM)
       .text("•", rightX, bulletY, { width: 10 });
     doc
       .font("Helvetica")
@@ -224,35 +254,40 @@ async function main() {
 
   // RSVP row
   const rsvpY = y + 30;
-  const qrSize = 110;
+  const qrSize = 94;
   const qrX = ML + contentW - qrSize - 10;
   const qrY = rsvpY;
 
   const qrBuffer = await QRCode.toBuffer(RSVP_URL, {
     type: "png",
     margin: 0,
-    color: { dark: "#1B2A5C", light: "#FFFFFF" },
+    color: { dark: FOREST, light: "#FFFFFF" },
     width: 320,
   });
 
   doc
-    .roundedRect(qrX - 6, qrY - 6, qrSize + 12, qrSize + 12, 3)
-    .strokeColor(NAVY)
+    .roundedRect(qrX - 8, qrY - 8, qrSize + 16, qrSize + 16, 12)
+    .fillColor("#FFFFFF")
+    .fillOpacity(0.58)
+    .fill()
+    .strokeColor(PLUM)
+    .strokeOpacity(0.35)
     .lineWidth(0.8)
     .stroke();
+  doc.fillOpacity(1).strokeOpacity(1);
 
   doc.image(qrBuffer, qrX, qrY, { width: qrSize, height: qrSize });
 
   doc
     .font("Helvetica-Bold")
     .fontSize(9)
-    .fillColor(NAVY)
+    .fillColor(PLUM)
     .text("KINDLY  RSVP", leftX, rsvpY + 4, { characterSpacing: 2.4 });
 
   doc
     .font("Times-Bold")
     .fontSize(24)
-    .fillColor(NAVY)
+    .fillColor(FOREST)
     .text("brooker.family/sapphire", leftX, rsvpY + 22);
 
   doc
@@ -264,8 +299,8 @@ async function main() {
     });
 
   // Footer
-  const footerY = PAGE_H - MT - 60;
-  drawFlourish(doc, centerX, footerY, NAVY, true);
+  const footerY = PAGE_H - MT - 40;
+  drawFlourish(doc, centerX, footerY, PLUM, true);
   doc
     .font("Times-Italic")
     .fontSize(18)
@@ -323,28 +358,35 @@ function drawFlourish(doc, cx, cy, color, flip = false) {
   doc.restore();
 }
 
-function drawGem(doc, cx, cy, size, color) {
+function drawFairyWings(doc, cx, cy, size, color) {
   const r = size / 2;
   doc.save();
-  doc.strokeColor(color).lineWidth(1.1);
-  const pts = [
-    [cx, cy - r],
-    [cx + r * 0.85, cy - r * 0.45],
-    [cx + r * 0.85, cy + r * 0.45],
-    [cx, cy + r],
-    [cx - r * 0.85, cy + r * 0.45],
-    [cx - r * 0.85, cy - r * 0.45],
-  ];
-  doc.moveTo(pts[0][0], pts[0][1]);
-  for (let i = 1; i < pts.length; i++) doc.lineTo(pts[i][0], pts[i][1]);
-  doc.closePath().stroke();
-  doc.strokeOpacity(0.6);
+  doc.strokeColor(color).lineWidth(0.8);
+  doc.fillColor(BLUSH).fillOpacity(0.72);
   doc
-    .moveTo(pts[5][0], pts[5][1])
-    .lineTo(cx, cy - r * 0.15)
-    .lineTo(pts[1][0], pts[1][1])
-    .stroke();
-  doc.moveTo(pts[4][0], pts[4][1]).lineTo(pts[2][0], pts[2][1]).stroke();
+    .moveTo(cx - 1, cy)
+    .bezierCurveTo(cx - r * 0.7, cy - r, cx - r * 1.35, cy - r * 0.8, cx - r * 1.2, cy)
+    .bezierCurveTo(cx - r * 1.05, cy + r * 0.7, cx - r * 0.25, cy + r * 0.65, cx - 1, cy + r * 0.18)
+    .fillAndStroke();
+  doc
+    .moveTo(cx + 1, cy)
+    .bezierCurveTo(cx + r * 0.7, cy - r, cx + r * 1.35, cy - r * 0.8, cx + r * 1.2, cy)
+    .bezierCurveTo(cx + r * 1.05, cy + r * 0.7, cx + r * 0.25, cy + r * 0.65, cx + 1, cy + r * 0.18)
+    .fillAndStroke();
+  doc.fillColor("#DDE7B0").fillOpacity(0.78);
+  doc
+    .moveTo(cx - 1, cy + r * 0.2)
+    .bezierCurveTo(cx - r * 0.55, cy + r * 0.65, cx - r * 0.62, cy + r * 1.3, cx - r * 0.05, cy + r * 0.98)
+    .bezierCurveTo(cx + r * 0.1, cy + r * 0.8, cx + r * 0.05, cy + r * 0.35, cx - 1, cy + r * 0.2)
+    .fillAndStroke();
+  doc
+    .moveTo(cx + 1, cy + r * 0.2)
+    .bezierCurveTo(cx + r * 0.55, cy + r * 0.65, cx + r * 0.62, cy + r * 1.3, cx + r * 0.05, cy + r * 0.98)
+    .bezierCurveTo(cx - r * 0.1, cy + r * 0.8, cx - r * 0.05, cy + r * 0.35, cx + 1, cy + r * 0.2)
+    .fillAndStroke();
+  doc.fillOpacity(1).fillColor("#FFF7D0");
+  doc.ellipse(cx, cy + r * 0.18, r * 0.12, r * 0.48).fill();
+  doc.circle(cx, cy - r * 0.35, r * 0.16).fill();
   doc.restore();
 }
 
