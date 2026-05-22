@@ -1363,16 +1363,34 @@ export default function SapphirePage() {
             </h3>
             <ul className="mt-5 grid grid-cols-1 gap-3">
               <InterviewFact
-                question="Favorite shows & movies?"
-                answer="Her current watchlist, movie picks, and all-time favorites."
+                question="Favorite shows?"
+                items={["Hilda", "Barbie", "Bluey"]}
               />
               <InterviewFact
-                question="What is Sapphire into lately?"
-                answer="The hobbies, games, stories, and activities she cannot stop talking about."
+                question="Favorite movies?"
+                items={[
+                  "BFG",
+                  "Ice Age",
+                  "Spies In Disguise",
+                  "Beauty and the Beast",
+                ]}
               />
               <InterviewFact
-                question="Any fun facts guests should know?"
-                answer="The little Sapphire details that make her laugh, light up, and feel celebrated."
+                question="Hobbies & interests?"
+                items={[
+                  "Legos",
+                  "Painting & crafting",
+                  "Swimming, gymnastics, and playing on playgrounds",
+                  "Graphic novels",
+                ]}
+              />
+              <InterviewFact
+                question="Fun facts?"
+                items={[
+                  "Sapphire lives on a farm with chickens, ducks, geese, guinea hens, pigs, 3 dogs, and 4 cats. Her favorite animal is Pumpkin the barn cat.",
+                  "Sapphire likes cucumbers with salt and pizza with whipped cream.",
+                  "Sapphire can do over 25 cartwheels in a row.",
+                ]}
               />
             </ul>
           </div>
@@ -1493,7 +1511,13 @@ function Highlight({ emoji, title, desc }: { emoji: string; title: string; desc:
   );
 }
 
-function InterviewFact({ question, answer }: { question: string; answer: string }) {
+function InterviewFact({
+  question,
+  items,
+}: {
+  question: string;
+  items: string[];
+}) {
   return (
     <li className="rounded-2xl bg-white/45 p-4 text-left backdrop-blur-sm dark:bg-white/5">
       <p className="text-xs font-semibold tracking-[0.2em] text-purple-600 uppercase dark:text-pink-200/80">
@@ -1502,9 +1526,14 @@ function InterviewFact({ question, answer }: { question: string; answer: string 
       <p className="mt-1 font-[family-name:var(--font-cormorant-garamond)] text-xl font-semibold text-purple-900 dark:text-white">
         {question}
       </p>
-      <p className="mt-2 text-sm leading-relaxed text-purple-700/85 dark:text-pink-100/75">
-        {answer}
-      </p>
+      <ul className="mt-3 space-y-2 text-sm leading-relaxed text-purple-700/85 dark:text-pink-100/75">
+        {items.map((item) => (
+          <li key={item} className="flex gap-2">
+            <span className="mt-[0.45em] h-1.5 w-1.5 shrink-0 rounded-full bg-purple-400 dark:bg-pink-200/70" />
+            <span>{item}</span>
+          </li>
+        ))}
+      </ul>
     </li>
   );
 }
