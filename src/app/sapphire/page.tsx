@@ -1354,16 +1354,19 @@ export default function SapphirePage() {
           transition={{ duration: 0.6 }}
           className="mt-10"
         >
-          <div className="rounded-3xl border border-pink-300/40 bg-white/60 p-6 shadow-sm backdrop-blur-md sm:p-8 dark:border-pink-200/30 dark:bg-white/10 dark:shadow-none">
-            <h3 className="mt-1 text-center font-[family-name:var(--font-cormorant-garamond)] text-3xl font-semibold text-purple-900 dark:text-white">
+          <div className="rounded-3xl border border-pink-300/50 bg-gradient-to-br from-pink-50/95 via-white/90 to-emerald-50/85 p-6 shadow-xl shadow-purple-900/10 backdrop-blur-md sm:p-8 dark:border-pink-200/25 dark:from-[#3a284b]/90 dark:via-[#2b2542]/90 dark:to-[#254232]/85 dark:shadow-none">
+            <h3 className="text-center font-[family-name:var(--font-cormorant-garamond)] text-4xl font-semibold text-purple-900 dark:text-white">
               Fun Facts About the Birthday Girl
             </h3>
-            <ul className="mt-5 grid grid-cols-1 gap-3">
+            <div className="mx-auto mt-3 h-1 w-24 rounded-full bg-gradient-to-r from-pink-300 via-purple-300 to-emerald-300" />
+            <ul className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
               <FactCategory
+                emoji="📺"
                 title="Favorite Shows"
                 items={["Hilda", "Barbie", "Bluey"]}
               />
               <FactCategory
+                emoji="🎬"
                 title="Favorite Movies"
                 items={[
                   "BFG",
@@ -1373,6 +1376,7 @@ export default function SapphirePage() {
                 ]}
               />
               <FactCategory
+                emoji="🎨"
                 title="Hobbies & Interests"
                 items={[
                   "Legos",
@@ -1382,7 +1386,9 @@ export default function SapphirePage() {
                 ]}
               />
               <FactCategory
+                emoji="🌿"
                 title="Fun Facts"
+                featured
                 items={[
                   "Sapphire lives on a farm with chickens, ducks, geese, guinea hens, pigs, 3 dogs, and 4 cats. Her favorite animal is Pumpkin the barn cat.",
                   "Sapphire likes cucumbers with salt and pizza with whipped cream.",
@@ -1509,21 +1515,46 @@ function Highlight({ emoji, title, desc }: { emoji: string; title: string; desc:
 }
 
 function FactCategory({
+  emoji,
   title,
   items,
+  featured = false,
 }: {
+  emoji: string;
   title: string;
   items: string[];
+  featured?: boolean;
 }) {
   return (
-    <li className="rounded-2xl bg-white/45 p-4 text-left backdrop-blur-sm dark:bg-white/5">
-      <p className="font-[family-name:var(--font-cormorant-garamond)] text-xl font-semibold text-purple-900 dark:text-white">
-        {title}
-      </p>
-      <ul className="mt-3 space-y-2 text-sm leading-relaxed text-purple-700/85 dark:text-pink-100/75">
+    <li
+      className={`rounded-2xl border border-white/80 bg-white/75 p-4 text-left shadow-sm shadow-purple-900/5 backdrop-blur-sm dark:border-white/10 dark:bg-white/10 ${
+        featured ? "sm:col-span-2" : ""
+      }`}
+    >
+      <div className="flex items-center gap-3">
+        <span className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-gradient-to-br from-pink-100 to-emerald-100 text-xl shadow-inner dark:from-pink-200/20 dark:to-emerald-200/20">
+          {emoji}
+        </span>
+        <p className="font-[family-name:var(--font-cormorant-garamond)] text-2xl font-semibold text-purple-900 dark:text-white">
+          {title}
+        </p>
+      </div>
+      <ul
+        className={`mt-4 ${
+          featured
+            ? "grid grid-cols-1 gap-3 sm:grid-cols-3"
+            : "flex flex-wrap gap-2"
+        }`}
+      >
         {items.map((item) => (
-          <li key={item} className="flex gap-2">
-            <span className="mt-[0.45em] h-1.5 w-1.5 shrink-0 rounded-full bg-purple-400 dark:bg-pink-200/70" />
+          <li
+            key={item}
+            className={`text-sm leading-relaxed text-purple-800/85 dark:text-pink-100/80 ${
+              featured
+                ? "rounded-2xl bg-white/80 p-3 shadow-inner shadow-pink-100/50 dark:bg-white/10 dark:shadow-none"
+                : "rounded-full bg-white/80 px-3 py-1.5 shadow-inner shadow-pink-100/50 dark:bg-white/10 dark:shadow-none"
+            }`}
+          >
             <span>{item}</span>
           </li>
         ))}
