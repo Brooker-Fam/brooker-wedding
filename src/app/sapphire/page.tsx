@@ -704,7 +704,7 @@ function RsvpCard({
   return (
     <form
       onSubmit={handleSubmit}
-      className="space-y-5 rounded-3xl border border-pink-200/30 bg-white/95 p-5 shadow-[0_20px_60px_rgba(27,42,92,0.4)] sm:p-7"
+      className="space-y-5 rounded-3xl border border-pink-200/30 bg-white/95 p-5 shadow-[0_20px_60px_rgba(27,42,92,0.4)] sm:p-7 dark:border-pink-200/20 dark:bg-[#162618]/85 dark:shadow-[0_20px_60px_rgba(0,0,0,0.5)]"
     >
       {/* Honeypot */}
       <div className="absolute -left-[9999px]" aria-hidden="true">
@@ -719,17 +719,17 @@ function RsvpCard({
       </div>
 
       <div className="text-center">
-        <p className="text-xs font-semibold tracking-[0.25em] text-purple-700/70 uppercase">
+        <p className="text-xs font-semibold tracking-[0.25em] text-purple-700/70 uppercase dark:text-pink-100/80">
           RSVP
         </p>
-        <h2 className="mt-1 font-[family-name:var(--font-cormorant-garamond)] text-3xl font-semibold text-purple-900 sm:text-4xl">
+        <h2 className="mt-1 font-[family-name:var(--font-cormorant-garamond)] text-3xl font-semibold text-purple-900 sm:text-4xl dark:text-yellow-50">
           {isEditing ? "Update your RSVP" : "Will you join the forest party?"}
         </h2>
       </div>
 
       {/* Attending toggle - giant buttons */}
       <div>
-        <label className="mb-2 block text-sm font-medium text-purple-900">Will you be there?</label>
+        <label className="mb-2 block text-sm font-medium text-purple-900 dark:text-yellow-50">Will you be there?</label>
         <div className="grid grid-cols-2 gap-3">
           <button
             type="button"
@@ -737,7 +737,7 @@ function RsvpCard({
             className={`rounded-2xl border-2 px-3 py-4 text-base font-semibold transition-all ${
               attending
                 ? "border-rose-500 bg-rose-500 text-white shadow-md"
-                : "border-pink-200 bg-white text-purple-900 hover:border-pink-300"
+                : "border-pink-200 bg-white text-purple-900 hover:border-pink-300 dark:border-pink-200/30 dark:bg-white/5 dark:text-yellow-50 dark:hover:border-pink-200/60"
             }`}
           >
             <span className="mr-1.5">🎉</span> Yes, can&apos;t wait!
@@ -748,7 +748,7 @@ function RsvpCard({
             className={`rounded-2xl border-2 px-3 py-4 text-base font-semibold transition-all ${
               !attending
                 ? "border-slate-400 bg-slate-400 text-white shadow-md"
-                : "border-pink-200 bg-white text-purple-900 hover:border-pink-300"
+                : "border-pink-200 bg-white text-purple-900 hover:border-pink-300 dark:border-pink-200/30 dark:bg-white/5 dark:text-yellow-50 dark:hover:border-pink-200/60"
             }`}
           >
             <span className="mr-1.5">💔</span> Can&apos;t make it
@@ -757,7 +757,7 @@ function RsvpCard({
       </div>
 
       <div>
-        <label htmlFor="bday-parent" className="mb-1.5 block text-sm font-medium text-purple-900">
+        <label htmlFor="bday-parent" className="mb-1.5 block text-sm font-medium text-purple-900 dark:text-yellow-50">
           Your name <span className="text-pink-500">*</span>
         </label>
         <input
@@ -766,7 +766,7 @@ function RsvpCard({
           value={parentName}
           onChange={(e) => setParentName(e.target.value)}
           placeholder="Grown-up's name"
-          className="w-full rounded-xl border-2 border-pink-200 bg-white px-4 py-3 text-base text-purple-900 placeholder-purple-400/50 focus:border-pink-400 focus:outline-none"
+          className="w-full rounded-xl border-2 border-pink-200 bg-white px-4 py-3 text-base text-purple-900 placeholder-purple-400/50 focus:border-pink-400 focus:outline-none dark:border-pink-200/30 dark:bg-[#0e1c10]/70 dark:text-yellow-50 dark:placeholder-pink-100/40 dark:focus:border-pink-200/70"
           required
         />
       </div>
@@ -781,7 +781,7 @@ function RsvpCard({
             className="space-y-5 overflow-hidden"
           >
             <div>
-              <label htmlFor="bday-kids" className="mb-1.5 block text-sm font-medium text-purple-900">
+              <label htmlFor="bday-kids" className="mb-1.5 block text-sm font-medium text-purple-900 dark:text-yellow-50">
                 Kid&apos;s name(s) coming
               </label>
               <input
@@ -790,7 +790,7 @@ function RsvpCard({
                 value={childNames}
                 onChange={(e) => setChildNames(e.target.value)}
                 placeholder="e.g. Lily & Max"
-                className="w-full rounded-xl border-2 border-pink-200 bg-white px-4 py-3 text-base text-purple-900 placeholder-purple-400/50 focus:border-pink-400 focus:outline-none"
+                className="w-full rounded-xl border-2 border-pink-200 bg-white px-4 py-3 text-base text-purple-900 placeholder-purple-400/50 focus:border-pink-400 focus:outline-none dark:border-pink-200/30 dark:bg-[#0e1c10]/70 dark:text-yellow-50 dark:placeholder-pink-100/40 dark:focus:border-pink-200/70"
               />
             </div>
 
@@ -814,7 +814,7 @@ function RsvpCard({
             </div>
 
             <div>
-              <label htmlFor="bday-allergies" className="mb-1.5 block text-sm font-medium text-purple-900">
+              <label htmlFor="bday-allergies" className="mb-1.5 block text-sm font-medium text-purple-900 dark:text-yellow-50">
                 Allergies or food notes
               </label>
               <input
@@ -823,7 +823,7 @@ function RsvpCard({
                 value={allergies}
                 onChange={(e) => setAllergies(e.target.value)}
                 placeholder="So we can plan the pizza! (optional)"
-                className="w-full rounded-xl border-2 border-pink-200 bg-white px-4 py-3 text-base text-purple-900 placeholder-purple-400/50 focus:border-pink-400 focus:outline-none"
+                className="w-full rounded-xl border-2 border-pink-200 bg-white px-4 py-3 text-base text-purple-900 placeholder-purple-400/50 focus:border-pink-400 focus:outline-none dark:border-pink-200/30 dark:bg-[#0e1c10]/70 dark:text-yellow-50 dark:placeholder-pink-100/40 dark:focus:border-pink-200/70"
               />
             </div>
           </motion.div>
@@ -832,7 +832,7 @@ function RsvpCard({
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div>
-          <label htmlFor="bday-phone" className="mb-1.5 block text-sm font-medium text-purple-900">
+          <label htmlFor="bday-phone" className="mb-1.5 block text-sm font-medium text-purple-900 dark:text-yellow-50">
             Phone
           </label>
           <input
@@ -841,11 +841,11 @@ function RsvpCard({
             value={phone}
             onChange={(e) => setPhone(e.target.value)}
             placeholder="(555) 123-4567"
-            className="w-full rounded-xl border-2 border-pink-200 bg-white px-4 py-3 text-base text-purple-900 placeholder-purple-400/50 focus:border-pink-400 focus:outline-none"
+            className="w-full rounded-xl border-2 border-pink-200 bg-white px-4 py-3 text-base text-purple-900 placeholder-purple-400/50 focus:border-pink-400 focus:outline-none dark:border-pink-200/30 dark:bg-[#0e1c10]/70 dark:text-yellow-50 dark:placeholder-pink-100/40 dark:focus:border-pink-200/70"
           />
         </div>
         <div>
-          <label htmlFor="bday-email" className="mb-1.5 block text-sm font-medium text-purple-900">
+          <label htmlFor="bday-email" className="mb-1.5 block text-sm font-medium text-purple-900 dark:text-yellow-50">
             Email
           </label>
           <input
@@ -854,16 +854,16 @@ function RsvpCard({
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="you@email.com"
-            className="w-full rounded-xl border-2 border-pink-200 bg-white px-4 py-3 text-base text-purple-900 placeholder-purple-400/50 focus:border-pink-400 focus:outline-none"
+            className="w-full rounded-xl border-2 border-pink-200 bg-white px-4 py-3 text-base text-purple-900 placeholder-purple-400/50 focus:border-pink-400 focus:outline-none dark:border-pink-200/30 dark:bg-[#0e1c10]/70 dark:text-yellow-50 dark:placeholder-pink-100/40 dark:focus:border-pink-200/70"
           />
         </div>
       </div>
-      <p className="-mt-2 text-xs text-purple-700/70">
+      <p className="-mt-2 text-xs text-purple-700/70 dark:text-pink-100/70">
         We just need one (phone or email) so we can send updates.
       </p>
 
       <div>
-        <label htmlFor="bday-wish" className="mb-1.5 block text-sm font-medium text-purple-900">
+        <label htmlFor="bday-wish" className="mb-1.5 block text-sm font-medium text-purple-900 dark:text-yellow-50">
           A birthday wish for Sapphire
         </label>
         <textarea
@@ -872,7 +872,7 @@ function RsvpCard({
           onChange={(e) => setBirthdayWish(e.target.value)}
           placeholder="Send Sapphire a sweet birthday wish..."
           rows={3}
-          className="w-full resize-y rounded-xl border-2 border-pink-200 bg-white px-4 py-3 text-base text-purple-900 placeholder-purple-400/50 focus:border-pink-400 focus:outline-none"
+          className="w-full resize-y rounded-xl border-2 border-pink-200 bg-white px-4 py-3 text-base text-purple-900 placeholder-purple-400/50 focus:border-pink-400 focus:outline-none dark:border-pink-200/30 dark:bg-[#0e1c10]/70 dark:text-yellow-50 dark:placeholder-pink-100/40 dark:focus:border-pink-200/70"
         />
       </div>
 
@@ -882,9 +882,9 @@ function RsvpCard({
             initial={{ opacity: 0, y: -8 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0 }}
-            className="rounded-xl border border-pink-300 bg-pink-50 p-3"
+            className="rounded-xl border border-pink-300 bg-pink-50 p-3 dark:border-pink-300/40 dark:bg-pink-300/15"
           >
-            <p className="text-sm font-medium text-pink-700">{error}</p>
+            <p className="text-sm font-medium text-pink-700 dark:text-pink-100">{error}</p>
           </motion.div>
         )}
       </AnimatePresence>
@@ -936,8 +936,8 @@ function NumberStepper({
   const dec = () => onChange(Math.max(min, value - 1));
   const inc = () => onChange(Math.min(max, value + 1));
   return (
-    <div className="rounded-xl border-2 border-pink-200 bg-white p-3">
-      <p className="mb-2 text-center text-xs font-semibold tracking-wide text-purple-700 uppercase">
+    <div className="rounded-xl border-2 border-pink-200 bg-white p-3 dark:border-pink-200/30 dark:bg-[#0e1c10]/70">
+      <p className="mb-2 text-center text-xs font-semibold tracking-wide text-purple-700 uppercase dark:text-pink-100/85">
         {emoji} {label}
       </p>
       <div className="flex items-center justify-between gap-2">
@@ -945,19 +945,19 @@ function NumberStepper({
           type="button"
           onClick={dec}
           disabled={value <= min}
-          className="flex h-10 w-10 items-center justify-center rounded-full bg-pink-100 text-xl font-bold text-pink-600 transition-all hover:bg-pink-200 disabled:opacity-30 active:scale-95"
+          className="flex h-10 w-10 items-center justify-center rounded-full bg-pink-100 text-xl font-bold text-pink-600 transition-all hover:bg-pink-200 disabled:opacity-30 active:scale-95 dark:bg-pink-200/15 dark:text-pink-100 dark:hover:bg-pink-200/25"
           aria-label={`Decrease ${label}`}
         >
           −
         </button>
-        <span className="font-[family-name:var(--font-cormorant-garamond)] text-3xl font-bold text-purple-900 tabular-nums">
+        <span className="font-[family-name:var(--font-cormorant-garamond)] text-3xl font-bold text-purple-900 tabular-nums dark:text-yellow-50">
           {value}
         </span>
         <button
           type="button"
           onClick={inc}
           disabled={value >= max}
-          className="flex h-10 w-10 items-center justify-center rounded-full bg-pink-100 text-xl font-bold text-pink-600 transition-all hover:bg-pink-200 disabled:opacity-30 active:scale-95"
+          className="flex h-10 w-10 items-center justify-center rounded-full bg-pink-100 text-xl font-bold text-pink-600 transition-all hover:bg-pink-200 disabled:opacity-30 active:scale-95 dark:bg-pink-200/15 dark:text-pink-100 dark:hover:bg-pink-200/25"
           aria-label={`Increase ${label}`}
         >
           +
@@ -1311,7 +1311,7 @@ export default function SapphirePage() {
                 initial={{ opacity: 0, scale: 0.96 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0 }}
-                className="rounded-3xl border border-pink-200/30 bg-white/95 p-7 text-center shadow-[0_20px_60px_rgba(27,42,92,0.4)] sm:p-10"
+                className="rounded-3xl border border-pink-200/30 bg-white/95 p-7 text-center shadow-[0_20px_60px_rgba(27,42,92,0.4)] sm:p-10 dark:border-pink-200/20 dark:bg-[#162618]/85 dark:shadow-[0_20px_60px_rgba(0,0,0,0.5)]"
               >
                 <motion.div
                   initial={{ scale: 0, rotate: -45 }}
@@ -1321,12 +1321,12 @@ export default function SapphirePage() {
                 >
                   <FairyWings size={80} />
                 </motion.div>
-                <h3 className="mt-4 font-[family-name:var(--font-cormorant-garamond)] text-3xl font-bold text-purple-900 sm:text-4xl">
+                <h3 className="mt-4 font-[family-name:var(--font-cormorant-garamond)] text-3xl font-bold text-purple-900 sm:text-4xl dark:text-yellow-50">
                   {rsvpData.attending
                     ? "You're on the fairy guest list!"
                     : "We'll miss you!"}
                 </h3>
-                <p className="mt-3 text-base text-purple-700">
+                <p className="mt-3 text-base text-purple-700 dark:text-pink-100/85">
                   {rsvpData.attending
                     ? `Thanks ${rsvpData.parent_name.split(" ")[0]}! See you on June 20th.`
                     : `Thanks for letting us know, ${rsvpData.parent_name.split(" ")[0]}.`}
@@ -1334,7 +1334,7 @@ export default function SapphirePage() {
                 <button
                   type="button"
                   onClick={() => setPageState("editing")}
-                  className="mt-5 inline-flex items-center gap-1.5 rounded-full border-2 border-pink-300 bg-pink-50 px-5 py-2 text-sm font-semibold text-pink-700 transition-all hover:bg-pink-100"
+                  className="mt-5 inline-flex items-center gap-1.5 rounded-full border-2 border-pink-300 bg-pink-50 px-5 py-2 text-sm font-semibold text-pink-700 transition-all hover:bg-pink-100 dark:border-pink-200/40 dark:bg-pink-200/10 dark:text-pink-100 dark:hover:bg-pink-200/20"
                 >
                   Edit my RSVP
                 </button>
