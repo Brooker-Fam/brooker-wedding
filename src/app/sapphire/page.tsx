@@ -396,12 +396,12 @@ function PartyCountdown() {
       {units.map(([label, value]) => (
         <div
           key={label}
-          className="flex flex-col items-center rounded-2xl border border-purple-300/40 bg-white/70 px-2 py-3 shadow-sm backdrop-blur-md sm:px-4 sm:py-4 dark:border-sky-300/30 dark:bg-white/10 dark:shadow-none"
+          className="flex flex-col items-center rounded-2xl border border-purple-300/40 bg-white/70 px-2 py-3 shadow-sm backdrop-blur-md sm:px-4 sm:py-4 dark:border-yellow-100/25 dark:bg-[#162618]/65 dark:shadow-none"
         >
-          <span className="font-[family-name:var(--font-cormorant-garamond)] text-3xl font-bold text-purple-900 sm:text-5xl dark:text-white">
+          <span className="font-[family-name:var(--font-cormorant-garamond)] text-3xl font-bold text-purple-900 sm:text-5xl dark:text-yellow-50">
             {String(value).padStart(2, "0")}
           </span>
-          <span className="mt-1 text-[10px] font-semibold tracking-widest text-purple-700/80 uppercase sm:text-xs dark:text-sky-100/80">
+          <span className="mt-1 text-[10px] font-semibold tracking-widest text-purple-700/80 uppercase sm:text-xs dark:text-yellow-100/90">
             {label}
           </span>
         </div>
@@ -440,12 +440,12 @@ function BirthdayCake({ onAllBlown }: { onAllBlown: () => void }) {
   };
 
   return (
-    <div className="rounded-3xl border border-pink-300/50 bg-white/70 p-5 shadow-sm backdrop-blur-md sm:p-7 dark:border-pink-200/30 dark:bg-white/10 dark:shadow-none">
+    <div className="rounded-3xl border border-pink-300/50 bg-white/70 p-5 shadow-sm backdrop-blur-md sm:p-7 dark:border-pink-200/25 dark:bg-[#162618]/65 dark:shadow-none">
       <div className="text-center">
-        <p className="mb-1 text-xs font-semibold tracking-[0.25em] text-pink-600 uppercase sm:text-sm dark:text-pink-100/80">
+        <p className="mb-1 text-xs font-semibold tracking-[0.25em] text-pink-600 uppercase sm:text-sm dark:text-pink-100/90">
           Make a Wish
         </p>
-        <h3 className="font-[family-name:var(--font-cormorant-garamond)] text-2xl font-semibold text-purple-900 sm:text-3xl dark:text-white">
+        <h3 className="font-[family-name:var(--font-cormorant-garamond)] text-2xl font-semibold text-purple-900 sm:text-3xl dark:text-yellow-50">
           {remaining > 0
             ? `Tap to blow out ${remaining} ${remaining === 1 ? "candle" : "candles"}`
             : "You did it!"}
@@ -995,12 +995,12 @@ function WhosComing() {
       initial={{ opacity: 0, y: 20 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
-      className="rounded-3xl border border-amber-400/40 bg-white/60 p-5 shadow-sm backdrop-blur-md sm:p-7 dark:border-yellow-200/30 dark:bg-white/10 dark:shadow-none"
+      className="rounded-3xl border border-amber-400/40 bg-white/60 p-5 shadow-sm backdrop-blur-md sm:p-7 dark:border-yellow-200/25 dark:bg-[#162618]/65 dark:shadow-none"
     >
-      <p className="text-center text-xs font-semibold tracking-[0.25em] text-amber-700 uppercase dark:text-yellow-100/80">
+      <p className="text-center text-xs font-semibold tracking-[0.25em] text-amber-700 uppercase dark:text-yellow-100/90">
         The Guest List
       </p>
-      <h3 className="mt-1 text-center font-[family-name:var(--font-cormorant-garamond)] text-2xl font-semibold text-purple-900 sm:text-3xl dark:text-white">
+      <h3 className="mt-1 text-center font-[family-name:var(--font-cormorant-garamond)] text-2xl font-semibold text-purple-900 sm:text-3xl dark:text-yellow-50">
         {data.totalKids} {data.totalKids === 1 ? "kid" : "kids"} coming so far
         {data.totalAdults > 0 && ` (+ ${data.totalAdults} grown-ups)`}
       </h3>
@@ -1174,7 +1174,7 @@ export default function SapphirePage() {
           transition={{ duration: 0.6 }}
           className="mb-10"
         >
-          <p className="mb-3 text-center text-xs font-semibold tracking-[0.3em] text-green-800 uppercase dark:text-pink-200/80">
+          <p className="mb-3 text-center text-xs font-semibold tracking-[0.3em] text-green-800 uppercase dark:text-yellow-100/90">
             Until the forest party begins
           </p>
           <PartyCountdown />
@@ -1188,20 +1188,20 @@ export default function SapphirePage() {
           transition={{ duration: 0.6 }}
           className="mb-10"
         >
-          <div className="rounded-3xl border border-purple-300/40 bg-white/60 p-6 shadow-sm backdrop-blur-md sm:p-8 dark:border-yellow-200/30 dark:bg-gradient-to-br dark:from-white/15 dark:to-white/5 dark:shadow-none">
+          <div className="rounded-3xl border border-purple-300/40 bg-white/60 p-6 shadow-sm backdrop-blur-md sm:p-8 dark:border-yellow-100/25 dark:bg-[#162618]/70 dark:shadow-none">
             <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 sm:gap-5">
               <DetailItem icon="📅" label="When">
-                <span className="block font-[family-name:var(--font-cormorant-garamond)] text-2xl font-semibold leading-tight text-purple-900 dark:text-yellow-100">
+                <span className="block font-[family-name:var(--font-cormorant-garamond)] text-2xl font-semibold leading-tight text-purple-900 dark:text-yellow-50">
                   Saturday
                   <br />
                   June 20, 2026
                 </span>
-                <span className="mt-1 block text-purple-800/80 dark:text-pink-100/85">
+                <span className="mt-1 block text-purple-800/80 dark:text-pink-50">
                   11:00 AM – 3:00 PM
                 </span>
               </DetailItem>
               <DetailItem icon="🏞️" label="Where">
-                <span className="block font-[family-name:var(--font-cormorant-garamond)] text-2xl font-semibold leading-tight text-purple-900 dark:text-yellow-100">
+                <span className="block font-[family-name:var(--font-cormorant-garamond)] text-2xl font-semibold leading-tight text-purple-900 dark:text-yellow-50">
                   Moreau Lake
                   <br />
                   State Park
@@ -1210,7 +1210,7 @@ export default function SapphirePage() {
                   href="https://maps.google.com/?q=Moreau+Lake+State+Park"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="mt-1 inline-block text-purple-800/80 underline underline-offset-2 hover:text-purple-600 dark:text-pink-100/85 dark:hover:text-yellow-200"
+                  className="mt-1 inline-block text-purple-800/80 underline underline-offset-2 hover:text-purple-600 dark:text-pink-50 dark:hover:text-yellow-200"
                 >
                   Get directions →
                 </a>
@@ -1238,11 +1238,11 @@ export default function SapphirePage() {
           transition={{ duration: 0.6 }}
           className="mb-10"
         >
-          <div className="rounded-3xl border border-purple-300/40 bg-white/60 p-6 shadow-sm backdrop-blur-md sm:p-8 dark:border-purple-200/30 dark:bg-white/10 dark:shadow-none">
-            <p className="text-center text-xs font-semibold tracking-[0.3em] text-purple-600 uppercase dark:text-pink-200/80">
+          <div className="rounded-3xl border border-purple-300/40 bg-white/60 p-6 shadow-sm backdrop-blur-md sm:p-8 dark:border-purple-200/25 dark:bg-[#162618]/65 dark:shadow-none">
+            <p className="text-center text-xs font-semibold tracking-[0.3em] text-purple-600 uppercase dark:text-pink-100/90">
               The Plan
             </p>
-            <h3 className="mt-1 text-center font-[family-name:var(--font-cormorant-garamond)] text-3xl font-semibold text-purple-900 dark:text-white">
+            <h3 className="mt-1 text-center font-[family-name:var(--font-cormorant-garamond)] text-3xl font-semibold text-purple-900 dark:text-yellow-50">
               What to Expect
             </h3>
             <ul className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-2">
@@ -1483,7 +1483,7 @@ function DetailItem({
       <div className="mb-3 flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-yellow-200/70 to-pink-200/70 text-3xl leading-none dark:from-yellow-200/30 dark:to-pink-200/20">
         {icon}
       </div>
-      <p className="text-[10px] font-semibold tracking-[0.3em] text-purple-600 uppercase sm:text-xs dark:text-pink-200/70">
+      <p className="text-[10px] font-semibold tracking-[0.3em] text-purple-600 uppercase sm:text-xs dark:text-pink-100/90">
         {label}
       </p>
       <div className="mt-2 leading-relaxed text-purple-900 dark:text-white">{children}</div>
