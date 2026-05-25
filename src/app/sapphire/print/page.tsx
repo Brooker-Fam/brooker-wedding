@@ -116,7 +116,8 @@ export default function SapphirePrint() {
               <p className="invite-label">Kindly RSVP</p>
               <p className="invite-rsvp-url">brooker.family/sapphire</p>
               <p className="invite-rsvp-hint">
-                Scan the code, or text me at <strong>814-876-2231</strong>.
+                Scan the QR code to RSVP online or send us a text at{" "}
+                <strong>814-876-2231</strong>.
               </p>
             </div>
             <div className="invite-qr-wrap">
@@ -125,11 +126,6 @@ export default function SapphirePrint() {
             </div>
           </div>
 
-          {/* Footer */}
-          <div className="invite-footer">
-            <DecorativeFlourish flip />
-            <p className="invite-signoff">with love, Sapphire</p>
-          </div>
         </div>
       </div>
 
@@ -436,20 +432,6 @@ export default function SapphirePrint() {
           height: 1.4in;
         }
 
-        .invite-footer {
-          text-align: center;
-          margin-top: 0.25in;
-          color: #78597c;
-          position: relative;
-        }
-
-        .invite-signoff {
-          font-family: var(--font-cormorant-garamond), Georgia, serif;
-          font-size: 20px;
-          font-style: italic;
-          color: #38653a;
-          margin: 10px 0 0 0;
-        }
       `}</style>
     </div>
   );
