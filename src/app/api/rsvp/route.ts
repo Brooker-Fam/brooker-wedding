@@ -12,6 +12,15 @@ function normalizePhone(raw: string | undefined | null): string | null {
   return `+${digits}`;
 }
 
+function normalizeAdminEmail(email: unknown, fallbackId?: number | string): string {
+  if (typeof email === "string" && email.includes("@")) {
+    return email.trim().toLowerCase();
+  }
+
+  const suffix = fallbackId ?? Date.now();
+  return `manual-rsvp-${suffix}@brooker-wedding.local`;
+}
+
 export async function POST(request: NextRequest) {
   try {
     const isAdminEdit = request.headers.get("x-admin-edit") === "true";
@@ -37,7 +46,7 @@ export async function POST(request: NextRequest) {
       attendee_names = "",
     } = body;
 
-    if (!name || typeof name !== "string" || name.trim().length === 0) {
+    if (!isAdminEdit && (!name || typeof name !== "string" || name.trim().length === 0)) {
       return NextResponse.json(
         { error: "Name is required" },
         { status: 400 }
@@ -70,25 +79,26 @@ export async function POST(request: NextRequest) {
     const guestCount = adults + children;
 
     const normalizedPhone = normalizePhone(typeof phone === "string" ? phone : "");
-    const normalizedEmail =
-      typeof email === "string" && email.includes("@")
+    const normalizedEmail = isAdminEdit
+      ? normalizeAdminEmail(email)
+      : typeof email === "string"
         ? email.trim().toLowerCase()
-        : `manual-rsvp-${Date.now()}@brooker-wedding.local`;
+        : "";
 
     const result = await query(
       `INSERT INTO rsvps (name, email, attending, guest_count, adult_count, child_count, dietary_restrictions, potluck_dish, message, public_display, phone, mailing_address, attendee_names)
        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
        RETURNING id, name, email, attending, guest_count, adult_count, child_count, dietary_restrictions, potluck_dish, message, public_display, phone, mailing_address, attendee_names, created_at`,
       [
-        name.trim(),
+        typeof name === "string" ? name.trim() : "",
         normalizedEmail,
         attending,
         guestCount,
         adults,
         children,
-        dietary_restrictions.trim(),
-        potluck_dish.trim(),
-        message.trim(),
+        typeof dietary_restrictions === "string" ? dietary_restrictions.trim() : "",
+        typeof potluck_dish === "string" ? potluck_dish.trim() : "",
+        typeof message === "string" ? message.trim() : "",
         Boolean(public_display),
         normalizedPhone,
         typeof mailing_address === "string" ? mailing_address.trim() : "",
@@ -189,14 +199,14 @@ export async function PUT(request: NextRequest) {
       );
     }
 
-    if (!name || typeof name !== "string" || name.trim().length === 0) {
+    if (!isAdminEdit && (!name || typeof name !== "string" || name.trim().length === 0)) {
       return NextResponse.json(
         { error: "Name is required" },
         { status: 400 }
       );
     }
 
-    if (!email || typeof email !== "string" || !email.includes("@")) {
+    if (!isAdminEdit && (!email || typeof email !== "string" || !email.includes("@"))) {
       return NextResponse.json(
         { error: "A valid email is required" },
         { status: 400 }
@@ -224,6 +234,11 @@ export async function PUT(request: NextRequest) {
     const normalizedPhone = isAdminEdit
       ? normalizePhone(typeof phone === "string" ? phone : "")
       : normalizePhone(phone);
+    const normalizedEmail = isAdminEdit
+      ? normalizeAdminEmail(email, id)
+      : typeof email === "string"
+        ? email.trim().toLowerCase()
+        : "";
 
     const result = await query(
       `UPDATE rsvps
@@ -235,15 +250,15 @@ export async function PUT(request: NextRequest) {
        WHERE id = $14
        RETURNING id, name, email, attending, guest_count, adult_count, child_count, dietary_restrictions, potluck_dish, message, public_display, phone, mailing_address, attendee_names, created_at, updated_at`,
       [
-        name.trim(),
-        email.trim().toLowerCase(),
+        typeof name === "string" ? name.trim() : "",
+        normalizedEmail,
         attending,
         guestCount,
         adults,
         children,
-        dietary_restrictions.trim(),
-        potluck_dish.trim(),
-        message.trim(),
+        typeof dietary_restrictions === "string" ? dietary_restrictions.trim() : "",
+        typeof potluck_dish === "string" ? potluck_dish.trim() : "",
+        typeof message === "string" ? message.trim() : "",
         Boolean(public_display),
         normalizedPhone,
         typeof mailing_address === "string" ? mailing_address.trim() : "",
