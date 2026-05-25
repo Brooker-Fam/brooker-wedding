@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 
 interface Rsvp {
   id: number;
@@ -35,33 +35,29 @@ interface NewRsvpForm {
   public_display: boolean;
 }
 
-function createEmptyRsvpForm(): NewRsvpForm {
-  return {
-    name: "",
-    email: "",
-    phone: "",
-    mailing_address: "",
-    attending: true,
-    adult_count: 1,
-    child_count: 0,
-    attendee_names: "",
-    dietary_restrictions: "",
-    message: "",
-    public_display: false,
-  };
-}
+const emptyForm = (): NewRsvpForm => ({
+  name: "",
+  email: "",
+  phone: "",
+  mailing_address: "",
+  attending: true,
+  adult_count: 1,
+  child_count: 0,
+  attendee_names: "",
+  dietary_restrictions: "",
+  message: "",
+  public_display: false,
+});
 
 export default function AdminPage() {
   const [rsvps, setRsvps] = useState<Rsvp[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
-  const [editingId, setEditingId] = useState<number | null>(null);
-  const [editForm, setEditForm] = useState<Rsvp | null>(null);
   const [saving, setSaving] = useState(false);
-  const [createForm, setCreateForm] = useState<NewRsvpForm>(createEmptyRsvpForm);
-  const [creating, setCreating] = useState(false);
+  const [error, setError] = useState("");
+  const [form, setForm] = useState<NewRsvpForm>(emptyForm);
 
-  useEffect(() => {
+  const loadRsvps = () => {
+    setLoading(true);
     fetch("/api/rsvp")
       .then((r) => {
         if (!r.ok) throw new Error("Failed to fetch");
@@ -70,51 +66,23 @@ export default function AdminPage() {
       .then((json) => setRsvps(json.data ?? []))
       .catch(() => setError("Failed to load RSVPs"))
       .finally(() => setLoading(false));
-  }, []);
-
-  const startEdit = (r: Rsvp) => {
-    setEditingId(r.id);
-    setEditForm({ ...r, attendee_names: r.attendee_names ?? "" });
   };
 
-  const cancelEdit = () => {
-    setEditingId(null);
-    setEditForm(null);
-  };
+  useEffect(loadRsvps, []);
 
-  const saveEdit = async () => {
-    if (!editForm) return;
-    setSaving(true);
-    setError("");
-    try {
-      const res = await fetch("/api/rsvp", {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          "x-admin-edit": "true",
-        },
-        body: JSON.stringify(editForm),
-      });
-      const json = await res.json();
-      if (!res.ok) throw new Error(json.error || "Failed to save");
-      setRsvps((prev) => prev.map((r) => (r.id === editForm.id ? json.data : r)));
-      setEditingId(null);
-      setEditForm(null);
-    } catch (error) {
-      setError(error instanceof Error ? error.message : "Failed to save changes");
-    } finally {
-      setSaving(false);
-    }
+  const set = <K extends keyof NewRsvpForm>(key: K, value: NewRsvpForm[K]) => {
+    setForm((prev) => ({ ...prev, [key]: value }));
   };
 
   const saveCreate = async () => {
-    setCreating(true);
+    setSaving(true);
     setError("");
+
     try {
       const payload = {
-        ...createForm,
-        adult_count: createForm.attending ? Math.max(1, Number(createForm.adult_count) || 1) : 0,
-        child_count: createForm.attending ? Math.max(0, Number(createForm.child_count) || 0) : 0,
+        ...form,
+        adult_count: form.attending ? Math.max(1, Number(form.adult_count) || 1) : 0,
+        child_count: form.attending ? Math.max(0, Number(form.child_count) || 0) : 0,
       };
 
       const res = await fetch("/api/rsvp", {
@@ -125,19 +93,21 @@ export default function AdminPage() {
         },
         body: JSON.stringify(payload),
       });
+
       const json = await res.json();
       if (!res.ok) throw new Error(json.error || "Failed to create RSVP");
       setRsvps((prev) => [json.data, ...prev]);
-      setCreateForm(createEmptyRsvpForm());
+      setForm(emptyForm());
     } catch (error) {
       setError(error instanceof Error ? error.message : "Failed to create RSVP");
     } finally {
-      setCreating(false);
+      setSaving(false);
     }
   };
 
   const deleteRsvp = async (id: number, name: string) => {
-    if (!confirm(`Delete RSVP for ${name}?`)) return;
+    if (!confirm(`Delete RSVP for ${name || "this guest"}?`)) return;
+
     try {
       const res = await fetch(`/api/rsvp?id=${id}`, { method: "DELETE" });
       if (!res.ok) throw new Error();
@@ -146,11 +116,6 @@ export default function AdminPage() {
       setError("Failed to delete RSVP");
     }
   };
-
-  const set = <K extends keyof Rsvp>(key: K, value: Rsvp[K]) =>
-    setEditForm((prev) => prev && ({ ...prev, [key]: value }));
-  const setCreate = <K extends keyof NewRsvpForm>(key: K, value: NewRsvpForm[K]) =>
-    setCreateForm((prev) => ({ ...prev, [key]: value }));
 
   const attending = rsvps.filter((r) => r.attending);
   const totalGuests = attending.reduce((sum, r) => sum + r.guest_count, 0);
@@ -162,10 +127,7 @@ export default function AdminPage() {
           RSVP Admin
         </h1>
         <div className="mb-8 text-center">
-          <Link
-            href="/rsvp/admin/labels"
-            className="text-sm text-sage underline underline-offset-2 hover:text-sage-dark dark:text-sage-light"
-          >
+          <Link href="/rsvp/admin/labels" className="text-sm text-sage underline underline-offset-2 hover:text-sage-dark dark:text-sage-light">
             Mailing lists & labels →
           </Link>
         </div>
@@ -188,124 +150,79 @@ export default function AdminPage() {
 
         {!loading && (
           <>
-            <div className="soft-card mb-8 p-6">
-              <div className="mb-5">
-                <h2 className="font-[family-name:var(--font-cormorant-garamond)] text-2xl font-semibold text-forest dark:text-cream">
-                  Add RSVP
-                </h2>
-                <p className="mt-1 text-sm text-deep-plum/70 dark:text-cream/70">
-                  Enter an RSVP manually here for guests you want to add yourself.
+            <form
+              onSubmit={(event) => {
+                event.preventDefault();
+                saveCreate();
+              }}
+              className="mb-8 space-y-6 rounded-[2rem] border border-white/50 bg-white/72 p-6 shadow-[0_18px_40px_rgba(95,61,87,0.12)] backdrop-blur-md dark:border-soft-gold/15 dark:bg-[#162618]/70 dark:shadow-[0_8px_40px_rgba(0,0,0,0.2)] sm:p-8"
+            >
+              <div className="text-center">
+                <div className="mb-2 text-sm font-medium tracking-widest text-sage uppercase dark:text-sage-light">Admin Entry</div>
+                <h2 className="font-[family-name:var(--font-cormorant-garamond)] text-3xl font-semibold text-forest dark:text-cream">Add RSVP</h2>
+                <p className="mx-auto mt-2 max-w-xl text-sm text-deep-plum/70 dark:text-cream/70">
+                  This matches the guest RSVP layout, but no fields are required for manual admin entries.
                 </p>
               </div>
 
-              <div className="grid gap-4 md:grid-cols-2">
-                <input
-                  type="text"
-                  value={createForm.name}
-                  onChange={(e) => setCreate("name", e.target.value)}
-                  placeholder="Name"
-                  className="enchanted-input"
-                />
-                <input
-                  type="email"
-                  value={createForm.email}
-                  onChange={(e) => setCreate("email", e.target.value)}
-                  placeholder="Email"
-                  className="enchanted-input"
-                />
-                <input
-                  type="tel"
-                  value={createForm.phone}
-                  onChange={(e) => setCreate("phone", e.target.value)}
-                  placeholder="Phone number"
-                  className="enchanted-input"
-                />
-                <textarea
-                  value={createForm.mailing_address}
-                  onChange={(e) => setCreate("mailing_address", e.target.value)}
-                  placeholder="Mailing address"
-                  className="enchanted-input min-h-[88px] resize-y md:col-span-2"
-                  rows={3}
-                />
-                <div className="flex items-center gap-3">
-                  <button
-                    type="button"
-                    onClick={() => setCreate("attending", true)}
-                    className={`rounded-full px-3 py-1 text-sm font-medium ${createForm.attending ? "bg-sage/20 text-sage" : "bg-lavender/10 text-deep-plum/70 dark:text-cream/70"}`}
-                  >
-                    Attending
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setCreate("attending", false)}
-                    className={`rounded-full px-3 py-1 text-sm font-medium ${!createForm.attending ? "bg-lavender/20 text-lavender" : "bg-sage/10 text-deep-plum/70 dark:text-cream/70"}`}
-                  >
-                    Declined
-                  </button>
-                </div>
-                <div className="flex gap-3">
-                  <input
-                    type="number"
-                    min={0}
-                    max={10}
-                    value={createForm.adult_count}
-                    onChange={(e) => setCreate("adult_count", Number(e.target.value))}
-                    placeholder="Adults"
-                    className="enchanted-input"
-                  />
-                  <input
-                    type="number"
-                    min={0}
-                    max={10}
-                    value={createForm.child_count}
-                    onChange={(e) => setCreate("child_count", Number(e.target.value))}
-                    placeholder="Kids"
-                    className="enchanted-input"
-                  />
-                </div>
-                <textarea
-                  value={createForm.attendee_names}
-                  onChange={(e) => setCreate("attendee_names", e.target.value)}
-                  placeholder="Guest names"
-                  className="enchanted-input min-h-[88px] resize-y"
-                  rows={3}
-                />
-                <input
-                  type="text"
-                  value={createForm.dietary_restrictions}
-                  onChange={(e) => setCreate("dietary_restrictions", e.target.value)}
-                  placeholder="Dietary restrictions"
-                  className="enchanted-input"
-                />
-                <textarea
-                  value={createForm.message}
-                  onChange={(e) => setCreate("message", e.target.value)}
-                  placeholder="Message"
-                  className="enchanted-input min-h-[88px] resize-y"
-                  rows={3}
-                />
-                <label className="flex items-center gap-3 text-sm text-deep-plum dark:text-cream">
-                  <input
-                    type="checkbox"
-                    checked={createForm.public_display}
-                    onChange={(e) => setCreate("public_display", e.target.checked)}
-                    className="h-4 w-4 rounded border-sage/40 text-sage accent-sage"
-                  />
-                  Show on public guest list
-                </label>
+              <TextInput label="Your Name" value={form.name} onChange={(value) => set("name", value)} placeholder="Enter your name" />
+              <TextInput label="Email Address" type="email" value={form.email} onChange={(value) => set("email", value)} placeholder="your@email.com" />
+              <TextInput label="Phone Number" type="tel" value={form.phone} onChange={(value) => set("phone", value)} placeholder="(555) 123-4567" note="Optional for admin entries" />
+
+              <div>
+                <label className="mb-2 block text-sm font-medium text-deep-plum dark:text-cream">Mailing Address</label>
+                <textarea value={form.mailing_address} onChange={(e) => set("mailing_address", e.target.value)} placeholder="Street address, city, state, ZIP" className="enchanted-input min-h-[90px] resize-y" rows={3} />
+                <p className="mt-1.5 text-xs text-deep-plum/75 dark:text-cream/75">Optional for admin entries</p>
               </div>
 
-              <div className="mt-5">
-                <button
-                  type="button"
-                  onClick={saveCreate}
-                  disabled={creating}
-                  className="rounded-xl bg-soft-gold px-5 py-3 text-sm font-semibold text-[#2A1A00] transition-colors hover:bg-soft-gold-dark disabled:opacity-50"
-                >
-                  {creating ? "Saving..." : "Add RSVP"}
+              <div>
+                <label className="mb-3 block text-sm font-medium text-deep-plum dark:text-cream">Will they be joining us?</label>
+                <div className="flex gap-3">
+                  <button type="button" onClick={() => set("attending", true)} className={`flex-1 rounded-xl border-2 px-4 py-3 text-sm font-medium transition-all duration-300 ${form.attending ? "border-soft-gold bg-soft-gold text-[#2A1A00] shadow-md" : "border-lavender/30 bg-warm-white text-deep-plum/80 hover:border-lavender/50 dark:border-sage/30 dark:bg-[#162618] dark:text-cream/80 dark:hover:border-sage/50"}`}>
+                    Joyfully Accept
+                  </button>
+                  <button type="button" onClick={() => set("attending", false)} className={`flex-1 rounded-xl border-2 px-4 py-3 text-sm font-medium transition-all duration-300 ${!form.attending ? "border-[#8B7AA0] bg-[#8B7AA0] text-white shadow-md" : "border-lavender/30 bg-warm-white text-deep-plum/80 hover:border-lavender/50 dark:border-sage/30 dark:bg-[#162618] dark:text-cream/80 dark:hover:border-sage/50"}`}>
+                    Regretfully Decline
+                  </button>
+                </div>
+              </div>
+
+              {form.attending && (
+                <div className="space-y-6 overflow-hidden">
+                  <div>
+                    <label className="mb-2 block text-sm font-medium text-deep-plum dark:text-cream">Who Is Included in This RSVP?</label>
+                    <textarea value={form.attendee_names} onChange={(e) => set("attendee_names", e.target.value)} placeholder="Guest names, one per line" className="enchanted-input min-h-[100px] resize-y" rows={4} />
+                    <p className="mt-1.5 text-xs text-deep-plum/75 dark:text-cream/75">Optional. You can add notes like “Name (Adult)” or “Name (Child)” if helpful.</p>
+                  </div>
+
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    <TextInput label="Adults" type="number" value={String(form.adult_count)} onChange={(value) => set("adult_count", Number(value))} placeholder="Adults" />
+                    <TextInput label="Children" type="number" value={String(form.child_count)} onChange={(value) => set("child_count", Number(value))} placeholder="Children" />
+                  </div>
+
+                  <TextInput label="Dietary Needs" value={form.dietary_restrictions} onChange={(value) => set("dietary_restrictions", value)} placeholder="Allergies, vegan, gluten-free..." note="Optional -- let us know about any food needs" />
+                </div>
+              )}
+
+              <div>
+                <label className="mb-2 block text-sm font-medium text-deep-plum dark:text-cream">Leave Us a Note</label>
+                <textarea value={form.message} onChange={(e) => set("message", e.target.value)} placeholder="A kind word, a bit of advice, or just say hello..." className="enchanted-input min-h-[100px] resize-y" rows={3} />
+              </div>
+
+              <label className="flex cursor-pointer items-start gap-3">
+                <input type="checkbox" checked={form.public_display} onChange={(e) => set("public_display", e.target.checked)} className="mt-0.5 h-4 w-4 rounded border-sage/40 text-sage accent-sage" />
+                <span className="text-sm text-deep-plum/80 dark:text-cream/80">Show this name on the celebration page so others can see they&apos;re coming</span>
+              </label>
+
+              <div className="flex gap-3 pt-2">
+                <button type="button" onClick={() => setForm(emptyForm())} className="flex-1 rounded-xl border border-sage/30 px-6 py-3.5 text-sm font-medium text-deep-plum transition-all hover:bg-sage/10 dark:border-sage/40 dark:text-cream dark:hover:bg-sage/20">
+                  Clear
+                </button>
+                <button type="submit" disabled={saving} className={`flex-1 rounded-xl bg-soft-gold px-6 py-3.5 text-base font-semibold text-[#2A1A00] shadow-md transition-all duration-300 hover:bg-soft-gold-dark hover:shadow-lg ${saving ? "cursor-wait opacity-70" : ""}`}>
+                  {saving ? "Saving..." : "Add RSVP"}
                 </button>
               </div>
-            </div>
+            </form>
 
             <div className="soft-card mb-8 flex flex-wrap justify-center gap-8 p-6">
               <Stat label="Total RSVPs" value={rsvps.length} />
@@ -323,177 +240,35 @@ export default function AdminPage() {
                     <th className="px-3 py-3">Phone</th>
                     <th className="px-3 py-3">Mailing</th>
                     <th className="px-3 py-3">Attending</th>
-                    <th className="px-3 py-3">Adults</th>
-                    <th className="px-3 py-3">Kids</th>
+                    <th className="px-3 py-3">Guests</th>
                     <th className="px-3 py-3">Guest Names</th>
                     <th className="px-3 py-3">Dietary</th>
-                    <th className="px-3 py-3">Potluck</th>
                     <th className="px-3 py-3">Public</th>
                     <th className="px-3 py-3">Date</th>
                     <th className="px-3 py-3" />
                   </tr>
                 </thead>
                 <tbody>
-                  {rsvps.map((r) =>
-                    editingId === r.id && editForm ? (
-                      <tr key={r.id} className="border-b border-sage/10 bg-sage/5 dark:border-sage/20 dark:bg-sage/10">
-                        <td className="px-2 py-2">
-                          <input
-                            type="text"
-                            value={editForm.name}
-                            onChange={(e) => set("name", e.target.value)}
-                            className="enchanted-input !py-1.5 text-sm"
-                          />
-                        </td>
-                        <td className="px-2 py-2">
-                          <input
-                            type="email"
-                            value={editForm.email}
-                            onChange={(e) => set("email", e.target.value)}
-                            className="enchanted-input !py-1.5 text-sm"
-                          />
-                        </td>
-                        <td className="px-2 py-2">
-                          <input
-                            type="tel"
-                            value={editForm.phone ?? ""}
-                            onChange={(e) => set("phone", e.target.value || null)}
-                            className="enchanted-input !py-1.5 text-sm"
-                          />
-                        </td>
-                        <td className="px-2 py-2">
-                          <textarea
-                            value={editForm.mailing_address}
-                            onChange={(e) => set("mailing_address", e.target.value)}
-                            className="enchanted-input min-h-[84px] min-w-[14rem] !py-1.5 text-sm"
-                            rows={3}
-                          />
-                        </td>
-                        <td className="px-2 py-2">
-                          <button
-                            type="button"
-                            onClick={() => set("attending", !editForm.attending)}
-                            className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${editForm.attending ? "bg-sage/20 text-sage" : "bg-lavender/20 text-lavender"}`}
-                          >
-                            {editForm.attending ? "Yes" : "No"}
-                          </button>
-                        </td>
-                        <td className="px-2 py-2">
-                          <input
-                            type="number"
-                            min={1}
-                            max={10}
-                            value={editForm.adult_count}
-                            onChange={(e) => set("adult_count", Number(e.target.value))}
-                            className="enchanted-input !w-16 !py-1.5 text-sm"
-                          />
-                        </td>
-                        <td className="px-2 py-2">
-                          <input
-                            type="number"
-                            min={0}
-                            max={10}
-                            value={editForm.child_count}
-                            onChange={(e) => set("child_count", Number(e.target.value))}
-                            className="enchanted-input !w-16 !py-1.5 text-sm"
-                          />
-                        </td>
-                        <td className="px-2 py-2">
-                          <textarea
-                            value={editForm.attendee_names ?? ""}
-                            onChange={(e) => set("attendee_names", e.target.value)}
-                            className="enchanted-input min-h-[84px] min-w-[12rem] !py-1.5 text-sm"
-                            rows={3}
-                          />
-                        </td>
-                        <td className="px-2 py-2">
-                          <input
-                            type="text"
-                            value={editForm.dietary_restrictions}
-                            onChange={(e) => set("dietary_restrictions", e.target.value)}
-                            className="enchanted-input !py-1.5 text-sm"
-                          />
-                        </td>
-                        <td className="px-2 py-2">
-                          <input
-                            type="text"
-                            value={editForm.potluck_dish}
-                            onChange={(e) => set("potluck_dish", e.target.value)}
-                            className="enchanted-input !py-1.5 text-sm"
-                          />
-                        </td>
-                        <td className="px-2 py-2">
-                          <button
-                            type="button"
-                            onClick={() => set("public_display", !editForm.public_display)}
-                            className="text-xs text-deep-plum/70 underline dark:text-cream/70"
-                          >
-                            {editForm.public_display ? "Yes" : "No"}
-                          </button>
-                        </td>
-                        <td className="whitespace-nowrap px-3 py-2 text-deep-plum/50 dark:text-cream/50">
-                          {new Date(r.created_at).toLocaleDateString()}
-                        </td>
-                        <td className="whitespace-nowrap px-2 py-2">
-                          <div className="flex gap-2">
-                            <button
-                              onClick={saveEdit}
-                              disabled={saving}
-                              className="rounded-lg bg-soft-gold px-2.5 py-1 text-xs font-semibold text-[#2A1A00] hover:bg-soft-gold-dark disabled:opacity-50"
-                            >
-                              {saving ? "..." : "Save"}
-                            </button>
-                            <button
-                              onClick={cancelEdit}
-                              className="text-xs text-deep-plum/60 underline hover:text-deep-plum dark:text-cream/60 dark:hover:text-cream"
-                            >
-                              Cancel
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    ) : (
-                      <tr key={r.id} className="border-b border-sage/10 dark:border-sage/20">
-                        <td className="px-3 py-3 font-medium text-deep-plum dark:text-cream">{r.name}</td>
-                        <td className="px-3 py-3 text-deep-plum/70 dark:text-cream/70">{r.email}</td>
-                        <td className="px-3 py-3 text-deep-plum/70 dark:text-cream/70">{r.phone || "—"}</td>
-                        <td className="max-w-[14rem] whitespace-pre-line px-3 py-3 text-deep-plum/70 dark:text-cream/70">{r.mailing_address || "—"}</td>
-                        <td className="px-3 py-3">
-                          <span className={`inline-block rounded-full px-2 py-0.5 text-xs font-medium ${r.attending ? "bg-sage/20 text-sage" : "bg-lavender/20 text-lavender"}`}>
-                            {r.attending ? "Yes" : "No"}
-                          </span>
-                        </td>
-                        <td className="px-3 py-3 text-deep-plum/70 dark:text-cream/70">{r.adult_count}</td>
-                        <td className="px-3 py-3 text-deep-plum/70 dark:text-cream/70">{r.child_count}</td>
-                        <td className="max-w-[12rem] whitespace-pre-line px-3 py-3 text-deep-plum/70 dark:text-cream/70">{r.attendee_names || "—"}</td>
-                        <td className="px-3 py-3 text-deep-plum/70 dark:text-cream/70">{r.dietary_restrictions || "—"}</td>
-                        <td className="px-3 py-3 text-deep-plum/70 dark:text-cream/70">{r.potluck_dish || "—"}</td>
-                        <td className="px-3 py-3 text-deep-plum/70 dark:text-cream/70">{r.public_display ? "Yes" : "No"}</td>
-                        <td className="whitespace-nowrap px-3 py-3 text-deep-plum/50 dark:text-cream/50">
-                          {new Date(r.created_at).toLocaleDateString()}
-                        </td>
-                        <td className="whitespace-nowrap px-3 py-3">
-                          <button
-                            onClick={() => startEdit(r)}
-                            className="text-xs font-medium text-sage underline underline-offset-2 hover:text-sage-dark dark:text-sage-light dark:hover:text-sage"
-                          >
-                            Edit
-                          </button>
-                          <button
-                            onClick={() => deleteRsvp(r.id, r.name)}
-                            className="ml-3 text-xs font-medium text-red-400 underline underline-offset-2 hover:text-red-600"
-                          >
-                            Delete
-                          </button>
-                        </td>
-                      </tr>
-                    )
-                  )}
+                  {rsvps.map((r) => (
+                    <tr key={r.id} className="border-b border-sage/10 dark:border-sage/20">
+                      <td className="px-3 py-3 font-medium text-deep-plum dark:text-cream">{r.name || "—"}</td>
+                      <td className="px-3 py-3 text-deep-plum/70 dark:text-cream/70">{r.email}</td>
+                      <td className="px-3 py-3 text-deep-plum/70 dark:text-cream/70">{r.phone || "—"}</td>
+                      <td className="max-w-[14rem] whitespace-pre-line px-3 py-3 text-deep-plum/70 dark:text-cream/70">{r.mailing_address || "—"}</td>
+                      <td className="px-3 py-3"><span className={`inline-block rounded-full px-2 py-0.5 text-xs font-medium ${r.attending ? "bg-sage/20 text-sage" : "bg-lavender/20 text-lavender"}`}>{r.attending ? "Yes" : "No"}</span></td>
+                      <td className="px-3 py-3 text-deep-plum/70 dark:text-cream/70">{r.adult_count} adults · {r.child_count} kids</td>
+                      <td className="max-w-[12rem] whitespace-pre-line px-3 py-3 text-deep-plum/70 dark:text-cream/70">{r.attendee_names || "—"}</td>
+                      <td className="px-3 py-3 text-deep-plum/70 dark:text-cream/70">{r.dietary_restrictions || "—"}</td>
+                      <td className="px-3 py-3 text-deep-plum/70 dark:text-cream/70">{r.public_display ? "Yes" : "No"}</td>
+                      <td className="whitespace-nowrap px-3 py-3 text-deep-plum/50 dark:text-cream/50">{new Date(r.created_at).toLocaleDateString()}</td>
+                      <td className="whitespace-nowrap px-3 py-3">
+                        <button onClick={() => deleteRsvp(r.id, r.name)} className="text-xs font-medium text-red-400 underline underline-offset-2 hover:text-red-600">Delete</button>
+                      </td>
+                    </tr>
+                  ))}
                 </tbody>
               </table>
-              {rsvps.length === 0 && (
-                <p className="py-8 text-center text-deep-plum/50 dark:text-cream/50">No RSVPs yet</p>
-              )}
+              {rsvps.length === 0 && <p className="py-8 text-center text-deep-plum/50 dark:text-cream/50">No RSVPs yet</p>}
             </div>
           </>
         )}
@@ -502,15 +277,21 @@ export default function AdminPage() {
   );
 }
 
+function TextInput({ label, value, onChange, placeholder, type = "text", note }: { label: string; value: string; onChange: (value: string) => void; placeholder?: string; type?: string; note?: string }) {
+  return (
+    <div>
+      <label className="mb-2 block text-sm font-medium text-deep-plum dark:text-cream">{label}</label>
+      <input type={type} value={value} onChange={(e) => onChange(e.target.value)} placeholder={placeholder} className="enchanted-input" />
+      {note && <p className="mt-1.5 text-xs text-deep-plum/75 dark:text-cream/75">{note}</p>}
+    </div>
+  );
+}
+
 function Stat({ label, value }: { label: string; value: number }) {
   return (
     <div className="text-center">
-      <div className="font-[family-name:var(--font-cormorant-garamond)] text-3xl font-semibold text-forest dark:text-cream">
-        {value}
-      </div>
-      <div className="text-xs uppercase tracking-wider text-deep-plum/60 dark:text-cream/60">
-        {label}
-      </div>
+      <div className="font-[family-name:var(--font-cormorant-garamond)] text-3xl font-semibold text-forest dark:text-cream">{value}</div>
+      <div className="text-xs uppercase tracking-wider text-deep-plum/60 dark:text-cream/60">{label}</div>
     </div>
   );
 }
