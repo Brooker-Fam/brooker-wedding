@@ -102,11 +102,10 @@ export default function SapphirePrint() {
             <div className="invite-col invite-col-divider">
               <p className="invite-label">What to Expect</p>
               <ul className="invite-list">
-                <li>Pizza party</li>
+                <li>Pizza &amp; snacks</li>
                 <li>Birthday cake</li>
-                <li>Swimming</li>
-                <li>Playground</li>
-                <li>Sunscreen &amp; bug spray</li>
+                <li>Swimming &ndash; bring suits &amp; towels</li>
+                <li>Playground near the beach</li>
               </ul>
             </div>
           </div>
