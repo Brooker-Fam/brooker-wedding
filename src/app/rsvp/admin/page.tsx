@@ -122,7 +122,7 @@ export default function AdminPage() {
 
   return (
     <div className="enchanted-bg min-h-screen">
-      <div className="mx-auto max-w-5xl px-4 pt-24 pb-16 sm:pt-28 sm:pb-20">
+      <div className="mx-auto max-w-6xl px-4 pt-24 pb-16 sm:pt-28 sm:pb-20">
         <h1 className="mb-2 text-center font-[family-name:var(--font-cormorant-garamond)] text-4xl font-semibold text-forest dark:text-cream">
           RSVP Admin
         </h1>
@@ -231,44 +231,39 @@ export default function AdminPage() {
               <Stat label="Declined" value={rsvps.length - attending.length} />
             </div>
 
-            <div className="soft-card overflow-x-auto p-2 sm:p-4">
-              <table className="w-full text-left text-sm">
-                <thead>
-                  <tr className="border-b border-sage/20 text-xs uppercase tracking-wider text-deep-plum/60 dark:text-cream/60">
-                    <th className="px-3 py-3">Name</th>
-                    <th className="px-3 py-3">Email</th>
-                    <th className="px-3 py-3">Phone</th>
-                    <th className="px-3 py-3">Mailing</th>
-                    <th className="px-3 py-3">Attending</th>
-                    <th className="px-3 py-3">Guests</th>
-                    <th className="px-3 py-3">Guest Names</th>
-                    <th className="px-3 py-3">Dietary</th>
-                    <th className="px-3 py-3">Public</th>
-                    <th className="px-3 py-3">Date</th>
-                    <th className="px-3 py-3" />
-                  </tr>
-                </thead>
-                <tbody>
-                  {rsvps.map((r) => (
-                    <tr key={r.id} className="border-b border-sage/10 dark:border-sage/20">
-                      <td className="px-3 py-3 font-medium text-deep-plum dark:text-cream">{r.name || "—"}</td>
-                      <td className="px-3 py-3 text-deep-plum/70 dark:text-cream/70">{r.email}</td>
-                      <td className="px-3 py-3 text-deep-plum/70 dark:text-cream/70">{r.phone || "—"}</td>
-                      <td className="max-w-[14rem] whitespace-pre-line px-3 py-3 text-deep-plum/70 dark:text-cream/70">{r.mailing_address || "—"}</td>
-                      <td className="px-3 py-3"><span className={`inline-block rounded-full px-2 py-0.5 text-xs font-medium ${r.attending ? "bg-sage/20 text-sage" : "bg-lavender/20 text-lavender"}`}>{r.attending ? "Yes" : "No"}</span></td>
-                      <td className="px-3 py-3 text-deep-plum/70 dark:text-cream/70">{r.adult_count} adults · {r.child_count} kids</td>
-                      <td className="max-w-[12rem] whitespace-pre-line px-3 py-3 text-deep-plum/70 dark:text-cream/70">{r.attendee_names || "—"}</td>
-                      <td className="px-3 py-3 text-deep-plum/70 dark:text-cream/70">{r.dietary_restrictions || "—"}</td>
-                      <td className="px-3 py-3 text-deep-plum/70 dark:text-cream/70">{r.public_display ? "Yes" : "No"}</td>
-                      <td className="whitespace-nowrap px-3 py-3 text-deep-plum/50 dark:text-cream/50">{new Date(r.created_at).toLocaleDateString()}</td>
-                      <td className="whitespace-nowrap px-3 py-3">
-                        <button onClick={() => deleteRsvp(r.id, r.name)} className="text-xs font-medium text-red-400 underline underline-offset-2 hover:text-red-600">Delete</button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-              {rsvps.length === 0 && <p className="py-8 text-center text-deep-plum/50 dark:text-cream/50">No RSVPs yet</p>}
+            <div className="grid gap-4 sm:grid-cols-2">
+              {rsvps.map((r) => (
+                <div key={r.id} className="soft-card flex flex-col gap-3 p-5">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      <h3 className="truncate font-[family-name:var(--font-cormorant-garamond)] text-2xl font-semibold text-forest dark:text-cream">{r.name || "—"}</h3>
+                      <p className="text-xs text-deep-plum/50 dark:text-cream/50">{new Date(r.created_at).toLocaleDateString()}</p>
+                    </div>
+                    <div className="flex shrink-0 items-center gap-2">
+                      <span className={`inline-block rounded-full px-2.5 py-0.5 text-xs font-medium ${r.attending ? "bg-sage/20 text-sage" : "bg-lavender/20 text-lavender"}`}>{r.attending ? "Attending" : "Declined"}</span>
+                      <button onClick={() => deleteRsvp(r.id, r.name)} className="text-xs font-medium text-red-400 underline underline-offset-2 hover:text-red-600">Delete</button>
+                    </div>
+                  </div>
+
+                  <dl className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-1.5 text-sm">
+                    <Field label="Email" value={r.email} />
+                    <Field label="Phone" value={r.phone || "—"} />
+                    {r.attending && <Field label="Guests" value={`${r.adult_count} adults · ${r.child_count} kids`} />}
+                    {r.attending && <Field label="Guest names" value={r.attendee_names} multiline />}
+                    {r.attending && <Field label="Dietary" value={r.dietary_restrictions} />}
+                    <Field label="Mailing" value={r.mailing_address} multiline />
+                    <Field label="Public" value={r.public_display ? "Yes" : "No"} />
+                  </dl>
+
+                  {r.message && (
+                    <div className="mt-1 rounded-xl border border-soft-gold/30 bg-soft-gold/10 p-3 dark:border-soft-gold/20 dark:bg-soft-gold/5">
+                      <div className="mb-1 text-xs font-medium uppercase tracking-wider text-soft-gold-dark dark:text-soft-gold">Note</div>
+                      <p className="whitespace-pre-line text-sm text-deep-plum/80 dark:text-cream/80">{r.message}</p>
+                    </div>
+                  )}
+                </div>
+              ))}
+              {rsvps.length === 0 && <p className="col-span-full py-8 text-center text-deep-plum/50 dark:text-cream/50">No RSVPs yet</p>}
             </div>
           </>
         )}
@@ -284,6 +279,15 @@ function TextInput({ label, value, onChange, placeholder, type = "text", note }:
       <input type={type} value={value} onChange={(e) => onChange(e.target.value)} placeholder={placeholder} className="enchanted-input" />
       {note && <p className="mt-1.5 text-xs text-deep-plum/75 dark:text-cream/75">{note}</p>}
     </div>
+  );
+}
+
+function Field({ label, value, multiline }: { label: string; value: string | null; multiline?: boolean }) {
+  return (
+    <>
+      <dt className="text-xs font-medium uppercase tracking-wider text-deep-plum/50 dark:text-cream/50">{label}</dt>
+      <dd className={`text-deep-plum/80 dark:text-cream/80 ${multiline ? "whitespace-pre-line" : "break-words"}`}>{value || "—"}</dd>
+    </>
   );
 }
 
