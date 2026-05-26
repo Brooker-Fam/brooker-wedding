@@ -294,12 +294,12 @@ async function main() {
     .font("Helvetica")
     .fontSize(11)
     .fillColor(MUTED)
-    .text("Scan the code, or text Matt at 814-876-2231.", leftX, rsvpY + 60, {
+    .text("Scan the code, or text Matt at 814-876-2231.", leftX, rsvpY + 46, {
       width: contentW - qrSize - 30,
     });
 
   // Footer
-  const footerY = PAGE_H - MT - 40;
+  const footerY = PAGE_H - MT - 26;
   drawFlourish(doc, centerX, footerY, PLUM, true);
   doc
     .font("Times-Italic")
