@@ -301,14 +301,6 @@ async function main() {
   // Footer
   const footerY = PAGE_H - MT - 26;
   drawFlourish(doc, centerX, footerY, PLUM, true);
-  doc
-    .font("Times-Italic")
-    .fontSize(18)
-    .fillColor(MUTED)
-    .text("with love, Sapphire", ML, footerY + 18, {
-      width: contentW,
-      align: "center",
-    });
 
   doc.end();
   console.log("PDF written:", OUT);
