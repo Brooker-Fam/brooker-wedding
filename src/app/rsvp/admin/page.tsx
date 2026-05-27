@@ -56,6 +56,7 @@ export default function AdminPage() {
   const [error, setError] = useState("");
   const [form, setForm] = useState<NewRsvpForm>(emptyForm);
   const [editingId, setEditingId] = useState<number | null>(null);
+  const [viewFilter, setViewFilter] = useState<"all" | "attending" | "declined" | "dietary">("all");
   const formRef = useRef<HTMLFormElement>(null);
 
   const loadRsvps = () => {
@@ -153,6 +154,12 @@ export default function AdminPage() {
 
   const attending = rsvps.filter((r) => r.attending);
   const totalGuests = attending.reduce((sum, r) => sum + r.guest_count, 0);
+  const filteredRsvps = rsvps.filter((r) => {
+    if (viewFilter === "attending") return r.attending;
+    if (viewFilter === "declined") return !r.attending;
+    if (viewFilter === "dietary") return Boolean(r.dietary_restrictions?.trim());
+    return true;
+  });
 
   return (
     <div className="enchanted-bg min-h-screen">
@@ -269,9 +276,30 @@ export default function AdminPage() {
               <Stat label="Declined" value={rsvps.length - attending.length} />
             </div>
 
+            <div className="mb-6 flex flex-wrap items-center justify-center gap-3">
+              {[
+                { value: "all", label: "All RSVPs" },
+                { value: "attending", label: "Attending" },
+                { value: "declined", label: "Declined" },
+                { value: "dietary", label: "Dietary Needs" },
+              ].map((option) => (
+                <button
+                  key={option.value}
+                  type="button"
+                  onClick={() => setViewFilter(option.value as typeof viewFilter)}
+                  className={`rounded-full px-4 py-2 text-sm font-medium transition-all ${
+                    viewFilter === option.value
+                      ? "bg-soft-gold text-[#2A1A00] shadow-sm"
+                      : "border border-sage/25 bg-white/60 text-deep-plum hover:bg-sage/10 dark:border-sage/30 dark:bg-[#162618]/60 dark:text-cream dark:hover:bg-sage/20"
+                  }`}
+                >
+                  {option.label}
+                </button>
+              ))}
+            </div>
+
             <div className="grid gap-4 sm:grid-cols-2">
-            <div className="grid gap-4 sm:grid-cols-2">
-              {rsvps.map((r) => (
+              {filteredRsvps.map((r) => (
                 <div key={r.id} className={`soft-card flex flex-col gap-3 p-5 ${editingId === r.id ? "ring-2 ring-soft-gold" : ""}`}>
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0">
@@ -303,7 +331,7 @@ export default function AdminPage() {
                   )}
                 </div>
               ))}
-              {rsvps.length === 0 && <p className="col-span-full py-8 text-center text-deep-plum/50 dark:text-cream/50">No RSVPs yet</p>}
+              {filteredRsvps.length === 0 && <p className="col-span-full py-8 text-center text-deep-plum/50 dark:text-cream/50">No RSVPs match this view yet</p>}
             </div>
           </>
         )}
