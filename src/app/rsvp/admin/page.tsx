@@ -270,6 +270,7 @@ export default function AdminPage() {
             </div>
 
             <div className="grid gap-4 sm:grid-cols-2">
+            <div className="grid gap-4 sm:grid-cols-2">
               {rsvps.map((r) => (
                 <div key={r.id} className={`soft-card flex flex-col gap-3 p-5 ${editingId === r.id ? "ring-2 ring-soft-gold" : ""}`}>
                   <div className="flex items-start justify-between gap-3">
