@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 interface Rsvp {
   id: number;
@@ -55,6 +55,8 @@ export default function AdminPage() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const [form, setForm] = useState<NewRsvpForm>(emptyForm);
+  const [editingId, setEditingId] = useState<number | null>(null);
+  const formRef = useRef<HTMLFormElement>(null);
 
   const loadRsvps = () => {
     setLoading(true);
@@ -74,19 +76,20 @@ export default function AdminPage() {
     setForm((prev) => ({ ...prev, [key]: value }));
   };
 
-  const saveCreate = async () => {
+  const save = async () => {
     setSaving(true);
     setError("");
 
     try {
       const payload = {
         ...form,
+        ...(editingId !== null ? { id: editingId } : {}),
         adult_count: form.attending ? Math.max(1, Number(form.adult_count) || 1) : 0,
         child_count: form.attending ? Math.max(0, Number(form.child_count) || 0) : 0,
       };
 
       const res = await fetch("/api/rsvp", {
-        method: "POST",
+        method: editingId !== null ? "PUT" : "POST",
         headers: {
           "Content-Type": "application/json",
           "x-admin-edit": "true",
@@ -95,14 +98,45 @@ export default function AdminPage() {
       });
 
       const json = await res.json();
-      if (!res.ok) throw new Error(json.error || "Failed to create RSVP");
-      setRsvps((prev) => [json.data, ...prev]);
+      if (!res.ok) throw new Error(json.error || "Failed to save RSVP");
+
+      if (editingId !== null) {
+        setRsvps((prev) => prev.map((r) => (r.id === editingId ? json.data : r)));
+      } else {
+        setRsvps((prev) => [json.data, ...prev]);
+      }
       setForm(emptyForm());
+      setEditingId(null);
     } catch (error) {
-      setError(error instanceof Error ? error.message : "Failed to create RSVP");
+      setError(error instanceof Error ? error.message : "Failed to save RSVP");
     } finally {
       setSaving(false);
     }
+  };
+
+  const editRsvp = (r: Rsvp) => {
+    const isManualEmail = /^manual-rsvp-.*@brooker-wedding\.local$/.test(r.email);
+    setForm({
+      name: r.name ?? "",
+      email: isManualEmail ? "" : r.email ?? "",
+      phone: r.phone ?? "",
+      mailing_address: r.mailing_address ?? "",
+      attending: r.attending,
+      adult_count: r.adult_count,
+      child_count: r.child_count,
+      attendee_names: r.attendee_names ?? "",
+      dietary_restrictions: r.dietary_restrictions ?? "",
+      message: r.message ?? "",
+      public_display: r.public_display,
+    });
+    setEditingId(r.id);
+    setError("");
+    formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
+
+  const cancelEdit = () => {
+    setForm(emptyForm());
+    setEditingId(null);
   };
 
   const deleteRsvp = async (id: number, name: string) => {
@@ -151,15 +185,16 @@ export default function AdminPage() {
         {!loading && (
           <>
             <form
+              ref={formRef}
               onSubmit={(event) => {
                 event.preventDefault();
-                saveCreate();
+                save();
               }}
-              className="mb-8 space-y-6 rounded-[2rem] border border-white/50 bg-white/72 p-6 shadow-[0_18px_40px_rgba(95,61,87,0.12)] backdrop-blur-md dark:border-soft-gold/15 dark:bg-[#162618]/70 dark:shadow-[0_8px_40px_rgba(0,0,0,0.2)] sm:p-8"
+              className="mb-8 space-y-6 scroll-mt-24 rounded-[2rem] border border-white/50 bg-white/72 p-6 shadow-[0_18px_40px_rgba(95,61,87,0.12)] backdrop-blur-md dark:border-soft-gold/15 dark:bg-[#162618]/70 dark:shadow-[0_8px_40px_rgba(0,0,0,0.2)] sm:p-8"
             >
               <div className="text-center">
-                <div className="mb-2 text-sm font-medium tracking-widest text-sage uppercase dark:text-sage-light">Admin Entry</div>
-                <h2 className="font-[family-name:var(--font-cormorant-garamond)] text-3xl font-semibold text-forest dark:text-cream">Add RSVP</h2>
+                <div className="mb-2 text-sm font-medium tracking-widest text-sage uppercase dark:text-sage-light">{editingId !== null ? "Editing RSVP" : "Admin Entry"}</div>
+                <h2 className="font-[family-name:var(--font-cormorant-garamond)] text-3xl font-semibold text-forest dark:text-cream">{editingId !== null ? "Edit RSVP" : "Add RSVP"}</h2>
                 <p className="mx-auto mt-2 max-w-xl text-sm text-deep-plum/70 dark:text-cream/70">
                   This matches the guest RSVP layout, but no fields are required for manual admin entries.
                 </p>
@@ -215,11 +250,11 @@ export default function AdminPage() {
               </label>
 
               <div className="flex gap-3 pt-2">
-                <button type="button" onClick={() => setForm(emptyForm())} className="flex-1 rounded-xl border border-sage/30 px-6 py-3.5 text-sm font-medium text-deep-plum transition-all hover:bg-sage/10 dark:border-sage/40 dark:text-cream dark:hover:bg-sage/20">
-                  Clear
+                <button type="button" onClick={editingId !== null ? cancelEdit : () => setForm(emptyForm())} className="flex-1 rounded-xl border border-sage/30 px-6 py-3.5 text-sm font-medium text-deep-plum transition-all hover:bg-sage/10 dark:border-sage/40 dark:text-cream dark:hover:bg-sage/20">
+                  {editingId !== null ? "Cancel" : "Clear"}
                 </button>
                 <button type="submit" disabled={saving} className={`flex-1 rounded-xl bg-soft-gold px-6 py-3.5 text-base font-semibold text-[#2A1A00] shadow-md transition-all duration-300 hover:bg-soft-gold-dark hover:shadow-lg ${saving ? "cursor-wait opacity-70" : ""}`}>
-                  {saving ? "Saving..." : "Add RSVP"}
+                  {saving ? "Saving..." : editingId !== null ? "Save Changes" : "Add RSVP"}
                 </button>
               </div>
             </form>
@@ -233,7 +268,7 @@ export default function AdminPage() {
 
             <div className="grid gap-4 sm:grid-cols-2">
               {rsvps.map((r) => (
-                <div key={r.id} className="soft-card flex flex-col gap-3 p-5">
+                <div key={r.id} className={`soft-card flex flex-col gap-3 p-5 ${editingId === r.id ? "ring-2 ring-soft-gold" : ""}`}>
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0">
                       <h3 className="truncate font-[family-name:var(--font-cormorant-garamond)] text-2xl font-semibold text-forest dark:text-cream">{r.name || "—"}</h3>
@@ -241,6 +276,7 @@ export default function AdminPage() {
                     </div>
                     <div className="flex shrink-0 items-center gap-2">
                       <span className={`inline-block rounded-full px-2.5 py-0.5 text-xs font-medium ${r.attending ? "bg-sage/20 text-sage" : "bg-lavender/20 text-lavender"}`}>{r.attending ? "Attending" : "Declined"}</span>
+                      <button onClick={() => editRsvp(r)} className="text-xs font-medium text-sage underline underline-offset-2 hover:text-sage-dark dark:text-sage-light">Edit</button>
                       <button onClick={() => deleteRsvp(r.id, r.name)} className="text-xs font-medium text-red-400 underline underline-offset-2 hover:text-red-600">Delete</button>
                     </div>
                   </div>
