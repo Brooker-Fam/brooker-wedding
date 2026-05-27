@@ -103,9 +103,14 @@ export default function SapphireAdmin() {
     setCreating(true);
     setError("");
     try {
+      const kidNames = createForm.child_names
+        .split(/\n|\s*&\s*|\s*,\s*|\s+and\s+/i)
+        .map((n) => n.trim())
+        .filter(Boolean);
       const payload = {
         ...createForm,
-        kid_count: createForm.attending ? Math.max(0, Number(createForm.kid_count) || 0) : 0,
+        child_names: createForm.attending ? kidNames.join("\n") : "",
+        kid_count: createForm.attending ? kidNames.length : 0,
         adult_count: createForm.attending ? Math.max(0, Number(createForm.adult_count) || 0) : 0,
       };
       const res = await fetch("/api/birthday-rsvp", {
@@ -200,12 +205,12 @@ export default function SapphireAdmin() {
                   placeholder="Parent name"
                   className="adminInput"
                 />
-                <input
-                  type="text"
+                <textarea
                   value={createForm.child_names}
                   onChange={(e) => setCreate("child_names", e.target.value)}
-                  placeholder="Kid name(s)"
-                  className="adminInput"
+                  placeholder="Kid names (one per line)"
+                  className="adminInput min-h-[80px] resize-y"
+                  rows={3}
                 />
                 <input
                   type="tel"
@@ -241,30 +246,20 @@ export default function SapphireAdmin() {
                     Declined
                   </button>
                 </div>
-                <div className="flex gap-3">
-                  <label className="flex-1 text-xs uppercase tracking-wider text-slate-500">
-                    Kids
-                    <input
-                      type="number"
-                      min={0}
-                      max={15}
-                      value={createForm.kid_count}
-                      onChange={(e) => setCreate("kid_count", Number(e.target.value))}
-                      className="adminInput mt-1"
-                    />
-                  </label>
-                  <label className="flex-1 text-xs uppercase tracking-wider text-slate-500">
-                    Adults
-                    <input
-                      type="number"
-                      min={0}
-                      max={10}
-                      value={createForm.adult_count}
-                      onChange={(e) => setCreate("adult_count", Number(e.target.value))}
-                      className="adminInput mt-1"
-                    />
-                  </label>
-                </div>
+                <label className="text-xs uppercase tracking-wider text-slate-500">
+                  Adults
+                  <input
+                    type="number"
+                    min={0}
+                    max={10}
+                    value={createForm.adult_count}
+                    onChange={(e) => setCreate("adult_count", Number(e.target.value))}
+                    className="adminInput mt-1"
+                  />
+                  <span className="mt-1 block text-[0.65rem] normal-case tracking-normal text-slate-400">
+                    Kids count comes from the names above
+                  </span>
+                </label>
                 <input
                   type="text"
                   value={createForm.allergies}
