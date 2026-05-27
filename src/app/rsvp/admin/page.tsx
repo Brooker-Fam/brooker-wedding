@@ -160,9 +160,12 @@ export default function AdminPage() {
         <h1 className="mb-2 text-center font-[family-name:var(--font-cormorant-garamond)] text-4xl font-semibold text-forest dark:text-cream">
           RSVP Admin
         </h1>
-        <div className="mb-8 text-center">
+        <div className="mb-8 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-center">
           <Link href="/rsvp/admin/labels" className="text-sm text-sage underline underline-offset-2 hover:text-sage-dark dark:text-sage-light">
             Mailing lists & labels →
+          </Link>
+          <Link href="/rsvp/admin/mcp" className="text-sm text-sage underline underline-offset-2 hover:text-sage-dark dark:text-sage-light">
+            Connect to ChatGPT →
           </Link>
         </div>
 

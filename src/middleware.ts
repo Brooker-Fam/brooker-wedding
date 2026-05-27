@@ -7,6 +7,7 @@ function isAdminRoute(pathname: string): boolean {
   return (
     pathname === "/rsvp/admin" ||
     pathname === "/rsvp/admin/labels" ||
+    pathname === "/rsvp/admin/mcp" ||
     pathname === "/songs/admin" ||
     pathname === "/calendar/admin" ||
     pathname === "/sapphire/admin"
@@ -99,6 +100,7 @@ export const config = {
   matcher: [
     "/rsvp/admin",
     "/rsvp/admin/labels",
+    "/rsvp/admin/mcp",
     "/songs/admin",
     "/calendar/admin",
     "/sapphire/admin",
