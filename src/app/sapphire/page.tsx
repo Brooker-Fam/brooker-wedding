@@ -1199,20 +1199,6 @@ export default function SapphirePage() {
           </motion.p>
         </section>
 
-        {/* COUNTDOWN */}
-        <motion.section
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          className="mb-10"
-        >
-          <p className="mb-3 text-center text-xs font-semibold tracking-[0.3em] text-green-800 uppercase dark:text-yellow-100/90">
-            Until the forest party begins
-          </p>
-          <PartyCountdown />
-        </motion.section>
-
         {/* DETAILS */}
         <motion.section
           initial={{ opacity: 0, y: 30 }}
@@ -1249,85 +1235,6 @@ export default function SapphirePage() {
                 </a>
               </DetailItem>
             </div>
-          </div>
-        </motion.section>
-
-        {/* PARKING & GETTING IN */}
-        <motion.section
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          className="mb-10"
-        >
-          <div className="rounded-3xl border border-emerald-400/40 bg-white/60 p-6 shadow-sm backdrop-blur-md sm:p-8 dark:border-yellow-100/25 dark:bg-[#162618]/70 dark:shadow-none">
-            <p className="text-center text-xs font-semibold tracking-[0.3em] text-emerald-700 uppercase dark:text-yellow-100/90">
-              Good to Know
-            </p>
-            <h3 className="mt-1 text-center font-[family-name:var(--font-cormorant-garamond)] text-3xl font-semibold text-purple-900 dark:text-yellow-50">
-              Parking &amp; Getting In
-            </h3>
-            <div className="mt-5 space-y-4 text-sm leading-relaxed text-purple-800/90 sm:text-base dark:text-pink-100/85">
-              <p>
-                Moreau Lake is a <strong>New York State Park</strong>, so there&apos;s
-                a per-car entrance fee at the gate — <strong>$8 per vehicle</strong> on
-                the day of the party. You can pay with cash or card right at the booth
-                when you drive in. Once you&apos;re through, follow the signs toward the
-                beach &amp; day-use area and we&apos;ll meet you there!
-              </p>
-              <p>
-                Already have an <strong>Empire Pass</strong> ($80/year for unlimited
-                NY state parks)? Just show it at the gate and parking&apos;s covered.
-                Carpooling is a great way to split the fee, too. 🚗
-              </p>
-            </div>
-            <a
-              href="https://parks.ny.gov/visit/state-parks/moreau-lake-state-park"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="mt-5 inline-flex items-center gap-1.5 rounded-full border-2 border-emerald-300 bg-emerald-50 px-5 py-2 text-sm font-semibold text-emerald-800 transition-all hover:bg-emerald-100 dark:border-yellow-100/40 dark:bg-yellow-100/10 dark:text-yellow-50 dark:hover:bg-yellow-100/20"
-            >
-              Park info &amp; fees →
-            </a>
-          </div>
-        </motion.section>
-
-        {/* BLOW THE CANDLES */}
-        <motion.section
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-50px" }}
-          transition={{ duration: 0.6 }}
-          className="mb-10"
-        >
-          <BirthdayCake onAllBlown={handleCelebrate} />
-        </motion.section>
-
-        {/* WHAT TO EXPECT */}
-        <motion.section
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          className="mb-10"
-        >
-          <div className="rounded-3xl border border-purple-300/40 bg-white/60 p-6 shadow-sm backdrop-blur-md sm:p-8 dark:border-purple-200/25 dark:bg-[#162618]/65 dark:shadow-none">
-            <p className="text-center text-xs font-semibold tracking-[0.3em] text-purple-600 uppercase dark:text-pink-100/90">
-              The Plan
-            </p>
-            <h3 className="mt-1 text-center font-[family-name:var(--font-cormorant-garamond)] text-3xl font-semibold text-purple-900 dark:text-yellow-50">
-              What to Expect
-            </h3>
-            <ul className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-2">
-              <Highlight emoji="🍕" title="Pizza party" desc="Bring an appetite!" />
-              <Highlight emoji="🎂" title="Birthday cake" desc="Sweet treats after lake time." />
-              <Highlight emoji="🏊" title="Swimming!" desc="There&apos;s a lake — bring suits & towels." />
-              <Highlight emoji="🛝" title="Playground" desc="The park playground is right near the beach." />
-              <Highlight emoji="🧴" title="Sunscreen & bug spray" desc="Good fairy forest essentials." />
-            </ul>
-            <p className="mt-5 text-center text-sm text-purple-700 dark:text-pink-100/80">
-              Sapphire is so excited to see you there!
-            </p>
           </div>
         </motion.section>
 
@@ -1417,7 +1324,37 @@ export default function SapphirePage() {
         </motion.section>
 
         {/* WHO'S COMING */}
-        <WhosComing />
+        <div className="mb-10">
+          <WhosComing />
+        </div>
+
+        {/* WHAT TO EXPECT */}
+        <motion.section
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+          className="mb-10"
+        >
+          <div className="rounded-3xl border border-purple-300/40 bg-white/60 p-6 shadow-sm backdrop-blur-md sm:p-8 dark:border-purple-200/25 dark:bg-[#162618]/65 dark:shadow-none">
+            <p className="text-center text-xs font-semibold tracking-[0.3em] text-purple-600 uppercase dark:text-pink-100/90">
+              The Plan
+            </p>
+            <h3 className="mt-1 text-center font-[family-name:var(--font-cormorant-garamond)] text-3xl font-semibold text-purple-900 dark:text-yellow-50">
+              What to Expect
+            </h3>
+            <ul className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-2">
+              <Highlight emoji="🍕" title="Pizza party" desc="Bring an appetite!" />
+              <Highlight emoji="🎂" title="Birthday cake" desc="Sweet treats after lake time." />
+              <Highlight emoji="🏊" title="Swimming!" desc="There&apos;s a lake — bring suits & towels." />
+              <Highlight emoji="🛝" title="Playground" desc="The park playground is right near the beach." />
+              <Highlight emoji="🧴" title="Sunscreen & bug spray" desc="Good fairy forest essentials." />
+            </ul>
+            <p className="mt-5 text-center text-sm text-purple-700 dark:text-pink-100/80">
+              Sapphire is so excited to see you there!
+            </p>
+          </div>
+        </motion.section>
 
         {/* BIRTHDAY GIRL FACTS */}
         <motion.section
@@ -1425,7 +1362,7 @@ export default function SapphirePage() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
-          className="mt-10"
+          className="mb-10"
         >
           <div className="rounded-3xl border border-pink-300/50 bg-gradient-to-br from-pink-50/95 via-white/90 to-emerald-50/85 p-6 shadow-xl shadow-purple-900/10 backdrop-blur-md sm:p-8 dark:border-pink-200/25 dark:from-[#3a284b]/90 dark:via-[#2b2542]/90 dark:to-[#254232]/85 dark:shadow-none">
             <h3 className="text-center font-[family-name:var(--font-cormorant-garamond)] text-4xl font-semibold text-purple-900 dark:text-white">
@@ -1459,6 +1396,71 @@ export default function SapphirePage() {
               />
             </div>
           </div>
+        </motion.section>
+
+        {/* BLOW THE CANDLES */}
+        <motion.section
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-50px" }}
+          transition={{ duration: 0.6 }}
+          className="mb-10"
+        >
+          <BirthdayCake onAllBlown={handleCelebrate} />
+        </motion.section>
+
+        {/* PARKING & GETTING IN */}
+        <motion.section
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+          className="mb-10"
+        >
+          <div className="rounded-3xl border border-emerald-400/40 bg-white/60 p-6 shadow-sm backdrop-blur-md sm:p-8 dark:border-yellow-100/25 dark:bg-[#162618]/70 dark:shadow-none">
+            <p className="text-center text-xs font-semibold tracking-[0.3em] text-emerald-700 uppercase dark:text-yellow-100/90">
+              Good to Know
+            </p>
+            <h3 className="mt-1 text-center font-[family-name:var(--font-cormorant-garamond)] text-3xl font-semibold text-purple-900 dark:text-yellow-50">
+              Parking &amp; Getting In
+            </h3>
+            <div className="mt-5 space-y-4 text-sm leading-relaxed text-purple-800/90 sm:text-base dark:text-pink-100/85">
+              <p>
+                Moreau Lake is a <strong>New York State Park</strong>, so there&apos;s
+                a per-car entrance fee at the gate — <strong>$8 per vehicle</strong> on
+                the day of the party. You can pay with cash or card right at the booth
+                when you drive in. Once you&apos;re through, follow the signs toward the
+                beach &amp; day-use area and we&apos;ll meet you there!
+              </p>
+              <p>
+                Already have an <strong>Empire Pass</strong> ($80/year for unlimited
+                NY state parks)? Just show it at the gate and parking&apos;s covered.
+                Carpooling is a great way to split the fee, too. 🚗
+              </p>
+            </div>
+            <a
+              href="https://parks.ny.gov/visit/state-parks/moreau-lake-state-park"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-5 inline-flex items-center gap-1.5 rounded-full border-2 border-emerald-300 bg-emerald-50 px-5 py-2 text-sm font-semibold text-emerald-800 transition-all hover:bg-emerald-100 dark:border-yellow-100/40 dark:bg-yellow-100/10 dark:text-yellow-50 dark:hover:bg-yellow-100/20"
+            >
+              Park info &amp; fees →
+            </a>
+          </div>
+        </motion.section>
+
+        {/* COUNTDOWN */}
+        <motion.section
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+          className="mb-10"
+        >
+          <p className="mb-3 text-center text-xs font-semibold tracking-[0.3em] text-green-800 uppercase dark:text-yellow-100/90">
+            Until the forest party begins
+          </p>
+          <PartyCountdown />
         </motion.section>
 
         {/* FOOTER */}
