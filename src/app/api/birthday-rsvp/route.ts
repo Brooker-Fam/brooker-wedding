@@ -113,17 +113,25 @@ export async function GET(request: NextRequest) {
       let totalKids = 0;
       let totalAdults = 0;
       const guests: { name: string; kids: number }[] = [];
-      for (const row of result as Array<{ parent_name: string; child_names: string | null; kid_count: number; adult_count: number }>) {
+      const rows = result as Array<{ parent_name: string; child_names: string | null; kid_count: number; adult_count: number }>;
+      for (const row of rows) {
         totalKids += Number(row.kid_count) || 0;
         totalAdults += Number(row.adult_count) || 0;
-        const label = (row.child_names && row.child_names.trim()) || row.parent_name;
-        guests.push({ name: label, kids: Number(row.kid_count) || 0 });
+        const kidNames = (row.child_names ?? "")
+          .split(/\n|\s*&\s*|\s*,\s*|\s+and\s+/i)
+          .map((n) => n.trim())
+          .filter(Boolean);
+        if (kidNames.length > 0) {
+          for (const name of kidNames) guests.push({ name, kids: 1 });
+        } else if (row.parent_name) {
+          guests.push({ name: row.parent_name, kids: Number(row.kid_count) || 0 });
+        }
       }
       return NextResponse.json({
         guests,
         totalKids,
         totalAdults,
-        totalRsvps: guests.length,
+        totalRsvps: rows.length,
       });
     }
 

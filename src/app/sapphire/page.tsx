@@ -22,6 +22,22 @@ interface BdayRsvp {
   created_at: string;
 }
 
+function parseKidNames(raw: string | null | undefined, fallbackCount: number): string[] {
+  const names = (raw ?? "")
+    .split(/\n|\s*&\s*|\s*,\s*|\s+and\s+/i)
+    .map((n) => n.trim())
+    .filter(Boolean);
+  if (names.length > 0) return names;
+  return Array.from({ length: Math.max(1, fallbackCount || 0) }, () => "");
+}
+
+function serializeKidNames(names: string[]): string {
+  return names
+    .map((n) => n.trim())
+    .filter(Boolean)
+    .join("\n");
+}
+
 function getCookie(name: string): string | null {
   if (typeof document === "undefined") return null;
   const match = document.cookie.match(new RegExp(`(?:^|; )${name}=([^;]*)`));
@@ -649,11 +665,12 @@ function RsvpCard({
 }) {
   const isEditing = !!initialData;
   const [parentName, setParentName] = useState(initialData?.parent_name ?? "");
-  const [childNames, setChildNames] = useState(initialData?.child_names ?? "");
+  const [kidNames, setKidNames] = useState<string[]>(() =>
+    parseKidNames(initialData?.child_names, initialData?.kid_count ?? 1)
+  );
   const [email, setEmail] = useState(initialData?.email ?? "");
   const [phone, setPhone] = useState(initialData?.phone ?? "");
   const [attending, setAttending] = useState(initialData?.attending ?? true);
-  const [kidCount, setKidCount] = useState(initialData?.kid_count ?? 1);
   const [adultCount, setAdultCount] = useState(initialData?.adult_count ?? 1);
   const [allergies, setAllergies] = useState(initialData?.allergies ?? "");
   const [birthdayWish, setBirthdayWish] = useState(initialData?.birthday_wish ?? "");
@@ -677,11 +694,11 @@ function RsvpCard({
       const payload = {
         ...(isEditing && initialData ? { id: initialData.id } : {}),
         parent_name: parentName.trim(),
-        child_names: childNames.trim(),
+        child_names: attending ? serializeKidNames(kidNames) : "",
         email: email.trim(),
         phone: phone.trim(),
         attending,
-        kid_count: attending ? kidCount : 0,
+        kid_count: attending ? kidNames.filter((n) => n.trim()).length : 0,
         adult_count: attending ? adultCount : 0,
         allergies: allergies.trim(),
         birthday_wish: birthdayWish.trim(),
@@ -781,28 +798,44 @@ function RsvpCard({
             className="space-y-5 overflow-hidden"
           >
             <div>
-              <label htmlFor="bday-kids" className="mb-1.5 block text-sm font-medium text-purple-900 dark:text-yellow-50">
-                Kid&apos;s name(s) coming
+              <label className="mb-1.5 block text-sm font-medium text-purple-900 dark:text-yellow-50">
+                Which kid(s) are coming?
               </label>
-              <input
-                id="bday-kids"
-                type="text"
-                value={childNames}
-                onChange={(e) => setChildNames(e.target.value)}
-                placeholder="e.g. Lily & Max"
-                className="w-full rounded-xl border-2 border-pink-200 bg-white px-4 py-3 text-base text-purple-900 placeholder-purple-400/50 focus:border-pink-400 focus:outline-none dark:border-pink-200/30 dark:bg-[#0e1c10]/70 dark:text-yellow-50 dark:placeholder-pink-100/40 dark:focus:border-pink-200/70"
-              />
+              <div className="space-y-2.5">
+                {kidNames.map((kid, index) => (
+                  <div key={index} className="flex items-center gap-2">
+                    <input
+                      type="text"
+                      value={kid}
+                      onChange={(e) =>
+                        setKidNames((prev) => prev.map((k, i) => (i === index ? e.target.value : k)))
+                      }
+                      placeholder={`Kid ${index + 1}'s name`}
+                      className="w-full rounded-xl border-2 border-pink-200 bg-white px-4 py-3 text-base text-purple-900 placeholder-purple-400/50 focus:border-pink-400 focus:outline-none dark:border-pink-200/30 dark:bg-[#0e1c10]/70 dark:text-yellow-50 dark:placeholder-pink-100/40 dark:focus:border-pink-200/70"
+                    />
+                    {kidNames.length > 1 && (
+                      <button
+                        type="button"
+                        onClick={() => setKidNames((prev) => prev.filter((_, i) => i !== index))}
+                        aria-label={`Remove kid ${index + 1}`}
+                        className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border-2 border-pink-200 text-lg text-pink-500 transition-all hover:bg-pink-50 active:scale-95 dark:border-pink-200/30 dark:text-pink-200 dark:hover:bg-pink-200/10"
+                      >
+                        ✕
+                      </button>
+                    )}
+                  </div>
+                ))}
+              </div>
+              <button
+                type="button"
+                onClick={() => setKidNames((prev) => [...prev, ""])}
+                className="mt-2.5 inline-flex items-center gap-1.5 rounded-xl border-2 border-dashed border-pink-300 px-4 py-2.5 text-sm font-semibold text-purple-800 transition-all hover:border-pink-400 hover:bg-pink-50 dark:border-pink-200/30 dark:text-yellow-50 dark:hover:bg-pink-200/10"
+              >
+                <span>➕</span> Add another kid
+              </button>
             </div>
 
             <div className="grid grid-cols-2 gap-3">
-              <NumberStepper
-                label="Kids"
-                emoji="👧"
-                value={kidCount}
-                onChange={setKidCount}
-                min={0}
-                max={15}
-              />
               <NumberStepper
                 label="Grown-ups"
                 emoji="🧑"

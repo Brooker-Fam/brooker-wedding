@@ -325,7 +325,7 @@ export default function SapphireAdmin() {
                           <input type="text" value={editForm.parent_name} onChange={(e) => set("parent_name", e.target.value)} className="adminInput !py-1.5 text-sm" />
                         </td>
                         <td className="px-2 py-2">
-                          <input type="text" value={editForm.child_names} onChange={(e) => set("child_names", e.target.value)} className="adminInput !py-1.5 text-sm" />
+                          <textarea value={editForm.child_names} onChange={(e) => set("child_names", e.target.value)} className="adminInput min-w-[10rem] !py-1.5 text-sm" rows={3} placeholder="One kid per line" />
                         </td>
                         <td className="px-2 py-2">
                           <input type="tel" value={editForm.phone ?? ""} onChange={(e) => set("phone", e.target.value || null)} className="adminInput !py-1.5 text-sm" />
@@ -367,7 +367,7 @@ export default function SapphireAdmin() {
                     ) : (
                       <tr key={r.id} className="border-b border-slate-100">
                         <td className="px-3 py-3 font-medium text-slate-900">{r.parent_name}</td>
-                        <td className="px-3 py-3 text-slate-700">{r.child_names || "—"}</td>
+                        <td className="px-3 py-3 whitespace-pre-line text-slate-700">{r.child_names || "—"}</td>
                         <td className="px-3 py-3 text-slate-700">{r.phone || "—"}</td>
                         <td className="px-3 py-3 text-slate-700">{r.email || "—"}</td>
                         <td className="px-3 py-3">
