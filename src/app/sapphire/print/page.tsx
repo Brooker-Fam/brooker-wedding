@@ -157,7 +157,7 @@ export default function SapphirePrint() {
         }
 
         .invite {
-          font-family: var(--font-quicksand), system-ui, sans-serif;
+          font-family: var(--font-body), system-ui, sans-serif;
           position: relative;
           overflow: hidden;
           width: 8.5in;

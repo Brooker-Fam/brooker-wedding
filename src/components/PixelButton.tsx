@@ -18,11 +18,11 @@ interface PixelButtonProps {
 
 const variantStyles: Record<ButtonVariant, string> = {
   primary:
-    "bg-soft-gold text-warm-white hover:bg-soft-gold-light border-soft-gold/30",
+    "bg-[#8A6A2D] text-[#FFF7E8] hover:bg-[#6F5524] border-[#6F5524]/30 dark:bg-[#C9A24C] dark:text-[#172015] dark:hover:bg-[#D5B66B]",
   secondary:
-    "bg-forest text-warm-white hover:bg-forest-light border-forest/30",
+    "bg-[#26351F] text-[#FFF7E8] hover:bg-[#34472A] border-[#26351F]/30 dark:bg-[#E6DCC8] dark:text-[#172015] dark:hover:bg-[#F5EAD8]",
   success:
-    "bg-sage text-warm-white hover:bg-sage-light border-sage/30",
+    "bg-[#53633B] text-[#FFF7E8] hover:bg-[#66784A] border-[#53633B]/30",
 };
 
 const sizeStyles = {
@@ -43,7 +43,7 @@ export default function PixelButton({
 }: PixelButtonProps) {
   const baseStyles = `
     inline-flex items-center justify-center
-    font-[family-name:var(--font-quicksand)]
+    font-[family-name:var(--font-body)]
     font-semibold tracking-wide
     border rounded-full cursor-pointer
     transition-all duration-300
@@ -63,7 +63,7 @@ export default function PixelButton({
           ? {}
           : {
               y: -2,
-              boxShadow: "0 8px 25px rgba(29, 68, 32, 0.15)",
+              boxShadow: "0 8px 25px rgba(38, 53, 31, 0.18)",
             }
       }
       whileTap={
@@ -71,11 +71,11 @@ export default function PixelButton({
           ? {}
           : {
               y: 1,
-              boxShadow: "0 2px 8px rgba(29, 68, 32, 0.1)",
+              boxShadow: "0 2px 8px rgba(38, 53, 31, 0.12)",
             }
       }
       style={{
-        boxShadow: "0 4px 15px rgba(29, 68, 32, 0.1)",
+        boxShadow: "0 4px 15px rgba(38, 53, 31, 0.14)",
       }}
     >
       {children}
