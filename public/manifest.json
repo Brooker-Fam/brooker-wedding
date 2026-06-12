@@ -1,7 +1,7 @@
 {
-  "name": "Creekside Fields",
-  "short_name": "Creekside",
-  "start_url": "/",
+  "name": "Brooker Family",
+  "short_name": "Brooker",
+  "start_url": "/calendar",
   "display": "standalone",
   "background_color": "#1D4420",
   "theme_color": "#1D4420",

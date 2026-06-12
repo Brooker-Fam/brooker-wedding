@@ -8,9 +8,12 @@ import { useTheme } from "@/components/ThemeProvider";
 
 const navLinks = [
   { href: "/", label: "Home" },
-  { href: "/pork-shares", label: "Pork Shares" },
-  { href: "/details", label: "Our Practices" },
-  { href: "mailto:brookerhousehold@gmail.com?subject=Creekside%20Fields%20farm%20inquiry", label: "Contact" },
+  { href: "/rsvp", label: "RSVP" },
+  { href: "/details", label: "Details" },
+  { href: "/bridal-shower", label: "Bridal Shower" },
+  { href: "/registry", label: "Registry" },
+  { href: "/songs", label: "Songs" },
+  { href: "/games", label: "Games", sparkle: true },
 ];
 
 function ThemeToggle({ className = "" }: { className?: string }) {
@@ -114,16 +117,16 @@ export default function Navigation() {
       <nav
         className={`fixed top-0 right-0 left-0 z-50 transition-all duration-500 ${
           scrolled
-            ? "border-b border-[#53633B]/15 bg-[#E9DDC6]/90 shadow-[0_1px_20px_rgba(38,53,31,0.08)] backdrop-blur-xl dark:border-[#D5B66B]/10 dark:bg-[#071207]/92 dark:shadow-[0_1px_20px_rgba(0,0,0,0.32)]"
-            : "bg-[#E9DDC6]/62 backdrop-blur-sm dark:bg-[#071207]/52"
+            ? "bg-cream/85 shadow-[0_1px_20px_rgba(29,68,32,0.06)] backdrop-blur-xl dark:bg-[#0D1F0F]/90 dark:shadow-[0_1px_20px_rgba(0,0,0,0.3)]"
+            : "bg-cream/40 backdrop-blur-sm dark:bg-[#0D1F0F]/40"
         }`}
       >
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="flex h-16 items-center justify-between sm:h-18">
             {/* Logo */}
             <Link href="/" className="group flex items-center gap-2">
-              <span className="font-[family-name:var(--font-cormorant-garamond)] text-2xl font-bold tracking-wide text-[#26351F] transition-colors group-hover:text-[#8A6A2D] dark:text-[#F5EAD8] sm:text-3xl">
-                Creekside Fields
+              <span className="font-[family-name:var(--font-cormorant-garamond)] text-2xl font-bold tracking-wide text-forest transition-colors group-hover:text-soft-gold dark:text-cream sm:text-3xl">
+                M & B
               </span>
             </Link>
 
@@ -133,18 +136,23 @@ export default function Navigation() {
                 const isActive = pathname === link.href;
 
                 const className = `relative px-4 py-2 text-sm font-medium transition-all duration-300 ${
-                  isActive
-                    ? "text-[#26351F] dark:text-[#F5EAD8]"
-                    : "text-[#405034]/80 hover:text-[#26351F] dark:text-[#E6DCC8]/75 dark:hover:text-[#F5EAD8]"
+                  link.sparkle
+                    ? "rounded-full bg-soft-gold/10 text-soft-gold-dark hover:bg-soft-gold/20 dark:bg-soft-gold/15 dark:text-soft-gold-light"
+                    : isActive
+                      ? "text-forest dark:text-cream"
+                      : "text-forest/75 hover:text-forest dark:text-cream/75 dark:hover:text-cream"
                 }`;
 
                 const content = (
                   <>
+                    {link.sparkle && (
+                      <span className="mr-1 text-xs">&#10024;</span>
+                    )}
                     {link.label}
-                    {isActive && (
+                    {isActive && !link.sparkle && (
                       <motion.span
                         layoutId="nav-underline"
-                        className="absolute bottom-0 left-2 right-2 h-[2px] rounded-full bg-[#8A6A2D] dark:bg-[#D5B66B]"
+                        className="absolute bottom-0 left-2 right-2 h-[2px] rounded-full bg-soft-gold"
                         transition={{
                           type: "spring",
                           stiffness: 350,
@@ -161,7 +169,7 @@ export default function Navigation() {
                   </Link>
                 );
               })}
-                <div className="ml-2 border-l border-[#53633B]/20 pl-2 dark:border-[#E6DCC8]/10">
+              <div className="ml-2 border-l border-sage/20 pl-2 dark:border-cream/10">
                 <ThemeToggle />
               </div>
             </div>
@@ -221,9 +229,11 @@ export default function Navigation() {
                     const isActive = pathname === link.href;
 
                     const className = `block rounded-xl px-4 py-3.5 text-lg font-medium transition-all ${
-                      isActive
-                        ? "bg-sage/15 text-forest dark:bg-sage/20 dark:text-cream"
-                        : "text-forest/80 hover:bg-sage/10 hover:text-forest dark:text-cream/80 dark:hover:bg-sage/15 dark:hover:text-cream"
+                      link.sparkle
+                        ? "bg-soft-gold/10 text-soft-gold-dark dark:bg-soft-gold/15 dark:text-soft-gold-light"
+                        : isActive
+                          ? "bg-sage/15 text-forest dark:bg-sage/20 dark:text-cream"
+                          : "text-forest/80 hover:bg-sage/10 hover:text-forest dark:text-cream/80 dark:hover:bg-sage/15 dark:hover:text-cream"
                     }`;
 
                     return (
@@ -234,6 +244,9 @@ export default function Navigation() {
                         transition={{ delay: index * 0.06 }}
                       >
                         <Link href={link.href} className={className}>
+                          {link.sparkle && (
+                            <span className="mr-2 text-sm">&#10024;</span>
+                          )}
                           {link.label}
                         </Link>
                       </motion.div>
@@ -256,7 +269,7 @@ export default function Navigation() {
                     transition={{ delay: 0.4 }}
                     className="font-[family-name:var(--font-cormorant-garamond)] text-lg text-soft-gold/70"
                   >
-                    Pasture-raised in Greenwich, NY
+                    June 27, 2026
                   </motion.p>
                 </div>
               </div>
