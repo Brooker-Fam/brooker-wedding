@@ -370,18 +370,27 @@ export default function SeatingChartPage() {
   }, []);
 
   /* ── Drag handlers ── */
-  // A drag carries either a single guest key, or a whole party/group/list
-  // encoded as "keys:k1,k2,...". `draggingKeys` mirrors that for highlighting.
+  // A drag carries one of: a single guest key, a set of keys ("keys:k1,k2"),
+  // or a list reference ("list:<id>"). `draggingKeys` mirrors the affected
+  // guests for highlighting.
   const onDragStart = (keys: string[]) => setDraggingKeys(new Set(keys));
   const onDragEnd = () => {
     setDraggingKeys(new Set());
     setOverTarget(null);
   };
-  const dropGuestKeys = (e: React.DragEvent): string[] => {
-    const payload = e.dataTransfer.getData("text/plain");
+  // Resolve any drag payload to the guest keys it affects.
+  const guestKeysFromPayload = (payload: string): string[] => {
     if (payload.startsWith("keys:")) return payload.slice(5).split(",").filter(Boolean);
+    if (payload.startsWith("list:")) {
+      const id = payload.slice(5);
+      return guests.filter((g) => chart?.assignments[g.key]?.listId === id).map((g) => g.key);
+    }
     if (payload) return [payload];
-    return draggingKeys.size > 0 ? [...draggingKeys] : [];
+    return [];
+  };
+  const dropGuestKeys = (e: React.DragEvent): string[] => {
+    const keys = guestKeysFromPayload(e.dataTransfer.getData("text/plain"));
+    return keys.length > 0 ? keys : draggingKeys.size > 0 ? [...draggingKeys] : [];
   };
 
   const handleDropToTable = (e: React.DragEvent, tableId: string) => {
@@ -396,6 +405,14 @@ export default function SeatingChartPage() {
   };
   const handleDropToList = (e: React.DragEvent, listId: string | null) => {
     e.preventDefault();
+    const payload = e.dataTransfer.getData("text/plain");
+    // Dropping a list onto another list reorders them rather than merging.
+    if (payload.startsWith("list:")) {
+      const draggedId = payload.slice(5);
+      if (listId && draggedId !== listId) moveList(draggedId, listId);
+      onDragEnd();
+      return;
+    }
     assignMany(dropGuestKeys(e), { listId });
     onDragEnd();
   };
@@ -468,6 +485,18 @@ export default function SeatingChartPage() {
         if (assignments[k].listId === id) assignments[k] = { ...assignments[k], listId: null };
       }
       return { ...p, lists: p.lists.filter((l) => l.id !== id), assignments };
+    });
+  // Reorder: move the dragged list into the dropped-on list's position.
+  const moveList = (draggedId: string, targetId: string) =>
+    setChart((p) => {
+      if (!p) return p;
+      const from = p.lists.findIndex((l) => l.id === draggedId);
+      const to = p.lists.findIndex((l) => l.id === targetId);
+      if (from === -1 || to === -1 || from === to) return p;
+      const lists = [...p.lists];
+      const [moved] = lists.splice(from, 1);
+      lists.splice(to, 0, moved);
+      return { ...p, lists };
     });
 
   /* ── Derived views ── */
@@ -814,7 +843,8 @@ export default function SeatingChartPage() {
                   grip={
                     <DragGrip
                       memberKeys={listKeys}
-                      title={`Drag everyone in ${list.name} together`}
+                      payload={`list:${list.id}`}
+                      title={`Drag onto a table to seat everyone, or onto another list to reorder`}
                       onDragStart={onDragStart}
                       onDragEnd={onDragEnd}
                     />
@@ -1026,6 +1056,12 @@ export default function SeatingChartPage() {
                     + Add list
                   </button>
                 </div>
+                {chart.lists.length > 1 && (
+                  <p className="text-xs text-deep-plum/50 dark:text-cream/50">
+                    Tip: grab a list&apos;s <span className="font-semibold">⠿ handle</span> and drop
+                    it onto another list to reorder them.
+                  </p>
+                )}
               </>
             )}
           </main>
@@ -1078,20 +1114,25 @@ function EmptyHint({ children }: { children: React.ReactNode }) {
 function DragGrip({
   memberKeys,
   title,
+  payload,
   onDragStart,
   onDragEnd,
 }: {
   memberKeys: string[];
   title?: string;
+  /** Overrides the default "keys:" payload, e.g. "list:<id>" for reordering. */
+  payload?: string;
   onDragStart: (keys: string[]) => void;
   onDragEnd: () => void;
 }) {
-  if (memberKeys.length === 0) return null;
+  // Hide only when there's nothing to drag AND no payload (e.g. an empty list
+  // still needs a handle so it can be reordered).
+  if (memberKeys.length === 0 && !payload) return null;
   return (
     <span
       draggable
       onDragStart={(e) => {
-        e.dataTransfer.setData("text/plain", `keys:${memberKeys.join(",")}`);
+        e.dataTransfer.setData("text/plain", payload ?? `keys:${memberKeys.join(",")}`);
         e.dataTransfer.effectAllowed = "move";
         onDragStart(memberKeys);
       }}
