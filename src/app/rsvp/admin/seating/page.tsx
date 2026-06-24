@@ -267,6 +267,7 @@ export default function SeatingChartPage() {
   const [saveStatus, setSaveStatus] = useState<SaveStatus>("idle");
   const [search, setSearch] = useState("");
   const [view, setView] = useState<"tables" | "lists">("tables");
+  const [rosterGroupBy, setRosterGroupBy] = useState<"household" | "list">("list");
 
   // Drag state -- a drag can carry one guest or a whole party/group/list.
   const [draggingKeys, setDraggingKeys] = useState<Set<string>>(new Set());
@@ -494,6 +495,10 @@ export default function SeatingChartPage() {
     () => filteredGuests.filter((g) => !assignmentOf(g.key).groupId),
     [filteredGuests, assignmentOf]
   );
+  const unlisted = useMemo(
+    () => filteredGuests.filter((g) => !assignmentOf(g.key).listId),
+    [filteredGuests, assignmentOf]
+  );
   const membersOfGroup = useCallback(
     (groupId: string) => filteredGuests.filter((g) => assignmentOf(g.key).groupId === groupId),
     [filteredGuests, assignmentOf]
@@ -602,10 +607,9 @@ export default function SeatingChartPage() {
                 Guest Roster
               </h2>
               <p className="mb-3 text-xs text-deep-plum/60 dark:text-cream/60">
-                People who RSVP&apos;d together stay bundled as a household — grab the{" "}
-                <span className="font-semibold">⠿ handle</span> to drag a whole party onto a table
-                or list at once, or drag one person at a time. Use the <strong>Lists</strong> tab to
-                gather loose planning groups before deciding tables.
+                Grab the <span className="font-semibold">⠿ handle</span> to drag a whole household,
+                family group, or list onto a table at once — or drag one person at a time. Choose
+                how this roster is organized below.
               </p>
               <input
                 type="text"
@@ -614,9 +618,35 @@ export default function SeatingChartPage() {
                 placeholder="Search guests…"
                 className="enchanted-input !py-2 text-sm"
               />
+              <div className="mt-3 flex items-center gap-2">
+                <span className="text-xs font-medium text-deep-plum/50 dark:text-cream/50">
+                  Group by
+                </span>
+                <div className="flex flex-1 items-center gap-1 rounded-lg bg-sage/10 p-1">
+                  {([
+                    { id: "household", label: "Households" },
+                    { id: "list", label: "Lists" },
+                  ] as const).map((opt) => (
+                    <button
+                      key={opt.id}
+                      type="button"
+                      onClick={() => setRosterGroupBy(opt.id)}
+                      className={`flex-1 rounded-md px-2 py-1 text-xs font-semibold transition-colors ${
+                        rosterGroupBy === opt.id
+                          ? "bg-sage/25 text-forest dark:text-cream"
+                          : "text-deep-plum/55 hover:bg-sage/10 dark:text-cream/55"
+                      }`}
+                    >
+                      {opt.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
             </div>
 
-            {/* Ungrouped pool, clustered by RSVP party */}
+            {/* ── Group by household: ungrouped pool (by party) + family groups ── */}
+            {rosterGroupBy === "household" && (
+            <>
             <GroupColumn
               title="Households"
               color={null}
@@ -649,6 +679,7 @@ export default function SeatingChartPage() {
                       key={party.rsvpId}
                       party={party}
                       draggingKeys={draggingKeys}
+                      colorOf={() => null}
                       seatedTableOf={(key) => tableNameOf(assignmentOf(key).tableId)}
                       listNameOf2={(key) => listNameOf(assignmentOf(key).listId)}
                       onDragStart={onDragStart}
@@ -719,6 +750,117 @@ export default function SeatingChartPage() {
             >
               + Add group
             </button>
+            </>
+            )}
+
+            {rosterGroupBy === "list" && (
+            <>
+            {/* Unlisted pool, clustered by RSVP party */}
+            <GroupColumn
+              title="Not on a list"
+              color={null}
+              count={unlisted.length}
+              isOver={overTarget === "unlist"}
+              onDragOver={(e) => {
+                e.preventDefault();
+                setOverTarget("unlist");
+              }}
+              onDragLeave={() => setOverTarget((t) => (t === "unlist" ? null : t))}
+              onDrop={(e) => handleDropToList(e, null)}
+            >
+              {unlisted.length === 0 ? (
+                <EmptyHint>Everyone is on a list.</EmptyHint>
+              ) : (
+                clusterByParty(unlisted).map((party) =>
+                  party.members.length === 1 ? (
+                    <GuestChip
+                      key={party.members[0].key}
+                      guest={party.members[0]}
+                      dragging={draggingKeys.has(party.members[0].key)}
+                      color={groupColor(assignmentOf(party.members[0].key).groupId)}
+                      seatedTable={tableNameOf(assignmentOf(party.members[0].key).tableId)}
+                      onDragStart={() => onDragStart([party.members[0].key])}
+                      onDragEnd={onDragEnd}
+                    />
+                  ) : (
+                    <PartyCluster
+                      key={party.rsvpId}
+                      party={party}
+                      draggingKeys={draggingKeys}
+                      colorOf={(key) => groupColor(assignmentOf(key).groupId)}
+                      seatedTableOf={(key) => tableNameOf(assignmentOf(key).tableId)}
+                      listNameOf2={() => null}
+                      onDragStart={onDragStart}
+                      onDragEnd={onDragEnd}
+                    />
+                  )
+                )
+              )}
+            </GroupColumn>
+
+            {/* One section per planning list */}
+            {chart.lists.map((list) => {
+              const members = membersOfList(list.id);
+              const listKeys = guests
+                .filter((g) => assignmentOf(g.key).listId === list.id)
+                .map((g) => g.key);
+              return (
+                <GroupColumn
+                  key={list.id}
+                  title={list.name}
+                  color={null}
+                  count={members.length}
+                  editable
+                  grip={
+                    <DragGrip
+                      memberKeys={listKeys}
+                      title={`Drag everyone in ${list.name} together`}
+                      onDragStart={onDragStart}
+                      onDragEnd={onDragEnd}
+                    />
+                  }
+                  onRename={(name) => renameList(list.id, name)}
+                  onRemove={() => removeList(list.id)}
+                  isOver={overTarget === `list:${list.id}`}
+                  onDragOver={(e) => {
+                    e.preventDefault();
+                    setOverTarget(`list:${list.id}`);
+                  }}
+                  onDragLeave={() =>
+                    setOverTarget((t) => (t === `list:${list.id}` ? null : t))
+                  }
+                  onDrop={(e) => handleDropToList(e, list.id)}
+                >
+                  {members.length === 0 ? (
+                    <EmptyHint>Drag guests here.</EmptyHint>
+                  ) : (
+                    members.map((g) => (
+                      <GuestChip
+                        key={g.key}
+                        guest={g}
+                        dragging={draggingKeys.has(g.key)}
+                        color={groupColor(assignmentOf(g.key).groupId)}
+                        seatedTable={tableNameOf(assignmentOf(g.key).tableId)}
+                        onRemove={() => assign(g.key, { listId: null })}
+                        removeTitle="Remove from list"
+                        onDragStart={() => onDragStart([g.key])}
+                        onDragEnd={onDragEnd}
+                      />
+                    ))
+                  )}
+                </GroupColumn>
+              );
+            })}
+
+            <button
+              type="button"
+              onClick={addList}
+              className="w-full rounded-xl border border-dashed border-sage/40 px-4 py-3 text-sm font-medium text-sage transition-colors hover:bg-sage/10 dark:text-sage-light"
+            >
+              + Add list
+            </button>
+            </>
+            )}
           </aside>
 
           {/* ── Tables / Lists workspace ── */}
@@ -973,6 +1115,7 @@ function DragGrip({
 interface PartyClusterProps {
   party: Party;
   draggingKeys: Set<string>;
+  colorOf: (key: string) => string | null;
   seatedTableOf: (key: string) => string | null;
   listNameOf2: (key: string) => string | null;
   onDragStart: (keys: string[]) => void;
@@ -983,6 +1126,7 @@ interface PartyClusterProps {
 function PartyCluster({
   party,
   draggingKeys,
+  colorOf,
   seatedTableOf,
   listNameOf2,
   onDragStart,
@@ -1011,7 +1155,7 @@ function PartyCluster({
             key={g.key}
             guest={g}
             dragging={draggingKeys.has(g.key)}
-            color={null}
+            color={colorOf(g.key)}
             seatedTable={seatedTableOf(g.key)}
             listName={listNameOf2(g.key)}
             onDragStart={() => onDragStart([g.key])}
