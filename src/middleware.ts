@@ -8,6 +8,7 @@ function isAdminRoute(pathname: string): boolean {
     pathname === "/rsvp/admin" ||
     pathname === "/rsvp/admin/labels" ||
     pathname === "/rsvp/admin/mcp" ||
+    pathname === "/rsvp/admin/seating" ||
     pathname === "/songs/admin" ||
     pathname === "/calendar/admin" ||
     pathname === "/sapphire/admin"
@@ -58,6 +59,11 @@ function isAdminApi(request: NextRequest): boolean {
     return true;
   }
 
+  // Seating chart is admin-only end-to-end (load + save)
+  if (pathname === "/api/seating") {
+    return true;
+  }
+
   // Songs admin operations (DELETE = remove)
   if (pathname === "/api/songs") {
     if (request.method === "DELETE") return true;
@@ -101,6 +107,7 @@ export const config = {
     "/rsvp/admin",
     "/rsvp/admin/labels",
     "/rsvp/admin/mcp",
+    "/rsvp/admin/seating",
     "/songs/admin",
     "/calendar/admin",
     "/sapphire/admin",
@@ -108,6 +115,7 @@ export const config = {
     "/api/birthday-rsvp",
     "/api/mailing-lists",
     "/api/mailing-lists/:path*",
+    "/api/seating",
     "/api/songs",
     "/api/songs/reorder",
     "/api/spotify/authorize",

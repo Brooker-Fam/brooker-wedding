@@ -174,6 +174,9 @@ export default function AdminPage() {
           <Link href="/rsvp/admin/mcp" className="text-sm text-sage underline underline-offset-2 hover:text-sage-dark dark:text-sage-light">
             Connect to ChatGPT →
           </Link>
+          <Link href="/rsvp/admin/seating" className="text-sm text-sage underline underline-offset-2 hover:text-sage-dark dark:text-sage-light">
+            Seating chart →
+          </Link>
         </div>
 
         {loading && (
