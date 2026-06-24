@@ -82,7 +82,7 @@ function parseAttendees(
     .filter(Boolean);
 
   if (lines.length > 0) {
-    return lines.map((line) => {
+    const named: ParsedAttendee[] = lines.map((line) => {
       const match = line.match(/\s*\((adult|child)\)\s*$/i);
       if (match) {
         return {
@@ -92,6 +92,23 @@ function parseAttendees(
       }
       return { name: line, type: "adult" as GuestType };
     });
+
+    // The named list can be shorter than the party size -- e.g. an admin entry
+    // where the counts say 4 but only one name was typed. Pad the shortfall with
+    // unnamed placeholder slots so the whole party still shows up and is seatable
+    // (deriveGuests renders these as "Guest N of <name>"). Names stay authoritative,
+    // so a list longer than the counts is never truncated.
+    const partySize = Math.max(0, adultCount || 0) + Math.max(0, childCount || 0);
+    let missing = Math.max(0, partySize - named.length);
+    if (missing > 0) {
+      const namedChildren = named.filter((e) => e.type === "child").length;
+      const missingChildren = Math.min(missing, Math.max(0, (childCount || 0) - namedChildren));
+      for (let i = 0; i < missingChildren; i++) named.push({ name: "", type: "child" });
+      missing -= missingChildren;
+      for (let i = 0; i < missing; i++) named.push({ name: "", type: "adult" });
+    }
+
+    return named;
   }
 
   // No named attendees on file -- fall back to the adult/child counts so the
@@ -272,6 +289,8 @@ export default function SeatingChartPage() {
   // Drag state -- a drag can carry one guest or a whole party/group/list.
   const [draggingKeys, setDraggingKeys] = useState<Set<string>>(new Set());
   const [overTarget, setOverTarget] = useState<string | null>(null);
+  // The list currently being dragged to a new position (separate from guest drags).
+  const [draggingListId, setDraggingListId] = useState<string | null>(null);
 
   // Autosave plumbing
   const skipNextSave = useRef(true);
@@ -370,21 +389,23 @@ export default function SeatingChartPage() {
   }, []);
 
   /* ── Drag handlers ── */
-  // A drag carries one of: a single guest key, a set of keys ("keys:k1,k2"),
-  // or a list reference ("list:<id>"). `draggingKeys` mirrors the affected
-  // guests for highlighting.
+  // A drag carries one of: a single guest key, a set of guest keys
+  // ("keys:k1,k2"), or a list being repositioned ("list-move:<id>").
   const onDragStart = (keys: string[]) => setDraggingKeys(new Set(keys));
   const onDragEnd = () => {
     setDraggingKeys(new Set());
+    setDraggingListId(null);
     setOverTarget(null);
   };
-  // Resolve any drag payload to the guest keys it affects.
+  const onListReorderStart = (id: string) => {
+    setDraggingKeys(new Set());
+    setDraggingListId(id);
+  };
+  // Resolve a guest-carrying payload to the keys it affects. List-move payloads
+  // carry no guests, so they resolve to nothing here.
   const guestKeysFromPayload = (payload: string): string[] => {
     if (payload.startsWith("keys:")) return payload.slice(5).split(",").filter(Boolean);
-    if (payload.startsWith("list:")) {
-      const id = payload.slice(5);
-      return guests.filter((g) => chart?.assignments[g.key]?.listId === id).map((g) => g.key);
-    }
+    if (payload.startsWith("list-move:")) return [];
     if (payload) return [payload];
     return [];
   };
@@ -406,15 +427,24 @@ export default function SeatingChartPage() {
   const handleDropToList = (e: React.DragEvent, listId: string | null) => {
     e.preventDefault();
     const payload = e.dataTransfer.getData("text/plain");
-    // Dropping a list onto another list reorders them rather than merging.
-    if (payload.startsWith("list:")) {
-      const draggedId = payload.slice(5);
+    // A list dropped onto a list position reorders it (not a merge).
+    if (payload.startsWith("list-move:")) {
+      const draggedId = payload.slice("list-move:".length);
       if (listId && draggedId !== listId) moveList(draggedId, listId);
       onDragEnd();
       return;
     }
     assignMany(dropGuestKeys(e), { listId });
     onDragEnd();
+  };
+  // Which edge of a list a reorder drop would land on (drives the insert line).
+  const dropLineFor = (listId: string): "before" | "after" | null => {
+    if (!chart || !draggingListId || draggingListId === listId) return null;
+    if (overTarget !== `list:${listId}`) return null;
+    const from = chart.lists.findIndex((l) => l.id === draggingListId);
+    const to = chart.lists.findIndex((l) => l.id === listId);
+    if (from === -1 || to === -1) return null;
+    return from > to ? "before" : "after";
   };
 
   /* ── Table layout editing ── */
@@ -662,9 +692,9 @@ export default function SeatingChartPage() {
                 Guest Roster
               </h2>
               <p className="mb-3 text-xs text-deep-plum/60 dark:text-cream/60">
-                Grab the <span className="font-semibold">⠿ handle</span> to drag a whole household,
-                family group, or list onto a table at once — or drag one person at a time. Choose
-                how this roster is organized below.
+                Grab a household or family group&apos;s <span className="font-semibold">⠿ handle</span>{" "}
+                to seat everyone at once, or drag one person at a time. In Lists view, a list&apos;s
+                up/down handle reorders it. Choose how this roster is organized below.
               </p>
               <input
                 type="text"
@@ -854,7 +884,6 @@ export default function SeatingChartPage() {
             {/* One section per planning list (seated members move to Assigned) */}
             {chart.lists.map((list) => {
               const members = membersOfList(list.id).filter((g) => !isSeated(g.key));
-              const listKeys = members.map((g) => g.key);
               return (
                 <GroupColumn
                   key={list.id}
@@ -863,17 +892,16 @@ export default function SeatingChartPage() {
                   count={members.length}
                   editable
                   grip={
-                    <DragGrip
-                      memberKeys={listKeys}
-                      payload={`list:${list.id}`}
-                      title={`Drag onto a table to seat everyone, or onto another list to reorder`}
-                      onDragStart={onDragStart}
-                      onDragEnd={onDragEnd}
+                    <ReorderHandle
+                      listId={list.id}
+                      onStart={onListReorderStart}
+                      onEnd={onDragEnd}
                     />
                   }
+                  dropLine={dropLineFor(list.id)}
                   onRename={(name) => renameList(list.id, name)}
                   onRemove={() => removeList(list.id)}
-                  isOver={overTarget === `list:${list.id}`}
+                  isOver={overTarget === `list:${list.id}` && !draggingListId}
                   onDragOver={(e) => {
                     e.preventDefault();
                     setOverTarget(`list:${list.id}`);
@@ -1043,9 +1071,6 @@ export default function SeatingChartPage() {
                   <div className="grid gap-4 sm:grid-cols-2 2xl:grid-cols-3">
                     {chart.lists.map((list) => {
                       const members = membersOfList(list.id);
-                      const listKeys = guests
-                        .filter((g) => assignmentOf(g.key).listId === list.id)
-                        .map((g) => g.key);
                       return (
                         <GroupColumn
                           key={list.id}
@@ -1054,16 +1079,16 @@ export default function SeatingChartPage() {
                           count={members.length}
                           editable
                           grip={
-                            <DragGrip
-                              memberKeys={listKeys}
-                              title={`Drag everyone in ${list.name} together`}
-                              onDragStart={onDragStart}
-                              onDragEnd={onDragEnd}
+                            <ReorderHandle
+                              listId={list.id}
+                              onStart={onListReorderStart}
+                              onEnd={onDragEnd}
                             />
                           }
+                          dropLine={dropLineFor(list.id)}
                           onRename={(name) => renameList(list.id, name)}
                           onRemove={() => removeList(list.id)}
-                          isOver={overTarget === `list:${list.id}`}
+                          isOver={overTarget === `list:${list.id}` && !draggingListId}
                           onDragOver={(e) => {
                             e.preventDefault();
                             setOverTarget(`list:${list.id}`);
@@ -1107,8 +1132,8 @@ export default function SeatingChartPage() {
                 </div>
                 {chart.lists.length > 1 && (
                   <p className="text-xs text-deep-plum/50 dark:text-cream/50">
-                    Tip: grab a list&apos;s <span className="font-semibold">⠿ handle</span> and drop
-                    it onto another list to reorder them.
+                    Tip: drag a list&apos;s reorder handle (the up/down arrows) to move it to a new
+                    spot — a gold line shows where it will land.
                   </p>
                 )}
               </>
@@ -1159,29 +1184,24 @@ function EmptyHint({ children }: { children: React.ReactNode }) {
   );
 }
 
-/** A six-dot handle that drags a whole set of guests (a party / group / list). */
+/** A six-dot handle that drags a whole set of guests (a party / group). */
 function DragGrip({
   memberKeys,
   title,
-  payload,
   onDragStart,
   onDragEnd,
 }: {
   memberKeys: string[];
   title?: string;
-  /** Overrides the default "keys:" payload, e.g. "list:<id>" for reordering. */
-  payload?: string;
   onDragStart: (keys: string[]) => void;
   onDragEnd: () => void;
 }) {
-  // Hide only when there's nothing to drag AND no payload (e.g. an empty list
-  // still needs a handle so it can be reordered).
-  if (memberKeys.length === 0 && !payload) return null;
+  if (memberKeys.length === 0) return null;
   return (
     <span
       draggable
       onDragStart={(e) => {
-        e.dataTransfer.setData("text/plain", payload ?? `keys:${memberKeys.join(",")}`);
+        e.dataTransfer.setData("text/plain", `keys:${memberKeys.join(",")}`);
         e.dataTransfer.effectAllowed = "move";
         onDragStart(memberKeys);
       }}
@@ -1197,6 +1217,36 @@ function DragGrip({
         <circle cx="15" cy="6" r="1.6" />
         <circle cx="15" cy="12" r="1.6" />
         <circle cx="15" cy="18" r="1.6" />
+      </svg>
+    </span>
+  );
+}
+
+/** A handle that drags a list to a new position among the other lists. */
+function ReorderHandle({
+  listId,
+  onStart,
+  onEnd,
+}: {
+  listId: string;
+  onStart: (id: string) => void;
+  onEnd: () => void;
+}) {
+  return (
+    <span
+      draggable
+      onDragStart={(e) => {
+        e.dataTransfer.setData("text/plain", `list-move:${listId}`);
+        e.dataTransfer.effectAllowed = "move";
+        onStart(listId);
+      }}
+      onDragEnd={onEnd}
+      title="Drag to reorder this list"
+      aria-label="Drag to reorder this list"
+      className="shrink-0 cursor-grab text-deep-plum/35 transition-colors hover:text-sage active:cursor-grabbing dark:text-cream/35 dark:hover:text-sage-light"
+    >
+      <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <path d="M8 9l4-4 4 4M8 15l4 4 4-4" strokeLinecap="round" strokeLinejoin="round" />
       </svg>
     </span>
   );
@@ -1349,6 +1399,8 @@ interface GroupColumnProps extends DropZoneProps {
   count: number;
   editable?: boolean;
   grip?: React.ReactNode;
+  /** Shows an insertion line on the given edge while a list is dragged over. */
+  dropLine?: "before" | "after" | null;
   onRename?: (name: string) => void;
   onRemove?: () => void;
 }
@@ -1359,6 +1411,7 @@ function GroupColumn({
   count,
   editable,
   grip,
+  dropLine,
   onRename,
   onRemove,
   isOver,
@@ -1382,10 +1435,18 @@ function GroupColumn({
       onDragOver={onDragOver}
       onDragLeave={onDragLeave}
       onDrop={onDrop}
-      className={`soft-card p-3 transition-shadow ${
+      className={`soft-card relative p-3 transition-shadow ${
         isOver ? "ring-2 ring-soft-gold ring-offset-1 ring-offset-transparent" : ""
       }`}
     >
+      {dropLine && (
+        <span
+          className={`pointer-events-none absolute inset-x-1 h-1 rounded-full bg-soft-gold ${
+            dropLine === "before" ? "-top-0.5" : "-bottom-0.5"
+          }`}
+          aria-hidden
+        />
+      )}
       <div className="mb-2 flex items-center gap-2">
         {grip}
         {color && (
