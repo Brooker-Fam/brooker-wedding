@@ -30,6 +30,7 @@ interface Guest {
 interface Assignment {
   groupId?: string | null;
   tableId?: string | null;
+  listId?: string | null;
 }
 
 interface TableConfig {
@@ -44,9 +45,16 @@ interface GroupConfig {
   color: string;
 }
 
+/** A loose planning list -- a place to gather people before deciding tables. */
+interface ListConfig {
+  id: string;
+  name: string;
+}
+
 interface ChartDoc {
   tables: TableConfig[];
   groups: GroupConfig[];
+  lists: ListConfig[];
   assignments: Record<string, Assignment>;
 }
 
@@ -147,6 +155,7 @@ function defaultChart(): ChartDoc {
   return {
     tables,
     groups: [{ id: "g-brookers", name: "Brookers", color: GROUP_PALETTE[0] }],
+    lists: [],
     assignments: {},
   };
 }
@@ -176,10 +185,19 @@ function normalizeChart(raw: unknown): ChartDoc {
         }))
     : base.groups;
 
+  const lists = Array.isArray(r.lists)
+    ? r.lists
+        .filter((l) => l && typeof l.id === "string")
+        .map((l) => ({
+          id: l.id,
+          name: typeof l.name === "string" && l.name ? l.name : "List",
+        }))
+    : base.lists;
+
   const assignments: Record<string, Assignment> =
     r.assignments && typeof r.assignments === "object" ? { ...r.assignments } : {};
 
-  return { tables, groups, assignments };
+  return { tables, groups, lists, assignments };
 }
 
 function newId(prefix: string): string {
@@ -201,6 +219,7 @@ export default function SeatingChartPage() {
   const [dbConnected, setDbConnected] = useState(true);
   const [saveStatus, setSaveStatus] = useState<SaveStatus>("idle");
   const [search, setSearch] = useState("");
+  const [view, setView] = useState<"tables" | "lists">("tables");
 
   // Drag state
   const [draggingKey, setDraggingKey] = useState<string | null>(null);
@@ -314,6 +333,12 @@ export default function SeatingChartPage() {
     if (key) assign(key, { groupId });
     onDragEnd();
   };
+  const handleDropToList = (e: React.DragEvent, listId: string | null) => {
+    e.preventDefault();
+    const key = dropGuestKey(e);
+    if (key) assign(key, { listId });
+    onDragEnd();
+  };
 
   /* ── Table layout editing ── */
   const renameTable = (id: string, name: string) =>
@@ -366,6 +391,25 @@ export default function SeatingChartPage() {
       return { ...p, groups: p.groups.filter((g) => g.id !== id), assignments };
     });
 
+  /* ── Planning-list editing ── */
+  const renameList = (id: string, name: string) =>
+    setChart((p) => p && { ...p, lists: p.lists.map((l) => (l.id === id ? { ...l, name } : l)) });
+  const addList = () =>
+    setChart((p) => {
+      if (!p) return p;
+      const id = newId("l");
+      return { ...p, lists: [...p.lists, { id, name: "New list" }] };
+    });
+  const removeList = (id: string) =>
+    setChart((p) => {
+      if (!p) return p;
+      const assignments = { ...p.assignments };
+      for (const k of Object.keys(assignments)) {
+        if (assignments[k].listId === id) assignments[k] = { ...assignments[k], listId: null };
+      }
+      return { ...p, lists: p.lists.filter((l) => l.id !== id), assignments };
+    });
+
   /* ── Derived views ── */
   const assignmentOf = useCallback(
     (key: string): Assignment => chart?.assignments[key] ?? {},
@@ -408,9 +452,25 @@ export default function SeatingChartPage() {
     [chart]
   );
 
+  const membersOfList = useCallback(
+    (listId: string) => filteredGuests.filter((g) => assignmentOf(g.key).listId === listId),
+    [filteredGuests, assignmentOf]
+  );
+  const listNameOf = useCallback(
+    (listId: string | null | undefined): string | null => {
+      if (!listId || !chart) return null;
+      return chart.lists.find((l) => l.id === listId)?.name ?? null;
+    },
+    [chart]
+  );
+
   const totalGuests = guests.length;
   const seatedCount = useMemo(
     () => guests.filter((g) => assignmentOf(g.key).tableId).length,
+    [guests, assignmentOf]
+  );
+  const listedCount = useMemo(
+    () => guests.filter((g) => assignmentOf(g.key).listId).length,
     [guests, assignmentOf]
   );
 
@@ -470,6 +530,7 @@ export default function SeatingChartPage() {
           <Stat label="Attending" value={totalGuests} />
           <Stat label="Seated" value={seatedCount} />
           <Stat label="Unseated" value={totalGuests - seatedCount} />
+          {chart.lists.length > 0 && <Stat label="Listed" value={listedCount} />}
           <Stat label="Tables" value={chart.tables.length} />
           <Stat label="Total Seats" value={totalSeats} />
         </div>
@@ -482,8 +543,9 @@ export default function SeatingChartPage() {
                 Guest Roster
               </h2>
               <p className="mb-3 text-xs text-deep-plum/60 dark:text-cream/60">
-                Drag people into a group to organize families, then drag them onto a table to seat
-                them. A seated guest keeps their group color.
+                Drag people into a group to organize families, then onto a table to seat them — a
+                seated guest keeps their group color. Use the <strong>Lists</strong> tab to gather
+                people into loose planning lists before deciding tables.
               </p>
               <input
                 type="text"
@@ -517,6 +579,7 @@ export default function SeatingChartPage() {
                     dragging={draggingKey === g.key}
                     color={null}
                     seatedTable={tableNameOf(assignmentOf(g.key).tableId)}
+                    listName={listNameOf(assignmentOf(g.key).listId)}
                     onDragStart={() => onDragStart(g.key)}
                     onDragEnd={onDragEnd}
                   />
@@ -556,6 +619,7 @@ export default function SeatingChartPage() {
                         dragging={draggingKey === g.key}
                         color={group.color}
                         seatedTable={tableNameOf(assignmentOf(g.key).tableId)}
+                        listName={listNameOf(assignmentOf(g.key).listId)}
                         onDragStart={() => onDragStart(g.key)}
                         onDragEnd={onDragEnd}
                       />
@@ -574,8 +638,31 @@ export default function SeatingChartPage() {
             </button>
           </aside>
 
-          {/* ── Tables ── */}
+          {/* ── Tables / Lists workspace ── */}
           <main className="space-y-4">
+            {/* View toggle */}
+            <div className="soft-card flex items-center gap-1 p-1.5">
+              {([
+                { id: "tables", label: "🪑 Tables" },
+                { id: "lists", label: "📋 Lists" },
+              ] as const).map((v) => (
+                <button
+                  key={v.id}
+                  type="button"
+                  onClick={() => setView(v.id)}
+                  className={`flex-1 rounded-lg px-4 py-2 text-sm font-semibold transition-colors ${
+                    view === v.id
+                      ? "bg-sage/20 text-forest dark:text-cream"
+                      : "text-deep-plum/60 hover:bg-sage/10 dark:text-cream/60"
+                  }`}
+                >
+                  {v.label}
+                </button>
+              ))}
+            </div>
+
+            {view === "tables" && (
+            <>
             <div className="grid gap-4 sm:grid-cols-2 2xl:grid-cols-3">
               {chart.tables.map((table) => {
                 const seated = seatedAt(table.id);
@@ -608,7 +695,9 @@ export default function SeatingChartPage() {
                           guest={g}
                           dragging={draggingKey === g.key}
                           color={groupColor(assignmentOf(g.key).groupId)}
-                          onUnseat={() => assign(g.key, { tableId: null })}
+                          listName={listNameOf(assignmentOf(g.key).listId)}
+                          onRemove={() => assign(g.key, { tableId: null })}
+                          removeTitle="Remove from table"
                           onDragStart={() => onDragStart(g.key)}
                           onDragEnd={onDragEnd}
                         />
@@ -635,6 +724,74 @@ export default function SeatingChartPage() {
                 + Add 8-top table
               </button>
             </div>
+            </>
+            )}
+
+            {view === "lists" && (
+              <>
+                {chart.lists.length === 0 ? (
+                  <div className="soft-card p-8 text-center text-sm text-deep-plum/60 dark:text-cream/60">
+                    Planning lists are loose buckets — gather people here (&ldquo;maybe sit
+                    together&rdquo;, &ldquo;still deciding&rdquo;) without committing them to a table
+                    or a family group. Add your first list to start.
+                  </div>
+                ) : (
+                  <div className="grid gap-4 sm:grid-cols-2 2xl:grid-cols-3">
+                    {chart.lists.map((list) => {
+                      const members = membersOfList(list.id);
+                      return (
+                        <GroupColumn
+                          key={list.id}
+                          title={list.name}
+                          color={null}
+                          count={members.length}
+                          editable
+                          onRename={(name) => renameList(list.id, name)}
+                          onRemove={() => removeList(list.id)}
+                          isOver={overTarget === `list:${list.id}`}
+                          onDragOver={(e) => {
+                            e.preventDefault();
+                            setOverTarget(`list:${list.id}`);
+                          }}
+                          onDragLeave={() =>
+                            setOverTarget((t) => (t === `list:${list.id}` ? null : t))
+                          }
+                          onDrop={(e) => handleDropToList(e, list.id)}
+                        >
+                          {members.length === 0 ? (
+                            <EmptyHint>Drag guests here.</EmptyHint>
+                          ) : (
+                            members.map((g) => (
+                              <GuestChip
+                                key={g.key}
+                                guest={g}
+                                dragging={draggingKey === g.key}
+                                color={groupColor(assignmentOf(g.key).groupId)}
+                                seatedTable={tableNameOf(assignmentOf(g.key).tableId)}
+                                onRemove={() => assign(g.key, { listId: null })}
+                                removeTitle="Remove from list"
+                                onDragStart={() => onDragStart(g.key)}
+                                onDragEnd={onDragEnd}
+                              />
+                            ))
+                          )}
+                        </GroupColumn>
+                      );
+                    })}
+                  </div>
+                )}
+
+                <div className="flex flex-wrap gap-3">
+                  <button
+                    type="button"
+                    onClick={addList}
+                    className="rounded-xl border border-dashed border-sage/40 px-4 py-2.5 text-sm font-medium text-sage transition-colors hover:bg-sage/10 dark:text-sage-light"
+                  >
+                    + Add list
+                  </button>
+                </div>
+              </>
+            )}
           </main>
         </div>
       </div>
@@ -686,7 +843,9 @@ interface GuestChipProps {
   dragging: boolean;
   color: string | null;
   seatedTable?: string | null;
-  onUnseat?: () => void;
+  listName?: string | null;
+  onRemove?: () => void;
+  removeTitle?: string;
   onDragStart: () => void;
   onDragEnd: () => void;
 }
@@ -696,7 +855,9 @@ function GuestChip({
   dragging,
   color,
   seatedTable,
-  onUnseat,
+  listName,
+  onRemove,
+  removeTitle,
   onDragStart,
   onDragEnd,
 }: GuestChipProps) {
@@ -729,16 +890,21 @@ function GuestChip({
           Kid
         </span>
       )}
+      {listName && (
+        <span className="shrink-0 rounded border border-soft-gold/40 px-1.5 py-0.5 text-[10px] font-semibold text-soft-gold-dark dark:text-soft-gold-light">
+          {listName}
+        </span>
+      )}
       {seatedTable && (
         <span className="shrink-0 rounded bg-sage/15 px-1.5 py-0.5 text-[10px] font-semibold text-sage dark:text-sage-light">
           {seatedTable}
         </span>
       )}
-      {onUnseat && (
+      {onRemove && (
         <button
           type="button"
-          onClick={onUnseat}
-          title="Remove from table"
+          onClick={onRemove}
+          title={removeTitle ?? "Remove"}
           className="shrink-0 rounded text-deep-plum/30 transition-colors hover:text-red-500 dark:text-cream/30"
         >
           <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
