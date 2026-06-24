@@ -37,6 +37,10 @@ interface TableConfig {
   id: string;
   name: string;
   seats: number;
+  // Floor-plan position (feet, table center within the tent). Undefined until
+  // the table is first placed/dragged in the Layout view.
+  x?: number;
+  y?: number;
 }
 
 interface GroupConfig {
@@ -51,10 +55,28 @@ interface ListConfig {
   name: string;
 }
 
+/** A non-table element on the floor plan: dance floor, bar, DJ, etc. */
+interface Fixture {
+  id: string;
+  label: string;
+  x: number; // feet, center
+  y: number; // feet, center
+  w: number; // feet
+  h: number; // feet
+}
+
+/** Tent footprint, in feet. */
+interface TentLayout {
+  width: number;
+  length: number;
+}
+
 interface ChartDoc {
   tables: TableConfig[];
   groups: GroupConfig[];
   lists: ListConfig[];
+  layout: TentLayout;
+  fixtures: Fixture[];
   assignments: Record<string, Assignment>;
 }
 
@@ -220,9 +242,51 @@ function defaultChart(): ChartDoc {
     tables,
     groups: [{ id: "g-brookers", name: "Brookers", color: GROUP_PALETTE[0] }],
     lists: [],
+    layout: { width: 40, length: 60 },
+    fixtures: [],
     assignments: {},
   };
 }
+
+/** Round-table diameter in feet, sized by seat count (60" seats 8, 72" seats 10+). */
+function tableDiameter(seats: number): number {
+  return seats >= 9 ? 6 : 5;
+}
+
+/** Center position (feet) for every table -- stored x/y, or an auto grid for unplaced ones. */
+function resolveTablePositions(
+  tables: TableConfig[],
+  tent: TentLayout
+): Map<string, { x: number; y: number }> {
+  const map = new Map<string, { x: number; y: number }>();
+  const spacing = 10;
+  const margin = 5;
+  const cols = Math.max(1, Math.floor((tent.width - margin) / spacing));
+  let auto = 0;
+  for (const t of tables) {
+    if (typeof t.x === "number" && typeof t.y === "number") {
+      map.set(t.id, { x: t.x, y: t.y });
+    } else {
+      const col = auto % cols;
+      const row = Math.floor(auto / cols);
+      map.set(t.id, { x: margin + col * spacing, y: margin + row * spacing });
+      auto++;
+    }
+  }
+  return map;
+}
+
+/** Preset fixtures that can be dropped onto the floor plan (size in feet). */
+const FIXTURE_PRESETS: { label: string; w: number; h: number }[] = [
+  { label: "Dance Floor", w: 16, h: 16 },
+  { label: "Bar", w: 8, h: 3 },
+  { label: "DJ / Band", w: 8, h: 4 },
+  { label: "Buffet", w: 12, h: 2.5 },
+  { label: "Cake Table", w: 6, h: 2.5 },
+  { label: "Gift Table", w: 6, h: 2.5 },
+  { label: "Head Table", w: 12, h: 3 },
+  { label: "Entrance", w: 6, h: 2 },
+];
 
 function normalizeChart(raw: unknown): ChartDoc {
   const base = defaultChart();
@@ -236,6 +300,8 @@ function normalizeChart(raw: unknown): ChartDoc {
           id: t.id,
           name: typeof t.name === "string" && t.name ? t.name : t.id,
           seats: Number.isFinite(t.seats) ? Math.max(1, Math.round(t.seats)) : 8,
+          ...(Number.isFinite(t.x) ? { x: t.x } : {}),
+          ...(Number.isFinite(t.y) ? { y: t.y } : {}),
         }))
     : base.tables;
 
@@ -258,10 +324,31 @@ function normalizeChart(raw: unknown): ChartDoc {
         }))
     : base.lists;
 
+  const rawLayout = r.layout as Partial<TentLayout> | undefined;
+  const lw = Number(rawLayout?.width);
+  const ll = Number(rawLayout?.length);
+  const layout: TentLayout = {
+    width: Number.isFinite(lw) ? Math.max(10, Math.round(lw)) : base.layout.width,
+    length: Number.isFinite(ll) ? Math.max(10, Math.round(ll)) : base.layout.length,
+  };
+
+  const fixtures: Fixture[] = Array.isArray(r.fixtures)
+    ? r.fixtures
+        .filter((f) => f && typeof f.id === "string")
+        .map((f) => ({
+          id: f.id,
+          label: typeof f.label === "string" && f.label ? f.label : "Area",
+          x: Number.isFinite(f.x) ? f.x : 5,
+          y: Number.isFinite(f.y) ? f.y : 5,
+          w: Number.isFinite(f.w) ? Math.max(1, f.w) : 10,
+          h: Number.isFinite(f.h) ? Math.max(1, f.h) : 10,
+        }))
+    : base.fixtures;
+
   const assignments: Record<string, Assignment> =
     r.assignments && typeof r.assignments === "object" ? { ...r.assignments } : {};
 
-  return { tables, groups, lists, assignments };
+  return { tables, groups, lists, layout, fixtures, assignments };
 }
 
 function newId(prefix: string): string {
@@ -283,8 +370,9 @@ export default function SeatingChartPage() {
   const [dbConnected, setDbConnected] = useState(true);
   const [saveStatus, setSaveStatus] = useState<SaveStatus>("idle");
   const [search, setSearch] = useState("");
-  const [view, setView] = useState<"tables" | "lists">("tables");
+  const [view, setView] = useState<"tables" | "lists" | "layout">("tables");
   const [rosterGroupBy, setRosterGroupBy] = useState<"household" | "list">("list");
+  const [selectedFixtureId, setSelectedFixtureId] = useState<string | null>(null);
 
   // Drag state -- a drag can carry one guest or a whole party/group/list.
   const [draggingKeys, setDraggingKeys] = useState<Set<string>>(new Set());
@@ -478,6 +566,31 @@ export default function SeatingChartPage() {
       return { ...p, tables: p.tables.filter((t) => t.id !== id), assignments };
     });
 
+  /* ── Floor-plan (Layout) editing ── */
+  const setTentDim = (dim: "width" | "length", value: number) =>
+    setChart((p) =>
+      p && {
+        ...p,
+        layout: { ...p.layout, [dim]: Number.isFinite(value) ? Math.max(10, Math.round(value)) : p.layout[dim] },
+      }
+    );
+  const moveTable = (id: string, x: number, y: number) =>
+    setChart((p) => p && { ...p, tables: p.tables.map((t) => (t.id === id ? { ...t, x, y } : t)) });
+  const addFixture = (label: string, w: number, h: number) =>
+    setChart((p) => {
+      if (!p) return p;
+      const id = newId("f");
+      const x = Math.min(p.layout.width - w / 2, Math.max(w / 2, p.layout.width / 2));
+      const y = Math.min(p.layout.length - h / 2, Math.max(h / 2, p.layout.length / 2));
+      return { ...p, fixtures: [...p.fixtures, { id, label, x, y, w, h }] };
+    });
+  const moveFixture = (id: string, x: number, y: number) =>
+    setChart((p) => p && { ...p, fixtures: p.fixtures.map((f) => (f.id === id ? { ...f, x, y } : f)) });
+  const updateFixture = (id: string, patch: Partial<Fixture>) =>
+    setChart((p) => p && { ...p, fixtures: p.fixtures.map((f) => (f.id === id ? { ...f, ...patch } : f)) });
+  const removeFixture = (id: string) =>
+    setChart((p) => p && { ...p, fixtures: p.fixtures.filter((f) => f.id !== id) });
+
   /* ── Group editing ── */
   const renameGroup = (id: string, name: string) =>
     setChart((p) => p && { ...p, groups: p.groups.map((g) => (g.id === id ? { ...g, name } : g)) });
@@ -630,6 +743,8 @@ export default function SeatingChartPage() {
   if (!chart) return null;
 
   const totalSeats = chart.tables.reduce((sum, t) => sum + t.seats, 0);
+  const tablePositions = resolveTablePositions(chart.tables, chart.layout);
+  const selectedFixture = chart.fixtures.find((f) => f.id === selectedFixtureId) ?? null;
 
   return (
     <div className="enchanted-bg min-h-screen">
@@ -949,6 +1064,7 @@ export default function SeatingChartPage() {
               {([
                 { id: "tables", label: "🪑 Tables" },
                 { id: "lists", label: "📋 Lists" },
+                { id: "layout", label: "📐 Layout" },
               ] as const).map((v) => (
                 <button
                   key={v.id}
@@ -1108,6 +1224,119 @@ export default function SeatingChartPage() {
                     spot — a gold line shows where it will land.
                   </p>
                 )}
+              </>
+            )}
+
+            {view === "layout" && (
+              <>
+                {/* Tent size + add fixtures */}
+                <div className="soft-card flex flex-wrap items-center gap-x-6 gap-y-3 p-4">
+                  <label className="flex items-center gap-2 text-sm font-medium text-deep-plum dark:text-cream">
+                    Tent
+                    <input
+                      type="number"
+                      min={10}
+                      value={chart.layout.width}
+                      onChange={(e) => setTentDim("width", Number(e.target.value))}
+                      className="enchanted-input !w-20 !py-1.5 text-sm"
+                    />
+                    <span className="text-deep-plum/50 dark:text-cream/50">ft ×</span>
+                    <input
+                      type="number"
+                      min={10}
+                      value={chart.layout.length}
+                      onChange={(e) => setTentDim("length", Number(e.target.value))}
+                      className="enchanted-input !w-20 !py-1.5 text-sm"
+                    />
+                    <span className="text-deep-plum/50 dark:text-cream/50">ft</span>
+                  </label>
+                  <div className="flex flex-wrap items-center gap-1.5">
+                    <span className="text-xs font-semibold uppercase tracking-wider text-deep-plum/50 dark:text-cream/50">
+                      Add
+                    </span>
+                    {FIXTURE_PRESETS.map((p) => (
+                      <button
+                        key={p.label}
+                        type="button"
+                        onClick={() => addFixture(p.label, p.w, p.h)}
+                        className="rounded-lg bg-sage/15 px-2.5 py-1 text-xs font-medium text-forest transition-colors hover:bg-sage/25 dark:text-cream"
+                      >
+                        + {p.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Floor plan */}
+                <div className="soft-card p-3 sm:p-4">
+                  <LayoutFloorPlan
+                    tent={chart.layout}
+                    tables={chart.tables}
+                    positions={tablePositions}
+                    fixtures={chart.fixtures}
+                    seatedCountOf={(id) => seatedAt(id).length}
+                    selectedFixtureId={selectedFixtureId}
+                    onSelectFixture={setSelectedFixtureId}
+                    onMoveTable={moveTable}
+                    onMoveFixture={moveFixture}
+                  />
+                </div>
+
+                {/* Selected fixture editor */}
+                {selectedFixture && (
+                  <div className="soft-card flex flex-wrap items-end gap-4 p-4">
+                    <label className="flex flex-col gap-1 text-xs font-medium text-deep-plum/70 dark:text-cream/70">
+                      Label
+                      <input
+                        type="text"
+                        value={selectedFixture.label}
+                        onChange={(e) => updateFixture(selectedFixture.id, { label: e.target.value })}
+                        className="enchanted-input !py-1.5 text-sm"
+                      />
+                    </label>
+                    <label className="flex flex-col gap-1 text-xs font-medium text-deep-plum/70 dark:text-cream/70">
+                      Width (ft)
+                      <input
+                        type="number"
+                        min={1}
+                        value={selectedFixture.w}
+                        onChange={(e) =>
+                          updateFixture(selectedFixture.id, { w: Math.max(1, Number(e.target.value) || 1) })
+                        }
+                        className="enchanted-input !w-24 !py-1.5 text-sm"
+                      />
+                    </label>
+                    <label className="flex flex-col gap-1 text-xs font-medium text-deep-plum/70 dark:text-cream/70">
+                      Length (ft)
+                      <input
+                        type="number"
+                        min={1}
+                        value={selectedFixture.h}
+                        onChange={(e) =>
+                          updateFixture(selectedFixture.id, { h: Math.max(1, Number(e.target.value) || 1) })
+                        }
+                        className="enchanted-input !w-24 !py-1.5 text-sm"
+                      />
+                    </label>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        removeFixture(selectedFixture.id);
+                        setSelectedFixtureId(null);
+                      }}
+                      className="rounded-lg border border-red-300/50 px-3 py-2 text-sm font-medium text-red-500 transition-colors hover:bg-red-500/10"
+                    >
+                      Delete {selectedFixture.label}
+                    </button>
+                  </div>
+                )}
+
+                <p className="text-xs text-deep-plum/50 dark:text-cream/50">
+                  Drag tables and fixtures to position them in the tent. Tables show how many seats
+                  are filled; sizes are to scale (10-tops are 6&nbsp;ft round, 8-tops 5&nbsp;ft).
+                  Tap a fixture to rename, resize, or delete it. Add or remove tables from the{" "}
+                  <span className="font-semibold">Tables</span> view.
+                </p>
               </>
             )}
           </main>
@@ -1571,6 +1800,235 @@ function TableCard({
           />
         </label>
       </div>
+    </div>
+  );
+}
+
+/* ──────────────────────────────────────────────────────────────────────────
+   Floor plan (Layout view)
+   ────────────────────────────────────────────────────────────────────────── */
+
+interface LayoutFloorPlanProps {
+  tent: TentLayout;
+  tables: TableConfig[];
+  positions: Map<string, { x: number; y: number }>;
+  fixtures: Fixture[];
+  seatedCountOf: (id: string) => number;
+  selectedFixtureId: string | null;
+  onSelectFixture: (id: string | null) => void;
+  onMoveTable: (id: string, x: number, y: number) => void;
+  onMoveFixture: (id: string, x: number, y: number) => void;
+}
+
+interface DragItem {
+  kind: "table" | "fixture";
+  id: string;
+  cx: number;
+  cy: number;
+  offX: number;
+  offY: number;
+  halfW: number;
+  halfH: number;
+}
+
+function clampNum(v: number, min: number, max: number): number {
+  return Math.min(max, Math.max(min, v));
+}
+
+function truncateLabel(name: string, max = 11): string {
+  return name.length > max ? `${name.slice(0, max - 1)}…` : name;
+}
+
+function LayoutFloorPlan({
+  tent,
+  tables,
+  positions,
+  fixtures,
+  seatedCountOf,
+  selectedFixtureId,
+  onSelectFixture,
+  onMoveTable,
+  onMoveFixture,
+}: LayoutFloorPlanProps) {
+  const svgRef = useRef<SVGSVGElement>(null);
+  const [drag, setDrag] = useState<DragItem | null>(null);
+
+  const snap = (v: number) => Math.round(v * 2) / 2;
+
+  // Map a pointer position to tent feet (handles any SVG scaling/letterboxing).
+  const toFeet = (clientX: number, clientY: number) => {
+    const svg = svgRef.current;
+    const ctm = svg?.getScreenCTM();
+    if (!svg || !ctm) return { x: 0, y: 0 };
+    const pt = new DOMPoint(clientX, clientY).matrixTransform(ctm.inverse());
+    return { x: pt.x, y: pt.y };
+  };
+
+  const startDrag = (
+    e: React.PointerEvent,
+    kind: "table" | "fixture",
+    id: string,
+    cx: number,
+    cy: number,
+    halfW: number,
+    halfH: number
+  ) => {
+    e.stopPropagation();
+    if (kind === "fixture") onSelectFixture(id);
+    const p = toFeet(e.clientX, e.clientY);
+    try {
+      svgRef.current?.setPointerCapture(e.pointerId);
+    } catch {
+      /* capture is best-effort */
+    }
+    setDrag({ kind, id, cx, cy, offX: p.x - cx, offY: p.y - cy, halfW, halfH });
+  };
+
+  const onPointerMove = (e: React.PointerEvent) => {
+    if (!drag) return;
+    const p = toFeet(e.clientX, e.clientY);
+    const cx = clampNum(snap(p.x - drag.offX), drag.halfW, tent.width - drag.halfW);
+    const cy = clampNum(snap(p.y - drag.offY), drag.halfH, tent.length - drag.halfH);
+    setDrag({ ...drag, cx, cy });
+  };
+
+  const endDrag = (e: React.PointerEvent) => {
+    if (!drag) return;
+    try {
+      svgRef.current?.releasePointerCapture(e.pointerId);
+    } catch {
+      /* release is best-effort */
+    }
+    if (drag.kind === "table") onMoveTable(drag.id, drag.cx, drag.cy);
+    else onMoveFixture(drag.id, drag.cx, drag.cy);
+    setDrag(null);
+  };
+
+  const centerOf = (kind: "table" | "fixture", id: string, fx: number, fy: number) =>
+    drag && drag.kind === kind && drag.id === id ? { x: drag.cx, y: drag.cy } : { x: fx, y: fy };
+
+  const gridStep = 5;
+  const vLines: number[] = [];
+  for (let x = gridStep; x < tent.width; x += gridStep) vLines.push(x);
+  const hLines: number[] = [];
+  for (let y = gridStep; y < tent.length; y += gridStep) hLines.push(y);
+
+  // Font size scaled to the tent so labels stay readable across sizes.
+  const fs = clampNum(Math.min(tent.width, tent.length) / 28, 0.9, 2);
+
+  return (
+    <div
+      className="mx-auto"
+      style={{
+        width: "100%",
+        maxWidth: `calc(68vh * ${tent.width} / ${tent.length})`,
+        aspectRatio: `${tent.width} / ${tent.length}`,
+      }}
+    >
+      <svg
+        ref={svgRef}
+        viewBox={`0 0 ${tent.width} ${tent.length}`}
+        className="h-full w-full select-none"
+        style={{ touchAction: "none" }}
+        onPointerMove={onPointerMove}
+        onPointerUp={endDrag}
+        onPointerDown={() => onSelectFixture(null)}
+      >
+        {/* Tent floor */}
+        <rect
+          x={0}
+          y={0}
+          width={tent.width}
+          height={tent.length}
+          rx={1}
+          className="fill-[#f7f2e7] stroke-[#C49A3C] dark:fill-[#16240f]"
+          strokeWidth={0.2}
+        />
+        {/* 5-ft grid */}
+        {vLines.map((x) => (
+          <line key={`v${x}`} x1={x} y1={0} x2={x} y2={tent.length} className="stroke-[#5C7A4A]/20" strokeWidth={0.06} />
+        ))}
+        {hLines.map((y) => (
+          <line key={`h${y}`} x1={0} y1={y} x2={tent.width} y2={y} className="stroke-[#5C7A4A]/20" strokeWidth={0.06} />
+        ))}
+
+        {/* Fixtures */}
+        {fixtures.map((f) => {
+          const c = centerOf("fixture", f.id, f.x, f.y);
+          const selected = f.id === selectedFixtureId;
+          return (
+            <g
+              key={f.id}
+              onPointerDown={(e) => startDrag(e, "fixture", f.id, f.x, f.y, f.w / 2, f.h / 2)}
+              style={{ cursor: "grab" }}
+            >
+              <rect
+                x={c.x - f.w / 2}
+                y={c.y - f.h / 2}
+                width={f.w}
+                height={f.h}
+                rx={0.4}
+                fill="#B8A9C9"
+                fillOpacity={selected ? 0.6 : 0.42}
+                stroke={selected ? "#4A1A2A" : "#8B6FA8"}
+                strokeWidth={selected ? 0.3 : 0.12}
+              />
+              <text
+                x={c.x}
+                y={c.y}
+                fontSize={Math.min(fs * 0.95, f.h * 0.5)}
+                textAnchor="middle"
+                dominantBaseline="central"
+                fill="#3a2740"
+                fontWeight="600"
+              >
+                {truncateLabel(f.label, Math.max(4, Math.floor(f.w * 1.4)))}
+              </text>
+            </g>
+          );
+        })}
+
+        {/* Tables */}
+        {tables.map((t) => {
+          const pos = positions.get(t.id) ?? { x: 5, y: 5 };
+          const c = centerOf("table", t.id, pos.x, pos.y);
+          const r = tableDiameter(t.seats) / 2;
+          const seated = seatedCountOf(t.id);
+          const over = seated > t.seats;
+          const fill = over ? "#E9B4B4" : seated > 0 ? "#9DBE86" : "#DCE6D0";
+          return (
+            <g
+              key={t.id}
+              onPointerDown={(e) => startDrag(e, "table", t.id, pos.x, pos.y, r, r)}
+              style={{ cursor: "grab" }}
+            >
+              <circle cx={c.x} cy={c.y} r={r} fill={fill} stroke={over ? "#B0566F" : "#5C7A4A"} strokeWidth={0.14} />
+              <text
+                x={c.x}
+                y={c.y - fs * 0.4}
+                fontSize={fs * 0.74}
+                textAnchor="middle"
+                dominantBaseline="central"
+                fill="#1D4420"
+                fontWeight="700"
+              >
+                {truncateLabel(t.name, 10)}
+              </text>
+              <text
+                x={c.x}
+                y={c.y + fs * 0.6}
+                fontSize={fs * 0.7}
+                textAnchor="middle"
+                dominantBaseline="central"
+                fill="#1D4420"
+                fillOpacity={0.85}
+              >
+                {seated}/{t.seats}
+              </text>
+            </g>
+          );
+        })}
+      </svg>
     </div>
   );
 }
