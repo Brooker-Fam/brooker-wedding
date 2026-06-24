@@ -874,6 +874,7 @@ export default function SeatingChartPage() {
             {/* One section per planning list (seated members drop off the roster) */}
             {chart.lists.map((list) => {
               const members = membersOfList(list.id).filter((g) => !isSeated(g.key));
+              const listKeys = members.map((g) => g.key);
               return (
                 <GroupColumn
                   key={list.id}
@@ -882,11 +883,19 @@ export default function SeatingChartPage() {
                   count={members.length}
                   editable
                   grip={
-                    <ReorderHandle
-                      listId={list.id}
-                      onStart={onListReorderStart}
-                      onEnd={onDragEnd}
-                    />
+                    <>
+                      <ReorderHandle
+                        listId={list.id}
+                        onStart={onListReorderStart}
+                        onEnd={onDragEnd}
+                      />
+                      <DragGrip
+                        memberKeys={listKeys}
+                        title={`Drag everyone on ${list.name} onto a table to seat them`}
+                        onDragStart={onDragStart}
+                        onDragEnd={onDragEnd}
+                      />
+                    </>
                   }
                   dropLine={dropLineFor(list.id)}
                   onRename={(name) => renameList(list.id, name)}
