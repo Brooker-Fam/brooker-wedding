@@ -133,6 +133,53 @@ function deriveGuests(rsvps: Rsvp[]): Guest[] {
   return guests;
 }
 
+/** Everyone who came in on one RSVP -- a household to drag as a unit. */
+interface Party {
+  rsvpId: number;
+  rsvpName: string;
+  label: string;
+  members: Guest[];
+}
+
+function lastNameOf(name: string): string {
+  const parts = name.trim().split(/\s+/);
+  return parts.length > 0 ? parts[parts.length - 1] : "";
+}
+
+/** "The Brooker family" when a surname is shared, otherwise the primary's party. */
+function partyLabel(members: Guest[]): string {
+  const counts = new Map<string, { display: string; n: number }>();
+  for (const m of members) {
+    const ln = lastNameOf(m.name);
+    if (!ln) continue;
+    const key = ln.toLowerCase();
+    const existing = counts.get(key);
+    counts.set(key, { display: ln, n: (existing?.n ?? 0) + 1 });
+  }
+  let best: { display: string; n: number } | null = null;
+  for (const v of counts.values()) {
+    if (!best || v.n > best.n) best = v;
+  }
+  if (best && best.n >= 2) return `The ${best.display} family`;
+  return `${members[0].rsvpName}'s party`;
+}
+
+/** Group an ordered guest list into RSVP parties, preserving order. */
+function clusterByParty(guests: Guest[]): Party[] {
+  const byRsvp = new Map<number, Guest[]>();
+  for (const g of guests) {
+    const list = byRsvp.get(g.rsvpId);
+    if (list) list.push(g);
+    else byRsvp.set(g.rsvpId, [g]);
+  }
+  return [...byRsvp.entries()].map(([rsvpId, members]) => ({
+    rsvpId,
+    rsvpName: members[0].rsvpName,
+    label: partyLabel(members),
+    members,
+  }));
+}
+
 /* ──────────────────────────────────────────────────────────────────────────
    Chart defaults + normalization
    ────────────────────────────────────────────────────────────────────────── */
@@ -221,8 +268,8 @@ export default function SeatingChartPage() {
   const [search, setSearch] = useState("");
   const [view, setView] = useState<"tables" | "lists">("tables");
 
-  // Drag state
-  const [draggingKey, setDraggingKey] = useState<string | null>(null);
+  // Drag state -- a drag can carry one guest or a whole party/group/list.
+  const [draggingKeys, setDraggingKeys] = useState<Set<string>>(new Set());
   const [overTarget, setOverTarget] = useState<string | null>(null);
 
   // Autosave plumbing
@@ -309,34 +356,46 @@ export default function SeatingChartPage() {
       };
     });
   }, []);
+  const assignMany = useCallback((keys: string[], patch: Assignment) => {
+    if (keys.length === 0) return;
+    setChart((prev) => {
+      if (!prev) return prev;
+      const assignments = { ...prev.assignments };
+      for (const key of keys) {
+        assignments[key] = { ...(assignments[key] ?? {}), ...patch };
+      }
+      return { ...prev, assignments };
+    });
+  }, []);
 
   /* ── Drag handlers ── */
-  const onDragStart = (key: string) => setDraggingKey(key);
+  // A drag carries either a single guest key, or a whole party/group/list
+  // encoded as "keys:k1,k2,...". `draggingKeys` mirrors that for highlighting.
+  const onDragStart = (keys: string[]) => setDraggingKeys(new Set(keys));
   const onDragEnd = () => {
-    setDraggingKey(null);
+    setDraggingKeys(new Set());
     setOverTarget(null);
   };
-  const dropGuestKey = (e: React.DragEvent): string | null => {
-    const key = e.dataTransfer.getData("text/plain");
-    return key || draggingKey;
+  const dropGuestKeys = (e: React.DragEvent): string[] => {
+    const payload = e.dataTransfer.getData("text/plain");
+    if (payload.startsWith("keys:")) return payload.slice(5).split(",").filter(Boolean);
+    if (payload) return [payload];
+    return draggingKeys.size > 0 ? [...draggingKeys] : [];
   };
 
   const handleDropToTable = (e: React.DragEvent, tableId: string) => {
     e.preventDefault();
-    const key = dropGuestKey(e);
-    if (key) assign(key, { tableId });
+    assignMany(dropGuestKeys(e), { tableId });
     onDragEnd();
   };
   const handleDropToGroup = (e: React.DragEvent, groupId: string | null) => {
     e.preventDefault();
-    const key = dropGuestKey(e);
-    if (key) assign(key, { groupId });
+    assignMany(dropGuestKeys(e), { groupId });
     onDragEnd();
   };
   const handleDropToList = (e: React.DragEvent, listId: string | null) => {
     e.preventDefault();
-    const key = dropGuestKey(e);
-    if (key) assign(key, { listId });
+    assignMany(dropGuestKeys(e), { listId });
     onDragEnd();
   };
 
@@ -543,9 +602,10 @@ export default function SeatingChartPage() {
                 Guest Roster
               </h2>
               <p className="mb-3 text-xs text-deep-plum/60 dark:text-cream/60">
-                Drag people into a group to organize families, then onto a table to seat them — a
-                seated guest keeps their group color. Use the <strong>Lists</strong> tab to gather
-                people into loose planning lists before deciding tables.
+                People who RSVP&apos;d together stay bundled as a household — grab the{" "}
+                <span className="font-semibold">⠿ handle</span> to drag a whole party onto a table
+                or list at once, or drag one person at a time. Use the <strong>Lists</strong> tab to
+                gather loose planning groups before deciding tables.
               </p>
               <input
                 type="text"
@@ -556,9 +616,9 @@ export default function SeatingChartPage() {
               />
             </div>
 
-            {/* Ungrouped pool */}
+            {/* Ungrouped pool, clustered by RSVP party */}
             <GroupColumn
-              title="Ungrouped"
+              title="Households"
               color={null}
               count={ungrouped.length}
               isOver={overTarget === "ungroup"}
@@ -570,26 +630,41 @@ export default function SeatingChartPage() {
               onDrop={(e) => handleDropToGroup(e, null)}
             >
               {ungrouped.length === 0 ? (
-                <EmptyHint>Everyone has been put in a group.</EmptyHint>
+                <EmptyHint>Everyone has been put in a family group.</EmptyHint>
               ) : (
-                ungrouped.map((g) => (
-                  <GuestChip
-                    key={g.key}
-                    guest={g}
-                    dragging={draggingKey === g.key}
-                    color={null}
-                    seatedTable={tableNameOf(assignmentOf(g.key).tableId)}
-                    listName={listNameOf(assignmentOf(g.key).listId)}
-                    onDragStart={() => onDragStart(g.key)}
-                    onDragEnd={onDragEnd}
-                  />
-                ))
+                clusterByParty(ungrouped).map((party) =>
+                  party.members.length === 1 ? (
+                    <GuestChip
+                      key={party.members[0].key}
+                      guest={party.members[0]}
+                      dragging={draggingKeys.has(party.members[0].key)}
+                      color={null}
+                      seatedTable={tableNameOf(assignmentOf(party.members[0].key).tableId)}
+                      listName={listNameOf(assignmentOf(party.members[0].key).listId)}
+                      onDragStart={() => onDragStart([party.members[0].key])}
+                      onDragEnd={onDragEnd}
+                    />
+                  ) : (
+                    <PartyCluster
+                      key={party.rsvpId}
+                      party={party}
+                      draggingKeys={draggingKeys}
+                      seatedTableOf={(key) => tableNameOf(assignmentOf(key).tableId)}
+                      listNameOf2={(key) => listNameOf(assignmentOf(key).listId)}
+                      onDragStart={onDragStart}
+                      onDragEnd={onDragEnd}
+                    />
+                  )
+                )
               )}
             </GroupColumn>
 
-            {/* Custom groups */}
+            {/* Custom family groups */}
             {chart.groups.map((group) => {
               const members = membersOfGroup(group.id);
+              const groupKeys = guests
+                .filter((g) => assignmentOf(g.key).groupId === group.id)
+                .map((g) => g.key);
               return (
                 <GroupColumn
                   key={group.id}
@@ -597,6 +672,14 @@ export default function SeatingChartPage() {
                   color={group.color}
                   count={members.length}
                   editable
+                  grip={
+                    <DragGrip
+                      memberKeys={groupKeys}
+                      title={`Drag everyone in ${group.name} together`}
+                      onDragStart={onDragStart}
+                      onDragEnd={onDragEnd}
+                    />
+                  }
                   onRename={(name) => renameGroup(group.id, name)}
                   onRemove={() => removeGroup(group.id)}
                   isOver={overTarget === `group:${group.id}`}
@@ -616,11 +699,11 @@ export default function SeatingChartPage() {
                       <GuestChip
                         key={g.key}
                         guest={g}
-                        dragging={draggingKey === g.key}
+                        dragging={draggingKeys.has(g.key)}
                         color={group.color}
                         seatedTable={tableNameOf(assignmentOf(g.key).tableId)}
                         listName={listNameOf(assignmentOf(g.key).listId)}
-                        onDragStart={() => onDragStart(g.key)}
+                        onDragStart={() => onDragStart([g.key])}
                         onDragEnd={onDragEnd}
                       />
                     ))
@@ -693,12 +776,12 @@ export default function SeatingChartPage() {
                         <GuestChip
                           key={g.key}
                           guest={g}
-                          dragging={draggingKey === g.key}
+                          dragging={draggingKeys.has(g.key)}
                           color={groupColor(assignmentOf(g.key).groupId)}
                           listName={listNameOf(assignmentOf(g.key).listId)}
                           onRemove={() => assign(g.key, { tableId: null })}
                           removeTitle="Remove from table"
-                          onDragStart={() => onDragStart(g.key)}
+                          onDragStart={() => onDragStart([g.key])}
                           onDragEnd={onDragEnd}
                         />
                       ))
@@ -739,6 +822,9 @@ export default function SeatingChartPage() {
                   <div className="grid gap-4 sm:grid-cols-2 2xl:grid-cols-3">
                     {chart.lists.map((list) => {
                       const members = membersOfList(list.id);
+                      const listKeys = guests
+                        .filter((g) => assignmentOf(g.key).listId === list.id)
+                        .map((g) => g.key);
                       return (
                         <GroupColumn
                           key={list.id}
@@ -746,6 +832,14 @@ export default function SeatingChartPage() {
                           color={null}
                           count={members.length}
                           editable
+                          grip={
+                            <DragGrip
+                              memberKeys={listKeys}
+                              title={`Drag everyone in ${list.name} together`}
+                              onDragStart={onDragStart}
+                              onDragEnd={onDragEnd}
+                            />
+                          }
                           onRename={(name) => renameList(list.id, name)}
                           onRemove={() => removeList(list.id)}
                           isOver={overTarget === `list:${list.id}`}
@@ -765,12 +859,12 @@ export default function SeatingChartPage() {
                               <GuestChip
                                 key={g.key}
                                 guest={g}
-                                dragging={draggingKey === g.key}
+                                dragging={draggingKeys.has(g.key)}
                                 color={groupColor(assignmentOf(g.key).groupId)}
                                 seatedTable={tableNameOf(assignmentOf(g.key).tableId)}
                                 onRemove={() => assign(g.key, { listId: null })}
                                 removeTitle="Remove from list"
-                                onDragStart={() => onDragStart(g.key)}
+                                onDragStart={() => onDragStart([g.key])}
                                 onDragEnd={onDragEnd}
                               />
                             ))
@@ -835,6 +929,97 @@ function EmptyHint({ children }: { children: React.ReactNode }) {
     <p className="px-1 py-2 text-center text-xs italic text-deep-plum/40 dark:text-cream/40">
       {children}
     </p>
+  );
+}
+
+/** A six-dot handle that drags a whole set of guests (a party / group / list). */
+function DragGrip({
+  memberKeys,
+  title,
+  onDragStart,
+  onDragEnd,
+}: {
+  memberKeys: string[];
+  title?: string;
+  onDragStart: (keys: string[]) => void;
+  onDragEnd: () => void;
+}) {
+  if (memberKeys.length === 0) return null;
+  return (
+    <span
+      draggable
+      onDragStart={(e) => {
+        e.dataTransfer.setData("text/plain", `keys:${memberKeys.join(",")}`);
+        e.dataTransfer.effectAllowed = "move";
+        onDragStart(memberKeys);
+      }}
+      onDragEnd={onDragEnd}
+      title={title ?? "Drag the whole group together"}
+      className="shrink-0 cursor-grab text-deep-plum/30 transition-colors hover:text-sage active:cursor-grabbing dark:text-cream/30 dark:hover:text-sage-light"
+      aria-label={title ?? "Drag the whole group together"}
+    >
+      <svg className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
+        <circle cx="9" cy="6" r="1.6" />
+        <circle cx="9" cy="12" r="1.6" />
+        <circle cx="9" cy="18" r="1.6" />
+        <circle cx="15" cy="6" r="1.6" />
+        <circle cx="15" cy="12" r="1.6" />
+        <circle cx="15" cy="18" r="1.6" />
+      </svg>
+    </span>
+  );
+}
+
+interface PartyClusterProps {
+  party: Party;
+  draggingKeys: Set<string>;
+  seatedTableOf: (key: string) => string | null;
+  listNameOf2: (key: string) => string | null;
+  onDragStart: (keys: string[]) => void;
+  onDragEnd: () => void;
+}
+
+/** One household (RSVP party) in the roster -- drag the header to move everyone. */
+function PartyCluster({
+  party,
+  draggingKeys,
+  seatedTableOf,
+  listNameOf2,
+  onDragStart,
+  onDragEnd,
+}: PartyClusterProps) {
+  const memberKeys = party.members.map((m) => m.key);
+  return (
+    <div className="rounded-xl border border-sage/20 bg-sage/5 p-2 dark:border-sage/25 dark:bg-sage/10">
+      <div className="mb-1.5 flex items-center gap-2 px-0.5">
+        <DragGrip
+          memberKeys={memberKeys}
+          title={`Drag ${party.label} together`}
+          onDragStart={onDragStart}
+          onDragEnd={onDragEnd}
+        />
+        <span className="min-w-0 flex-1 truncate text-xs font-semibold uppercase tracking-wide text-sage dark:text-sage-light">
+          {party.label}
+        </span>
+        <span className="shrink-0 text-xs font-medium text-deep-plum/40 dark:text-cream/40">
+          {party.members.length}
+        </span>
+      </div>
+      <div className="space-y-1.5">
+        {party.members.map((g) => (
+          <GuestChip
+            key={g.key}
+            guest={g}
+            dragging={draggingKeys.has(g.key)}
+            color={null}
+            seatedTable={seatedTableOf(g.key)}
+            listName={listNameOf2(g.key)}
+            onDragStart={() => onDragStart([g.key])}
+            onDragEnd={onDragEnd}
+          />
+        ))}
+      </div>
+    </div>
   );
 }
 
@@ -929,6 +1114,7 @@ interface GroupColumnProps extends DropZoneProps {
   color: string | null;
   count: number;
   editable?: boolean;
+  grip?: React.ReactNode;
   onRename?: (name: string) => void;
   onRemove?: () => void;
 }
@@ -938,6 +1124,7 @@ function GroupColumn({
   color,
   count,
   editable,
+  grip,
   onRename,
   onRemove,
   isOver,
@@ -966,6 +1153,7 @@ function GroupColumn({
       }`}
     >
       <div className="mb-2 flex items-center gap-2">
+        {grip}
         {color && (
           <span className="h-3 w-3 shrink-0 rounded-full" style={{ backgroundColor: color }} aria-hidden />
         )}
