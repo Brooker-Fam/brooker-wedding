@@ -519,7 +519,8 @@ export default function SeatingChartPage() {
     return guests.filter((g) => g.name.toLowerCase().includes(q) || g.rsvpName.toLowerCase().includes(q));
   }, [guests, search]);
 
-  // Roster groupings (everyone shows here, grouped by their family/circle)
+  // Roster groupings. Seated guests drop out of these sections (they move to
+  // the "Assigned" section), so the roster shows who still needs a seat.
   const ungrouped = useMemo(
     () => filteredGuests.filter((g) => !assignmentOf(g.key).groupId),
     [filteredGuests, assignmentOf]
@@ -527,6 +528,14 @@ export default function SeatingChartPage() {
   const unlisted = useMemo(
     () => filteredGuests.filter((g) => !assignmentOf(g.key).listId),
     [filteredGuests, assignmentOf]
+  );
+  const unseatedUngrouped = useMemo(
+    () => ungrouped.filter((g) => !assignmentOf(g.key).tableId),
+    [ungrouped, assignmentOf]
+  );
+  const unseatedUnlisted = useMemo(
+    () => unlisted.filter((g) => !assignmentOf(g.key).tableId),
+    [unlisted, assignmentOf]
   );
   const membersOfGroup = useCallback(
     (groupId: string) => filteredGuests.filter((g) => assignmentOf(g.key).groupId === groupId),
@@ -556,6 +565,23 @@ export default function SeatingChartPage() {
     },
     [chart]
   );
+
+  // Once seated, a guest leaves their roster section and collects under
+  // "Assigned" (sorted by table) at the bottom of the roster.
+  const isSeated = useCallback(
+    (key: string) => Boolean(assignmentOf(key).tableId),
+    [assignmentOf]
+  );
+  const assignedGuests = useMemo(() => {
+    const order = new Map((chart?.tables ?? []).map((t, i) => [t.id, i] as const));
+    return filteredGuests
+      .filter((g) => assignmentOf(g.key).tableId)
+      .sort((a, b) => {
+        const ta = order.get(assignmentOf(a.key).tableId ?? "") ?? 0;
+        const tb = order.get(assignmentOf(b.key).tableId ?? "") ?? 0;
+        return ta - tb || a.name.localeCompare(b.name);
+      });
+  }, [filteredGuests, assignmentOf, chart]);
 
   const totalGuests = guests.length;
   const seatedCount = useMemo(
@@ -679,7 +705,7 @@ export default function SeatingChartPage() {
             <GroupColumn
               title="Households"
               color={null}
-              count={ungrouped.length}
+              count={unseatedUngrouped.length}
               isOver={overTarget === "ungroup"}
               onDragOver={(e) => {
                 e.preventDefault();
@@ -688,10 +714,10 @@ export default function SeatingChartPage() {
               onDragLeave={() => setOverTarget((t) => (t === "ungroup" ? null : t))}
               onDrop={(e) => handleDropToGroup(e, null)}
             >
-              {ungrouped.length === 0 ? (
-                <EmptyHint>Everyone has been put in a family group.</EmptyHint>
+              {unseatedUngrouped.length === 0 ? (
+                <EmptyHint>No one here still needs a group.</EmptyHint>
               ) : (
-                clusterByParty(ungrouped).map((party) =>
+                clusterByParty(unseatedUngrouped).map((party) =>
                   party.members.length === 1 ? (
                     <GuestChip
                       key={party.members[0].key}
@@ -719,12 +745,10 @@ export default function SeatingChartPage() {
               )}
             </GroupColumn>
 
-            {/* Custom family groups */}
+            {/* Custom family groups (seated members move to Assigned) */}
             {chart.groups.map((group) => {
-              const members = membersOfGroup(group.id);
-              const groupKeys = guests
-                .filter((g) => assignmentOf(g.key).groupId === group.id)
-                .map((g) => g.key);
+              const members = membersOfGroup(group.id).filter((g) => !isSeated(g.key));
+              const groupKeys = members.map((g) => g.key);
               return (
                 <GroupColumn
                   key={group.id}
@@ -788,7 +812,7 @@ export default function SeatingChartPage() {
             <GroupColumn
               title="Not on a list"
               color={null}
-              count={unlisted.length}
+              count={unseatedUnlisted.length}
               isOver={overTarget === "unlist"}
               onDragOver={(e) => {
                 e.preventDefault();
@@ -797,10 +821,10 @@ export default function SeatingChartPage() {
               onDragLeave={() => setOverTarget((t) => (t === "unlist" ? null : t))}
               onDrop={(e) => handleDropToList(e, null)}
             >
-              {unlisted.length === 0 ? (
-                <EmptyHint>Everyone is on a list.</EmptyHint>
+              {unseatedUnlisted.length === 0 ? (
+                <EmptyHint>No one here still needs a list.</EmptyHint>
               ) : (
-                clusterByParty(unlisted).map((party) =>
+                clusterByParty(unseatedUnlisted).map((party) =>
                   party.members.length === 1 ? (
                     <GuestChip
                       key={party.members[0].key}
@@ -827,12 +851,10 @@ export default function SeatingChartPage() {
               )}
             </GroupColumn>
 
-            {/* One section per planning list */}
+            {/* One section per planning list (seated members move to Assigned) */}
             {chart.lists.map((list) => {
-              const members = membersOfList(list.id);
-              const listKeys = guests
-                .filter((g) => assignmentOf(g.key).listId === list.id)
-                .map((g) => g.key);
+              const members = membersOfList(list.id).filter((g) => !isSeated(g.key));
+              const listKeys = members.map((g) => g.key);
               return (
                 <GroupColumn
                   key={list.id}
@@ -890,6 +912,33 @@ export default function SeatingChartPage() {
               + Add list
             </button>
             </>
+            )}
+
+            {/* ── Assigned: everyone seated at a table, collected at the bottom ── */}
+            {assignedGuests.length > 0 && (
+              <GroupColumn
+                title="Assigned"
+                color={null}
+                count={assignedGuests.length}
+                isOver={false}
+                onDragOver={() => {}}
+                onDragLeave={() => {}}
+                onDrop={(e) => e.preventDefault()}
+              >
+                {assignedGuests.map((g) => (
+                  <GuestChip
+                    key={g.key}
+                    guest={g}
+                    dragging={draggingKeys.has(g.key)}
+                    color={groupColor(assignmentOf(g.key).groupId)}
+                    seatedTable={tableNameOf(assignmentOf(g.key).tableId)}
+                    onRemove={() => assign(g.key, { tableId: null })}
+                    removeTitle="Unseat"
+                    onDragStart={() => onDragStart([g.key])}
+                    onDragEnd={onDragEnd}
+                  />
+                ))}
+              </GroupColumn>
             )}
           </aside>
 
