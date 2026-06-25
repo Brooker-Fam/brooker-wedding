@@ -1,0 +1,795 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- Field map: the existence of God -->
+<title>Did the COVID shots work — and at what cost? — a map of the debate</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,500&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#171922; --ink-2:#1e212c; --card:#23273380; --card-solid:#232734;
+    --line:#34384a; --line-soft:#2a2e3b;
+    --bone:#ebe5d6; --mute:#a6a394; --faint:#807e8a;
+    /* found = pole A (verdigris) · made = pole B (ochre) · pivot = the reconciling hinge (lilac).
+       Rename the *concepts* in your prose, but keep these three colors as the axis. */
+    --found:#6dbaa4; --found-deep:#2f6657; --found-glow:#6dbaa422;
+    --made:#d8a652; --made-deep:#7d5f29; --made-glow:#d8a65222;
+    --pivot:#a195bd; --pivot-glow:#a195bd1f;
+    /* third camp (slate-blue) — only for genuinely ternary debates; see SKILL.md */
+    --camp-c:#6f93c4; --camp-c-deep:#33506f; --camp-c-glow:#6f93c41f;
+    --maxw:1180px;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0; background:var(--ink); color:var(--bone);
+    font-family:"IBM Plex Sans",sans-serif; font-weight:400;
+    line-height:1.62; font-size:17px;
+    -webkit-font-smoothing:antialiased;
+    background-image:
+      radial-gradient(900px 600px at 82% -8%, #20243340, transparent 70%),
+      radial-gradient(700px 500px at 5% 18%, #1d212e55, transparent 70%);
+    background-attachment:fixed;
+  }
+  .wrap{max-width:var(--maxw); margin:0 auto; padding:0 26px;}
+  .mono{font-family:"IBM Plex Mono",monospace;}
+  .ser{font-family:"Fraunces",serif;}
+
+  /* ---------- eyebrows / dividers ---------- */
+  .eyebrow{
+    font-family:"IBM Plex Mono",monospace; font-size:12px; font-weight:500;
+    letter-spacing:.22em; text-transform:uppercase; color:var(--faint);
+    display:flex; align-items:center; gap:14px;
+  }
+  .eyebrow::before{content:""; width:30px; height:1px; background:var(--line); display:inline-block;}
+  .sec-num{color:var(--mute);}
+
+  /* ---------- brooker site tie (added for brooker.family/debates) ---------- */
+  .site-tie{
+    font-family:"IBM Plex Mono",monospace; font-size:12px; letter-spacing:.2em;
+    text-transform:uppercase; color:var(--faint); text-decoration:none;
+    display:inline-flex; align-items:center; gap:9px; margin:0 0 30px;
+    transition:color .2s;
+  }
+  .site-tie::before{content:""; width:22px; height:1px; background:var(--line); display:inline-block;}
+  .site-tie:hover{color:var(--bone);}
+  .foot-links{margin-top:22px; display:flex; gap:24px; flex-wrap:wrap;}
+  .foot-links a{
+    font-family:"IBM Plex Mono",monospace; font-size:11.5px; letter-spacing:.16em;
+    text-transform:uppercase; color:var(--mute); text-decoration:none;
+    border-bottom:1px solid var(--line); padding-bottom:2px;
+  }
+  .foot-links a:hover{color:var(--bone); border-bottom-color:var(--mute);}
+
+  /* ---------- header ---------- */
+  header{padding:clamp(56px,10vw,116px) 0 clamp(40px,7vw,80px);}
+  .kicker{
+    font-family:"IBM Plex Mono",monospace; font-size:12.5px; letter-spacing:.26em;
+    text-transform:uppercase; color:var(--faint); margin:0 0 26px;
+  }
+  h1.title{
+    font-family:"Fraunces",serif; font-weight:400; font-optical-sizing:auto;
+    font-size:clamp(2.5rem,6.4vw,4.7rem); line-height:1.02; letter-spacing:-.012em;
+    margin:0; max-width:16ch;
+  }
+  h1.title em{font-style:italic; color:var(--found);}
+  h1.title .mk{font-style:italic; color:var(--made);}
+  .dek{
+    font-size:clamp(1.05rem,2.1vw,1.35rem); color:var(--mute); line-height:1.5;
+    max-width:47ch; margin:30px 0 0; font-weight:400;
+  }
+  .dek b{color:var(--bone); font-weight:500;}
+
+  /* ---------- axis legend ---------- */
+  .legend{
+    margin-top:46px; border:1px solid var(--line-soft); border-radius:14px;
+    background:linear-gradient(100deg,#1c202c,#1a1e29);
+    padding:22px 24px; display:grid; gap:14px;
+  }
+  .legend-top{font-family:"IBM Plex Mono",monospace; font-size:11.5px; letter-spacing:.2em; text-transform:uppercase; color:var(--faint);}
+  .axis-bar{
+    height:7px; border-radius:6px;
+    background:linear-gradient(90deg,var(--found) 0%, #6e6b78 50%, var(--made) 100%);
+  }
+  .axis-ends{display:flex; justify-content:space-between; gap:16px; font-size:14.5px;}
+  .axis-ends .ax-found{color:var(--found);}
+  .axis-ends .ax-made{color:var(--made); text-align:right;}
+  .axis-ends span b{display:block; font-weight:600; font-size:15px; margin-bottom:1px;}
+  .axis-ends span small{color:var(--faint); font-size:12.5px; letter-spacing:.02em;}
+
+  /* ---------- section frame ---------- */
+  section{padding:clamp(54px,8vw,96px) 0;}
+  .sec-head{margin-bottom:42px;}
+  .sec-head h2{
+    font-family:"Fraunces",serif; font-weight:400; font-size:clamp(1.9rem,4vw,2.9rem);
+    line-height:1.06; letter-spacing:-.01em; margin:18px 0 0; max-width:24ch;
+  }
+  .sec-head p{color:var(--mute); max-width:62ch; margin:16px 0 0; font-size:1.02rem;}
+
+  /* ===== I. LINEAGE (timeline) ===== */
+  .lineage{position:relative;}
+  .spine{
+    position:absolute; left:140px; top:6px; bottom:6px; width:2px;
+    background:linear-gradient(var(--found-deep),var(--line),var(--made-deep));
+  }
+  .node{position:relative; padding:0 0 26px 172px; min-height:30px;}
+  .node .yr{
+    position:absolute; left:0; top:1px; width:118px; text-align:right;
+    font-family:"IBM Plex Mono",monospace; font-size:12.5px; color:var(--faint);
+    letter-spacing:.02em; padding-top:2px;
+  }
+  .node .dot{
+    position:absolute; left:134px; top:6px; width:14px; height:14px; border-radius:50%;
+    background:var(--ink); border:2px solid var(--mute); z-index:2;
+  }
+  .node.found .dot{border-color:var(--found); box-shadow:0 0 0 4px var(--found-glow);}
+  .node.made .dot{border-color:var(--made); box-shadow:0 0 0 4px var(--made-glow);}
+  .node.pivot .dot{border-color:var(--pivot); box-shadow:0 0 0 4px var(--pivot-glow);}
+  .node .who{font-family:"Fraunces",serif; font-size:1.24rem; font-weight:500; line-height:1.15; letter-spacing:-.005em;}
+  .node .dom{font-family:"IBM Plex Mono",monospace; font-size:10.5px; letter-spacing:.16em; text-transform:uppercase; margin-left:10px; color:var(--faint); vertical-align:middle;}
+  .node .say{color:var(--mute); font-size:.99rem; margin-top:4px; max-width:64ch;}
+  .node.camp-c .dot{border-color:var(--camp-c); box-shadow:0 0 0 4px var(--camp-c-glow);}
+  .node.found .who{color:var(--found);}
+  .node.made .who{color:var(--made);}
+  .node.pivot .who{color:var(--pivot);}
+  .node.camp-c .who{color:var(--camp-c);}
+  .lineage-tail{padding-left:172px; margin-top:2px;}
+  .lineage-tail .pin{
+    position:relative; padding:16px 20px; border:1px dashed var(--line);
+    border-radius:12px; background:#1b1f2a; max-width:60ch;
+  }
+  .lineage-tail .pin b{font-family:"Fraunces",serif; font-weight:500; font-size:1.05rem;}
+  .lineage-tail .pin p{margin:5px 0 0; color:var(--mute); font-size:.96rem;}
+
+  /* ===== II. POSITIONS (field guide) ===== */
+  .fields{display:grid; grid-template-columns:1fr 1fr; gap:30px;}
+  .field h3{
+    font-family:"IBM Plex Mono",monospace; font-size:12.5px; letter-spacing:.2em;
+    text-transform:uppercase; color:var(--bone); margin:0 0 18px; padding-bottom:12px;
+    border-bottom:1px solid var(--line); display:flex; justify-content:space-between; align-items:baseline;
+  }
+  .field h3 small{color:var(--faint); letter-spacing:.12em; font-weight:400;}
+  .pos{
+    border:1px solid var(--line-soft); border-left:3px solid var(--line);
+    border-radius:0 11px 11px 0; background:var(--card);
+    padding:16px 18px; margin-bottom:13px; transition:border-color .25s, background .25s, transform .25s;
+  }
+  .pos.found{border-left-color:var(--found);}
+  .pos.made{border-left-color:var(--made);}
+  .pos.pivot{border-left-color:var(--pivot);}
+  .pos.camp-c{border-left-color:var(--camp-c);}
+  .pos:hover{transform:translateX(3px); background:var(--card-solid);}
+  .pos .nm{font-family:"Fraunces",serif; font-weight:600; font-size:1.16rem; letter-spacing:-.005em; display:flex; align-items:baseline; gap:10px; flex-wrap:wrap;}
+  .pos.found .nm{color:var(--found);} .pos.made .nm{color:var(--made);} .pos.pivot .nm{color:var(--pivot);} .pos.camp-c .nm{color:var(--camp-c);}
+  /* go-deeper links on a card or in the shelf */
+  .src-links{margin-top:9px; display:flex; flex-wrap:wrap; gap:6px 14px;}
+  .src-links a{font-family:"IBM Plex Mono",monospace; font-size:11.5px; color:var(--mute); text-decoration:none; border-bottom:1px solid var(--line);}
+  .src-links a:hover{color:var(--bone); border-bottom-color:var(--mute);}
+  .src-links a::after{content:" ↗"; color:var(--faint);}
+  .traction{
+    font-family:"IBM Plex Mono",monospace; font-size:10px; letter-spacing:.08em; text-transform:uppercase;
+    color:var(--faint); border:1px solid var(--line); border-radius:20px; padding:2px 9px; white-space:nowrap;
+  }
+  .pos .figs{font-family:"IBM Plex Mono",monospace; font-size:12px; color:var(--mute); margin:7px 0 7px; letter-spacing:.01em;}
+  .pos .claim{color:var(--bone); font-size:.97rem; line-height:1.5;}
+  .pos .nb{display:block; margin-top:7px; color:var(--faint); font-size:.85rem; font-style:italic;}
+  .pivot-card{
+    grid-column:1/-1; border:1px solid var(--pivot); border-radius:13px;
+    background:linear-gradient(100deg,#211f2c,#1c1b25); padding:20px 22px; margin-top:4px;
+    display:flex; gap:18px; align-items:flex-start; flex-wrap:wrap;
+  }
+  .pivot-card .pv-tag{font-family:"IBM Plex Mono",monospace; font-size:11px; letter-spacing:.2em; text-transform:uppercase; color:var(--pivot); white-space:nowrap; padding-top:5px;}
+  .pivot-card .pv-body{flex:1 1 320px;}
+  .pivot-card .pv-body b{font-family:"Fraunces",serif; font-weight:600; font-size:1.2rem; color:var(--pivot);}
+  .pivot-card .pv-body p{margin:6px 0 0; color:var(--bone); font-size:.98rem;}
+  .traction-note{margin-top:20px; color:var(--faint); font-size:.84rem; font-style:italic; max-width:70ch; display:flex; gap:9px;}
+  .traction-note::before{content:"※"; color:var(--mute); font-style:normal;}
+
+  /* ===== III. CRUXES (confrontations) ===== */
+  .crux{border:1px solid var(--line-soft); border-radius:18px; overflow:hidden; margin-bottom:30px; background:#191d28;}
+  .crux-head{padding:24px 28px 20px; border-bottom:1px solid var(--line-soft);}
+  .crux-meta{display:flex; justify-content:space-between; gap:14px; align-items:baseline; flex-wrap:wrap; margin-bottom:12px;}
+  .crux-n{font-family:"IBM Plex Mono",monospace; font-size:13px; letter-spacing:.18em; color:var(--mute);}
+  .crux-dom{font-family:"IBM Plex Mono",monospace; font-size:10.5px; letter-spacing:.16em; text-transform:uppercase; color:var(--ink); background:var(--mute); padding:3px 10px; border-radius:20px;}
+  .crux-dom.both{background:var(--pivot);}
+  .crux-q{font-family:"Fraunces",serif; font-weight:500; font-size:clamp(1.4rem,3vw,2rem); line-height:1.12; letter-spacing:-.01em; margin:0;}
+  .crux-sub{color:var(--mute); margin:9px 0 0; font-size:.98rem;}
+  .steels{display:grid; grid-template-columns:1fr 1fr; gap:0;}
+  .steel{padding:24px 28px; position:relative;}
+  .steel.s-found{background:linear-gradient(180deg,#1a2420,#191f1d);}
+  .steel.s-made{background:linear-gradient(180deg,#241f17,#1f1c16); border-left:1px solid var(--line-soft);}
+  .steel .side{font-family:"IBM Plex Mono",monospace; font-size:11px; letter-spacing:.14em; text-transform:uppercase; margin-bottom:5px;}
+  .steel.s-found .side{color:var(--found);}
+  .steel.s-made .side{color:var(--made);}
+  .steel .pos-name{font-family:"Fraunces",serif; font-weight:600; font-size:1.12rem; margin-bottom:9px; line-height:1.2;}
+  .steel.s-found .pos-name{color:var(--found);}
+  .steel.s-made .pos-name{color:var(--made);}
+  .steel .gist{font-weight:600; font-size:1.04rem; line-height:1.45; color:var(--bone); margin:0 0 13px; padding-bottom:13px; border-bottom:1px dashed var(--line);}
+  .steel .gist::before{content:"In plain terms"; display:block; font-family:"IBM Plex Mono",monospace; font-size:10px; font-weight:500; letter-spacing:.18em; text-transform:uppercase; color:var(--faint); margin-bottom:5px;}
+  .steel p{margin:0; font-size:.97rem; line-height:1.56; color:#e2dccd;}
+  .steel p em{font-style:italic; color:var(--bone);}
+  .crux-key{padding:18px 28px; background:#13161f; border-top:1px solid var(--line-soft); display:flex; gap:14px; align-items:flex-start;}
+  .crux-key .lab{font-family:"IBM Plex Mono",monospace; font-size:11px; letter-spacing:.16em; text-transform:uppercase; color:var(--faint); padding-top:3px; white-space:nowrap;}
+  .crux-key .txt{font-size:.99rem; color:var(--bone); line-height:1.5;}
+  .crux-key .txt b{font-weight:600;}
+  .same-tag{display:inline-block; margin-top:9px; font-family:"IBM Plex Mono",monospace; font-size:11px; letter-spacing:.08em; color:var(--pivot); border:1px solid var(--pivot); border-radius:20px; padding:3px 11px;}
+
+  /* ===== IV. PAYOFF ===== */
+  .fault-sec{background:linear-gradient(180deg,transparent, #13161f 30%, #13161f 70%, transparent);}
+  .fault-card{border:1px solid var(--line); border-radius:20px; background:#171b25; padding:clamp(24px,4vw,44px); box-shadow:0 30px 80px -50px #000;}
+  .fault-lead{font-family:"Fraunces",serif; font-weight:400; font-size:clamp(1.5rem,3.3vw,2.3rem); line-height:1.18; letter-spacing:-.01em; margin:0 0 8px; max-width:26ch;}
+  .fault-lead em{font-style:italic; color:var(--pivot);}
+  .fault-intro{color:var(--mute); max-width:64ch; margin:0 0 30px; font-size:1.02rem;}
+  .diagram{width:100%; height:auto; display:block; margin:6px 0 4px; overflow:visible;}
+  .fault-restate{display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:18px; margin-top:34px;}
+  .fr-item{border-top:2px solid var(--line); padding-top:13px;}
+  .fr-item.f1{border-top-color:var(--made);}
+  .fr-item.f2{border-top-color:var(--pivot);}
+  .fr-item.f3{border-top-color:var(--found);}
+  .fr-item.f4{border-top-color:var(--made);}
+  .fr-item .fr-n{font-family:"IBM Plex Mono",monospace; font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--faint);}
+  .fr-item .fr-t{font-family:"Fraunces",serif; font-weight:500; font-size:1.05rem; margin:4px 0 5px;}
+  .fr-item p{margin:0; font-size:.92rem; color:var(--mute); line-height:1.5;}
+  .fault-close{margin-top:36px; padding-top:26px; border-top:1px solid var(--line); font-family:"Fraunces",serif; font-style:italic; font-weight:400; font-size:clamp(1.15rem,2.4vw,1.5rem); line-height:1.35; color:var(--bone); max-width:44ch;}
+  .fault-close .ax{color:var(--found);}
+  .fault-close .mk{color:var(--made);}
+
+  /* ===== V. GO DEEPER (resources shelf) ===== */
+  .shelf{display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:24px;}
+  .shelf-col h4{font-family:"IBM Plex Mono",monospace; font-size:12px; letter-spacing:.18em; text-transform:uppercase; color:var(--mute); margin:0 0 14px; padding-bottom:10px; border-bottom:1px solid var(--line);}
+  .res{margin-bottom:15px;}
+  .res .t{font-family:"Fraunces",serif; font-weight:500; font-size:1.04rem; line-height:1.25;}
+  .res .t a{color:var(--bone); text-decoration:none; border-bottom:1px solid var(--line);}
+  .res .t a:hover{border-bottom-color:var(--mute);}
+  .res .by{font-family:"IBM Plex Mono",monospace; font-size:11.5px; color:var(--faint); margin-top:1px;}
+  .res .why{color:var(--mute); font-size:.9rem; margin-top:4px; line-height:1.45;}
+
+  /* ---------- footer ---------- */
+  footer{padding:54px 0 80px; border-top:1px solid var(--line-soft); margin-top:30px;}
+  .foot-note{color:var(--faint); font-size:.86rem; max-width:66ch; line-height:1.55;}
+  .foot-note b{color:var(--mute); font-weight:500;}
+
+  /* ---------- reveal ---------- */
+  .reveal{opacity:0; transform:translateY(16px); transition:opacity .7s ease, transform .7s ease;}
+  .reveal.in{opacity:1; transform:none;}
+
+  :focus-visible{outline:2px solid var(--found); outline-offset:3px; border-radius:3px;}
+
+  /* ---------- responsive ---------- */
+  @media (max-width:760px){
+    body{font-size:16px;}
+    .fields{grid-template-columns:1fr;}
+    .steels{grid-template-columns:1fr;}
+    .steel.s-made{border-left:none; border-top:1px solid var(--line-soft);}
+    .spine{left:84px;}
+    .node{padding-left:112px;}
+    .node .yr{width:64px;}
+    .node .dot{left:78px;}
+    .lineage-tail{padding-left:112px;}
+    .axis-ends{flex-direction:column; gap:10px;}
+    .axis-ends .ax-made{text-align:left;}
+  }
+  @media (prefers-reduced-motion:reduce){
+    *{scroll-behavior:auto;}
+    .reveal{opacity:1; transform:none; transition:none;}
+    .draw{stroke-dashoffset:0 !important;}
+  }
+</style>
+</head>
+<body>
+
+<!-- ============================ HEADER ============================ -->
+<header class="wrap">
+  <a class="site-tie" href="/debates">All debate maps · brooker</a>
+  <p class="kicker">FIELD · the COVID-19 vaccines &amp; the pandemic response</p>
+  <h1 class="title">Were the COVID shots <em>a lifesaver</em> — or <span class="mk">oversold</span>?</h1>
+  <p class="dek">Two doses, ~95% efficacy, December 2020 — and four years of argument since. A dozen positions fold into four <b>cruxes</b>, and those into two <b>questions</b>: how much did the shots actually buy, and for whom — and was the rollout honest about it. The stakes are not small: millions of lives, the public trust we'll need for the next pandemic, the precedent for how a government leans on its citizens. Among serious people the fight is rarely <b>do they work at all</b>. It is <b>for whom, how well, against what — and whether anyone was leveled with</b>.</p>
+
+  <div class="legend reveal">
+    <div class="legend-top">One axis runs under all of it. Watch the two colors.</div>
+    <div class="axis-bar"></div>
+    <div class="axis-ends">
+      <span class="ax-found"><b>Net benefit</b><small>cut severe disease &amp; death · worth it</small></span>
+      <span class="ax-made"><b>Oversold</b><small>waned · harms downplayed · over-mandated</small></span>
+    </div>
+  </div>
+</header>
+
+<!-- ============================ I. LINEAGE ============================ -->
+<section class="wrap">
+  <div class="sec-head">
+    <div class="eyebrow"><span class="sec-num">I</span> &nbsp;the lineage</div>
+    <h2 class="ser">From a lab bench to a wedge issue, in one column</h2>
+    <p>Read top to bottom. A dot's halo marks how the moment reads on the axis — green where the case for net benefit lands, gold where the oversold-and-mandated critique lands, lilac where it cuts both ways.</p>
+  </div>
+
+  <div class="lineage reveal">
+    <div class="spine" aria-hidden="true"></div>
+
+    <div class="node found">
+      <span class="yr">2005</span><span class="dot"></span>
+      <div class="who">Karikó &amp; Weissman<span class="dom">biochemistry · platform</span></div>
+      <div class="say">Katalin Karikó and Drew Weissman work out that swapping in a modified nucleoside lets synthetic mRNA slip past the body's alarms without triggering a wrecking inflammatory response. The fix nobody noticed at the time. It's what makes an mRNA vaccine possible at all — and earns them the Nobel eighteen years later.</div>
+    </div>
+
+    <div class="node found">
+      <span class="yr">11 Jan 2020</span><span class="dot"></span>
+      <div class="who">The genome posts<span class="dom">virology · sequence</span></div>
+      <div class="say">Chinese researchers release the SARS-CoV-2 sequence online. Moderna designs its vaccine against it within days, before most of the world had heard the virus's name. No virus in a vial needed — just the letters of the spike protein. The speed that later cut both ways begins here.</div>
+    </div>
+
+    <div class="node found">
+      <span class="yr">Dec 2020</span><span class="dot"></span>
+      <div class="who">EUA &amp; the 95% number<span class="dom">trials · authorization</span></div>
+      <div class="say">Pfizer-BioNTech and Moderna clear randomized trials of tens of thousands and win Emergency Use Authorization. The headline: roughly 95% efficacy against symptomatic COVID. A genuinely strong result, on a brand-new platform, eleven months after the sequence dropped.</div>
+    </div>
+
+    <div class="node found">
+      <span class="yr">2021</span><span class="dot"></span>
+      <div class="who">The mass rollout<span class="dom">policy · messaging</span></div>
+      <div class="say">Hundreds of millions of doses go out under the banner "get vaccinated to stop the spread." For the elderly and high-risk, the hospitalization and death curves bend hard. <span class="nb">nb: the promise to block transmission was an assumption riding ahead of the data — the trials had measured symptomatic infection, not spread.</span></div>
+    </div>
+
+    <div class="node made">
+      <span class="yr">mid-2021</span><span class="dot"></span>
+      <div class="who">Delta &amp; the myocarditis signal<span class="dom">surveillance · safety</span></div>
+      <div class="say">Delta drives breakthrough infections in the vaccinated; the "stop the spread" framing starts to fray. The CDC and the VAERS reporting system flag a real signal: myocarditis, concentrated in young males, in the days after a second mRNA dose. Uncommon, mostly mild — but unmistakably there.</div>
+    </div>
+
+    <div class="node pivot">
+      <span class="yr">Aug–Sept 2021</span><span class="dot"></span>
+      <div class="who">The FDA resignations<span class="dom">regulation · boosters</span></div>
+      <div class="say">As the White House pushes boosters for the general population, the FDA's two most senior vaccine reviewers, Marion Gruber and Philip Krause, resign — then co-sign a Lancet review arguing the data didn't support boosting healthy young people yet. The hinge moment: insiders saying the science was getting out ahead of the policy.</div>
+    </div>
+
+    <div class="node made">
+      <span class="yr">2021–22</span><span class="dot"></span>
+      <div class="who">The mandates<span class="dom">law · autonomy</span></div>
+      <div class="say">Vaccination becomes a condition of work, of military service, of some campuses. Uptake rises; so does the backlash, much of it on bodily-autonomy grounds, some of it from people who'd taken the shot and balked at compelling it. The fight stops being only medical.</div>
+    </div>
+
+    <div class="node made">
+      <span class="yr">Jan 2022</span><span class="dot"></span>
+      <div class="who">Omicron escapes<span class="dom">virology · waning</span></div>
+      <div class="say">Omicron sidesteps much of the antibody protection and rips through vaccinated populations. The shot still blunts severe disease, but protection against catching and passing the virus falls off within months. The "non-sterilizing" reality lands in public — the vaccine guards you more than it walls off everyone else.</div>
+    </div>
+
+    <div class="node made">
+      <span class="yr">Sept 2022</span><span class="dot"></span>
+      <div class="who">The bivalent booster<span class="dom">regulation · evidence</span></div>
+      <div class="say">Updated boosters are authorized largely on mouse immunogenicity data, ahead of human outcome trials. Uptake is low — well under a fifth of eligible Americans. For critics this is the template case: a recommendation outrunning the clinical evidence behind it.</div>
+    </div>
+
+    <div class="node found">
+      <span class="yr">2023</span><span class="dot"></span>
+      <div class="who">The Nobel<span class="dom">science · vindication</span></div>
+      <div class="say">Karikó and Weissman take the Nobel Prize in Medicine. Whatever the rollout fights, the platform itself is now a settled scientific landmark — the years-to-days collapse of vaccine development, proven in the worst possible conditions.</div>
+    </div>
+
+    <div class="node made">
+      <span class="yr">2025</span><span class="dot"></span>
+      <div class="who">RFK Jr. at HHS<span class="dom">policy · reversal</span></div>
+      <div class="say">Robert F. Kennedy Jr. takes over the Department of Health and Human Services, replaces the membership of the CDC's advisory committee (ACIP), and pulls the COVID shots from the routine childhood schedule. The pendulum swings hard the other way — and brings its own questions about evidence and process.</div>
+    </div>
+
+    <div class="lineage-tail">
+      <div class="pin">
+        <b>Into the present</b>
+        <p>The platform is a real scientific achievement that few dispute. What's still live is how well it worked and for whom, what the rollout cost in trust, and whether the public was leveled with on transmission, durability, and the thin data behind the later boosters.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ II. POSITIONS ============================ -->
+<section class="wrap">
+  <div class="sec-head">
+    <div class="eyebrow"><span class="sec-num">II</span> &nbsp;the positions</div>
+    <h2 class="ser">Who holds what — and where it sits on the axis</h2>
+    <p>Two families of claim: how well the shots worked, and what they cost in harm and trust. A card's left edge is its lean; the tag is rough sociology, not a scorecard.</p>
+  </div>
+
+  <div class="fields reveal">
+    <div class="field">
+      <h3>On how well they worked <small>effectiveness</small></h3>
+
+      <div class="pos found">
+        <div class="nm">Strong-benefit consensus <span class="traction">mainstream</span></div>
+        <div class="figs">most epidemiologists · CDC · FDA</div>
+        <div class="claim">The shots produced a large cut in severe disease and death, above all in the elderly and through the Delta wave — the single biggest lever public health had before treatments matured.</div>
+        <div class="src-links"><a href="https://ourworldindata.org/covid-vaccinations">Our World in Data: COVID vaccinations</a></div>
+      </div>
+
+      <div class="pos made">
+        <div class="nm">"Waned and leaky" critique <span class="traction">widely conceded by 2022</span></div>
+        <div class="figs">post-Omicron epidemiology</div>
+        <div class="claim">Protection against catching and transmitting the virus faded within months. The shot lowers your odds of a bad case; it doesn't reliably stop you getting infected or passing it on.</div>
+        <span class="nb">Not a fringe read by 2022 — the question is whether the early messaging ever admitted it.</span>
+      </div>
+
+      <div class="pos found">
+        <div class="nm">"Saved millions" modeling <span class="traction">influential, model-dependent</span></div>
+        <div class="figs">Watson et al. · Imperial College</div>
+        <div class="claim">Large modelling estimates put lives saved in the first year of rollout in the millions worldwide, concentrated where older populations got dosed fastest.</div>
+        <span class="nb">A model, not a body count — the figure swings with its assumptions, but the direction holds across them.</span>
+      </div>
+    </div>
+
+    <div class="field">
+      <h3>On harm &amp; policy <small>safety, trust, mandates</small></h3>
+
+      <div class="pos found">
+        <div class="nm">Favorable-safety consensus <span class="traction">mainstream</span></div>
+        <div class="figs">CDC · FDA · large cohort studies</div>
+        <div class="claim">Serious adverse events are rare, and COVID infection itself causes more myocarditis than the vaccine does — so even on the heart-risk question the shot comes out ahead of the disease.</div>
+        <div class="src-links"><a href="https://en.wikipedia.org/wiki/COVID-19_vaccine">Wikipedia: COVID-19 vaccine</a></div>
+      </div>
+
+      <div class="pos made">
+        <div class="nm">Myocarditis / signal skeptics <span class="traction">vindicated on the signal</span></div>
+        <div class="figs">cardiologists · independent analysts</div>
+        <div class="claim">There is a real, age- and sex-specific myocarditis signal in young men — and it was waved off as anti-vax noise for months before officials acknowledged it.</div>
+        <div class="src-links"><a href="https://en.wikipedia.org/wiki/Myocarditis">Wikipedia: Myocarditis</a></div>
+      </div>
+
+      <div class="pos made">
+        <div class="nm">Trial-transparency critics <span class="traction">persistent minority</span></div>
+        <div class="figs">Peter Doshi · The BMJ</div>
+        <div class="claim">Surrogate endpoints, withheld raw data, and the speed of placebo unblinding limit what the trials can actually tell us about deaths, durability, and long-term safety.</div>
+      </div>
+
+      <div class="pos pivot">
+        <div class="nm">Risk-stratification reformers <span class="traction">growing, heterodox</span></div>
+        <div class="figs">Vinay Prasad · Marty Makary · Sensible Medicine</div>
+        <div class="claim">Recommend by age and prior immunity, not by blanket fiat. A clear benefit for the old and high-risk; a much weaker case for boosting the young and healthy.</div>
+        <div class="src-links"><a href="https://www.sensible-med.com/">Sensible Medicine</a></div>
+      </div>
+
+      <div class="pos made">
+        <div class="nm">Mandate critics <span class="traction">substantial, cross-partisan</span></div>
+        <div class="figs">civil-liberties lawyers · some clinicians</div>
+        <div class="claim">Compelling a non-sterilizing vaccine is hard to justify on "protect others" grounds — if it doesn't reliably stop spread, the case for coercion thins out.</div>
+      </div>
+
+      <div class="pos made">
+        <div class="nm">Focused protection <span class="traction">sharply contested</span></div>
+        <div class="figs">Great Barrington Declaration · Kulldorff, Gupta, Bhattacharya</div>
+        <div class="claim">Shield the vulnerable directly and lift blanket restrictions on the low-risk — a strategy its authors say would have spent less trust for similar mortality.</div>
+        <span class="nb">Denounced at the time by much of public health as unworkable and dangerous; it remains the most divisive entry here.</span>
+        <div class="src-links"><a href="https://en.wikipedia.org/wiki/Great_Barrington_Declaration">Wikipedia: Great Barrington Declaration</a></div>
+      </div>
+    </div>
+
+    <div class="pivot-card">
+      <div class="pv-tag">the hinge ↕</div>
+      <div class="pv-body">
+        <b>Right tool, wrong universality</b>
+        <p>The risk-stratification view threads the two poles. The shots were a major benefit for the old and high-risk — real lives, especially through Delta — and were oversold and over-mandated for the young and healthy, particularly after infection, after Omicron, and for repeat boosters with thin clinical backing. On this reading the damage to public trust came from the messaging and the mandates, not from the vaccine itself: the overreach is what burned the reservoir, not the science. Vinay Prasad, Marty Makary, and the two FDA reviewers who quit in 2021 are the people who said it loudest, earliest, from inside.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="traction-note">Tags are rough sociology — how the literature and the profession shake out — not a verdict, and not who's right. Several of these positions were minority heresies that the data later moved toward, and the reverse has happened too; popularity and truth keep separate books.</div>
+</section>
+
+<!-- ============================ III. CRUXES ============================ -->
+<section class="wrap">
+  <div class="sec-head">
+    <div class="eyebrow"><span class="sec-num">III</span> &nbsp;the cruxes</div>
+    <h2 class="ser">Four fair fights, each carrying part of the load</h2>
+    <p>The positions are bundles of answers; these are the questions that, answered one way or the other, split them. Both panels give the side's best evidence-grounded case, in its own voice.</p>
+  </div>
+
+  <!-- CRUX 1 -->
+  <div class="crux reveal">
+    <div class="crux-head">
+      <div class="crux-meta"><span class="crux-n">Crux 01 — what it prevented</span><span class="crux-dom">epidemiology</span></div>
+      <h3 class="crux-q ser">What did the shots actually prevent — and for how long?</h3>
+      <p class="crux-sub">Severe disease, infection, transmission, death — the vaccine touched these differently, and most of the argument is people grading it on different ones.</p>
+    </div>
+    <div class="steels">
+      <div class="steel s-found">
+        <div class="side">▸ the death curves are clear</div>
+        <div class="pos-name">It cut severe disease and death</div>
+        <div class="gist">The randomized trials and the hospital data point the same way: vaccination sharply lowered the odds of ending up in the ICU or the morgue, hardest of all for the elderly.</div>
+        <p>Two arms of tens of thousands, the placebo group lighting up with COVID and the vaccine group not — that's about as clean as evidence gets. When Delta hit, the unvaccinated filled the hospitals at many times the rate of the vaccinated, across country after country. Watson and colleagues, modelling the first year of rollout, put the lives saved in the millions. You can quarrel with a model's dials; you can't quarrel with the age curve, which is the whole game. A vaccinated eighty-year-old had a fighting chance an unvaccinated one didn't.</p>
+      </div>
+      <div class="steel s-made">
+        <div class="side">▸ "stop the spread" outran the data</div>
+        <div class="pos-name">It measured the wrong thing, and faded</div>
+        <div class="gist">The trials were powered to detect symptomatic infection, not death and not transmission — and whatever protection against catching the virus existed drained away within months.</div>
+        <p>Look at what the December 2020 trials actually measured: a reduction in symptomatic, PCR-confirmed cases. Not mortality, which they weren't powered for. Not transmission, which they didn't test. Yet the public message became "get it to stop the spread" — a claim the data hadn't earned and that Omicron then demolished, as the vaccinated caught and passed the virus at rates close to everyone else. Protection against infection measured in weeks, not years. The benefit against severe disease is real; the promise that you'd be protecting your grandmother by getting a shot was sold harder than the evidence ever supported.</p>
+      </div>
+    </div>
+    <div class="crux-key">
+      <span class="lab">the crux</span>
+      <span class="txt">Are we grading the shot on <b>severe disease and death</b> — where the benefit is real, especially for the vulnerable — or on <b>blocking infection and transmission</b>, where it waned? Most of the fight is two sides answering different questions.</span>
+    </div>
+  </div>
+
+  <!-- CRUX 2 -->
+  <div class="crux reveal">
+    <div class="crux-head">
+      <div class="crux-meta"><span class="crux-n">Crux 02 — the harms</span><span class="crux-dom">safety</span></div>
+      <h3 class="crux-q ser">Are the serious harms rare-and-outweighed, or under-counted?</h3>
+      <p class="crux-sub">A myocarditis signal in young men is real. The question is whether "rare and acceptable" was a finding or a reflex.</p>
+    </div>
+    <div class="steels">
+      <div class="steel s-found">
+        <div class="side">▸ rare, mild, and beaten by the disease</div>
+        <div class="pos-name">Favorable safety profile</div>
+        <div class="gist">Post-vaccine myocarditis is real but uncommon and usually mild — and the virus causes it more often than the shot does, so the comparison runs the right way.</div>
+        <p>Billions of doses, tracked across national health systems with linked records, not anecdotes. The myocarditis cases cluster in young men after the second dose, run on the order of a few per hundred thousand, and mostly resolve. Set that against the heart inflammation COVID itself produces, which is more frequent and often worse, and the net for almost every group favors the vaccine. VAERS, the system critics point to, takes any report from anyone — it's a smoke alarm, not a diagnosis, and it can't establish that the shot caused what followed it. The large controlled datasets can, and they say the safety profile holds.</p>
+      </div>
+      <div class="steel s-made">
+        <div class="side">▸ "rare" was asserted before it was known</div>
+        <div class="pos-name">Under-measured, slow to admit</div>
+        <div class="gist">The myocarditis signal was dismissed before it was acknowledged, and the trial design foreclosed the long follow-up that would settle the rest.</div>
+        <p>The pattern is the tell. When the signal first surfaced it was waved off as anti-vax rumor; only after Israeli and U.S. surveillance forced the issue did it become an official warning. That's months of "perfectly safe" before the data was in. And the trials can't carry the long-term question: safety follow-up was short, and once efficacy was shown the placebo arms were offered the vaccine fast — ethical, but it erased the clean unvaccinated comparison group for years out. "Rare and outweighed" may well be right. It was being said with confidence before anyone could honestly know it, and that is its own kind of harm.</p>
+      </div>
+    </div>
+    <div class="crux-key">
+      <span class="lab">the crux</span>
+      <span class="txt">Is the safety signal <b>rare-and-outweighed</b>, or <b>systematically under-measured</b>? The fight is less over the numbers than over how confidently they were announced, and when.</span>
+    </div>
+  </div>
+
+  <!-- CRUX 3 -->
+  <div class="crux reveal">
+    <div class="crux-head">
+      <div class="crux-meta"><span class="crux-n">Crux 03 — for whom</span><span class="crux-dom">risk-benefit</span></div>
+      <h3 class="crux-q ser">Who actually benefits enough to recommend it?</h3>
+      <p class="crux-sub">The risk-benefit ratio for a frail 80-year-old and a healthy, previously-infected 12-year-old are not in the same universe. Should one recommendation cover both?</p>
+    </div>
+    <div class="steels">
+      <div class="steel s-found">
+        <div class="side">▸ small benefit is still benefit</div>
+        <div class="pos-name">Broad recommendation</div>
+        <div class="gist">Even where the absolute gain for a healthy young person is small, it's positive — and wide uptake lowers the viral load circling the people who'd die.</div>
+        <p>A healthy twenty-year-old's personal risk from COVID is low, true. But low isn't zero — young people did land in hospitals and did, rarely, die — and the shot moved even that small number in the right direction. Add the people around them: in a pandemic, the case for vaccination was never purely selfish. Simple, universal guidance is also something a population can actually follow under emergency conditions; carve it into a dozen age-and-history brackets and uptake collapses just when speed matters. A blanket recommendation traded a little precision for a lot of reach.</p>
+      </div>
+      <div class="steel s-made">
+        <div class="side">▸ the ratio swings by orders of magnitude</div>
+        <div class="pos-name">Sharp risk-stratification</div>
+        <div class="gist">Risk and benefit change a thousandfold with age and prior infection — and a one-size recommendation pretended they didn't.</div>
+        <p>An infection-fatality rate for the elderly is orders of magnitude above that for children; a kid who's already had COVID carries immunity the trials never accounted for. So "everyone six months and up, and boosted" wasn't caution — it ignored the actual numbers. Notice that most other wealthy countries never recommended boosters for healthy children at all, and some pulled back primary doses for the young; the U.S. was an outlier, not the careful default. Where the absolute benefit is tiny and a real if small harm exists, "recommend it to everyone" stops being conservative and starts being a category error.</p>
+      </div>
+    </div>
+    <div class="crux-key">
+      <span class="lab">the crux</span>
+      <span class="txt">Should the recommendation be <b>universal</b>, or <b>sharply stratified</b> by age and prior immunity? <span class="same-tag">↳ this is where the risk-stratification hinge lives — the view that the answer is "both, depending who you mean."</span></span>
+    </div>
+  </div>
+
+  <!-- CRUX 4 -->
+  <div class="crux reveal">
+    <div class="crux-head">
+      <div class="crux-meta"><span class="crux-n">Crux 04 — the trust</span><span class="crux-dom both">public health · crossways</span></div>
+      <h3 class="crux-q ser">Did the messaging and mandates protect people, or burn the trust we'll need next time?</h3>
+      <p class="crux-sub">Before scoring the medical arguments, ask what the way they were communicated cost — and whether that cost was avoidable.</p>
+    </div>
+    <div class="steels">
+      <div class="steel s-found">
+        <div class="side">▸ clear guidance saved lives</div>
+        <div class="pos-name">Emergency demanded confidence</div>
+        <div class="gist">Under genuine uncertainty, with bodies stacking up, clear direction and mandates raised uptake and saved lives — and hindsight is cheap.</div>
+        <p>People forget the spring of 2020: refrigerated trucks outside hospitals, no treatments, a death toll climbing weekly. In that fog, hedged and conditional messaging doesn't protect anyone — it paralyzes. Officials had to make calls on incomplete data because waiting for certainty meant waiting for more funerals. Mandates pushed uptake up measurably, and the places with higher coverage came through with fewer deaths. The errors that critics now itemize were mostly the honest cost of acting fast under fire, and second-guessing from a calm desk in 2025 is the easiest move there is.</p>
+      </div>
+      <div class="steel s-made">
+        <div class="side">▸ overreach spent the reservoir</div>
+        <div class="pos-name">Trust is a finite resource</div>
+        <div class="gist">Overstated claims, the dismissal of credentialed dissent, and mandates for a non-sterilizing shot spent down a reserve of public trust the next emergency will need.</div>
+        <p>"Stops transmission" was said with a certainty the evidence never had. Scientists who raised the myocarditis signal or questioned boosting kids — not cranks, people with appointments at major medical schools — were lumped in with anti-vaxxers and shut out of the conversation. Then came mandates for a vaccine that didn't reliably stop spread, which is the exact ground on which "do it to protect others" stands or falls. Each of those moves cashed out a little credibility, and credibility is the one thing public health can't manufacture on demand. When the next pandemic comes and officials say "trust us," a chunk of the country won't — and that bill is coming due.</p>
+      </div>
+    </div>
+    <div class="crux-key">
+      <span class="lab">the crux</span>
+      <span class="txt">Did confident messaging and mandates <b>protect people</b>, or <b>squander the trust</b> that makes any future response work? <span class="same-tag">↳ this one runs crossways — it's the hidden second axis under the whole map.</span></span>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ IV. PAYOFF ============================ -->
+<section class="wrap fault-sec">
+  <div class="sec-head">
+    <div class="eyebrow"><span class="sec-num">IV</span> &nbsp;the payoff</div>
+  </div>
+
+  <div class="fault-card reveal">
+    <h3 class="fault-lead ser">Four cruxes, <em>two questions</em> underneath</h3>
+    <p class="fault-intro">Cruxes 01–03 turn on a single axis — did the shots earn their reach, and for whom? Crux 04 runs crossways: whatever the medical balance, did the way it was sold protect people or cost us the trust the next emergency needs? Plot both and the field stops looking like one argument. It looks like people standing on different squares, often answering a question their opponent never asked.</p>
+
+    <svg class="diagram" viewBox="0 0 980 600" role="img" aria-labelledby="dg-t dg-d">
+      <title id="dg-t">Two crossed questions under the COVID-vaccine debate</title>
+      <desc id="dg-d">A grid with two axes. The horizontal axis runs from "net benefit, it worked" on the left to "oversold, harms downplayed" on the right. The vertical axis runs from "benefit is broad — recommend widely" at the top to "benefit is concentrated in the high-risk" at the bottom. Positions are plotted as points: the mainstream CDC and establishment view in the upper left; risk-stratification reformers such as Prasad and Makary near the center, lower-left and marked as the hinge; trial-transparency critics such as Doshi in the center leaning right; mandate critics on the right at middle height; hard skeptics making a net-harm claim in the lower right, with a caveat that the strongest evidence does not support net harm for the vulnerable; and Great Barrington focused-protection at the bottom, center-left.</desc>
+      <defs>
+        <linearGradient id="axisgrad" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0" stop-color="#6dbaa4"/>
+          <stop offset="0.5" stop-color="#6e6b78"/>
+          <stop offset="1" stop-color="#d8a652"/>
+        </linearGradient>
+      </defs>
+
+      <!-- vertical axis: for whom -->
+      <line x1="490" y1="80" x2="490" y2="500" stroke="#34384a" stroke-width="2"/>
+      <!-- horizontal axis: net benefit vs oversold -->
+      <line x1="110" y1="290" x2="870" y2="290" stroke="url(#axisgrad)" stroke-width="6" stroke-linecap="round"/>
+      <circle cx="110" cy="290" r="7" fill="#6dbaa4"/>
+      <circle cx="870" cy="290" r="7" fill="#d8a652"/>
+
+      <!-- axis labels -->
+      <text x="110" y="322" fill="#6dbaa4" font-family="'IBM Plex Mono',monospace" font-size="15">net benefit · it worked</text>
+      <text x="870" y="322" fill="#d8a652" font-family="'IBM Plex Mono',monospace" font-size="15" text-anchor="end">oversold · harms downplayed</text>
+      <text x="490" y="62" fill="#a6a394" font-family="'IBM Plex Mono',monospace" font-size="14" text-anchor="middle">benefit is broad — recommend widely</text>
+      <text x="490" y="528" fill="#a6a394" font-family="'IBM Plex Mono',monospace" font-size="14" text-anchor="middle">benefit concentrated in the high-risk</text>
+
+      <!-- plotted positions (rows staggered so no two labels share a line) -->
+      <!-- upper-left: net benefit + broad -->
+      <circle cx="300" cy="138" r="6" fill="#6dbaa4"/>
+      <text x="316" y="143" fill="#ebe5d6" font-family="'IBM Plex Sans',sans-serif" font-size="14.5">CDC / establishment consensus</text>
+
+      <!-- upper-left, lower row: saved-millions modeling -->
+      <circle cx="346" cy="206" r="6" fill="#6dbaa4"/>
+      <text x="362" y="211" fill="#ebe5d6" font-family="'IBM Plex Sans',sans-serif" font-size="14.5">"Saved millions" modeling · Watson</text>
+
+      <!-- center, leaning right: trial-transparency critics -->
+      <circle cx="560" cy="248" r="6" fill="#d8a652"/>
+      <text x="576" y="253" fill="#ebe5d6" font-family="'IBM Plex Sans',sans-serif" font-size="14.5">Trial-transparency critics · Doshi</text>
+
+      <!-- the pivot: risk-stratification, near center, lower-left -->
+      <circle cx="442" cy="330" r="8" fill="#a195bd" stroke="#171922" stroke-width="2"/>
+      <text x="427" y="326" fill="#a195bd" font-family="'IBM Plex Sans',sans-serif" font-size="14.5" font-style="italic" text-anchor="end">Risk-stratification · Prasad, Makary</text>
+      <text x="427" y="345" fill="#a195bd" font-family="'IBM Plex Mono',monospace" font-size="11" text-anchor="end">the hinge — worked, but for the few</text>
+
+      <!-- right, middle: mandate critics -->
+      <circle cx="722" cy="338" r="6" fill="#d8a652"/>
+      <text x="707" y="343" fill="#ebe5d6" font-family="'IBM Plex Sans',sans-serif" font-size="14.5" text-anchor="end">Mandate critics</text>
+
+      <!-- bottom, center-left: focused protection -->
+      <circle cx="372" cy="430" r="6" fill="#d8a652"/>
+      <text x="388" y="435" fill="#ebe5d6" font-family="'IBM Plex Sans',sans-serif" font-size="14.5">Focused protection · Great Barrington</text>
+
+      <!-- lower-right: hard skeptics / net-harm claim, with caveat -->
+      <circle cx="742" cy="446" r="6" fill="#d8a652"/>
+      <text x="727" y="451" fill="#ebe5d6" font-family="'IBM Plex Sans',sans-serif" font-size="14.5" text-anchor="end">Hard skeptics · "net harm"</text>
+      <text x="727" y="468" fill="#807e8a" font-family="'IBM Plex Mono',monospace" font-size="10.5" text-anchor="end">strongest evidence does not support net harm for the vulnerable</text>
+    </svg>
+
+    <div class="fault-restate">
+      <div class="fr-item f1"><div class="fr-n">Crux 01 · what it prevented</div><div class="fr-t ser">Severe disease, or spread</div><p>The horizontal axis. Graded on death it worked; graded on transmission it waned.</p></div>
+      <div class="fr-item f2"><div class="fr-n">Crux 03 · for whom</div><div class="fr-t ser">Everyone, or the few</div><p>The vertical axis, and the one the careful disagreement actually runs along.</p></div>
+      <div class="fr-item f3"><div class="fr-n">Crux 02 · the harms</div><div class="fr-t ser">Rare, or under-counted</div><p>The horizontal axis stress-tested on safety. Outweighed, or asserted too soon.</p></div>
+      <div class="fr-item f4"><div class="fr-n">Crux 04 · the trust</div><div class="fr-t ser">Protected, or spent</div><p>The crossways axis. Whether the rollout banked trust or burned it for next time.</p></div>
+    </div>
+
+    <p class="fault-close ser">Find your own hinge. Most careful disagreement sits on the vertical — <span class="ax">for whom</span> — and on trust, not on whether the shots helped the vulnerable, which almost no serious party disputes. Work out whether you're really arguing about <span class="ax">how well it worked</span> or about <span class="mk">who it was right for, and how it was sold</span>, and you'll usually find the other person standing on the other axis.</p>
+  </div>
+</section>
+
+<!-- ============================ V. GO DEEPER ============================ -->
+<section class="wrap">
+  <div class="sec-head">
+    <div class="eyebrow"><span class="sec-num">V</span> &nbsp;go deeper</div>
+    <h2 class="ser">Where to take it next</h2>
+    <p>A few ways in, grouped by where they stand. Landmark papers are listed by title, author, and journal; every live link was checked.</p>
+  </div>
+
+  <div class="shelf reveal">
+    <div class="shelf-col">
+      <h4>Data &amp; establishment</h4>
+      <div class="res">
+        <div class="t"><a href="https://ourworldindata.org/covid-vaccinations">Our World in Data — COVID-19 vaccinations</a></div>
+        <div class="by">Oxford / Global Change Data Lab</div>
+        <div class="why">The numbers without the spin — doses, coverage, and the cross-country death curves you can read for yourself.</div>
+      </div>
+      <div class="res">
+        <div class="t"><a href="https://en.wikipedia.org/wiki/COVID-19_vaccine">COVID-19 vaccine — overview</a></div>
+        <div class="by">Wikipedia</div>
+        <div class="why">A heavily-cited summary of the platforms, efficacy figures, and the safety record, with the establishment view well represented.</div>
+      </div>
+      <div class="res">
+        <div class="t"><a href="https://en.wikipedia.org/wiki/COVID-19_vaccine_clinical_research">COVID-19 vaccine clinical research</a></div>
+        <div class="by">Wikipedia</div>
+        <div class="why">What the trials actually measured and how they were run — useful before judging either Crux 01 or Crux 02.</div>
+      </div>
+      <div class="res">
+        <div class="t"><a href="https://en.wikipedia.org/wiki/Deployment_of_COVID-19_vaccines">Deployment of COVID-19 vaccines</a></div>
+        <div class="by">Wikipedia</div>
+        <div class="why">The rollout itself — timelines, mandates, and the messaging that Crux 04 turns on.</div>
+      </div>
+    </div>
+
+    <div class="shelf-col">
+      <h4>Reform &amp; risk-stratification</h4>
+      <div class="res">
+        <div class="t"><a href="https://www.sensible-med.com/">Sensible Medicine</a></div>
+        <div class="by">Prasad, Makary, Cifu &amp; others</div>
+        <div class="why">The clearinghouse for the heterodox-but-credentialed view: pro-vaccine for the vulnerable, skeptical of boosting the young.</div>
+      </div>
+      <div class="res">
+        <div class="t"><a href="https://en.wikipedia.org/wiki/Vinay_Prasad">Vinay Prasad</a></div>
+        <div class="by">Wikipedia</div>
+        <div class="why">The hematologist-oncologist who became the loudest voice for age-based recommendations — background on where he's right and where he's contested.</div>
+      </div>
+      <div class="res">
+        <div class="t"><a href="https://en.wikipedia.org/wiki/Marty_Makary">Marty Makary</a></div>
+        <div class="by">Wikipedia</div>
+        <div class="why">The Johns Hopkins surgeon, later FDA commissioner, who pressed early on natural immunity and over-mandating.</div>
+      </div>
+    </div>
+
+    <div class="shelf-col">
+      <h4>Critical &amp; skeptic</h4>
+      <div class="res">
+        <div class="t"><a href="https://en.wikipedia.org/wiki/Myocarditis">Myocarditis — background</a></div>
+        <div class="by">Wikipedia</div>
+        <div class="why">What the actual condition is, so the vaccine signal and the COVID-caused version can be weighed against each other rather than feared in the abstract.</div>
+      </div>
+      <div class="res">
+        <div class="t"><a href="https://en.wikipedia.org/wiki/Great_Barrington_Declaration">Great Barrington Declaration</a></div>
+        <div class="by">Wikipedia</div>
+        <div class="why">The focused-protection proposal and the fierce response to it — the most divisive document in the whole debate.</div>
+      </div>
+      <div class="res">
+        <div class="t"><a href="https://icandecide.org/">Informed Consent Action Network</a></div>
+        <div class="by">ICAN</div>
+        <div class="why">The hard-skeptic advocacy side, included so the strongest critical case is read in its own words. Treat its claims critically.</div>
+      </div>
+    </div>
+
+    <div class="shelf-col">
+      <h4>Landmark papers</h4>
+      <div class="res">
+        <div class="t">Safety and Efficacy of the BNT162b2 mRNA Covid-19 Vaccine</div>
+        <div class="by">Polack et al. · New England Journal of Medicine · 2020</div>
+        <div class="why">The Pfizer registration trial. The original ~95% figure and exactly what it was measured against.</div>
+      </div>
+      <div class="res">
+        <div class="t">Efficacy and Safety of the mRNA-1273 SARS-CoV-2 Vaccine</div>
+        <div class="by">Baden et al. · NEJM · 2021</div>
+        <div class="why">The Moderna registration trial — the second pillar under the strong-benefit case.</div>
+      </div>
+      <div class="res">
+        <div class="t">Global impact of the first year of COVID-19 vaccination</div>
+        <div class="by">Watson et al. · The Lancet Infectious Diseases · 2022</div>
+        <div class="why">The modelling study behind the "lives saved in the millions" figure — read for the assumptions as well as the headline.</div>
+      </div>
+      <div class="res">
+        <div class="t">Will covid-19 vaccines save lives? Current trials aren't designed to tell us</div>
+        <div class="by">Peter Doshi · The BMJ · 2020</div>
+        <div class="why">The early, sharp statement of the transparency critique — what the surrogate endpoints can and can't show.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ FOOTER ============================ -->
+<footer class="wrap">
+  <p class="foot-note"><b>On these summaries.</b> Each steelman is compressed; the real arguments run to trials, reviews, and years of data, and a card or a panel is a doorway, not the room. Dates mark a representative event, not the only one that mattered. This is a still-moving topic — figures, recommendations, and even who runs the agencies are changing, so specifics may age. The two-pole axis is a lens for seeing structure, useful precisely because it simplifies, with the lilac hinge there to flag the view that won't sit on a line. Fringe claims that the evidence does not support — mass deaths, depopulation, infertility, microchips — are not represented here as fact, because steelmanning a side means giving its strongest honest version, not laundering its worst. This is an educational map of a public-health debate, not medical advice, and presenting a side is not endorsing it.</p>
+  <div class="foot-links">
+    <a href="/debates">← All debate maps</a>
+    <a href="/">brooker.family</a>
+  </div>
+</footer>
+
+<script>
+(function(){
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var items = document.querySelectorAll('.reveal');
+  if(reduce || !('IntersectionObserver' in window)){
+    items.forEach(function(el){ el.classList.add('in'); });
+    return;
+  }
+  var io = new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); }
+    });
+  }, {threshold:0.12, rootMargin:'0px 0px -8% 0px'});
+  items.forEach(function(el){ io.observe(el); });
+})();
+</script>
+</body>
+</html>
