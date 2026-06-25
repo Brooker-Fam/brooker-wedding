@@ -252,6 +252,20 @@
   .foot-note{color:var(--faint); font-size:.86rem; max-width:66ch; line-height:1.55;}
   .foot-note b{color:var(--mute); font-weight:500;}
 
+  /* ---------- what would move them (per-crux concessions) ---------- */
+  .crux-cede{padding:16px 28px 22px; background:#13161f; border-top:1px solid var(--line-soft); display:flex; gap:14px; align-items:flex-start; flex-wrap:wrap;}
+  .crux-cede .lab{font-family:"IBM Plex Mono",monospace; font-size:11px; letter-spacing:.16em; text-transform:uppercase; color:var(--faint); padding-top:3px; white-space:nowrap;}
+  .crux-cede .cede{flex:1 1 320px; display:grid; gap:9px;}
+  .crux-cede .cede p{margin:0; font-size:.92rem; line-height:1.5; color:var(--mute); padding-left:13px; border-left:2px solid var(--line);}
+  .crux-cede .cede .c-found{border-left-color:var(--found);}
+  .crux-cede .cede .c-made{border-left-color:var(--made);}
+  .crux-cede .cede b{display:block; margin-bottom:1px; font-family:"IBM Plex Mono",monospace; font-size:10.5px; letter-spacing:.05em; text-transform:uppercase; font-weight:600; color:var(--bone);}
+  /* ---------- pole lean tag (colour-independent position marker) ---------- */
+  .pos .nm .lean{font-family:"IBM Plex Mono",monospace; font-size:9.5px; letter-spacing:.08em; text-transform:uppercase; color:var(--faint); border:1px solid var(--line); border-radius:4px; padding:1px 6px; white-space:nowrap; align-self:center; font-weight:500;}
+  .pos.found .nm .lean{color:var(--found); border-color:var(--found-deep);}
+  .pos.made .nm .lean{color:var(--made); border-color:var(--made-deep);}
+  .pos.pivot .nm .lean{color:var(--pivot); border-color:var(--pivot);}
+  .pos.camp-c .nm .lean{color:var(--camp-c); border-color:var(--camp-c-deep);}
   /* ---------- reveal ---------- */
   .reveal{opacity:0; transform:translateY(16px); transition:opacity .7s ease, transform .7s ease;}
   .reveal.in{opacity:1; transform:none;}
@@ -391,7 +405,7 @@
       <h3>The ethics &amp; the politics <small>who decides</small></h3>
 
       <div class="pos found">
-        <div class="nm">Medical freedom &amp; informed consent <span class="traction">vocal, litigious minority</span></div>
+        <div class="nm"><span class="lean">◀ individual</span> Medical freedom &amp; informed consent <span class="traction">vocal, litigious minority</span></div>
         <div class="figs">Aaron Siri · ICAN · NVIC</div>
         <div class="claim">Your body is yours to govern. A medical act you're pressured into isn't consented to, and consent is the value everything else answers to — including, when they collide, public-health goals.</div>
         <span class="nb">The fight here is about the right to refuse, not a claim that vaccines fail; some on this side vaccinate and still hold the line on choice.</span>
@@ -399,21 +413,21 @@
       </div>
 
       <div class="pos found">
-        <div class="nm">Religious &amp; philosophical exemption <span class="traction">long-standing, varies by state</span></div>
+        <div class="nm"><span class="lean">◀ individual</span> Religious &amp; philosophical exemption <span class="traction">long-standing, varies by state</span></div>
         <div class="figs">parents · some faith communities</div>
         <div class="claim">Even granting that vaccines work, conscience sets a limit the state shouldn't cross; a sincere objection earns an exemption rather than a penalty.</div>
         <span class="nb">Sidesteps the science question entirely — it's about whose belief governs the child, not whose data is right.</span>
       </div>
 
       <div class="pos made">
-        <div class="nm">Public-health communitarianism <span class="traction">institutional mainstream</span></div>
+        <div class="nm"><span class="lean">▶ collective</span> Public-health communitarianism <span class="traction">institutional mainstream</span></div>
         <div class="figs">CDC · AAP · most practicing physicians</div>
         <div class="claim">Vaccination is partly a civic act. Your choice doesn't stay in your body — it reaches the newborn too young to be vaccinated and the kid on chemo who can't be — so the community has a stake worth weighing against private preference.</div>
         <span class="nb">Casts the decision as one you make partly on behalf of others, which is exactly what the freedom view disputes.</span>
       </div>
 
       <div class="pos made">
-        <div class="nm">Calibrated mandates · the Jacobson tradition <span class="traction">the working legal status quo</span></div>
+        <div class="nm"><span class="lean">▶ collective</span> Calibrated mandates · the Jacobson tradition <span class="traction">the working legal status quo</span></div>
         <div class="figs">most courts · school-entry law</div>
         <div class="claim">Require a shot only where the disease is both dangerous and contagious enough to justify it — measles for the classroom — and keep exemptions on the books. A scalpel, not a hammer.</div>
         <span class="nb">Tries to honor both poles at once, which is why critics on each side find it either too soft or too coercive.</span>
@@ -425,7 +439,7 @@
       <h3>The evidence &amp; the system <small>what counts as proof</small></h3>
 
       <div class="pos found">
-        <div class="nm">"Show me the saline trials" <span class="traction">outside the biomedical consensus</span></div>
+        <div class="nm"><span class="lean">◀ individual</span> "Show me the saline trials" <span class="traction">outside the biomedical consensus</span></div>
         <div class="figs">Aaron Siri · RFK Jr.</div>
         <div class="claim">Test a new vaccine against an inert placebo, the way the rest of medicine does, and run a long-term study comparing the fully vaccinated to the never-vaccinated. Until that exists, the safety case has a hole in it.</div>
         <span class="nb">Frames the demand as ordinary scientific rigor; the disagreement is over whether that rigor is achievable or already met by other means.</span>
@@ -433,7 +447,7 @@
       </div>
 
       <div class="pos made">
-        <div class="nm">Evidence-based consensus <span class="traction">overwhelming in the literature</span></div>
+        <div class="nm"><span class="lean">▶ collective</span> Evidence-based consensus <span class="traction">overwhelming in the literature</span></div>
         <div class="figs">the biomedical mainstream</div>
         <div class="claim">The trials we have, plus surveillance across hundreds of millions of doses, already settle safety and efficacy to the standard medicine uses for everything else. "No inert placebo" doesn't mean "no evidence."</div>
         <span class="nb">Rests on the idea that population data and active-comparator trials are real proof, not a consolation prize for the trial skeptics want.</span>
@@ -441,14 +455,14 @@
       </div>
 
       <div class="pos found">
-        <div class="nm">Regulatory-capture critics <span class="traction">a live worry well beyond the fringe</span></div>
+        <div class="nm"><span class="lean">◀ individual</span> Regulatory-capture critics <span class="traction">a live worry well beyond the fringe</span></div>
         <div class="figs">reform-minded skeptics · some economists</div>
         <div class="claim">The FDA runs partly on fees from the firms it regulates, staff cycle into industry, and the 1986 liability shield blunts the usual market reason to chase down rare harms. Conclusions from a captured system shouldn't get the benefit of the doubt.</div>
         <span class="nb">An argument about institutions and incentives, not about any one molecule — which is why it's hard to answer with a single study.</span>
       </div>
 
       <div class="pos made">
-        <div class="nm">Defenders of the 1986 system <span class="traction">the prevailing legal-policy view</span></div>
+        <div class="nm"><span class="lean">▶ collective</span> Defenders of the 1986 system <span class="traction">the prevailing legal-policy view</span></div>
         <div class="figs">vaccine-law scholars · public-health agencies</div>
         <div class="claim">The no-fault Vaccine Court has paid out billions to injured families, often faster and with a lighter burden of proof than a jury would demand, and it kept vaccines on American shelves when liability nearly drove them off.</div>
         <span class="nb">Treats the shield as the price of a stable supply plus a working compensation route — a trade, openly made, not a cover-up.</span>
@@ -501,6 +515,13 @@
       <span class="lab">the crux</span>
       <span class="txt">Is observational plus active-comparator evidence enough to act on, or is only an <b>inert-placebo RCT</b> real proof? Where you set that bar decides whether the current safety record reads as solid or as full of holes.</span>
     </div>
+    <div class="crux-cede">
+      <span class="lab">what would move them</span>
+      <div class="cede">
+        <p class="c-found"><b>The individual side concedes if</b> the long-term, transparent safety data they ask for — including the placebo or vaccinated-vs-unvaccinated comparisons — come back clean.</p>
+        <p class="c-made"><b>The collective side concedes if</b> a population-scale signal of serious chronic harm turns up that current surveillance missed, or an ethical inert-placebo trial is shown feasible and still refused.</p>
+      </div>
+    </div>
   </div>
 
   <!-- CRUX 2 -->
@@ -527,6 +548,13 @@
     <div class="crux-key">
       <span class="lab">the crux</span>
       <span class="txt">How dangerous and how transmissible must a disease be before the <b>collective interest</b> outweighs <b>individual choice</b>? Everyone draws the line somewhere; the fight is over where.</span>
+    </div>
+    <div class="crux-cede">
+      <span class="lab">what would move them</span>
+      <div class="cede">
+        <p class="c-found"><b>The individual side concedes if</b> a disease is contagious and deadly enough, and the vaccine good enough at stopping spread, that opting out plainly endangers specific other people.</p>
+        <p class="c-made"><b>The collective side concedes if</b> the vaccine doesn't meaningfully block transmission, or voluntary uptake and exemptions can reach herd protection without coercion.</p>
+      </div>
     </div>
   </div>
 
@@ -555,6 +583,13 @@
       <span class="lab">the crux</span>
       <span class="txt">Is liability the <b>indispensable safety incentive</b>, or the <b>necessary price</b> of keeping vaccines on the market? Same statute, read as a hazard or as a bargain.</span>
     </div>
+    <div class="crux-cede">
+      <span class="lab">what would move them</span>
+      <div class="cede">
+        <p class="c-found"><b>The individual side concedes if</b> the no-fault Vaccine Court is shown to compensate the injured better and faster than lawsuits would, with no drop in safety effort.</p>
+        <p class="c-made"><b>The collective side concedes if</b> the liability shield is shown to have dulled safety incentives or starved long-term studies, and lifting it wouldn't collapse the supply.</p>
+      </div>
+    </div>
   </div>
 
   <!-- CRUX 4 -->
@@ -581,6 +616,13 @@
     <div class="crux-key">
       <span class="lab">the crux</span>
       <span class="txt">Does institutional entanglement <b>invalidate the evidence</b>, or is convergent, independently replicated data <b>trustworthy despite imperfect institutions</b>? <span class="same-tag">↳ this one runs crossways to the other three — it's the hidden second axis, deciding whose answers to 01–03 you'll even credit.</span></span>
+    </div>
+    <div class="crux-cede">
+      <span class="lab">what would move them</span>
+      <div class="cede">
+        <p class="c-found"><b>The individual side concedes if</b> the core safety and efficacy findings replicate across independent groups with no industry ties and opposing incentives.</p>
+        <p class="c-made"><b>The collective side concedes if</b> a specific, consequential finding is shown to have been bent by industry funding or the revolving door — not merely vulnerable to it in theory.</p>
+      </div>
     </div>
   </div>
 </section>

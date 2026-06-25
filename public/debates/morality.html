@@ -252,6 +252,20 @@
   .foot-note{color:var(--faint); font-size:.86rem; max-width:66ch; line-height:1.55;}
   .foot-note b{color:var(--mute); font-weight:500;}
 
+  /* ---------- what would move them (per-crux concessions) ---------- */
+  .crux-cede{padding:16px 28px 22px; background:#13161f; border-top:1px solid var(--line-soft); display:flex; gap:14px; align-items:flex-start; flex-wrap:wrap;}
+  .crux-cede .lab{font-family:"IBM Plex Mono",monospace; font-size:11px; letter-spacing:.16em; text-transform:uppercase; color:var(--faint); padding-top:3px; white-space:nowrap;}
+  .crux-cede .cede{flex:1 1 320px; display:grid; gap:9px;}
+  .crux-cede .cede p{margin:0; font-size:.92rem; line-height:1.5; color:var(--mute); padding-left:13px; border-left:2px solid var(--line);}
+  .crux-cede .cede .c-found{border-left-color:var(--found);}
+  .crux-cede .cede .c-made{border-left-color:var(--made);}
+  .crux-cede .cede b{display:block; margin-bottom:1px; font-family:"IBM Plex Mono",monospace; font-size:10.5px; letter-spacing:.05em; text-transform:uppercase; font-weight:600; color:var(--bone);}
+  /* ---------- pole lean tag (colour-independent position marker) ---------- */
+  .pos .nm .lean{font-family:"IBM Plex Mono",monospace; font-size:9.5px; letter-spacing:.08em; text-transform:uppercase; color:var(--faint); border:1px solid var(--line); border-radius:4px; padding:1px 6px; white-space:nowrap; align-self:center; font-weight:500;}
+  .pos.found .nm .lean{color:var(--found); border-color:var(--found-deep);}
+  .pos.made .nm .lean{color:var(--made); border-color:var(--made-deep);}
+  .pos.pivot .nm .lean{color:var(--pivot); border-color:var(--pivot);}
+  .pos.camp-c .nm .lean{color:var(--camp-c); border-color:var(--camp-c-deep);}
   /* ---------- reveal ---------- */
   .reveal{opacity:0; transform:translateY(16px); transition:opacity .7s ease, transform .7s ease;}
   .reveal.in{opacity:1; transform:none;}
@@ -397,7 +411,7 @@
       <h3>Are there moral facts? <small>the metaphysics</small></h3>
 
       <div class="pos found">
-        <div class="nm">Non-naturalist realism <span class="traction">a resurgent minority</span></div>
+        <div class="nm"><span class="lean">◀ discovered</span> Non-naturalist realism <span class="traction">a resurgent minority</span></div>
         <div class="figs">Moore · Parfit · Shafer-Landau · Enoch</div>
         <div class="claim">There are real moral facts, and they don't reduce to facts about atoms or brains or what anyone wants. Goodness is its own thing, grasped by reason — irreducible, and none the worse for it.</div>
         <span class="nb">The standing worry: how does a physical animal come to know facts that float free of the physical world?</span>
@@ -405,7 +419,7 @@
       </div>
 
       <div class="pos found">
-        <div class="nm">Naturalist realism <span class="traction">a strong contemporary camp</span></div>
+        <div class="nm"><span class="lean">◀ discovered</span> Naturalist realism <span class="traction">a strong contemporary camp</span></div>
         <div class="figs">Boyd · Sturgeon · Railton</div>
         <div class="claim">Moral facts are natural facts — about flourishing, suffering, what social creatures need — and you discover them the way you discover anything else, by looking and testing. No second world of moral stuff floating above this one; just this one, morality included.</div>
         <span class="nb">Moore's open question is the bill it has to keep paying: why doesn't "but is welfare really good?" still feel open?</span>
@@ -413,14 +427,14 @@
       </div>
 
       <div class="pos found">
-        <div class="nm">Divine-command ethics <span class="traction">central in religious thought</span></div>
+        <div class="nm"><span class="lean">◀ discovered</span> Divine-command ethics <span class="traction">central in religious thought</span></div>
         <div class="figs">Augustine · Aquinas · Adams</div>
         <div class="claim">Morality is grounded in God — in his nature, or in what he wills. Right and wrong are as objective as anything, because they rest on the one being who can't be wrong.</div>
         <span class="nb">Plato's Euthyphro set the trap that won't let go: is it good because God commands it, or commanded because it's good? One horn makes morality arbitrary; the other puts the good above God. (See the <a href="/debates/god.html" style="color:inherit;border-bottom:1px solid var(--line)">God map</a>.)</span>
       </div>
 
       <div class="pos made">
-        <div class="nm">Error theory <span class="traction">small but serious</span></div>
+        <div class="nm"><span class="lean">▶ made</span> Error theory <span class="traction">small but serious</span></div>
         <div class="figs">Mackie · Joyce · Garner</div>
         <div class="claim">Ordinary moral talk aims at objective facts — and there are none, so all of it is false. "Slavery is wrong" is in the same boat as "Zeus is angry": a sincere claim about something that isn't there.</div>
         <span class="nb">The bullet to bite: if every moral claim is false, so is "torturing children is wrong" — which most people take as a reductio, and error theorists take as honesty.</span>
@@ -428,7 +442,7 @@
       </div>
 
       <div class="pos made">
-        <div class="nm">Relativism <span class="traction">popular outside philosophy, weaker within</span></div>
+        <div class="nm"><span class="lean">▶ made</span> Relativism <span class="traction">popular outside philosophy, weaker within</span></div>
         <div class="figs">Westermarck · Harman · Wong</div>
         <div class="claim">Moral truth is real but indexed — true relative to a culture, a framework, a way of life. What's right "for them" can differ from what's right "for us," with no view from nowhere to settle it.</div>
         <span class="nb">The recurring objection: it seems to bar you from saying a confident, cruel society is simply wrong, which is the one verdict many people most want to keep.</span>
@@ -440,7 +454,7 @@
       <h3>What are moral claims doing? <small>the semantics &amp; psychology</small></h3>
 
       <div class="pos made">
-        <div class="nm">Expressivism <span class="traction">the leading anti-realism</span></div>
+        <div class="nm"><span class="lean">▶ made</span> Expressivism <span class="traction">the leading anti-realism</span></div>
         <div class="figs">Ayer · Stevenson · Gibbard · Blackburn</div>
         <div class="claim">A moral sentence expresses an attitude — approval, contempt, a plan — rather than stating a belief that could be true or false. "Cruelty is wrong" airs a stance; it doesn't report a fact about cruelty.</div>
         <span class="nb">Its hardest puzzle is the Frege-Geach problem: "if lying is wrong, then getting your brother to lie is wrong" embeds the moral bit without expressing any attitude — so what does it mean there?</span>
@@ -448,21 +462,21 @@
       </div>
 
       <div class="pos pivot">
-        <div class="nm">Constructivism <span class="traction">the live middle</span></div>
+        <div class="nm"><span class="lean">◆ hinge</span> Constructivism <span class="traction">the live middle</span></div>
         <div class="figs">Kant · Rawls · Korsgaard · Street</div>
         <div class="claim">Moral truths are built by a procedure that rational agents can't coherently reject — what you must will to be an agent at all, what principles you'd choose behind a veil of ignorance. Objective enough to bind you, without any fact sitting out there before the procedure runs.</div>
         <span class="nb">Pressed from both flanks: realists say a built truth is no truth; anti-realists ask why the procedure's outputs count as more than dressed-up preference.</span>
       </div>
 
       <div class="pos pivot">
-        <div class="nm">Quasi-realism <span class="traction">influential, much debated</span></div>
+        <div class="nm"><span class="lean">◆ hinge</span> Quasi-realism <span class="traction">influential, much debated</span></div>
         <div class="figs">Blackburn · (kin: Gibbard)</div>
         <div class="claim">Concede that morality starts in attitudes — then show why our moral talk so faithfully apes the realist's. We argue, we allow we might be wrong, we say "it's true that cruelty is wrong," and all of it can be earned from feelings, no facts billed.</div>
         <span class="nb">Critics ask whether, once you've earned every realist sentence, anything is left to disagree with the realist about.</span>
       </div>
 
       <div class="pos made">
-        <div class="nm">Moral skepticism &amp; nihilism <span class="traction">a persistent undertow</span></div>
+        <div class="nm"><span class="lean">▶ made</span> Moral skepticism &amp; nihilism <span class="traction">a persistent undertow</span></div>
         <div class="figs">Pyrrho · Nietzsche (contested) · Joyce</div>
         <div class="claim">Either there are no moral facts to know, or there are but we can't know them. Skepticism doubts our access; nihilism doubts the facts. Both leave the confident moralist owing an account of how he knows.</div>
         <span class="nb">Lived consistently it's nearly impossible — even the skeptic flinches at gratuitous cruelty — which cuts both ways in the argument.</span>
@@ -515,6 +529,13 @@
       <span class="lab">the crux</span>
       <span class="txt">Is the moral intuition <b>evidence of a fact</b>, or a <b>powerful feeling</b> that needn't track one? Pick the first and you're a realist of some stripe; pick the second and the rest of the gold side opens up.</span>
     </div>
+    <div class="crux-cede">
+      <span class="lab">what would move them</span>
+      <div class="cede">
+        <p class="c-found"><b>The realist side concedes if</b> the apparent objectivity of moral judgment is fully explained by psychology and evolution, with nothing left over that needs real moral facts.</p>
+        <p class="c-made"><b>The anti-realist side concedes if</b> moral knowledge behaves like a genuine cognitive achievement — reliable convergence under reflection that attitudes alone can't explain.</p>
+      </div>
+    </div>
   </div>
 
   <!-- CRUX 2 -->
@@ -541,6 +562,13 @@
     <div class="crux-key">
       <span class="lab">the crux</span>
       <span class="txt">Is moral disagreement <b>evidence of no-fact</b>, or just of a <b>hard subject plus bias and self-interest</b>? Both sides see the same data; they read its source differently.</span>
+    </div>
+    <div class="crux-cede">
+      <span class="lab">what would move them</span>
+      <div class="cede">
+        <p class="c-found"><b>The realist side concedes if</b> deep moral disagreement persists even after every non-moral fact is settled and bias is controlled for.</p>
+        <p class="c-made"><b>The anti-realist side concedes if</b> most moral disagreement dissolves into disputes about non-moral facts plus shared deeper principles.</p>
+      </div>
     </div>
   </div>
 
@@ -569,6 +597,13 @@
       <span class="lab">the crux</span>
       <span class="txt">Does an evolutionary origin <b>sever the link</b> between our moral beliefs and any moral truth — and if it does, <b>why doesn't it take math down with it</b>? The realist's escape and the debunker's reach stand or fall together.</span>
     </div>
+    <div class="crux-cede">
+      <span class="lab">what would move them</span>
+      <div class="cede">
+        <p class="c-found"><b>The realist side concedes if</b> the evolutionary debunking argument is shown to hit moral belief specifically while sparing math, logic, and perception.</p>
+        <p class="c-made"><b>The anti-realist side concedes if</b> the debunking argument proves too much, taking down our reliable faculties along with morality.</p>
+      </div>
+    </div>
   </div>
 
   <!-- CRUX 4 -->
@@ -595,6 +630,13 @@
     <div class="crux-key">
       <span class="lab">the crux</span>
       <span class="txt">Are moral reasons <b>external, categorical givens</b>, or do they <b>bottom out in our attitudes and agreements</b>? <span class="same-tag">↳ this crux runs crossways — it's the second axis: not whether moral claims are true, but whether oughts are found or authored.</span></span>
+    </div>
+    <div class="crux-cede">
+      <span class="lab">what would move them</span>
+      <div class="cede">
+        <p class="c-found"><b>The realist side concedes if</b> categorical, desire-independent reasons are shown to be unintelligible — every real “ought” tracing back to some aim or attitude.</p>
+        <p class="c-made"><b>The anti-realist side concedes if</b> even one reason is shown to bind regardless of anyone's desires or agreements.</p>
+      </div>
     </div>
   </div>
 </section>

@@ -252,6 +252,20 @@
   .foot-note{color:var(--faint); font-size:.86rem; max-width:66ch; line-height:1.55;}
   .foot-note b{color:var(--mute); font-weight:500;}
 
+  /* ---------- what would move them (per-crux concessions) ---------- */
+  .crux-cede{padding:16px 28px 22px; background:#13161f; border-top:1px solid var(--line-soft); display:flex; gap:14px; align-items:flex-start; flex-wrap:wrap;}
+  .crux-cede .lab{font-family:"IBM Plex Mono",monospace; font-size:11px; letter-spacing:.16em; text-transform:uppercase; color:var(--faint); padding-top:3px; white-space:nowrap;}
+  .crux-cede .cede{flex:1 1 320px; display:grid; gap:9px;}
+  .crux-cede .cede p{margin:0; font-size:.92rem; line-height:1.5; color:var(--mute); padding-left:13px; border-left:2px solid var(--line);}
+  .crux-cede .cede .c-found{border-left-color:var(--found);}
+  .crux-cede .cede .c-made{border-left-color:var(--made);}
+  .crux-cede .cede b{display:block; margin-bottom:1px; font-family:"IBM Plex Mono",monospace; font-size:10.5px; letter-spacing:.05em; text-transform:uppercase; font-weight:600; color:var(--bone);}
+  /* ---------- pole lean tag (colour-independent position marker) ---------- */
+  .pos .nm .lean{font-family:"IBM Plex Mono",monospace; font-size:9.5px; letter-spacing:.08em; text-transform:uppercase; color:var(--faint); border:1px solid var(--line); border-radius:4px; padding:1px 6px; white-space:nowrap; align-self:center; font-weight:500;}
+  .pos.found .nm .lean{color:var(--found); border-color:var(--found-deep);}
+  .pos.made .nm .lean{color:var(--made); border-color:var(--made-deep);}
+  .pos.pivot .nm .lean{color:var(--pivot); border-color:var(--pivot);}
+  .pos.camp-c .nm .lean{color:var(--camp-c); border-color:var(--camp-c-deep);}
   /* ---------- reveal ---------- */
   .reveal{opacity:0; transform:translateY(16px); transition:opacity .7s ease, transform .7s ease;}
   .reveal.in{opacity:1; transform:none;}
@@ -397,21 +411,21 @@
       <h3>On how well they worked <small>effectiveness</small></h3>
 
       <div class="pos found">
-        <div class="nm">Strong-benefit consensus <span class="traction">mainstream</span></div>
+        <div class="nm"><span class="lean">◀ benefit</span> Strong-benefit consensus <span class="traction">mainstream</span></div>
         <div class="figs">most epidemiologists · CDC · FDA</div>
         <div class="claim">The shots produced a large cut in severe disease and death, above all in the elderly and through the Delta wave — the single biggest lever public health had before treatments matured.</div>
         <div class="src-links"><a href="https://ourworldindata.org/covid-vaccinations">Our World in Data: COVID vaccinations</a></div>
       </div>
 
       <div class="pos made">
-        <div class="nm">"Waned and leaky" critique <span class="traction">widely conceded by 2022</span></div>
+        <div class="nm"><span class="lean">▶ oversold</span> "Waned and leaky" critique <span class="traction">widely conceded by 2022</span></div>
         <div class="figs">post-Omicron epidemiology</div>
         <div class="claim">Protection against catching and transmitting the virus faded within months. The shot lowers your odds of a bad case; it doesn't reliably stop you getting infected or passing it on.</div>
         <span class="nb">Not a fringe read by 2022 — the question is whether the early messaging ever admitted it.</span>
       </div>
 
       <div class="pos found">
-        <div class="nm">"Saved millions" modeling <span class="traction">influential, model-dependent</span></div>
+        <div class="nm"><span class="lean">◀ benefit</span> "Saved millions" modeling <span class="traction">influential, model-dependent</span></div>
         <div class="figs">Watson et al. · Imperial College</div>
         <div class="claim">Large modelling estimates put lives saved in the first year of rollout in the millions worldwide, concentrated where older populations got dosed fastest.</div>
         <span class="nb">A model, not a body count — the figure swings with its assumptions, but the direction holds across them.</span>
@@ -422,40 +436,40 @@
       <h3>On harm &amp; policy <small>safety, trust, mandates</small></h3>
 
       <div class="pos found">
-        <div class="nm">Favorable-safety consensus <span class="traction">mainstream</span></div>
+        <div class="nm"><span class="lean">◀ benefit</span> Favorable-safety consensus <span class="traction">mainstream</span></div>
         <div class="figs">CDC · FDA · large cohort studies</div>
         <div class="claim">Serious adverse events are rare, and COVID infection itself causes more myocarditis than the vaccine does — so even on the heart-risk question the shot comes out ahead of the disease.</div>
         <div class="src-links"><a href="https://en.wikipedia.org/wiki/COVID-19_vaccine">Wikipedia: COVID-19 vaccine</a></div>
       </div>
 
       <div class="pos made">
-        <div class="nm">Myocarditis / signal skeptics <span class="traction">vindicated on the signal</span></div>
+        <div class="nm"><span class="lean">▶ oversold</span> Myocarditis / signal skeptics <span class="traction">vindicated on the signal</span></div>
         <div class="figs">cardiologists · independent analysts</div>
         <div class="claim">There is a real, age- and sex-specific myocarditis signal in young men — and it was waved off as anti-vax noise for months before officials acknowledged it.</div>
         <div class="src-links"><a href="https://en.wikipedia.org/wiki/Myocarditis">Wikipedia: Myocarditis</a></div>
       </div>
 
       <div class="pos made">
-        <div class="nm">Trial-transparency critics <span class="traction">persistent minority</span></div>
+        <div class="nm"><span class="lean">▶ oversold</span> Trial-transparency critics <span class="traction">persistent minority</span></div>
         <div class="figs">Peter Doshi · The BMJ</div>
         <div class="claim">Surrogate endpoints, withheld raw data, and the speed of placebo unblinding limit what the trials can actually tell us about deaths, durability, and long-term safety.</div>
       </div>
 
       <div class="pos pivot">
-        <div class="nm">Risk-stratification reformers <span class="traction">growing, heterodox</span></div>
+        <div class="nm"><span class="lean">◆ hinge</span> Risk-stratification reformers <span class="traction">growing, heterodox</span></div>
         <div class="figs">Vinay Prasad · Marty Makary · Sensible Medicine</div>
         <div class="claim">Recommend by age and prior immunity, not by blanket fiat. A clear benefit for the old and high-risk; a much weaker case for boosting the young and healthy.</div>
         <div class="src-links"><a href="https://www.sensible-med.com/">Sensible Medicine</a></div>
       </div>
 
       <div class="pos made">
-        <div class="nm">Mandate critics <span class="traction">substantial, cross-partisan</span></div>
+        <div class="nm"><span class="lean">▶ oversold</span> Mandate critics <span class="traction">substantial, cross-partisan</span></div>
         <div class="figs">civil-liberties lawyers · some clinicians</div>
         <div class="claim">Compelling a non-sterilizing vaccine is hard to justify on "protect others" grounds — if it doesn't reliably stop spread, the case for coercion thins out.</div>
       </div>
 
       <div class="pos made">
-        <div class="nm">Focused protection <span class="traction">sharply contested</span></div>
+        <div class="nm"><span class="lean">▶ oversold</span> Focused protection <span class="traction">sharply contested</span></div>
         <div class="figs">Great Barrington Declaration · Kulldorff, Gupta, Bhattacharya</div>
         <div class="claim">Shield the vulnerable directly and lift blanket restrictions on the low-risk — a strategy its authors say would have spent less trust for similar mortality.</div>
         <span class="nb">Denounced at the time by much of public health as unworkable and dangerous; it remains the most divisive entry here.</span>
@@ -508,6 +522,13 @@
       <span class="lab">the crux</span>
       <span class="txt">Are we grading the shot on <b>severe disease and death</b> — where the benefit is real, especially for the vulnerable — or on <b>blocking infection and transmission</b>, where it waned? Most of the fight is two sides answering different questions.</span>
     </div>
+    <div class="crux-cede">
+      <span class="lab">what would move them</span>
+      <div class="cede">
+        <p class="c-found"><b>The net-benefit side concedes if</b> the reduction in severe disease and death, above all in the elderly, fails to hold up in the best trial and observational data.</p>
+        <p class="c-made"><b>The oversold side concedes if</b> the shots are shown to have durably cut transmission, as the early “stop the spread” messaging claimed.</p>
+      </div>
+    </div>
   </div>
 
   <!-- CRUX 2 -->
@@ -534,6 +555,13 @@
     <div class="crux-key">
       <span class="lab">the crux</span>
       <span class="txt">Is the safety signal <b>rare-and-outweighed</b>, or <b>systematically under-measured</b>? The fight is less over the numbers than over how confidently they were announced, and when.</span>
+    </div>
+    <div class="crux-cede">
+      <span class="lab">what would move them</span>
+      <div class="cede">
+        <p class="c-found"><b>The net-benefit side concedes if</b> serious adverse events turn out materially more common, or more under-counted, than the safety datasets show.</p>
+        <p class="c-made"><b>The oversold side concedes if</b> the myocarditis and other signals are confirmed rare, usually mild, outweighed, and caught in time by surveillance.</p>
+      </div>
     </div>
   </div>
 
@@ -562,6 +590,13 @@
       <span class="lab">the crux</span>
       <span class="txt">Should the recommendation be <b>universal</b>, or <b>sharply stratified</b> by age and prior immunity? <span class="same-tag">↳ this is where the risk-stratification hinge lives — the view that the answer is "both, depending who you mean."</span></span>
     </div>
+    <div class="crux-cede">
+      <span class="lab">what would move them</span>
+      <div class="cede">
+        <p class="c-found"><b>The net-benefit side concedes if</b> the risk-benefit for young, healthy, previously-infected people is shown to be marginal or negative.</p>
+        <p class="c-made"><b>The oversold side concedes if</b> even modest benefit in the young meaningfully protects the vulnerable around them, supporting broad uptake.</p>
+      </div>
+    </div>
   </div>
 
   <!-- CRUX 4 -->
@@ -588,6 +623,13 @@
     <div class="crux-key">
       <span class="lab">the crux</span>
       <span class="txt">Did confident messaging and mandates <b>protect people</b>, or <b>squander the trust</b> that makes any future response work? <span class="same-tag">↳ this one runs crossways — it's the hidden second axis under the whole map.</span></span>
+    </div>
+    <div class="crux-cede">
+      <span class="lab">what would move them</span>
+      <div class="cede">
+        <p class="c-found"><b>The net-benefit side concedes if</b> mandates and confident messaging cost more in lost trust and future uptake than they saved in lives.</p>
+        <p class="c-made"><b>The oversold side concedes if</b> the emergency guidance and mandates are shown to have saved lives on net under the uncertainty of the moment.</p>
+      </div>
     </div>
   </div>
 </section>

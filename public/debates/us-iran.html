@@ -252,6 +252,20 @@
   .foot-note{color:var(--faint); font-size:.86rem; max-width:66ch; line-height:1.55;}
   .foot-note b{color:var(--mute); font-weight:500;}
 
+  /* ---------- what would move them (per-crux concessions) ---------- */
+  .crux-cede{padding:16px 28px 22px; background:#13161f; border-top:1px solid var(--line-soft); display:flex; gap:14px; align-items:flex-start; flex-wrap:wrap;}
+  .crux-cede .lab{font-family:"IBM Plex Mono",monospace; font-size:11px; letter-spacing:.16em; text-transform:uppercase; color:var(--faint); padding-top:3px; white-space:nowrap;}
+  .crux-cede .cede{flex:1 1 320px; display:grid; gap:9px;}
+  .crux-cede .cede p{margin:0; font-size:.92rem; line-height:1.5; color:var(--mute); padding-left:13px; border-left:2px solid var(--line);}
+  .crux-cede .cede .c-found{border-left-color:var(--found);}
+  .crux-cede .cede .c-made{border-left-color:var(--made);}
+  .crux-cede .cede b{display:block; margin-bottom:1px; font-family:"IBM Plex Mono",monospace; font-size:10.5px; letter-spacing:.05em; text-transform:uppercase; font-weight:600; color:var(--bone);}
+  /* ---------- pole lean tag (colour-independent position marker) ---------- */
+  .pos .nm .lean{font-family:"IBM Plex Mono",monospace; font-size:9.5px; letter-spacing:.08em; text-transform:uppercase; color:var(--faint); border:1px solid var(--line); border-radius:4px; padding:1px 6px; white-space:nowrap; align-self:center; font-weight:500;}
+  .pos.found .nm .lean{color:var(--found); border-color:var(--found-deep);}
+  .pos.made .nm .lean{color:var(--made); border-color:var(--made-deep);}
+  .pos.pivot .nm .lean{color:var(--pivot); border-color:var(--pivot);}
+  .pos.camp-c .nm .lean{color:var(--camp-c); border-color:var(--camp-c-deep);}
   /* ---------- reveal ---------- */
   .reveal{opacity:0; transform:translateY(16px); transition:opacity .7s ease, transform .7s ease;}
   .reveal.in{opacity:1; transform:none;}
@@ -397,7 +411,7 @@
       <h3>On the use of force <small>coerce or hold back</small></h3>
 
       <div class="pos found">
-        <div class="nm">Preventive counter-proliferation strikes <span class="traction">dominant in 2025–26 US/Israel policy</span></div>
+        <div class="nm"><span class="lean">◀ force</span> Preventive counter-proliferation strikes <span class="traction">dominant in 2025–26 US/Israel policy</span></div>
         <div class="figs">Israeli leadership · U.S. hawks · the Begin Doctrine</div>
         <div class="claim">A nuclear-armed Iran is intolerable, and force can deny it or push it back years. When a hostile state nears the threshold, you destroy the capability rather than learn to live with the weapon.</div>
         <span class="nb">The logic that produced Osirak in 1981 and Fordow in 2025 — act before the program is finished, not after.</span>
@@ -405,14 +419,14 @@
       </div>
 
       <div class="pos found">
-        <div class="nm">Maximum pressure <span class="traction">the 2018–24 sanctions doctrine</span></div>
+        <div class="nm"><span class="lean">◀ force</span> Maximum pressure <span class="traction">the 2018–24 sanctions doctrine</span></div>
         <div class="figs">Trump-era Treasury · hawkish advisers</div>
         <div class="claim">Crippling sanctions plus a credible threat of force compel Tehran to capitulate on better terms than any deal would give. Squeeze hard enough and the regime chooses survival over enrichment.</div>
         <span class="nb">Critics and supporters agree it raised the pressure; they split on whether it bought leverage or just more centrifuges.</span>
       </div>
 
       <div class="pos made">
-        <div class="nm">Diplomatic restraint <span class="traction">realist/progressive minority, growing</span></div>
+        <div class="nm"><span class="lean">▶ restraint</span> Diplomatic restraint <span class="traction">realist/progressive minority, growing</span></div>
         <div class="figs">Quincy Institute · Cato · Trita Parsi</div>
         <div class="claim">Strikes backfire — they harden Iran's resolve and scatter the program without ending it. A negotiated ceiling, verified by inspectors, is the only path that actually holds the bomb down for long.</div>
         <span class="nb">Not pacifism: the claim is that force is the less effective tool against a problem that lives in knowledge and intent.</span>
@@ -420,7 +434,7 @@
       </div>
 
       <div class="pos made">
-        <div class="nm">Deterrence / containment <span class="traction">the academic realist baseline</span></div>
+        <div class="nm"><span class="lean">▶ restraint</span> Deterrence / containment <span class="traction">the academic realist baseline</span></div>
         <div class="figs">Kenneth Waltz · structural realists</div>
         <div class="claim">Even a near-nuclear or nuclear Iran can be deterred the way every other adversary has been. The bomb makes states cautious; containment and the threat of overwhelming retaliation are cheaper and surer than war.</div>
         <span class="nb">The most provocative version says a deterred nuclear Iran beats a perpetual war to prevent one.</span>
@@ -432,28 +446,28 @@
       <h3>On the endgame <small>what victory means</small></h3>
 
       <div class="pos found">
-        <div class="nm">Regime change / collapse <span class="traction">aspirational, contested</span></div>
+        <div class="nm"><span class="lean">◀ force</span> Regime change / collapse <span class="traction">aspirational, contested</span></div>
         <div class="figs">hardline hawks · diaspora opposition</div>
         <div class="claim">The problem isn't the centrifuges, it's the Islamic Republic. Topple it — or back the Iranian people until it falls — and the nuclear question, the proxies, and the hostility all go with it.</div>
         <span class="nb">The Iraq and Libya record is the standing objection: collapse is easy to start and hard to aim.</span>
       </div>
 
       <div class="pos made">
-        <div class="nm">Negotiated nuclear deal <span class="traction">the current track</span></div>
+        <div class="nm"><span class="lean">▶ restraint</span> Negotiated nuclear deal <span class="traction">the current track</span></div>
         <div class="figs">JCPOA architects · the 2026 MOU negotiators</div>
         <div class="claim">Verified limits on enrichment in exchange for sanctions relief. The 2015 model, picked back up: a ceiling you can inspect beats a program you can only bomb.</div>
         <span class="nb">Where the 60-day MOU is pointed — down to the line about downgrading uranium from weapons-grade to reactor-grade.</span>
       </div>
 
       <div class="pos found">
-        <div class="nm">"The strikes worked" <span class="traction">the administration's read</span></div>
+        <div class="nm"><span class="lean">◀ force</span> "The strikes worked" <span class="traction">the administration's read</span></div>
         <div class="figs">strike planners · Pentagon leadership</div>
         <div class="claim">Fordow's enrichment halls are wrecked and the program is set back years. Pressure and bombs, not talk, are what finally brought Tehran to sign.</div>
         <span class="nb">Leans on the later Pentagon estimate of a one-to-two-year setback over the early intelligence read.</span>
       </div>
 
       <div class="pos made">
-        <div class="nm">"The strikes backfired" <span class="traction">the skeptics' read</span></div>
+        <div class="nm"><span class="lean">▶ restraint</span> "The strikes backfired" <span class="traction">the skeptics' read</span></div>
         <div class="figs">arms-control analysts · restraint scholars</div>
         <div class="claim">The bombs delayed the program by months, not years; the enriched-uranium stockpile was moved out beforehand, and the lesson Tehran drew is that a bomb is its only real insurance.</div>
         <span class="nb">Rests on the preliminary, low-confidence DIA assessment — itself contested by later estimates.</span>
@@ -505,6 +519,13 @@
       <span class="lab">the crux</span>
       <span class="txt">Is proliferation a <b>physical problem</b> — destroy the centrifuges and you've bought time — or a <b>motivational</b> one, where the strike just hardened the resolve to acquire? Almost everything about force follows from which.</span>
     </div>
+    <div class="crux-cede">
+      <span class="lab">what would move them</span>
+      <div class="cede">
+        <p class="c-found"><b>The force side concedes if</b> the strikes are shown to have only delayed the program by months while hardening Iran's resolve to build a weapon.</p>
+        <p class="c-made"><b>The restraint side concedes if</b> force is shown to have set the program back years and won concessions Iran would otherwise have refused.</p>
+      </div>
+    </div>
   </div>
 
   <!-- CRUX 2 -->
@@ -531,6 +552,13 @@
     <div class="crux-key">
       <span class="lab">the crux</span>
       <span class="txt"><b>Rational survival-seeker</b> or <b>ideological outlier</b>? Nearly every other disagreement on this map is downstream of this single read of the regime. <span class="same-tag">↳ this crux runs crossways to the others — it's the hidden second axis, the one the force-vs-diplomacy line is plotted against.</span></span>
+    </div>
+    <div class="crux-cede">
+      <span class="lab">what would move them</span>
+      <div class="cede">
+        <p class="c-found"><b>The force side concedes if</b> Iran's leadership behaves as a cost-sensitive survival-seeker that honors a verifiable deal over time.</p>
+        <p class="c-made"><b>The restraint side concedes if</b> Iran races for a weapon despite an open off-ramp, or spends sanctions relief mainly on proxies and rebuilding the program.</p>
+      </div>
     </div>
   </div>
 
@@ -559,6 +587,13 @@
       <span class="lab">the crux</span>
       <span class="txt">Are agreements with Iran <b>enforceable instruments</b> that bind behavior, or <b>theater</b> that buys the regime time and cover? The case for the diplomatic track stands or falls here.</span>
     </div>
+    <div class="crux-cede">
+      <span class="lab">what would move them</span>
+      <div class="cede">
+        <p class="c-found"><b>The force side concedes if</b> intrusive inspections verifiably cap enrichment for years, as they did before the 2018 withdrawal.</p>
+        <p class="c-made"><b>The restraint side concedes if</b> Iran is caught materially cheating under inspections, or sunset clauses are shown to merely postpone breakout.</p>
+      </div>
+    </div>
   </div>
 
   <!-- CRUX 4 -->
@@ -585,6 +620,13 @@
     <div class="crux-key">
       <span class="lab">the crux</span>
       <span class="txt">Do <b>diffuse costs and constitutional limits</b> outweigh <b>decisive executive action</b> against a proliferating adversary? It's the one crux that's about us, not Tehran.</span>
+    </div>
+    <div class="crux-cede">
+      <span class="lab">what would move them</span>
+      <div class="cede">
+        <p class="c-found"><b>The force side concedes if</b> the strikes trigger the wider war, oil shock, or proxy escalation critics warned of, at a cost beyond the delay they bought.</p>
+        <p class="c-made"><b>The restraint side concedes if</b> decisive executive action is shown to have averted a near-term bomb that deliberation would have allowed, with manageable blowback.</p>
+      </div>
     </div>
   </div>
 </section>

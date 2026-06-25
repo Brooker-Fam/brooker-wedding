@@ -252,6 +252,20 @@
   .foot-note{color:var(--faint); font-size:.86rem; max-width:66ch; line-height:1.55;}
   .foot-note b{color:var(--mute); font-weight:500;}
 
+  /* ---------- what would move them (per-crux concessions) ---------- */
+  .crux-cede{padding:16px 28px 22px; background:#13161f; border-top:1px solid var(--line-soft); display:flex; gap:14px; align-items:flex-start; flex-wrap:wrap;}
+  .crux-cede .lab{font-family:"IBM Plex Mono",monospace; font-size:11px; letter-spacing:.16em; text-transform:uppercase; color:var(--faint); padding-top:3px; white-space:nowrap;}
+  .crux-cede .cede{flex:1 1 320px; display:grid; gap:9px;}
+  .crux-cede .cede p{margin:0; font-size:.92rem; line-height:1.5; color:var(--mute); padding-left:13px; border-left:2px solid var(--line);}
+  .crux-cede .cede .c-found{border-left-color:var(--found);}
+  .crux-cede .cede .c-made{border-left-color:var(--made);}
+  .crux-cede .cede b{display:block; margin-bottom:1px; font-family:"IBM Plex Mono",monospace; font-size:10.5px; letter-spacing:.05em; text-transform:uppercase; font-weight:600; color:var(--bone);}
+  /* ---------- pole lean tag (colour-independent position marker) ---------- */
+  .pos .nm .lean{font-family:"IBM Plex Mono",monospace; font-size:9.5px; letter-spacing:.08em; text-transform:uppercase; color:var(--faint); border:1px solid var(--line); border-radius:4px; padding:1px 6px; white-space:nowrap; align-self:center; font-weight:500;}
+  .pos.found .nm .lean{color:var(--found); border-color:var(--found-deep);}
+  .pos.made .nm .lean{color:var(--made); border-color:var(--made-deep);}
+  .pos.pivot .nm .lean{color:var(--pivot); border-color:var(--pivot);}
+  .pos.camp-c .nm .lean{color:var(--camp-c); border-color:var(--camp-c-deep);}
   /* ---------- reveal ---------- */
   .reveal{opacity:0; transform:translateY(16px); transition:opacity .7s ease, transform .7s ease;}
   .reveal.in{opacity:1; transform:none;}
@@ -403,7 +417,7 @@
       <h3>On what there is <small>the metaphysics</small></h3>
 
       <div class="pos found">
-        <div class="nm">Classical theism <span class="traction">dominant in monotheist philosophy</span></div>
+        <div class="nm"><span class="lean">◀ mind</span> Classical theism <span class="traction">dominant in monotheist philosophy</span></div>
         <div class="figs">Augustine · Anselm · Avicenna · Maimonides · Aquinas</div>
         <div class="claim">One necessary, perfect being — less an object inside the world than the source of there being a world at all; in the old phrase, being itself.</div>
         <span class="nb">On this view, "a being among beings" already mishears the claim — which is why objections aimed at a cosmic super-person sail past.</span>
@@ -411,28 +425,28 @@
       </div>
 
       <div class="pos found">
-        <div class="nm">Perfect-being theism <span class="traction">common in analytic philosophy</span></div>
+        <div class="nm"><span class="lean">◀ mind</span> Perfect-being theism <span class="traction">common in analytic philosophy</span></div>
         <div class="figs">Swinburne · Plantinga · Craig</div>
         <div class="claim">God is the greatest possible person — a mind without limits, with knowledge, will, and intent, who acts in the world and can be argued for on the evidence.</div>
         <span class="nb">Parts ways with classical theism over divine simplicity: is God a person, or beyond personhood?</span>
       </div>
 
       <div class="pos found">
-        <div class="nm">Deism <span class="traction">Enlightenment force, now niche</span></div>
+        <div class="nm"><span class="lean">◀ mind</span> Deism <span class="traction">Enlightenment force, now niche</span></div>
         <div class="figs">Toland · Voltaire · Paine · Jefferson</div>
         <div class="claim">A creator wound the universe up under fixed laws and stepped back — no miracles, no scripture, no meddling since.</div>
         <span class="nb">A Who at the start, a What ever after, which is why the position sits astride the two poles.</span>
       </div>
 
       <div class="pos found">
-        <div class="nm">Polytheism &amp; finite gods <span class="traction">humanity's historical default</span></div>
+        <div class="nm"><span class="lean">◀ mind</span> Polytheism &amp; finite gods <span class="traction">humanity's historical default</span></div>
         <div class="figs">most ancient religion · J. S. Mill · William James</div>
         <div class="claim">The divine is plural or limited — many gods, or one not all-powerful — which clears up several monotheist puzzles and opens others.</div>
         <span class="nb">"Does God exist?" quietly assumes there's exactly one perfect candidate on the ballot.</span>
       </div>
 
       <div class="pos made">
-        <div class="nm">Atheism &amp; naturalism <span class="traction">majority among academic philosophers</span></div>
+        <div class="nm"><span class="lean">▶ brute</span> Atheism &amp; naturalism <span class="traction">majority among academic philosophers</span></div>
         <div class="figs">d'Holbach · Russell · Mackie · Oppy</div>
         <div class="claim">There is no God; the physical world is all there is, with no author and no aim, and "why is there anything?" may simply run out of answer.</div>
         <span class="nb">Sits comfortably with awe at the world — it just declines to read a purpose into it.</span>
@@ -444,35 +458,35 @@
       <h3>On what we can know <small>the epistemology</small></h3>
 
       <div class="pos pivot">
-        <div class="nm">Agnosticism <span class="traction">perennial, widely respected</span></div>
+        <div class="nm"><span class="lean">◆ hinge</span> Agnosticism <span class="traction">perennial, widely respected</span></div>
         <div class="figs">T. H. Huxley · Robin Le Poidevin</div>
         <div class="claim">The evidence doesn't close the case; the honest move is to suspend judgment, asserting neither yes nor no.</div>
         <span class="nb">Huxley, who coined it in 1869, meant a discipline — don't claim to know what you can't show — more than a comfortable seat on the fence.</span>
       </div>
 
       <div class="pos found">
-        <div class="nm">Fideism <span class="traction">central to existentialist strands</span></div>
+        <div class="nm"><span class="lean">◀ mind</span> Fideism <span class="traction">central to existentialist strands</span></div>
         <div class="figs">Tertullian · Pascal · Kierkegaard · Barth</div>
         <div class="claim">Faith doesn't rest on argument and isn't supposed to; the leap happens before the evidence is in, sometimes against it.</div>
         <span class="nb">Treats the demand for proof as a misunderstanding of what faith is for.</span>
       </div>
 
       <div class="pos found">
-        <div class="nm">Reformed epistemology <span class="traction">major late-20th-c. movement</span></div>
+        <div class="nm"><span class="lean">◀ mind</span> Reformed epistemology <span class="traction">major late-20th-c. movement</span></div>
         <div class="figs">Plantinga · Alston · Wolterstorff</div>
         <div class="claim">Belief in God can be properly basic — rational with no argument behind it, like trusting your senses or other minds — if your faculties are in order.</div>
         <span class="nb">Defends the rationality of believing, not God's existence as such.</span>
       </div>
 
       <div class="pos made">
-        <div class="nm">Evidentialism <span class="traction">the default empiricist stance</span></div>
+        <div class="nm"><span class="lean">▶ brute</span> Evidentialism <span class="traction">the default empiricist stance</span></div>
         <div class="figs">W. K. Clifford · Russell · Dawkins</div>
         <div class="claim">Match your belief to the evidence; with too little evidence for God, the rational stance is to withhold it.</div>
         <span class="nb">Clifford made it a duty, not a mere policy — itself a contested move. Russell's orbiting teapot makes the same point about who carries the burden.</span>
       </div>
 
       <div class="pos found">
-        <div class="nm">Pragmatism &amp; the will to believe <span class="traction">perennial, contested</span></div>
+        <div class="nm"><span class="lean">◀ mind</span> Pragmatism &amp; the will to believe <span class="traction">perennial, contested</span></div>
         <div class="figs">Pascal · William James</div>
         <div class="claim">When a question is live, forced, and beyond what evidence can settle, the practical stakes — and our passional nature — may rightly tip belief.</div>
         <span class="nb">Critics hear a license to believe whatever pleases you; James restricts it to cases where proof is genuinely out of reach.</span>
@@ -525,6 +539,13 @@
       <span class="lab">the crux</span>
       <span class="txt">Does explanation bottom out in a <b>necessary being</b> or a <b>brute fact</b>? Everything else on the map is downstream of where you let the regress stop.</span>
     </div>
+    <div class="crux-cede">
+      <span class="lab">what would move them</span>
+      <div class="cede">
+        <p class="c-found"><b>The necessary-being side concedes if</b> the universe can be shown to be self-explanatory or necessary on its own — if “why anything at all?” turns out confused rather than merely unanswered.</p>
+        <p class="c-made"><b>The brute-fact side concedes if</b> stopping at “the universe just is” is shown to be less coherent than stopping at a necessary being — a real explanatory difference, not a relabeling.</p>
+      </div>
+    </div>
   </div>
 
   <!-- CRUX 2 -->
@@ -551,6 +572,13 @@
     <div class="crux-key">
       <span class="lab">the crux</span>
       <span class="txt">Is cosmic order the <b>fingerprint of intention</b> or an <b>artifact of selection</b>? <span class="same-tag">↳ this is Crux 01 in the key of order — the same "does the world point past itself?" aimed at how it's arranged rather than that it's here.</span></span>
+    </div>
+    <div class="crux-cede">
+      <span class="lab">what would move them</span>
+      <div class="cede">
+        <p class="c-found"><b>The design side concedes if</b> a confirmed mechanism — a real multiverse with a way to count outcomes — makes a life-permitting universe unsurprising without a tuner.</p>
+        <p class="c-made"><b>The selection side concedes if</b> the multiverse stays untestable and a principled probability shows the fine-tuning is astronomically unlikely by chance alone.</p>
+      </div>
     </div>
   </div>
 
@@ -579,6 +607,13 @@
       <span class="lab">the crux</span>
       <span class="txt">Does observed suffering make a good God <b>improbable</b> or merely <b>inscrutable</b>? The whole fight is over whether "we can't see the reason" is weak evidence of absence or no evidence at all.</span>
     </div>
+    <div class="crux-cede">
+      <span class="lab">what would move them</span>
+      <div class="cede">
+        <p class="c-found"><b>The theodicy side concedes if</b> a single instance of suffering is shown to be genuinely gratuitous — serving no possible greater good, even in principle.</p>
+        <p class="c-made"><b>The problem-of-evil side concedes if</b> “we can't see the reason” is shown to be no evidence at all of there being none — a skeptical-theist epistemology that actually holds.</p>
+      </div>
+    </div>
   </div>
 
   <!-- CRUX 4 -->
@@ -605,6 +640,13 @@
     <div class="crux-key">
       <span class="lab">the crux</span>
       <span class="txt">Is God a <b>hypothesis to be tested</b> or a <b>commitment prior to evidence</b>? <span class="same-tag">↳ this one runs crossways to the other three — it asks whether Cruxes 01–03 are even the right game.</span></span>
+    </div>
+    <div class="crux-cede">
+      <span class="lab">what would move them</span>
+      <div class="cede">
+        <p class="c-found"><b>The faith-first side concedes if</b> believing without argument is shown to be irrational here in a way it isn't for memory, other minds, or the external world.</p>
+        <p class="c-made"><b>The evidentialist side concedes if</b> some beliefs are shown to be rational with no evidential support, and belief in God is plausibly among them.</p>
+      </div>
     </div>
   </div>
 </section>
