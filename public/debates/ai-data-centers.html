@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- Field map: the AI data-center build-out -->
+<title>The AI build-out: essential infrastructure, or costly overreach? — a map of the data-center debate</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,500&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#171922; --ink-2:#1e212c; --card:#23273380; --card-solid:#232734;
+    --line:#34384a; --line-soft:#2a2e3b;
+    --bone:#ebe5d6; --mute:#a6a394; --faint:#807e8a;
+    /* found = pole A (verdigris) · made = pole B (ochre) · pivot = the reconciling hinge (lilac).
+       Rename the *concepts* in your prose, but keep these three colors as the axis. */
+    --found:#6dbaa4; --found-deep:#2f6657; --found-glow:#6dbaa422;
+    --made:#d8a652; --made-deep:#7d5f29; --made-glow:#d8a65222;
+    --pivot:#a195bd; --pivot-glow:#a195bd1f;
+    /* third camp (slate-blue) — only for genuinely ternary debates; see SKILL.md */
+    --camp-c:#6f93c4; --camp-c-deep:#33506f; --camp-c-glow:#6f93c41f;
+    --maxw:1180px;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0; background:var(--ink); color:var(--bone);
+    font-family:"IBM Plex Sans",sans-serif; font-weight:400;
+    line-height:1.62; font-size:17px;
+    -webkit-font-smoothing:antialiased;
+    background-image:
+      radial-gradient(900px 600px at 82% -8%, #20243340, transparent 70%),
+      radial-gradient(700px 500px at 5% 18%, #1d212e55, transparent 70%);
+    background-attachment:fixed;
+  }
+  .wrap{max-width:var(--maxw); margin:0 auto; padding:0 26px;}
+  .mono{font-family:"IBM Plex Mono",monospace;}
+  .ser{font-family:"Fraunces",serif;}
+
+  /* ---------- eyebrows / dividers ---------- */
+  .eyebrow{
+    font-family:"IBM Plex Mono",monospace; font-size:12px; font-weight:500;
+    letter-spacing:.22em; text-transform:uppercase; color:var(--faint);
+    display:flex; align-items:center; gap:14px;
+  }
+  .eyebrow::before{content:""; width:30px; height:1px; background:var(--line); display:inline-block;}
+  .sec-num{color:var(--mute);}
+
+  /* ---------- brooker site tie (added for brooker.family/debates) ---------- */
+  .site-tie{
+    font-family:"IBM Plex Mono",monospace; font-size:12px; letter-spacing:.2em;
+    text-transform:uppercase; color:var(--faint); text-decoration:none;
+    display:inline-flex; align-items:center; gap:9px; margin:0 0 30px;
+    transition:color .2s;
+  }
+  .site-tie::before{content:""; width:22px; height:1px; background:var(--line); display:inline-block;}
+  .site-tie:hover{color:var(--bone);}
+  .foot-links{margin-top:22px; display:flex; gap:24px; flex-wrap:wrap;}
+  .foot-links a{
+    font-family:"IBM Plex Mono",monospace; font-size:11.5px; letter-spacing:.16em;
+    text-transform:uppercase; color:var(--mute); text-decoration:none;
+    border-bottom:1px solid var(--line); padding-bottom:2px;
+  }
+  .foot-links a:hover{color:var(--bone); border-bottom-color:var(--mute);}
+
+  /* ---------- header ---------- */
+  header{padding:clamp(56px,10vw,116px) 0 clamp(40px,7vw,80px);}
+  .kicker{
+    font-family:"IBM Plex Mono",monospace; font-size:12.5px; letter-spacing:.26em;
+    text-transform:uppercase; color:var(--faint); margin:0 0 26px;
+  }
+  h1.title{
+    font-family:"Fraunces",serif; font-weight:400; font-optical-sizing:auto;
+    font-size:clamp(2.5rem,6.4vw,4.7rem); line-height:1.02; letter-spacing:-.012em;
+    margin:0; max-width:16ch;
+  }
+  h1.title em{font-style:italic; color:var(--found);}
+  h1.title .mk{font-style:italic; color:var(--made);}
+  .dek{
+    font-size:clamp(1.05rem,2.1vw,1.35rem); color:var(--mute); line-height:1.5;
+    max-width:47ch; margin:30px 0 0; font-weight:400;
+  }
+  .dek b{color:var(--bone); font-weight:500;}
+
+  /* ---------- axis legend ---------- */
+  .legend{
+    margin-top:46px; border:1px solid var(--line-soft); border-radius:14px;
+    background:linear-gradient(100deg,#1c202c,#1a1e29);
+    padding:22px 24px; display:grid; gap:14px;
+  }
+  .legend-top{font-family:"IBM Plex Mono",monospace; font-size:11.5px; letter-spacing:.2em; text-transform:uppercase; color:var(--faint);}
+  .axis-bar{
+    height:7px; border-radius:6px;
+    background:linear-gradient(90deg,var(--found) 0%, #6e6b78 50%, var(--made) 100%);
+  }
+  .axis-ends{display:flex; justify-content:space-between; gap:16px; font-size:14.5px;}
+  .axis-ends .ax-found{color:var(--found);}
+  .axis-ends .ax-made{color:var(--made); text-align:right;}
+  .axis-ends span b{display:block; font-weight:600; font-size:15px; margin-bottom:1px;}
+  .axis-ends span small{color:var(--faint); font-size:12.5px; letter-spacing:.02em;}
+
+  /* ---------- section frame ---------- */
+  section{padding:clamp(54px,8vw,96px) 0;}
+  .sec-head{margin-bottom:42px;}
+  .sec-head h2{
+    font-family:"Fraunces",serif; font-weight:400; font-size:clamp(1.9rem,4vw,2.9rem);
+    line-height:1.06; letter-spacing:-.01em; margin:18px 0 0; max-width:24ch;
+  }
+  .sec-head p{color:var(--mute); max-width:62ch; margin:16px 0 0; font-size:1.02rem;}
+
+  /* ===== I. LINEAGE (timeline) ===== */
+  .lineage{position:relative;}
+  .spine{
+    position:absolute; left:140px; top:6px; bottom:6px; width:2px;
+    background:linear-gradient(var(--found-deep),var(--line),var(--made-deep));
+  }
+  .node{position:relative; padding:0 0 26px 172px; min-height:30px;}
+  .node .yr{
+    position:absolute; left:0; top:1px; width:118px; text-align:right;
+    font-family:"IBM Plex Mono",monospace; font-size:12.5px; color:var(--faint);
+    letter-spacing:.02em; padding-top:2px;
+  }
+  .node .dot{
+    position:absolute; left:134px; top:6px; width:14px; height:14px; border-radius:50%;
+    background:var(--ink); border:2px solid var(--mute); z-index:2;
+  }
+  .node.found .dot{border-color:var(--found); box-shadow:0 0 0 4px var(--found-glow);}
+  .node.made .dot{border-color:var(--made); box-shadow:0 0 0 4px var(--made-glow);}
+  .node.pivot .dot{border-color:var(--pivot); box-shadow:0 0 0 4px var(--pivot-glow);}
+  .node .who{font-family:"Fraunces",serif; font-size:1.24rem; font-weight:500; line-height:1.15; letter-spacing:-.005em;}
+  .node .dom{font-family:"IBM Plex Mono",monospace; font-size:10.5px; letter-spacing:.16em; text-transform:uppercase; margin-left:10px; color:var(--faint); vertical-align:middle;}
+  .node .say{color:var(--mute); font-size:.99rem; margin-top:4px; max-width:64ch;}
+  .node.camp-c .dot{border-color:var(--camp-c); box-shadow:0 0 0 4px var(--camp-c-glow);}
+  .node.found .who{color:var(--found);}
+  .node.made .who{color:var(--made);}
+  .node.pivot .who{color:var(--pivot);}
+  .node.camp-c .who{color:var(--camp-c);}
+  .lineage-tail{padding-left:172px; margin-top:2px;}
+  .lineage-tail .pin{
+    position:relative; padding:16px 20px; border:1px dashed var(--line);
+    border-radius:12px; background:#1b1f2a; max-width:60ch;
+  }
+  .lineage-tail .pin b{font-family:"Fraunces",serif; font-weight:500; font-size:1.05rem;}
+  .lineage-tail .pin p{margin:5px 0 0; color:var(--mute); font-size:.96rem;}
+
+  /* ===== II. POSITIONS (field guide) ===== */
+  .fields{display:grid; grid-template-columns:1fr 1fr; gap:30px;}
+  .field h3{
+    font-family:"IBM Plex Mono",monospace; font-size:12.5px; letter-spacing:.2em;
+    text-transform:uppercase; color:var(--bone); margin:0 0 18px; padding-bottom:12px;
+    border-bottom:1px solid var(--line); display:flex; justify-content:space-between; align-items:baseline;
+  }
+  .field h3 small{color:var(--faint); letter-spacing:.12em; font-weight:400;}
+  .pos{
+    border:1px solid var(--line-soft); border-left:3px solid var(--line);
+    border-radius:0 11px 11px 0; background:var(--card);
+    padding:16px 18px; margin-bottom:13px; transition:border-color .25s, background .25s, transform .25s;
+  }
+  .pos.found{border-left-color:var(--found);}
+  .pos.made{border-left-color:var(--made);}
+  .pos.pivot{border-left-color:var(--pivot);}
+  .pos.camp-c{border-left-color:var(--camp-c);}
+  .pos:hover{transform:translateX(3px); background:var(--card-solid);}
+  .pos .nm{font-family:"Fraunces",serif; font-weight:600; font-size:1.16rem; letter-spacing:-.005em; display:flex; align-items:baseline; gap:10px; flex-wrap:wrap;}
+  .pos.found .nm{color:var(--found);} .pos.made .nm{color:var(--made);} .pos.pivot .nm{color:var(--pivot);} .pos.camp-c .nm{color:var(--camp-c);}
+  /* go-deeper links on a card or in the shelf */
+  .src-links{margin-top:9px; display:flex; flex-wrap:wrap; gap:6px 14px;}
+  .src-links a{font-family:"IBM Plex Mono",monospace; font-size:11.5px; color:var(--mute); text-decoration:none; border-bottom:1px solid var(--line);}
+  .src-links a:hover{color:var(--bone); border-bottom-color:var(--mute);}
+  .src-links a::after{content:" ↗"; color:var(--faint);}
+  .traction{
+    font-family:"IBM Plex Mono",monospace; font-size:10px; letter-spacing:.08em; text-transform:uppercase;
+    color:var(--faint); border:1px solid var(--line); border-radius:20px; padding:2px 9px; white-space:nowrap;
+  }
+  .pos .figs{font-family:"IBM Plex Mono",monospace; font-size:12px; color:var(--mute); margin:7px 0 7px; letter-spacing:.01em;}
+  .pos .claim{color:var(--bone); font-size:.97rem; line-height:1.5;}
+  .pos .nb{display:block; margin-top:7px; color:var(--faint); font-size:.85rem; font-style:italic;}
+  .pivot-card{
+    grid-column:1/-1; border:1px solid var(--pivot); border-radius:13px;
+    background:linear-gradient(100deg,#211f2c,#1c1b25); padding:20px 22px; margin-top:4px;
+    display:flex; gap:18px; align-items:flex-start; flex-wrap:wrap;
+  }
+  .pivot-card .pv-tag{font-family:"IBM Plex Mono",monospace; font-size:11px; letter-spacing:.2em; text-transform:uppercase; color:var(--pivot); white-space:nowrap; padding-top:5px;}
+  .pivot-card .pv-body{flex:1 1 320px;}
+  .pivot-card .pv-body b{font-family:"Fraunces",serif; font-weight:600; font-size:1.2rem; color:var(--pivot);}
+  .pivot-card .pv-body p{margin:6px 0 0; color:var(--bone); font-size:.98rem;}
+  .traction-note{margin-top:20px; color:var(--faint); font-size:.84rem; font-style:italic; max-width:70ch; display:flex; gap:9px;}
+  .traction-note::before{content:"※"; color:var(--mute); font-style:normal;}
+
+  /* ===== III. CRUXES (confrontations) ===== */
+  .crux{border:1px solid var(--line-soft); border-radius:18px; overflow:hidden; margin-bottom:30px; background:#191d28;}
+  .crux-head{padding:24px 28px 20px; border-bottom:1px solid var(--line-soft);}
+  .crux-meta{display:flex; justify-content:space-between; gap:14px; align-items:baseline; flex-wrap:wrap; margin-bottom:12px;}
+  .crux-n{font-family:"IBM Plex Mono",monospace; font-size:13px; letter-spacing:.18em; color:var(--mute);}
+  .crux-dom{font-family:"IBM Plex Mono",monospace; font-size:10.5px; letter-spacing:.16em; text-transform:uppercase; color:var(--ink); background:var(--mute); padding:3px 10px; border-radius:20px;}
+  .crux-dom.both{background:var(--pivot);}
+  .crux-q{font-family:"Fraunces",serif; font-weight:500; font-size:clamp(1.4rem,3vw,2rem); line-height:1.12; letter-spacing:-.01em; margin:0;}
+  .crux-sub{color:var(--mute); margin:9px 0 0; font-size:.98rem;}
+  .steels{display:grid; grid-template-columns:1fr 1fr; gap:0;}
+  .steel{padding:24px 28px; position:relative;}
+  .steel.s-found{background:linear-gradient(180deg,#1a2420,#191f1d);}
+  .steel.s-made{background:linear-gradient(180deg,#241f17,#1f1c16); border-left:1px solid var(--line-soft);}
+  .steel .side{font-family:"IBM Plex Mono",monospace; font-size:11px; letter-spacing:.14em; text-transform:uppercase; margin-bottom:5px;}
+  .steel.s-found .side{color:var(--found);}
+  .steel.s-made .side{color:var(--made);}
+  .steel .pos-name{font-family:"Fraunces",serif; font-weight:600; font-size:1.12rem; margin-bottom:9px; line-height:1.2;}
+  .steel.s-found .pos-name{color:var(--found);}
+  .steel.s-made .pos-name{color:var(--made);}
+  .steel .gist{font-weight:600; font-size:1.04rem; line-height:1.45; color:var(--bone); margin:0 0 13px; padding-bottom:13px; border-bottom:1px dashed var(--line);}
+  .steel .gist::before{content:"In plain terms"; display:block; font-family:"IBM Plex Mono",monospace; font-size:10px; font-weight:500; letter-spacing:.18em; text-transform:uppercase; color:var(--faint); margin-bottom:5px;}
+  .steel p{margin:0; font-size:.97rem; line-height:1.56; color:#e2dccd;}
+  .steel p em{font-style:italic; color:var(--bone);}
+  .crux-key{padding:18px 28px; background:#13161f; border-top:1px solid var(--line-soft); display:flex; gap:14px; align-items:flex-start;}
+  .crux-key .lab{font-family:"IBM Plex Mono",monospace; font-size:11px; letter-spacing:.16em; text-transform:uppercase; color:var(--faint); padding-top:3px; white-space:nowrap;}
+  .crux-key .txt{font-size:.99rem; color:var(--bone); line-height:1.5;}
+  .crux-key .txt b{font-weight:600;}
+  .same-tag{display:inline-block; margin-top:9px; font-family:"IBM Plex Mono",monospace; font-size:11px; letter-spacing:.08em; color:var(--pivot); border:1px solid var(--pivot); border-radius:20px; padding:3px 11px;}
+
+  /* ===== IV. PAYOFF ===== */
+  .fault-sec{background:linear-gradient(180deg,transparent, #13161f 30%, #13161f 70%, transparent);}
+  .fault-card{border:1px solid var(--line); border-radius:20px; background:#171b25; padding:clamp(24px,4vw,44px); box-shadow:0 30px 80px -50px #000;}
+  .fault-lead{font-family:"Fraunces",serif; font-weight:400; font-size:clamp(1.5rem,3.3vw,2.3rem); line-height:1.18; letter-spacing:-.01em; margin:0 0 8px; max-width:26ch;}
+  .fault-lead em{font-style:italic; color:var(--pivot);}
+  .fault-intro{color:var(--mute); max-width:64ch; margin:0 0 30px; font-size:1.02rem;}
+  .diagram{width:100%; height:auto; display:block; margin:6px 0 4px; overflow:visible;}
+  .fault-restate{display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:18px; margin-top:34px;}
+  .fr-item{border-top:2px solid var(--line); padding-top:13px;}
+  .fr-item.f1{border-top-color:var(--made);}
+  .fr-item.f2{border-top-color:var(--pivot);}
+  .fr-item.f3{border-top-color:var(--found);}
+  .fr-item.f4{border-top-color:var(--made);}
+  .fr-item .fr-n{font-family:"IBM Plex Mono",monospace; font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--faint);}
+  .fr-item .fr-t{font-family:"Fraunces",serif; font-weight:500; font-size:1.05rem; margin:4px 0 5px;}
+  .fr-item p{margin:0; font-size:.92rem; color:var(--mute); line-height:1.5;}
+  .fault-close{margin-top:36px; padding-top:26px; border-top:1px solid var(--line); font-family:"Fraunces",serif; font-style:italic; font-weight:400; font-size:clamp(1.15rem,2.4vw,1.5rem); line-height:1.35; color:var(--bone); max-width:44ch;}
+  .fault-close .ax{color:var(--found);}
+  .fault-close .mk{color:var(--made);}
+
+  /* ===== V. GO DEEPER (resources shelf) ===== */
+  .shelf{display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:24px;}
+  .shelf-col h4{font-family:"IBM Plex Mono",monospace; font-size:12px; letter-spacing:.18em; text-transform:uppercase; color:var(--mute); margin:0 0 14px; padding-bottom:10px; border-bottom:1px solid var(--line);}
+  .res{margin-bottom:15px;}
+  .res .t{font-family:"Fraunces",serif; font-weight:500; font-size:1.04rem; line-height:1.25;}
+  .res .t a{color:var(--bone); text-decoration:none; border-bottom:1px solid var(--line);}
+  .res .t a:hover{border-bottom-color:var(--mute);}
+  .res .by{font-family:"IBM Plex Mono",monospace; font-size:11.5px; color:var(--faint); margin-top:1px;}
+  .res .why{color:var(--mute); font-size:.9rem; margin-top:4px; line-height:1.45;}
+
+  /* ---------- footer ---------- */
+  footer{padding:54px 0 80px; border-top:1px solid var(--line-soft); margin-top:30px;}
+  .foot-note{color:var(--faint); font-size:.86rem; max-width:66ch; line-height:1.55;}
+  .foot-note b{color:var(--mute); font-weight:500;}
+
+  /* ---------- what would move them (per-crux concessions) ---------- */
+  .crux-cede{padding:16px 28px 22px; background:#13161f; border-top:1px solid var(--line-soft); display:flex; gap:14px; align-items:flex-start; flex-wrap:wrap;}
+  .crux-cede .lab{font-family:"IBM Plex Mono",monospace; font-size:11px; letter-spacing:.16em; text-transform:uppercase; color:var(--faint); padding-top:3px; white-space:nowrap;}
+  .crux-cede .cede{flex:1 1 320px; display:grid; gap:9px;}
+  .crux-cede .cede p{margin:0; font-size:.92rem; line-height:1.5; color:var(--mute); padding-left:13px; border-left:2px solid var(--line);}
+  .crux-cede .cede .c-found{border-left-color:var(--found);}
+  .crux-cede .cede .c-made{border-left-color:var(--made);}
+  .crux-cede .cede b{display:block; margin-bottom:1px; font-family:"IBM Plex Mono",monospace; font-size:10.5px; letter-spacing:.05em; text-transform:uppercase; font-weight:600; color:var(--bone);}
+  /* ---------- pole lean tag (colour-independent position marker) ---------- */
+  .pos .nm .lean{font-family:"IBM Plex Mono",monospace; font-size:9.5px; letter-spacing:.08em; text-transform:uppercase; color:var(--faint); border:1px solid var(--line); border-radius:4px; padding:1px 6px; white-space:nowrap; align-self:center; font-weight:500;}
+  .pos.found .nm .lean{color:var(--found); border-color:var(--found-deep);}
+  .pos.made .nm .lean{color:var(--made); border-color:var(--made-deep);}
+  .pos.pivot .nm .lean{color:var(--pivot); border-color:var(--pivot);}
+  .pos.camp-c .nm .lean{color:var(--camp-c); border-color:var(--camp-c-deep);}
+  /* ---------- reveal ---------- */
+  .reveal{opacity:0; transform:translateY(16px); transition:opacity .7s ease, transform .7s ease;}
+  .reveal.in{opacity:1; transform:none;}
+
+  :focus-visible{outline:2px solid var(--found); outline-offset:3px; border-radius:3px;}
+
+  /* ---------- responsive ---------- */
+  @media (max-width:760px){
+    body{font-size:16px;}
+    .fields{grid-template-columns:1fr;}
+    .steels{grid-template-columns:1fr;}
+    .steel.s-made{border-left:none; border-top:1px solid var(--line-soft);}
+    .spine{left:84px;}
+    .node{padding-left:112px;}
+    .node .yr{width:64px;}
+    .node .dot{left:78px;}
+    .lineage-tail{padding-left:112px;}
+    .axis-ends{flex-direction:column; gap:10px;}
+    .axis-ends .ax-made{text-align:left;}
+  }
+  @media (prefers-reduced-motion:reduce){
+    *{scroll-behavior:auto;}
+    .reveal{opacity:1; transform:none; transition:none;}
+    .draw{stroke-dashoffset:0 !important;}
+  }
+</style>
+</head>
+<body>
+
+<!-- ============================ HEADER ============================ -->
+<header class="wrap">
+  <a class="site-tie" href="/debates">All debate maps · brooker</a>
+  <p class="kicker">FIELD · energy, the grid &amp; the economics of compute</p>
+  <h1 class="title">The AI build-out: <em>essential infrastructure</em> — or <span class="mk">a costly overreach</span>?</h1>
+  <p class="dek">A trillion dollars of compute is going up faster than the wires, the water, and the revenue can keep pace. A dozen positions on the data-center boom fold into four <b>disagreements</b>, and those into two <b>questions</b>: how much will the AI itself actually deliver, and who ends up paying for the power and water? Below — the <b>lineage</b>, the <b>positions and who holds them</b>, and four <b>cruxes</b>, each with the strongest case both sides make. At stake: your electricity bill, river levels in drought country, climate targets, and the US–China race.</p>
+
+  <div class="legend reveal">
+    <div class="legend-top">One axis runs under all of it. Watch the two colors.</div>
+    <div class="axis-bar"></div>
+    <div class="axis-ends">
+      <span class="ax-found"><b>Build it out</b><small>compute is the new infrastructure · speed to power</small></span>
+      <span class="ax-made"><b>Rein it in</b><small>the costs land on the public · slow down</small></span>
+    </div>
+  </div>
+</header>
+
+<!-- ============================ I. LINEAGE ============================ -->
+<section class="wrap">
+  <div class="sec-head">
+    <div class="eyebrow"><span class="sec-num">I</span> &nbsp;the lineage</div>
+    <h2 class="ser">How compute-on-tap became a power-grid problem</h2>
+    <p>Read top to bottom. A dot's halo marks where the moment lands — green for the case that the build-out is under control or worth it, gold for the case that it's outrunning what the grid and the public can bear, lilac for the in-between.</p>
+  </div>
+
+  <div class="lineage reveal">
+    <div class="spine" aria-hidden="true"></div>
+
+    <div class="node pivot">
+      <span class="yr">1961</span><span class="dot"></span>
+      <div class="who">John McCarthy<span class="dom">computing · utility</span></div>
+      <div class="say">At MIT's centennial the AI pioneer floats an idea ahead of its hardware: computation sold like electricity or water, metered and on tap. The seed of everything that followed — compute as a utility, with a utility's appetite.</div>
+    </div>
+
+    <div class="node found">
+      <span class="yr">2006</span><span class="dot"></span>
+      <div class="who">Amazon launches EC2<span class="dom">industry · the cloud</span></div>
+      <div class="say">Rentable servers by the hour turn McCarthy's metaphor into a market. The hyperscale era starts here; compute stops being something you own and becomes something you draw from a few enormous buildings.</div>
+    </div>
+
+    <div class="node found">
+      <span class="yr">2011</span><span class="dot"></span>
+      <div class="who">Open Compute Project<span class="dom">engineering · efficiency</span></div>
+      <div class="say">Facebook open-sources its data-center designs and the industry chases efficiency hard. Power Usage Effectiveness — overhead energy per unit of compute — falls toward ~1.1 at the best sites. For a decade, efficiency is the answer to every worry about footprint.</div>
+    </div>
+
+    <div class="node found">
+      <span class="yr">c. 2018</span><span class="dot"></span>
+      <div class="who">The flat-load decade<span class="dom">grid · baseline</span></div>
+      <div class="say">US data-center electricity use stays roughly flat through the 2010s even as traffic explodes — efficiency gains eat the growth. This is the "it's handled" baseline every later alarm has to argue against.</div>
+    </div>
+
+    <div class="node found">
+      <span class="yr">Nov 2022</span><span class="dot"></span>
+      <div class="who">ChatGPT ships<span class="dom">AI · the scramble</span></div>
+      <div class="say">A research preview hits a hundred million users in two months and rewrites every hyperscaler's capital plan. Training a frontier model, then serving it to everyone, turns compute demand from steady into vertical.</div>
+    </div>
+
+    <div class="node found">
+      <span class="yr">2023</span><span class="dot"></span>
+      <div class="who">The H100 boom<span class="dom">hardware · demand</span></div>
+      <div class="say">Nvidia's data-center GPUs become the scarce input of the decade; allocation, not money, is the bottleneck. A rack of these draws what a small neighborhood does, and everyone wants thousands.</div>
+    </div>
+
+    <div class="node made">
+      <span class="yr">2024</span><span class="dot"></span>
+      <div class="who">The Berkeley Lab report<span class="dom">policy · the grid</span></div>
+      <div class="say">Lawrence Berkeley National Lab puts US data centers at ~4.4% of national electricity in 2023, with a path to 6.7–12% by 2028. Grid operators start filing warnings; the flat-load era is officially over.</div>
+    </div>
+
+    <div class="node found">
+      <span class="yr">Sept 2024</span><span class="dot"></span>
+      <div class="who">Three Mile Island restart<span class="dom">energy · nuclear</span></div>
+      <div class="say">Microsoft and Constellation sign a 20-year deal to reopen the undamaged Unit 1 at Three Mile Island — shut in 2019 on economics — to feed AI. The clearest sign yet that demand might pull firm clean power back from the dead.</div>
+    </div>
+
+    <div class="node made">
+      <span class="yr">Jan 2025</span><span class="dot"></span>
+      <div class="who">"Stargate" announced<span class="dom">capital · the buildout</span></div>
+      <div class="say">OpenAI, Oracle, and SoftBank unveil a $500B US data-center program. Transformer and gas-turbine order books stretch years out; some utilities file rate cases citing data-center load. The scale stops being abstract.</div>
+    </div>
+
+    <div class="node pivot">
+      <span class="yr">2025–26</span><span class="dot"></span>
+      <div class="who">The reckoning begins<span class="dom">grid · water · rules</span></div>
+      <div class="say">The IEA projects global data-center generation past 1,000 TWh by 2030. Water use draws fire — researchers tally roughly 264 billion gallons for AI in 2025. In March 2026 several developers sign a "Ratepayer Protection Pledge" to cover the full cost of generation they require; states trade moratoria and incentives.</div>
+    </div>
+
+    <div class="lineage-tail">
+      <div class="pin">
+        <b>Into the present</b>
+        <p>The build-out is racing ahead of the grid, the water, and the revenue all at once. Whether this is the new railroads — durable infrastructure for a technology that pays off — or the new telecom glut of 2001, fiber laid into a crash, is the question nobody can answer yet.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ II. POSITIONS ============================ -->
+<section class="wrap">
+  <div class="sec-head">
+    <div class="eyebrow"><span class="sec-num">II</span> &nbsp;the positions</div>
+    <h2 class="ser">Who holds what — and where it sits on the axis</h2>
+    <p>Two families of position: one starts from the costs the build-out imposes, the other from the upside it promises. A card's left edge is its lean; the tag is rough sociology, not a scorecard.</p>
+  </div>
+
+  <div class="fields reveal">
+    <div class="field">
+      <h3>On the costs <small>energy · water · money</small></h3>
+
+      <div class="pos made">
+        <div class="nm"><span class="lean">▶ rein in</span> Grid-strain &amp; ratepayer critics <span class="traction">rising fast in policy</span></div>
+        <div class="figs">consumer advocates · state utility commissions · some grid operators</div>
+        <div class="claim">Demand is outpacing the supply of plants and lines, and the cost of building both gets folded into everyone's rates — so an ordinary household pays part of the bill for a data center it will never use.</div>
+        <span class="nb">The fight is largely over cost allocation: who in the rate base is on the hook for new generation.</span>
+      </div>
+
+      <div class="pos made">
+        <div class="nm"><span class="lean">▶ rein in</span> Climate critics <span class="traction">prominent among energy researchers</span></div>
+        <div class="figs">climate scientists · environmental advocates</div>
+        <div class="claim">To meet the load fast, utilities are building new gas, keeping coal online past its retirement date, and burning through carbon budgets that were already tight.</div>
+        <span class="nb">Concedes some of the new power is clean; the worry is the marginal megawatt, which is often fossil.</span>
+      </div>
+
+      <div class="pos made">
+        <div class="nm"><span class="lean">▶ rein in</span> Water &amp; community critics <span class="traction">growing at the local level</span></div>
+        <div class="figs">host-town residents · water-district officials · journalists</div>
+        <div class="claim">A hyperscale site can draw millions of gallons a day for cooling — sometimes in places already short of water — and leaves behind a few dozen permanent jobs after the construction crews go home.</div>
+        <span class="nb">Often fought parcel by parcel, in zoning hearings rather than national debate.</span>
+        <div class="src-links"><a href="https://arxiv.org/abs/2304.03271">Li et al., "Making AI Less Thirsty"</a></div>
+      </div>
+
+      <div class="pos found">
+        <div class="nm"><span class="lean">◀ build</span> Clean-abundance optimists <span class="traction">growing in energy circles</span></div>
+        <div class="figs">nuclear advocates · some utilities · clean-firm developers</div>
+        <div class="claim">Large, creditworthy, around-the-clock demand is the best thing to happen to clean firm power in a generation — it funds nuclear restarts, SMRs, and geothermal that wouldn't pencil out otherwise.</div>
+        <span class="nb">Points to the Three Mile Island restart as proof the demand pulls real projects forward.</span>
+        <div class="src-links"><a href="https://en.wikipedia.org/wiki/Three_Mile_Island_Nuclear_Generating_Station">Three Mile Island restart</a></div>
+      </div>
+    </div>
+
+    <div class="field">
+      <h3>On the upside <small>growth · security · the AI itself</small></h3>
+
+      <div class="pos found">
+        <div class="nm"><span class="lean">◀ build</span> Build-the-future techno-optimists <span class="traction">dominant in the AI industry</span></div>
+        <div class="figs">frontier labs · most hyperscaler leadership</div>
+        <div class="claim">AI is a general-purpose technology and compute is the binding constraint on it. The expensive mistake isn't overbuilding — it's underbuilding and finding you can't catch up.</div>
+        <span class="nb">Reads today's capex the way an earlier era read electrification: a one-time cost for a permanent capability.</span>
+      </div>
+
+      <div class="pos found">
+        <div class="nm"><span class="lean">◀ build</span> National-competitiveness hawks <span class="traction">strong across both US parties</span></div>
+        <div class="figs">defense thinkers · policymakers · Leopold Aschenbrenner</div>
+        <div class="claim">Compute is a strategic resource. Losing the AI frontier to China is the real risk, and keeping the frontier at home keeps its rules and its safeguards at home too.</div>
+        <span class="nb">Treats power and chips as national assets, not just private capex.</span>
+        <div class="src-links"><a href="https://situational-awareness.ai/">Aschenbrenner, "Situational Awareness"</a></div>
+      </div>
+
+      <div class="pos made">
+        <div class="nm"><span class="lean">▶ rein in</span> Bubble skeptics <span class="traction">loud among investors since 2024</span></div>
+        <div class="figs">Wall Street analysts · Sequoia's David Cahn</div>
+        <div class="claim">Roughly $700B a year of capex is running far ahead of what AI actually earns. If the returns disappoint, you get stranded GPUs, idle buildings, and a cascade through everyone who lent against them.</div>
+        <span class="nb">Not anti-AI as such — the claim is about the gap between spend and revenue.</span>
+        <div class="src-links"><a href="https://www.sequoiacap.com/article/ais-600b-question/">Sequoia, "AI's $600B Question"</a></div>
+      </div>
+
+      <div class="pos made">
+        <div class="nm"><span class="lean">▶ rein in</span> "Do we need this?" skeptics <span class="traction">a minority, but vocal</span></div>
+        <div class="figs">efficiency researchers · degrowth-leaning critics</div>
+        <div class="claim">Question the demand itself. Smaller models, better algorithms, and inference on cheaper hardware could meet most real needs without the megaprojects and the power plants to feed them.</div>
+        <span class="nb">Where the others argue about how to build, this side asks whether to.</span>
+      </div>
+    </div>
+
+    <div class="pivot-card">
+      <div class="pv-tag">the hinge ↕</div>
+      <div class="pv-body">
+        <b>Build smarter — make them pay their way</b>
+        <p>One stance takes the build-out as basically necessary but puts conditions on it. Data centers bring their own clean generation, or pay the full grid cost they create. They cool with closed-loop or air systems instead of drinking the local river. They run flexibly and curtail when the grid is tight, since a load that can pause is worth far more than one that can't. They site away from scarce water, and they open their numbers so regulators aren't guessing. The March 2026 Ratepayer Protection Pledge and the "bring-your-own-power" deals — where a developer signs for a reactor or a gas plant before it draws a watt from the public grid — are the first real moves in this direction. Whether they hold, or stay press releases, is the open question.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="traction-note">Tags are rough sociology — how loud and how widely held a position is right now — not a verdict on who's right. This is a fast-moving fight; the balance has shifted twice in three years and will shift again.</div>
+</section>
+
+<!-- ============================ III. CRUXES ============================ -->
+<section class="wrap">
+  <div class="sec-head">
+    <div class="eyebrow"><span class="sec-num">III</span> &nbsp;the cruxes</div>
+    <h2 class="ser">Four fair fights, each carrying part of the load</h2>
+    <p>The positions are bundles of answers; these are the questions that, answered one way or the other, split them. Both panels give the side's best case, in its own voice.</p>
+  </div>
+
+  <!-- CRUX 1 -->
+  <div class="crux reveal">
+    <div class="crux-head">
+      <div class="crux-meta"><span class="crux-n">Crux 01 — the grid</span><span class="crux-dom">energy · economics</span></div>
+      <h3 class="crux-q ser">Can the grid take it — and who pays?</h3>
+      <p class="crux-sub">Demand is climbing faster than US power has grown in twenty years. Does that pull clean power forward, or socialize dirty, expensive power onto everyone else?</p>
+    </div>
+    <div class="steels">
+      <div class="steel s-found">
+        <div class="side">▸ the strongest pull for new power in a generation</div>
+        <div class="pos-name">Demand builds the supply</div>
+        <div class="gist">A creditworthy buyer who'll take power around the clock for twenty years is exactly what clean firm generation needs to get financed — and the build-out is starting to pay its own way.</div>
+        <p>Clean firm power — nuclear, geothermal, the long-duration stuff — has always died on financing, not physics. Nobody builds a reactor on spec. AI changed that: a hyperscaler will sign a two-decade offtake before the first concrete is poured, which is why a shuttered reactor at Three Mile Island is coming back and why developers have lined up something like 45 GW of nuclear offtake interest. Data-center load is also unusually flexible — training can pause, and operators can curtail at peak if the price signal is right. And the industry is moving toward covering its own costs: the March 2026 Ratepayer Protection Pledge has developers promising to pay for the generation they require rather than spreading it across the rate base.</p>
+      </div>
+      <div class="steel s-made">
+        <div class="side">▸ the bill lands on people who never asked for it</div>
+        <div class="pos-name">The costs get socialized</div>
+        <div class="gist">Demand is outrunning supply, the fastest fix is gas, and the cost of new plants and wires gets folded into rates that have already climbed faster than inflation.</div>
+        <p>You can't conjure a reactor in the eighteen months a data center wants power, so the load gets met with what's available — new gas, and coal plants kept past their retirement dates. Meanwhile the cost of new generation and transmission flows into the rate base, and US electric bills have been rising faster than inflation with data centers named as a driver. "Flexible" is mostly a promise; few operators have actually curtailed at scale, because every idle hour is wasted capital. A pledge signed in 2026 is not a tariff, and not a law. Until the meter proves otherwise, the public is the backstop for a private build-out.</p>
+      </div>
+    </div>
+    <div class="crux-key">
+      <span class="lab">the crux</span>
+      <span class="txt">Does AI demand <b>pull clean abundance forward</b>, or <b>socialize dirty, expensive power</b> onto the public and the climate? Most of the energy fight is downstream of this.</span>
+    </div>
+    <div class="crux-cede">
+      <span class="lab">what would move them</span>
+      <div class="cede">
+        <p class="c-found"><b>The build side concedes if</b> the demand is shown to lock in fossil generation and raise ordinary ratepayers' bills, with no offsetting clean build-out.</p>
+        <p class="c-made"><b>The restraint side concedes if</b> data-center demand is shown to pull forward clean firm power that wouldn't otherwise get built, and operators pay their own grid costs.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- CRUX 2 -->
+  <div class="crux reveal">
+    <div class="crux-head">
+      <div class="crux-meta"><span class="crux-n">Crux 02 — the ground</span><span class="crux-dom">water · community</span></div>
+      <h3 class="crux-q ser">What does a host town actually get?</h3>
+      <p class="crux-sub">A site lands on a county's tax rolls and on its water table at the same time. Is it a windfall, or an extraction?</p>
+    </div>
+    <div class="steels">
+      <div class="steel s-found">
+        <div class="side">▸ investment, tax base, and a lighter footprint than you think</div>
+        <div class="pos-name">A neighbor worth having</div>
+        <div class="gist">A data center drops billions of capital and a long-term tax base into places that rarely see either, and newer sites barely touch local water.</div>
+        <p>A single campus is a multi-billion-dollar investment, years of construction work, and a property-tax stream a rural county can use to fund its schools. The water complaint is aimed at an older design: the newest builds run closed-loop cooling that recirculates the same water, or air cooling that uses almost none, or recycled greywater that never competed with drinking supply. Communities aren't powerless here — they negotiate the terms, the tax abatements, the water agreements. A town that drives a hard bargain can come out well ahead, and many have chosen to.</p>
+      </div>
+      <div class="steel s-made">
+        <div class="side">▸ it drinks the water and leaves</div>
+        <div class="pos-name">An extractive draw</div>
+        <div class="gist">A hyperscale site can use up to five million gallons of water a day, often where water is already scarce, in exchange for a handful of permanent jobs and a deal the public never gets to read.</div>
+        <p>Evaporative cooling at a big site can consume up to five million gallons a day, and the new builds are landing in exactly the dry, cheap-land regions where that's hardest to spare. The tax windfall gets eaten by abatements handed over to win the project, and the jobs number collapses once construction ends — a few dozen technicians run a building the size of several stadiums. The deals are signed under NDAs, so residents learn the water terms after the fact. Runs hot, runs loud, draws the aquifer down, and the company can pack up the racks and move when the incentives dry up.</p>
+      </div>
+    </div>
+    <div class="crux-key">
+      <span class="lab">the crux</span>
+      <span class="txt">Is a data center a <b>tax windfall and a good neighbor</b>, or an <b>extractive draw</b> on scarce local water and land? The answer changes site by site — which is why this fights parcel by parcel.</span>
+    </div>
+    <div class="crux-cede">
+      <span class="lab">what would move them</span>
+      <div class="cede">
+        <p class="c-found"><b>The build side concedes if</b> host communities are shown to get little lasting benefit while bearing real water and infrastructure costs.</p>
+        <p class="c-made"><b>The restraint side concedes if</b> operators are shown to use closed-loop or air cooling and deliver tax base and grid investment that towns actually value.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- CRUX 3 -->
+  <div class="crux reveal">
+    <div class="crux-head">
+      <div class="crux-meta"><span class="crux-n">Crux 03 — the race</span><span class="crux-dom both">geopolitics · crossways</span></div>
+      <h3 class="crux-q ser">Is a maximal domestic build-out a national imperative?</h3>
+      <p class="crux-sub">"National security" is either the reason to build everything, or the phrase that ends the argument before it starts.</p>
+    </div>
+    <div class="steels">
+      <div class="steel s-found">
+        <div class="side">▸ compute is the strategic resource of the era</div>
+        <div class="pos-name">Win the race or lose the rules</div>
+        <div class="gist">Falling behind China on AI is a security and economic threat, and keeping the frontier on US soil keeps its safeguards on US soil too.</div>
+        <p>The lead in AI runs through compute the way an earlier century's ran through steel and oil. A rival that reaches decisive capability first sets the terms — in weapons, in cyber, in the economy that funds both. Ceding that to a strategic competitor isn't a market outcome you can shrug at; it's a posture you can't easily reverse. Keeping the frontier domestic also keeps the rules domestic: the safety regimes, the export controls, the audits all live wherever the biggest clusters do. Build at home, fast, or watch the capability — and the say over how it's used — move somewhere with fewer scruples.</p>
+      </div>
+      <div class="steel s-made">
+        <div class="side">▸ the phrase that launders the externalities</div>
+        <div class="pos-name">A blank check for the build-out</div>
+        <div class="gist">"National security" turns every cost — the water, the bills, the emissions — into an acceptable price, and skips the prior question of whether we need this much compute at all.</div>
+        <p>Wrap a project in the flag and the externalities stop counting. The race framing converts a question that deserves scrutiny — should we socialize this power, drain this aquifer, build this much — into a settled yes, because the alternative is "losing to China." But the strategic case rarely specifies how much domestic compute the security actually requires; it just says more. Efficiency gains, smaller specialized models, or selective offshoring of non-sensitive workloads might secure the genuine national interest at a fraction of the footprint. The arms-race frame forecloses that conversation. The hard part isn't building; it's admitting how little of the build the security case truly needs.</p>
+      </div>
+    </div>
+    <div class="crux-key">
+      <span class="lab">the crux</span>
+      <span class="txt">Is maximal domestic compute a <b>genuine strategic necessity</b>, or a <b>rationale that ends the debate</b> before it starts? <span class="same-tag">↳ this runs crossways — it ties to how much you think the AI itself will deliver (Crux 04).</span></span>
+    </div>
+    <div class="crux-cede">
+      <span class="lab">what would move them</span>
+      <div class="cede">
+        <p class="c-found"><b>The build side concedes if</b> "national security" is shown to be a blank check — the strategic need doesn't actually require this much domestic compute.</p>
+        <p class="c-made"><b>The restraint side concedes if</b> ceding compute leadership is shown to carry real security and economic costs that efficiency or offshoring can't avoid.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- CRUX 4 -->
+  <div class="crux reveal">
+    <div class="crux-head">
+      <div class="crux-meta"><span class="crux-n">Crux 04 — the payoff</span><span class="crux-dom both">markets · crossways</span></div>
+      <h3 class="crux-q ser">Will the AI pay off enough to justify the build-out?</h3>
+      <p class="crux-sub">This is the second axis the other three ride on. Railroads, or fiber laid into the 2001 crash?</p>
+    </div>
+    <div class="steels">
+      <div class="steel s-found">
+        <div class="side">▸ infrastructure for a general-purpose technology</div>
+        <div class="pos-name">Build too little, too late, is the real risk</div>
+        <div class="gist">Models keep improving and the demand for running them is compounding; this is the railroads, where the danger was always underinvestment.</div>
+        <p>Every capability jump opens uses that didn't exist the quarter before, and each one adds inference load that never goes away. The history of general-purpose technologies — rail, the grid, broadband — is that the infrastructure looks overbuilt right up until it looks obviously too small, and the firms that hesitated never caught the leaders who didn't. A GPU bought today earns while it runs; the cluster is a productive asset, not a bet on a single product. If the AI is anything like what the last three years suggest, the people warning about overcapacity will look the way people who warned about "too much internet" look now.</p>
+      </div>
+      <div class="steel s-made">
+        <div class="side">▸ the spend is running ahead of the revenue</div>
+        <div class="pos-name">A capex bubble we're pre-paying</div>
+        <div class="gist">Hundreds of billions a year are going into hardware that earns a fraction of it back, and depreciates fast enough that it may be obsolete before it pays for itself.</div>
+        <p>Roughly $700B of hyperscaler capex in 2026 needs an enormous, recurring revenue stream to justify it — and the AI revenue, real as it is, lags far behind. The hardware doesn't wait for the math to work: a GPU is largely written off in a few years, and the next generation makes the last one a discount item. So the clock is brutal. If demand or pricing disappoints even modestly, you're left with stranded silicon, half-empty buildings, power contracts signed for load that never shows, and the lenders who financed it all looking for the exit at once. The dot-com fiber glut is the cautionary tale: useful in the end, ruinous on the way there.</p>
+      </div>
+    </div>
+    <div class="crux-key">
+      <span class="lab">the crux</span>
+      <span class="txt">Durable <b>infrastructure for a transformative technology</b>, or a <b>capex bubble</b> whose costs we are pre-paying? This is the second axis the others ride on.</span>
+    </div>
+    <div class="crux-cede">
+      <span class="lab">what would move them</span>
+      <div class="cede">
+        <p class="c-found"><b>The build side concedes if</b> AI revenue keeps badly lagging capex and the hardware is obsoleted fast, leaving stranded assets.</p>
+        <p class="c-made"><b>The restraint side concedes if</b> inference demand and model capability keep compounding, making today's build-out look like underinvestment in hindsight.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ IV. PAYOFF ============================ -->
+<section class="wrap fault-sec">
+  <div class="sec-head">
+    <div class="eyebrow"><span class="sec-num">IV</span> &nbsp;the payoff</div>
+  </div>
+
+  <div class="fault-card reveal">
+    <h3 class="fault-lead ser">Four cruxes, <em>two questions</em> underneath</h3>
+    <p class="fault-intro">Most of the fight runs on two axes. One is left–right: build it out, or rein it in — the question of who pays for the power and water. The other is up–down: is the AI payoff real and worth it, or overhyped? Cruxes 03 and 04 are mostly the vertical question; Cruxes 01 and 02 sit on the horizontal one. Plot the camps and the field stops looking like one argument. People are standing on different squares, often answering a question the other side never asked.</p>
+
+    <svg class="diagram" viewBox="0 0 980 600" role="img" aria-labelledby="dg-t dg-d">
+      <title id="dg-t">Two crossed questions under the data-center debate</title>
+      <desc id="dg-d">A grid with two axes. The horizontal axis runs from "build it out" on the left to "rein it in" on the right. The vertical axis runs from "the AI payoff is real and worth it" at the top to "AI is overhyped or a bubble" at the bottom. Positions are plotted as points: techno-optimists upper left; national-security hawks far left at mid height; "build smarter" reformers upper right; the build-smarter pivot at center; ratepayer and grid critics on the right at mid height; bubble skeptics lower right; and degrowth or "do we need this" skeptics in the lower-right area.</desc>
+      <defs>
+        <linearGradient id="axisgrad" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0" stop-color="#6dbaa4"/>
+          <stop offset="0.5" stop-color="#6e6b78"/>
+          <stop offset="1" stop-color="#d8a652"/>
+        </linearGradient>
+      </defs>
+
+      <!-- vertical axis: the AI payoff -->
+      <line x1="490" y1="80" x2="490" y2="500" stroke="#34384a" stroke-width="2"/>
+      <!-- horizontal axis: build vs rein in -->
+      <line x1="110" y1="290" x2="870" y2="290" stroke="url(#axisgrad)" stroke-width="6" stroke-linecap="round"/>
+      <circle cx="110" cy="290" r="7" fill="#6dbaa4"/>
+      <circle cx="870" cy="290" r="7" fill="#d8a652"/>
+
+      <!-- axis labels -->
+      <text x="110" y="322" fill="#6dbaa4" font-family="'IBM Plex Mono',monospace" font-size="15">build it out</text>
+      <text x="870" y="322" fill="#d8a652" font-family="'IBM Plex Mono',monospace" font-size="15" text-anchor="end">rein it in</text>
+      <text x="490" y="62" fill="#a6a394" font-family="'IBM Plex Mono',monospace" font-size="14" text-anchor="middle">the AI payoff is real and worth it</text>
+      <text x="490" y="528" fill="#a6a394" font-family="'IBM Plex Mono',monospace" font-size="14" text-anchor="middle">AI is overhyped / a bubble</text>
+
+      <!-- plotted positions (rows staggered so no two labels share a line) -->
+      <!-- upper-left: build + payoff real -->
+      <circle cx="300" cy="138" r="6" fill="#6dbaa4"/>
+      <text x="316" y="143" fill="#ebe5d6" font-family="'IBM Plex Sans',sans-serif" font-size="14.5">Techno-optimists</text>
+
+      <!-- upper-right: payoff real but being built badly -->
+      <circle cx="678" cy="170" r="6" fill="#d8a652"/>
+      <text x="663" y="175" fill="#ebe5d6" font-family="'IBM Plex Sans',sans-serif" font-size="14.5" text-anchor="end">"Real, but built badly" reformers</text>
+
+      <!-- far left, mid height: build even if unsure the payoff lands -->
+      <circle cx="178" cy="256" r="6" fill="#6dbaa4"/>
+      <text x="194" y="252" fill="#ebe5d6" font-family="'IBM Plex Sans',sans-serif" font-size="14.5">National-security hawks</text>
+
+      <!-- the pivot: center -->
+      <circle cx="490" cy="290" r="8" fill="#a195bd" stroke="#171922" stroke-width="2"/>
+      <text x="506" y="285" fill="#a195bd" font-family="'IBM Plex Sans',sans-serif" font-size="14.5" font-style="italic">"Build smarter" pivot</text>
+      <text x="506" y="304" fill="#a195bd" font-family="'IBM Plex Mono',monospace" font-size="11">yes, but make them pay their way</text>
+
+      <!-- right, mid height: ratepayer / grid critics -->
+      <circle cx="724" cy="320" r="6" fill="#d8a652"/>
+      <text x="709" y="325" fill="#ebe5d6" font-family="'IBM Plex Sans',sans-serif" font-size="14.5" text-anchor="end">Ratepayer &amp; grid critics</text>
+
+      <!-- lower right: bubble skeptics -->
+      <circle cx="700" cy="430" r="6" fill="#d8a652"/>
+      <text x="685" y="435" fill="#ebe5d6" font-family="'IBM Plex Sans',sans-serif" font-size="14.5" text-anchor="end">Bubble skeptics</text>
+
+      <!-- lower-right area, further down: degrowth / do we need this -->
+      <circle cx="566" cy="464" r="6" fill="#d8a652"/>
+      <text x="582" y="469" fill="#ebe5d6" font-family="'IBM Plex Sans',sans-serif" font-size="14.5">"Do we need this?" skeptics</text>
+    </svg>
+
+    <div class="fault-restate">
+      <div class="fr-item f1"><div class="fr-n">Crux 01 · the grid</div><div class="fr-t ser">Who pays for the power</div><p>The horizontal axis. Clean abundance pulled forward, or dirty, expensive power socialized onto the public.</p></div>
+      <div class="fr-item f3"><div class="fr-n">Crux 02 · the ground</div><div class="fr-t ser">What the town gets</div><p>The horizontal axis again, on the local scale. Tax windfall and good neighbor, or extractive draw on scarce water.</p></div>
+      <div class="fr-item f2"><div class="fr-n">Crux 03 · the race</div><div class="fr-t ser">Is it a national must</div><p>Crossways. Genuine strategic necessity, or the phrase that ends the argument before it starts.</p></div>
+      <div class="fr-item f4"><div class="fr-n">Crux 04 · the payoff</div><div class="fr-t ser">Will it pay off</div><p>The vertical axis — the one the other three ride on. Durable infrastructure, or a capex bubble we're pre-paying.</p></div>
+    </div>
+
+    <p class="fault-close ser">Most of the fight is downstream of two things — how much you believe <span class="ax">the AI itself will deliver</span>, and <span class="mk">who you think ends up paying</span> for the power and water. Find which one moves you, and you'll usually find the other person standing on the other axis.</p>
+  </div>
+</section>
+
+<!-- ============================ V. GO DEEPER ============================ -->
+<section class="wrap">
+  <div class="sec-head">
+    <div class="eyebrow"><span class="sec-num">V</span> &nbsp;go deeper</div>
+    <h2 class="ser">Where to take it next</h2>
+    <p>A few ways in, grouped by what they argue. Links were checked; the two big reports are cited by title because their sites block automated checks.</p>
+  </div>
+
+  <div class="shelf reveal">
+    <div class="shelf-col">
+      <h4>The numbers</h4>
+      <div class="res">
+        <div class="t">Energy and AI</div>
+        <div class="by">International Energy Agency · 2025</div>
+        <div class="why">The most authoritative read on demand: ~460 TWh in 2024 heading past 1,000 TWh by 2030, with the supply mix broken out. The base case for every figure in this map.</div>
+      </div>
+      <div class="res">
+        <div class="t">2024 United States Data Center Energy Usage Report</div>
+        <div class="by">Lawrence Berkeley National Laboratory</div>
+        <div class="why">Where the US "~4.4% in 2023, 6.7–12% by 2028" projection comes from. The report that ended the flat-load consensus.</div>
+      </div>
+    </div>
+
+    <div class="shelf-col">
+      <h4>The case to build</h4>
+      <div class="res">
+        <div class="t"><a href="https://situational-awareness.ai/">Situational Awareness</a></div>
+        <div class="by">Leopold Aschenbrenner · 2024</div>
+        <div class="why">The fullest version of the national-security argument for maximal compute. Reads the race as decisive and the build-out as the price of staying ahead.</div>
+      </div>
+      <div class="res">
+        <div class="t"><a href="https://en.wikipedia.org/wiki/Three_Mile_Island_Nuclear_Generating_Station">Three Mile Island Nuclear Generating Station</a></div>
+        <div class="by">Wikipedia</div>
+        <div class="why">The restart-for-AI deal in context — the clearest case study in "demand pulls clean firm power forward."</div>
+      </div>
+    </div>
+
+    <div class="shelf-col">
+      <h4>The case to slow down</h4>
+      <div class="res">
+        <div class="t"><a href="https://www.sequoiacap.com/article/ais-600b-question/">AI's $600B Question</a></div>
+        <div class="by">David Cahn, Sequoia Capital · 2024</div>
+        <div class="why">The clearest framing of the revenue-vs-capex gap from inside the industry, not outside it. The bubble case in one chart.</div>
+      </div>
+      <div class="res">
+        <div class="t"><a href="https://arxiv.org/abs/2304.03271">Making AI Less "Thirsty"</a></div>
+        <div class="by">Li, Yang, Islam &amp; Ren · 2023</div>
+        <div class="why">The paper that put water on the map — where the per-query and per-site cooling figures everyone now cites come from.</div>
+      </div>
+    </div>
+
+    <div class="shelf-col">
+      <h4>Overviews</h4>
+      <div class="res">
+        <div class="t"><a href="https://en.wikipedia.org/wiki/Environmental_impact_of_artificial_intelligence">Environmental impact of artificial intelligence</a></div>
+        <div class="by">Wikipedia</div>
+        <div class="why">A maintained survey of the energy, water, and emissions debates, with the live citations to chase.</div>
+      </div>
+      <div class="res">
+        <div class="t"><a href="https://en.wikipedia.org/wiki/Stargate_LLC">Stargate LLC</a></div>
+        <div class="by">Wikipedia</div>
+        <div class="why">The flagship $500B build-out, tracked as it unfolds — the scale of the bet in one place.</div>
+      </div>
+      <div class="res">
+        <div class="t"><a href="https://en.wikipedia.org/wiki/AI_boom">AI boom</a></div>
+        <div class="by">Wikipedia</div>
+        <div class="why">The wider context: capex, valuations, and the recurring question of whether it's a bubble.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ FOOTER ============================ -->
+<footer class="wrap">
+  <p class="foot-note"><b>On these summaries.</b> Each steelman is compressed; the real arguments run to reports and earnings calls, and a card or a panel is a doorway, not the room. Dates mark a representative event, not the first time anyone raised the issue. This is a fast-moving topic, so the figures will age — treat the contested ones as attributed estimates, not settled facts. The two-pole axis is a lens for seeing structure, useful precisely because it simplifies, and the lilac hinge is there for the stance that won't sit on the line.</p>
+  <div class="foot-links">
+    <a href="/debates">← All debate maps</a>
+    <a href="/">brooker.family</a>
+  </div>
+</footer>
+
+<script>
+(function(){
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var items = document.querySelectorAll('.reveal');
+  if(reduce || !('IntersectionObserver' in window)){
+    items.forEach(function(el){ el.classList.add('in'); });
+    return;
+  }
+  var io = new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); }
+    });
+  }, {threshold:0.12, rootMargin:'0px 0px -8% 0px'});
+  items.forEach(function(el){ io.observe(el); });
+})();
+</script>
+</body>
+</html>

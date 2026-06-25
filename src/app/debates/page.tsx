@@ -71,6 +71,15 @@ const DEBATES: DebateCard[] = [
     poleA: "Force & pressure",
     poleB: "Restraint & diplomacy",
   },
+  {
+    slug: "ai-data-centers",
+    group: "Live & contested",
+    field: "Energy · technology",
+    title: "AI data centers: build, or rein in?",
+    hook: "The power and water bill behind the AI boom — grid strain, ratepayer costs, and the bubble question.",
+    poleA: "Build it out",
+    poleB: "Rein it in",
+  },
 ];
 
 const GROUPS = ["Enduring questions", "Live & contested"] as const;
