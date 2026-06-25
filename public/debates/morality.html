@@ -1,0 +1,787 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- Field map: the existence of God -->
+<title>Discovered, or made up? — a map of moral truth</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,500&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#171922; --ink-2:#1e212c; --card:#23273380; --card-solid:#232734;
+    --line:#34384a; --line-soft:#2a2e3b;
+    --bone:#ebe5d6; --mute:#a6a394; --faint:#807e8a;
+    /* found = pole A (verdigris) · made = pole B (ochre) · pivot = the reconciling hinge (lilac).
+       Rename the *concepts* in your prose, but keep these three colors as the axis. */
+    --found:#6dbaa4; --found-deep:#2f6657; --found-glow:#6dbaa422;
+    --made:#d8a652; --made-deep:#7d5f29; --made-glow:#d8a65222;
+    --pivot:#a195bd; --pivot-glow:#a195bd1f;
+    /* third camp (slate-blue) — only for genuinely ternary debates; see SKILL.md */
+    --camp-c:#6f93c4; --camp-c-deep:#33506f; --camp-c-glow:#6f93c41f;
+    --maxw:1180px;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0; background:var(--ink); color:var(--bone);
+    font-family:"IBM Plex Sans",sans-serif; font-weight:400;
+    line-height:1.62; font-size:17px;
+    -webkit-font-smoothing:antialiased;
+    background-image:
+      radial-gradient(900px 600px at 82% -8%, #20243340, transparent 70%),
+      radial-gradient(700px 500px at 5% 18%, #1d212e55, transparent 70%);
+    background-attachment:fixed;
+  }
+  .wrap{max-width:var(--maxw); margin:0 auto; padding:0 26px;}
+  .mono{font-family:"IBM Plex Mono",monospace;}
+  .ser{font-family:"Fraunces",serif;}
+
+  /* ---------- eyebrows / dividers ---------- */
+  .eyebrow{
+    font-family:"IBM Plex Mono",monospace; font-size:12px; font-weight:500;
+    letter-spacing:.22em; text-transform:uppercase; color:var(--faint);
+    display:flex; align-items:center; gap:14px;
+  }
+  .eyebrow::before{content:""; width:30px; height:1px; background:var(--line); display:inline-block;}
+  .sec-num{color:var(--mute);}
+
+  /* ---------- brooker site tie (added for brooker.family/debates) ---------- */
+  .site-tie{
+    font-family:"IBM Plex Mono",monospace; font-size:12px; letter-spacing:.2em;
+    text-transform:uppercase; color:var(--faint); text-decoration:none;
+    display:inline-flex; align-items:center; gap:9px; margin:0 0 30px;
+    transition:color .2s;
+  }
+  .site-tie::before{content:""; width:22px; height:1px; background:var(--line); display:inline-block;}
+  .site-tie:hover{color:var(--bone);}
+  .foot-links{margin-top:22px; display:flex; gap:24px; flex-wrap:wrap;}
+  .foot-links a{
+    font-family:"IBM Plex Mono",monospace; font-size:11.5px; letter-spacing:.16em;
+    text-transform:uppercase; color:var(--mute); text-decoration:none;
+    border-bottom:1px solid var(--line); padding-bottom:2px;
+  }
+  .foot-links a:hover{color:var(--bone); border-bottom-color:var(--mute);}
+
+  /* ---------- header ---------- */
+  header{padding:clamp(56px,10vw,116px) 0 clamp(40px,7vw,80px);}
+  .kicker{
+    font-family:"IBM Plex Mono",monospace; font-size:12.5px; letter-spacing:.26em;
+    text-transform:uppercase; color:var(--faint); margin:0 0 26px;
+  }
+  h1.title{
+    font-family:"Fraunces",serif; font-weight:400; font-optical-sizing:auto;
+    font-size:clamp(2.5rem,6.4vw,4.7rem); line-height:1.02; letter-spacing:-.012em;
+    margin:0; max-width:16ch;
+  }
+  h1.title em{font-style:italic; color:var(--found);}
+  h1.title .mk{font-style:italic; color:var(--made);}
+  .dek{
+    font-size:clamp(1.05rem,2.1vw,1.35rem); color:var(--mute); line-height:1.5;
+    max-width:47ch; margin:30px 0 0; font-weight:400;
+  }
+  .dek b{color:var(--bone); font-weight:500;}
+
+  /* ---------- axis legend ---------- */
+  .legend{
+    margin-top:46px; border:1px solid var(--line-soft); border-radius:14px;
+    background:linear-gradient(100deg,#1c202c,#1a1e29);
+    padding:22px 24px; display:grid; gap:14px;
+  }
+  .legend-top{font-family:"IBM Plex Mono",monospace; font-size:11.5px; letter-spacing:.2em; text-transform:uppercase; color:var(--faint);}
+  .axis-bar{
+    height:7px; border-radius:6px;
+    background:linear-gradient(90deg,var(--found) 0%, #6e6b78 50%, var(--made) 100%);
+  }
+  .axis-ends{display:flex; justify-content:space-between; gap:16px; font-size:14.5px;}
+  .axis-ends .ax-found{color:var(--found);}
+  .axis-ends .ax-made{color:var(--made); text-align:right;}
+  .axis-ends span b{display:block; font-weight:600; font-size:15px; margin-bottom:1px;}
+  .axis-ends span small{color:var(--faint); font-size:12.5px; letter-spacing:.02em;}
+
+  /* ---------- section frame ---------- */
+  section{padding:clamp(54px,8vw,96px) 0;}
+  .sec-head{margin-bottom:42px;}
+  .sec-head h2{
+    font-family:"Fraunces",serif; font-weight:400; font-size:clamp(1.9rem,4vw,2.9rem);
+    line-height:1.06; letter-spacing:-.01em; margin:18px 0 0; max-width:24ch;
+  }
+  .sec-head p{color:var(--mute); max-width:62ch; margin:16px 0 0; font-size:1.02rem;}
+
+  /* ===== I. LINEAGE (timeline) ===== */
+  .lineage{position:relative;}
+  .spine{
+    position:absolute; left:140px; top:6px; bottom:6px; width:2px;
+    background:linear-gradient(var(--found-deep),var(--line),var(--made-deep));
+  }
+  .node{position:relative; padding:0 0 26px 172px; min-height:30px;}
+  .node .yr{
+    position:absolute; left:0; top:1px; width:118px; text-align:right;
+    font-family:"IBM Plex Mono",monospace; font-size:12.5px; color:var(--faint);
+    letter-spacing:.02em; padding-top:2px;
+  }
+  .node .dot{
+    position:absolute; left:134px; top:6px; width:14px; height:14px; border-radius:50%;
+    background:var(--ink); border:2px solid var(--mute); z-index:2;
+  }
+  .node.found .dot{border-color:var(--found); box-shadow:0 0 0 4px var(--found-glow);}
+  .node.made .dot{border-color:var(--made); box-shadow:0 0 0 4px var(--made-glow);}
+  .node.pivot .dot{border-color:var(--pivot); box-shadow:0 0 0 4px var(--pivot-glow);}
+  .node .who{font-family:"Fraunces",serif; font-size:1.24rem; font-weight:500; line-height:1.15; letter-spacing:-.005em;}
+  .node .dom{font-family:"IBM Plex Mono",monospace; font-size:10.5px; letter-spacing:.16em; text-transform:uppercase; margin-left:10px; color:var(--faint); vertical-align:middle;}
+  .node .say{color:var(--mute); font-size:.99rem; margin-top:4px; max-width:64ch;}
+  .node.camp-c .dot{border-color:var(--camp-c); box-shadow:0 0 0 4px var(--camp-c-glow);}
+  .node.found .who{color:var(--found);}
+  .node.made .who{color:var(--made);}
+  .node.pivot .who{color:var(--pivot);}
+  .node.camp-c .who{color:var(--camp-c);}
+  .lineage-tail{padding-left:172px; margin-top:2px;}
+  .lineage-tail .pin{
+    position:relative; padding:16px 20px; border:1px dashed var(--line);
+    border-radius:12px; background:#1b1f2a; max-width:60ch;
+  }
+  .lineage-tail .pin b{font-family:"Fraunces",serif; font-weight:500; font-size:1.05rem;}
+  .lineage-tail .pin p{margin:5px 0 0; color:var(--mute); font-size:.96rem;}
+
+  /* ===== II. POSITIONS (field guide) ===== */
+  .fields{display:grid; grid-template-columns:1fr 1fr; gap:30px;}
+  .field h3{
+    font-family:"IBM Plex Mono",monospace; font-size:12.5px; letter-spacing:.2em;
+    text-transform:uppercase; color:var(--bone); margin:0 0 18px; padding-bottom:12px;
+    border-bottom:1px solid var(--line); display:flex; justify-content:space-between; align-items:baseline;
+  }
+  .field h3 small{color:var(--faint); letter-spacing:.12em; font-weight:400;}
+  .pos{
+    border:1px solid var(--line-soft); border-left:3px solid var(--line);
+    border-radius:0 11px 11px 0; background:var(--card);
+    padding:16px 18px; margin-bottom:13px; transition:border-color .25s, background .25s, transform .25s;
+  }
+  .pos.found{border-left-color:var(--found);}
+  .pos.made{border-left-color:var(--made);}
+  .pos.pivot{border-left-color:var(--pivot);}
+  .pos.camp-c{border-left-color:var(--camp-c);}
+  .pos:hover{transform:translateX(3px); background:var(--card-solid);}
+  .pos .nm{font-family:"Fraunces",serif; font-weight:600; font-size:1.16rem; letter-spacing:-.005em; display:flex; align-items:baseline; gap:10px; flex-wrap:wrap;}
+  .pos.found .nm{color:var(--found);} .pos.made .nm{color:var(--made);} .pos.pivot .nm{color:var(--pivot);} .pos.camp-c .nm{color:var(--camp-c);}
+  /* go-deeper links on a card or in the shelf */
+  .src-links{margin-top:9px; display:flex; flex-wrap:wrap; gap:6px 14px;}
+  .src-links a{font-family:"IBM Plex Mono",monospace; font-size:11.5px; color:var(--mute); text-decoration:none; border-bottom:1px solid var(--line);}
+  .src-links a:hover{color:var(--bone); border-bottom-color:var(--mute);}
+  .src-links a::after{content:" ↗"; color:var(--faint);}
+  .traction{
+    font-family:"IBM Plex Mono",monospace; font-size:10px; letter-spacing:.08em; text-transform:uppercase;
+    color:var(--faint); border:1px solid var(--line); border-radius:20px; padding:2px 9px; white-space:nowrap;
+  }
+  .pos .figs{font-family:"IBM Plex Mono",monospace; font-size:12px; color:var(--mute); margin:7px 0 7px; letter-spacing:.01em;}
+  .pos .claim{color:var(--bone); font-size:.97rem; line-height:1.5;}
+  .pos .nb{display:block; margin-top:7px; color:var(--faint); font-size:.85rem; font-style:italic;}
+  .pivot-card{
+    grid-column:1/-1; border:1px solid var(--pivot); border-radius:13px;
+    background:linear-gradient(100deg,#211f2c,#1c1b25); padding:20px 22px; margin-top:4px;
+    display:flex; gap:18px; align-items:flex-start; flex-wrap:wrap;
+  }
+  .pivot-card .pv-tag{font-family:"IBM Plex Mono",monospace; font-size:11px; letter-spacing:.2em; text-transform:uppercase; color:var(--pivot); white-space:nowrap; padding-top:5px;}
+  .pivot-card .pv-body{flex:1 1 320px;}
+  .pivot-card .pv-body b{font-family:"Fraunces",serif; font-weight:600; font-size:1.2rem; color:var(--pivot);}
+  .pivot-card .pv-body p{margin:6px 0 0; color:var(--bone); font-size:.98rem;}
+  .traction-note{margin-top:20px; color:var(--faint); font-size:.84rem; font-style:italic; max-width:70ch; display:flex; gap:9px;}
+  .traction-note::before{content:"※"; color:var(--mute); font-style:normal;}
+
+  /* ===== III. CRUXES (confrontations) ===== */
+  .crux{border:1px solid var(--line-soft); border-radius:18px; overflow:hidden; margin-bottom:30px; background:#191d28;}
+  .crux-head{padding:24px 28px 20px; border-bottom:1px solid var(--line-soft);}
+  .crux-meta{display:flex; justify-content:space-between; gap:14px; align-items:baseline; flex-wrap:wrap; margin-bottom:12px;}
+  .crux-n{font-family:"IBM Plex Mono",monospace; font-size:13px; letter-spacing:.18em; color:var(--mute);}
+  .crux-dom{font-family:"IBM Plex Mono",monospace; font-size:10.5px; letter-spacing:.16em; text-transform:uppercase; color:var(--ink); background:var(--mute); padding:3px 10px; border-radius:20px;}
+  .crux-dom.both{background:var(--pivot);}
+  .crux-q{font-family:"Fraunces",serif; font-weight:500; font-size:clamp(1.4rem,3vw,2rem); line-height:1.12; letter-spacing:-.01em; margin:0;}
+  .crux-sub{color:var(--mute); margin:9px 0 0; font-size:.98rem;}
+  .steels{display:grid; grid-template-columns:1fr 1fr; gap:0;}
+  .steel{padding:24px 28px; position:relative;}
+  .steel.s-found{background:linear-gradient(180deg,#1a2420,#191f1d);}
+  .steel.s-made{background:linear-gradient(180deg,#241f17,#1f1c16); border-left:1px solid var(--line-soft);}
+  .steel .side{font-family:"IBM Plex Mono",monospace; font-size:11px; letter-spacing:.14em; text-transform:uppercase; margin-bottom:5px;}
+  .steel.s-found .side{color:var(--found);}
+  .steel.s-made .side{color:var(--made);}
+  .steel .pos-name{font-family:"Fraunces",serif; font-weight:600; font-size:1.12rem; margin-bottom:9px; line-height:1.2;}
+  .steel.s-found .pos-name{color:var(--found);}
+  .steel.s-made .pos-name{color:var(--made);}
+  .steel .gist{font-weight:600; font-size:1.04rem; line-height:1.45; color:var(--bone); margin:0 0 13px; padding-bottom:13px; border-bottom:1px dashed var(--line);}
+  .steel .gist::before{content:"In plain terms"; display:block; font-family:"IBM Plex Mono",monospace; font-size:10px; font-weight:500; letter-spacing:.18em; text-transform:uppercase; color:var(--faint); margin-bottom:5px;}
+  .steel p{margin:0; font-size:.97rem; line-height:1.56; color:#e2dccd;}
+  .steel p em{font-style:italic; color:var(--bone);}
+  .crux-key{padding:18px 28px; background:#13161f; border-top:1px solid var(--line-soft); display:flex; gap:14px; align-items:flex-start;}
+  .crux-key .lab{font-family:"IBM Plex Mono",monospace; font-size:11px; letter-spacing:.16em; text-transform:uppercase; color:var(--faint); padding-top:3px; white-space:nowrap;}
+  .crux-key .txt{font-size:.99rem; color:var(--bone); line-height:1.5;}
+  .crux-key .txt b{font-weight:600;}
+  .same-tag{display:inline-block; margin-top:9px; font-family:"IBM Plex Mono",monospace; font-size:11px; letter-spacing:.08em; color:var(--pivot); border:1px solid var(--pivot); border-radius:20px; padding:3px 11px;}
+
+  /* ===== IV. PAYOFF ===== */
+  .fault-sec{background:linear-gradient(180deg,transparent, #13161f 30%, #13161f 70%, transparent);}
+  .fault-card{border:1px solid var(--line); border-radius:20px; background:#171b25; padding:clamp(24px,4vw,44px); box-shadow:0 30px 80px -50px #000;}
+  .fault-lead{font-family:"Fraunces",serif; font-weight:400; font-size:clamp(1.5rem,3.3vw,2.3rem); line-height:1.18; letter-spacing:-.01em; margin:0 0 8px; max-width:26ch;}
+  .fault-lead em{font-style:italic; color:var(--pivot);}
+  .fault-intro{color:var(--mute); max-width:64ch; margin:0 0 30px; font-size:1.02rem;}
+  .diagram{width:100%; height:auto; display:block; margin:6px 0 4px; overflow:visible;}
+  .fault-restate{display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:18px; margin-top:34px;}
+  .fr-item{border-top:2px solid var(--line); padding-top:13px;}
+  .fr-item.f1{border-top-color:var(--made);}
+  .fr-item.f2{border-top-color:var(--pivot);}
+  .fr-item.f3{border-top-color:var(--found);}
+  .fr-item.f4{border-top-color:var(--made);}
+  .fr-item .fr-n{font-family:"IBM Plex Mono",monospace; font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--faint);}
+  .fr-item .fr-t{font-family:"Fraunces",serif; font-weight:500; font-size:1.05rem; margin:4px 0 5px;}
+  .fr-item p{margin:0; font-size:.92rem; color:var(--mute); line-height:1.5;}
+  .fault-close{margin-top:36px; padding-top:26px; border-top:1px solid var(--line); font-family:"Fraunces",serif; font-style:italic; font-weight:400; font-size:clamp(1.15rem,2.4vw,1.5rem); line-height:1.35; color:var(--bone); max-width:44ch;}
+  .fault-close .ax{color:var(--found);}
+  .fault-close .mk{color:var(--made);}
+
+  /* ===== V. GO DEEPER (resources shelf) ===== */
+  .shelf{display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:24px;}
+  .shelf-col h4{font-family:"IBM Plex Mono",monospace; font-size:12px; letter-spacing:.18em; text-transform:uppercase; color:var(--mute); margin:0 0 14px; padding-bottom:10px; border-bottom:1px solid var(--line);}
+  .res{margin-bottom:15px;}
+  .res .t{font-family:"Fraunces",serif; font-weight:500; font-size:1.04rem; line-height:1.25;}
+  .res .t a{color:var(--bone); text-decoration:none; border-bottom:1px solid var(--line);}
+  .res .t a:hover{border-bottom-color:var(--mute);}
+  .res .by{font-family:"IBM Plex Mono",monospace; font-size:11.5px; color:var(--faint); margin-top:1px;}
+  .res .why{color:var(--mute); font-size:.9rem; margin-top:4px; line-height:1.45;}
+
+  /* ---------- footer ---------- */
+  footer{padding:54px 0 80px; border-top:1px solid var(--line-soft); margin-top:30px;}
+  .foot-note{color:var(--faint); font-size:.86rem; max-width:66ch; line-height:1.55;}
+  .foot-note b{color:var(--mute); font-weight:500;}
+
+  /* ---------- reveal ---------- */
+  .reveal{opacity:0; transform:translateY(16px); transition:opacity .7s ease, transform .7s ease;}
+  .reveal.in{opacity:1; transform:none;}
+
+  :focus-visible{outline:2px solid var(--found); outline-offset:3px; border-radius:3px;}
+
+  /* ---------- responsive ---------- */
+  @media (max-width:760px){
+    body{font-size:16px;}
+    .fields{grid-template-columns:1fr;}
+    .steels{grid-template-columns:1fr;}
+    .steel.s-made{border-left:none; border-top:1px solid var(--line-soft);}
+    .spine{left:84px;}
+    .node{padding-left:112px;}
+    .node .yr{width:64px;}
+    .node .dot{left:78px;}
+    .lineage-tail{padding-left:112px;}
+    .axis-ends{flex-direction:column; gap:10px;}
+    .axis-ends .ax-made{text-align:left;}
+  }
+  @media (prefers-reduced-motion:reduce){
+    *{scroll-behavior:auto;}
+    .reveal{opacity:1; transform:none; transition:none;}
+    .draw{stroke-dashoffset:0 !important;}
+  }
+</style>
+</head>
+<body>
+
+<!-- ============================ HEADER ============================ -->
+<header class="wrap">
+  <a class="site-tie" href="/debates">All debate maps · brooker</a>
+  <p class="kicker">FIELD · metaethics — the status of right and wrong</p>
+  <h1 class="title">Is right and wrong <em>discovered</em> — or <span class="mk">made up</span>?</h1>
+  <p class="dek">Torturing a child for fun is wrong, and it stays wrong even if a whole society cheers it on. Almost everyone feels that. The fight is over what the feeling is: a <b>fact we detect</b>, like the mass of an electron, or a <b>verdict we hand down</b> and then forget we authored. This isn't the question of which acts are right — it's the question of what kind of thing "right" even is. A dozen positions fold into four <b>cruxes</b>, and those into one or two <b>questions</b>.</p>
+
+  <div class="legend reveal">
+    <div class="legend-top">One axis runs under all of it. Watch the two colors.</div>
+    <div class="axis-bar"></div>
+    <div class="axis-ends">
+      <span class="ax-found"><b>Discovered</b><small>mind-independent moral facts · we detect them</small></span>
+      <span class="ax-made"><b>Made</b><small>no moral facts out there · we construct or express morality</small></span>
+    </div>
+  </div>
+</header>
+
+<!-- ============================ I. LINEAGE ============================ -->
+<section class="wrap">
+  <div class="sec-head">
+    <div class="eyebrow"><span class="sec-num">I</span> &nbsp;the lineage</div>
+    <h2 class="ser">Twenty-four centuries arguing about what "wrong" means</h2>
+    <p>Read top to bottom. A dot's halo marks where the thinker stands — green for moral facts we discover, gold for morality we invent, lilac for the view that the split is a trap.</p>
+  </div>
+
+  <div class="lineage reveal">
+    <div class="spine" aria-hidden="true"></div>
+
+    <div class="node found">
+      <span class="yr">c. 380 BCE</span><span class="dot"></span>
+      <div class="who">Plato<span class="dom">philosophy · the Forms</span></div>
+      <div class="say">The Form of the Good sits at the top of the <em>Republic</em>'s ladder, more real than anything you can touch, lighting up everything else the way the sun lights a field. Justice isn't a deal we strike. It's out there, and reason climbs toward it.</div>
+    </div>
+
+    <div class="node found">
+      <span class="yr">c. 350 BCE</span><span class="dot"></span>
+      <div class="who">Aristotle<span class="dom">philosophy · the good life</span></div>
+      <div class="say">Drop the heavenly Forms; keep the realism. In the <em>Nicomachean Ethics</em>, what's good for a human is fixed by what a human is, the way good soil is fixed by what plants need. <em>Eudaimonia</em> — flourishing — is the target, and you can be wrong about it. Realism with its feet on the ground.</div>
+    </div>
+
+    <div class="node made">
+      <span class="yr">1739</span><span class="dot"></span>
+      <div class="who">David Hume<span class="dom">philosophy · is/ought</span></div>
+      <div class="say">Buried in the <em>Treatise</em>, the sentence that broke the spell: writers slide from <em>is</em> to <em>ought</em> without ever explaining the jump. Reason can't make that move — it's "the slave of the passions." Survey a murder all you like; the wrongness isn't in the facts, it's in the sentiment you bring. The headwater of every later anti-realism.</div>
+    </div>
+
+    <div class="node pivot">
+      <span class="yr">1785</span><span class="dot"></span>
+      <div class="who">Immanuel Kant<span class="dom">philosophy · the Categorical Imperative</span></div>
+      <div class="say">The <em>Groundwork</em> finds objectivity without Plato's furniture. Test your reason for acting: could everyone act on it without the whole thing collapsing? Lying fails. The moral law binds any rational agent at all — yet it's spun out of reason itself, not read off the cosmos. The hinge the constructivists will keep returning to.</div>
+    </div>
+
+    <div class="node found">
+      <span class="yr">1903</span><span class="dot"></span>
+      <div class="who">G. E. Moore<span class="dom">philosophy · the open question</span></div>
+      <div class="say"><em>Principia Ethica</em> sets a trap for anyone who'd define "good" as some natural property — pleasure, say, or what we desire. For any such definition, "but is <em>that</em> actually good?" still makes sense, so the definition missed. Goodness is real and simple and non-natural, grasped directly. Naming the "naturalistic fallacy" shaped a century of argument.</div>
+    </div>
+
+    <div class="node made">
+      <span class="yr">1936</span><span class="dot"></span>
+      <div class="who">A. J. Ayer<span class="dom">philosophy · emotivism</span></div>
+      <div class="say"><em>Language, Truth and Logic</em>: "stealing is wrong" states no fact and can't be true or false. It vents disapproval, the way "boo!" does — a feeling with a grammar borrowed from description. The boo-hooray theory, and the first sharp form of the idea that moral talk doesn't describe at all.</div>
+    </div>
+
+    <div class="node made">
+      <span class="yr">1944</span><span class="dot"></span>
+      <div class="who">C. L. Stevenson<span class="dom">philosophy · persuasion</span></div>
+      <div class="say"><em>Ethics and Language</em> gives Ayer's slogan some machinery. Moral words carry "emotive meaning"; using them is a bid to shift how the other person feels and acts, not a report on the world. Calling something good is an attempt to bring you around.</div>
+    </div>
+
+    <div class="node made">
+      <span class="yr">1977</span><span class="dot"></span>
+      <div class="who">J. L. Mackie<span class="dom">philosophy · error theory</span></div>
+      <div class="say"><em>Ethics: Inventing Right and Wrong</em> grants the realist what they mean: ordinary moral talk really does claim objective, built-in wrongness. Then it says every such claim is false. Two charges — the argument from queerness (such facts would be unlike anything else we know) and the argument from relativity (people disagree too deeply for there to be one truth they're all missing).</div>
+    </div>
+
+    <div class="node found">
+      <span class="yr">1988+</span><span class="dot"></span>
+      <div class="who">The Cornell realists<span class="dom">philosophy · naturalism</span></div>
+      <div class="say">Boyd, Sturgeon, Railton answer Moore on his own ground: moral facts <em>are</em> natural facts — facts about harm, welfare, what lets people thrive — and we find them the way we find any natural kind, by inquiry that pays off. No spooky properties required, just a science of the good.</div>
+    </div>
+
+    <div class="node pivot">
+      <span class="yr">1993</span><span class="dot"></span>
+      <div class="who">Simon Blackburn<span class="dom">philosophy · quasi-realism</span></div>
+      <div class="say"><em>Essays in Quasi-Realism</em> tries to have it cheap. Start where the emotivist starts — with attitudes, not facts — then earn, step by step, the right to talk like a realist: to say moral claims are true, to argue, to think you can be mistaken. If you can rebuild the whole edifice from feelings, why pay for the facts?</div>
+    </div>
+
+    <div class="node found">
+      <span class="yr">1996–2011</span><span class="dot"></span>
+      <div class="who">Korsgaard · Street · Parfit<span class="dom">philosophy · the live front</span></div>
+      <div class="say">Korsgaard's <em>Sources of Normativity</em> (1996) revives Kant: obligation comes from what a rational agent must will. Sharon Street's 2006 Darwinian Dilemma turns evolution against realism. Parfit's <em>On What Matters</em> (2011) answers with the last great defense of non-natural facts. The argument that won't end, now fought here.</div>
+    </div>
+
+    <div class="lineage-tail">
+      <div class="pin">
+        <b>Into the present</b>
+        <p>The big survey of professional philosophers puts more of them on the realist side than most outsiders guess — a slim plurality, not a settlement. The energy has drained out of the old slogans and into two places: constructivism, which tries to build morality from agency, and the debunking arguments, which ask whether an evolved animal could track moral truth even if there were any.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ II. POSITIONS ============================ -->
+<section class="wrap">
+  <div class="sec-head">
+    <div class="eyebrow"><span class="sec-num">II</span> &nbsp;the positions</div>
+    <h2 class="ser">Who holds what — and where it sits on the axis</h2>
+    <p>Two families of question: whether there are moral facts at all, and what a moral sentence is even doing when you say it. A card's left edge is its lean; the tag is rough sociology, not a scorecard.</p>
+  </div>
+
+  <div class="fields reveal">
+    <div class="field">
+      <h3>Are there moral facts? <small>the metaphysics</small></h3>
+
+      <div class="pos found">
+        <div class="nm">Non-naturalist realism <span class="traction">a resurgent minority</span></div>
+        <div class="figs">Moore · Parfit · Shafer-Landau · Enoch</div>
+        <div class="claim">There are real moral facts, and they don't reduce to facts about atoms or brains or what anyone wants. Goodness is its own thing, grasped by reason — irreducible, and none the worse for it.</div>
+        <span class="nb">The standing worry: how does a physical animal come to know facts that float free of the physical world?</span>
+        <div class="src-links"><a href="https://plato.stanford.edu/entries/moral-non-naturalism/">SEP: Moral Non-Naturalism</a></div>
+      </div>
+
+      <div class="pos found">
+        <div class="nm">Naturalist realism <span class="traction">a strong contemporary camp</span></div>
+        <div class="figs">Boyd · Sturgeon · Railton</div>
+        <div class="claim">Moral facts are natural facts — about flourishing, suffering, what social creatures need — and you discover them the way you discover anything else, by looking and testing. No second world of moral stuff floating above this one; just this one, morality included.</div>
+        <span class="nb">Moore's open question is the bill it has to keep paying: why doesn't "but is welfare really good?" still feel open?</span>
+        <div class="src-links"><a href="https://plato.stanford.edu/entries/moral-realism/">SEP: Moral Realism</a></div>
+      </div>
+
+      <div class="pos found">
+        <div class="nm">Divine-command ethics <span class="traction">central in religious thought</span></div>
+        <div class="figs">Augustine · Aquinas · Adams</div>
+        <div class="claim">Morality is grounded in God — in his nature, or in what he wills. Right and wrong are as objective as anything, because they rest on the one being who can't be wrong.</div>
+        <span class="nb">Plato's Euthyphro set the trap that won't let go: is it good because God commands it, or commanded because it's good? One horn makes morality arbitrary; the other puts the good above God. (See the <a href="/debates/god.html" style="color:inherit;border-bottom:1px solid var(--line)">God map</a>.)</span>
+      </div>
+
+      <div class="pos made">
+        <div class="nm">Error theory <span class="traction">small but serious</span></div>
+        <div class="figs">Mackie · Joyce · Garner</div>
+        <div class="claim">Ordinary moral talk aims at objective facts — and there are none, so all of it is false. "Slavery is wrong" is in the same boat as "Zeus is angry": a sincere claim about something that isn't there.</div>
+        <span class="nb">The bullet to bite: if every moral claim is false, so is "torturing children is wrong" — which most people take as a reductio, and error theorists take as honesty.</span>
+        <div class="src-links"><a href="https://en.wikipedia.org/wiki/Ethics:_Inventing_Right_and_Wrong">Mackie, Inventing Right and Wrong</a></div>
+      </div>
+
+      <div class="pos made">
+        <div class="nm">Relativism <span class="traction">popular outside philosophy, weaker within</span></div>
+        <div class="figs">Westermarck · Harman · Wong</div>
+        <div class="claim">Moral truth is real but indexed — true relative to a culture, a framework, a way of life. What's right "for them" can differ from what's right "for us," with no view from nowhere to settle it.</div>
+        <span class="nb">The recurring objection: it seems to bar you from saying a confident, cruel society is simply wrong, which is the one verdict many people most want to keep.</span>
+        <div class="src-links"><a href="https://plato.stanford.edu/entries/moral-relativism/">SEP: Moral Relativism</a></div>
+      </div>
+    </div>
+
+    <div class="field">
+      <h3>What are moral claims doing? <small>the semantics &amp; psychology</small></h3>
+
+      <div class="pos made">
+        <div class="nm">Expressivism <span class="traction">the leading anti-realism</span></div>
+        <div class="figs">Ayer · Stevenson · Gibbard · Blackburn</div>
+        <div class="claim">A moral sentence expresses an attitude — approval, contempt, a plan — rather than stating a belief that could be true or false. "Cruelty is wrong" airs a stance; it doesn't report a fact about cruelty.</div>
+        <span class="nb">Its hardest puzzle is the Frege-Geach problem: "if lying is wrong, then getting your brother to lie is wrong" embeds the moral bit without expressing any attitude — so what does it mean there?</span>
+        <div class="src-links"><a href="https://plato.stanford.edu/entries/moral-anti-realism/">SEP: Moral Anti-Realism</a></div>
+      </div>
+
+      <div class="pos pivot">
+        <div class="nm">Constructivism <span class="traction">the live middle</span></div>
+        <div class="figs">Kant · Rawls · Korsgaard · Street</div>
+        <div class="claim">Moral truths are built by a procedure that rational agents can't coherently reject — what you must will to be an agent at all, what principles you'd choose behind a veil of ignorance. Objective enough to bind you, without any fact sitting out there before the procedure runs.</div>
+        <span class="nb">Pressed from both flanks: realists say a built truth is no truth; anti-realists ask why the procedure's outputs count as more than dressed-up preference.</span>
+      </div>
+
+      <div class="pos pivot">
+        <div class="nm">Quasi-realism <span class="traction">influential, much debated</span></div>
+        <div class="figs">Blackburn · (kin: Gibbard)</div>
+        <div class="claim">Concede that morality starts in attitudes — then show why our moral talk so faithfully apes the realist's. We argue, we allow we might be wrong, we say "it's true that cruelty is wrong," and all of it can be earned from feelings, no facts billed.</div>
+        <span class="nb">Critics ask whether, once you've earned every realist sentence, anything is left to disagree with the realist about.</span>
+      </div>
+
+      <div class="pos made">
+        <div class="nm">Moral skepticism &amp; nihilism <span class="traction">a persistent undertow</span></div>
+        <div class="figs">Pyrrho · Nietzsche (contested) · Joyce</div>
+        <div class="claim">Either there are no moral facts to know, or there are but we can't know them. Skepticism doubts our access; nihilism doubts the facts. Both leave the confident moralist owing an account of how he knows.</div>
+        <span class="nb">Lived consistently it's nearly impossible — even the skeptic flinches at gratuitous cruelty — which cuts both ways in the argument.</span>
+        <div class="src-links"><a href="https://plato.stanford.edu/entries/moral-epistemology/">SEP: Moral Epistemology</a></div>
+      </div>
+    </div>
+
+    <div class="pivot-card">
+      <div class="pv-tag">the hinge ↕</div>
+      <div class="pv-body">
+        <b>The view that "discovered vs invented" is a false choice</b>
+        <p>Constructivism and quasi-realism share one move: deny that you have to pick. Morality is made — yet not made up, not arbitrary, not a coin you could flip the other way. It's built by procedures that hold us the way the rules of logic do. Ask what any rational agent must commit to (Kant, Rawls, Korsgaard) or which attitudes survive scrutiny and reflection (Blackburn's quasi-realism) and you get constraints you can't simply wish away. One wing rebuilds the bindingness from agency; the other rebuilds it from refined feeling. Both tell the realist and the anti-realist the same thing: you can keep the objectivity and skip the metaphysical furniture — nobody had to carve the good into the fabric of the universe for "you ought not torture" to come out true.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="traction-note">Tags are rough sociology — how the literature shakes out — not a verdict. Relativism is a minority view among philosophers and a near-default outside the seminar room; popularity and truth keep separate books.</div>
+</section>
+
+<!-- ============================ III. CRUXES ============================ -->
+<section class="wrap">
+  <div class="sec-head">
+    <div class="eyebrow"><span class="sec-num">III</span> &nbsp;the cruxes</div>
+    <h2 class="ser">Four fair fights, each carrying part of the load</h2>
+    <p>The positions are bundles of answers; these are the questions that, answered one way or the other, split them. Both panels give the side's best case, in its own voice.</p>
+  </div>
+
+  <!-- CRUX 1 -->
+  <div class="crux reveal">
+    <div class="crux-head">
+      <div class="crux-meta"><span class="crux-n">Crux 01 — the facts</span><span class="crux-dom">metaphysics</span></div>
+      <h3 class="crux-q ser">Are there moral facts that hold independently of any mind?</h3>
+      <p class="crux-sub">Take the surest case you have — torturing an innocent for fun is wrong. Is that a fact you've detected, or a feeling you can't help having?</p>
+    </div>
+    <div class="steels">
+      <div class="steel s-found">
+        <div class="side">▸ the intuition is data</div>
+        <div class="pos-name">Moral realism</div>
+        <div class="gist">That torturing an innocent for fun is wrong is about as certain as anything gets — steadier than the premises of any clever argument out to unseat it.</div>
+        <p>Run the comparison the skeptic invites. On one side: torturing a child for sport is wrong. On the other: whatever chain of premises concludes it isn't really wrong, only felt to be. Which would you give up first? Nobody who has understood both sentences hesitates. The wrongness is the fixed point; the theory that explains it away is the thing on probation. And drop real moral facts and watch what goes with them — you lose the sense that abolishing slavery was <em>progress</em> rather than a change of fashion, and you lose the standing to tell a confident, cruel culture that it is wrong and not merely different. If those judgments are sound, something makes them sound. That something is a moral fact.</p>
+      </div>
+      <div class="steel s-made">
+        <div class="side">▸ a feeling needn't answer to a fact</div>
+        <div class="pos-name">Error theory</div>
+        <div class="gist">Grant the certainty — then ask what kind of thing you'd be detecting. A fact that's wrong-in-itself, and pulls you to act just by being seen, would be unlike anything else in the world.</div>
+        <p>Mackie called it queerness, and meant it as plain description. Everywhere else, facts and motives come apart: the facts sit there, inert, and whether you care is a separate matter about you. A moral fact would have to break that — to be built into reality <em>and</em> automatically action-guiding, gripping any mind that grasped it. Nothing else behaves that way. And what faculty reads it? Not the eyes, not instruments; only "intuition," which is the name for the puzzle, not the solution. The tidier story doesn't posit the strange object at all. The horror you feel at torture is a deep human reaction — selected for, shared, hard to switch off — and it explains everything the realist points to without smuggling in a fact for the feeling to track.</p>
+      </div>
+    </div>
+    <div class="crux-key">
+      <span class="lab">the crux</span>
+      <span class="txt">Is the moral intuition <b>evidence of a fact</b>, or a <b>powerful feeling</b> that needn't track one? Pick the first and you're a realist of some stripe; pick the second and the rest of the gold side opens up.</span>
+    </div>
+  </div>
+
+  <!-- CRUX 2 -->
+  <div class="crux reveal">
+    <div class="crux-head">
+      <div class="crux-meta"><span class="crux-n">Crux 02 — the disagreement</span><span class="crux-dom">anthropology · epistemology</span></div>
+      <h3 class="crux-q ser">Does deep, lasting moral disagreement show there's nothing to be right about?</h3>
+      <p class="crux-sub">Physics converges; ethics doesn't. Honest, informed people have split on the core questions for millennia. What does the split prove?</p>
+    </div>
+    <div class="steels">
+      <div class="steel s-made">
+        <div class="side">▸ no convergence, no fact</div>
+        <div class="pos-name">The argument from relativity</div>
+        <div class="gist">Where there's a fact, inquiry tends to close in on it. Ethics never closes in. The best explanation is that there's no target to converge on.</div>
+        <p>Look at the track record. On the shape of the planet, the cause of disease, the age of the rocks, disagreement narrows as evidence comes in — that's what having a fact looks like. Morality shows nothing of the kind. Slavery, the treatment of women, what we owe animals, what may be done in war — across cultures and across centuries, thoughtful and informed people land in places that don't reconcile, and time doesn't grind them toward one answer. The simplest reading isn't that everyone but you keeps missing the moral fact. It's that there's no fact there to miss, and what looks like discovery is each society projecting its own commitments onto the world and calling them written.</p>
+      </div>
+      <div class="steel s-found">
+        <div class="side">▸ a hard subject, plus bias</div>
+        <div class="pos-name">Realism on disagreement</div>
+        <div class="gist">The disagreement is shallower than advertised, much of it isn't even about morality, and every hard field has it without anyone concluding there's no truth.</div>
+        <p>Start with how much agreement there actually is. Find the culture that prizes cowardice and rewards the murder of its own for sport — you won't. The deep structure is remarkably shared; what varies is the application. And look at where the variation comes from. Much of it traces to <em>non-moral</em> disagreement: whether the enemy tribe are really people, what the gods require, whether the fetus has a mind. Settle those and the moral gap often closes. People who agree the facts but split on the values are rarer than they look. Then there's self-interest, which warps moral judgment the way a thumb on the scale warps a weight — slaveholders found slavery fine, and not by coincidence. Last, the parity point: economists disagree, historians disagree, philosophers of physics disagree, and no one says their subjects are empty. Hard questions breed disagreement. That's a fact about difficulty, not about facts.</p>
+      </div>
+    </div>
+    <div class="crux-key">
+      <span class="lab">the crux</span>
+      <span class="txt">Is moral disagreement <b>evidence of no-fact</b>, or just of a <b>hard subject plus bias and self-interest</b>? Both sides see the same data; they read its source differently.</span>
+    </div>
+  </div>
+
+  <!-- CRUX 3 -->
+  <div class="crux reveal">
+    <div class="crux-head">
+      <div class="crux-meta"><span class="crux-n">Crux 03 — the debunk</span><span class="crux-dom">evolution · epistemology</span></div>
+      <h3 class="crux-q ser">If evolution shaped our moral sense, can it track moral truth?</h3>
+      <p class="crux-sub">Our intuitions came from ancestors who out-reproduced rivals. Selection rewards fitness. Why think it also handed us the truth?</p>
+    </div>
+    <div class="steels">
+      <div class="steel s-made">
+        <div class="side">▸ fitness, not truth</div>
+        <div class="pos-name">Street's Darwinian Dilemma</div>
+        <div class="gist">Selection built the moral sense that helped our ancestors survive — not the one that tracks independent moral facts. The realist owes us a wild coincidence, or a confession.</div>
+        <p>Why do we feel that we owe more to our own children, that betrayal is vile, that returning a favor is owed? Because the proto-humans who felt those things banded together, raised young, and left descendants — us. Selection was reading fitness, not goodness. Now the realist faces a fork. Say the two have nothing to do with each other, and our moral faculty was aimed at survival, so we've no reason to trust it as a guide to mind-independent moral facts — it would hit them only by fluke. Or claim the faculty does track the truth, and you've asserted a staggering coincidence: that the very intuitions natural selection installed for breeding success just happen to line up with the moral order of the cosmos. Neither fork is comfortable, and there's no third.</p>
+      </div>
+      <div class="steel s-found">
+        <div class="side">▸ then math falls too</div>
+        <div class="pos-name">Companions in guilt</div>
+        <div class="gist">The same acid eats arithmetic, logic, and perception, which evolved on the same terms — and nobody gives those up. Either selection can favor getting things right, or moral facts are close enough to facts about flourishing that the gap never opens.</div>
+        <p>Run the dilemma against our grasp of number. Our math sense evolved too, because counting predators and tracking shares paid off — so by the same logic we should distrust arithmetic, which no one does. The honest response is that getting reality right is often exactly what keeps you alive: the animal that correctly judges the gap is jumpable, or that this berry poisoned the last forager, out-survives the one with comforting falsehoods. Truth-tracking can be fitness-enhancing; selection and accuracy aren't strangers. And for the naturalist there's a second reply — if moral facts just are facts about suffering and cooperation and what social animals need, then a faculty tuned by social living to be sensitive to those very things isn't coincidentally tracking the truth. It's tracking the truth by tracking fitness, because here they're the same facts seen twice.</p>
+      </div>
+    </div>
+    <div class="crux-key">
+      <span class="lab">the crux</span>
+      <span class="txt">Does an evolutionary origin <b>sever the link</b> between our moral beliefs and any moral truth — and if it does, <b>why doesn't it take math down with it</b>? The realist's escape and the debunker's reach stand or fall together.</span>
+    </div>
+  </div>
+
+  <!-- CRUX 4 -->
+  <div class="crux reveal">
+    <div class="crux-head">
+      <div class="crux-meta"><span class="crux-n">Crux 04 — the ought</span><span class="crux-dom both">normativity · crossways</span></div>
+      <h3 class="crux-q ser">Where do binding "oughts" come from — outside us, or from us?</h3>
+      <p class="crux-sub">"You ought not torture" feels like a demand on you whether or not you want to comply. Is that bindingness given to us, or authored by us?</p>
+    </div>
+    <div class="steels">
+      <div class="steel s-found">
+        <div class="side">▸ reasons that don't wait on wanting</div>
+        <div class="pos-name">Categorical reasons</div>
+        <div class="gist">Some oughts bind you whatever you happen to want. "Don't torture for fun" doesn't pause to check your desires — and that unconditional grip is the whole thing a theory of morality has to save.</div>
+        <p>Tell a man who tortures for pleasure that he has no <em>reason</em> to stop unless he already wants to, and you've said something false. The reason holds against his wants, not in service of them — that's what makes it a moral reason and not a tip about how to get what he's after. This is the datum, the phenomenon any account has to keep: morality presents itself as a set of demands you don't get to opt out of by shrugging. An ought you can dissolve by changing your preferences was never the moral ought to begin with; it was a hypothetical in disguise. Save the bindingness or you've changed the subject.</p>
+      </div>
+      <div class="steel s-made">
+        <div class="side">▸ no ought from an is alone</div>
+        <div class="pos-name">Humean &amp; constructivist oughts</div>
+        <div class="gist">An "ought" tied to nothing — no desire, no attitude, no agreement — is unintelligible. Hume's gap means you never wring an ought from bare facts. Oughts come from us.</div>
+        <p>Ask what a free-floating reason, binding regardless of every desire and commitment a person has, would even be. Not a fact about the world — Hume showed you can't squeeze an ought out of an is, and adding more is-facts never closes the gap. So the bindingness has to enter somewhere on our side of the line. The expressivist locates it in the attitudes we express and stand behind: to call torture wrong is to forbid it, with feeling, and to hold others to that. The constructivist locates it in agency itself — you can't act at all without treating some ends as worth pursuing, and pull that thread and you're committed, on pain of contradiction, to principles you can't consistently refuse. Either way the demand is real and it isn't optional. It just doesn't float free. It bottoms out in what valuing, willing creatures are bound to.</p>
+      </div>
+    </div>
+    <div class="crux-key">
+      <span class="lab">the crux</span>
+      <span class="txt">Are moral reasons <b>external, categorical givens</b>, or do they <b>bottom out in our attitudes and agreements</b>? <span class="same-tag">↳ this crux runs crossways — it's the second axis: not whether moral claims are true, but whether oughts are found or authored.</span></span>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ IV. PAYOFF ============================ -->
+<section class="wrap fault-sec">
+  <div class="sec-head">
+    <div class="eyebrow"><span class="sec-num">IV</span> &nbsp;the payoff</div>
+  </div>
+
+  <div class="fault-card reveal">
+    <h3 class="fault-lead ser">Four cruxes, <em>two questions</em> underneath</h3>
+    <p class="fault-intro">One axis runs left to right: are moral truths discovered, or made? But the field won't lie flat on a single line, because the cleverest moves play a second question against the first — when you say "torturing is wrong," are you stating a fact that could be true, or voicing an attitude? Cross the two and the map opens up. The error theorist and the realist agree completely on the second question (moral claims are fact-claims) and split hard on the first. The expressivist and the realist agree on neither. That's why constructivism and quasi-realism only make sense in two dimensions: they answer "made" on the left-right axis while keeping much of what the top gives you.</p>
+
+    <svg class="diagram" viewBox="0 0 980 600" role="img" aria-labelledby="dg-t dg-d">
+      <title id="dg-t">Two crossed questions under the morality debate</title>
+      <desc id="dg-d">A grid with two axes. The horizontal axis runs from "discovered — moral realism" on the left to "made — anti-realism" on the right. The vertical axis runs from "moral claims state facts (cognitivist, truth-apt)" at the top to "moral claims express attitudes (non-cognitivist)" at the bottom. Positions are plotted as points. Non-naturalist realism (Parfit) sits upper-left: discovered and factual. Naturalist realism (Railton) sits upper-left as well, slightly lower. Error theory (Mackie) sits upper-RIGHT: it agrees moral claims are genuine fact-claims, which puts it high on the vertical axis, but it holds every such claim is false, which lands it on the made side — the placement that makes the two-axis picture pay off. Relativism sits on the right at middle height. Expressivism (Blackburn and Gibbard) sits lower-right: made and attitude-expressing. Constructivism (Korsgaard) sits near the center in lilac, close to the crossing. Quasi-realism (Blackburn) sits center-low in lilac, bridging the factual and attitude poles.</desc>
+      <defs>
+        <linearGradient id="axisgrad" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0" stop-color="#6dbaa4"/>
+          <stop offset="0.5" stop-color="#6e6b78"/>
+          <stop offset="1" stop-color="#d8a652"/>
+        </linearGradient>
+      </defs>
+
+      <!-- vertical axis: semantic -->
+      <line x1="490" y1="80" x2="490" y2="500" stroke="#34384a" stroke-width="2"/>
+      <!-- horizontal axis: metaphysical -->
+      <line x1="110" y1="290" x2="870" y2="290" stroke="url(#axisgrad)" stroke-width="6" stroke-linecap="round"/>
+      <circle cx="110" cy="290" r="7" fill="#6dbaa4"/>
+      <circle cx="870" cy="290" r="7" fill="#d8a652"/>
+
+      <!-- axis labels -->
+      <text x="110" y="322" fill="#6dbaa4" font-family="'IBM Plex Mono',monospace" font-size="15">discovered (realism)</text>
+      <text x="870" y="322" fill="#d8a652" font-family="'IBM Plex Mono',monospace" font-size="15" text-anchor="end">made (anti-realism)</text>
+      <text x="490" y="56" fill="#a6a394" font-family="'IBM Plex Mono',monospace" font-size="13.5" text-anchor="middle">moral claims state facts (truth-apt)</text>
+      <text x="490" y="528" fill="#a6a394" font-family="'IBM Plex Mono',monospace" font-size="13.5" text-anchor="middle">moral claims express attitudes</text>
+
+      <!-- plotted positions (rows staggered so no two labels share a line) -->
+      <!-- upper-left: discovered + factual, the strongest realism -->
+      <circle cx="250" cy="130" r="6" fill="#6dbaa4"/>
+      <text x="266" y="135" fill="#ebe5d6" font-family="'IBM Plex Sans',sans-serif" font-size="14.5">Non-naturalist realism · Parfit</text>
+
+      <!-- upper-left, lower than Parfit: facts, but natural ones -->
+      <circle cx="312" cy="206" r="6" fill="#6dbaa4"/>
+      <text x="328" y="211" fill="#ebe5d6" font-family="'IBM Plex Sans',sans-serif" font-size="14.5">Naturalist realism · Railton</text>
+
+      <!-- upper-RIGHT: claims ARE fact-claims (top) but all false (made side) — the payoff placement -->
+      <circle cx="712" cy="150" r="6" fill="#d8a652"/>
+      <text x="697" y="146" fill="#ebe5d6" font-family="'IBM Plex Sans',sans-serif" font-size="14.5" text-anchor="end">Error theory · Mackie</text>
+      <text x="697" y="165" fill="#807e8a" font-family="'IBM Plex Mono',monospace" font-size="10.5" text-anchor="end">fact-claims — but all false</text>
+
+      <!-- right, middle: truth indexed to a framework -->
+      <circle cx="760" cy="290" r="6" fill="#d8a652"/>
+      <text x="745" y="285" fill="#ebe5d6" font-family="'IBM Plex Sans',sans-serif" font-size="14.5" text-anchor="end">Relativism</text>
+
+      <!-- lower-right: made + attitude -->
+      <circle cx="700" cy="378" r="6" fill="#d8a652"/>
+      <text x="688" y="374" fill="#ebe5d6" font-family="'IBM Plex Sans',sans-serif" font-size="14.5" text-anchor="end">Expressivism · Blackburn, Gibbard</text>
+
+      <!-- center, near crossing: the pivot -->
+      <circle cx="452" cy="300" r="8" fill="#a195bd" stroke="#171922" stroke-width="2"/>
+      <text x="437" y="296" fill="#a195bd" font-family="'IBM Plex Sans',sans-serif" font-size="14.5" font-style="italic" text-anchor="end">Constructivism · Korsgaard</text>
+
+      <!-- center-low: the bridge -->
+      <circle cx="500" cy="408" r="7" fill="#a195bd" stroke="#171922" stroke-width="2"/>
+      <text x="516" y="412" fill="#a195bd" font-family="'IBM Plex Sans',sans-serif" font-size="14.5" font-style="italic">Quasi-realism · Blackburn</text>
+      <text x="516" y="430" fill="#807e8a" font-family="'IBM Plex Mono',monospace" font-size="10.5">bridges the two poles</text>
+    </svg>
+
+    <div class="fault-restate">
+      <div class="fr-item f3"><div class="fr-n">Crux 01 · facts</div><div class="fr-t ser">Is there a fact</div><p>The horizontal axis itself. The intuition as evidence of a moral fact, or as a feeling that tracks none.</p></div>
+      <div class="fr-item f4"><div class="fr-n">Crux 02 · disagreement</div><div class="fr-t ser">Why no convergence</div><p>The horizontal axis stress-tested by anthropology. No-fact, or a hard subject warped by bias.</p></div>
+      <div class="fr-item f1"><div class="fr-n">Crux 03 · the debunk</div><div class="fr-t ser">Could we know it</div><p>The horizontal axis, attacked through our origins. Evolution severs the link to truth, or it doesn't — and math is the test.</p></div>
+      <div class="fr-item f2"><div class="fr-n">Crux 04 · the ought</div><div class="fr-t ser">Where bindingness lives</div><p>The vertical axis, near enough. Reasons given from outside, or authored from our attitudes and agency.</p></div>
+    </div>
+
+    <p class="fault-close ser">The deep question is whether moral truths are <span class="ax">discovered</span> or <span class="mk">made</span> — and the most interesting people on the map, the constructivists, answer "made, but not by anything as flimsy as you're imagining."</p>
+  </div>
+</section>
+
+<!-- ============================ V. GO DEEPER ============================ -->
+<section class="wrap">
+  <div class="sec-head">
+    <div class="eyebrow"><span class="sec-num">V</span> &nbsp;go deeper</div>
+    <h2 class="ser">Where to take it next</h2>
+    <p>A few ways in, grouped by medium. Books are listed by author and year; every link was checked.</p>
+  </div>
+
+  <div class="shelf reveal">
+    <div class="shelf-col">
+      <h4>Books</h4>
+      <div class="res">
+        <div class="t">On What Matters</div>
+        <div class="by">Derek Parfit · 2011</div>
+        <div class="why">The big late case <em>for</em> non-natural realism — and an attempt to show Kantians, contractualists, and consequentialists are climbing the same mountain from different sides.</div>
+      </div>
+      <div class="res">
+        <div class="t"><a href="https://en.wikipedia.org/wiki/Ethics:_Inventing_Right_and_Wrong">Ethics: Inventing Right and Wrong</a></div>
+        <div class="by">J. L. Mackie · 1977</div>
+        <div class="why">The classic case <em>against</em>: the title gives away the thesis. Where the queerness and relativity arguments get their canonical form.</div>
+      </div>
+      <div class="res">
+        <div class="t">Moral Realism: A Defence</div>
+        <div class="by">Russ Shafer-Landau · 2003</div>
+        <div class="why">The most thorough modern defense of the realist's "there are stance-independent moral facts," with the objections taken head-on.</div>
+      </div>
+      <div class="res">
+        <div class="t">Ruling Passions</div>
+        <div class="by">Simon Blackburn · 1998</div>
+        <div class="why">Quasi-realism worked out at length — how to start from attitudes and earn every realist-sounding sentence back.</div>
+      </div>
+      <div class="res">
+        <div class="t">The Sources of Normativity</div>
+        <div class="by">Christine Korsgaard · 1996</div>
+        <div class="why">The constructivist case for where obligation comes from: not the cosmos, but what an agent must endorse to be an agent at all.</div>
+      </div>
+    </div>
+
+    <div class="shelf-col">
+      <h4>Papers</h4>
+      <div class="res">
+        <div class="t">A Darwinian Dilemma for Realist Theories of Value</div>
+        <div class="by">Sharon Street · 2006</div>
+        <div class="why">The evolutionary debunking argument in its sharpest form — the paper Crux 03 is built around, and the one realists keep answering.</div>
+      </div>
+    </div>
+
+    <div class="shelf-col">
+      <h4>Podcasts</h4>
+      <div class="res">
+        <div class="t"><a href="https://philosophybites.com/podcast/simon-blackburn-on-moral-relativism/">Philosophy Bites — Simon Blackburn on Moral Relativism</a></div>
+        <div class="by">Blackburn, with Edmonds &amp; Warburton</div>
+        <div class="why">Blackburn lays out quasi-realism in his own words — why he keeps the seriousness of moral disagreement without buying a moral reality. The pivot, from its author.</div>
+      </div>
+      <div class="res">
+        <div class="t"><a href="https://philosophybites.com/podcast/paul-boghossian-on-moral-relativism/">Philosophy Bites — Paul Boghossian on Moral Relativism</a></div>
+        <div class="by">Boghossian, with Edmonds &amp; Warburton</div>
+        <div class="why">The case that relativism is confused, not liberating — a clean way into Crux 02 from the side that thinks the disagreement proves less than it seems.</div>
+      </div>
+    </div>
+
+    <div class="shelf-col">
+      <h4>Essays &amp; entries</h4>
+      <div class="res">
+        <div class="t"><a href="https://plato.stanford.edu/entries/metaethics/">SEP — Metaethics</a></div>
+        <div class="by">Stanford Encyclopedia of Philosophy</div>
+        <div class="why">The overview that situates every position on this map and shows how they connect. Start here.</div>
+      </div>
+      <div class="res">
+        <div class="t"><a href="https://plato.stanford.edu/entries/moral-realism/">SEP — Moral Realism</a></div>
+        <div class="by">Geoff Sayre-McCord</div>
+        <div class="why">Careful on what realism does and doesn't claim, naturalist and non-naturalist alike, and the standard objections to each.</div>
+      </div>
+      <div class="res">
+        <div class="t"><a href="https://plato.stanford.edu/entries/moral-anti-realism/">SEP — Moral Anti-Realism</a></div>
+        <div class="by">Richard Joyce</div>
+        <div class="why">The other half of the field: error theory, expressivism, and the constructivist middle, mapped by a leading skeptic.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ FOOTER ============================ -->
+<footer class="wrap">
+  <p class="foot-note"><b>On these summaries.</b> Each steelman is compressed; the real arguments run to books, and a card or a panel is a doorway, not the room. Putting a side's best case in its own voice isn't endorsing it — the point is a fair fight, with no verdict leaked. Dates mark a well-known work, not the first time anyone had the thought. The discovered-or-made axis is a lens for seeing structure — useful precisely because it's a simplification, and untrue to any view that won't sit on a line, which is what the lilac hinge is there to flag.</p>
+  <div class="foot-links">
+    <a href="/debates">← All debate maps</a>
+    <a href="/">brooker.family</a>
+  </div>
+</footer>
+
+<script>
+(function(){
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var items = document.querySelectorAll('.reveal');
+  if(reduce || !('IntersectionObserver' in window)){
+    items.forEach(function(el){ el.classList.add('in'); });
+    return;
+  }
+  var io = new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); }
+    });
+  }, {threshold:0.12, rootMargin:'0px 0px -8% 0px'});
+  items.forEach(function(el){ io.observe(el); });
+})();
+</script>
+</body>
+</html>

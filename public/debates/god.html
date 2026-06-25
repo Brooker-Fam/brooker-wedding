@@ -1,0 +1,785 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- Field map: the existence of God -->
+<title>Does a mind stand under the world? — a map of the God debate</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,500&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#171922; --ink-2:#1e212c; --card:#23273380; --card-solid:#232734;
+    --line:#34384a; --line-soft:#2a2e3b;
+    --bone:#ebe5d6; --mute:#a6a394; --faint:#807e8a;
+    /* found = pole A (verdigris) · made = pole B (ochre) · pivot = the reconciling hinge (lilac).
+       Rename the *concepts* in your prose, but keep these three colors as the axis. */
+    --found:#6dbaa4; --found-deep:#2f6657; --found-glow:#6dbaa422;
+    --made:#d8a652; --made-deep:#7d5f29; --made-glow:#d8a65222;
+    --pivot:#a195bd; --pivot-glow:#a195bd1f;
+    /* third camp (slate-blue) — only for genuinely ternary debates; see SKILL.md */
+    --camp-c:#6f93c4; --camp-c-deep:#33506f; --camp-c-glow:#6f93c41f;
+    --maxw:1180px;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0; background:var(--ink); color:var(--bone);
+    font-family:"IBM Plex Sans",sans-serif; font-weight:400;
+    line-height:1.62; font-size:17px;
+    -webkit-font-smoothing:antialiased;
+    background-image:
+      radial-gradient(900px 600px at 82% -8%, #20243340, transparent 70%),
+      radial-gradient(700px 500px at 5% 18%, #1d212e55, transparent 70%);
+    background-attachment:fixed;
+  }
+  .wrap{max-width:var(--maxw); margin:0 auto; padding:0 26px;}
+  .mono{font-family:"IBM Plex Mono",monospace;}
+  .ser{font-family:"Fraunces",serif;}
+
+  /* ---------- eyebrows / dividers ---------- */
+  .eyebrow{
+    font-family:"IBM Plex Mono",monospace; font-size:12px; font-weight:500;
+    letter-spacing:.22em; text-transform:uppercase; color:var(--faint);
+    display:flex; align-items:center; gap:14px;
+  }
+  .eyebrow::before{content:""; width:30px; height:1px; background:var(--line); display:inline-block;}
+  .sec-num{color:var(--mute);}
+
+  /* ---------- brooker site tie (added for brooker.family/debates) ---------- */
+  .site-tie{
+    font-family:"IBM Plex Mono",monospace; font-size:12px; letter-spacing:.2em;
+    text-transform:uppercase; color:var(--faint); text-decoration:none;
+    display:inline-flex; align-items:center; gap:9px; margin:0 0 30px;
+    transition:color .2s;
+  }
+  .site-tie::before{content:""; width:22px; height:1px; background:var(--line); display:inline-block;}
+  .site-tie:hover{color:var(--bone);}
+  .foot-links{margin-top:22px; display:flex; gap:24px; flex-wrap:wrap;}
+  .foot-links a{
+    font-family:"IBM Plex Mono",monospace; font-size:11.5px; letter-spacing:.16em;
+    text-transform:uppercase; color:var(--mute); text-decoration:none;
+    border-bottom:1px solid var(--line); padding-bottom:2px;
+  }
+  .foot-links a:hover{color:var(--bone); border-bottom-color:var(--mute);}
+
+  /* ---------- header ---------- */
+  header{padding:clamp(56px,10vw,116px) 0 clamp(40px,7vw,80px);}
+  .kicker{
+    font-family:"IBM Plex Mono",monospace; font-size:12.5px; letter-spacing:.26em;
+    text-transform:uppercase; color:var(--faint); margin:0 0 26px;
+  }
+  h1.title{
+    font-family:"Fraunces",serif; font-weight:400; font-optical-sizing:auto;
+    font-size:clamp(2.5rem,6.4vw,4.7rem); line-height:1.02; letter-spacing:-.012em;
+    margin:0; max-width:16ch;
+  }
+  h1.title em{font-style:italic; color:var(--found);}
+  h1.title .mk{font-style:italic; color:var(--made);}
+  .dek{
+    font-size:clamp(1.05rem,2.1vw,1.35rem); color:var(--mute); line-height:1.5;
+    max-width:47ch; margin:30px 0 0; font-weight:400;
+  }
+  .dek b{color:var(--bone); font-weight:500;}
+
+  /* ---------- axis legend ---------- */
+  .legend{
+    margin-top:46px; border:1px solid var(--line-soft); border-radius:14px;
+    background:linear-gradient(100deg,#1c202c,#1a1e29);
+    padding:22px 24px; display:grid; gap:14px;
+  }
+  .legend-top{font-family:"IBM Plex Mono",monospace; font-size:11.5px; letter-spacing:.2em; text-transform:uppercase; color:var(--faint);}
+  .axis-bar{
+    height:7px; border-radius:6px;
+    background:linear-gradient(90deg,var(--found) 0%, #6e6b78 50%, var(--made) 100%);
+  }
+  .axis-ends{display:flex; justify-content:space-between; gap:16px; font-size:14.5px;}
+  .axis-ends .ax-found{color:var(--found);}
+  .axis-ends .ax-made{color:var(--made); text-align:right;}
+  .axis-ends span b{display:block; font-weight:600; font-size:15px; margin-bottom:1px;}
+  .axis-ends span small{color:var(--faint); font-size:12.5px; letter-spacing:.02em;}
+
+  /* ---------- section frame ---------- */
+  section{padding:clamp(54px,8vw,96px) 0;}
+  .sec-head{margin-bottom:42px;}
+  .sec-head h2{
+    font-family:"Fraunces",serif; font-weight:400; font-size:clamp(1.9rem,4vw,2.9rem);
+    line-height:1.06; letter-spacing:-.01em; margin:18px 0 0; max-width:24ch;
+  }
+  .sec-head p{color:var(--mute); max-width:62ch; margin:16px 0 0; font-size:1.02rem;}
+
+  /* ===== I. LINEAGE (timeline) ===== */
+  .lineage{position:relative;}
+  .spine{
+    position:absolute; left:140px; top:6px; bottom:6px; width:2px;
+    background:linear-gradient(var(--found-deep),var(--line),var(--made-deep));
+  }
+  .node{position:relative; padding:0 0 26px 172px; min-height:30px;}
+  .node .yr{
+    position:absolute; left:0; top:1px; width:118px; text-align:right;
+    font-family:"IBM Plex Mono",monospace; font-size:12.5px; color:var(--faint);
+    letter-spacing:.02em; padding-top:2px;
+  }
+  .node .dot{
+    position:absolute; left:134px; top:6px; width:14px; height:14px; border-radius:50%;
+    background:var(--ink); border:2px solid var(--mute); z-index:2;
+  }
+  .node.found .dot{border-color:var(--found); box-shadow:0 0 0 4px var(--found-glow);}
+  .node.made .dot{border-color:var(--made); box-shadow:0 0 0 4px var(--made-glow);}
+  .node.pivot .dot{border-color:var(--pivot); box-shadow:0 0 0 4px var(--pivot-glow);}
+  .node .who{font-family:"Fraunces",serif; font-size:1.24rem; font-weight:500; line-height:1.15; letter-spacing:-.005em;}
+  .node .dom{font-family:"IBM Plex Mono",monospace; font-size:10.5px; letter-spacing:.16em; text-transform:uppercase; margin-left:10px; color:var(--faint); vertical-align:middle;}
+  .node .say{color:var(--mute); font-size:.99rem; margin-top:4px; max-width:64ch;}
+  .node.camp-c .dot{border-color:var(--camp-c); box-shadow:0 0 0 4px var(--camp-c-glow);}
+  .node.found .who{color:var(--found);}
+  .node.made .who{color:var(--made);}
+  .node.pivot .who{color:var(--pivot);}
+  .node.camp-c .who{color:var(--camp-c);}
+  .lineage-tail{padding-left:172px; margin-top:2px;}
+  .lineage-tail .pin{
+    position:relative; padding:16px 20px; border:1px dashed var(--line);
+    border-radius:12px; background:#1b1f2a; max-width:60ch;
+  }
+  .lineage-tail .pin b{font-family:"Fraunces",serif; font-weight:500; font-size:1.05rem;}
+  .lineage-tail .pin p{margin:5px 0 0; color:var(--mute); font-size:.96rem;}
+
+  /* ===== II. POSITIONS (field guide) ===== */
+  .fields{display:grid; grid-template-columns:1fr 1fr; gap:30px;}
+  .field h3{
+    font-family:"IBM Plex Mono",monospace; font-size:12.5px; letter-spacing:.2em;
+    text-transform:uppercase; color:var(--bone); margin:0 0 18px; padding-bottom:12px;
+    border-bottom:1px solid var(--line); display:flex; justify-content:space-between; align-items:baseline;
+  }
+  .field h3 small{color:var(--faint); letter-spacing:.12em; font-weight:400;}
+  .pos{
+    border:1px solid var(--line-soft); border-left:3px solid var(--line);
+    border-radius:0 11px 11px 0; background:var(--card);
+    padding:16px 18px; margin-bottom:13px; transition:border-color .25s, background .25s, transform .25s;
+  }
+  .pos.found{border-left-color:var(--found);}
+  .pos.made{border-left-color:var(--made);}
+  .pos.pivot{border-left-color:var(--pivot);}
+  .pos.camp-c{border-left-color:var(--camp-c);}
+  .pos:hover{transform:translateX(3px); background:var(--card-solid);}
+  .pos .nm{font-family:"Fraunces",serif; font-weight:600; font-size:1.16rem; letter-spacing:-.005em; display:flex; align-items:baseline; gap:10px; flex-wrap:wrap;}
+  .pos.found .nm{color:var(--found);} .pos.made .nm{color:var(--made);} .pos.pivot .nm{color:var(--pivot);} .pos.camp-c .nm{color:var(--camp-c);}
+  /* go-deeper links on a card or in the shelf */
+  .src-links{margin-top:9px; display:flex; flex-wrap:wrap; gap:6px 14px;}
+  .src-links a{font-family:"IBM Plex Mono",monospace; font-size:11.5px; color:var(--mute); text-decoration:none; border-bottom:1px solid var(--line);}
+  .src-links a:hover{color:var(--bone); border-bottom-color:var(--mute);}
+  .src-links a::after{content:" ↗"; color:var(--faint);}
+  .traction{
+    font-family:"IBM Plex Mono",monospace; font-size:10px; letter-spacing:.08em; text-transform:uppercase;
+    color:var(--faint); border:1px solid var(--line); border-radius:20px; padding:2px 9px; white-space:nowrap;
+  }
+  .pos .figs{font-family:"IBM Plex Mono",monospace; font-size:12px; color:var(--mute); margin:7px 0 7px; letter-spacing:.01em;}
+  .pos .claim{color:var(--bone); font-size:.97rem; line-height:1.5;}
+  .pos .nb{display:block; margin-top:7px; color:var(--faint); font-size:.85rem; font-style:italic;}
+  .pivot-card{
+    grid-column:1/-1; border:1px solid var(--pivot); border-radius:13px;
+    background:linear-gradient(100deg,#211f2c,#1c1b25); padding:20px 22px; margin-top:4px;
+    display:flex; gap:18px; align-items:flex-start; flex-wrap:wrap;
+  }
+  .pivot-card .pv-tag{font-family:"IBM Plex Mono",monospace; font-size:11px; letter-spacing:.2em; text-transform:uppercase; color:var(--pivot); white-space:nowrap; padding-top:5px;}
+  .pivot-card .pv-body{flex:1 1 320px;}
+  .pivot-card .pv-body b{font-family:"Fraunces",serif; font-weight:600; font-size:1.2rem; color:var(--pivot);}
+  .pivot-card .pv-body p{margin:6px 0 0; color:var(--bone); font-size:.98rem;}
+  .traction-note{margin-top:20px; color:var(--faint); font-size:.84rem; font-style:italic; max-width:70ch; display:flex; gap:9px;}
+  .traction-note::before{content:"※"; color:var(--mute); font-style:normal;}
+
+  /* ===== III. CRUXES (confrontations) ===== */
+  .crux{border:1px solid var(--line-soft); border-radius:18px; overflow:hidden; margin-bottom:30px; background:#191d28;}
+  .crux-head{padding:24px 28px 20px; border-bottom:1px solid var(--line-soft);}
+  .crux-meta{display:flex; justify-content:space-between; gap:14px; align-items:baseline; flex-wrap:wrap; margin-bottom:12px;}
+  .crux-n{font-family:"IBM Plex Mono",monospace; font-size:13px; letter-spacing:.18em; color:var(--mute);}
+  .crux-dom{font-family:"IBM Plex Mono",monospace; font-size:10.5px; letter-spacing:.16em; text-transform:uppercase; color:var(--ink); background:var(--mute); padding:3px 10px; border-radius:20px;}
+  .crux-dom.both{background:var(--pivot);}
+  .crux-q{font-family:"Fraunces",serif; font-weight:500; font-size:clamp(1.4rem,3vw,2rem); line-height:1.12; letter-spacing:-.01em; margin:0;}
+  .crux-sub{color:var(--mute); margin:9px 0 0; font-size:.98rem;}
+  .steels{display:grid; grid-template-columns:1fr 1fr; gap:0;}
+  .steel{padding:24px 28px; position:relative;}
+  .steel.s-found{background:linear-gradient(180deg,#1a2420,#191f1d);}
+  .steel.s-made{background:linear-gradient(180deg,#241f17,#1f1c16); border-left:1px solid var(--line-soft);}
+  .steel .side{font-family:"IBM Plex Mono",monospace; font-size:11px; letter-spacing:.14em; text-transform:uppercase; margin-bottom:5px;}
+  .steel.s-found .side{color:var(--found);}
+  .steel.s-made .side{color:var(--made);}
+  .steel .pos-name{font-family:"Fraunces",serif; font-weight:600; font-size:1.12rem; margin-bottom:9px; line-height:1.2;}
+  .steel.s-found .pos-name{color:var(--found);}
+  .steel.s-made .pos-name{color:var(--made);}
+  .steel .gist{font-weight:600; font-size:1.04rem; line-height:1.45; color:var(--bone); margin:0 0 13px; padding-bottom:13px; border-bottom:1px dashed var(--line);}
+  .steel .gist::before{content:"In plain terms"; display:block; font-family:"IBM Plex Mono",monospace; font-size:10px; font-weight:500; letter-spacing:.18em; text-transform:uppercase; color:var(--faint); margin-bottom:5px;}
+  .steel p{margin:0; font-size:.97rem; line-height:1.56; color:#e2dccd;}
+  .steel p em{font-style:italic; color:var(--bone);}
+  .crux-key{padding:18px 28px; background:#13161f; border-top:1px solid var(--line-soft); display:flex; gap:14px; align-items:flex-start;}
+  .crux-key .lab{font-family:"IBM Plex Mono",monospace; font-size:11px; letter-spacing:.16em; text-transform:uppercase; color:var(--faint); padding-top:3px; white-space:nowrap;}
+  .crux-key .txt{font-size:.99rem; color:var(--bone); line-height:1.5;}
+  .crux-key .txt b{font-weight:600;}
+  .same-tag{display:inline-block; margin-top:9px; font-family:"IBM Plex Mono",monospace; font-size:11px; letter-spacing:.08em; color:var(--pivot); border:1px solid var(--pivot); border-radius:20px; padding:3px 11px;}
+
+  /* ===== IV. PAYOFF ===== */
+  .fault-sec{background:linear-gradient(180deg,transparent, #13161f 30%, #13161f 70%, transparent);}
+  .fault-card{border:1px solid var(--line); border-radius:20px; background:#171b25; padding:clamp(24px,4vw,44px); box-shadow:0 30px 80px -50px #000;}
+  .fault-lead{font-family:"Fraunces",serif; font-weight:400; font-size:clamp(1.5rem,3.3vw,2.3rem); line-height:1.18; letter-spacing:-.01em; margin:0 0 8px; max-width:26ch;}
+  .fault-lead em{font-style:italic; color:var(--pivot);}
+  .fault-intro{color:var(--mute); max-width:64ch; margin:0 0 30px; font-size:1.02rem;}
+  .diagram{width:100%; height:auto; display:block; margin:6px 0 4px; overflow:visible;}
+  .fault-restate{display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:18px; margin-top:34px;}
+  .fr-item{border-top:2px solid var(--line); padding-top:13px;}
+  .fr-item.f1{border-top-color:var(--made);}
+  .fr-item.f2{border-top-color:var(--pivot);}
+  .fr-item.f3{border-top-color:var(--found);}
+  .fr-item.f4{border-top-color:var(--made);}
+  .fr-item .fr-n{font-family:"IBM Plex Mono",monospace; font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--faint);}
+  .fr-item .fr-t{font-family:"Fraunces",serif; font-weight:500; font-size:1.05rem; margin:4px 0 5px;}
+  .fr-item p{margin:0; font-size:.92rem; color:var(--mute); line-height:1.5;}
+  .fault-close{margin-top:36px; padding-top:26px; border-top:1px solid var(--line); font-family:"Fraunces",serif; font-style:italic; font-weight:400; font-size:clamp(1.15rem,2.4vw,1.5rem); line-height:1.35; color:var(--bone); max-width:44ch;}
+  .fault-close .ax{color:var(--found);}
+  .fault-close .mk{color:var(--made);}
+
+  /* ===== V. GO DEEPER (resources shelf) ===== */
+  .shelf{display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:24px;}
+  .shelf-col h4{font-family:"IBM Plex Mono",monospace; font-size:12px; letter-spacing:.18em; text-transform:uppercase; color:var(--mute); margin:0 0 14px; padding-bottom:10px; border-bottom:1px solid var(--line);}
+  .res{margin-bottom:15px;}
+  .res .t{font-family:"Fraunces",serif; font-weight:500; font-size:1.04rem; line-height:1.25;}
+  .res .t a{color:var(--bone); text-decoration:none; border-bottom:1px solid var(--line);}
+  .res .t a:hover{border-bottom-color:var(--mute);}
+  .res .by{font-family:"IBM Plex Mono",monospace; font-size:11.5px; color:var(--faint); margin-top:1px;}
+  .res .why{color:var(--mute); font-size:.9rem; margin-top:4px; line-height:1.45;}
+
+  /* ---------- footer ---------- */
+  footer{padding:54px 0 80px; border-top:1px solid var(--line-soft); margin-top:30px;}
+  .foot-note{color:var(--faint); font-size:.86rem; max-width:66ch; line-height:1.55;}
+  .foot-note b{color:var(--mute); font-weight:500;}
+
+  /* ---------- reveal ---------- */
+  .reveal{opacity:0; transform:translateY(16px); transition:opacity .7s ease, transform .7s ease;}
+  .reveal.in{opacity:1; transform:none;}
+
+  :focus-visible{outline:2px solid var(--found); outline-offset:3px; border-radius:3px;}
+
+  /* ---------- responsive ---------- */
+  @media (max-width:760px){
+    body{font-size:16px;}
+    .fields{grid-template-columns:1fr;}
+    .steels{grid-template-columns:1fr;}
+    .steel.s-made{border-left:none; border-top:1px solid var(--line-soft);}
+    .spine{left:84px;}
+    .node{padding-left:112px;}
+    .node .yr{width:64px;}
+    .node .dot{left:78px;}
+    .lineage-tail{padding-left:112px;}
+    .axis-ends{flex-direction:column; gap:10px;}
+    .axis-ends .ax-made{text-align:left;}
+  }
+  @media (prefers-reduced-motion:reduce){
+    *{scroll-behavior:auto;}
+    .reveal{opacity:1; transform:none; transition:none;}
+    .draw{stroke-dashoffset:0 !important;}
+  }
+</style>
+</head>
+<body>
+
+<!-- ============================ HEADER ============================ -->
+<header class="wrap">
+  <a class="site-tie" href="/debates">All debate maps · brooker</a>
+  <p class="kicker">FIELD · metaphysics &amp; the epistemology of belief</p>
+  <h1 class="title">Does a <em>mind</em> stand under the world — or <span class="mk">no one at all</span>?</h1>
+  <p class="dek">The oldest argument, mapped. A dozen positions on whether God exists fold into four <b>disagreements</b>, and those into two <b>questions</b>: is there intention beneath the universe, and is that the kind of thing evidence could ever decide? Below — the <b>lineage</b>, the <b>positions and who held them</b>, and four <b>cruxes</b>, each with the strongest case both sides actually make.</p>
+
+  <div class="legend reveal">
+    <div class="legend-top">One axis runs under all of it. Watch the two colors.</div>
+    <div class="axis-bar"></div>
+    <div class="axis-ends">
+      <span class="ax-found"><b>A mind underneath</b><small>personal ground · the world was meant</small></span>
+      <span class="ax-made"><b>Brute, impersonal</b><small>no author · the world simply is</small></span>
+    </div>
+  </div>
+</header>
+
+<!-- ============================ I. LINEAGE ============================ -->
+<section class="wrap">
+  <div class="sec-head">
+    <div class="eyebrow"><span class="sec-num">I</span> &nbsp;the lineage</div>
+    <h2 class="ser">The oldest open question, in one column</h2>
+    <p>Read top to bottom. A dot's halo marks where the thinker stands — green for a mind underneath, gold for a brute universe, lilac for the view that the question is mis-posed.</p>
+  </div>
+
+  <div class="lineage reveal">
+    <div class="spine" aria-hidden="true"></div>
+
+    <div class="node found">
+      <span class="yr">c. 360 BCE</span><span class="dot"></span>
+      <div class="who">Plato<span class="dom">philosophy · cosmos</span></div>
+      <div class="say">In <em>Laws</em> X he argues soul is older than matter and moves it — the orderly turning of the heavens points to mind, not blind stuff. The <em>Timaeus</em> adds a craftsman shaping chaos toward the good.</div>
+    </div>
+
+    <div class="node found">
+      <span class="yr">c. 350 BCE</span><span class="dot"></span>
+      <div class="who">Aristotle<span class="dom">philosophy · first cause</span></div>
+      <div class="say">The <em>Unmoved Mover</em> of <em>Metaphysics</em> XII draws the cosmos the way a beloved draws a lover — without lifting a finger. Thought thinking itself. No creator, no one who cares, yet the root of every later first-cause argument.</div>
+    </div>
+
+    <div class="node found">
+      <span class="yr">c. 1020</span><span class="dot"></span>
+      <div class="who">Avicenna<span class="dom">philosophy · falsafa</span></div>
+      <div class="say">Sharpens the move from contingency: everything in the world is merely <em>possible</em>, its existence borrowed from something prior. Only a Necessary Existent, whose essence just is to be, stops the borrowing. Aquinas inherits the engine.</div>
+    </div>
+
+    <div class="node found">
+      <span class="yr">1078</span><span class="dot"></span>
+      <div class="who">Anselm<span class="dom">theology · ontological</span></div>
+      <div class="say">The <em>Proslogion</em>: God is that than which nothing greater can be thought, and a greatest-thing that existed only in the mind wouldn't be greatest. Existence squeezed out of a definition. The monk Gaunilo shot back with a perfect island; the argument has been dividing logicians ever since.</div>
+    </div>
+
+    <div class="node found">
+      <span class="yr">1265</span><span class="dot"></span>
+      <div class="who">Thomas Aquinas<span class="dom">theology · natural theology</span></div>
+      <div class="say">The <em>Five Ways</em>: motion, cause, contingency, degrees of perfection, and the goal-directedness of things — five roads from the world to its source. Less a knockout proof than a case that the world keeps pointing past itself.</div>
+    </div>
+
+    <div class="node pivot">
+      <span class="yr">1677</span><span class="dot"></span>
+      <div class="who">Baruch Spinoza<span class="dom">philosophy · pantheism</span></div>
+      <div class="say">The <em>Ethics</em>, out the year he died: <em>Deus sive Natura</em>, God or Nature, one infinite substance and nothing outside it. Not a person who chose to create, and not nothing — the divine is the whole, necessary through and through. The hinge that calls the personal-or-impersonal split a mistake.</div>
+    </div>
+
+    <div class="node made">
+      <span class="yr">1779</span><span class="dot"></span>
+      <div class="who">David Hume<span class="dom">philosophy · skeptic</span></div>
+      <div class="say">Published three years after his death, the <em>Dialogues Concerning Natural Religion</em> let the character Philo pull the design argument apart. Why infer one designer and not a committee? Why a flawless one from a flawed world? Maybe the universe grew like a vegetable, not a watch.</div>
+    </div>
+
+    <div class="node found">
+      <span class="yr">1802</span><span class="dot"></span>
+      <div class="who">William Paley<span class="dom">theology · design</span></div>
+      <div class="say">Cross a heath, find a watch, and you know a mind made it. <em>Natural Theology</em> reads the eye and the wing the same way — contrivance everywhere, so a contriver. The high-water mark of design, and the exact wall Darwin would run at.</div>
+    </div>
+
+    <div class="node made">
+      <span class="yr">1859</span><span class="dot"></span>
+      <div class="who">Charles Darwin<span class="dom">biology · selection</span></div>
+      <div class="say"><em>On the Origin of Species</em> shows how the look of design arrives with no designer — variation, inheritance, and a filter run long enough. Paley's eye finally gets its answer. The single biggest shift in the debate's center of gravity.</div>
+    </div>
+
+    <div class="node made">
+      <span class="yr">1882</span><span class="dot"></span>
+      <div class="who">Friedrich Nietzsche<span class="dom">philosophy · diagnosis</span></div>
+      <div class="say">"God is dead," cries the madman in <em>The Gay Science</em> — and the crowd just stares. Not a disproof but a report: the ground under belief had already washed out, and the hard part, learning to stand on a universe with no guarantees, hadn't even started.</div>
+    </div>
+
+    <div class="node made">
+      <span class="yr">1936</span><span class="dot"></span>
+      <div class="who">A. J. Ayer<span class="dom">philosophy · positivism</span></div>
+      <div class="say"><em>Language, Truth and Logic</em>: since no experiment could confirm or deny it, "God exists" isn't false — it fails to say anything at all. An attempt to dissolve the question instead of answering it. The verification principle later buckled, Ayer among the first to admit it.</div>
+    </div>
+
+    <div class="node found">
+      <span class="yr">2000</span><span class="dot"></span>
+      <div class="who">Alvin Plantinga<span class="dom">philosophy · epistemology</span></div>
+      <div class="say"><em>Warranted Christian Belief</em> moves the fight. Belief in God can be <em>properly basic</em> — reasonable with no argument behind it, the way trusting your memory is — if the faculty producing it is working right. The question stops being "where's the proof?" and becomes "does belief need proof at all?"</div>
+    </div>
+
+    <div class="lineage-tail">
+      <div class="pin">
+        <b>Into the present</b>
+        <p>The large surveys of academic philosophers now put a clear majority on the atheist side — yet the arguments weren't settled, only honed. The contingency and fine-tuning debates run hotter today than they did a century ago.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ II. POSITIONS ============================ -->
+<section class="wrap">
+  <div class="sec-head">
+    <div class="eyebrow"><span class="sec-num">II</span> &nbsp;the positions</div>
+    <h2 class="ser">Who holds what — and where it sits on the axis</h2>
+    <p>Two families of position: claims about what exists, and claims about what we could know. A card's left edge is its lean; the tag is rough sociology, not a scorecard.</p>
+  </div>
+
+  <div class="fields reveal">
+    <div class="field">
+      <h3>On what there is <small>the metaphysics</small></h3>
+
+      <div class="pos found">
+        <div class="nm">Classical theism <span class="traction">dominant in monotheist philosophy</span></div>
+        <div class="figs">Augustine · Anselm · Avicenna · Maimonides · Aquinas</div>
+        <div class="claim">One necessary, perfect being — less an object inside the world than the source of there being a world at all; in the old phrase, being itself.</div>
+        <span class="nb">On this view, "a being among beings" already mishears the claim — which is why objections aimed at a cosmic super-person sail past.</span>
+        <div class="src-links"><a href="https://plato.stanford.edu/entries/cosmological-argument/">SEP: Cosmological Argument</a></div>
+      </div>
+
+      <div class="pos found">
+        <div class="nm">Perfect-being theism <span class="traction">common in analytic philosophy</span></div>
+        <div class="figs">Swinburne · Plantinga · Craig</div>
+        <div class="claim">God is the greatest possible person — a mind without limits, with knowledge, will, and intent, who acts in the world and can be argued for on the evidence.</div>
+        <span class="nb">Parts ways with classical theism over divine simplicity: is God a person, or beyond personhood?</span>
+      </div>
+
+      <div class="pos found">
+        <div class="nm">Deism <span class="traction">Enlightenment force, now niche</span></div>
+        <div class="figs">Toland · Voltaire · Paine · Jefferson</div>
+        <div class="claim">A creator wound the universe up under fixed laws and stepped back — no miracles, no scripture, no meddling since.</div>
+        <span class="nb">A Who at the start, a What ever after, which is why the position sits astride the two poles.</span>
+      </div>
+
+      <div class="pos found">
+        <div class="nm">Polytheism &amp; finite gods <span class="traction">humanity's historical default</span></div>
+        <div class="figs">most ancient religion · J. S. Mill · William James</div>
+        <div class="claim">The divine is plural or limited — many gods, or one not all-powerful — which clears up several monotheist puzzles and opens others.</div>
+        <span class="nb">"Does God exist?" quietly assumes there's exactly one perfect candidate on the ballot.</span>
+      </div>
+
+      <div class="pos made">
+        <div class="nm">Atheism &amp; naturalism <span class="traction">majority among academic philosophers</span></div>
+        <div class="figs">d'Holbach · Russell · Mackie · Oppy</div>
+        <div class="claim">There is no God; the physical world is all there is, with no author and no aim, and "why is there anything?" may simply run out of answer.</div>
+        <span class="nb">Sits comfortably with awe at the world — it just declines to read a purpose into it.</span>
+        <div class="src-links"><a href="https://plato.stanford.edu/entries/atheism-agnosticism/">SEP: Atheism &amp; Agnosticism</a></div>
+      </div>
+    </div>
+
+    <div class="field">
+      <h3>On what we can know <small>the epistemology</small></h3>
+
+      <div class="pos pivot">
+        <div class="nm">Agnosticism <span class="traction">perennial, widely respected</span></div>
+        <div class="figs">T. H. Huxley · Robin Le Poidevin</div>
+        <div class="claim">The evidence doesn't close the case; the honest move is to suspend judgment, asserting neither yes nor no.</div>
+        <span class="nb">Huxley, who coined it in 1869, meant a discipline — don't claim to know what you can't show — more than a comfortable seat on the fence.</span>
+      </div>
+
+      <div class="pos found">
+        <div class="nm">Fideism <span class="traction">central to existentialist strands</span></div>
+        <div class="figs">Tertullian · Pascal · Kierkegaard · Barth</div>
+        <div class="claim">Faith doesn't rest on argument and isn't supposed to; the leap happens before the evidence is in, sometimes against it.</div>
+        <span class="nb">Treats the demand for proof as a misunderstanding of what faith is for.</span>
+      </div>
+
+      <div class="pos found">
+        <div class="nm">Reformed epistemology <span class="traction">major late-20th-c. movement</span></div>
+        <div class="figs">Plantinga · Alston · Wolterstorff</div>
+        <div class="claim">Belief in God can be properly basic — rational with no argument behind it, like trusting your senses or other minds — if your faculties are in order.</div>
+        <span class="nb">Defends the rationality of believing, not God's existence as such.</span>
+      </div>
+
+      <div class="pos made">
+        <div class="nm">Evidentialism <span class="traction">the default empiricist stance</span></div>
+        <div class="figs">W. K. Clifford · Russell · Dawkins</div>
+        <div class="claim">Match your belief to the evidence; with too little evidence for God, the rational stance is to withhold it.</div>
+        <span class="nb">Clifford made it a duty, not a mere policy — itself a contested move. Russell's orbiting teapot makes the same point about who carries the burden.</span>
+      </div>
+
+      <div class="pos found">
+        <div class="nm">Pragmatism &amp; the will to believe <span class="traction">perennial, contested</span></div>
+        <div class="figs">Pascal · William James</div>
+        <div class="claim">When a question is live, forced, and beyond what evidence can settle, the practical stakes — and our passional nature — may rightly tip belief.</div>
+        <span class="nb">Critics hear a license to believe whatever pleases you; James restricts it to cases where proof is genuinely out of reach.</span>
+        <div class="src-links"><a href="https://plato.stanford.edu/entries/religious-experience/">SEP: Religious Experience</a></div>
+      </div>
+    </div>
+
+    <div class="pivot-card">
+      <div class="pv-tag">the hinge ↕</div>
+      <div class="pv-body">
+        <b>The view that the question is malformed</b>
+        <p>Three moves share one suspicion — that the mind-or-brute axis is the confusion. Spinoza's pantheism makes God the total order of Nature, so asking whether a person built it misfires; there's no one standing outside the whole to do any building. Paul Tillich's theology says God isn't a being but being-itself, so "does God exist?" already files the divine on the wrong shelf, between tables and electrons. And the religious non-realists — Don Cupitt, reading Wittgenstein — treat "God" as a word with a use inside a way of life, not a guess about one more entity. Each says the same thing to both camps: before you pick a pole, check whether the line was drawn in the right place.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="traction-note">Tags are rough sociology — how the literature shakes out — not a verdict. Several of these positions held the majority at one time or another; popularity and truth keep separate books.</div>
+</section>
+
+<!-- ============================ III. CRUXES ============================ -->
+<section class="wrap">
+  <div class="sec-head">
+    <div class="eyebrow"><span class="sec-num">III</span> &nbsp;the cruxes</div>
+    <h2 class="ser">Four fair fights, each carrying part of the load</h2>
+    <p>The positions are bundles of answers; these are the questions that, answered one way or the other, split them. Both panels give the side's best case, in its own voice.</p>
+  </div>
+
+  <!-- CRUX 1 -->
+  <div class="crux reveal">
+    <div class="crux-head">
+      <div class="crux-meta"><span class="crux-n">Crux 01 — the buck</span><span class="crux-dom">metaphysics</span></div>
+      <h3 class="crux-q ser">Does the universe need a reason outside itself?</h3>
+      <p class="crux-sub">Why is there something rather than nothing — and is "no reason" an acceptable place to stop?</p>
+    </div>
+    <div class="steels">
+      <div class="steel s-found">
+        <div class="side">▸ contingency demands a ground</div>
+        <div class="pos-name">The cosmological argument</div>
+        <div class="gist">Anything that might not have existed needs something beyond it to explain why it does — and only a being that couldn't have failed to exist ends the chain.</div>
+        <p>Each thing around you is contingent: it could have not been. Stack contingent causes as high as you like and the whole tower is still contingent — the lot of it could have failed to exist. So the explanation can't be one more contingent brick. It has to be something whose existence isn't on loan, a being whose very nature is to be. Name that God. The rival isn't "no explanation"; it's declining to ask the one question every other inquiry is built on — <em>why is this so?</em></p>
+      </div>
+      <div class="steel s-made">
+        <div class="side">▸ the chain can just stop</div>
+        <div class="pos-name">Brute fact</div>
+        <div class="gist">Demanding a reason for absolutely everything is a habit picked up inside the universe; the universe itself may just be, and that's the end of it.</div>
+        <p>Why assume the whole inherits the needs of its parts? That each member has a cause doesn't hand you a cause for the set — the step from one to the other is where the argument quietly cheats. And "a necessary being" doesn't escape the bind; it just moves it. The theist halts at God and calls the stop necessary. The naturalist halts at the universe and calls it brute. Both halt somewhere. The only question is where, and bolting on an extra step buys nothing. Russell, debating Copleston in 1948, put it flat — the universe is just there, and that's all there is to say.</p>
+      </div>
+    </div>
+    <div class="crux-key">
+      <span class="lab">the crux</span>
+      <span class="txt">Does explanation bottom out in a <b>necessary being</b> or a <b>brute fact</b>? Everything else on the map is downstream of where you let the regress stop.</span>
+    </div>
+  </div>
+
+  <!-- CRUX 2 -->
+  <div class="crux reveal">
+    <div class="crux-head">
+      <div class="crux-meta"><span class="crux-n">Crux 02 — the calibration</span><span class="crux-dom">metaphysics · physics</span></div>
+      <h3 class="crux-q ser">Is the universe's fitness for life a sign of design?</h3>
+      <p class="crux-sub">The constants could have landed anywhere; they fell in the narrow band that permits anything at all. Luck, selection, or intent?</p>
+    </div>
+    <div class="steels">
+      <div class="steel s-found">
+        <div class="side">▸ fine-tuning points to a tuner</div>
+        <div class="pos-name">The design argument</div>
+        <div class="gist">A life-permitting universe is wildly unlikely by chance and exactly what you'd expect if a mind set the dials.</div>
+        <p>Nudge the strength of gravity, or the cosmological constant, by a sliver and you get no stars, no chemistry, no observers, ever. Under chance, landing in the habitable crack is staggering. Under design, it's no surprise at all — and an event that's expected on one hypothesis and astonishing on the other is evidence for the first. That's not Paley's biology, which Darwin handled. It's the physics beneath biology, where there's no selection mechanism waiting in the wings to do the work for free.</p>
+      </div>
+      <div class="steel s-made">
+        <div class="side">▸ selection, and a probability you can't compute</div>
+        <div class="pos-name">Anthropic selection &amp; multiverse</div>
+        <div class="gist">We could only ever find ourselves in a universe that allows us — and "improbable" is empty without some way to count the alternatives.</div>
+        <p>Naturally we observe life-friendly values; observers can't turn up anywhere else. If reality is enormous — many regions, many settings of the constants — then somewhere the dials land right, and that's precisely where the winners wake up and marvel. Drop the multiverse and the problem only deepens: the design move helps itself to a probability distribution over possible universes that nobody can write down. One sample, no model, and "unlikely" is just rhetoric. Besides, a tuner elaborate enough to do the tuning is itself finely arranged — so who tuned the tuner?</p>
+      </div>
+    </div>
+    <div class="crux-key">
+      <span class="lab">the crux</span>
+      <span class="txt">Is cosmic order the <b>fingerprint of intention</b> or an <b>artifact of selection</b>? <span class="same-tag">↳ this is Crux 01 in the key of order — the same "does the world point past itself?" aimed at how it's arranged rather than that it's here.</span></span>
+    </div>
+  </div>
+
+  <!-- CRUX 3 -->
+  <div class="crux reveal">
+    <div class="crux-head">
+      <div class="crux-meta"><span class="crux-n">Crux 03 — the suffering</span><span class="crux-dom">metaphysics · ethics</span></div>
+      <h3 class="crux-q ser">Does the scale of suffering count against a good God?</h3>
+      <p class="crux-sub">A perfect being could spare the fawn burning in a forest fire no one sees. It doesn't. What follows?</p>
+    </div>
+    <div class="steels">
+      <div class="steel s-made">
+        <div class="side">▸ pointless suffering is evidence</div>
+        <div class="pos-name">The evidential problem of evil</div>
+        <div class="gist">The amount and spread of suffering is about what you'd expect with no one in charge, and far less than a watchful, able, loving God would permit.</div>
+        <p>Set aside whether evil is logically compatible with God — grant that free will accounts for the cruelty people choose. It still says nothing about the fawn dying slowly in a fire no human lit or witnessed. It says nothing about childhood cancer. These aren't visibly the price of any greater good, and the believer owes an account of why someone who could stop them, at no cost to himself, looks away. "There may be a reason we can't see" isn't a reason; it's an IOU. Weigh the evidence as evidence, and a world this indifferent to what lives in it is likelier if no one is steering.</p>
+      </div>
+      <div class="steel s-found">
+        <div class="side">▸ a good reason needn't be one we can see</div>
+        <div class="pos-name">Theodicy &amp; skeptical theism</div>
+        <div class="gist">From "I can't see a justifying reason" it doesn't follow that there isn't one — our angle on the moral whole is tiny.</div>
+        <p>Two replies hold. First, a great deal of suffering does work no painless world could: courage, depth, the character hardship carves, a world steady enough to act in only because its laws don't soften at our convenience. Second, and harder to dodge: the jump from "I see no good reason" to "there is none" assumes we'd spot a sufficient reason if one were there — and why believe that? A gap that wide between a human mind and an omniscient one is exactly what theism would predict. We don't declare a disease incurable because we haven't found the cure. The suffering is real. The claim that it's <em>gratuitous</em> is the part still unpaid for.</p>
+      </div>
+    </div>
+    <div class="crux-key">
+      <span class="lab">the crux</span>
+      <span class="txt">Does observed suffering make a good God <b>improbable</b> or merely <b>inscrutable</b>? The whole fight is over whether "we can't see the reason" is weak evidence of absence or no evidence at all.</span>
+    </div>
+  </div>
+
+  <!-- CRUX 4 -->
+  <div class="crux reveal">
+    <div class="crux-head">
+      <div class="crux-meta"><span class="crux-n">Crux 04 — the method</span><span class="crux-dom both">epistemology · crossways</span></div>
+      <h3 class="crux-q ser">Is "God exists" a hypothesis evidence can weigh — or a commitment that comes first?</h3>
+      <p class="crux-sub">Before asking who's winning the arguments, ask whether arguments are the right currency.</p>
+    </div>
+    <div class="steels">
+      <div class="steel s-made">
+        <div class="side">▸ treat it like any other claim</div>
+        <div class="pos-name">Evidentialism &amp; natural theology</div>
+        <div class="gist">"A God exists" is true or false about reality, so it lives or dies on argument and evidence — and notice this side seats theists and atheists together.</div>
+        <p>If "God exists" says something about what's out there, it can't be walled off from scrutiny. That's the common ground between the natural theologian assembling a case and the atheist taking one apart — Swinburne and Oppy quarrel over the verdict, not over the court. The alternative reads like special pleading: every other existence claim answers to reasons, and exempting this one shelters it by refusing to test it. Believe it if the evidence leans that way. The job is to weigh honestly, not to rule in advance that weighing misses the point.</p>
+      </div>
+      <div class="steel s-found">
+        <div class="side">▸ belief can come before the argument</div>
+        <div class="pos-name">Reformed epistemology &amp; fideism</div>
+        <div class="gist">Belief in God can be rational with no argument at all — or it belongs to a way of living rather than a ledger of evidence.</div>
+        <p>We trust other minds, the past, the world outside our heads without proof, and we're not irrational for it; some beliefs are properly basic, the honest output of faculties doing their job. Belief in God may be one of them — in which case demanding an argument misframes it from the start. The fideist pushes harder: faith is a stance toward existence, taken in the dark, and a God nailed down by airtight proof would be an idol, not the God anyone prayed to. On this side, "where's your evidence?" isn't a tough question. It's the wrong question, put to the wrong kind of thing.</p>
+      </div>
+    </div>
+    <div class="crux-key">
+      <span class="lab">the crux</span>
+      <span class="txt">Is God a <b>hypothesis to be tested</b> or a <b>commitment prior to evidence</b>? <span class="same-tag">↳ this one runs crossways to the other three — it asks whether Cruxes 01–03 are even the right game.</span></span>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ IV. PAYOFF ============================ -->
+<section class="wrap fault-sec">
+  <div class="sec-head">
+    <div class="eyebrow"><span class="sec-num">IV</span> &nbsp;the payoff</div>
+  </div>
+
+  <div class="fault-card reveal">
+    <h3 class="fault-lead ser">Four cruxes, <em>two questions</em> underneath</h3>
+    <p class="fault-intro">Cruxes 01–03 are three angles on a single question: is there intention beneath the universe — behind its existence, behind its order, behind or despite its suffering? Crux 04 is a different question, running crossways: is this even the sort of claim evidence could settle? Plot both and the field stops looking like one argument. It looks like people standing on different squares, often answering a question their opponent never asked.</p>
+
+    <svg class="diagram" viewBox="0 0 980 600" role="img" aria-labelledby="dg-t dg-d">
+      <title id="dg-t">Two crossed questions under the God debate</title>
+      <desc id="dg-d">A grid with two axes. The horizontal axis runs from "a mind underneath" on the left to "brute and impersonal" on the right. The vertical axis runs from "evidence can settle it" at the top to "belief comes first" at the bottom. Positions are plotted as points: evidential theism (Swinburne) upper left; naturalism (Oppy, Dawkins) upper right; agnosticism (Huxley) top center; classical theism (Aquinas) center left; reformed epistemology (Plantinga) lower left; fideism (Kierkegaard) far lower left; positivism (Ayer) lower right; and pantheism (Spinoza) at the very crossing of the axes, marked as rejecting the horizontal split.</desc>
+      <defs>
+        <linearGradient id="axisgrad" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0" stop-color="#6dbaa4"/>
+          <stop offset="0.5" stop-color="#6e6b78"/>
+          <stop offset="1" stop-color="#d8a652"/>
+        </linearGradient>
+      </defs>
+
+      <!-- vertical axis: epistemic -->
+      <line x1="490" y1="80" x2="490" y2="500" stroke="#34384a" stroke-width="2"/>
+      <!-- horizontal axis: metaphysical -->
+      <line x1="110" y1="290" x2="870" y2="290" stroke="url(#axisgrad)" stroke-width="6" stroke-linecap="round"/>
+      <circle cx="110" cy="290" r="7" fill="#6dbaa4"/>
+      <circle cx="870" cy="290" r="7" fill="#d8a652"/>
+
+      <!-- axis labels -->
+      <text x="110" y="322" fill="#6dbaa4" font-family="'IBM Plex Mono',monospace" font-size="15">a mind underneath</text>
+      <text x="870" y="322" fill="#d8a652" font-family="'IBM Plex Mono',monospace" font-size="15" text-anchor="end">brute &amp; impersonal</text>
+      <text x="490" y="62" fill="#a6a394" font-family="'IBM Plex Mono',monospace" font-size="14" text-anchor="middle">evidence can settle it</text>
+      <text x="490" y="528" fill="#a6a394" font-family="'IBM Plex Mono',monospace" font-size="14" text-anchor="middle">belief comes first</text>
+
+      <!-- plotted positions (rows staggered so no two labels share a line) -->
+      <!-- top center: undecided on the horizontal, leans toward evidence -->
+      <circle cx="490" cy="108" r="6" fill="#a6a394"/>
+      <text x="490" y="93" fill="#a6a394" font-family="'IBM Plex Sans',sans-serif" font-size="14.5" text-anchor="middle">Agnosticism · Huxley</text>
+
+      <!-- upper-left: mind + evidence -->
+      <circle cx="312" cy="150" r="6" fill="#6dbaa4"/>
+      <text x="328" y="155" fill="#ebe5d6" font-family="'IBM Plex Sans',sans-serif" font-size="14.5">Evidential theism · Swinburne</text>
+
+      <!-- upper-right: brute + evidence (own row, below Swinburne) -->
+      <circle cx="694" cy="214" r="6" fill="#d8a652"/>
+      <text x="679" y="219" fill="#ebe5d6" font-family="'IBM Plex Sans',sans-serif" font-size="14.5" text-anchor="end">Naturalism · Oppy, Dawkins</text>
+
+      <!-- center-left, near the axis: argues, but holds belief is more than argument -->
+      <circle cx="432" cy="250" r="6" fill="#6dbaa4"/>
+      <text x="417" y="246" fill="#ebe5d6" font-family="'IBM Plex Sans',sans-serif" font-size="14.5" text-anchor="end">Classical theism · Aquinas</text>
+
+      <!-- the pivot: sits on the crossing, rejects the horizontal -->
+      <circle cx="490" cy="290" r="8" fill="#a195bd" stroke="#171922" stroke-width="2"/>
+      <text x="506" y="285" fill="#a195bd" font-family="'IBM Plex Sans',sans-serif" font-size="14.5" font-style="italic">Pantheism · Spinoza</text>
+      <text x="506" y="304" fill="#a195bd" font-family="'IBM Plex Mono',monospace" font-size="11">denies the left–right axis</text>
+
+      <!-- lower-left: mind + before evidence -->
+      <circle cx="318" cy="356" r="6" fill="#6dbaa4"/>
+      <text x="333" y="361" fill="#ebe5d6" font-family="'IBM Plex Sans',sans-serif" font-size="14.5">Reformed epistemology · Plantinga</text>
+
+      <!-- lower-right: deflationary toward theism, denies it's evidence-apt -->
+      <circle cx="694" cy="424" r="6" fill="#a6a394"/>
+      <text x="679" y="429" fill="#ebe5d6" font-family="'IBM Plex Sans',sans-serif" font-size="14.5" text-anchor="end">Positivism · Ayer</text>
+
+      <!-- far lower-left: mind + furthest from evidence -->
+      <circle cx="250" cy="430" r="6" fill="#6dbaa4"/>
+      <text x="265" y="435" fill="#ebe5d6" font-family="'IBM Plex Sans',sans-serif" font-size="14.5">Fideism · Kierkegaard</text>
+    </svg>
+
+    <div class="fault-restate">
+      <div class="fr-item f1"><div class="fr-n">Crux 01 · existence</div><div class="fr-t ser">Why anything at all</div><p>Necessary being, or brute fact. The horizontal axis, asked of existence itself.</p></div>
+      <div class="fr-item f2"><div class="fr-n">Crux 04 · method</div><div class="fr-t ser">Is it a hypothesis</div><p>The vertical axis. Whether evidence is the right currency — the question that decides if the other three even matter.</p></div>
+      <div class="fr-item f3"><div class="fr-n">Crux 02 · order</div><div class="fr-t ser">Why this arrangement</div><p>The horizontal axis again, aimed at fine-tuning. Design, or selection.</p></div>
+      <div class="fr-item f4"><div class="fr-n">Crux 03 · suffering</div><div class="fr-t ser">Why so much pain</div><p>The horizontal axis stress-tested. Improbable under a good God, or only inscrutable.</p></div>
+    </div>
+
+    <p class="fault-close ser">Find your own hinge. Few people are moved by all four — one carries the weight. Locate it, work out whether you're arguing about <span class="ax">a mind underneath</span> or about <span class="mk">what evidence can reach</span>, and you'll usually find the other person standing on the other axis.</p>
+  </div>
+</section>
+
+<!-- ============================ V. GO DEEPER ============================ -->
+<section class="wrap">
+  <div class="sec-head">
+    <div class="eyebrow"><span class="sec-num">V</span> &nbsp;go deeper</div>
+    <h2 class="ser">Where to take it next</h2>
+    <p>A few ways in, grouped by medium. Books are listed by author and year; every link was checked.</p>
+  </div>
+
+  <div class="shelf reveal">
+    <div class="shelf-col">
+      <h4>Books</h4>
+      <div class="res">
+        <div class="t">The Existence of God</div>
+        <div class="by">Richard Swinburne · 2004 (2nd ed.)</div>
+        <div class="why">The most sustained modern case <em>for</em>, built as a running Bayesian tally rather than a single proof.</div>
+      </div>
+      <div class="res">
+        <div class="t">Arguing about Gods</div>
+        <div class="by">Graham Oppy · 2006</div>
+        <div class="why">The most rigorous case <em>against</em> — takes every major theistic argument on its own best terms, then dismantles it.</div>
+      </div>
+      <div class="res">
+        <div class="t">Dialogues Concerning Natural Religion</div>
+        <div class="by">David Hume · 1779</div>
+        <div class="why">Still the sharpest takedown of the design argument, and a model of arguing fairly: Hume gives the believer the best lines.</div>
+      </div>
+    </div>
+
+    <div class="shelf-col">
+      <h4>Talks &amp; video</h4>
+      <div class="res">
+        <div class="t"><a href="https://www.preposterousuniverse.com/blog/2014/02/27/godcosmology-debate-videos/">God and Cosmology — Craig vs. Carroll</a></div>
+        <div class="by">Greer-Heard Forum · 2014</div>
+        <div class="why">A theist philosopher and a working cosmologist fight Cruxes 01 and 02 on the actual physics — contingency and fine-tuning, no hand-waving.</div>
+      </div>
+    </div>
+
+    <div class="shelf-col">
+      <h4>Podcasts</h4>
+      <div class="res">
+        <div class="t"><a href="https://philosophybites.com/podcast/tim-crane-on-non-existence/">Philosophy Bites — Tim Crane on Non-Existence</a></div>
+        <div class="by">Crane &amp; Warburton</div>
+        <div class="why">Short and sharp on what the atheist and theist are even disagreeing <em>about</em>, and why Ayer's "meaningless" dodge fails — the heart of Crux 04.</div>
+      </div>
+      <div class="res">
+        <div class="t"><a href="https://philosophybites.com/podcast/anthony-kenny-on-aquinas-ethics/">Philosophy Bites — Anthony Kenny on Aquinas</a></div>
+        <div class="by">Kenny &amp; Warburton</div>
+        <div class="why">Kenny lost his faith but reveres Aquinas; a fair-minded read of the Five Ways from someone who doesn't buy the conclusion.</div>
+      </div>
+    </div>
+
+    <div class="shelf-col">
+      <h4>Essays &amp; entries</h4>
+      <div class="res">
+        <div class="t"><a href="https://plato.stanford.edu/entries/cosmological-argument/">SEP — Cosmological Argument</a></div>
+        <div class="by">Stanford Encyclopedia of Philosophy</div>
+        <div class="why">The reliable map of Crux 01, including the standard replies to each version.</div>
+      </div>
+      <div class="res">
+        <div class="t"><a href="https://plato.stanford.edu/entries/atheism-agnosticism/">SEP — Atheism and Agnosticism</a></div>
+        <div class="by">Paul Draper</div>
+        <div class="why">Careful on the definitions everyone fights over, and on why the total evidence may not firmly favor either side.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ FOOTER ============================ -->
+<footer class="wrap">
+  <p class="foot-note"><b>On these summaries.</b> Each steelman is compressed; the real arguments run to books, and a card or a panel is a doorway, not the room. Dates mark a well-known work, not the first time anyone had the thought. The two-pole axis is a lens for seeing structure — useful precisely because it's a simplification, and untrue to any view that won't sit on a line, which is what the lilac hinge is there to flag.</p>
+  <div class="foot-links">
+    <a href="/debates">← All debate maps</a>
+    <a href="/">brooker.family</a>
+  </div>
+</footer>
+
+<script>
+(function(){
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var items = document.querySelectorAll('.reveal');
+  if(reduce || !('IntersectionObserver' in window)){
+    items.forEach(function(el){ el.classList.add('in'); });
+    return;
+  }
+  var io = new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); }
+    });
+  }, {threshold:0.12, rootMargin:'0px 0px -8% 0px'});
+  items.forEach(function(el){ io.observe(el); });
+})();
+</script>
+</body>
+</html>

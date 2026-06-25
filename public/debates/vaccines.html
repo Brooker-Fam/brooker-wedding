@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- Field map: the vaccine debate -->
+<title>My body, or our herd? — a map of the vaccine debate</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,500&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#171922; --ink-2:#1e212c; --card:#23273380; --card-solid:#232734;
+    --line:#34384a; --line-soft:#2a2e3b;
+    --bone:#ebe5d6; --mute:#a6a394; --faint:#807e8a;
+    /* found = pole A (verdigris) · made = pole B (ochre) · pivot = the reconciling hinge (lilac).
+       Rename the *concepts* in your prose, but keep these three colors as the axis. */
+    --found:#6dbaa4; --found-deep:#2f6657; --found-glow:#6dbaa422;
+    --made:#d8a652; --made-deep:#7d5f29; --made-glow:#d8a65222;
+    --pivot:#a195bd; --pivot-glow:#a195bd1f;
+    /* third camp (slate-blue) — only for genuinely ternary debates; see SKILL.md */
+    --camp-c:#6f93c4; --camp-c-deep:#33506f; --camp-c-glow:#6f93c41f;
+    --maxw:1180px;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0; background:var(--ink); color:var(--bone);
+    font-family:"IBM Plex Sans",sans-serif; font-weight:400;
+    line-height:1.62; font-size:17px;
+    -webkit-font-smoothing:antialiased;
+    background-image:
+      radial-gradient(900px 600px at 82% -8%, #20243340, transparent 70%),
+      radial-gradient(700px 500px at 5% 18%, #1d212e55, transparent 70%);
+    background-attachment:fixed;
+  }
+  .wrap{max-width:var(--maxw); margin:0 auto; padding:0 26px;}
+  .mono{font-family:"IBM Plex Mono",monospace;}
+  .ser{font-family:"Fraunces",serif;}
+
+  /* ---------- eyebrows / dividers ---------- */
+  .eyebrow{
+    font-family:"IBM Plex Mono",monospace; font-size:12px; font-weight:500;
+    letter-spacing:.22em; text-transform:uppercase; color:var(--faint);
+    display:flex; align-items:center; gap:14px;
+  }
+  .eyebrow::before{content:""; width:30px; height:1px; background:var(--line); display:inline-block;}
+  .sec-num{color:var(--mute);}
+
+  /* ---------- brooker site tie (added for brooker.family/debates) ---------- */
+  .site-tie{
+    font-family:"IBM Plex Mono",monospace; font-size:12px; letter-spacing:.2em;
+    text-transform:uppercase; color:var(--faint); text-decoration:none;
+    display:inline-flex; align-items:center; gap:9px; margin:0 0 30px;
+    transition:color .2s;
+  }
+  .site-tie::before{content:""; width:22px; height:1px; background:var(--line); display:inline-block;}
+  .site-tie:hover{color:var(--bone);}
+  .foot-links{margin-top:22px; display:flex; gap:24px; flex-wrap:wrap;}
+  .foot-links a{
+    font-family:"IBM Plex Mono",monospace; font-size:11.5px; letter-spacing:.16em;
+    text-transform:uppercase; color:var(--mute); text-decoration:none;
+    border-bottom:1px solid var(--line); padding-bottom:2px;
+  }
+  .foot-links a:hover{color:var(--bone); border-bottom-color:var(--mute);}
+
+  /* ---------- header ---------- */
+  header{padding:clamp(56px,10vw,116px) 0 clamp(40px,7vw,80px);}
+  .kicker{
+    font-family:"IBM Plex Mono",monospace; font-size:12.5px; letter-spacing:.26em;
+    text-transform:uppercase; color:var(--faint); margin:0 0 26px;
+  }
+  h1.title{
+    font-family:"Fraunces",serif; font-weight:400; font-optical-sizing:auto;
+    font-size:clamp(2.5rem,6.4vw,4.7rem); line-height:1.02; letter-spacing:-.012em;
+    margin:0; max-width:16ch;
+  }
+  h1.title em{font-style:italic; color:var(--found);}
+  h1.title .mk{font-style:italic; color:var(--made);}
+  .dek{
+    font-size:clamp(1.05rem,2.1vw,1.35rem); color:var(--mute); line-height:1.5;
+    max-width:47ch; margin:30px 0 0; font-weight:400;
+  }
+  .dek b{color:var(--bone); font-weight:500;}
+
+  /* ---------- axis legend ---------- */
+  .legend{
+    margin-top:46px; border:1px solid var(--line-soft); border-radius:14px;
+    background:linear-gradient(100deg,#1c202c,#1a1e29);
+    padding:22px 24px; display:grid; gap:14px;
+  }
+  .legend-top{font-family:"IBM Plex Mono",monospace; font-size:11.5px; letter-spacing:.2em; text-transform:uppercase; color:var(--faint);}
+  .axis-bar{
+    height:7px; border-radius:6px;
+    background:linear-gradient(90deg,var(--found) 0%, #6e6b78 50%, var(--made) 100%);
+  }
+  .axis-ends{display:flex; justify-content:space-between; gap:16px; font-size:14.5px;}
+  .axis-ends .ax-found{color:var(--found);}
+  .axis-ends .ax-made{color:var(--made); text-align:right;}
+  .axis-ends span b{display:block; font-weight:600; font-size:15px; margin-bottom:1px;}
+  .axis-ends span small{color:var(--faint); font-size:12.5px; letter-spacing:.02em;}
+
+  /* ---------- section frame ---------- */
+  section{padding:clamp(54px,8vw,96px) 0;}
+  .sec-head{margin-bottom:42px;}
+  .sec-head h2{
+    font-family:"Fraunces",serif; font-weight:400; font-size:clamp(1.9rem,4vw,2.9rem);
+    line-height:1.06; letter-spacing:-.01em; margin:18px 0 0; max-width:24ch;
+  }
+  .sec-head p{color:var(--mute); max-width:62ch; margin:16px 0 0; font-size:1.02rem;}
+
+  /* ===== I. LINEAGE (timeline) ===== */
+  .lineage{position:relative;}
+  .spine{
+    position:absolute; left:140px; top:6px; bottom:6px; width:2px;
+    background:linear-gradient(var(--found-deep),var(--line),var(--made-deep));
+  }
+  .node{position:relative; padding:0 0 26px 172px; min-height:30px;}
+  .node .yr{
+    position:absolute; left:0; top:1px; width:118px; text-align:right;
+    font-family:"IBM Plex Mono",monospace; font-size:12.5px; color:var(--faint);
+    letter-spacing:.02em; padding-top:2px;
+  }
+  .node .dot{
+    position:absolute; left:134px; top:6px; width:14px; height:14px; border-radius:50%;
+    background:var(--ink); border:2px solid var(--mute); z-index:2;
+  }
+  .node.found .dot{border-color:var(--found); box-shadow:0 0 0 4px var(--found-glow);}
+  .node.made .dot{border-color:var(--made); box-shadow:0 0 0 4px var(--made-glow);}
+  .node.pivot .dot{border-color:var(--pivot); box-shadow:0 0 0 4px var(--pivot-glow);}
+  .node .who{font-family:"Fraunces",serif; font-size:1.24rem; font-weight:500; line-height:1.15; letter-spacing:-.005em;}
+  .node .dom{font-family:"IBM Plex Mono",monospace; font-size:10.5px; letter-spacing:.16em; text-transform:uppercase; margin-left:10px; color:var(--faint); vertical-align:middle;}
+  .node .say{color:var(--mute); font-size:.99rem; margin-top:4px; max-width:64ch;}
+  .node.camp-c .dot{border-color:var(--camp-c); box-shadow:0 0 0 4px var(--camp-c-glow);}
+  .node.found .who{color:var(--found);}
+  .node.made .who{color:var(--made);}
+  .node.pivot .who{color:var(--pivot);}
+  .node.camp-c .who{color:var(--camp-c);}
+  .lineage-tail{padding-left:172px; margin-top:2px;}
+  .lineage-tail .pin{
+    position:relative; padding:16px 20px; border:1px dashed var(--line);
+    border-radius:12px; background:#1b1f2a; max-width:60ch;
+  }
+  .lineage-tail .pin b{font-family:"Fraunces",serif; font-weight:500; font-size:1.05rem;}
+  .lineage-tail .pin p{margin:5px 0 0; color:var(--mute); font-size:.96rem;}
+
+  /* ===== II. POSITIONS (field guide) ===== */
+  .fields{display:grid; grid-template-columns:1fr 1fr; gap:30px;}
+  .field h3{
+    font-family:"IBM Plex Mono",monospace; font-size:12.5px; letter-spacing:.2em;
+    text-transform:uppercase; color:var(--bone); margin:0 0 18px; padding-bottom:12px;
+    border-bottom:1px solid var(--line); display:flex; justify-content:space-between; align-items:baseline;
+  }
+  .field h3 small{color:var(--faint); letter-spacing:.12em; font-weight:400;}
+  .pos{
+    border:1px solid var(--line-soft); border-left:3px solid var(--line);
+    border-radius:0 11px 11px 0; background:var(--card);
+    padding:16px 18px; margin-bottom:13px; transition:border-color .25s, background .25s, transform .25s;
+  }
+  .pos.found{border-left-color:var(--found);}
+  .pos.made{border-left-color:var(--made);}
+  .pos.pivot{border-left-color:var(--pivot);}
+  .pos.camp-c{border-left-color:var(--camp-c);}
+  .pos:hover{transform:translateX(3px); background:var(--card-solid);}
+  .pos .nm{font-family:"Fraunces",serif; font-weight:600; font-size:1.16rem; letter-spacing:-.005em; display:flex; align-items:baseline; gap:10px; flex-wrap:wrap;}
+  .pos.found .nm{color:var(--found);} .pos.made .nm{color:var(--made);} .pos.pivot .nm{color:var(--pivot);} .pos.camp-c .nm{color:var(--camp-c);}
+  /* go-deeper links on a card or in the shelf */
+  .src-links{margin-top:9px; display:flex; flex-wrap:wrap; gap:6px 14px;}
+  .src-links a{font-family:"IBM Plex Mono",monospace; font-size:11.5px; color:var(--mute); text-decoration:none; border-bottom:1px solid var(--line);}
+  .src-links a:hover{color:var(--bone); border-bottom-color:var(--mute);}
+  .src-links a::after{content:" ↗"; color:var(--faint);}
+  .traction{
+    font-family:"IBM Plex Mono",monospace; font-size:10px; letter-spacing:.08em; text-transform:uppercase;
+    color:var(--faint); border:1px solid var(--line); border-radius:20px; padding:2px 9px; white-space:nowrap;
+  }
+  .pos .figs{font-family:"IBM Plex Mono",monospace; font-size:12px; color:var(--mute); margin:7px 0 7px; letter-spacing:.01em;}
+  .pos .claim{color:var(--bone); font-size:.97rem; line-height:1.5;}
+  .pos .nb{display:block; margin-top:7px; color:var(--faint); font-size:.85rem; font-style:italic;}
+  .pivot-card{
+    grid-column:1/-1; border:1px solid var(--pivot); border-radius:13px;
+    background:linear-gradient(100deg,#211f2c,#1c1b25); padding:20px 22px; margin-top:4px;
+    display:flex; gap:18px; align-items:flex-start; flex-wrap:wrap;
+  }
+  .pivot-card .pv-tag{font-family:"IBM Plex Mono",monospace; font-size:11px; letter-spacing:.2em; text-transform:uppercase; color:var(--pivot); white-space:nowrap; padding-top:5px;}
+  .pivot-card .pv-body{flex:1 1 320px;}
+  .pivot-card .pv-body b{font-family:"Fraunces",serif; font-weight:600; font-size:1.2rem; color:var(--pivot);}
+  .pivot-card .pv-body p{margin:6px 0 0; color:var(--bone); font-size:.98rem;}
+  .traction-note{margin-top:20px; color:var(--faint); font-size:.84rem; font-style:italic; max-width:70ch; display:flex; gap:9px;}
+  .traction-note::before{content:"※"; color:var(--mute); font-style:normal;}
+
+  /* ===== III. CRUXES (confrontations) ===== */
+  .crux{border:1px solid var(--line-soft); border-radius:18px; overflow:hidden; margin-bottom:30px; background:#191d28;}
+  .crux-head{padding:24px 28px 20px; border-bottom:1px solid var(--line-soft);}
+  .crux-meta{display:flex; justify-content:space-between; gap:14px; align-items:baseline; flex-wrap:wrap; margin-bottom:12px;}
+  .crux-n{font-family:"IBM Plex Mono",monospace; font-size:13px; letter-spacing:.18em; color:var(--mute);}
+  .crux-dom{font-family:"IBM Plex Mono",monospace; font-size:10.5px; letter-spacing:.16em; text-transform:uppercase; color:var(--ink); background:var(--mute); padding:3px 10px; border-radius:20px;}
+  .crux-dom.both{background:var(--pivot);}
+  .crux-q{font-family:"Fraunces",serif; font-weight:500; font-size:clamp(1.4rem,3vw,2rem); line-height:1.12; letter-spacing:-.01em; margin:0;}
+  .crux-sub{color:var(--mute); margin:9px 0 0; font-size:.98rem;}
+  .steels{display:grid; grid-template-columns:1fr 1fr; gap:0;}
+  .steel{padding:24px 28px; position:relative;}
+  .steel.s-found{background:linear-gradient(180deg,#1a2420,#191f1d);}
+  .steel.s-made{background:linear-gradient(180deg,#241f17,#1f1c16); border-left:1px solid var(--line-soft);}
+  .steel .side{font-family:"IBM Plex Mono",monospace; font-size:11px; letter-spacing:.14em; text-transform:uppercase; margin-bottom:5px;}
+  .steel.s-found .side{color:var(--found);}
+  .steel.s-made .side{color:var(--made);}
+  .steel .pos-name{font-family:"Fraunces",serif; font-weight:600; font-size:1.12rem; margin-bottom:9px; line-height:1.2;}
+  .steel.s-found .pos-name{color:var(--found);}
+  .steel.s-made .pos-name{color:var(--made);}
+  .steel .gist{font-weight:600; font-size:1.04rem; line-height:1.45; color:var(--bone); margin:0 0 13px; padding-bottom:13px; border-bottom:1px dashed var(--line);}
+  .steel .gist::before{content:"In plain terms"; display:block; font-family:"IBM Plex Mono",monospace; font-size:10px; font-weight:500; letter-spacing:.18em; text-transform:uppercase; color:var(--faint); margin-bottom:5px;}
+  .steel p{margin:0; font-size:.97rem; line-height:1.56; color:#e2dccd;}
+  .steel p em{font-style:italic; color:var(--bone);}
+  .crux-key{padding:18px 28px; background:#13161f; border-top:1px solid var(--line-soft); display:flex; gap:14px; align-items:flex-start;}
+  .crux-key .lab{font-family:"IBM Plex Mono",monospace; font-size:11px; letter-spacing:.16em; text-transform:uppercase; color:var(--faint); padding-top:3px; white-space:nowrap;}
+  .crux-key .txt{font-size:.99rem; color:var(--bone); line-height:1.5;}
+  .crux-key .txt b{font-weight:600;}
+  .same-tag{display:inline-block; margin-top:9px; font-family:"IBM Plex Mono",monospace; font-size:11px; letter-spacing:.08em; color:var(--pivot); border:1px solid var(--pivot); border-radius:20px; padding:3px 11px;}
+
+  /* ===== IV. PAYOFF ===== */
+  .fault-sec{background:linear-gradient(180deg,transparent, #13161f 30%, #13161f 70%, transparent);}
+  .fault-card{border:1px solid var(--line); border-radius:20px; background:#171b25; padding:clamp(24px,4vw,44px); box-shadow:0 30px 80px -50px #000;}
+  .fault-lead{font-family:"Fraunces",serif; font-weight:400; font-size:clamp(1.5rem,3.3vw,2.3rem); line-height:1.18; letter-spacing:-.01em; margin:0 0 8px; max-width:26ch;}
+  .fault-lead em{font-style:italic; color:var(--pivot);}
+  .fault-intro{color:var(--mute); max-width:64ch; margin:0 0 30px; font-size:1.02rem;}
+  .diagram{width:100%; height:auto; display:block; margin:6px 0 4px; overflow:visible;}
+  .fault-restate{display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:18px; margin-top:34px;}
+  .fr-item{border-top:2px solid var(--line); padding-top:13px;}
+  .fr-item.f1{border-top-color:var(--made);}
+  .fr-item.f2{border-top-color:var(--pivot);}
+  .fr-item.f3{border-top-color:var(--found);}
+  .fr-item.f4{border-top-color:var(--made);}
+  .fr-item .fr-n{font-family:"IBM Plex Mono",monospace; font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--faint);}
+  .fr-item .fr-t{font-family:"Fraunces",serif; font-weight:500; font-size:1.05rem; margin:4px 0 5px;}
+  .fr-item p{margin:0; font-size:.92rem; color:var(--mute); line-height:1.5;}
+  .fault-close{margin-top:36px; padding-top:26px; border-top:1px solid var(--line); font-family:"Fraunces",serif; font-style:italic; font-weight:400; font-size:clamp(1.15rem,2.4vw,1.5rem); line-height:1.35; color:var(--bone); max-width:44ch;}
+  .fault-close .ax{color:var(--found);}
+  .fault-close .mk{color:var(--made);}
+
+  /* ===== V. GO DEEPER (resources shelf) ===== */
+  .shelf{display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:24px;}
+  .shelf-col h4{font-family:"IBM Plex Mono",monospace; font-size:12px; letter-spacing:.18em; text-transform:uppercase; color:var(--mute); margin:0 0 14px; padding-bottom:10px; border-bottom:1px solid var(--line);}
+  .res{margin-bottom:15px;}
+  .res .t{font-family:"Fraunces",serif; font-weight:500; font-size:1.04rem; line-height:1.25;}
+  .res .t a{color:var(--bone); text-decoration:none; border-bottom:1px solid var(--line);}
+  .res .t a:hover{border-bottom-color:var(--mute);}
+  .res .by{font-family:"IBM Plex Mono",monospace; font-size:11.5px; color:var(--faint); margin-top:1px;}
+  .res .why{color:var(--mute); font-size:.9rem; margin-top:4px; line-height:1.45;}
+
+  /* ---------- footer ---------- */
+  footer{padding:54px 0 80px; border-top:1px solid var(--line-soft); margin-top:30px;}
+  .foot-note{color:var(--faint); font-size:.86rem; max-width:66ch; line-height:1.55;}
+  .foot-note b{color:var(--mute); font-weight:500;}
+
+  /* ---------- reveal ---------- */
+  .reveal{opacity:0; transform:translateY(16px); transition:opacity .7s ease, transform .7s ease;}
+  .reveal.in{opacity:1; transform:none;}
+
+  :focus-visible{outline:2px solid var(--found); outline-offset:3px; border-radius:3px;}
+
+  /* ---------- responsive ---------- */
+  @media (max-width:760px){
+    body{font-size:16px;}
+    .fields{grid-template-columns:1fr;}
+    .steels{grid-template-columns:1fr;}
+    .steel.s-made{border-left:none; border-top:1px solid var(--line-soft);}
+    .spine{left:84px;}
+    .node{padding-left:112px;}
+    .node .yr{width:64px;}
+    .node .dot{left:78px;}
+    .lineage-tail{padding-left:112px;}
+    .axis-ends{flex-direction:column; gap:10px;}
+    .axis-ends .ax-made{text-align:left;}
+  }
+  @media (prefers-reduced-motion:reduce){
+    *{scroll-behavior:auto;}
+    .reveal{opacity:1; transform:none; transition:none;}
+    .draw{stroke-dashoffset:0 !important;}
+  }
+</style>
+</head>
+<body>
+
+<!-- ============================ HEADER ============================ -->
+<header class="wrap">
+  <a class="site-tie" href="/debates">All debate maps · brooker</a>
+  <p class="kicker">FIELD · public health, law &amp; the ethics of consent</p>
+  <h1 class="title">Is it <em>my body, my call</em> — or <span class="mk">our herd, our rules</span>?</h1>
+  <p class="dek">A fight with real bodies on both sides. Measles and polio are not hypothetical; neither is a child injured by a shot, nor a nurse fired for refusing one. A dozen positions on vaccines fold into four <b>disagreements</b>, and those into two <b>questions</b>: when may the group override the person, and what counts as proof good enough to act on. The litigator Aaron Siri — who has spent a decade prying loose documents and petitioning to halt specific vaccines — is one way in. There is no risk-free square on this board. Below, the <b>lineage</b>, the <b>positions and who holds them</b>, and four <b>cruxes</b>, each with the strongest case both sides make.</p>
+
+  <div class="legend reveal">
+    <div class="legend-top">One axis runs under all of it. Watch the two colors.</div>
+    <div class="axis-bar"></div>
+    <div class="axis-ends">
+      <span class="ax-found"><b>The individual</b><small>consent · my body · show me the proof</small></span>
+      <span class="ax-made"><b>The collective</b><small>herd immunity · defer to the consensus</small></span>
+    </div>
+  </div>
+</header>
+
+<!-- ============================ I. LINEAGE ============================ -->
+<section class="wrap">
+  <div class="sec-head">
+    <div class="eyebrow"><span class="sec-num">I</span> &nbsp;the lineage</div>
+    <h2 class="ser">Two centuries of the same argument, in one column</h2>
+    <p>Read top to bottom. A dot's halo marks where the moment pulls — green toward the individual and the demand for proof, gold toward the collective and the duty to it, lilac for the bargain that tried to split the difference.</p>
+  </div>
+
+  <div class="lineage reveal">
+    <div class="spine" aria-hidden="true"></div>
+
+    <div class="node made">
+      <span class="yr">1796</span><span class="dot"></span>
+      <div class="who">Edward Jenner<span class="dom">medicine · smallpox</span></div>
+      <div class="say">A Gloucestershire doctor notices that milkmaids who caught cowpox didn't get smallpox, then scratches the pus into an eight-year-old boy and exposes him to the killer. It works. Vaccination begins — and so does the case that one person's arm can protect a town.</div>
+    </div>
+
+    <div class="node found">
+      <span class="yr">1853 / 1867</span><span class="dot"></span>
+      <div class="who">The Vaccination Acts &amp; Leicester<span class="dom">law · resistance</span></div>
+      <div class="say">Britain makes infant smallpox vaccination compulsory, with fines and jail for refusers. Leicester answers with marches, an Anti-Vaccination League, and parents who go to prison rather than comply. The first organized argument that the state cannot conscript your child's body — bodily liberty as a line in the sand.</div>
+    </div>
+
+    <div class="node made">
+      <span class="yr">1905</span><span class="dot"></span>
+      <div class="who">Jacobson v. Massachusetts<span class="dom">law · U.S. Supreme Court</span></div>
+      <div class="say">Henning Jacobson refuses Cambridge's smallpox shot and is fined five dollars. The Court sides with the city: liberty isn't absolute, and a community facing an epidemic may require vaccination under its police power. The legal cornerstone every American mandate still rests on.</div>
+    </div>
+
+    <div class="node found">
+      <span class="yr">1955</span><span class="dot"></span>
+      <div class="who">The Cutter Incident<span class="dom">safety · polio</span></div>
+      <div class="say">Cutter Laboratories ships Salk polio vaccine in which the virus was not fully killed. Roughly 200,000 children get live poliovirus; about 40,000 fall ill, 200 are paralyzed, 10 die. Not a rumor, not a fringe claim — a documented disaster, and the honest root of a distrust that never fully went away.</div>
+    </div>
+
+    <div class="node found">
+      <span class="yr">1982</span><span class="dot"></span>
+      <div class="who">"DPT: Vaccine Roulette"<span class="dom">media · movement</span></div>
+      <div class="say">A Washington TV station airs an hour on children said to be harmed by the whole-cell pertussis shot. Barbara Loe Fisher, a parent in the audience's shoes, co-founds the group that becomes the National Vaccine Information Center. The modern parents' movement has its spark and its institution.</div>
+    </div>
+
+    <div class="node pivot">
+      <span class="yr">1986</span><span class="dot"></span>
+      <div class="who">National Childhood Vaccine Injury Act<span class="dom">law · the grand bargain</span></div>
+      <div class="say">Lawsuits over DPT injuries had driven makers toward quitting the U.S. market. Congress strikes a deal: a no-fault Vaccine Court pays the injured from a tax on each dose, and manufacturers get broad shelter from ordinary product suits. The hinge the whole modern fight turns on — supply secured, the courtroom door narrowed.</div>
+    </div>
+
+    <div class="node found">
+      <span class="yr">1998</span><span class="dot"></span>
+      <div class="who">Andrew Wakefield<span class="dom">media · the spark that misfired</span></div>
+      <div class="say">A <em>Lancet</em> paper links the MMR shot to autism in twelve children. It is later retracted as fraudulent, the data manipulated, and Wakefield struck off the U.K. medical register. The claim was discredited — and it still lit the fuse on a generation of distrust that outran the correction.</div>
+    </div>
+
+    <div class="node made">
+      <span class="yr">2004–2015</span><span class="dot"></span>
+      <div class="who">The autism studies<span class="dom">epidemiology · replication</span></div>
+      <div class="say">A Danish cohort of half a million children, then study after study across countries and decades, find no MMR–autism link. U.S. reviews by the Institute of Medicine and federal agencies back the existing safety record. The mainstream's answer to 1998, delivered in population data rather than anecdote.</div>
+    </div>
+
+    <div class="node found">
+      <span class="yr">2019 / 2021</span><span class="dot"></span>
+      <div class="who">Hesitancy named, then mandates<span class="dom">public health · autonomy</span></div>
+      <div class="say">The WHO lists "vaccine hesitancy" among its top ten threats to global health. Two years on, COVID-19 vaccine requirements — for jobs, campuses, restaurants — meet the largest pushback in living memory, fought less over efficacy than over coercion and consent.</div>
+    </div>
+
+    <div class="node found">
+      <span class="yr">2020s</span><span class="dot"></span>
+      <div class="who">Siri, ICAN &amp; the takeover<span class="dom">law · the present fight</span></div>
+      <div class="say">Aaron Siri and the Informed Consent Action Network win document disclosures through the courts and file petitions to pause or pull specific products. In 2025, Robert F. Kennedy Jr. — long the movement's loudest voice — takes charge of Health and Human Services. The challenge is now inside the building it used to picket.</div>
+    </div>
+
+    <div class="lineage-tail">
+      <div class="pin">
+        <b>Into the present</b>
+        <p>The argument has moved from the street to the agency. What counts as proof, and who gets to decide for a child, are open in a way they haven't been for decades — now contested by the people running the system, not only those outside it.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ II. POSITIONS ============================ -->
+<section class="wrap">
+  <div class="sec-head">
+    <div class="eyebrow"><span class="sec-num">II</span> &nbsp;the positions</div>
+    <h2 class="ser">Who holds what — and where it sits on the axis</h2>
+    <p>Two families of position: one about who gets to decide, the other about what we're allowed to count as proof. A card's left edge is its lean; the tag is rough sociology, not a scorecard.</p>
+  </div>
+
+  <div class="fields reveal">
+    <div class="field">
+      <h3>The ethics &amp; the politics <small>who decides</small></h3>
+
+      <div class="pos found">
+        <div class="nm">Medical freedom &amp; informed consent <span class="traction">vocal, litigious minority</span></div>
+        <div class="figs">Aaron Siri · ICAN · NVIC</div>
+        <div class="claim">Your body is yours to govern. A medical act you're pressured into isn't consented to, and consent is the value everything else answers to — including, when they collide, public-health goals.</div>
+        <span class="nb">The fight here is about the right to refuse, not a claim that vaccines fail; some on this side vaccinate and still hold the line on choice.</span>
+        <div class="src-links"><a href="https://icandecide.org/">Informed Consent Action Network</a></div>
+      </div>
+
+      <div class="pos found">
+        <div class="nm">Religious &amp; philosophical exemption <span class="traction">long-standing, varies by state</span></div>
+        <div class="figs">parents · some faith communities</div>
+        <div class="claim">Even granting that vaccines work, conscience sets a limit the state shouldn't cross; a sincere objection earns an exemption rather than a penalty.</div>
+        <span class="nb">Sidesteps the science question entirely — it's about whose belief governs the child, not whose data is right.</span>
+      </div>
+
+      <div class="pos made">
+        <div class="nm">Public-health communitarianism <span class="traction">institutional mainstream</span></div>
+        <div class="figs">CDC · AAP · most practicing physicians</div>
+        <div class="claim">Vaccination is partly a civic act. Your choice doesn't stay in your body — it reaches the newborn too young to be vaccinated and the kid on chemo who can't be — so the community has a stake worth weighing against private preference.</div>
+        <span class="nb">Casts the decision as one you make partly on behalf of others, which is exactly what the freedom view disputes.</span>
+      </div>
+
+      <div class="pos made">
+        <div class="nm">Calibrated mandates · the Jacobson tradition <span class="traction">the working legal status quo</span></div>
+        <div class="figs">most courts · school-entry law</div>
+        <div class="claim">Require a shot only where the disease is both dangerous and contagious enough to justify it — measles for the classroom — and keep exemptions on the books. A scalpel, not a hammer.</div>
+        <span class="nb">Tries to honor both poles at once, which is why critics on each side find it either too soft or too coercive.</span>
+        <div class="src-links"><a href="https://www.oyez.org/cases/1900-1940/197us11">Jacobson v. Massachusetts</a></div>
+      </div>
+    </div>
+
+    <div class="field">
+      <h3>The evidence &amp; the system <small>what counts as proof</small></h3>
+
+      <div class="pos found">
+        <div class="nm">"Show me the saline trials" <span class="traction">outside the biomedical consensus</span></div>
+        <div class="figs">Aaron Siri · RFK Jr.</div>
+        <div class="claim">Test a new vaccine against an inert placebo, the way the rest of medicine does, and run a long-term study comparing the fully vaccinated to the never-vaccinated. Until that exists, the safety case has a hole in it.</div>
+        <span class="nb">Frames the demand as ordinary scientific rigor; the disagreement is over whether that rigor is achievable or already met by other means.</span>
+        <div class="src-links"><a href="https://www.hsgac.senate.gov/wp-content/uploads/Siri-Testimony.pdf">Siri — Senate testimony</a></div>
+      </div>
+
+      <div class="pos made">
+        <div class="nm">Evidence-based consensus <span class="traction">overwhelming in the literature</span></div>
+        <div class="figs">the biomedical mainstream</div>
+        <div class="claim">The trials we have, plus surveillance across hundreds of millions of doses, already settle safety and efficacy to the standard medicine uses for everything else. "No inert placebo" doesn't mean "no evidence."</div>
+        <span class="nb">Rests on the idea that population data and active-comparator trials are real proof, not a consolation prize for the trial skeptics want.</span>
+        <div class="src-links"><a href="https://sciencebasedmedicine.org/">Science-Based Medicine</a></div>
+      </div>
+
+      <div class="pos found">
+        <div class="nm">Regulatory-capture critics <span class="traction">a live worry well beyond the fringe</span></div>
+        <div class="figs">reform-minded skeptics · some economists</div>
+        <div class="claim">The FDA runs partly on fees from the firms it regulates, staff cycle into industry, and the 1986 liability shield blunts the usual market reason to chase down rare harms. Conclusions from a captured system shouldn't get the benefit of the doubt.</div>
+        <span class="nb">An argument about institutions and incentives, not about any one molecule — which is why it's hard to answer with a single study.</span>
+      </div>
+
+      <div class="pos made">
+        <div class="nm">Defenders of the 1986 system <span class="traction">the prevailing legal-policy view</span></div>
+        <div class="figs">vaccine-law scholars · public-health agencies</div>
+        <div class="claim">The no-fault Vaccine Court has paid out billions to injured families, often faster and with a lighter burden of proof than a jury would demand, and it kept vaccines on American shelves when liability nearly drove them off.</div>
+        <span class="nb">Treats the shield as the price of a stable supply plus a working compensation route — a trade, openly made, not a cover-up.</span>
+        <div class="src-links"><a href="https://en.wikipedia.org/wiki/National_Childhood_Vaccine_Injury_Act">The 1986 Act</a></div>
+      </div>
+    </div>
+
+    <div class="pivot-card">
+      <div class="pv-tag">the hinge ↕</div>
+      <div class="pv-body">
+        <b>Trust, but verify — and earn it</b>
+        <p>A growing camp holds two things at once: the core science is sound, and the system around it has fed an avoidable trust deficit that now powers most of the autonomy war. Their fix isn't to ban or to mandate harder — it's to publish the raw data, run inert-placebo trials wherever doing so is ethical, overhaul a Vaccine Court that injured families find slow and adversarial, and pull mandates back to the diseases that warrant them. Evidence-reform voices in academic medicine — Vinay Prasad and Marty Makary among them, before Makary took over the FDA in 2025 — argue from inside the mainstream that openness about uncertainty is what rebuilds confidence, and that defensiveness is what corrodes it. To both poles they say the same thing: a lot of the fight is over how the science has been handled, not what it shows.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="traction-note">Tags are rough sociology — how the field and the courts shake out today — not a verdict. The skeptic positions are a small share of physicians and a large share of the public conversation; "mainstream" counts noses in the profession, and noses aren't proof.</div>
+</section>
+
+<!-- ============================ III. CRUXES ============================ -->
+<section class="wrap">
+  <div class="sec-head">
+    <div class="eyebrow"><span class="sec-num">III</span> &nbsp;the cruxes</div>
+    <h2 class="ser">Four fair fights, each carrying part of the load</h2>
+    <p>The positions are bundles of answers; these are the questions that, settled one way or the other, split them. Both panels give the side's best case, in its own voice.</p>
+  </div>
+
+  <!-- CRUX 1 -->
+  <div class="crux reveal">
+    <div class="crux-head">
+      <div class="crux-meta"><span class="crux-n">Crux 01 — the proof</span><span class="crux-dom">epidemiology · ethics</span></div>
+      <h3 class="crux-q ser">How much proof is enough — and can you ethically give one group a saltwater shot?</h3>
+      <p class="crux-sub">An inert placebo is the cleanest test in medicine. Once a vaccine works, withholding it from the placebo arm means leaving children exposed on purpose. Both can't fully win.</p>
+    </div>
+    <div class="steels">
+      <div class="steel s-found">
+        <div class="side">▸ only an inert placebo is a real test</div>
+        <div class="pos-name">Show me the saline trial</div>
+        <div class="gist">A saltwater placebo is the gold standard everywhere else. Test a vaccine against an old shot or an adjuvant instead, and a harm both arms share can vanish from the result.</div>
+        <p>When a drug is tested against a sugar pill, any difference is the drug's doing. Swap in an active comparator — another vaccine, or the aluminum adjuvant alone — and you've lost that. If both arms carry the same risk, the trial reports "no difference" and calls a shared harm invisible. That's not a quibble; it's how you'd hide a signal if you wanted to. And the one study that would answer the deepest worry — track the fully vaccinated against the never-vaccinated over years, for every outcome — has never been run. Sitting on a question that's this cheap to ask, and this easy to answer if the answer is reassuring, is itself a tell. We're not asking for the impossible. We're asking for the rigor you already apply to a blood-pressure pill.</p>
+      </div>
+      <div class="steel s-made">
+        <div class="side">▸ a saline arm can be a death sentence</div>
+        <div class="pos-name">Equipoise &amp; surveillance</div>
+        <div class="gist">Once you know a vaccine stops measles, giving some children saltwater instead knowingly leaves them open to it. That breaks the ethics of running a trial at all.</div>
+        <p>A randomized trial is only permitted when you genuinely don't know which arm is better — clinical equipoise. The moment the evidence says a vaccine prevents a dangerous disease, a saline arm isn't neutral; it's assignment to avoidable risk, and no ethics board should approve it. So we use active comparators on purpose, and it's an accepted design, not a dodge. Safety doesn't stop at licensure either: VAERS catches early signals, and the Vaccine Safety Datalink tracks tens of millions of real doses against matched records, which is how rare harms actually surface. As for the never-vaccinated study — families who refuse every shot differ from everyone else in income, health care, and a dozen other ways you can't scrub out, and randomizing children into a no-vaccine arm for years is exactly the experiment ethics forbids. The demand sounds like rigor and resolves into something no honest review board could sign.</p>
+      </div>
+    </div>
+    <div class="crux-key">
+      <span class="lab">the crux</span>
+      <span class="txt">Is observational plus active-comparator evidence enough to act on, or is only an <b>inert-placebo RCT</b> real proof? Where you set that bar decides whether the current safety record reads as solid or as full of holes.</span>
+    </div>
+  </div>
+
+  <!-- CRUX 2 -->
+  <div class="crux reveal">
+    <div class="crux-head">
+      <div class="crux-meta"><span class="crux-n">Crux 02 — the mandate</span><span class="crux-dom">ethics · law</span></div>
+      <h3 class="crux-q ser">When, if ever, may the state require a shot?</h3>
+      <p class="crux-sub">Contagion means your choice can reach a stranger's lungs. Autonomy means no one else gets to choose what enters your bloodstream. The mandate lives exactly where those two collide.</p>
+    </div>
+    <div class="steels">
+      <div class="steel s-found">
+        <div class="side">▸ "comply or lose your job" isn't consent</div>
+        <div class="pos-name">Bodily autonomy</div>
+        <div class="gist">Genuine informed consent is the floor of medical ethics. Take the shot or lose your paycheck, your seat in class, your access to public life — that's coercion wearing consent's clothes.</div>
+        <p>The right to refuse a medical procedure is settled ground; we don't make people donate a kidney even to save a life. A vaccine mandate breaches that floor and then dresses the breach as a free choice — agree to be injected, or be shut out of work and school. Pressure that heavy isn't a choice anyone freely makes. Blanket rules compound it: they ignore the person who already had the disease and carries immunity, the one with a real medical risk, the one whose own math comes out differently. Strip away the slogans about the common good and what's left is the state, or your employer standing in for it, claiming a say over what crosses your skin. That's the one thing autonomy was supposed to put off-limits.</p>
+      </div>
+      <div class="steel s-made">
+        <div class="side">▸ your lungs are not only your business</div>
+        <div class="pos-name">Harm to others</div>
+        <div class="gist">A contagious disease makes vaccination partly a decision about other people — the infant, the transplant patient — and we already curb liberty to keep one person's choices from landing on another.</div>
+        <p>Autonomy over your own body is real, and it ends where the virus you're carrying reaches someone who had no say. We don't treat drunk driving as a private lifestyle choice; we don't let a restaurant skip the health code because the owner feels fine about the risk. Contagion is the same structure — your decision rides home in someone else's body, often a person who can't be vaccinated and is relying on the rest of us. Jacobson settled in 1905 that a community may require it, and the mandates that followed came almost always with medical and often religious exemptions; this isn't injection at gunpoint. And it works in a way pleading never did: measles and polio didn't retreat because we asked nicely. School requirements closed the gap that voluntary uptake leaves open every time.</p>
+      </div>
+    </div>
+    <div class="crux-key">
+      <span class="lab">the crux</span>
+      <span class="txt">How dangerous and how transmissible must a disease be before the <b>collective interest</b> outweighs <b>individual choice</b>? Everyone draws the line somewhere; the fight is over where.</span>
+    </div>
+  </div>
+
+  <!-- CRUX 3 -->
+  <div class="crux reveal">
+    <div class="crux-head">
+      <div class="crux-meta"><span class="crux-n">Crux 03 — the shield</span><span class="crux-dom">law · economics</span></div>
+      <h3 class="crux-q ser">Does shielding makers from lawsuits protect the supply, or kill the safety incentive?</h3>
+      <p class="crux-sub">Mandate a product and bar most suits over it, and you've made an arrangement that exists nowhere else in American commerce. Bargain or hazard?</p>
+    </div>
+    <div class="steels">
+      <div class="steel s-found">
+        <div class="side">▸ no other product gets this deal</div>
+        <div class="pos-name">Liability is the feedback loop</div>
+        <div class="gist">For every other product, the threat of a lawsuit is what punishes unsafe design. "You must take this, and you can't sue if it hurts you" is uniquely hard to justify.</div>
+        <p>Tort law is the market's safety check. A carmaker that hides a defect gets sued into fixing it; that exposure is why the recall happens. Vaccines are carved out of this. The 1986 Act routes most injury claims away from regular courts and into a federal program, and the Supreme Court later read it to bar even well-grounded design-defect suits. So the one product government compels you to accept is also the one you mostly can't take to a jury. Worse, a maker insulated from that risk has weaker reason to fund the long-term studies skeptics keep asking for — the lawsuit it's dodging is the very thing that would otherwise force the data into the open. Remove the consequence and you've dulled the strongest incentive a company ever has to find its own product's harms first.</p>
+      </div>
+      <div class="steel s-made">
+        <div class="side">▸ the suits nearly ended the supply</div>
+        <div class="pos-name">No-fault, by design</div>
+        <div class="gist">In the mid-1980s, litigation almost drove vaccine makers out of the U.S. entirely. The 1986 Act is the fix: no-fault compensation, funded by a tax on every dose, that has paid billions to injured families.</div>
+        <p>This shield wasn't a gift to industry — it was a rescue of supply. DPT lawsuits in the 1980s pushed manufacturers to the exits, and a country with one pertussis-vaccine maker left is a country one bad quarter from running out. So Congress built a different road: you don't have to prove negligence, you petition a dedicated court, and a per-dose excise tax funds the awards. It has paid out billions, often faster and on a gentler standard than a jury demands, to families a normal product suit might have turned away. Regular tort law, with its decade-long fights and all-or-nothing verdicts, is a clumsy safety tool anyway; the real check is the regulator and the surveillance system, not the plaintiff's bar. The shield buys a stable supply and a working compensation route, and it does both in plain sight.</p>
+      </div>
+    </div>
+    <div class="crux-key">
+      <span class="lab">the crux</span>
+      <span class="txt">Is liability the <b>indispensable safety incentive</b>, or the <b>necessary price</b> of keeping vaccines on the market? Same statute, read as a hazard or as a bargain.</span>
+    </div>
+  </div>
+
+  <!-- CRUX 4 -->
+  <div class="crux reveal">
+    <div class="crux-head">
+      <div class="crux-meta"><span class="crux-n">Crux 04 — the trust</span><span class="crux-dom both">epistemology · crossways</span></div>
+      <h3 class="crux-q ser">Can the agencies and the companies be trusted — and what follows if they can't?</h3>
+      <p class="crux-sub">Before scoring the other three fights, ask who you'll believe when the data comes in. This is the question hiding under the rest.</p>
+    </div>
+    <div class="steels">
+      <div class="steel s-found">
+        <div class="side">▸ deference has to be earned</div>
+        <div class="pos-name">Trust is not an argument</div>
+        <div class="gist">User-fees, revolving doors, and a track record that includes Vioxx and the opioid approvals mean "trust the experts" can't be the end of a sentence. Earned, maybe. Assumed, no.</div>
+        <p>Tell me to defer, and I'll ask what the deference is worth. The FDA collects a large share of its drug-review budget from the companies it judges; its staff move into industry jobs and back; and the agencies that now vouch for vaccine safety are the same institutions that waved through Vioxx and signed off on the opioids that seeded an overdose epidemic. None of that proves any vaccine is unsafe. It does prove that "the experts say so" is an appeal to authority, not evidence, and that an authority with this history owes us its work, not our faith. Show the raw data. Open the trials. Let outsiders check. A system confident in its results doesn't need to be taken on trust, and the reflex to demand trust instead of transparency is itself a reason to withhold it.</p>
+      </div>
+      <div class="steel s-made">
+        <div class="side">▸ vibes are worse than imperfect data</div>
+        <div class="pos-name">Convergence across rivals</div>
+        <div class="gist">Distrust of institutions is healthy; trading replicated, multi-country evidence for gut feeling is not. And the anti-vaccine economy runs on money too — follow it both ways.</div>
+        <p>Skepticism toward power is right and proper, and the conflicts are real — police them hard. But notice what the evidence actually does: the same conclusion turns up in Denmark and Japan and the U.S., from academics, governments, and groups with clashing incentives who would love to be the one to overturn it. Capture can bend a single study; it can't easily make independent teams on three continents converge on the same wrong answer. Meanwhile the machine selling doubt — the supplements, the books, the documentaries, the litigation practices — is itself a profit center, and "follow the money" cuts toward it just as sharply. The honest move when you distrust an institution is to check its work against the people who'd most like to prove it wrong. When they keep landing in the same place, that convergence is the signal, imperfect messengers and all.</p>
+      </div>
+    </div>
+    <div class="crux-key">
+      <span class="lab">the crux</span>
+      <span class="txt">Does institutional entanglement <b>invalidate the evidence</b>, or is convergent, independently replicated data <b>trustworthy despite imperfect institutions</b>? <span class="same-tag">↳ this one runs crossways to the other three — it's the hidden second axis, deciding whose answers to 01–03 you'll even credit.</span></span>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ IV. PAYOFF ============================ -->
+<section class="wrap fault-sec">
+  <div class="sec-head">
+    <div class="eyebrow"><span class="sec-num">IV</span> &nbsp;the payoff</div>
+  </div>
+
+  <div class="fault-card reveal">
+    <h3 class="fault-lead ser">Four cruxes, <em>two questions</em> underneath</h3>
+    <p class="fault-intro">Cruxes 01 through 03 are three angles on one question: when does the group get to decide for the person — about proof, about mandates, about who eats the risk. Crux 04 runs crossways and asks something prior: when the data lands, will you believe the people who gathered it? Plot both and the shouting resolves into a map. Most people who think they disagree about vaccines turn out to be standing at different heights on the trust axis, answering a question the other side never asked.</p>
+
+    <svg class="diagram" viewBox="0 0 980 600" role="img" aria-labelledby="dg-t dg-d">
+      <title id="dg-t">Two crossed questions under the vaccine debate</title>
+      <desc id="dg-d">A grid with two axes. The horizontal axis runs from "my body, my call" on the left to "our herd, our rules" on the right. The vertical axis runs from "I trust the institutions" at the top to "show me — I don't" at the bottom. Positions are plotted as points: a mainstream parent who trusts experts and favors mandates in the upper right; the CDC and AAP in the upper right; the transparency reformers near the center crossing, marked in lilac; ICAN and Aaron Siri in the lower left; a Wakefield-style position at the far lower left; and a vaccinate-willingly-but-oppose-mandates libertarian in the lower right, who grants the collective benefit yet distrusts coercion.</desc>
+      <defs>
+        <linearGradient id="axisgrad" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0" stop-color="#6dbaa4"/>
+          <stop offset="0.5" stop-color="#6e6b78"/>
+          <stop offset="1" stop-color="#d8a652"/>
+        </linearGradient>
+      </defs>
+
+      <!-- vertical axis: trust -->
+      <line x1="490" y1="80" x2="490" y2="500" stroke="#34384a" stroke-width="2"/>
+      <!-- horizontal axis: individual vs collective -->
+      <line x1="110" y1="290" x2="870" y2="290" stroke="url(#axisgrad)" stroke-width="6" stroke-linecap="round"/>
+      <circle cx="110" cy="290" r="7" fill="#6dbaa4"/>
+      <circle cx="870" cy="290" r="7" fill="#d8a652"/>
+
+      <!-- axis labels -->
+      <text x="110" y="322" fill="#6dbaa4" font-family="'IBM Plex Mono',monospace" font-size="15">my body, my call</text>
+      <text x="870" y="322" fill="#d8a652" font-family="'IBM Plex Mono',monospace" font-size="15" text-anchor="end">our herd, our rules</text>
+      <text x="490" y="62" fill="#a6a394" font-family="'IBM Plex Mono',monospace" font-size="14" text-anchor="middle">I trust the institutions</text>
+      <text x="490" y="528" fill="#a6a394" font-family="'IBM Plex Mono',monospace" font-size="14" text-anchor="middle">show me — I don't</text>
+
+      <!-- plotted positions (rows staggered so no two labels share a line) -->
+      <!-- upper-right: trusts experts, wants mandates -->
+      <circle cx="648" cy="150" r="6" fill="#d8a652"/>
+      <text x="633" y="155" fill="#ebe5d6" font-family="'IBM Plex Sans',sans-serif" font-size="14.5" text-anchor="end">Mainstream parent · trusts, favors mandates</text>
+
+      <!-- upper-right, lower row: the institutions themselves -->
+      <circle cx="760" cy="214" r="6" fill="#d8a652"/>
+      <text x="745" y="219" fill="#ebe5d6" font-family="'IBM Plex Sans',sans-serif" font-size="14.5" text-anchor="end">CDC · AAP</text>
+
+      <!-- the pivot: near the crossing, sound science + reform the system -->
+      <circle cx="470" cy="276" r="8" fill="#a195bd" stroke="#171922" stroke-width="2"/>
+      <text x="455" y="272" fill="#a195bd" font-family="'IBM Plex Sans',sans-serif" font-size="14.5" font-style="italic" text-anchor="end">Transparency reformers</text>
+      <text x="455" y="291" fill="#a195bd" font-family="'IBM Plex Mono',monospace" font-size="11" text-anchor="end">science sound, earn the trust</text>
+
+      <!-- lower-left: individual + distrust -->
+      <circle cx="300" cy="368" r="6" fill="#6dbaa4"/>
+      <text x="315" y="373" fill="#ebe5d6" font-family="'IBM Plex Sans',sans-serif" font-size="14.5">ICAN · Siri</text>
+
+      <!-- lower-right: grants collective benefit, distrusts the coercion -->
+      <circle cx="640" cy="402" r="6" fill="#d8a652"/>
+      <text x="625" y="407" fill="#ebe5d6" font-family="'IBM Plex Sans',sans-serif" font-size="14.5" text-anchor="end">Vaccinates willingly, opposes mandates</text>
+
+      <!-- far lower-left: individual + furthest from trust -->
+      <circle cx="232" cy="440" r="6" fill="#6dbaa4"/>
+      <text x="247" y="445" fill="#ebe5d6" font-family="'IBM Plex Sans',sans-serif" font-size="14.5">Wakefield-style rejection</text>
+    </svg>
+
+    <div class="fault-restate">
+      <div class="fr-item f3"><div class="fr-n">Crux 01 · proof</div><div class="fr-t ser">What counts as evidence</div><p>Inert-placebo RCT, or surveillance plus active comparators. The horizontal axis, asked of the data.</p></div>
+      <div class="fr-item f1"><div class="fr-n">Crux 02 · mandate</div><div class="fr-t ser">Who decides for whom</div><p>The horizontal axis at its sharpest: when contagion lets the group override the person.</p></div>
+      <div class="fr-item f4"><div class="fr-n">Crux 03 · shield</div><div class="fr-t ser">Where the risk lands</div><p>The horizontal axis, run through the 1986 law. Lawsuits as safety, or as a threat to supply.</p></div>
+      <div class="fr-item f2"><div class="fr-n">Crux 04 · trust</div><div class="fr-t ser">Whose word to take</div><p>The vertical axis. Whether captured institutions can still produce believable data — the question that decides if the other three even land.</p></div>
+    </div>
+
+    <p class="fault-close ser">Find your own hinge. Few people are moved by all four — one carries the weight. Locate it, work out whether you're really arguing about <span class="ax">my body, my call</span> or about <span class="mk">whose evidence to believe</span>, and you'll usually find the other person standing on the vertical axis, not the horizontal one.</p>
+  </div>
+</section>
+
+<!-- ============================ V. GO DEEPER ============================ -->
+<section class="wrap">
+  <div class="sec-head">
+    <div class="eyebrow"><span class="sec-num">V</span> &nbsp;go deeper</div>
+    <h2 class="ser">Where to take it next</h2>
+    <p>Ways in from each side, grouped by what they're for. Books are listed by author; every link was checked.</p>
+  </div>
+
+  <div class="shelf reveal">
+    <div class="shelf-col">
+      <h4>The skeptic case</h4>
+      <div class="res">
+        <div class="t"><a href="https://www.hsgac.senate.gov/wp-content/uploads/Siri-Testimony.pdf">Aaron Siri — Senate (HSGAC) written testimony</a></div>
+        <div class="by">U.S. Senate · the medical-freedom argument, primary</div>
+        <div class="why">The clearest statement of the saline-trial and informed-consent demands, in the words of the litigator driving them. Read Crux 01 and the freedom view here, undiluted.</div>
+      </div>
+      <div class="res">
+        <div class="t"><a href="https://icandecide.org/">Informed Consent Action Network</a></div>
+        <div class="by">ICAN · the movement's legal arm</div>
+        <div class="why">Where the FOIA suits and petitions to pause specific vaccines actually live — the organized engine behind the present fight.</div>
+      </div>
+      <div class="res">
+        <div class="t">The Real Anthony Fauci</div>
+        <div class="by">Robert F. Kennedy Jr. · 2021</div>
+        <div class="why">The skeptic movement's manifesto, by the man now running U.S. health policy. Read as the strongest distillation of that worldview — and check its claims against the other shelf.</div>
+      </div>
+    </div>
+
+    <div class="shelf-col">
+      <h4>The establishment case</h4>
+      <div class="res">
+        <div class="t">Deadly Choices: How the Anti-Vaccine Movement Threatens Us All</div>
+        <div class="by">Paul Offit · 2011</div>
+        <div class="why">The mainstream's case in book form, from a vaccine scientist who helped invent one. The history of the movement, told by someone it has spent years attacking.</div>
+      </div>
+      <div class="res">
+        <div class="t"><a href="https://sciencebasedmedicine.org/">Science-Based Medicine</a></div>
+        <div class="by">working physicians &amp; researchers</div>
+        <div class="why">Long-running rebuttals to specific skeptic claims, with citations — good for seeing how the consensus answers each particular objection rather than waving it off.</div>
+      </div>
+      <div class="res">
+        <div class="t"><a href="https://en.wikipedia.org/wiki/Paul_Offit">Paul Offit</a></div>
+        <div class="by">overview &amp; his rotavirus work</div>
+        <div class="why">Background on the most prominent defender of vaccines — including the patent income skeptics cite, so you can weigh that for yourself.</div>
+      </div>
+    </div>
+
+    <div class="shelf-col">
+      <h4>The system &amp; the law</h4>
+      <div class="res">
+        <div class="t"><a href="https://en.wikipedia.org/wiki/National_Childhood_Vaccine_Injury_Act">National Childhood Vaccine Injury Act</a></div>
+        <div class="by">the 1986 grand bargain</div>
+        <div class="why">How the Vaccine Court and the liability shield actually work — the statute under Crux 03, with the payout history both sides argue over.</div>
+      </div>
+      <div class="res">
+        <div class="t"><a href="https://www.oyez.org/cases/1900-1940/197us11">Jacobson v. Massachusetts</a></div>
+        <div class="by">Oyez · the 1905 mandate case</div>
+        <div class="why">The opinion every American vaccine mandate still leans on. Read the reasoning behind Crux 02 at the source.</div>
+      </div>
+      <div class="res">
+        <div class="t"><a href="https://en.wikipedia.org/wiki/Vaccine_Adverse_Event_Reporting_System">Vaccine Adverse Event Reporting System</a></div>
+        <div class="by">VAERS · the surveillance both sides cite</div>
+        <div class="why">What it catches and what it can't — central to Crux 01, and routinely misread by both camps, so worth understanding firsthand.</div>
+      </div>
+    </div>
+
+    <div class="shelf-col">
+      <h4>History &amp; context</h4>
+      <div class="res">
+        <div class="t"><a href="https://www.historyofvaccines.org/">The History of Vaccines</a></div>
+        <div class="by">College of Physicians of Philadelphia</div>
+        <div class="why">From Jenner through the Cutter Incident to today — the long backstory the lineage compresses, including the disasters that gave distrust its real roots.</div>
+      </div>
+      <div class="res">
+        <div class="t"><a href="https://fortune.com/2024/12/13/rfk-jr-lawyer-fda-approval-polio-vaccine-aaron-siri-trump-health-human-services/">RFK Jr.'s lawyer wants the FDA to revoke approval for the polio vaccine</a></div>
+        <div class="by">Fortune · Dec 2024</div>
+        <div class="why">A snapshot of how far the present challenge reaches and who's making it — the news peg under the 2020s lineage node.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ FOOTER ============================ -->
+<footer class="wrap">
+  <p class="foot-note"><b>On these summaries.</b> Each steelman is compressed; the real arguments run to books and briefs, and a card or a panel is a doorway, not the room. Steelmanning a side means stating its best case in its own voice — it is not an endorsement, and both poles here are given that courtesy on purpose. Dates mark a representative event, not the first time anyone raised the point. The two-pole axis is a lens for seeing structure, useful precisely because it simplifies, and the lilac hinge is there to flag the views that won't sit on the line. This is an educational map of a policy debate, not medical advice.</p>
+  <div class="foot-links">
+    <a href="/debates">← All debate maps</a>
+    <a href="/">brooker.family</a>
+  </div>
+</footer>
+
+<script>
+(function(){
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var items = document.querySelectorAll('.reveal');
+  if(reduce || !('IntersectionObserver' in window)){
+    items.forEach(function(el){ el.classList.add('in'); });
+    return;
+  }
+  var io = new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); }
+    });
+  }, {threshold:0.12, rootMargin:'0px 0px -8% 0px'});
+  items.forEach(function(el){ io.observe(el); });
+})();
+</script>
+</body>
+</html>

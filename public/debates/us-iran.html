@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- Field map: the existence of God -->
+<title>Bomb it, or bargain? — a map of the Iran question</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,500&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#171922; --ink-2:#1e212c; --card:#23273380; --card-solid:#232734;
+    --line:#34384a; --line-soft:#2a2e3b;
+    --bone:#ebe5d6; --mute:#a6a394; --faint:#807e8a;
+    /* found = pole A (verdigris) · made = pole B (ochre) · pivot = the reconciling hinge (lilac).
+       Rename the *concepts* in your prose, but keep these three colors as the axis. */
+    --found:#6dbaa4; --found-deep:#2f6657; --found-glow:#6dbaa422;
+    --made:#d8a652; --made-deep:#7d5f29; --made-glow:#d8a65222;
+    --pivot:#a195bd; --pivot-glow:#a195bd1f;
+    /* third camp (slate-blue) — only for genuinely ternary debates; see SKILL.md */
+    --camp-c:#6f93c4; --camp-c-deep:#33506f; --camp-c-glow:#6f93c41f;
+    --maxw:1180px;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0; background:var(--ink); color:var(--bone);
+    font-family:"IBM Plex Sans",sans-serif; font-weight:400;
+    line-height:1.62; font-size:17px;
+    -webkit-font-smoothing:antialiased;
+    background-image:
+      radial-gradient(900px 600px at 82% -8%, #20243340, transparent 70%),
+      radial-gradient(700px 500px at 5% 18%, #1d212e55, transparent 70%);
+    background-attachment:fixed;
+  }
+  .wrap{max-width:var(--maxw); margin:0 auto; padding:0 26px;}
+  .mono{font-family:"IBM Plex Mono",monospace;}
+  .ser{font-family:"Fraunces",serif;}
+
+  /* ---------- eyebrows / dividers ---------- */
+  .eyebrow{
+    font-family:"IBM Plex Mono",monospace; font-size:12px; font-weight:500;
+    letter-spacing:.22em; text-transform:uppercase; color:var(--faint);
+    display:flex; align-items:center; gap:14px;
+  }
+  .eyebrow::before{content:""; width:30px; height:1px; background:var(--line); display:inline-block;}
+  .sec-num{color:var(--mute);}
+
+  /* ---------- brooker site tie (added for brooker.family/debates) ---------- */
+  .site-tie{
+    font-family:"IBM Plex Mono",monospace; font-size:12px; letter-spacing:.2em;
+    text-transform:uppercase; color:var(--faint); text-decoration:none;
+    display:inline-flex; align-items:center; gap:9px; margin:0 0 30px;
+    transition:color .2s;
+  }
+  .site-tie::before{content:""; width:22px; height:1px; background:var(--line); display:inline-block;}
+  .site-tie:hover{color:var(--bone);}
+  .foot-links{margin-top:22px; display:flex; gap:24px; flex-wrap:wrap;}
+  .foot-links a{
+    font-family:"IBM Plex Mono",monospace; font-size:11.5px; letter-spacing:.16em;
+    text-transform:uppercase; color:var(--mute); text-decoration:none;
+    border-bottom:1px solid var(--line); padding-bottom:2px;
+  }
+  .foot-links a:hover{color:var(--bone); border-bottom-color:var(--mute);}
+
+  /* ---------- header ---------- */
+  header{padding:clamp(56px,10vw,116px) 0 clamp(40px,7vw,80px);}
+  .kicker{
+    font-family:"IBM Plex Mono",monospace; font-size:12.5px; letter-spacing:.26em;
+    text-transform:uppercase; color:var(--faint); margin:0 0 26px;
+  }
+  h1.title{
+    font-family:"Fraunces",serif; font-weight:400; font-optical-sizing:auto;
+    font-size:clamp(2.5rem,6.4vw,4.7rem); line-height:1.02; letter-spacing:-.012em;
+    margin:0; max-width:16ch;
+  }
+  h1.title em{font-style:italic; color:var(--found);}
+  h1.title .mk{font-style:italic; color:var(--made);}
+  .dek{
+    font-size:clamp(1.05rem,2.1vw,1.35rem); color:var(--mute); line-height:1.5;
+    max-width:47ch; margin:30px 0 0; font-weight:400;
+  }
+  .dek b{color:var(--bone); font-weight:500;}
+
+  /* ---------- axis legend ---------- */
+  .legend{
+    margin-top:46px; border:1px solid var(--line-soft); border-radius:14px;
+    background:linear-gradient(100deg,#1c202c,#1a1e29);
+    padding:22px 24px; display:grid; gap:14px;
+  }
+  .legend-top{font-family:"IBM Plex Mono",monospace; font-size:11.5px; letter-spacing:.2em; text-transform:uppercase; color:var(--faint);}
+  .axis-bar{
+    height:7px; border-radius:6px;
+    background:linear-gradient(90deg,var(--found) 0%, #6e6b78 50%, var(--made) 100%);
+  }
+  .axis-ends{display:flex; justify-content:space-between; gap:16px; font-size:14.5px;}
+  .axis-ends .ax-found{color:var(--found);}
+  .axis-ends .ax-made{color:var(--made); text-align:right;}
+  .axis-ends span b{display:block; font-weight:600; font-size:15px; margin-bottom:1px;}
+  .axis-ends span small{color:var(--faint); font-size:12.5px; letter-spacing:.02em;}
+
+  /* ---------- section frame ---------- */
+  section{padding:clamp(54px,8vw,96px) 0;}
+  .sec-head{margin-bottom:42px;}
+  .sec-head h2{
+    font-family:"Fraunces",serif; font-weight:400; font-size:clamp(1.9rem,4vw,2.9rem);
+    line-height:1.06; letter-spacing:-.01em; margin:18px 0 0; max-width:24ch;
+  }
+  .sec-head p{color:var(--mute); max-width:62ch; margin:16px 0 0; font-size:1.02rem;}
+
+  /* ===== I. LINEAGE (timeline) ===== */
+  .lineage{position:relative;}
+  .spine{
+    position:absolute; left:140px; top:6px; bottom:6px; width:2px;
+    background:linear-gradient(var(--found-deep),var(--line),var(--made-deep));
+  }
+  .node{position:relative; padding:0 0 26px 172px; min-height:30px;}
+  .node .yr{
+    position:absolute; left:0; top:1px; width:118px; text-align:right;
+    font-family:"IBM Plex Mono",monospace; font-size:12.5px; color:var(--faint);
+    letter-spacing:.02em; padding-top:2px;
+  }
+  .node .dot{
+    position:absolute; left:134px; top:6px; width:14px; height:14px; border-radius:50%;
+    background:var(--ink); border:2px solid var(--mute); z-index:2;
+  }
+  .node.found .dot{border-color:var(--found); box-shadow:0 0 0 4px var(--found-glow);}
+  .node.made .dot{border-color:var(--made); box-shadow:0 0 0 4px var(--made-glow);}
+  .node.pivot .dot{border-color:var(--pivot); box-shadow:0 0 0 4px var(--pivot-glow);}
+  .node .who{font-family:"Fraunces",serif; font-size:1.24rem; font-weight:500; line-height:1.15; letter-spacing:-.005em;}
+  .node .dom{font-family:"IBM Plex Mono",monospace; font-size:10.5px; letter-spacing:.16em; text-transform:uppercase; margin-left:10px; color:var(--faint); vertical-align:middle;}
+  .node .say{color:var(--mute); font-size:.99rem; margin-top:4px; max-width:64ch;}
+  .node.camp-c .dot{border-color:var(--camp-c); box-shadow:0 0 0 4px var(--camp-c-glow);}
+  .node.found .who{color:var(--found);}
+  .node.made .who{color:var(--made);}
+  .node.pivot .who{color:var(--pivot);}
+  .node.camp-c .who{color:var(--camp-c);}
+  .lineage-tail{padding-left:172px; margin-top:2px;}
+  .lineage-tail .pin{
+    position:relative; padding:16px 20px; border:1px dashed var(--line);
+    border-radius:12px; background:#1b1f2a; max-width:60ch;
+  }
+  .lineage-tail .pin b{font-family:"Fraunces",serif; font-weight:500; font-size:1.05rem;}
+  .lineage-tail .pin p{margin:5px 0 0; color:var(--mute); font-size:.96rem;}
+
+  /* ===== II. POSITIONS (field guide) ===== */
+  .fields{display:grid; grid-template-columns:1fr 1fr; gap:30px;}
+  .field h3{
+    font-family:"IBM Plex Mono",monospace; font-size:12.5px; letter-spacing:.2em;
+    text-transform:uppercase; color:var(--bone); margin:0 0 18px; padding-bottom:12px;
+    border-bottom:1px solid var(--line); display:flex; justify-content:space-between; align-items:baseline;
+  }
+  .field h3 small{color:var(--faint); letter-spacing:.12em; font-weight:400;}
+  .pos{
+    border:1px solid var(--line-soft); border-left:3px solid var(--line);
+    border-radius:0 11px 11px 0; background:var(--card);
+    padding:16px 18px; margin-bottom:13px; transition:border-color .25s, background .25s, transform .25s;
+  }
+  .pos.found{border-left-color:var(--found);}
+  .pos.made{border-left-color:var(--made);}
+  .pos.pivot{border-left-color:var(--pivot);}
+  .pos.camp-c{border-left-color:var(--camp-c);}
+  .pos:hover{transform:translateX(3px); background:var(--card-solid);}
+  .pos .nm{font-family:"Fraunces",serif; font-weight:600; font-size:1.16rem; letter-spacing:-.005em; display:flex; align-items:baseline; gap:10px; flex-wrap:wrap;}
+  .pos.found .nm{color:var(--found);} .pos.made .nm{color:var(--made);} .pos.pivot .nm{color:var(--pivot);} .pos.camp-c .nm{color:var(--camp-c);}
+  /* go-deeper links on a card or in the shelf */
+  .src-links{margin-top:9px; display:flex; flex-wrap:wrap; gap:6px 14px;}
+  .src-links a{font-family:"IBM Plex Mono",monospace; font-size:11.5px; color:var(--mute); text-decoration:none; border-bottom:1px solid var(--line);}
+  .src-links a:hover{color:var(--bone); border-bottom-color:var(--mute);}
+  .src-links a::after{content:" ↗"; color:var(--faint);}
+  .traction{
+    font-family:"IBM Plex Mono",monospace; font-size:10px; letter-spacing:.08em; text-transform:uppercase;
+    color:var(--faint); border:1px solid var(--line); border-radius:20px; padding:2px 9px; white-space:nowrap;
+  }
+  .pos .figs{font-family:"IBM Plex Mono",monospace; font-size:12px; color:var(--mute); margin:7px 0 7px; letter-spacing:.01em;}
+  .pos .claim{color:var(--bone); font-size:.97rem; line-height:1.5;}
+  .pos .nb{display:block; margin-top:7px; color:var(--faint); font-size:.85rem; font-style:italic;}
+  .pivot-card{
+    grid-column:1/-1; border:1px solid var(--pivot); border-radius:13px;
+    background:linear-gradient(100deg,#211f2c,#1c1b25); padding:20px 22px; margin-top:4px;
+    display:flex; gap:18px; align-items:flex-start; flex-wrap:wrap;
+  }
+  .pivot-card .pv-tag{font-family:"IBM Plex Mono",monospace; font-size:11px; letter-spacing:.2em; text-transform:uppercase; color:var(--pivot); white-space:nowrap; padding-top:5px;}
+  .pivot-card .pv-body{flex:1 1 320px;}
+  .pivot-card .pv-body b{font-family:"Fraunces",serif; font-weight:600; font-size:1.2rem; color:var(--pivot);}
+  .pivot-card .pv-body p{margin:6px 0 0; color:var(--bone); font-size:.98rem;}
+  .traction-note{margin-top:20px; color:var(--faint); font-size:.84rem; font-style:italic; max-width:70ch; display:flex; gap:9px;}
+  .traction-note::before{content:"※"; color:var(--mute); font-style:normal;}
+
+  /* ===== III. CRUXES (confrontations) ===== */
+  .crux{border:1px solid var(--line-soft); border-radius:18px; overflow:hidden; margin-bottom:30px; background:#191d28;}
+  .crux-head{padding:24px 28px 20px; border-bottom:1px solid var(--line-soft);}
+  .crux-meta{display:flex; justify-content:space-between; gap:14px; align-items:baseline; flex-wrap:wrap; margin-bottom:12px;}
+  .crux-n{font-family:"IBM Plex Mono",monospace; font-size:13px; letter-spacing:.18em; color:var(--mute);}
+  .crux-dom{font-family:"IBM Plex Mono",monospace; font-size:10.5px; letter-spacing:.16em; text-transform:uppercase; color:var(--ink); background:var(--mute); padding:3px 10px; border-radius:20px;}
+  .crux-dom.both{background:var(--pivot);}
+  .crux-q{font-family:"Fraunces",serif; font-weight:500; font-size:clamp(1.4rem,3vw,2rem); line-height:1.12; letter-spacing:-.01em; margin:0;}
+  .crux-sub{color:var(--mute); margin:9px 0 0; font-size:.98rem;}
+  .steels{display:grid; grid-template-columns:1fr 1fr; gap:0;}
+  .steel{padding:24px 28px; position:relative;}
+  .steel.s-found{background:linear-gradient(180deg,#1a2420,#191f1d);}
+  .steel.s-made{background:linear-gradient(180deg,#241f17,#1f1c16); border-left:1px solid var(--line-soft);}
+  .steel .side{font-family:"IBM Plex Mono",monospace; font-size:11px; letter-spacing:.14em; text-transform:uppercase; margin-bottom:5px;}
+  .steel.s-found .side{color:var(--found);}
+  .steel.s-made .side{color:var(--made);}
+  .steel .pos-name{font-family:"Fraunces",serif; font-weight:600; font-size:1.12rem; margin-bottom:9px; line-height:1.2;}
+  .steel.s-found .pos-name{color:var(--found);}
+  .steel.s-made .pos-name{color:var(--made);}
+  .steel .gist{font-weight:600; font-size:1.04rem; line-height:1.45; color:var(--bone); margin:0 0 13px; padding-bottom:13px; border-bottom:1px dashed var(--line);}
+  .steel .gist::before{content:"In plain terms"; display:block; font-family:"IBM Plex Mono",monospace; font-size:10px; font-weight:500; letter-spacing:.18em; text-transform:uppercase; color:var(--faint); margin-bottom:5px;}
+  .steel p{margin:0; font-size:.97rem; line-height:1.56; color:#e2dccd;}
+  .steel p em{font-style:italic; color:var(--bone);}
+  .crux-key{padding:18px 28px; background:#13161f; border-top:1px solid var(--line-soft); display:flex; gap:14px; align-items:flex-start;}
+  .crux-key .lab{font-family:"IBM Plex Mono",monospace; font-size:11px; letter-spacing:.16em; text-transform:uppercase; color:var(--faint); padding-top:3px; white-space:nowrap;}
+  .crux-key .txt{font-size:.99rem; color:var(--bone); line-height:1.5;}
+  .crux-key .txt b{font-weight:600;}
+  .same-tag{display:inline-block; margin-top:9px; font-family:"IBM Plex Mono",monospace; font-size:11px; letter-spacing:.08em; color:var(--pivot); border:1px solid var(--pivot); border-radius:20px; padding:3px 11px;}
+
+  /* ===== IV. PAYOFF ===== */
+  .fault-sec{background:linear-gradient(180deg,transparent, #13161f 30%, #13161f 70%, transparent);}
+  .fault-card{border:1px solid var(--line); border-radius:20px; background:#171b25; padding:clamp(24px,4vw,44px); box-shadow:0 30px 80px -50px #000;}
+  .fault-lead{font-family:"Fraunces",serif; font-weight:400; font-size:clamp(1.5rem,3.3vw,2.3rem); line-height:1.18; letter-spacing:-.01em; margin:0 0 8px; max-width:26ch;}
+  .fault-lead em{font-style:italic; color:var(--pivot);}
+  .fault-intro{color:var(--mute); max-width:64ch; margin:0 0 30px; font-size:1.02rem;}
+  .diagram{width:100%; height:auto; display:block; margin:6px 0 4px; overflow:visible;}
+  .fault-restate{display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:18px; margin-top:34px;}
+  .fr-item{border-top:2px solid var(--line); padding-top:13px;}
+  .fr-item.f1{border-top-color:var(--made);}
+  .fr-item.f2{border-top-color:var(--pivot);}
+  .fr-item.f3{border-top-color:var(--found);}
+  .fr-item.f4{border-top-color:var(--made);}
+  .fr-item .fr-n{font-family:"IBM Plex Mono",monospace; font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--faint);}
+  .fr-item .fr-t{font-family:"Fraunces",serif; font-weight:500; font-size:1.05rem; margin:4px 0 5px;}
+  .fr-item p{margin:0; font-size:.92rem; color:var(--mute); line-height:1.5;}
+  .fault-close{margin-top:36px; padding-top:26px; border-top:1px solid var(--line); font-family:"Fraunces",serif; font-style:italic; font-weight:400; font-size:clamp(1.15rem,2.4vw,1.5rem); line-height:1.35; color:var(--bone); max-width:44ch;}
+  .fault-close .ax{color:var(--found);}
+  .fault-close .mk{color:var(--made);}
+
+  /* ===== V. GO DEEPER (resources shelf) ===== */
+  .shelf{display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:24px;}
+  .shelf-col h4{font-family:"IBM Plex Mono",monospace; font-size:12px; letter-spacing:.18em; text-transform:uppercase; color:var(--mute); margin:0 0 14px; padding-bottom:10px; border-bottom:1px solid var(--line);}
+  .res{margin-bottom:15px;}
+  .res .t{font-family:"Fraunces",serif; font-weight:500; font-size:1.04rem; line-height:1.25;}
+  .res .t a{color:var(--bone); text-decoration:none; border-bottom:1px solid var(--line);}
+  .res .t a:hover{border-bottom-color:var(--mute);}
+  .res .by{font-family:"IBM Plex Mono",monospace; font-size:11.5px; color:var(--faint); margin-top:1px;}
+  .res .why{color:var(--mute); font-size:.9rem; margin-top:4px; line-height:1.45;}
+
+  /* ---------- footer ---------- */
+  footer{padding:54px 0 80px; border-top:1px solid var(--line-soft); margin-top:30px;}
+  .foot-note{color:var(--faint); font-size:.86rem; max-width:66ch; line-height:1.55;}
+  .foot-note b{color:var(--mute); font-weight:500;}
+
+  /* ---------- reveal ---------- */
+  .reveal{opacity:0; transform:translateY(16px); transition:opacity .7s ease, transform .7s ease;}
+  .reveal.in{opacity:1; transform:none;}
+
+  :focus-visible{outline:2px solid var(--found); outline-offset:3px; border-radius:3px;}
+
+  /* ---------- responsive ---------- */
+  @media (max-width:760px){
+    body{font-size:16px;}
+    .fields{grid-template-columns:1fr;}
+    .steels{grid-template-columns:1fr;}
+    .steel.s-made{border-left:none; border-top:1px solid var(--line-soft);}
+    .spine{left:84px;}
+    .node{padding-left:112px;}
+    .node .yr{width:64px;}
+    .node .dot{left:78px;}
+    .lineage-tail{padding-left:112px;}
+    .axis-ends{flex-direction:column; gap:10px;}
+    .axis-ends .ax-made{text-align:left;}
+  }
+  @media (prefers-reduced-motion:reduce){
+    *{scroll-behavior:auto;}
+    .reveal{opacity:1; transform:none; transition:none;}
+    .draw{stroke-dashoffset:0 !important;}
+  }
+</style>
+</head>
+<body>
+
+<!-- ============================ HEADER ============================ -->
+<header class="wrap">
+  <a class="site-tie" href="/debates">All debate maps · brooker</a>
+  <p class="kicker">FIELD · grand strategy, nuclear proliferation &amp; the use of force</p>
+  <h1 class="title">Stop Iran's bomb by <em>force</em> — or by <span class="mk">bargain</span>?</h1>
+  <p class="dek">On 22 June 2025 a flight of B-2s dropped bunker-busters on Fordow. A year later the guns are quiet under a 60-day clock. A dozen positions on what to do about Iran fold into four <b>disagreements</b>, and those into two <b>questions</b>: does force or diplomacy keep Tehran from a bomb, and can a regime like this one be deterred at all? The stakes — an Iranian weapon, a wider war, the Strait of Hormuz and the oil price, U.S. troops in missile range — are why the argument never cools. Below: the <b>lineage</b>, the <b>positions and who holds them</b>, and four <b>cruxes</b>, each with the strongest case both sides actually make.</p>
+
+  <div class="legend reveal">
+    <div class="legend-top">One axis runs under all of it. Watch the two colors.</div>
+    <div class="axis-bar"></div>
+    <div class="axis-ends">
+      <span class="ax-found"><b>Force &amp; pressure</b><small>deny the bomb · coerce · strike</small></span>
+      <span class="ax-made"><b>Restraint &amp; diplomacy</b><small>contain · deter · bargain</small></span>
+    </div>
+  </div>
+</header>
+
+<!-- ============================ I. LINEAGE ============================ -->
+<section class="wrap">
+  <div class="sec-head">
+    <div class="eyebrow"><span class="sec-num">I</span> &nbsp;the lineage</div>
+    <h2 class="ser">How we got to a B-2 over Fordow</h2>
+    <p>Read top to bottom — events and the ideas that frame them, braided. A dot's halo marks where it leans: green for force and pressure, gold for restraint and diplomacy, lilac for the view that the framing is the trap.</p>
+  </div>
+
+  <div class="lineage reveal">
+    <div class="spine" aria-hidden="true"></div>
+
+    <div class="node made">
+      <span class="yr">1953</span><span class="dot"></span>
+      <div class="who">The coup against Mossadegh<span class="dom">history · grievance</span></div>
+      <div class="say">The CIA and Britain's MI6 help topple Iran's elected prime minister and restore the Shah, securing Western oil concessions. Iranians did not forget. Every later overture from Washington is read in Tehran through the memory of 1953 — the taproot of the distrust the whole standoff grows from.</div>
+    </div>
+
+    <div class="node pivot">
+      <span class="yr">1968 / 1970</span><span class="dot"></span>
+      <div class="who">The Non-Proliferation Treaty<span class="dom">law · the bargain</span></div>
+      <div class="say">Iran signs as an original party. The NPT's deal: have-nots forgo weapons in exchange for civilian nuclear technology and a promise of disarmament from the haves. Article IV's "inalienable right" to enrichment and the line between civilian and weapons work become the legal ground every side still fights on.</div>
+    </div>
+
+    <div class="node found">
+      <span class="yr">1979</span><span class="dot"></span>
+      <div class="who">Revolution &amp; the hostage crisis<span class="dom">history · the break</span></div>
+      <div class="say">The Shah falls; an Islamic Republic rises on "Death to America." Students seize the U.S. embassy and hold 52 Americans for 444 days. Diplomatic relations snap and never resume. For American hawks this is the founding fact: a state born in the taking of hostages is not a normal negotiating partner.</div>
+    </div>
+
+    <div class="node found">
+      <span class="yr">1981</span><span class="dot"></span>
+      <div class="who">Osirak<span class="dom">military · the template</span></div>
+      <div class="say">Israeli jets flatten Iraq's French-built reactor before it can go hot — the "Begin Doctrine," that no hostile state in the region gets a weapon. Condemned at the time, later quietly credited with keeping Saddam non-nuclear. The preventive-strike model that Fordow's planners inherited.</div>
+    </div>
+
+    <div class="node made">
+      <span class="yr">1981 → 2012</span><span class="dot"></span>
+      <div class="who">Kenneth Waltz<span class="dom">theory · deterrence</span></div>
+      <div class="say">The dean of realist IR argues that nuclear weapons induce caution, not recklessness — the spread of the bomb has tracked with the absence of great-power war. In "Why Iran Should Get the Bomb" (Foreign Affairs, 2012) he takes it to the edge: a nuclear Iran would be deterrable, even stabilizing, and the crisis is manufactured by people who don't trust deterrence to do what it has always done.</div>
+    </div>
+
+    <div class="node found">
+      <span class="yr">2002</span><span class="dot"></span>
+      <div class="who">Natanz revealed · "Axis of Evil"<span class="dom">intelligence · alarm</span></div>
+      <div class="say">An exile group exposes a secret enrichment plant at Natanz; Bush names Iran in the "Axis of Evil." The covert program is now public, and the clock everyone has argued about since — how close is Tehran to a weapon? — starts ticking in the open.</div>
+    </div>
+
+    <div class="node made">
+      <span class="yr">2003</span><span class="dot"></span>
+      <div class="who">The Iraq War<span class="dom">history · the warning</span></div>
+      <div class="say">The U.S. invades on WMD intelligence that turns out to be wrong, and a quick "regime change" becomes a decade of occupation. Restraint thinkers cite it as the cautionary tale: certainty about an adversary's weapons program and confidence that toppling a government will go well are exactly the beliefs that produced a catastrophe.</div>
+    </div>
+
+    <div class="node made">
+      <span class="yr">2015</span><span class="dot"></span>
+      <div class="who">The JCPOA<span class="dom">diplomacy · the deal</span></div>
+      <div class="say">Iran and six powers sign the nuclear deal: enrichment capped near 3.7%, centrifuges mothballed, the stockpile shipped out, and the most intrusive IAEA inspections ever written, traded for sanctions relief. The high-water mark of the bargain — a verified ceiling in place of a strike.</div>
+    </div>
+
+    <div class="node found">
+      <span class="yr">2018 → 2020</span><span class="dot"></span>
+      <div class="who">Withdrawal · maximum pressure · Soleimani<span class="dom">policy · the turn</span></div>
+      <div class="say">Trump quits the JCPOA and reimposes sanctions under "maximum pressure," betting that economic pain forces a better deal. Iran responds by enriching past every cap — eventually to 60%. In January 2020 a U.S. drone kills Qassem Soleimani, Iran's most powerful general, in Baghdad. The pressure track is now the policy.</div>
+    </div>
+
+    <div class="node found">
+      <span class="yr">Jun 2025 → Feb 2026</span><span class="dot"></span>
+      <div class="who">Fordow, then the 2026 war<span class="dom">military · the strikes</span></div>
+      <div class="say">In the "12-Day War" with Israel, U.S. B-2s hit Fordow, Natanz, and Isfahan on 22 June 2025 — fourteen GBU-57 bunker-busters and thirty submarine-launched Tomahawks. On 28 February 2026 a far larger U.S.–Israeli campaign opens the "2026 Iran war," roughly 900 strikes in twelve hours; Supreme Leader Khamenei is killed. Force, at full scale.</div>
+    </div>
+
+    <div class="node pivot">
+      <span class="yr">Apr → Jun 2026</span><span class="dot"></span>
+      <div class="who">Ceasefires &amp; the MOU<span class="dom">diplomacy · the pause</span></div>
+      <div class="say">A short Pakistan-mediated truce in April; then on 17 June 2026 Trump and President Pezeshkian sign a 14-point memorandum of understanding — a 60-day ceasefire, the Strait reopened, a road toward a final deal. It settles the shooting, not the substance. The hinge the war bent the policy toward.</div>
+    </div>
+
+    <div class="lineage-tail">
+      <div class="pin">
+        <b>Into the present</b>
+        <p>As of late June 2026 the guns are quiet on a 60-day clock, with no agreement yet on enrichment rights, the highly-enriched-uranium stockpile, sanctions relief and frozen assets, or Hezbollah and Lebanon. Whether this ends in a durable deal, an Iranian bomb, or a return to war is the open question — and it is open today.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ II. POSITIONS ============================ -->
+<section class="wrap">
+  <div class="sec-head">
+    <div class="eyebrow"><span class="sec-num">II</span> &nbsp;the positions</div>
+    <h2 class="ser">Who holds what — and where it sits on the axis</h2>
+    <p>Two families: what to do with the tools of statecraft, and what counts as winning. A card's left edge is its lean; the tag is rough policy weight today, not a scorecard of who's right.</p>
+  </div>
+
+  <div class="fields reveal">
+    <div class="field">
+      <h3>On the use of force <small>coerce or hold back</small></h3>
+
+      <div class="pos found">
+        <div class="nm">Preventive counter-proliferation strikes <span class="traction">dominant in 2025–26 US/Israel policy</span></div>
+        <div class="figs">Israeli leadership · U.S. hawks · the Begin Doctrine</div>
+        <div class="claim">A nuclear-armed Iran is intolerable, and force can deny it or push it back years. When a hostile state nears the threshold, you destroy the capability rather than learn to live with the weapon.</div>
+        <span class="nb">The logic that produced Osirak in 1981 and Fordow in 2025 — act before the program is finished, not after.</span>
+        <div class="src-links"><a href="https://www.washingtoninstitute.org/policy-analysis/diplomacy-military-force-future-irans-nuclear-program">Washington Institute analysis</a></div>
+      </div>
+
+      <div class="pos found">
+        <div class="nm">Maximum pressure <span class="traction">the 2018–24 sanctions doctrine</span></div>
+        <div class="figs">Trump-era Treasury · hawkish advisers</div>
+        <div class="claim">Crippling sanctions plus a credible threat of force compel Tehran to capitulate on better terms than any deal would give. Squeeze hard enough and the regime chooses survival over enrichment.</div>
+        <span class="nb">Critics and supporters agree it raised the pressure; they split on whether it bought leverage or just more centrifuges.</span>
+      </div>
+
+      <div class="pos made">
+        <div class="nm">Diplomatic restraint <span class="traction">realist/progressive minority, growing</span></div>
+        <div class="figs">Quincy Institute · Cato · Trita Parsi</div>
+        <div class="claim">Strikes backfire — they harden Iran's resolve and scatter the program without ending it. A negotiated ceiling, verified by inspectors, is the only path that actually holds the bomb down for long.</div>
+        <span class="nb">Not pacifism: the claim is that force is the less effective tool against a problem that lives in knowledge and intent.</span>
+        <div class="src-links"><a href="https://www.cato.org/commentary/how-end-war-iran">Cato</a></div>
+      </div>
+
+      <div class="pos made">
+        <div class="nm">Deterrence / containment <span class="traction">the academic realist baseline</span></div>
+        <div class="figs">Kenneth Waltz · structural realists</div>
+        <div class="claim">Even a near-nuclear or nuclear Iran can be deterred the way every other adversary has been. The bomb makes states cautious; containment and the threat of overwhelming retaliation are cheaper and surer than war.</div>
+        <span class="nb">The most provocative version says a deterred nuclear Iran beats a perpetual war to prevent one.</span>
+        <div class="src-links"><a href="https://en.wikipedia.org/wiki/Quincy_Institute_for_Responsible_Statecraft">Quincy Institute</a></div>
+      </div>
+    </div>
+
+    <div class="field">
+      <h3>On the endgame <small>what victory means</small></h3>
+
+      <div class="pos found">
+        <div class="nm">Regime change / collapse <span class="traction">aspirational, contested</span></div>
+        <div class="figs">hardline hawks · diaspora opposition</div>
+        <div class="claim">The problem isn't the centrifuges, it's the Islamic Republic. Topple it — or back the Iranian people until it falls — and the nuclear question, the proxies, and the hostility all go with it.</div>
+        <span class="nb">The Iraq and Libya record is the standing objection: collapse is easy to start and hard to aim.</span>
+      </div>
+
+      <div class="pos made">
+        <div class="nm">Negotiated nuclear deal <span class="traction">the current track</span></div>
+        <div class="figs">JCPOA architects · the 2026 MOU negotiators</div>
+        <div class="claim">Verified limits on enrichment in exchange for sanctions relief. The 2015 model, picked back up: a ceiling you can inspect beats a program you can only bomb.</div>
+        <span class="nb">Where the 60-day MOU is pointed — down to the line about downgrading uranium from weapons-grade to reactor-grade.</span>
+      </div>
+
+      <div class="pos found">
+        <div class="nm">"The strikes worked" <span class="traction">the administration's read</span></div>
+        <div class="figs">strike planners · Pentagon leadership</div>
+        <div class="claim">Fordow's enrichment halls are wrecked and the program is set back years. Pressure and bombs, not talk, are what finally brought Tehran to sign.</div>
+        <span class="nb">Leans on the later Pentagon estimate of a one-to-two-year setback over the early intelligence read.</span>
+      </div>
+
+      <div class="pos made">
+        <div class="nm">"The strikes backfired" <span class="traction">the skeptics' read</span></div>
+        <div class="figs">arms-control analysts · restraint scholars</div>
+        <div class="claim">The bombs delayed the program by months, not years; the enriched-uranium stockpile was moved out beforehand, and the lesson Tehran drew is that a bomb is its only real insurance.</div>
+        <span class="nb">Rests on the preliminary, low-confidence DIA assessment — itself contested by later estimates.</span>
+      </div>
+    </div>
+
+    <div class="pivot-card">
+      <div class="pv-tag">the hinge ↕</div>
+      <div class="pv-body">
+        <b>Coercive diplomacy</b>
+        <p>Pressure and the credible threat of force, aimed not at toppling the regime but at moving it to a deal it would otherwise refuse. Both poles collapse toward this in practice: the hawk who wants the strikes to <em>end</em> in an agreement and the restrainer who admits that talks went nowhere until Iran felt real cost are standing closer than either likes to say. It is roughly what the June 2026 MOU is — a ceasefire reached at gunpoint, now trying to become something signed. The pragmatic center the war actually pushed the policy toward, and the place most of the argument quietly lands once the slogans are set down.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="traction-note">Tags are rough policy weight — how much pull a position has in the debate right now — not a verdict. "Traction" here means how many serious people are on it, not who is correct; the two keep separate books.</div>
+</section>
+
+<!-- ============================ III. CRUXES ============================ -->
+<section class="wrap">
+  <div class="sec-head">
+    <div class="eyebrow"><span class="sec-num">III</span> &nbsp;the cruxes</div>
+    <h2 class="ser">Four fair fights, each carrying part of the load</h2>
+    <p>The positions are bundles of answers; these are the questions that, answered one way or the other, split them. Both panels give the side's best case, in its own voice.</p>
+  </div>
+
+  <!-- CRUX 1 -->
+  <div class="crux reveal">
+    <div class="crux-head">
+      <div class="crux-meta"><span class="crux-n">Crux 01 — the strike</span><span class="crux-dom">military · proliferation</span></div>
+      <h3 class="crux-q ser">Does military force stop an Iranian bomb, or speed it up?</h3>
+      <p class="crux-sub">Fordow has been hit. The question is what the bombing bought — years of delay, or a regime now convinced it needs the weapon.</p>
+    </div>
+    <div class="steels">
+      <div class="steel s-found">
+        <div class="side">▸ force is the only language left</div>
+        <div class="pos-name">Strike the program</div>
+        <div class="gist">Twenty years of diplomacy failed to stop the centrifuges; bombs did the thing talk never could, and bought years.</div>
+        <p>Diplomacy got its run. From 2003 to 2025, talks and inspections and three rounds of sanctions could not keep Iran below the threshold — it enriched to 60%, a short sprint from weapons-grade, while everyone negotiated. Credible force is the one thing the regime has ever actually responded to: the strikes wrecked enrichment halls that took a decade to build, and Tehran signed a ceasefire weeks later, not because it was persuaded but because it was hurt. Israel has kept hostile programs back for forty years by hitting them — Osirak, Syria's reactor in 2007, now Fordow. "Mowing the grass" isn't a permanent fix; it's what you do when the permanent fixes have all been tried and failed. You buy time and you use it.</p>
+      </div>
+      <div class="steel s-made">
+        <div class="side">▸ you can't bomb away knowledge</div>
+        <div class="pos-name">Strikes harden the resolve</div>
+        <div class="gist">The setback is months, the stockpile was already moved, and the lesson Tehran takes is that only a bomb guarantees survival.</div>
+        <p>The Defense Intelligence Agency's first read put the delay in months, and Iran had trucked much of its enriched uranium out of Fordow before the bombers arrived. Centrifuge cascades can be rebuilt; the metallurgy and the physics live in the heads of people the strikes didn't kill. And look at what bombing teaches. Qaddafi gave up his weapons program in 2003 and was dead in a ditch eight years later; the regimes that kept their programs — North Korea — are the ones nobody invades. Hit Iran and you confirm, in the only currency the hardliners trust, that a deterrent is the difference between Saddam's fate and Kim's. The surest way to make Tehran build the thing you fear is to show it that not having it gets you Fordow.</p>
+      </div>
+    </div>
+    <div class="crux-key">
+      <span class="lab">the crux</span>
+      <span class="txt">Is proliferation a <b>physical problem</b> — destroy the centrifuges and you've bought time — or a <b>motivational</b> one, where the strike just hardened the resolve to acquire? Almost everything about force follows from which.</span>
+    </div>
+  </div>
+
+  <!-- CRUX 2 -->
+  <div class="crux reveal">
+    <div class="crux-head">
+      <div class="crux-meta"><span class="crux-n">Crux 02 — the regime read</span><span class="crux-dom both">psychology of the adversary · crossways</span></div>
+      <h3 class="crux-q ser">Is Iran's leadership a rational survival-seeker, or an implacable ideological actor?</h3>
+      <p class="crux-sub">Before you argue about strikes or deals, you've already decided what kind of adversary you're dealing with. Most of the fight is downstream of that.</p>
+    </div>
+    <div class="steels">
+      <div class="steel s-found">
+        <div class="side">▸ an ideological regime, not a normal state</div>
+        <div class="pos-name">Implacable by design</div>
+        <div class="gist">A theocracy that funds Hezbollah and Hamas and chants "Death to America" runs on doctrine, not cost-benefit, and can't be handed a deterrent.</div>
+        <p>This is a government that has organized its foreign policy around the destruction of Israel and the expulsion of the United States from the region for four decades, and built a ring of proxies — Hezbollah, Hamas, the Houthis, the Iraqi militias — to wage that fight by other hands. It calls Israel a "one-bomb country," language no status-quo power uses. Deterrence assumes an adversary who prizes its own survival above all; an apocalyptic ideology that valorizes martyrdom and exports revolution does not give you that assumption for free. You cannot run a containment policy on the hope that the people who built this system will, at the last, behave like cautious bureaucrats. Hand that regime a bomb and you are betting the region on a read of its soul.</p>
+      </div>
+      <div class="steel s-made">
+        <div class="side">▸ forty years of acting to survive</div>
+        <div class="pos-name">A state, not a death cult</div>
+        <div class="gist">The regime has always chosen its own preservation, complied under the JCPOA, and deterrence held against worse men than the Ayatollah.</div>
+        <p>Watch what Tehran does, not what it chants. It ended its war with Iraq when the cost grew unbearable. It froze its weaponization work in 2003 when exposure looked dangerous. It signed the JCPOA and the IAEA certified, repeatedly, that it complied. It calibrated its retaliation for Soleimani to wound American pride without killing Americans, precisely to avoid the war that would end the regime. That is not a martyrdom machine; that is a state reading the balance of risk. Deterrence held against Stalin, who starved millions, and against Mao, who spoke of surviving nuclear war — men far more frightening than a clerical establishment whose overriding project is staying in power. Treat Iran as the survival-seeking state its behavior shows it to be, and the apocalyptic framing looks like a reason for war in search of a justification.</p>
+      </div>
+    </div>
+    <div class="crux-key">
+      <span class="lab">the crux</span>
+      <span class="txt"><b>Rational survival-seeker</b> or <b>ideological outlier</b>? Nearly every other disagreement on this map is downstream of this single read of the regime. <span class="same-tag">↳ this crux runs crossways to the others — it's the hidden second axis, the one the force-vs-diplomacy line is plotted against.</span></span>
+    </div>
+  </div>
+
+  <!-- CRUX 3 -->
+  <div class="crux reveal">
+    <div class="crux-head">
+      <div class="crux-meta"><span class="crux-n">Crux 03 — the deal</span><span class="crux-dom">diplomacy · verification</span></div>
+      <h3 class="crux-q ser">Can any agreement with Tehran actually hold?</h3>
+      <p class="crux-sub">The 2026 MOU points toward a final deal. Whether a deal is an instrument that binds Iran or a document that buys it time is the thing under dispute.</p>
+    </div>
+    <div class="steels">
+      <div class="steel s-found">
+        <div class="side">▸ deals with Iran expire or get gamed</div>
+        <div class="pos-name">A ceiling on a timer</div>
+        <div class="gist">The JCPOA's sunset clauses just postponed the problem, inspections can be stalled, and a regime that cheated at the margins will again.</div>
+        <p>Read the fine print of the last deal. Its key limits were written to lapse — enrichment caps sunsetting on a calendar, after which Iran could legally expand toward a weapon with the agreement still nominally in force. That is not a solution; it is a delay with a signing ceremony. And verification has limits inspectors will admit in private: Iran stonewalled the IAEA on past weaponization work, sanitized the Turquzabad site before inspectors got in, and kept an entire archive of its weapons program that Israeli intelligence later hauled out of a Tehran warehouse. You cannot inspect what you are not shown. A deal hands the regime sanctions relief and legitimacy now, in exchange for promises that expire and access it can throttle. The grass grows back faster on paper than in a bombed-out tunnel.</p>
+      </div>
+      <div class="steel s-made">
+        <div class="side">▸ the deal worked until we left it</div>
+        <div class="pos-name">A verified cap beats no cap</div>
+        <div class="gist">Under the JCPOA the program was boxed and inspected; it was the 2018 U.S. withdrawal that freed Iran to enrich to 60%.</div>
+        <p>The counterfactual is sitting right there in the timeline. From 2016 to 2018, with the JCPOA in force, Iran's enrichment was capped near 3.7%, its centrifuges were mothballed, its stockpile shipped abroad, and IAEA cameras watched the centrifuge workshops. Inspectors certified compliance again and again. Then the United States walked out of a deal Iran was keeping, reimposed sanctions, and within two years Tehran was enriching to 60% with the cameras switched off. The lesson is not that agreements with Iran fail; it is that this one was working and was abandoned by the side that wasn't even cheating. A deal with intrusive verification gives you eyes inside the program and a tripwire if it moves. No deal gives you neither, and the only alternative left is to bomb the same tunnels every few years.</p>
+      </div>
+    </div>
+    <div class="crux-key">
+      <span class="lab">the crux</span>
+      <span class="txt">Are agreements with Iran <b>enforceable instruments</b> that bind behavior, or <b>theater</b> that buys the regime time and cover? The case for the diplomatic track stands or falls here.</span>
+    </div>
+  </div>
+
+  <!-- CRUX 4 -->
+  <div class="crux reveal">
+    <div class="crux-head">
+      <div class="crux-meta"><span class="crux-n">Crux 04 — the cost</span><span class="crux-dom">constitution · economics</span></div>
+      <h3 class="crux-q ser">Who decides, and who pays?</h3>
+      <p class="crux-sub">The strikes were ordered without a vote. The bill — a closed Strait, an oil shock, troops in range — comes to everyone.</p>
+    </div>
+    <div class="steels">
+      <div class="steel s-found">
+        <div class="side">▸ a president must be able to act</div>
+        <div class="pos-name">Speed against an existential threat</div>
+        <div class="gist">Against a proliferation window measured in weeks, the commander-in-chief has to move fast — and a limited strike is not a land war.</div>
+        <p>A nuclear breakout doesn't wait for a floor debate. If Fordow is weeks from weapons-grade and a narrow window opens to set it back, a president who has to assemble 218 House votes first will watch the window close. The Constitution makes one person commander-in-chief precisely so the country can act when speed is the whole game; presidents from both parties have ordered strikes — Libya, Kosovo, Syria — without a declaration of war, and the Republic stands. These were limited operations against specific sites, not an occupation: bombers in and out in a night, no boots committed to hold ground. Treating every use of force as if it were the invasion of Iraq misreads what happened. The alternative to decisive action isn't a cleaner process; it's an Iranian bomb that no later vote can undo.</p>
+      </div>
+      <div class="steel s-made">
+        <div class="side">▸ war by one man breaks the design</div>
+        <div class="pos-name">Diffuse costs, concentrated power</div>
+        <div class="gist">Starting a war without Congress inverts the constitutional order, and the costs land on everyone while the decision sits with one.</div>
+        <p>The Framers gave Congress the power to declare war for a reason they stated plainly: the person who can order the killing should not be the same person who decides whether killing begins. "Limited" is the word every war uses on day one. The strikes on Fordow risked, and the 2026 war delivered, exactly the escalation skeptics warned of — a closed Strait of Hormuz, through which a fifth of the world's oil moves; a price shock that taxes every household on earth; missiles aimed at the tens of thousands of American troops within Iran's reach; proxies activated from Lebanon to Yemen. Those costs are spread across a planet that got no say. The decision sat with one man at dinner. A system that lets a single official commit the country to a war whose bill everyone else pays has stopped being the one the Constitution describes.</p>
+      </div>
+    </div>
+    <div class="crux-key">
+      <span class="lab">the crux</span>
+      <span class="txt">Do <b>diffuse costs and constitutional limits</b> outweigh <b>decisive executive action</b> against a proliferating adversary? It's the one crux that's about us, not Tehran.</span>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ IV. PAYOFF ============================ -->
+<section class="wrap fault-sec">
+  <div class="sec-head">
+    <div class="eyebrow"><span class="sec-num">IV</span> &nbsp;the payoff</div>
+  </div>
+
+  <div class="fault-card reveal">
+    <h3 class="fault-lead ser">Four cruxes, <em>two crossed questions</em> underneath</h3>
+    <p class="fault-intro">One axis is the loud one: force or diplomacy. But cut sideways and a quieter axis appears — is Iran the kind of state you can deter, or an actor that won't be? The strike-vs-deal argument is being plotted against that second question all along. Plot both and the field stops looking like one fight. It looks like people standing on different squares, each answering a question the other side never asked.</p>
+
+    <svg class="diagram" viewBox="0 0 980 600" role="img" aria-labelledby="dg-t dg-d">
+      <title id="dg-t">Two crossed questions under the Iran debate</title>
+      <desc id="dg-d">A grid with two axes. The horizontal axis runs from "force and pressure" on the left to "restraint and diplomacy" on the right. The vertical axis runs from "Iran is deterrable and rational" at the top to "Iran is implacable and undeterrable" at the bottom. Positions are plotted as points: Kenneth Waltz at the far upper right, restraint to the point of letting Iran have the bomb, maximally deterrable; Quincy and Cato restrainers in the upper right; maximum pressure on the left at middle height; coercive diplomacy and the 2026 MOU at the center crossing, marked as the hinge; preventive-strike hawks in the lower left; and regime-change hawks at the far lower left, force plus implacable.</desc>
+      <defs>
+        <linearGradient id="axisgrad" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0" stop-color="#6dbaa4"/>
+          <stop offset="0.5" stop-color="#6e6b78"/>
+          <stop offset="1" stop-color="#d8a652"/>
+        </linearGradient>
+      </defs>
+
+      <!-- vertical axis: the regime read -->
+      <line x1="490" y1="80" x2="490" y2="500" stroke="#34384a" stroke-width="2"/>
+      <!-- horizontal axis: force vs diplomacy -->
+      <line x1="110" y1="290" x2="870" y2="290" stroke="url(#axisgrad)" stroke-width="6" stroke-linecap="round"/>
+      <circle cx="110" cy="290" r="7" fill="#6dbaa4"/>
+      <circle cx="870" cy="290" r="7" fill="#d8a652"/>
+
+      <!-- axis labels -->
+      <text x="110" y="322" fill="#6dbaa4" font-family="'IBM Plex Mono',monospace" font-size="15">force &amp; pressure</text>
+      <text x="870" y="322" fill="#d8a652" font-family="'IBM Plex Mono',monospace" font-size="15" text-anchor="end">restraint &amp; diplomacy</text>
+      <text x="490" y="62" fill="#a6a394" font-family="'IBM Plex Mono',monospace" font-size="14" text-anchor="middle">Iran is deterrable / rational</text>
+      <text x="490" y="528" fill="#a6a394" font-family="'IBM Plex Mono',monospace" font-size="14" text-anchor="middle">Iran is implacable / undeterrable</text>
+
+      <!-- plotted positions (rows staggered so no two labels share a line) -->
+      <!-- far upper-right: maximally deterrable, restraint to "let them have it" -->
+      <circle cx="812" cy="118" r="6" fill="#d8a652"/>
+      <text x="797" y="113" fill="#ebe5d6" font-family="'IBM Plex Sans',sans-serif" font-size="14.5" text-anchor="end">Kenneth Waltz · let deterrence work</text>
+
+      <!-- upper-right: restraint + deterrable -->
+      <circle cx="690" cy="186" r="6" fill="#d8a652"/>
+      <text x="675" y="191" fill="#ebe5d6" font-family="'IBM Plex Sans',sans-serif" font-size="14.5" text-anchor="end">Quincy / Cato restrainers</text>
+
+      <!-- left, middle height: force, agnostic-to-skeptical on the read -->
+      <circle cx="276" cy="246" r="6" fill="#6dbaa4"/>
+      <text x="291" y="251" fill="#ebe5d6" font-family="'IBM Plex Sans',sans-serif" font-size="14.5">Maximum pressure</text>
+
+      <!-- the pivot: dead center, the hinge -->
+      <circle cx="490" cy="290" r="8" fill="#a195bd" stroke="#171922" stroke-width="2"/>
+      <text x="506" y="285" fill="#a195bd" font-family="'IBM Plex Sans',sans-serif" font-size="14.5" font-style="italic">Coercive diplomacy · the 2026 MOU</text>
+      <text x="506" y="304" fill="#a195bd" font-family="'IBM Plex Mono',monospace" font-size="11">pressure aimed at a deal</text>
+
+      <!-- lower-left: force + leans implacable -->
+      <circle cx="318" cy="360" r="6" fill="#6dbaa4"/>
+      <text x="333" y="365" fill="#ebe5d6" font-family="'IBM Plex Sans',sans-serif" font-size="14.5">Preventive-strike hawks</text>
+
+      <!-- far lower-left: force + fully implacable -->
+      <circle cx="226" cy="430" r="6" fill="#6dbaa4"/>
+      <text x="241" y="435" fill="#ebe5d6" font-family="'IBM Plex Sans',sans-serif" font-size="14.5">Regime-change hawks</text>
+    </svg>
+
+    <div class="fault-restate">
+      <div class="fr-item f1"><div class="fr-n">Crux 01 · the strike</div><div class="fr-t ser">Does force stop a bomb</div><p>The horizontal axis, asked of the bombs. Physical setback, or a program that just got more motivated.</p></div>
+      <div class="fr-item f2"><div class="fr-n">Crux 02 · the regime read</div><div class="fr-t ser">Is Iran deterrable</div><p>The vertical axis — the hidden one. Survival-seeking state, or ideological outlier; the read the rest hangs on.</p></div>
+      <div class="fr-item f3"><div class="fr-n">Crux 03 · the deal</div><div class="fr-t ser">Can a deal hold</div><p>The horizontal axis again, aimed at diplomacy. Enforceable instrument, or theater that buys time.</p></div>
+      <div class="fr-item f4"><div class="fr-n">Crux 04 · the cost</div><div class="fr-t ser">Who decides and pays</div><p>The horizontal axis brought home. Decisive executive action, or diffuse costs no one voted for.</p></div>
+    </div>
+
+    <p class="fault-close ser">Most arguments about Iran are really arguments about the regime — the vertical axis. Work out whether you think Tehran can be <span class="ax">deterred like any state</span> or is <span class="mk">an actor that won't be</span>, and you'll usually find your opponent disagreeing with you about that, and only seeming to disagree about the bombs.</p>
+  </div>
+</section>
+
+<!-- ============================ V. GO DEEPER ============================ -->
+<section class="wrap">
+  <div class="sec-head">
+    <div class="eyebrow"><span class="sec-num">V</span> &nbsp;go deeper</div>
+    <h2 class="ser">Where to take it next</h2>
+    <p>A few ways in, grouped by what they're for. A live conflict, so the analysis is dated; every link was checked.</p>
+  </div>
+
+  <div class="shelf reveal">
+    <div class="shelf-col">
+      <h4>The facts</h4>
+      <div class="res">
+        <div class="t"><a href="https://en.wikipedia.org/wiki/2026_Iran_war">The 2026 Iran war</a></div>
+        <div class="by">Wikipedia · running entry</div>
+        <div class="why">The full arc: the 28 February campaign, the death of Khamenei, the Strait blockade, the ceasefires, and the June MOU. Start here for the timeline.</div>
+      </div>
+      <div class="res">
+        <div class="t"><a href="https://en.wikipedia.org/wiki/2025_United_States_strikes_on_Iranian_nuclear_sites">The 2025 U.S. strikes on Iran's nuclear sites</a></div>
+        <div class="by">Wikipedia · Operation Midnight Hammer</div>
+        <div class="why">Fordow, Natanz, Isfahan, the B-2s and bunker-busters — and the dueling damage assessments at the heart of Crux 01.</div>
+      </div>
+      <div class="res">
+        <div class="t"><a href="https://en.wikipedia.org/wiki/12-Day_War">The 12-Day War (June 2025)</a></div>
+        <div class="by">Wikipedia</div>
+        <div class="why">The Israel–Iran fight the U.S. strikes joined — the prelude that set the 2026 war in motion.</div>
+      </div>
+    </div>
+
+    <div class="shelf-col">
+      <h4>Analysis · mixed</h4>
+      <div class="res">
+        <div class="t"><a href="https://www.armscontrol.org/issue-briefs/2026-03/us-war-iran-new-and-lingering-nuclear-risks">The U.S. War on Iran: New and Lingering Nuclear Risks</a></div>
+        <div class="by">Arms Control Association · Mar 2026</div>
+        <div class="why">Sober on what the strikes did and didn't do to the program, and on the proliferation risk the war leaves behind. Good on Cruxes 01 and 03.</div>
+      </div>
+      <div class="res">
+        <div class="t"><a href="https://www.csis.org/analysis/united-states-and-iran-announce-deal-end-war-state-play">The U.S. and Iran Announce a Deal to End the War</a></div>
+        <div class="by">CSIS · state of play</div>
+        <div class="why">What the MOU settles and what it punts — Hormuz, the stockpile, sanctions — from a centrist shop. The clearest read of the current track.</div>
+      </div>
+      <div class="res">
+        <div class="t"><a href="https://www.justsecurity.org/114556/collection-israel-iran-conflict/">Collection: the Israel–Iran conflict</a></div>
+        <div class="by">Just Security</div>
+        <div class="why">A running set of legal and strategic pieces, including hard looks at the war-powers question behind Crux 04.</div>
+      </div>
+    </div>
+
+    <div class="shelf-col">
+      <h4>The hawk case</h4>
+      <div class="res">
+        <div class="t"><a href="https://www.washingtoninstitute.org/policy-analysis/diplomacy-military-force-future-irans-nuclear-program">From Diplomacy to Military Force</a></div>
+        <div class="by">The Washington Institute</div>
+        <div class="why">The case that pressure and force, not talk, is what moves Tehran — the future of the program seen from the side that backed the strikes.</div>
+      </div>
+    </div>
+
+    <div class="shelf-col">
+      <h4>The restraint case</h4>
+      <div class="res">
+        <div class="t"><a href="https://www.cato.org/commentary/how-end-war-iran">How to End the War in Iran</a></div>
+        <div class="by">Cato Institute</div>
+        <div class="why">The libertarian-realist argument for getting out and bargaining — why strikes don't solve the problem they claim to.</div>
+      </div>
+      <div class="res">
+        <div class="t"><a href="https://www.e-ir.info/2026/04/24/the-nuclear-brink-revisited-assessing-coercive-diplomacy-in-iran/">The Nuclear Brink Revisited</a></div>
+        <div class="by">E-International Relations · Apr 2026</div>
+        <div class="why">An assessment of coercive diplomacy as it actually played out — the hinge of this whole map, examined.</div>
+      </div>
+      <div class="res">
+        <div class="t"><a href="https://en.wikipedia.org/wiki/Quincy_Institute_for_Responsible_Statecraft">The Quincy Institute</a></div>
+        <div class="by">Wikipedia · background</div>
+        <div class="why">Who the restraint camp is and where it comes from — the think tank that has pushed hardest against the strikes.</div>
+      </div>
+    </div>
+
+    <div class="shelf-col">
+      <h4>The classic</h4>
+      <div class="res">
+        <div class="t">Why Iran Should Get the Bomb</div>
+        <div class="by">Kenneth N. Waltz · Foreign Affairs · 2012</div>
+        <div class="why">The deterrence-optimist case at its most unflinching: a nuclear Iran would be deterrable and might steady the region. The far-right pole of the payoff diagram, argued by the man who put it there. (Paywalled; cited by title.)</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ FOOTER ============================ -->
+<footer class="wrap">
+  <p class="foot-note"><b>On these summaries.</b> Each steelman is compressed to its strongest form — the hawk's "force is the only language Tehran respects" and the restrainer's "you can't bomb away knowledge" both run to books and briefings, and a panel here is a doorway, not the room. Mapping the best case for both sides is not endorsing either; the point is to find which question you actually disagree on, not to settle it. Dates mark a representative event, not the first time anyone made the move. This is a live conflict — written in late June 2026, with a 60-day ceasefire running and nothing final signed — so specifics will age fast; check the facts links before relying on any of it. The two-pole axis is a lens for seeing structure, useful because it simplifies, and the lilac hinge is there to flag the view that the line was drawn in the wrong place.</p>
+  <div class="foot-links">
+    <a href="/debates">← All debate maps</a>
+    <a href="/">brooker.family</a>
+  </div>
+</footer>
+
+<script>
+(function(){
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var items = document.querySelectorAll('.reveal');
+  if(reduce || !('IntersectionObserver' in window)){
+    items.forEach(function(el){ el.classList.add('in'); });
+    return;
+  }
+  var io = new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); }
+    });
+  }, {threshold:0.12, rootMargin:'0px 0px -8% 0px'});
+  items.forEach(function(el){ io.observe(el); });
+})();
+</script>
+</body>
+</html>
