@@ -1,0 +1,846 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- Field map: the existence of God -->
+<title>Saturated fat: artery-clogger, or wrongly blamed? — a map of the diet-heart debate</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,500&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#171922; --ink-2:#1e212c; --card:#23273380; --card-solid:#232734;
+    --line:#34384a; --line-soft:#2a2e3b;
+    --bone:#ebe5d6; --mute:#a6a394; --faint:#807e8a;
+    /* found = pole A (verdigris) · made = pole B (ochre) · pivot = the reconciling hinge (lilac).
+       Rename the *concepts* in your prose, but keep these three colors as the axis. */
+    --found:#6dbaa4; --found-deep:#2f6657; --found-glow:#6dbaa422;
+    --made:#d8a652; --made-deep:#7d5f29; --made-glow:#d8a65222;
+    --pivot:#a195bd; --pivot-glow:#a195bd1f;
+    /* third camp (slate-blue) — only for genuinely ternary debates; see SKILL.md */
+    --camp-c:#6f93c4; --camp-c-deep:#33506f; --camp-c-glow:#6f93c41f;
+    --maxw:1180px;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0; background:var(--ink); color:var(--bone);
+    font-family:"IBM Plex Sans",sans-serif; font-weight:400;
+    line-height:1.62; font-size:17px;
+    -webkit-font-smoothing:antialiased;
+    background-image:
+      radial-gradient(900px 600px at 82% -8%, #20243340, transparent 70%),
+      radial-gradient(700px 500px at 5% 18%, #1d212e55, transparent 70%);
+    background-attachment:fixed;
+  }
+  .wrap{max-width:var(--maxw); margin:0 auto; padding:0 26px;}
+  .mono{font-family:"IBM Plex Mono",monospace;}
+  .ser{font-family:"Fraunces",serif;}
+
+  /* ---------- eyebrows / dividers ---------- */
+  .eyebrow{
+    font-family:"IBM Plex Mono",monospace; font-size:12px; font-weight:500;
+    letter-spacing:.22em; text-transform:uppercase; color:var(--faint);
+    display:flex; align-items:center; gap:14px;
+  }
+  .eyebrow::before{content:""; width:30px; height:1px; background:var(--line); display:inline-block;}
+  .sec-num{color:var(--mute);}
+
+  /* ---------- brooker site tie (added for brooker.family/debates) ---------- */
+  .site-tie{
+    font-family:"IBM Plex Mono",monospace; font-size:12px; letter-spacing:.2em;
+    text-transform:uppercase; color:var(--faint); text-decoration:none;
+    display:inline-flex; align-items:center; gap:9px; margin:0 0 30px;
+    transition:color .2s;
+  }
+  .site-tie::before{content:""; width:22px; height:1px; background:var(--line); display:inline-block;}
+  .site-tie:hover{color:var(--bone);}
+  .foot-links{margin-top:22px; display:flex; gap:24px; flex-wrap:wrap;}
+  .foot-links a{
+    font-family:"IBM Plex Mono",monospace; font-size:11.5px; letter-spacing:.16em;
+    text-transform:uppercase; color:var(--mute); text-decoration:none;
+    border-bottom:1px solid var(--line); padding-bottom:2px;
+  }
+  .foot-links a:hover{color:var(--bone); border-bottom-color:var(--mute);}
+
+  /* ---------- header ---------- */
+  header{padding:clamp(56px,10vw,116px) 0 clamp(40px,7vw,80px);}
+  .kicker{
+    font-family:"IBM Plex Mono",monospace; font-size:12.5px; letter-spacing:.26em;
+    text-transform:uppercase; color:var(--faint); margin:0 0 26px;
+  }
+  h1.title{
+    font-family:"Fraunces",serif; font-weight:400; font-optical-sizing:auto;
+    font-size:clamp(2.5rem,6.4vw,4.7rem); line-height:1.02; letter-spacing:-.012em;
+    margin:0; max-width:16ch;
+  }
+  h1.title em{font-style:italic; color:var(--found);}
+  h1.title .mk{font-style:italic; color:var(--made);}
+  .dek{
+    font-size:clamp(1.05rem,2.1vw,1.35rem); color:var(--mute); line-height:1.5;
+    max-width:47ch; margin:30px 0 0; font-weight:400;
+  }
+  .dek b{color:var(--bone); font-weight:500;}
+
+  /* ---------- axis legend ---------- */
+  .legend{
+    margin-top:46px; border:1px solid var(--line-soft); border-radius:14px;
+    background:linear-gradient(100deg,#1c202c,#1a1e29);
+    padding:22px 24px; display:grid; gap:14px;
+  }
+  .legend-top{font-family:"IBM Plex Mono",monospace; font-size:11.5px; letter-spacing:.2em; text-transform:uppercase; color:var(--faint);}
+  .axis-bar{
+    height:7px; border-radius:6px;
+    background:linear-gradient(90deg,var(--found) 0%, #6e6b78 50%, var(--made) 100%);
+  }
+  .axis-ends{display:flex; justify-content:space-between; gap:16px; font-size:14.5px;}
+  .axis-ends .ax-found{color:var(--found);}
+  .axis-ends .ax-made{color:var(--made); text-align:right;}
+  .axis-ends span b{display:block; font-weight:600; font-size:15px; margin-bottom:1px;}
+  .axis-ends span small{color:var(--faint); font-size:12.5px; letter-spacing:.02em;}
+
+  /* ---------- section frame ---------- */
+  section{padding:clamp(54px,8vw,96px) 0;}
+  .sec-head{margin-bottom:42px;}
+  .sec-head h2{
+    font-family:"Fraunces",serif; font-weight:400; font-size:clamp(1.9rem,4vw,2.9rem);
+    line-height:1.06; letter-spacing:-.01em; margin:18px 0 0; max-width:24ch;
+  }
+  .sec-head p{color:var(--mute); max-width:62ch; margin:16px 0 0; font-size:1.02rem;}
+
+  /* ===== I. LINEAGE (timeline) ===== */
+  .lineage{position:relative;}
+  .spine{
+    position:absolute; left:140px; top:6px; bottom:6px; width:2px;
+    background:linear-gradient(var(--found-deep),var(--line),var(--made-deep));
+  }
+  .node{position:relative; padding:0 0 26px 172px; min-height:30px;}
+  .node .yr{
+    position:absolute; left:0; top:1px; width:118px; text-align:right;
+    font-family:"IBM Plex Mono",monospace; font-size:12.5px; color:var(--faint);
+    letter-spacing:.02em; padding-top:2px;
+  }
+  .node .dot{
+    position:absolute; left:134px; top:6px; width:14px; height:14px; border-radius:50%;
+    background:var(--ink); border:2px solid var(--mute); z-index:2;
+  }
+  .node.found .dot{border-color:var(--found); box-shadow:0 0 0 4px var(--found-glow);}
+  .node.made .dot{border-color:var(--made); box-shadow:0 0 0 4px var(--made-glow);}
+  .node.pivot .dot{border-color:var(--pivot); box-shadow:0 0 0 4px var(--pivot-glow);}
+  .node .who{font-family:"Fraunces",serif; font-size:1.24rem; font-weight:500; line-height:1.15; letter-spacing:-.005em;}
+  .node .dom{font-family:"IBM Plex Mono",monospace; font-size:10.5px; letter-spacing:.16em; text-transform:uppercase; margin-left:10px; color:var(--faint); vertical-align:middle;}
+  .node .say{color:var(--mute); font-size:.99rem; margin-top:4px; max-width:64ch;}
+  .node.camp-c .dot{border-color:var(--camp-c); box-shadow:0 0 0 4px var(--camp-c-glow);}
+  .node.found .who{color:var(--found);}
+  .node.made .who{color:var(--made);}
+  .node.pivot .who{color:var(--pivot);}
+  .node.camp-c .who{color:var(--camp-c);}
+  .lineage-tail{padding-left:172px; margin-top:2px;}
+  .lineage-tail .pin{
+    position:relative; padding:16px 20px; border:1px dashed var(--line);
+    border-radius:12px; background:#1b1f2a; max-width:60ch;
+  }
+  .lineage-tail .pin b{font-family:"Fraunces",serif; font-weight:500; font-size:1.05rem;}
+  .lineage-tail .pin p{margin:5px 0 0; color:var(--mute); font-size:.96rem;}
+
+  /* ===== II. POSITIONS (field guide) ===== */
+  .fields{display:grid; grid-template-columns:1fr 1fr; gap:30px;}
+  .field h3{
+    font-family:"IBM Plex Mono",monospace; font-size:12.5px; letter-spacing:.2em;
+    text-transform:uppercase; color:var(--bone); margin:0 0 18px; padding-bottom:12px;
+    border-bottom:1px solid var(--line); display:flex; justify-content:space-between; align-items:baseline;
+  }
+  .field h3 small{color:var(--faint); letter-spacing:.12em; font-weight:400;}
+  .pos{
+    border:1px solid var(--line-soft); border-left:3px solid var(--line);
+    border-radius:0 11px 11px 0; background:var(--card);
+    padding:16px 18px; margin-bottom:13px; transition:border-color .25s, background .25s, transform .25s;
+  }
+  .pos.found{border-left-color:var(--found);}
+  .pos.made{border-left-color:var(--made);}
+  .pos.pivot{border-left-color:var(--pivot);}
+  .pos.camp-c{border-left-color:var(--camp-c);}
+  .pos:hover{transform:translateX(3px); background:var(--card-solid);}
+  .pos .nm{font-family:"Fraunces",serif; font-weight:600; font-size:1.16rem; letter-spacing:-.005em; display:flex; align-items:baseline; gap:10px; flex-wrap:wrap;}
+  .pos.found .nm{color:var(--found);} .pos.made .nm{color:var(--made);} .pos.pivot .nm{color:var(--pivot);} .pos.camp-c .nm{color:var(--camp-c);}
+  /* go-deeper links on a card or in the shelf */
+  .src-links{margin-top:9px; display:flex; flex-wrap:wrap; gap:6px 14px;}
+  .src-links a{font-family:"IBM Plex Mono",monospace; font-size:11.5px; color:var(--mute); text-decoration:none; border-bottom:1px solid var(--line);}
+  .src-links a:hover{color:var(--bone); border-bottom-color:var(--mute);}
+  .src-links a::after{content:" ↗"; color:var(--faint);}
+  .traction{
+    font-family:"IBM Plex Mono",monospace; font-size:10px; letter-spacing:.08em; text-transform:uppercase;
+    color:var(--faint); border:1px solid var(--line); border-radius:20px; padding:2px 9px; white-space:nowrap;
+  }
+  .pos .figs{font-family:"IBM Plex Mono",monospace; font-size:12px; color:var(--mute); margin:7px 0 7px; letter-spacing:.01em;}
+  .pos .claim{color:var(--bone); font-size:.97rem; line-height:1.5;}
+  .pos .nb{display:block; margin-top:7px; color:var(--faint); font-size:.85rem; font-style:italic;}
+  .pivot-card{
+    grid-column:1/-1; border:1px solid var(--pivot); border-radius:13px;
+    background:linear-gradient(100deg,#211f2c,#1c1b25); padding:20px 22px; margin-top:4px;
+    display:flex; gap:18px; align-items:flex-start; flex-wrap:wrap;
+  }
+  .pivot-card .pv-tag{font-family:"IBM Plex Mono",monospace; font-size:11px; letter-spacing:.2em; text-transform:uppercase; color:var(--pivot); white-space:nowrap; padding-top:5px;}
+  .pivot-card .pv-body{flex:1 1 320px;}
+  .pivot-card .pv-body b{font-family:"Fraunces",serif; font-weight:600; font-size:1.2rem; color:var(--pivot);}
+  .pivot-card .pv-body p{margin:6px 0 0; color:var(--bone); font-size:.98rem;}
+  .traction-note{margin-top:20px; color:var(--faint); font-size:.84rem; font-style:italic; max-width:70ch; display:flex; gap:9px;}
+  .traction-note::before{content:"※"; color:var(--mute); font-style:normal;}
+
+  /* ===== III. CRUXES (confrontations) ===== */
+  .crux{border:1px solid var(--line-soft); border-radius:18px; overflow:hidden; margin-bottom:30px; background:#191d28;}
+  .crux-head{padding:24px 28px 20px; border-bottom:1px solid var(--line-soft);}
+  .crux-meta{display:flex; justify-content:space-between; gap:14px; align-items:baseline; flex-wrap:wrap; margin-bottom:12px;}
+  .crux-n{font-family:"IBM Plex Mono",monospace; font-size:13px; letter-spacing:.18em; color:var(--mute);}
+  .crux-dom{font-family:"IBM Plex Mono",monospace; font-size:10.5px; letter-spacing:.16em; text-transform:uppercase; color:var(--ink); background:var(--mute); padding:3px 10px; border-radius:20px;}
+  .crux-dom.both{background:var(--pivot);}
+  .crux-q{font-family:"Fraunces",serif; font-weight:500; font-size:clamp(1.4rem,3vw,2rem); line-height:1.12; letter-spacing:-.01em; margin:0;}
+  .crux-sub{color:var(--mute); margin:9px 0 0; font-size:.98rem;}
+  .steels{display:grid; grid-template-columns:1fr 1fr; gap:0;}
+  .steel{padding:24px 28px; position:relative;}
+  .steel.s-found{background:linear-gradient(180deg,#1a2420,#191f1d);}
+  .steel.s-made{background:linear-gradient(180deg,#241f17,#1f1c16); border-left:1px solid var(--line-soft);}
+  .steel .side{font-family:"IBM Plex Mono",monospace; font-size:11px; letter-spacing:.14em; text-transform:uppercase; margin-bottom:5px;}
+  .steel.s-found .side{color:var(--found);}
+  .steel.s-made .side{color:var(--made);}
+  .steel .pos-name{font-family:"Fraunces",serif; font-weight:600; font-size:1.12rem; margin-bottom:9px; line-height:1.2;}
+  .steel.s-found .pos-name{color:var(--found);}
+  .steel.s-made .pos-name{color:var(--made);}
+  .steel .gist{font-weight:600; font-size:1.04rem; line-height:1.45; color:var(--bone); margin:0 0 13px; padding-bottom:13px; border-bottom:1px dashed var(--line);}
+  .steel .gist::before{content:"In plain terms"; display:block; font-family:"IBM Plex Mono",monospace; font-size:10px; font-weight:500; letter-spacing:.18em; text-transform:uppercase; color:var(--faint); margin-bottom:5px;}
+  .steel p{margin:0; font-size:.97rem; line-height:1.56; color:#e2dccd;}
+  .steel p em{font-style:italic; color:var(--bone);}
+  .crux-key{padding:18px 28px; background:#13161f; border-top:1px solid var(--line-soft); display:flex; gap:14px; align-items:flex-start;}
+  .crux-key .lab{font-family:"IBM Plex Mono",monospace; font-size:11px; letter-spacing:.16em; text-transform:uppercase; color:var(--faint); padding-top:3px; white-space:nowrap;}
+  .crux-key .txt{font-size:.99rem; color:var(--bone); line-height:1.5;}
+  .crux-key .txt b{font-weight:600;}
+  .same-tag{display:inline-block; margin-top:9px; font-family:"IBM Plex Mono",monospace; font-size:11px; letter-spacing:.08em; color:var(--pivot); border:1px solid var(--pivot); border-radius:20px; padding:3px 11px;}
+
+  /* ===== IV. PAYOFF ===== */
+  .fault-sec{background:linear-gradient(180deg,transparent, #13161f 30%, #13161f 70%, transparent);}
+  .fault-card{border:1px solid var(--line); border-radius:20px; background:#171b25; padding:clamp(24px,4vw,44px); box-shadow:0 30px 80px -50px #000;}
+  .fault-lead{font-family:"Fraunces",serif; font-weight:400; font-size:clamp(1.5rem,3.3vw,2.3rem); line-height:1.18; letter-spacing:-.01em; margin:0 0 8px; max-width:26ch;}
+  .fault-lead em{font-style:italic; color:var(--pivot);}
+  .fault-intro{color:var(--mute); max-width:64ch; margin:0 0 30px; font-size:1.02rem;}
+  .diagram{width:100%; height:auto; display:block; margin:6px 0 4px; overflow:visible;}
+  .fault-restate{display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:18px; margin-top:34px;}
+  .fr-item{border-top:2px solid var(--line); padding-top:13px;}
+  .fr-item.f1{border-top-color:var(--made);}
+  .fr-item.f2{border-top-color:var(--pivot);}
+  .fr-item.f3{border-top-color:var(--found);}
+  .fr-item.f4{border-top-color:var(--made);}
+  .fr-item .fr-n{font-family:"IBM Plex Mono",monospace; font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--faint);}
+  .fr-item .fr-t{font-family:"Fraunces",serif; font-weight:500; font-size:1.05rem; margin:4px 0 5px;}
+  .fr-item p{margin:0; font-size:.92rem; color:var(--mute); line-height:1.5;}
+  .fault-close{margin-top:36px; padding-top:26px; border-top:1px solid var(--line); font-family:"Fraunces",serif; font-style:italic; font-weight:400; font-size:clamp(1.15rem,2.4vw,1.5rem); line-height:1.35; color:var(--bone); max-width:44ch;}
+  .fault-close .ax{color:var(--found);}
+  .fault-close .mk{color:var(--made);}
+
+  /* ===== V. GO DEEPER (resources shelf) ===== */
+  .shelf{display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:24px;}
+  .shelf-col h4{font-family:"IBM Plex Mono",monospace; font-size:12px; letter-spacing:.18em; text-transform:uppercase; color:var(--mute); margin:0 0 14px; padding-bottom:10px; border-bottom:1px solid var(--line);}
+  .res{margin-bottom:15px;}
+  .res .t{font-family:"Fraunces",serif; font-weight:500; font-size:1.04rem; line-height:1.25;}
+  .res .t a{color:var(--bone); text-decoration:none; border-bottom:1px solid var(--line);}
+  .res .t a:hover{border-bottom-color:var(--mute);}
+  .res .by{font-family:"IBM Plex Mono",monospace; font-size:11.5px; color:var(--faint); margin-top:1px;}
+  .res .why{color:var(--mute); font-size:.9rem; margin-top:4px; line-height:1.45;}
+
+  /* ---------- footer ---------- */
+  footer{padding:54px 0 80px; border-top:1px solid var(--line-soft); margin-top:30px;}
+  .foot-note{color:var(--faint); font-size:.86rem; max-width:66ch; line-height:1.55;}
+  .foot-note b{color:var(--mute); font-weight:500;}
+
+  /* ---------- what would move them (per-crux concessions) ---------- */
+  .crux-cede{padding:16px 28px 22px; background:#13161f; border-top:1px solid var(--line-soft); display:flex; gap:14px; align-items:flex-start; flex-wrap:wrap;}
+  .crux-cede .lab{font-family:"IBM Plex Mono",monospace; font-size:11px; letter-spacing:.16em; text-transform:uppercase; color:var(--faint); padding-top:3px; white-space:nowrap;}
+  .crux-cede .cede{flex:1 1 320px; display:grid; gap:9px;}
+  .crux-cede .cede p{margin:0; font-size:.92rem; line-height:1.5; color:var(--mute); padding-left:13px; border-left:2px solid var(--line);}
+  .crux-cede .cede .c-found{border-left-color:var(--found);}
+  .crux-cede .cede .c-made{border-left-color:var(--made);}
+  .crux-cede .cede b{display:block; margin-bottom:1px; font-family:"IBM Plex Mono",monospace; font-size:10.5px; letter-spacing:.05em; text-transform:uppercase; font-weight:600; color:var(--bone);}
+  /* ---------- pole lean tag (colour-independent position marker) ---------- */
+  .pos .nm .lean{font-family:"IBM Plex Mono",monospace; font-size:9.5px; letter-spacing:.08em; text-transform:uppercase; color:var(--faint); border:1px solid var(--line); border-radius:4px; padding:1px 6px; white-space:nowrap; align-self:center; font-weight:500;}
+  .pos.found .nm .lean{color:var(--found); border-color:var(--found-deep);}
+  .pos.made .nm .lean{color:var(--made); border-color:var(--made-deep);}
+  .pos.pivot .nm .lean{color:var(--pivot); border-color:var(--pivot);}
+  .pos.camp-c .nm .lean{color:var(--camp-c); border-color:var(--camp-c-deep);}
+  /* ---------- reveal ---------- */
+  .reveal{opacity:0; transform:translateY(16px); transition:opacity .7s ease, transform .7s ease;}
+  .reveal.in{opacity:1; transform:none;}
+
+  :focus-visible{outline:2px solid var(--found); outline-offset:3px; border-radius:3px;}
+
+  /* ---------- responsive ---------- */
+  @media (max-width:760px){
+    body{font-size:16px;}
+    .fields{grid-template-columns:1fr;}
+    .steels{grid-template-columns:1fr;}
+    .steel.s-made{border-left:none; border-top:1px solid var(--line-soft);}
+    .spine{left:84px;}
+    .node{padding-left:112px;}
+    .node .yr{width:64px;}
+    .node .dot{left:78px;}
+    .lineage-tail{padding-left:112px;}
+    .axis-ends{flex-direction:column; gap:10px;}
+    .axis-ends .ax-made{text-align:left;}
+  }
+  @media (prefers-reduced-motion:reduce){
+    *{scroll-behavior:auto;}
+    .reveal{opacity:1; transform:none; transition:none;}
+    .draw{stroke-dashoffset:0 !important;}
+  }
+</style>
+</head>
+<body>
+
+<!-- ============================ HEADER ============================ -->
+<header class="wrap">
+  <a class="site-tie" href="/debates">All debate maps · brooker</a>
+  <p class="kicker">FIELD · nutrition science, cardiology &amp; dietary policy</p>
+  <h1 class="title">Saturated fat: <em>artery-clogger</em>, or <span class="mk">wrongly blamed</span>?</h1>
+  <p class="dek">Sixty years of advice to put down the butter, mapped. A dozen positions on whether saturated fat causes heart disease fold into four <b>disagreements</b>, and those into two <b>questions</b>: how much you trust LDL and ApoB as the lever, and whether the right unit to argue about is the molecule or the meal. What rides on it: what goes on the national plate, butter versus seed oils, and whose science gets believed. Below — the <b>lineage</b>, the <b>positions and who holds them</b>, and four <b>cruxes</b>, each with the strongest case both sides actually make.</p>
+
+  <div class="legend reveal">
+    <div class="legend-top">One axis runs under all of it. Watch the two colors.</div>
+    <div class="axis-bar"></div>
+    <div class="axis-ends">
+      <span class="ax-found"><b>Harmful — limit it</b><small>raises LDL/ApoB · the diet-heart case</small></span>
+      <span class="ax-made"><b>Largely benign</b><small>the molecule was scapegoated</small></span>
+    </div>
+  </div>
+</header>
+
+<!-- ============================ I. LINEAGE ============================ -->
+<section class="wrap">
+  <div class="sec-head">
+    <div class="eyebrow"><span class="sec-num">I</span> &nbsp;the lineage</div>
+    <h2 class="ser">A century of pointing the finger, in one column</h2>
+    <p>Read top to bottom. A dot's halo marks where the work landed — green for "limit it," gold for "the molecule was over-blamed," lilac for the reading that the whole framing was off.</p>
+  </div>
+
+  <div class="lineage reveal">
+    <div class="spine" aria-hidden="true"></div>
+
+    <div class="node found">
+      <span class="yr">1913</span><span class="dot"></span>
+      <div class="who">Nikolai Anitschkow<span class="dom">pathology · rabbits</span></div>
+      <div class="say">A St. Petersburg pathologist feeds rabbits pure cholesterol and watches their arteries fur up with plaque. The lesions look like human atherosclerosis. The lipid hypothesis starts here — fat and cholesterol in the diet, disease in the vessels.</div>
+    </div>
+
+    <div class="node found">
+      <span class="yr">1953</span><span class="dot"></span>
+      <div class="who">Ancel Keys<span class="dom">epidemiology · the six-country curve</span></div>
+      <div class="say">Keys plots fat intake against heart-disease deaths across six countries and gets a clean rising line. The Seven Countries Study, launched a few years later, becomes the empirical backbone of the case. Critics have argued ever since about the countries he left off the chart.</div>
+    </div>
+
+    <div class="node found">
+      <span class="yr">1961</span><span class="dot"></span>
+      <div class="who">American Heart Association<span class="dom">policy · first advice</span></div>
+      <div class="say">The AHA tells Americans to cut saturated fat to protect the heart — the first time a major body turns the hypothesis into a recommendation. Once it's advice, it's hard to walk back.</div>
+    </div>
+
+    <div class="node made">
+      <span class="yr">1972</span><span class="dot"></span>
+      <div class="who">John Yudkin<span class="dom">nutrition · the other suspect</span></div>
+      <div class="say"><em>Pure, White and Deadly</em> names sugar, not fat, as the driver of heart disease. Yudkin and Keys despised each other; Keys won the institutions, and Yudkin's reputation was buried for a generation before the sugar argument came back.</div>
+    </div>
+
+    <div class="node found">
+      <span class="yr">1977</span><span class="dot"></span>
+      <div class="who">McGovern Committee<span class="dom">policy · Dietary Goals</span></div>
+      <div class="say">The Senate's <em>Dietary Goals for the United States</em> tells the country to eat less fat, kicking off the low-fat era in American policy. Skeptics read it as a hypothesis promoted to a mandate before the trials were in.</div>
+    </div>
+
+    <div class="node made">
+      <span class="yr">1980s–90s</span><span class="dot"></span>
+      <div class="who">The low-fat boom<span class="dom">food industry · the backfire</span></div>
+      <div class="say">SnackWell's and fat-free everything fill the shelves; the fat that came out got replaced by sugar and refined starch. Across the same window, obesity and type-2 diabetes climbed. Whether the advice caused the backfire or just rode alongside it is still fought over.</div>
+    </div>
+
+    <div class="node made">
+      <span class="yr">2010</span><span class="dot"></span>
+      <div class="who">Patty Siri-Tarino et al.<span class="dom">meta-analysis · cohorts</span></div>
+      <div class="say">A pooled analysis of prospective cohorts finds no significant tie between saturated fat intake and coronary disease. The first big crack in the consensus from inside the mainstream literature, in a mainstream journal.</div>
+    </div>
+
+    <div class="node made">
+      <span class="yr">2014</span><span class="dot"></span>
+      <div class="who">Rajiv Chowdhury et al.<span class="dom">meta-analysis · Annals</span></div>
+      <div class="say">A larger synthesis in <em>Annals of Internal Medicine</em> reports that cutting saturated fat, or eating more of the favored unsaturated fats, doesn't clearly lower coronary risk. The rebuttals were immediate and ferocious — corrections, open letters, demands for retraction.</div>
+    </div>
+
+    <div class="node made">
+      <span class="yr">2016</span><span class="dot"></span>
+      <div class="who">Christopher Ramsden et al. · Kearns et al.<span class="dom">recovered trial · industry papers</span></div>
+      <div class="say">Ramsden's team digs out the raw data from the Minnesota Coronary Experiment (1968–73): swapping saturated fat for linoleic-acid vegetable oil lowered cholesterol but did <em>not</em> cut coronary or all-cause death. The same year, Kearns finds 1960s documents showing the sugar industry paid for research that steered blame toward fat.</div>
+    </div>
+
+    <div class="node pivot">
+      <span class="yr">2017–2026</span><span class="dot"></span>
+      <div class="who">PURE · ApoB · MAHA<span class="dom">cohort · guideline · politics</span></div>
+      <div class="say">The PURE study (2017) reports saturated fat not linked to mortality across 18 countries, while the AHA reaffirms its advice. The 2025–2030 Dietary Guidelines keep the ≤10%-of-calories cap; the 2026 ACC/AHA guideline elevates ApoB and Lp(a) as risk markers. In late 2025, RFK Jr.'s MAHA push for tallow, full-fat dairy, and red meat reopens the fight as politics — and critics say the loosening was messaging, not new evidence.</div>
+    </div>
+
+    <div class="lineage-tail">
+      <div class="pin">
+        <b>Into the present</b>
+        <p>A century in, the lipid hypothesis is alive and the diet step is its softest link. The argument has migrated from "is fat bad?" to a narrower set: which fat, in which food, measured how, for whom — and who gets to decide what the label says.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ II. POSITIONS ============================ -->
+<section class="wrap">
+  <div class="sec-head">
+    <div class="eyebrow"><span class="sec-num">II</span> &nbsp;the positions</div>
+    <h2 class="ser">Who holds what — and where it sits on the axis</h2>
+    <p>Two families of position: claims about the biology, and claims about what the trials and the policy record actually show. A card's left edge is its lean; the tag is rough sociology, not a scorecard.</p>
+  </div>
+
+  <div class="fields reveal">
+    <div class="field">
+      <h3>On the biology <small>lipids &amp; mechanism</small></h3>
+
+      <div class="pos found">
+        <div class="nm"><span class="lean">◀ harmful</span> Diet-heart / lipid hypothesis <span class="traction">the standing consensus</span></div>
+        <div class="figs">Keys · the AHA · mainstream cardiology</div>
+        <div class="claim">Saturated fat raises LDL cholesterol and ApoB, and those particles drive atherosclerosis. Eat less of it and the arteries fare better.</div>
+        <span class="nb">The position most guidelines are built on; its weakest spot is the jump from the lab marker to events on a plate.</span>
+        <div class="src-links"><a href="https://en.wikipedia.org/wiki/Lipid_hypothesis">Lipid hypothesis</a></div>
+      </div>
+
+      <div class="pos found">
+        <div class="nm"><span class="lean">◀ harmful</span> ApoB-centric causal view <span class="traction">ascendant among lipidologists</span></div>
+        <div class="figs">Allan Sniderman · contemporary lipidology</div>
+        <div class="claim">It's the number of ApoB particles that does the damage, not LDL-C as such. Lower the particle count by any route you can, and events fall.</div>
+        <span class="nb">Shifts the target from a cholesterol concentration to a particle count — and from diet alone toward statins, PCSK9 inhibitors, and genetics.</span>
+        <div class="src-links"><a href="https://en.wikipedia.org/wiki/Apolipoprotein_B">Apolipoprotein B</a></div>
+      </div>
+
+      <div class="pos made">
+        <div class="nm"><span class="lean">▶ benign</span> Carbohydrate-insulin / low-carb <span class="traction">large public following, contested in academia</span></div>
+        <div class="figs">Yudkin · Gary Taubes · David Ludwig</div>
+        <div class="claim">Refined carbohydrate and sugar drive obesity, insulin resistance, and heart disease. Saturated fat is mostly a bystander that took the fall.</div>
+        <span class="nb">Reframes the whole question around metabolism rather than the lipid panel.</span>
+        <div class="src-links"><a href="https://en.wikipedia.org/wiki/Gary_Taubes">Gary Taubes</a></div>
+      </div>
+
+      <div class="pos made">
+        <div class="nm"><span class="lean">▶ benign</span> "LDL is context-dependent" <span class="traction">a working hypothesis, not settled</span></div>
+        <div class="figs">lipid-energy-model researchers · low-carb clinicians</div>
+        <div class="claim">LDL that rises on a low-carb diet is mostly the large, buoyant kind, and hyper-responders complicate any single threshold — so a high number isn't automatically a high risk.</div>
+        <span class="nb">Concedes the marker matters in general while arguing the context can flip what it means.</span>
+      </div>
+    </div>
+
+    <div class="field">
+      <h3>On the evidence &amp; the advice <small>trials, policy, history</small></h3>
+
+      <div class="pos found">
+        <div class="nm"><span class="lean">◀ harmful</span> Guideline consensus <span class="traction">institutional default</span></div>
+        <div class="figs">AHA · the Dietary Guidelines committee</div>
+        <div class="claim">Limit saturated fat and replace it with unsaturated fat and whole grains. The 2025–2030 guidelines hold the line at ≤10% of calories; the AHA goes further, to 5–6%.</div>
+        <span class="nb">The advice has softened on total fat over the years, but the saturated-fat cap has held.</span>
+        <div class="src-links"><a href="https://www.heart.org/en/healthy-living/healthy-eating/eat-smart/fats/saturated-fats">AHA: Saturated Fats</a></div>
+      </div>
+
+      <div class="pos found">
+        <div class="nm"><span class="lean">◀ harmful</span> Whole-diet / Mediterranean pattern <span class="traction">broad expert support</span></div>
+        <div class="figs">Walter Willett · Harvard Nutrition Source · PREDIMED researchers</div>
+        <div class="claim">The unit that matters is the dietary pattern, not the macronutrient — and patterns rich in unsaturated fats, like the Mediterranean diet, look protective.</div>
+        <span class="nb">Sits near the hinge: keeps the verdict on saturated fat but moves the argument up to whole foods and patterns.</span>
+        <div class="src-links"><a href="https://nutritionsource.hsph.harvard.edu/what-should-you-eat/fats-and-cholesterol/">Harvard: Fats &amp; Cholesterol</a></div>
+      </div>
+
+      <div class="pos made">
+        <div class="nm"><span class="lean">▶ benign</span> RCT-reanalysis skeptics <span class="traction">vocal minority, growing reach</span></div>
+        <div class="figs">Christopher Ramsden · Nina Teicholz</div>
+        <div class="claim">When the lost data from the landmark randomized trials were recovered, replacing saturated fat with vegetable oil lowered cholesterol but didn't lower deaths. The trials don't carry the advice.</div>
+        <span class="nb">Rests on the strongest study design — randomized trials — turning the establishment's own standard against the guideline.</span>
+        <div class="src-links"><a href="https://en.wikipedia.org/wiki/Nina_Teicholz">Nina Teicholz</a></div>
+      </div>
+
+      <div class="pos made">
+        <div class="nm"><span class="lean">▶ benign</span> Industry-capture critics <span class="traction">influential since 2016</span></div>
+        <div class="figs">Cristin Kearns · investigative historians</div>
+        <div class="claim">The recovered sugar-industry documents show the science was steerable. If money shaped which suspect got blamed once, the consensus deserves a second look.</div>
+        <span class="nb">An argument about how the evidence was made, not only what it says.</span>
+        <div class="src-links"><a href="https://en.wikipedia.org/wiki/Sugar_Research_Foundation">Sugar Research Foundation</a></div>
+      </div>
+    </div>
+
+    <div class="pivot-card">
+      <div class="pv-tag">the hinge ↕</div>
+      <div class="pv-body">
+        <b>It depends — the food, the pattern, the person</b>
+        <p>The reconciling read says the category error was arguing about one macronutrient at all. What moves risk is the replacement: saturated fat swapped for seed oils is a different trade from saturated fat swapped for white bread, and the public mostly made the second swap. It's the food matrix: fermented dairy and dark chocolate don't behave like processed meat, even at the same grams of saturated fat. It's the whole pattern the food sits inside, and it's the individual response you can actually measure in ApoB. "All saturated fat is deadly" and "saturated fat is free real estate" are both too coarse to be true — they describe averages dressed up as rules.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="traction-note">Tags are rough sociology — how the literature and the clinics shake out — not a verdict on who's right. A position can be popular and wrong, or marginal and onto something; that ledger is kept separately from this one.</div>
+</section>
+
+<!-- ============================ III. CRUXES ============================ -->
+<section class="wrap">
+  <div class="sec-head">
+    <div class="eyebrow"><span class="sec-num">III</span> &nbsp;the cruxes</div>
+    <h2 class="ser">Four fair fights, each carrying part of the load</h2>
+    <p>The positions are bundles of answers; these are the questions that, answered one way or the other, split them. Both panels give the side's best case, in its own voice.</p>
+  </div>
+
+  <!-- CRUX 1 -->
+  <div class="crux reveal">
+    <div class="crux-head">
+      <div class="crux-meta"><span class="crux-n">Crux 01 — the chain</span><span class="crux-dom">lipidology</span></div>
+      <h3 class="crux-q ser">Does saturated fat cause heart disease by raising cholesterol?</h3>
+      <p class="crux-sub">There's a proposed causal line — diet raises LDL/ApoB, which clogs arteries. Is it solid end to end, or does it snap at the diet link?</p>
+    </div>
+    <div class="steels">
+      <div class="steel s-found">
+        <div class="side">▸ the causal chain holds</div>
+        <div class="pos-name">The lipid hypothesis, sharpened</div>
+        <div class="gist">Saturated fat raises LDL and ApoB; lowering ApoB lowers events; the diet step is just the front end of a chain that's been confirmed at every other point.</div>
+        <p>Forget the noisy diet trials for a second and look at the parts of the chain you can pin down. People born with genes that lower their LDL get less heart disease — Mendelian randomization, nature's own randomized trial. Statins lower ApoB, and events fall in proportion. PCSK9 inhibitors push ApoB lower still, and the curve keeps bending. The relationship is dose-dependent, mechanistic, and lifelong. Dietary saturated fat raises ApoB in most people who eat more of it. So the diet recommendation isn't a free-standing claim that has to win its own trial; it's the leading edge of the best-evidenced causal story in cardiology. You don't need a thirty-year feeding trial to act on a mechanism this well-mapped.</p>
+      </div>
+      <div class="steel s-made">
+        <div class="side">▸ it breaks at the diet step</div>
+        <div class="pos-name">The chain is weakest exactly where it's eaten</div>
+        <div class="gist">The genetics and the drugs are strong; the diet link is where the evidence thins, and that's the only link the eating advice actually rests on.</div>
+        <p>Notice what carries the chain: genes set at conception and drugs taken for years. Neither is a fork. When researchers actually fed people less saturated fat and measured what happened, cholesterol dropped and the bodies didn't. Minnesota lowered cholesterol and saw no fewer deaths — fewer, if anything, among those whose cholesterol fell most. LDL-C is a crude proxy that lumps together particles of very different sizes; the large, buoyant LDL that climbs on a low-carb diet may not deposit plaque the way the small dense kind does. Borrowing the credibility of statin trials to sell a butter recommendation is a sleight of hand. The drug lowers a number through a mechanism; the diet lowers the same number without the same payoff. That gap is the whole argument.</p>
+      </div>
+    </div>
+    <div class="crux-key">
+      <span class="lab">the crux</span>
+      <span class="txt">Is the <b>diet → LDL → disease</b> chain solid end to end, or does it break at the diet step? Everything else turns on whether the eating advice inherits the strength of the drug-and-gene evidence, or has to stand on its own.</span>
+    </div>
+    <div class="crux-cede">
+      <span class="lab">what would move them</span>
+      <div class="cede">
+        <p class="c-found"><b>The limit-it side concedes if</b> lowering saturated fat reliably fails to cut cardiovascular events even when ApoB and LDL fall — or the LDL rise on low-saturated-fat diets turns out not to be atherogenic.</p>
+        <p class="c-made"><b>The exonerate side concedes if</b> Mendelian randomization and drug trials keep showing that lower ApoB means fewer events, and dietary saturated fat raises ApoB in most people.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- CRUX 2 -->
+  <div class="crux reveal">
+    <div class="crux-head">
+      <div class="crux-meta"><span class="crux-n">Crux 02 — the evidence</span><span class="crux-dom">trials vs cohorts</span></div>
+      <h3 class="crux-q ser">Do the trials actually support the advice — and replace saturated fat with what?</h3>
+      <p class="crux-sub">The recommendation is a swap, not a subtraction. Which evidence backs it, and does the replacement matter as much as the cut?</p>
+    </div>
+    <div class="steels">
+      <div class="steel s-found">
+        <div class="side">▸ the totality backs the swap</div>
+        <div class="pos-name">Replace it with polyunsaturated fat</div>
+        <div class="gist">Cohorts, the better trials, mechanism, and genetics line up: swap saturated fat for polyunsaturated fat and risk drops. The win is in the substitution, not in eating low-fat.</div>
+        <p>The honest version of the advice was never "eat less fat." It's "trade this fat for that one." When you ask the substitution question — saturated fat replaced by polyunsaturated fat, holding calories steady — the cohorts, the pooled trials, and the biochemistry agree that events fall. The early low-fat trials that swapped fat for refined carbs failed, and they should have; that's the wrong trade, and it's a strike against 1980s policy, not against the lipid case. No single study settles nutrition, because you can't blind a diet or run it for forty years. You weigh the whole body of evidence, and the whole body, read with the replacement in view, points one way.</p>
+      </div>
+      <div class="steel s-made">
+        <div class="side">▸ the randomized evidence is null</div>
+        <div class="pos-name">The trials came back empty</div>
+        <div class="gist">The landmark randomized trials, once the lost data were recovered, showed no benefit — or harm. The advice leans on confounded cohorts and a hopeful swap.</div>
+        <p>Rank the evidence the way medicine claims to. At the top sit the randomized trials, and the big ones built to test this exact swap — Minnesota, the Sydney Diet Heart Study — came back null or worse once the buried data were recovered and reanalyzed. What's left holding the recommendation is observational: people who eat less saturated fat also smoke less, exercise more, and see doctors more, and no statistical adjustment fully scrubs the healthy-user effect. Then there's what the public actually did. Told to cut fat, they reached for low-fat cookies, and the refined-carb swap tracked with rising obesity and diabetes. An advice that's null in the trials and backfires in practice has a heavy burden, and a hopeful substitution analysis doesn't discharge it.</p>
+      </div>
+    </div>
+    <div class="crux-key">
+      <span class="lab">the crux</span>
+      <span class="txt">Does the <b>randomized evidence</b> support the guideline, or only the <b>weaker observational evidence</b> plus a hopeful replacement? <span class="same-tag">↳ this is Crux 01 fought over the trial record rather than the mechanism — same chain, judged by what the experiments showed.</span></span>
+    </div>
+    <div class="crux-cede">
+      <span class="lab">what would move them</span>
+      <div class="cede">
+        <p class="c-found"><b>The limit-it side concedes if</b> the best randomized trials, not just observational cohorts, fail to show benefit from replacing saturated fat with unsaturated fat.</p>
+        <p class="c-made"><b>The exonerate side concedes if</b> the totality of trials, genetics, and mechanism supports the guideline despite the null re-analyses of a few old experiments.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- CRUX 3 -->
+  <div class="crux reveal">
+    <div class="crux-head">
+      <div class="crux-meta"><span class="crux-n">Crux 03 — the food</span><span class="crux-dom">nutrition</span></div>
+      <h3 class="crux-q ser">Is "saturated fat" even the right thing to measure?</h3>
+      <p class="crux-sub">Cheese, sausage, and dark chocolate all carry saturated fat. If they don't act alike in the body, is the macronutrient the wrong target?</p>
+    </div>
+    <div class="steels">
+      <div class="steel s-found">
+        <div class="side">▸ the nutrient still tracks risk</div>
+        <div class="pos-name">Cut the foods that carry it</div>
+        <div class="gist">On average, cutting saturated-fat-heavy foods and adding unsaturated fats and whole grains still lowers risk — which is why the guidance has moved toward patterns without dropping the cap.</div>
+        <p>The food-matrix point isn't a refutation; it's a refinement the guidelines already absorbed. The advice stopped saying "count grams of fat" years ago and started naming foods and patterns — more nuts, fish, and olive oil, less processed and fatty meat. That shift doesn't exonerate saturated fat; it operationalizes the same verdict in a form people can eat. And the totality still holds at the level that matters for policy: populations that eat more of the saturated-fat-rich foods, on average, carry more cardiovascular risk. Yogurt may earn an asterisk. The asterisk doesn't erase the rule.</p>
+      </div>
+      <div class="steel s-made">
+        <div class="side">▸ the matrix breaks the category</div>
+        <div class="pos-name">It's the food, not the molecule</div>
+        <div class="gist">Yogurt, cheese, and dark chocolate don't behave like sausage despite carrying the same saturated fat — so targeting the isolated nutrient was the mistake.</div>
+        <p>Treat a gram of saturated fat as a gram of saturated fat and you get absurdities. Fermented dairy tracks with neutral or lower cardiovascular risk in cohort after cohort; processed meat tracks with higher. Dark chocolate carries stearic acid, which barely moves LDL at all. The fat is "the same" only on a nutrition label — in the body, the matrix it arrives in, the calcium and protein and fermentation around it, changes what it does. Sixty years of arguing about a number on a panel obscured the real lesson: foods aren't the sum of their macronutrients. Once you measure the food instead of the molecule, "limit saturated fat" stops being a coherent instruction.</p>
+      </div>
+    </div>
+    <div class="crux-key">
+      <span class="lab">the crux</span>
+      <span class="txt">Should advice target the <b>nutrient</b> (total saturated fat) or the <b>food and the overall pattern</b>? The fight is whether the matrix is a footnote to the rule or the thing that dissolves it.</span>
+    </div>
+    <div class="crux-cede">
+      <span class="lab">what would move them</span>
+      <div class="cede">
+        <p class="c-found"><b>The limit-it side concedes if</b> saturated-fat-rich whole foods like yogurt, cheese, and dark chocolate prove neutral or beneficial, making “total saturated fat” the wrong target.</p>
+        <p class="c-made"><b>The exonerate side concedes if</b> even after accounting for the food matrix, diets higher in saturated fat still track higher cardiovascular risk.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- CRUX 4 -->
+  <div class="crux reveal">
+    <div class="crux-head">
+      <div class="crux-meta"><span class="crux-n">Crux 04 — the record</span><span class="crux-dom both">history · trust · crossways</span></div>
+      <h3 class="crux-q ser">Was the anti-fat consensus hard-won science, or a mistake the institutions won't fully walk back?</h3>
+      <p class="crux-sub">Before scoring the arguments, ask what to make of the track record — a century of stress-testing, or a sticky error with a documented thumb on the scale.</p>
+    </div>
+    <div class="steels">
+      <div class="steel s-found">
+        <div class="side">▸ a century of scrutiny, and it held</div>
+        <div class="pos-name">The consensus earned it</div>
+        <div class="gist">The lipid hypothesis has been attacked for a hundred years and broadly survived; the charges against Keys are overstated, and the loudest contrarians are selling books.</div>
+        <p>Few ideas in medicine have been hammered as long and as hard as this one and stayed standing. The cherry-picking story about Keys is itself cherry-picked — the Seven Countries Study was prospective, and its core findings have been replicated. Science corrected the parts that were wrong: total-fat advice was walked back, the low-fat-everything era was repudiated, the field moved to patterns and to ApoB. That's not inertia; that's a field updating. Meanwhile the contrarian case travels on trade books and documentaries with a financial interest in overturning the table. Follow the money there, too. A consensus that has absorbed sixty years of honest fire and refined itself isn't a mistake institutions are hiding — it's what surviving evidence looks like.</p>
+      </div>
+      <div class="steel s-made">
+        <div class="side">▸ captured once, sticky ever since</div>
+        <div class="pos-name">The institutions won't walk it back</div>
+        <div class="gist">The low-fat era, the documented sugar-industry money, and the slow, partial corrections show a consensus that can be steered and stays put long after the evidence shifts.</div>
+        <p>The proof that this science was steerable isn't a theory — it's a paper trail. Kearns found 1960s documents where the sugar industry funded researchers to point the finger at fat. If it happened once and stayed buried for fifty years, the question of how much else was shaped this way is fair, not paranoid. And look at the correction pace: when Ramsden recovered the Minnesota data showing no mortality benefit, it didn't reset the guidelines; it generated rebuttals defending them. Institutions that issued advice to a whole country don't reverse easily — careers, textbooks, and food-industry supply chains are built on the old answer. The 2025 fights and the political reopening aren't noise on top of settled science. They're what it looks like when a consensus is overdue for an audit it keeps refusing.</p>
+      </div>
+    </div>
+    <div class="crux-key">
+      <span class="lab">the crux</span>
+      <span class="txt">Is the mainstream position <b>accumulated knowledge</b>, or an <b>error compounded by institutional inertia</b>? <span class="same-tag">↳ this one runs crossways to the other three — it's really about how much you trust the lipid story itself before any single study is weighed.</span></span>
+    </div>
+    <div class="crux-cede">
+      <span class="lab">what would move them</span>
+      <div class="cede">
+        <p class="c-found"><b>The limit-it side concedes if</b> the anti-fat consensus is shown to rest on distorted or industry-shaped evidence the institutions won't correct.</p>
+        <p class="c-made"><b>The exonerate side concedes if</b> the core diet-heart claim is shown to have survived sixty years of honest scrutiny, with the contrarian case oversold.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ IV. PAYOFF ============================ -->
+<section class="wrap fault-sec">
+  <div class="sec-head">
+    <div class="eyebrow"><span class="sec-num">IV</span> &nbsp;the payoff</div>
+  </div>
+
+  <div class="fault-card reveal">
+    <h3 class="fault-lead ser">Four cruxes, <em>two questions</em> underneath</h3>
+    <p class="fault-intro">Most of the disagreement sorts onto two axes. The horizontal asks the verdict: limit saturated fat, or treat it as benign. The vertical asks something prior — whether lowering LDL/ApoB is the lever that matters, or whether the marker is overrated and context-dependent. Plot the camps and the field stops looking like one argument. It looks like people standing on different squares, often answering a question their opponent never asked.</p>
+
+    <svg class="diagram" viewBox="0 0 980 600" role="img" aria-labelledby="dg-t dg-d">
+      <title id="dg-t">Two crossed questions under the saturated-fat debate</title>
+      <desc id="dg-d">A grid with two axes. The horizontal axis runs from "limit saturated fat" on the left to "saturated fat is benign" on the right. The vertical axis runs from "lowering LDL/ApoB is the lever that matters" at the top to "the lipid marker is overrated or context-dependent" at the bottom. Positions are plotted as points: the diet-heart consensus and AHA in the upper left; ApoB lipidologists in the upper left on a distinct row; a camp that says ApoB matters but diet barely moves it, in the upper right; RCT-reanalysis skeptics and Teicholz on the right at mid-height; low-carb skeptics in the lower right; the Mediterranean-pattern camp on the left, lower; and the food-matrix "it depends" pivot at the center, marked as rejecting the framing.</desc>
+      <defs>
+        <linearGradient id="axisgrad" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0" stop-color="#6dbaa4"/>
+          <stop offset="0.5" stop-color="#6e6b78"/>
+          <stop offset="1" stop-color="#d8a652"/>
+        </linearGradient>
+      </defs>
+
+      <!-- vertical axis: the marker -->
+      <line x1="490" y1="80" x2="490" y2="500" stroke="#34384a" stroke-width="2"/>
+      <!-- horizontal axis: the verdict -->
+      <line x1="110" y1="290" x2="870" y2="290" stroke="url(#axisgrad)" stroke-width="6" stroke-linecap="round"/>
+      <circle cx="110" cy="290" r="7" fill="#6dbaa4"/>
+      <circle cx="870" cy="290" r="7" fill="#d8a652"/>
+
+      <!-- axis labels -->
+      <text x="110" y="322" fill="#6dbaa4" font-family="'IBM Plex Mono',monospace" font-size="15">limit saturated fat</text>
+      <text x="870" y="322" fill="#d8a652" font-family="'IBM Plex Mono',monospace" font-size="15" text-anchor="end">saturated fat is benign</text>
+      <text x="490" y="56" fill="#a6a394" font-family="'IBM Plex Mono',monospace" font-size="13.5" text-anchor="middle">LDL/ApoB is the lever that matters</text>
+      <text x="490" y="528" fill="#a6a394" font-family="'IBM Plex Mono',monospace" font-size="13.5" text-anchor="middle">the marker is overrated / context-dependent</text>
+
+      <!-- plotted positions (rows staggered so no two labels share a line) -->
+      <!-- upper-left: limit + marker matters -->
+      <circle cx="296" cy="140" r="6" fill="#6dbaa4"/>
+      <text x="312" y="145" fill="#ebe5d6" font-family="'IBM Plex Sans',sans-serif" font-size="14.5">Diet-heart consensus · AHA</text>
+
+      <!-- upper-left, distinct lower row: ApoB people, marker matters most -->
+      <circle cx="362" cy="200" r="6" fill="#6dbaa4"/>
+      <text x="378" y="205" fill="#ebe5d6" font-family="'IBM Plex Sans',sans-serif" font-size="14.5">ApoB lipidologists · Sniderman</text>
+
+      <!-- upper-right: marker matters yet exonerates dietary fat (it's the carbs) -->
+      <circle cx="690" cy="158" r="6" fill="#d8a652"/>
+      <text x="675" y="163" fill="#ebe5d6" font-family="'IBM Plex Sans',sans-serif" font-size="14.5" text-anchor="end">“ApoB matters, diet barely moves it”</text>
+
+      <!-- right, middle: RCT-reanalysis skeptics -->
+      <circle cx="760" cy="266" r="6" fill="#d8a652"/>
+      <text x="745" y="271" fill="#ebe5d6" font-family="'IBM Plex Sans',sans-serif" font-size="14.5" text-anchor="end">RCT-reanalysis skeptics · Teicholz</text>
+
+      <!-- the pivot: center, rejects the framing -->
+      <circle cx="490" cy="318" r="8" fill="#a195bd" stroke="#171922" stroke-width="2"/>
+      <text x="506" y="313" fill="#a195bd" font-family="'IBM Plex Sans',sans-serif" font-size="14.5" font-style="italic">Food-matrix pivot · “it depends”</text>
+      <text x="506" y="332" fill="#a195bd" font-family="'IBM Plex Mono',monospace" font-size="11">denies the molecule is the unit</text>
+
+      <!-- lower-right: low-carb skeptics, benign + marker overrated -->
+      <circle cx="712" cy="418" r="6" fill="#d8a652"/>
+      <text x="697" y="423" fill="#ebe5d6" font-family="'IBM Plex Sans',sans-serif" font-size="14.5" text-anchor="end">Low-carb skeptics · Taubes, Ludwig</text>
+
+      <!-- left, lower: Mediterranean pattern — limits fat for pattern reasons more than LDL -->
+      <circle cx="276" cy="392" r="6" fill="#6dbaa4"/>
+      <text x="291" y="397" fill="#ebe5d6" font-family="'IBM Plex Sans',sans-serif" font-size="14.5">Mediterranean-pattern camp · Willett</text>
+    </svg>
+
+    <div class="fault-restate">
+      <div class="fr-item f1"><div class="fr-n">Crux 01 · the chain</div><div class="fr-t ser">Diet → LDL → disease</div><p>Solid end to end, or broken at the diet step. The vertical axis, asked of the mechanism.</p></div>
+      <div class="fr-item f2"><div class="fr-n">Crux 04 · the record</div><div class="fr-t ser">Trust the story?</div><p>The question under the vertical axis. Whether to credit the lipid consensus at all before any single study is weighed.</p></div>
+      <div class="fr-item f3"><div class="fr-n">Crux 02 · the evidence</div><div class="fr-t ser">Do the trials back it</div><p>Randomized nulls, or the totality plus a swap. The horizontal verdict, judged by the experiments.</p></div>
+      <div class="fr-item f4"><div class="fr-n">Crux 03 · the food</div><div class="fr-t ser">Molecule or meal</div><p>Target the nutrient, or the food and the pattern. The horizontal verdict, asked about the unit.</p></div>
+    </div>
+
+    <p class="fault-close ser">Find your own hinge. Most of the disagreement is downstream of two things — how much you trust <span class="ax">LDL and ApoB</span> as the lever that matters, and whether you're arguing about <span class="mk">the molecule or the meal</span>. Locate which one is doing the work for you, and you'll usually find the other person standing on the other axis.</p>
+  </div>
+</section>
+
+<!-- ============================ V. GO DEEPER ============================ -->
+<section class="wrap">
+  <div class="sec-head">
+    <div class="eyebrow"><span class="sec-num">V</span> &nbsp;go deeper</div>
+    <h2 class="ser">Where to take it next</h2>
+    <p>A few ways in, grouped by side and medium. Papers are listed by author, title, and year; the web links were checked.</p>
+  </div>
+
+  <div class="shelf reveal">
+    <div class="shelf-col">
+      <h4>Overview</h4>
+      <div class="res">
+        <div class="t"><a href="https://en.wikipedia.org/wiki/Saturated_fat_and_cardiovascular_disease">Saturated fat and cardiovascular disease</a></div>
+        <div class="by">Wikipedia</div>
+        <div class="why">The least partisan one-stop summary of where the evidence sits, with both the consensus and the dissent laid out.</div>
+      </div>
+      <div class="res">
+        <div class="t"><a href="https://en.wikipedia.org/wiki/Lipid_hypothesis">Lipid hypothesis</a></div>
+        <div class="by">Wikipedia</div>
+        <div class="why">The idea itself, from Anitschkow's rabbits forward — the spine of the whole debate.</div>
+      </div>
+      <div class="res">
+        <div class="t"><a href="https://en.wikipedia.org/wiki/Seven_Countries_Study">Seven Countries Study</a></div>
+        <div class="by">Wikipedia</div>
+        <div class="why">The study at the center of the Keys fight, plus the cherry-picking charges and the replies.</div>
+      </div>
+      <div class="res">
+        <div class="t"><a href="https://en.wikipedia.org/wiki/Ancel_Keys">Ancel Keys</a></div>
+        <div class="by">Wikipedia</div>
+        <div class="why">The man who built the consensus and became the skeptics' villain — useful for judging the personal charges.</div>
+      </div>
+    </div>
+
+    <div class="shelf-col">
+      <h4>The limit-it case</h4>
+      <div class="res">
+        <div class="t"><a href="https://nutritionsource.hsph.harvard.edu/what-should-you-eat/fats-and-cholesterol/">Fats and Cholesterol</a></div>
+        <div class="by">Harvard T.H. Chan Nutrition Source</div>
+        <div class="why">The pattern-and-substitution version of the establishment case, stated carefully — the swap matters more than the cut.</div>
+      </div>
+      <div class="res">
+        <div class="t"><a href="https://www.heart.org/en/healthy-living/healthy-eating/eat-smart/fats/saturated-fats">Saturated Fats</a></div>
+        <div class="by">American Heart Association</div>
+        <div class="why">The 5–6% recommendation straight from the body that holds it — the strictest mainstream line.</div>
+      </div>
+      <div class="res">
+        <div class="t"><a href="https://en.wikipedia.org/wiki/Apolipoprotein_B">Apolipoprotein B</a></div>
+        <div class="by">Wikipedia</div>
+        <div class="why">Why lipidologists increasingly argue ApoB beats LDL-C as the thing to measure — the 2026 guideline's direction.</div>
+      </div>
+    </div>
+
+    <div class="shelf-col">
+      <h4>The exonerate case</h4>
+      <div class="res">
+        <div class="t"><a href="https://en.wikipedia.org/wiki/Nina_Teicholz">Nina Teicholz</a></div>
+        <div class="by">Wikipedia</div>
+        <div class="why">Journalist whose reporting drove the modern skeptic case; <em>The Big Fat Surprise</em> (2014) is its book-length form.</div>
+      </div>
+      <div class="res">
+        <div class="t"><a href="https://en.wikipedia.org/wiki/Gary_Taubes">Gary Taubes</a></div>
+        <div class="by">Wikipedia</div>
+        <div class="why">The carbohydrate-insulin argument's main popularizer; <em>Good Calories, Bad Calories</em> (2007) is the foundational text.</div>
+      </div>
+      <div class="res">
+        <div class="t"><a href="https://en.wikipedia.org/wiki/John_Yudkin">John Yudkin</a></div>
+        <div class="by">Wikipedia</div>
+        <div class="why">The man who blamed sugar in 1972, lost to Keys, and was vindicated enough to reopen the question.</div>
+      </div>
+      <div class="res">
+        <div class="t"><a href="https://en.wikipedia.org/wiki/Sugar_Research_Foundation">Sugar Research Foundation</a></div>
+        <div class="by">Wikipedia</div>
+        <div class="why">The documented industry funding behind Crux 04's central charge — the science was steerable.</div>
+      </div>
+    </div>
+
+    <div class="shelf-col">
+      <h4>Key papers &amp; the 2025 fight</h4>
+      <div class="res">
+        <div class="t">Re-evaluation of the traditional diet-heart hypothesis: Minnesota Coronary Experiment (1968–73)</div>
+        <div class="by">Ramsden et al. · BMJ · 2016</div>
+        <div class="why">The recovered-data centerpiece of the skeptic case: cholesterol fell, deaths didn't.</div>
+      </div>
+      <div class="res">
+        <div class="t">Association of Dietary, Circulating, and Supplement Fatty Acids With Coronary Risk</div>
+        <div class="by">Chowdhury et al. · Annals of Internal Medicine · 2014</div>
+        <div class="why">The synthesis that drew the fiercest establishment rebuttals — read it with the corrections.</div>
+      </div>
+      <div class="res">
+        <div class="t">Meta-analysis of prospective cohort studies evaluating saturated fat</div>
+        <div class="by">Siri-Tarino et al. · Am. J. Clinical Nutrition · 2010</div>
+        <div class="why">The first big crack from inside the mainstream literature.</div>
+      </div>
+      <div class="res">
+        <div class="t">Associations of fats and carbohydrate intake with cardiovascular disease and mortality (PURE)</div>
+        <div class="by">Dehghan et al. · The Lancet · 2017</div>
+        <div class="why">18-country cohort: saturated fat not linked to mortality, carbohydrate intake was.</div>
+      </div>
+      <div class="res">
+        <div class="t">Sugar Industry and Coronary Heart Disease Research</div>
+        <div class="by">Kearns et al. · JAMA Internal Medicine · 2016</div>
+        <div class="why">The archival paper behind the industry-capture argument.</div>
+      </div>
+      <div class="res">
+        <div class="t"><a href="https://www.statnews.com/2025/12/15/saturated-fat-intake-new-study-controversy-impact-dietary-guidelines/">The 2025 saturated-fat controversy</a></div>
+        <div class="by">STAT News · 2025</div>
+        <div class="why">On the late-2025 reopening — the review, the MAHA politics, and the charge that the loosening was messaging, not new data.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ FOOTER ============================ -->
+<footer class="wrap">
+  <p class="foot-note"><b>On these summaries.</b> This is an educational map of a live scientific debate, not medical or dietary advice — for that, talk to a clinician who knows your numbers. Each steelman is compressed; the real arguments run to books and trials, and a card or a panel is a doorway, not the room. Dates mark a representative study, not the first time anyone raised the point. Because the science is still moving — the guidelines, the ApoB story, and the 2025 politics are all in flux — specifics here will age. The two-pole axis is a lens for seeing structure, useful precisely because it simplifies, and untrue to any view that won't sit on a line, which is what the lilac hinge is there to flag.</p>
+  <div class="foot-links">
+    <a href="/debates">← All debate maps</a>
+    <a href="/">brooker.family</a>
+  </div>
+</footer>
+
+<script>
+(function(){
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var items = document.querySelectorAll('.reveal');
+  if(reduce || !('IntersectionObserver' in window)){
+    items.forEach(function(el){ el.classList.add('in'); });
+    return;
+  }
+  var io = new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); }
+    });
+  }, {threshold:0.12, rootMargin:'0px 0px -8% 0px'});
+  items.forEach(function(el){ io.observe(el); });
+})();
+</script>
+</body>
+</html>

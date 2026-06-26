@@ -80,6 +80,15 @@ const DEBATES: DebateCard[] = [
     poleA: "Build it out",
     poleB: "Rein it in",
   },
+  {
+    slug: "saturated-fat",
+    group: "Live & contested",
+    field: "Nutrition science",
+    title: "Saturated fat: artery-clogger, or wrongly blamed?",
+    hook: "Sixty years of diet-heart advice — LDL vs ApoB, the trial re-analyses, and butter vs seed oils.",
+    poleA: "Harmful — limit it",
+    poleB: "Largely benign",
+  },
 ];
 
 const GROUPS = ["Enduring questions", "Live & contested"] as const;
