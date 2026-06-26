@@ -253,6 +253,19 @@ function tableDiameter(seats: number): number {
   return seats >= 9 ? 6 : 5;
 }
 
+/** First number in a table name, for natural ordering ("Table 10" after "Table 9"). */
+function tableNumber(name: string): number {
+  const match = name.match(/\d+/);
+  return match ? parseInt(match[0], 10) : Infinity;
+}
+
+/** Sort tables by their number, with un-numbered tables last (then alphabetical). */
+function sortTables(tables: TableConfig[]): TableConfig[] {
+  return [...tables].sort(
+    (a, b) => tableNumber(a.name) - tableNumber(b.name) || a.name.localeCompare(b.name)
+  );
+}
+
 /** Center position (feet) for every table -- stored x/y, or an auto grid for unplaced ones. */
 function resolveTablePositions(
   tables: TableConfig[],
@@ -536,8 +549,11 @@ export default function SeatingChartPage() {
   };
 
   /* ── Table layout editing ── */
+  // Renaming re-sorts the tables into number order so they stay sequenced.
   const renameTable = (id: string, name: string) =>
-    setChart((p) => p && { ...p, tables: p.tables.map((t) => (t.id === id ? { ...t, name } : t)) });
+    setChart(
+      (p) => p && { ...p, tables: sortTables(p.tables.map((t) => (t.id === id ? { ...t, name } : t))) }
+    );
   const setTableSeats = (id: string, seats: number) =>
     setChart(
       (p) =>
