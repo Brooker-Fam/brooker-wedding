@@ -301,6 +301,132 @@ const FIXTURE_PRESETS: { label: string; w: number; h: number }[] = [
   { label: "Entrance", w: 6, h: 2 },
 ];
 
+/* ──────────────────────────────────────────────────────────────────────────
+   Printable export — self-contained HTML opened in a new window
+   ────────────────────────────────────────────────────────────────────────── */
+
+function buildPrintHtml(chart: ChartDoc, guests: Guest[]): string {
+  const esc = (s: string) =>
+    s.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c] as string);
+  const trunc = (s: string, max: number) => (s.length > max ? `${s.slice(0, max - 1)}…` : s);
+  const tableIdOf = (key: string) => chart.assignments[key]?.tableId ?? null;
+  const tableNameOf = (id: string | null) =>
+    id ? chart.tables.find((t) => t.id === id)?.name ?? null : null;
+  const seatedAt = (id: string) => guests.filter((g) => tableIdOf(g.key) === id);
+  const seatedCount = guests.filter((g) => tableIdOf(g.key)).length;
+
+  // ── Floor-plan SVG (static copy of the Layout view) ──
+  const { width, length } = chart.layout;
+  const positions = resolveTablePositions(chart.tables, chart.layout);
+  const fs = Math.min(Math.max(Math.min(width, length) / 28, 0.9), 2);
+  const grid: string[] = [];
+  for (let x = 5; x < width; x += 5)
+    grid.push(`<line x1="${x}" y1="0" x2="${x}" y2="${length}" stroke="#5C7A4A" stroke-opacity="0.2" stroke-width="0.06"/>`);
+  for (let y = 5; y < length; y += 5)
+    grid.push(`<line x1="0" y1="${y}" x2="${width}" y2="${y}" stroke="#5C7A4A" stroke-opacity="0.2" stroke-width="0.06"/>`);
+  const fixturesSvg = chart.fixtures
+    .map(
+      (f) =>
+        `<rect x="${f.x - f.w / 2}" y="${f.y - f.h / 2}" width="${f.w}" height="${f.h}" rx="0.4" fill="#B8A9C9" fill-opacity="0.42" stroke="#8B6FA8" stroke-width="0.12"/>` +
+        `<text x="${f.x}" y="${f.y}" font-size="${Math.min(fs * 0.95, f.h * 0.5)}" text-anchor="middle" dominant-baseline="central" fill="#3a2740" font-weight="600">${esc(f.label)}</text>`
+    )
+    .join("");
+  const tablesSvg = chart.tables
+    .map((t) => {
+      const p = positions.get(t.id) ?? { x: 5, y: 5 };
+      const r = tableDiameter(t.seats) / 2;
+      const seated = seatedAt(t.id).length;
+      const over = seated > t.seats;
+      const fill = over ? "#E9B4B4" : seated > 0 ? "#9DBE86" : "#DCE6D0";
+      return (
+        `<circle cx="${p.x}" cy="${p.y}" r="${r}" fill="${fill}" stroke="${over ? "#B0566F" : "#5C7A4A"}" stroke-width="0.14"/>` +
+        `<text x="${p.x}" y="${p.y - fs * 0.4}" font-size="${fs * 0.74}" text-anchor="middle" dominant-baseline="central" fill="#1D4420" font-weight="700">${esc(trunc(t.name, 10))}</text>` +
+        `<text x="${p.x}" y="${p.y + fs * 0.6}" font-size="${fs * 0.7}" text-anchor="middle" dominant-baseline="central" fill="#1D4420" fill-opacity="0.85">${seated}/${t.seats}</text>`
+      );
+    })
+    .join("");
+  const svg = `<svg viewBox="0 0 ${width} ${length}" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet"><rect x="0" y="0" width="${width}" height="${length}" rx="1" fill="#f7f2e7" stroke="#C49A3C" stroke-width="0.2"/>${grid.join("")}${fixturesSvg}${tablesSvg}</svg>`;
+
+  // ── Per-table guest cards ──
+  const tableCards = chart.tables
+    .map((t) => {
+      const seated = seatedAt(t.id);
+      const body = seated.length
+        ? `<ol>${seated
+            .map((g) => `<li>${esc(g.name)}${g.type === "child" ? ' <span class="kid">(child)</span>' : ""}</li>`)
+            .join("")}</ol>`
+        : `<p class="empty">— no one seated —</p>`;
+      return `<div class="tcard"><h3>${esc(t.name)}<span class="cnt">${seated.length}/${t.seats}</span></h3>${body}</div>`;
+    })
+    .join("");
+
+  // ── Alphabetical guest → table index ──
+  const sorted = [...guests].sort((a, b) => {
+    const la = lastNameOf(a.name).toLowerCase();
+    const lb = lastNameOf(b.name).toLowerCase();
+    return la.localeCompare(lb) || a.name.localeCompare(b.name);
+  });
+  const alphaRows = sorted
+    .map((g) => {
+      const tn = tableNameOf(tableIdOf(g.key));
+      return `<div class="arow"><span class="an">${esc(g.name)}</span><span class="at${tn ? "" : " na"}">${tn ? esc(tn) : "—"}</span></div>`;
+    })
+    .join("");
+
+  const unseated = guests.filter((g) => !tableIdOf(g.key));
+  const unseatedHtml = unseated.length
+    ? `<section class="page-break"><h2>Not yet seated (${unseated.length})</h2><div class="unseated">${unseated
+        .map((g) => `<div class="arow"><span class="an">${esc(g.name)}</span></div>`)
+        .join("")}</div></section>`
+    : "";
+
+  return `<!doctype html><html><head><meta charset="utf-8"><title>Seating Chart — Matt & Brittany</title>
+<style>
+  * { -webkit-print-color-adjust: exact; print-color-adjust: exact; box-sizing: border-box; }
+  @page { margin: 0.5in; }
+  body { font-family: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; color: #2a2118; margin: 0; }
+  header { text-align: center; margin-bottom: 16px; }
+  header h1 { font-size: 26px; margin: 0; color: #1D4420; }
+  header p { margin: 4px 0 0; color: #6b6256; font-size: 13px; }
+  h2 { font-size: 17px; color: #1D4420; border-bottom: 2px solid #C49A3C; padding-bottom: 4px; margin: 0 0 12px; }
+  section { margin-bottom: 22px; }
+  .plan { text-align: center; }
+  .plan svg { display: block; margin: 0 auto; width: 100%; height: auto; max-height: 7.8in; }
+  .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .tcard { border: 1px solid #cfc4ad; border-radius: 8px; padding: 8px 10px; break-inside: avoid; }
+  .tcard h3 { margin: 0 0 6px; font-size: 14px; display: flex; justify-content: space-between; align-items: baseline; gap: 8px; color: #1D4420; }
+  .tcard .cnt { font-size: 11px; color: #6b6256; font-weight: 600; }
+  .tcard ol { margin: 0; padding-left: 18px; font-size: 12px; line-height: 1.5; }
+  .tcard .empty { margin: 0; font-size: 11px; color: #b0a89a; font-style: italic; }
+  .kid { color: #8B6FA8; font-size: 10px; }
+  .alpha, .unseated { column-count: 2; column-gap: 30px; }
+  .arow { display: flex; justify-content: space-between; gap: 10px; font-size: 12px; padding: 2px 0; border-bottom: 1px solid #eee; break-inside: avoid; }
+  .arow .at { font-weight: 600; white-space: nowrap; }
+  .arow .at.na { color: #b3a; font-weight: 400; }
+  .page-break { break-before: page; }
+  @media screen { body { background: #f4f1ea; padding: 20px; } .sheet { background: #fff; max-width: 8.5in; margin: 0 auto; padding: 0.5in; box-shadow: 0 2px 24px rgba(0,0,0,0.12); } .toolbar { text-align: center; margin-bottom: 14px; } .toolbar button { padding: 9px 20px; font-size: 14px; border-radius: 8px; border: none; background: #1D4420; color: #fff; cursor: pointer; } }
+  @media print { .toolbar { display: none; } .sheet { padding: 0; box-shadow: none; } }
+</style></head>
+<body>
+  <div class="toolbar"><button onclick="window.print()">Print / Save as PDF</button></div>
+  <div class="sheet">
+    <header>
+      <h1>Matt &amp; Brittany — Seating Chart</h1>
+      <p>June 27, 2026 &middot; ${guests.length} guests &middot; ${seatedCount} seated &middot; ${chart.tables.length} tables</p>
+    </header>
+    <section class="plan"><h2>Floor Plan</h2>${svg}</section>
+    <section class="page-break"><h2>Tables &amp; Guests</h2><div class="grid">${tableCards}</div></section>
+    <section class="page-break"><h2>Guests A–Z</h2><div class="alpha">${alphaRows}</div></section>
+    ${unseatedHtml}
+  </div>
+  <script>
+    function go(){ try { window.focus(); window.print(); } catch (e) {} }
+    if (document.readyState === 'complete') setTimeout(go, 300);
+    else window.addEventListener('load', function(){ setTimeout(go, 300); });
+  </script>
+</body></html>`;
+}
+
 function normalizeChart(raw: unknown): ChartDoc {
   const base = defaultChart();
   if (!raw || typeof raw !== "object") return base;
@@ -658,6 +784,19 @@ export default function SeatingChartPage() {
       return { ...p, lists };
     });
 
+  /* ── Print / export ── */
+  const handlePrint = () => {
+    if (!chart) return;
+    const win = window.open("", "_blank");
+    if (!win) {
+      setError("Please allow pop-ups for this site to print the seating chart.");
+      return;
+    }
+    win.document.open();
+    win.document.write(buildPrintHtml(chart, guests));
+    win.document.close();
+  };
+
   /* ── Derived views ── */
   const assignmentOf = useCallback(
     (key: string): Assignment => chart?.assignments[key] ?? {},
@@ -776,7 +915,16 @@ export default function SeatingChartPage() {
           <h1 className="font-[family-name:var(--font-cormorant-garamond)] text-3xl font-semibold text-forest dark:text-cream sm:text-4xl">
             Seating Chart
           </h1>
-          <SaveIndicator status={saveStatus} dbConnected={dbConnected} />
+          <div className="flex items-center gap-3">
+            <SaveIndicator status={saveStatus} dbConnected={dbConnected} />
+            <button
+              type="button"
+              onClick={handlePrint}
+              className="rounded-lg border border-sage/40 px-3 py-1.5 text-xs font-semibold text-sage transition-colors hover:bg-sage/10 dark:text-sage-light"
+            >
+              🖨 Print
+            </button>
+          </div>
         </div>
 
         {error && (
