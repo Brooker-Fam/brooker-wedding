@@ -3,6 +3,7 @@ import { del } from "@vercel/blob";
 import { randomUUID } from "crypto";
 import { query } from "@/lib/db";
 import { captureServerException } from "@/lib/posthog-server";
+import { checkUploadRateLimit } from "@/lib/rate-limit";
 
 export const dynamic = "force-dynamic";
 
@@ -14,6 +15,16 @@ function isBlobUrl(u: unknown): u is string {
 
 export async function POST(request: NextRequest) {
   try {
+    // Same per-IP cap as the token endpoint, so the gallery row can't be
+    // flooded by POSTing metadata directly (bypassing the upload throttle).
+    const { allowed } = await checkUploadRateLimit(request);
+    if (!allowed) {
+      return NextResponse.json(
+        { error: "That's a lot of uploads at once — take a short break and try again." },
+        { status: 429 }
+      );
+    }
+
     const body = await request.json();
     const { url, thumb_url, content_type, media_type, uploader_name, width, height, size_bytes } = body;
 
@@ -104,7 +115,9 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: "Valid photo id is required" }, { status: 400 });
     }
 
-    const secret = process.env.CRON_SECRET;
+    // Dedicated admin secret; falls back to CRON_SECRET so existing setups keep
+    // working until ADMIN_SECRET is set in the environment.
+    const secret = process.env.ADMIN_SECRET || process.env.CRON_SECRET;
     const auth = request.headers.get("authorization");
     const isAdmin = !!secret && auth === `Bearer ${secret}`;
     const token = searchParams.get("token");

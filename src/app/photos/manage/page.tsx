@@ -87,7 +87,7 @@ export default function ManagePhotosPage() {
               className="enchanted-input"
             />
             <p className="mt-1.5 text-xs text-deep-plum/55 dark:text-cream/55">
-              This is the project&apos;s CRON_SECRET (Vercel → Settings → Environment Variables).
+              This is the ADMIN_SECRET env var — or CRON_SECRET if that isn&apos;t set yet (Vercel → Settings → Environment Variables).
             </p>
             <button
               onClick={handleUnlock}
