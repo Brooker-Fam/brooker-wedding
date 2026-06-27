@@ -13,6 +13,7 @@ const navLinks = [
   { href: "/bridal-shower", label: "Bridal Shower" },
   { href: "/registry", label: "Registry" },
   { href: "/songs", label: "Songs" },
+  { href: "/photos", label: "Photos" },
   { href: "/games", label: "Games", sparkle: true },
 ];
 
