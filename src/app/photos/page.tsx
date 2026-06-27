@@ -95,6 +95,25 @@ async function saveMetadata(body: Record<string, unknown>, attempts = 3): Promis
   throw lastErr instanceof Error ? lastErr : new Error("Save failed");
 }
 
+// Force a real download. The blob lives on a different origin, so the <a download>
+// attribute is ignored — fetch it to an object URL first; fall back to opening.
+async function downloadFile(url: string, filename: string) {
+  try {
+    const res = await fetch(url);
+    const blob = await res.blob();
+    const objectUrl = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = objectUrl;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(objectUrl);
+  } catch {
+    window.open(url, "_blank");
+  }
+}
+
 export default function PhotosPage() {
   const [uploaderName, setUploaderName] = useState("");
   const [photos, setPhotos] = useState<Photo[]>([]);
@@ -195,9 +214,35 @@ export default function PhotosPage() {
         .then((r) => r.json())
         .then((json) => mergePhotos(json.data ?? []))
         .catch(() => {});
+
+      // Reconcile removals: drop anything an admin deleted or a guest reported.
+      fetch("/api/photos?ids=1")
+        .then((r) => r.json())
+        .then((json) => {
+          if (!Array.isArray(json.ids)) return;
+          const live = new Set<number>(json.ids);
+          setPhotos((prev) => {
+            const next = prev.filter((p) => live.has(p.id));
+            return next.length === prev.length ? prev : next;
+          });
+        })
+        .catch(() => {});
     }, 15000);
     return () => clearInterval(interval);
   }, [mergePhotos]);
+
+  // Warn before leaving while an upload is still in flight — closing the tab
+  // mid-upload silently strands the file (esp. on flaky rural signal).
+  useEffect(() => {
+    const uploading = queue.some((q) => q.status === "uploading");
+    if (!uploading) return;
+    const handler = (e: BeforeUnloadEvent) => {
+      e.preventDefault();
+      e.returnValue = "";
+    };
+    window.addEventListener("beforeunload", handler);
+    return () => window.removeEventListener("beforeunload", handler);
+  }, [queue]);
 
   const handleFiles = useCallback(
     async (files: FileList | null) => {
@@ -572,7 +617,7 @@ function Gallery({
           {myTokens[photo.id] && (
             <button
               onClick={() => onDelete(photo.id)}
-              className="absolute right-1.5 top-1.5 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-black/55 text-white backdrop-blur-sm transition hover:bg-red-600"
+              className="absolute right-1 top-1 z-10 flex h-11 w-11 items-center justify-center rounded-full bg-black/55 text-white backdrop-blur-sm transition hover:bg-red-600"
               aria-label="Remove your photo"
               title="Remove your photo"
             >
@@ -580,7 +625,7 @@ function Gallery({
             </button>
           )}
           {photo.uploader_name && (
-            <span className="pointer-events-none absolute inset-x-0 bottom-0 truncate bg-gradient-to-t from-black/55 to-transparent px-2 pb-1.5 pt-4 text-left text-[11px] text-white/90 opacity-0 transition-opacity group-hover:opacity-100">
+            <span className="pointer-events-none absolute inset-x-0 bottom-0 truncate bg-gradient-to-t from-black/55 to-transparent px-2 pb-1.5 pt-4 text-left text-[11px] text-white/90 opacity-100 transition-opacity [@media(hover:hover)]:opacity-0 [@media(hover:hover)]:group-hover:opacity-100">
               {photo.uploader_name}
             </span>
           )}
@@ -694,7 +739,13 @@ function Lightbox({
         {photo.uploader_name && (
           <p className="mt-3 text-sm text-white/80">Shared by {photo.uploader_name}</p>
         )}
-        <div className="mt-2">
+        <div className="mt-2 flex items-center justify-center gap-4">
+          <button
+            onClick={() => downloadFile(photo.url, `brooker-${currentId}.${photo.media_type === "video" ? "mp4" : "jpg"}`)}
+            className="min-h-[44px] px-3 text-sm text-white/80 underline-offset-2 transition hover:text-white hover:underline"
+          >
+            ⬇ Save
+          </button>
           {mine ? (
             <button
               onClick={() => onDelete(currentId)}

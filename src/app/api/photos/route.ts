@@ -93,6 +93,15 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ data: rows ?? [] });
     }
 
+    // Lightweight reconcile list: just the currently-approved ids, so a viewer's
+    // poll can prune photos that were deleted or reported/hidden since load.
+    if (searchParams.get("ids") === "1") {
+      const rows = await query(
+        `SELECT id FROM photos WHERE approved = TRUE ORDER BY id DESC LIMIT 2000`
+      );
+      return NextResponse.json({ ids: rows ? rows.map((r) => Number(r.id)) : [] });
+    }
+
     const limit = Math.min(Number(searchParams.get("limit") || 200), 500);
     const sinceId = Number(searchParams.get("since") || 0);
 
