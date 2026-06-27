@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { del } from "@vercel/blob";
 import { query } from "@/lib/db";
 import { captureServerException } from "@/lib/posthog-server";
 
@@ -76,5 +77,40 @@ export async function GET(request: NextRequest) {
     console.error("Photos fetch error:", error);
     await captureServerException(error, { route: "GET /api/photos" });
     return NextResponse.json({ error: "Failed to fetch photos" }, { status: 500 });
+  }
+}
+
+// Moderation: remove a photo (DB row + Blob file). Gated by CRON_SECRET, which
+// already exists in the project's env — reused so no new secret is needed.
+export async function DELETE(request: NextRequest) {
+  try {
+    const secret = process.env.CRON_SECRET;
+    const auth = request.headers.get("authorization");
+    if (!secret || auth !== `Bearer ${secret}`) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const { searchParams } = new URL(request.url);
+    const id = Number(searchParams.get("id"));
+    if (!Number.isInteger(id) || id <= 0) {
+      return NextResponse.json({ error: "Valid photo id is required" }, { status: 400 });
+    }
+
+    const rows = await query(`SELECT url FROM photos WHERE id = $1`, [id]);
+    if (!rows) {
+      return NextResponse.json({ error: "Database unavailable" }, { status: 503 });
+    }
+    if (rows.length === 0) {
+      return NextResponse.json({ error: "Photo not found" }, { status: 404 });
+    }
+
+    await del(rows[0].url as string).catch(() => {});
+    await query(`DELETE FROM photos WHERE id = $1`, [id]);
+
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error("Photo delete error:", error);
+    await captureServerException(error, { route: "DELETE /api/photos" });
+    return NextResponse.json({ error: "Failed to delete photo" }, { status: 500 });
   }
 }
