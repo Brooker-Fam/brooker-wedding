@@ -7,6 +7,7 @@ import { AnimatePresence, motion } from "framer-motion";
 interface Photo {
   id: number;
   url: string;
+  thumb_url: string | null;
   content_type: string | null;
   media_type: "image" | "video";
   uploader_name: string | null;
@@ -23,41 +24,52 @@ interface QueueItem {
   error?: string;
 }
 
-const MAX_DIM = 2048;
+const STORE_DIM = 4096;
+const THUMB_DIM = 512;
 const VIDEO_LIMIT = 500 * 1024 * 1024;
 
+async function renderJpeg(
+  bitmap: ImageBitmap,
+  maxDim: number,
+  quality: number
+): Promise<{ blob: Blob; width: number; height: number }> {
+  const scale = Math.min(1, maxDim / Math.max(bitmap.width, bitmap.height));
+  const w = Math.max(1, Math.round(bitmap.width * scale));
+  const h = Math.max(1, Math.round(bitmap.height * scale));
+  const canvas = document.createElement("canvas");
+  canvas.width = w;
+  canvas.height = h;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) throw new Error("no canvas context");
+  ctx.drawImage(bitmap, 0, 0, w, h);
+  const blob = await new Promise<Blob>((resolve, reject) =>
+    canvas.toBlob((b) => (b ? resolve(b) : reject(new Error("encode failed"))), "image/jpeg", quality)
+  );
+  return { blob, width: w, height: h };
+}
+
+// One decode → a near-original stored image (for archival + the lightbox) and a
+// small grid thumbnail (so the gallery grid isn't pulling full JPEGs per tile).
+// HEIC on desktop can't be decoded — fall back to the original file, no thumb.
 async function processImage(file: File): Promise<{
-  data: Blob;
-  width: number;
-  height: number;
-  contentType: string;
-  filename: string;
+  full: { data: Blob; width: number; height: number; contentType: string; filename: string };
+  thumb: { data: Blob; filename: string } | null;
 }> {
   try {
     const bitmap = await createImageBitmap(file, { imageOrientation: "from-image" });
-    const scale = Math.min(1, MAX_DIM / Math.max(bitmap.width, bitmap.height));
-    const w = Math.max(1, Math.round(bitmap.width * scale));
-    const h = Math.max(1, Math.round(bitmap.height * scale));
-    const canvas = document.createElement("canvas");
-    canvas.width = w;
-    canvas.height = h;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) throw new Error("no canvas context");
-    ctx.drawImage(bitmap, 0, 0, w, h);
+    const base = file.name.replace(/\.[^.]+$/, "");
+    const full = await renderJpeg(bitmap, STORE_DIM, 0.85);
+    const thumb = await renderJpeg(bitmap, THUMB_DIM, 0.7);
     bitmap.close?.();
-    const blob = await new Promise<Blob>((resolve, reject) =>
-      canvas.toBlob((b) => (b ? resolve(b) : reject(new Error("encode failed"))), "image/jpeg", 0.85)
-    );
     return {
-      data: blob,
-      width: w,
-      height: h,
-      contentType: "image/jpeg",
-      filename: file.name.replace(/\.[^.]+$/, "") + ".jpg",
+      full: { data: full.blob, width: full.width, height: full.height, contentType: "image/jpeg", filename: base + ".jpg" },
+      thumb: { data: thumb.blob, filename: base + "-thumb.jpg" },
     };
   } catch {
-    // Browser couldn't decode (e.g. HEIC on desktop) — send the original through.
-    return { data: file, width: 0, height: 0, contentType: file.type || "image/jpeg", filename: file.name };
+    return {
+      full: { data: file, width: 0, height: 0, contentType: file.type || "image/jpeg", filename: file.name },
+      thumb: null,
+    };
   }
 }
 
@@ -202,14 +214,16 @@ export default function PhotosPage() {
           let filename = file.name;
           let width = 0;
           let height = 0;
+          let thumb: { data: Blob; filename: string } | null = null;
 
           if (!isVideo) {
             const processed = await processImage(file);
-            payload = processed.data;
-            contentType = processed.contentType;
-            filename = processed.filename;
-            width = processed.width;
-            height = processed.height;
+            payload = processed.full.data;
+            contentType = processed.full.contentType;
+            filename = processed.full.filename;
+            width = processed.full.width;
+            height = processed.full.height;
+            thumb = processed.thumb;
           }
 
           const result = await upload(filename, payload, {
@@ -221,8 +235,23 @@ export default function PhotosPage() {
               setQueue((q) => q.map((it) => (it.key === key ? { ...it, progress: Math.round(e.percentage) } : it))),
           });
 
+          // Best-effort: if the thumbnail upload fails, the grid falls back to
+          // the full image, so don't fail the whole upload over it.
+          let thumbUrl: string | null = null;
+          if (thumb) {
+            try {
+              const t = await upload(thumb.filename, thumb.data, {
+                access: "public",
+                handleUploadUrl: "/api/photos/upload",
+                contentType: "image/jpeg",
+              });
+              thumbUrl = t.url;
+            } catch {}
+          }
+
           const res = await saveMetadata({
             url: result.url,
+            thumb_url: thumbUrl,
             content_type: contentType,
             media_type: isVideo ? "video" : "image",
             uploader_name: name,
@@ -518,7 +547,7 @@ function Gallery({
               </>
             ) : (
               <img
-                src={photo.url}
+                src={photo.thumb_url ?? photo.url}
                 alt={photo.uploader_name ? `Shared by ${photo.uploader_name}` : "Guest photo"}
                 loading="lazy"
                 className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
