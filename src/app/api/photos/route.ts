@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { del } from "@vercel/blob";
+import { randomUUID } from "crypto";
 import { query } from "@/lib/db";
 import { captureServerException } from "@/lib/posthog-server";
 
@@ -17,10 +18,12 @@ export async function POST(request: NextRequest) {
     const mediaType = media_type === "video" ? "video" : "image";
     const name = typeof uploader_name === "string" ? uploader_name.trim().slice(0, 255) : null;
 
+    const deleteToken = randomUUID();
+
     const result = await query(
-      `INSERT INTO photos (url, content_type, media_type, uploader_name, width, height, size_bytes)
-       VALUES ($1, $2, $3, $4, $5, $6, $7)
-       RETURNING id, url, content_type, media_type, uploader_name, width, height, created_at`,
+      `INSERT INTO photos (url, content_type, media_type, uploader_name, width, height, size_bytes, delete_token)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+       RETURNING id, url, content_type, media_type, uploader_name, width, height, created_at, delete_token`,
       [
         url,
         typeof content_type === "string" ? content_type.slice(0, 100) : null,
@@ -29,6 +32,7 @@ export async function POST(request: NextRequest) {
         Number.isFinite(width) ? Math.round(width) : null,
         Number.isFinite(height) ? Math.round(height) : null,
         Number.isFinite(size_bytes) ? Math.round(size_bytes) : null,
+        deleteToken,
       ]
     );
 
@@ -80,28 +84,34 @@ export async function GET(request: NextRequest) {
   }
 }
 
-// Moderation: remove a photo (DB row + Blob file). Gated by CRON_SECRET, which
-// already exists in the project's env — reused so no new secret is needed.
+// Remove a photo (DB row + Blob file). Authorized two ways:
+//   - Admin moderation: Bearer CRON_SECRET (the /photos/manage page) — can delete anything.
+//   - The uploader: a matching delete_token (minted on POST, stored in their browser)
+//     — lets a guest remove their own photo without any account or login.
 export async function DELETE(request: NextRequest) {
   try {
-    const secret = process.env.CRON_SECRET;
-    const auth = request.headers.get("authorization");
-    if (!secret || auth !== `Bearer ${secret}`) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
     const { searchParams } = new URL(request.url);
     const id = Number(searchParams.get("id"));
     if (!Number.isInteger(id) || id <= 0) {
       return NextResponse.json({ error: "Valid photo id is required" }, { status: 400 });
     }
 
-    const rows = await query(`SELECT url FROM photos WHERE id = $1`, [id]);
+    const secret = process.env.CRON_SECRET;
+    const auth = request.headers.get("authorization");
+    const isAdmin = !!secret && auth === `Bearer ${secret}`;
+    const token = searchParams.get("token");
+
+    const rows = await query(`SELECT url, delete_token FROM photos WHERE id = $1`, [id]);
     if (!rows) {
       return NextResponse.json({ error: "Database unavailable" }, { status: 503 });
     }
     if (rows.length === 0) {
       return NextResponse.json({ error: "Photo not found" }, { status: 404 });
+    }
+
+    const ownsPhoto = !!token && !!rows[0].delete_token && token === rows[0].delete_token;
+    if (!isAdmin && !ownsPhoto) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     await del(rows[0].url as string).catch(() => {});

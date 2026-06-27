@@ -67,13 +67,52 @@ export default function PhotosPage() {
   const [loaded, setLoaded] = useState(false);
   const [queue, setQueue] = useState<QueueItem[]>([]);
   const [lightbox, setLightbox] = useState<number | null>(null);
+  const [myTokens, setMyTokens] = useState<Record<number, string>>({});
   const fileInputRef = useRef<HTMLInputElement>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
   const maxIdRef = useRef(0);
 
   useEffect(() => {
     setUploaderName(localStorage.getItem("photo_uploader_name") ?? "");
+    try {
+      const raw = localStorage.getItem("photo_delete_tokens");
+      if (raw) setMyTokens(JSON.parse(raw));
+    } catch {}
   }, []);
+
+  const rememberToken = useCallback((id: number, token: string) => {
+    setMyTokens((prev) => {
+      const next = { ...prev, [id]: token };
+      try {
+        localStorage.setItem("photo_delete_tokens", JSON.stringify(next));
+      } catch {}
+      return next;
+    });
+  }, []);
+
+  const handleDelete = useCallback(
+    async (id: number) => {
+      const token = myTokens[id];
+      if (!token) return;
+      if (!window.confirm("Remove this from the shared album? This can't be undone.")) return;
+
+      const res = await fetch(`/api/photos?id=${id}&token=${encodeURIComponent(token)}`, {
+        method: "DELETE",
+      });
+      if (!res.ok) return;
+
+      setPhotos((prev) => prev.filter((p) => p.id !== id));
+      setMyTokens((prev) => {
+        const next = { ...prev };
+        delete next[id];
+        try {
+          localStorage.setItem("photo_delete_tokens", JSON.stringify(next));
+        } catch {}
+        return next;
+      });
+    },
+    [myTokens]
+  );
 
   const mergePhotos = useCallback((incoming: Photo[]) => {
     if (incoming.length === 0) return;
@@ -177,6 +216,7 @@ export default function PhotosPage() {
           if (!res.ok) throw new Error(json.error || "Save failed");
 
           mergePhotos([json.data]);
+          if (json.data?.delete_token) rememberToken(json.data.id, json.data.delete_token);
           setQueue((q) => q.map((it) => (it.key === key ? { ...it, status: "done", progress: 100 } : it)));
           setTimeout(() => setQueue((q) => q.filter((it) => it.key !== key)), 2500);
         } catch (err) {
@@ -192,7 +232,7 @@ export default function PhotosPage() {
       if (fileInputRef.current) fileInputRef.current.value = "";
       if (cameraInputRef.current) cameraInputRef.current.value = "";
     },
-    [uploaderName, mergePhotos]
+    [uploaderName, mergePhotos, rememberToken]
   );
 
   const activeCount = queue.filter((q) => q.status === "uploading").length;
@@ -213,7 +253,13 @@ export default function PhotosPage() {
 
         <UploadQueue queue={queue} />
 
-        <Gallery photos={photos} loaded={loaded} onOpen={setLightbox} />
+        <Gallery
+          photos={photos}
+          loaded={loaded}
+          onOpen={setLightbox}
+          myTokens={myTokens}
+          onDelete={handleDelete}
+        />
       </div>
 
       <AnimatePresence>
@@ -389,7 +435,19 @@ function UploadQueue({ queue }: { queue: QueueItem[] }) {
   );
 }
 
-function Gallery({ photos, loaded, onOpen }: { photos: Photo[]; loaded: boolean; onOpen: (i: number) => void }) {
+function Gallery({
+  photos,
+  loaded,
+  onOpen,
+  myTokens,
+  onDelete,
+}: {
+  photos: Photo[];
+  loaded: boolean;
+  onOpen: (i: number) => void;
+  myTokens: Record<number, string>;
+  onDelete: (id: number) => void;
+}) {
   if (!loaded) {
     return (
       <div className="py-16 text-center">
@@ -420,40 +478,51 @@ function Gallery({ photos, loaded, onOpen }: { photos: Photo[]; loaded: boolean;
   return (
     <div className="mt-10 grid grid-cols-2 gap-1.5 sm:grid-cols-3 sm:gap-2 md:grid-cols-4 lg:grid-cols-5">
       {photos.map((photo, i) => (
-        <button
+        <div
           key={photo.id}
-          onClick={() => onOpen(i)}
           className="group relative aspect-square overflow-hidden rounded-xl bg-sage/10 animate-soft-fade-in"
         >
-          {photo.media_type === "video" ? (
-            <>
-              <video
-                src={`${photo.url}#t=0.1`}
-                muted
-                playsInline
-                preload="metadata"
-                className="h-full w-full object-cover"
-              />
-              <span className="absolute inset-0 flex items-center justify-center">
-                <span className="flex h-11 w-11 items-center justify-center rounded-full bg-black/45 text-lg text-white backdrop-blur-sm">
-                  ▶
+          <button onClick={() => onOpen(i)} className="block h-full w-full" aria-label="Open photo">
+            {photo.media_type === "video" ? (
+              <>
+                <video
+                  src={`${photo.url}#t=0.1`}
+                  muted
+                  playsInline
+                  preload="metadata"
+                  className="h-full w-full object-cover"
+                />
+                <span className="absolute inset-0 flex items-center justify-center">
+                  <span className="flex h-11 w-11 items-center justify-center rounded-full bg-black/45 text-lg text-white backdrop-blur-sm">
+                    ▶
+                  </span>
                 </span>
-              </span>
-            </>
-          ) : (
-            <img
-              src={photo.url}
-              alt={photo.uploader_name ? `Shared by ${photo.uploader_name}` : "Guest photo"}
-              loading="lazy"
-              className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
-            />
+              </>
+            ) : (
+              <img
+                src={photo.url}
+                alt={photo.uploader_name ? `Shared by ${photo.uploader_name}` : "Guest photo"}
+                loading="lazy"
+                className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+              />
+            )}
+          </button>
+          {myTokens[photo.id] && (
+            <button
+              onClick={() => onDelete(photo.id)}
+              className="absolute right-1.5 top-1.5 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-black/55 text-white backdrop-blur-sm transition hover:bg-red-600"
+              aria-label="Remove your photo"
+              title="Remove your photo"
+            >
+              ✕
+            </button>
           )}
           {photo.uploader_name && (
-            <span className="absolute inset-x-0 bottom-0 truncate bg-gradient-to-t from-black/55 to-transparent px-2 pb-1.5 pt-4 text-left text-[11px] text-white/90 opacity-0 transition-opacity group-hover:opacity-100">
+            <span className="pointer-events-none absolute inset-x-0 bottom-0 truncate bg-gradient-to-t from-black/55 to-transparent px-2 pb-1.5 pt-4 text-left text-[11px] text-white/90 opacity-0 transition-opacity group-hover:opacity-100">
               {photo.uploader_name}
             </span>
           )}
-        </button>
+        </div>
       ))}
     </div>
   );

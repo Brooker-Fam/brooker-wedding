@@ -1,11 +1,20 @@
 import { NextRequest, NextResponse } from "next/server";
 import { handleUpload, type HandleUploadBody } from "@vercel/blob/client";
 import { captureServerException } from "@/lib/posthog-server";
+import { checkUploadRateLimit } from "@/lib/rate-limit";
 
 // Issues short-lived client tokens so guests' browsers upload directly to Vercel
 // Blob, bypassing the 4.5MB serverless body limit (needed for full-res photos +
 // videos). The BLOB_READ_WRITE_TOKEN never leaves the server.
 export async function POST(request: NextRequest): Promise<NextResponse> {
+  const { allowed } = await checkUploadRateLimit(request);
+  if (!allowed) {
+    return NextResponse.json(
+      { error: "Whoa, that's a lot of uploads in one go! Take a short break and try again in a bit." },
+      { status: 429 }
+    );
+  }
+
   const body = (await request.json()) as HandleUploadBody;
 
   try {
