@@ -5,8 +5,11 @@ import { useCallback, useEffect, useState } from "react";
 interface Photo {
   id: number;
   url: string;
+  thumb_url: string | null;
   media_type: "image" | "video";
   uploader_name: string | null;
+  approved: boolean;
+  reported: boolean;
   created_at: string;
 }
 
@@ -27,12 +30,20 @@ export default function ManagePhotosPage() {
 
   const load = useCallback(() => {
     setLoading(true);
-    fetch("/api/photos?limit=500")
-      .then((r) => r.json())
+    fetch("/api/photos?moderation=1", { headers: { Authorization: `Bearer ${secret.trim()}` } })
+      .then((r) => {
+        if (r.status === 401) {
+          setError("That admin password didn't work.");
+          sessionStorage.removeItem("photo_admin_secret");
+          setUnlocked(false);
+          return { data: [] };
+        }
+        return r.json();
+      })
       .then((json) => setPhotos(json.data ?? []))
       .catch(() => setError("Couldn't load photos."))
       .finally(() => setLoading(false));
-  }, []);
+  }, [secret]);
 
   useEffect(() => {
     if (unlocked) load();
@@ -63,6 +74,19 @@ export default function ManagePhotosPage() {
     setPhotos((prev) => prev.filter((p) => p.id !== id));
   };
 
+  const handleRestore = async (id: number) => {
+    setError("");
+    const res = await fetch(`/api/photos?id=${id}`, {
+      method: "PATCH",
+      headers: { Authorization: `Bearer ${secret.trim()}` },
+    });
+    if (!res.ok) {
+      setError("Couldn't restore that one — try again.");
+      return;
+    }
+    setPhotos((prev) => prev.map((p) => (p.id === id ? { ...p, approved: true, reported: false } : p)));
+  };
+
   return (
     <div className="enchanted-bg relative min-h-screen overflow-hidden">
       <div className="mx-auto max-w-5xl px-4 pt-24 pb-16 sm:pt-28">
@@ -70,7 +94,7 @@ export default function ManagePhotosPage() {
           Manage Photos
         </h1>
         <p className="mb-8 text-center text-sm text-deep-plum/70 dark:text-cream/70">
-          Remove any photo from the shared gallery.
+          Remove any photo, or restore one a guest reported (flagged in red, dimmed).
         </p>
 
         {!unlocked ? (
@@ -110,9 +134,14 @@ export default function ManagePhotosPage() {
                 {photos.map((photo) => (
                   <div key={photo.id} className="relative aspect-square overflow-hidden rounded-xl bg-sage/10">
                     {photo.media_type === "video" ? (
-                      <video src={`${photo.url}#t=0.1`} muted playsInline preload="metadata" className="h-full w-full object-cover" />
+                      <video src={`${photo.url}#t=0.1`} muted playsInline preload="metadata" className={`h-full w-full object-cover ${!photo.approved ? "opacity-40" : ""}`} />
                     ) : (
-                      <img src={photo.url} alt="" loading="lazy" className="h-full w-full object-cover" />
+                      <img src={photo.thumb_url ?? photo.url} alt="" loading="lazy" className={`h-full w-full object-cover ${!photo.approved ? "opacity-40" : ""}`} />
+                    )}
+                    {photo.reported && (
+                      <span className="absolute left-1.5 top-1.5 rounded-full bg-red-600/90 px-2 py-0.5 text-[10px] font-semibold text-white">
+                        Reported
+                      </span>
                     )}
                     <button
                       onClick={() => handleDelete(photo.id)}
@@ -121,7 +150,15 @@ export default function ManagePhotosPage() {
                     >
                       ✕
                     </button>
-                    {photo.uploader_name && (
+                    {!photo.approved && (
+                      <button
+                        onClick={() => handleRestore(photo.id)}
+                        className="absolute inset-x-1.5 bottom-1.5 rounded-lg bg-sage/90 px-2 py-1.5 text-xs font-semibold text-white backdrop-blur-sm transition hover:bg-sage"
+                      >
+                        Restore
+                      </button>
+                    )}
+                    {photo.approved && photo.uploader_name && (
                       <span className="absolute inset-x-0 bottom-0 truncate bg-gradient-to-t from-black/55 to-transparent px-2 pb-1 pt-3 text-[11px] text-white/90">
                         {photo.uploader_name}
                       </span>

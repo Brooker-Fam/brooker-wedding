@@ -148,6 +148,18 @@ export default function PhotosPage() {
     [myTokens]
   );
 
+  const handleReport = useCallback(async (id: number) => {
+    if (!window.confirm("Report this to the hosts? It'll be hidden from the album right away.")) return;
+    setPhotos((prev) => prev.filter((p) => p.id !== id));
+    try {
+      await fetch("/api/photos/report", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id }),
+      });
+    } catch {}
+  }, []);
+
   const mergePhotos = useCallback((incoming: Photo[]) => {
     if (incoming.length === 0) return;
     setPhotos((prev) => {
@@ -314,8 +326,11 @@ export default function PhotosPage() {
           <Lightbox
             photos={photos}
             currentId={lightboxId}
+            myTokens={myTokens}
             onClose={() => setLightboxId(null)}
             onNavigate={setLightboxId}
+            onReport={handleReport}
+            onDelete={handleDelete}
           />
         )}
       </AnimatePresence>
@@ -578,16 +593,23 @@ function Gallery({
 function Lightbox({
   photos,
   currentId,
+  myTokens,
   onClose,
   onNavigate,
+  onReport,
+  onDelete,
 }: {
   photos: Photo[];
   currentId: number;
+  myTokens: Record<number, string>;
   onClose: () => void;
   onNavigate: (id: number) => void;
+  onReport: (id: number) => void;
+  onDelete: (id: number) => void;
 }) {
   const index = photos.findIndex((p) => p.id === currentId);
   const photo = photos[index];
+  const mine = !!myTokens[currentId];
 
   const go = useCallback(
     (dir: number) => {
@@ -672,6 +694,23 @@ function Lightbox({
         {photo.uploader_name && (
           <p className="mt-3 text-sm text-white/80">Shared by {photo.uploader_name}</p>
         )}
+        <div className="mt-2">
+          {mine ? (
+            <button
+              onClick={() => onDelete(currentId)}
+              className="min-h-[44px] px-3 text-sm text-white/70 underline-offset-2 transition hover:text-white hover:underline"
+            >
+              Remove my photo
+            </button>
+          ) : (
+            <button
+              onClick={() => onReport(currentId)}
+              className="min-h-[44px] px-3 text-sm text-white/50 underline-offset-2 transition hover:text-white/90 hover:underline"
+            >
+              ⚑ Report
+            </button>
+          )}
+        </div>
       </div>
     </motion.div>
   );

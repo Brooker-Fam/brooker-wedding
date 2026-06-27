@@ -13,6 +13,12 @@ function isBlobUrl(u: unknown): u is string {
   return typeof u === "string" && BLOB_URL_RE.test(u);
 }
 
+function isAdminRequest(request: NextRequest): boolean {
+  const secret = process.env.ADMIN_SECRET || process.env.CRON_SECRET;
+  const auth = request.headers.get("authorization");
+  return !!secret && auth === `Bearer ${secret}`;
+}
+
 export async function POST(request: NextRequest) {
   try {
     // Same per-IP cap as the token endpoint, so the gallery row can't be
@@ -73,6 +79,20 @@ export async function POST(request: NextRequest) {
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
+
+    // Admin moderation list: everything, including hidden/reported photos, so
+    // the manage page can restore mis-taps or delete genuine bad content.
+    if (searchParams.get("moderation") === "1") {
+      if (!isAdminRequest(request)) {
+        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      }
+      const rows = await query(
+        `SELECT id, url, thumb_url, media_type, uploader_name, approved, reported, created_at
+         FROM photos ORDER BY id DESC LIMIT 1000`
+      );
+      return NextResponse.json({ data: rows ?? [] });
+    }
+
     const limit = Math.min(Number(searchParams.get("limit") || 200), 500);
     const sinceId = Number(searchParams.get("since") || 0);
 
@@ -115,11 +135,7 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: "Valid photo id is required" }, { status: 400 });
     }
 
-    // Dedicated admin secret; falls back to CRON_SECRET so existing setups keep
-    // working until ADMIN_SECRET is set in the environment.
-    const secret = process.env.ADMIN_SECRET || process.env.CRON_SECRET;
-    const auth = request.headers.get("authorization");
-    const isAdmin = !!secret && auth === `Bearer ${secret}`;
+    const isAdmin = isAdminRequest(request);
     const token = searchParams.get("token");
 
     const rows = await query(`SELECT url, delete_token FROM photos WHERE id = $1`, [id]);
@@ -143,5 +159,34 @@ export async function DELETE(request: NextRequest) {
     console.error("Photo delete error:", error);
     await captureServerException(error, { route: "DELETE /api/photos" });
     return NextResponse.json({ error: "Failed to delete photo" }, { status: 500 });
+  }
+}
+
+// Admin: restore a reported/hidden photo back into the gallery (undo a mis-tap).
+export async function PATCH(request: NextRequest) {
+  try {
+    if (!isAdminRequest(request)) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const { searchParams } = new URL(request.url);
+    const id = Number(searchParams.get("id"));
+    if (!Number.isInteger(id) || id <= 0) {
+      return NextResponse.json({ error: "Valid photo id is required" }, { status: 400 });
+    }
+
+    const result = await query(
+      `UPDATE photos SET approved = TRUE, reported = FALSE WHERE id = $1`,
+      [id]
+    );
+    if (!result) {
+      return NextResponse.json({ error: "Database unavailable" }, { status: 503 });
+    }
+
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error("Photo restore error:", error);
+    await captureServerException(error, { route: "PATCH /api/photos" });
+    return NextResponse.json({ error: "Failed to restore photo" }, { status: 500 });
   }
 }
