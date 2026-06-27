@@ -15,7 +15,7 @@ DATABASE_URL="<Neon string from Vercel → Settings → Environment Variables>" 
 - Re-runnable / resumable — already-downloaded files are skipped.
 - Then drop the folder somewhere durable (Google Drive / iCloud / an external drive) so there are **two** copies, not one.
 
-Note: uploaded photos are downscaled in the browser before upload (see `MAX_DIM` in `src/app/photos/page.tsx`), so the "originals" here are large JPEGs, not the raw camera files. Videos are uploaded unmodified. For true full-res shots from close family, ask them to AirDrop/share the originals directly.
+Note: photos are re-encoded in the browser to a near-original ~4096px JPEG before upload (see `STORE_DIM` in `src/app/photos/page.tsx`) — good for prints, but not the raw camera files. Videos are uploaded unmodified. For true full-res shots from close family, ask them to AirDrop/share the originals directly.
 
 ## 2. Set a Vercel spend cap (do BEFORE the QR codes go out)
 
