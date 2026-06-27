@@ -36,6 +36,7 @@ function getCookie(name: string): string | null {
 }
 
 const WEDDING_PLAYLISTS = [
+  { label: "Everything", url: "https://open.spotify.com/playlist/3kWvGk433V3lsTsObR0DrO" },
   { label: "Arrivals", url: "https://open.spotify.com/playlist/26aCRpF7NlVhb7eYYAcJtk" },
   { label: "Special", url: "https://open.spotify.com/playlist/2W10iTjE9QxqeEgJ0pwpf8" },
   { label: "Party", url: "https://open.spotify.com/playlist/3IXmeXqumuld8F72DethlC" },
