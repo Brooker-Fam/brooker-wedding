@@ -389,7 +389,7 @@ function UploadCard({
           </button>
         </div>
         <p className="mt-4 text-xs text-deep-plum/50 dark:text-cream/50">
-          Shared with everyone here — please keep it kind 💚
+          Shared with everyone here 💚
         </p>
       </div>
     </div>
