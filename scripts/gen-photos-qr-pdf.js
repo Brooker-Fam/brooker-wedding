@@ -87,7 +87,7 @@ async function main() {
     .fontSize(13)
     .fillColor(FOREST)
     .text(
-      "Scan to add your photos & videos to our shared album. No app, no sign-up — they appear for everyone instantly.",
+      "Scan the code to add your photos and videos to our shared album.",
       ML + 40,
       y,
       { width: contentW - 80, align: "center", lineGap: 4 }
@@ -123,15 +123,6 @@ async function main() {
     .fillColor(FOREST)
     .text("brooker.family/photos", ML, y, { width: contentW, align: "center" });
   y += 38;
-
-  doc
-    .font("Helvetica")
-    .fontSize(11)
-    .fillColor(MUTED)
-    .text("Point your phone camera at the code, then tap the link.", ML, y, {
-      width: contentW,
-      align: "center",
-    });
 
   const footerY = PAGE_H - 96;
   drawFlourish(doc, centerX, footerY, PLUM, true);

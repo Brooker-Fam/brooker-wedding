@@ -61,12 +61,34 @@ async function processImage(file: File): Promise<{
   }
 }
 
+// The blob upload and this metadata save are two separate requests; on flaky
+// rural signal the save can fail after the file is already in Blob. Retry
+// transient failures (network / 5xx) so we don't strand an uploaded photo.
+async function saveMetadata(body: Record<string, unknown>, attempts = 3): Promise<Response> {
+  let lastErr: unknown = new Error("Save failed");
+  for (let i = 0; i < attempts; i++) {
+    try {
+      const res = await fetch("/api/photos", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+      if (res.ok || (res.status >= 400 && res.status < 500)) return res;
+      lastErr = new Error(`HTTP ${res.status}`);
+    } catch (e) {
+      lastErr = e;
+    }
+    if (i < attempts - 1) await new Promise((r) => setTimeout(r, 600 * (i + 1)));
+  }
+  throw lastErr instanceof Error ? lastErr : new Error("Save failed");
+}
+
 export default function PhotosPage() {
   const [uploaderName, setUploaderName] = useState("");
   const [photos, setPhotos] = useState<Photo[]>([]);
   const [loaded, setLoaded] = useState(false);
   const [queue, setQueue] = useState<QueueItem[]>([]);
-  const [lightbox, setLightbox] = useState<number | null>(null);
+  const [lightboxId, setLightboxId] = useState<number | null>(null);
   const [myTokens, setMyTokens] = useState<Record<number, string>>({});
   const fileInputRef = useRef<HTMLInputElement>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
@@ -199,18 +221,14 @@ export default function PhotosPage() {
               setQueue((q) => q.map((it) => (it.key === key ? { ...it, progress: Math.round(e.percentage) } : it))),
           });
 
-          const res = await fetch("/api/photos", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              url: result.url,
-              content_type: contentType,
-              media_type: isVideo ? "video" : "image",
-              uploader_name: name,
-              width,
-              height,
-              size_bytes: payload.size,
-            }),
+          const res = await saveMetadata({
+            url: result.url,
+            content_type: contentType,
+            media_type: isVideo ? "video" : "image",
+            uploader_name: name,
+            width,
+            height,
+            size_bytes: payload.size,
           });
           const json = await res.json();
           if (!res.ok) throw new Error(json.error || "Save failed");
@@ -256,19 +274,19 @@ export default function PhotosPage() {
         <Gallery
           photos={photos}
           loaded={loaded}
-          onOpen={setLightbox}
+          onOpen={setLightboxId}
           myTokens={myTokens}
           onDelete={handleDelete}
         />
       </div>
 
       <AnimatePresence>
-        {lightbox !== null && photos[lightbox] && (
+        {lightboxId !== null && photos.some((p) => p.id === lightboxId) && (
           <Lightbox
             photos={photos}
-            index={lightbox}
-            onClose={() => setLightbox(null)}
-            onNavigate={setLightbox}
+            currentId={lightboxId}
+            onClose={() => setLightboxId(null)}
+            onNavigate={setLightboxId}
           />
         )}
       </AnimatePresence>
@@ -477,12 +495,12 @@ function Gallery({
 
   return (
     <div className="mt-10 grid grid-cols-2 gap-1.5 sm:grid-cols-3 sm:gap-2 md:grid-cols-4 lg:grid-cols-5">
-      {photos.map((photo, i) => (
+      {photos.map((photo) => (
         <div
           key={photo.id}
           className="group relative aspect-square overflow-hidden rounded-xl bg-sage/10 animate-soft-fade-in"
         >
-          <button onClick={() => onOpen(i)} className="block h-full w-full" aria-label="Open photo">
+          <button onClick={() => onOpen(photo.id)} className="block h-full w-full" aria-label="Open photo">
             {photo.media_type === "video" ? (
               <>
                 <video
@@ -530,23 +548,24 @@ function Gallery({
 
 function Lightbox({
   photos,
-  index,
+  currentId,
   onClose,
   onNavigate,
 }: {
   photos: Photo[];
-  index: number;
+  currentId: number;
   onClose: () => void;
-  onNavigate: (i: number) => void;
+  onNavigate: (id: number) => void;
 }) {
+  const index = photos.findIndex((p) => p.id === currentId);
   const photo = photos[index];
 
   const go = useCallback(
     (dir: number) => {
       const next = index + dir;
-      if (next >= 0 && next < photos.length) onNavigate(next);
+      if (next >= 0 && next < photos.length) onNavigate(photos[next].id);
     },
-    [index, photos.length, onNavigate]
+    [index, photos, onNavigate]
   );
 
   useEffect(() => {
