@@ -1,0 +1,851 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- Field map: the rise and fall of Venezuela -->
+<title>Did Venezuela ruin itself, or was it strangled? — a map of the rise and fall</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,500&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#171922; --ink-2:#1e212c; --card:#23273380; --card-solid:#232734;
+    --line:#34384a; --line-soft:#2a2e3b;
+    --bone:#ebe5d6; --mute:#a6a394; --faint:#807e8a;
+    /* found = pole A (verdigris) · made = pole B (ochre) · pivot = the reconciling hinge (lilac).
+       Rename the *concepts* in your prose, but keep these three colors as the axis. */
+    --found:#6dbaa4; --found-deep:#2f6657; --found-glow:#6dbaa422;
+    --made:#d8a652; --made-deep:#7d5f29; --made-glow:#d8a65222;
+    --pivot:#a195bd; --pivot-glow:#a195bd1f;
+    /* third camp (slate-blue) — only for genuinely ternary debates; see SKILL.md */
+    --camp-c:#6f93c4; --camp-c-deep:#33506f; --camp-c-glow:#6f93c41f;
+    --maxw:1180px;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0; background:var(--ink); color:var(--bone);
+    font-family:"IBM Plex Sans",sans-serif; font-weight:400;
+    line-height:1.62; font-size:17px;
+    -webkit-font-smoothing:antialiased;
+    background-image:
+      radial-gradient(900px 600px at 82% -8%, #20243340, transparent 70%),
+      radial-gradient(700px 500px at 5% 18%, #1d212e55, transparent 70%);
+    background-attachment:fixed;
+  }
+  .wrap{max-width:var(--maxw); margin:0 auto; padding:0 26px;}
+  .mono{font-family:"IBM Plex Mono",monospace;}
+  .ser{font-family:"Fraunces",serif;}
+
+  /* ---------- eyebrows / dividers ---------- */
+  .eyebrow{
+    font-family:"IBM Plex Mono",monospace; font-size:12px; font-weight:500;
+    letter-spacing:.22em; text-transform:uppercase; color:var(--faint);
+    display:flex; align-items:center; gap:14px;
+  }
+  .eyebrow::before{content:""; width:30px; height:1px; background:var(--line); display:inline-block;}
+  .sec-num{color:var(--mute);}
+
+  /* ---------- brooker site tie (added for brooker.family/debates) ---------- */
+  .site-tie{
+    font-family:"IBM Plex Mono",monospace; font-size:12px; letter-spacing:.2em;
+    text-transform:uppercase; color:var(--faint); text-decoration:none;
+    display:inline-flex; align-items:center; gap:9px; margin:0 0 30px;
+    transition:color .2s;
+  }
+  .site-tie::before{content:""; width:22px; height:1px; background:var(--line); display:inline-block;}
+  .site-tie:hover{color:var(--bone);}
+  .foot-links{margin-top:22px; display:flex; gap:24px; flex-wrap:wrap;}
+  .foot-links a{
+    font-family:"IBM Plex Mono",monospace; font-size:11.5px; letter-spacing:.16em;
+    text-transform:uppercase; color:var(--mute); text-decoration:none;
+    border-bottom:1px solid var(--line); padding-bottom:2px;
+  }
+  .foot-links a:hover{color:var(--bone); border-bottom-color:var(--mute);}
+
+  /* ---------- header ---------- */
+  header{padding:clamp(56px,10vw,116px) 0 clamp(40px,7vw,80px);}
+  .kicker{
+    font-family:"IBM Plex Mono",monospace; font-size:12.5px; letter-spacing:.26em;
+    text-transform:uppercase; color:var(--faint); margin:0 0 26px;
+  }
+  h1.title{
+    font-family:"Fraunces",serif; font-weight:400; font-optical-sizing:auto;
+    font-size:clamp(2.5rem,6.4vw,4.7rem); line-height:1.02; letter-spacing:-.012em;
+    margin:0; max-width:16ch;
+  }
+  h1.title em{font-style:italic; color:var(--found);}
+  h1.title .mk{font-style:italic; color:var(--made);}
+  .dek{
+    font-size:clamp(1.05rem,2.1vw,1.35rem); color:var(--mute); line-height:1.5;
+    max-width:47ch; margin:30px 0 0; font-weight:400;
+  }
+  .dek b{color:var(--bone); font-weight:500;}
+
+  /* ---------- axis legend ---------- */
+  .legend{
+    margin-top:46px; border:1px solid var(--line-soft); border-radius:14px;
+    background:linear-gradient(100deg,#1c202c,#1a1e29);
+    padding:22px 24px; display:grid; gap:14px;
+  }
+  .legend-top{font-family:"IBM Plex Mono",monospace; font-size:11.5px; letter-spacing:.2em; text-transform:uppercase; color:var(--faint);}
+  .axis-bar{
+    height:7px; border-radius:6px;
+    background:linear-gradient(90deg,var(--found) 0%, #6e6b78 50%, var(--made) 100%);
+  }
+  .axis-ends{display:flex; justify-content:space-between; gap:16px; font-size:14.5px;}
+  .axis-ends .ax-found{color:var(--found);}
+  .axis-ends .ax-made{color:var(--made); text-align:right;}
+  .axis-ends span b{display:block; font-weight:600; font-size:15px; margin-bottom:1px;}
+  .axis-ends span small{color:var(--faint); font-size:12.5px; letter-spacing:.02em;}
+
+  /* ---------- section frame ---------- */
+  section{padding:clamp(54px,8vw,96px) 0;}
+  .sec-head{margin-bottom:42px;}
+  .sec-head h2{
+    font-family:"Fraunces",serif; font-weight:400; font-size:clamp(1.9rem,4vw,2.9rem);
+    line-height:1.06; letter-spacing:-.01em; margin:18px 0 0; max-width:24ch;
+  }
+  .sec-head p{color:var(--mute); max-width:62ch; margin:16px 0 0; font-size:1.02rem;}
+
+  /* ===== I. LINEAGE (timeline) ===== */
+  .lineage{position:relative;}
+  .spine{
+    position:absolute; left:140px; top:6px; bottom:6px; width:2px;
+    background:linear-gradient(var(--found-deep),var(--line),var(--made-deep));
+  }
+  .node{position:relative; padding:0 0 26px 172px; min-height:30px;}
+  .node .yr{
+    position:absolute; left:0; top:1px; width:118px; text-align:right;
+    font-family:"IBM Plex Mono",monospace; font-size:12.5px; color:var(--faint);
+    letter-spacing:.02em; padding-top:2px;
+  }
+  .node .dot{
+    position:absolute; left:134px; top:6px; width:14px; height:14px; border-radius:50%;
+    background:var(--ink); border:2px solid var(--mute); z-index:2;
+  }
+  .node.found .dot{border-color:var(--found); box-shadow:0 0 0 4px var(--found-glow);}
+  .node.made .dot{border-color:var(--made); box-shadow:0 0 0 4px var(--made-glow);}
+  .node.pivot .dot{border-color:var(--pivot); box-shadow:0 0 0 4px var(--pivot-glow);}
+  .node .who{font-family:"Fraunces",serif; font-size:1.24rem; font-weight:500; line-height:1.15; letter-spacing:-.005em;}
+  .node .dom{font-family:"IBM Plex Mono",monospace; font-size:10.5px; letter-spacing:.16em; text-transform:uppercase; margin-left:10px; color:var(--faint); vertical-align:middle;}
+  .node .say{color:var(--mute); font-size:.99rem; margin-top:4px; max-width:64ch;}
+  .node.camp-c .dot{border-color:var(--camp-c); box-shadow:0 0 0 4px var(--camp-c-glow);}
+  .node.found .who{color:var(--found);}
+  .node.made .who{color:var(--made);}
+  .node.pivot .who{color:var(--pivot);}
+  .node.camp-c .who{color:var(--camp-c);}
+  .lineage-tail{padding-left:172px; margin-top:2px;}
+  .lineage-tail .pin{
+    position:relative; padding:16px 20px; border:1px dashed var(--line);
+    border-radius:12px; background:#1b1f2a; max-width:60ch;
+  }
+  .lineage-tail .pin b{font-family:"Fraunces",serif; font-weight:500; font-size:1.05rem;}
+  .lineage-tail .pin p{margin:5px 0 0; color:var(--mute); font-size:.96rem;}
+
+  /* ===== II. POSITIONS (field guide) ===== */
+  .fields{display:grid; grid-template-columns:1fr 1fr; gap:30px;}
+  .field h3{
+    font-family:"IBM Plex Mono",monospace; font-size:12.5px; letter-spacing:.2em;
+    text-transform:uppercase; color:var(--bone); margin:0 0 18px; padding-bottom:12px;
+    border-bottom:1px solid var(--line); display:flex; justify-content:space-between; align-items:baseline;
+  }
+  .field h3 small{color:var(--faint); letter-spacing:.12em; font-weight:400;}
+  .pos{
+    border:1px solid var(--line-soft); border-left:3px solid var(--line);
+    border-radius:0 11px 11px 0; background:var(--card);
+    padding:16px 18px; margin-bottom:13px; transition:border-color .25s, background .25s, transform .25s;
+  }
+  .pos.found{border-left-color:var(--found);}
+  .pos.made{border-left-color:var(--made);}
+  .pos.pivot{border-left-color:var(--pivot);}
+  .pos.camp-c{border-left-color:var(--camp-c);}
+  .pos:hover{transform:translateX(3px); background:var(--card-solid);}
+  .pos .nm{font-family:"Fraunces",serif; font-weight:600; font-size:1.16rem; letter-spacing:-.005em; display:flex; align-items:baseline; gap:10px; flex-wrap:wrap;}
+  .pos.found .nm{color:var(--found);} .pos.made .nm{color:var(--made);} .pos.pivot .nm{color:var(--pivot);} .pos.camp-c .nm{color:var(--camp-c);}
+  /* go-deeper links on a card or in the shelf */
+  .src-links{margin-top:9px; display:flex; flex-wrap:wrap; gap:6px 14px;}
+  .src-links a{font-family:"IBM Plex Mono",monospace; font-size:11.5px; color:var(--mute); text-decoration:none; border-bottom:1px solid var(--line);}
+  .src-links a:hover{color:var(--bone); border-bottom-color:var(--mute);}
+  .src-links a::after{content:" ↗"; color:var(--faint);}
+  .traction{
+    font-family:"IBM Plex Mono",monospace; font-size:10px; letter-spacing:.08em; text-transform:uppercase;
+    color:var(--faint); border:1px solid var(--line); border-radius:20px; padding:2px 9px; white-space:nowrap;
+  }
+  .pos .figs{font-family:"IBM Plex Mono",monospace; font-size:12px; color:var(--mute); margin:7px 0 7px; letter-spacing:.01em;}
+  .pos .claim{color:var(--bone); font-size:.97rem; line-height:1.5;}
+  .pos .nb{display:block; margin-top:7px; color:var(--faint); font-size:.85rem; font-style:italic;}
+  .pivot-card{
+    grid-column:1/-1; border:1px solid var(--pivot); border-radius:13px;
+    background:linear-gradient(100deg,#211f2c,#1c1b25); padding:20px 22px; margin-top:4px;
+    display:flex; gap:18px; align-items:flex-start; flex-wrap:wrap;
+  }
+  .pivot-card .pv-tag{font-family:"IBM Plex Mono",monospace; font-size:11px; letter-spacing:.2em; text-transform:uppercase; color:var(--pivot); white-space:nowrap; padding-top:5px;}
+  .pivot-card .pv-body{flex:1 1 320px;}
+  .pivot-card .pv-body b{font-family:"Fraunces",serif; font-weight:600; font-size:1.2rem; color:var(--pivot);}
+  .pivot-card .pv-body p{margin:6px 0 0; color:var(--bone); font-size:.98rem;}
+  .traction-note{margin-top:20px; color:var(--faint); font-size:.84rem; font-style:italic; max-width:70ch; display:flex; gap:9px;}
+  .traction-note::before{content:"※"; color:var(--mute); font-style:normal;}
+
+  /* ===== III. CRUXES (confrontations) ===== */
+  .crux{border:1px solid var(--line-soft); border-radius:18px; overflow:hidden; margin-bottom:30px; background:#191d28;}
+  .crux-head{padding:24px 28px 20px; border-bottom:1px solid var(--line-soft);}
+  .crux-meta{display:flex; justify-content:space-between; gap:14px; align-items:baseline; flex-wrap:wrap; margin-bottom:12px;}
+  .crux-n{font-family:"IBM Plex Mono",monospace; font-size:13px; letter-spacing:.18em; color:var(--mute);}
+  .crux-dom{font-family:"IBM Plex Mono",monospace; font-size:10.5px; letter-spacing:.16em; text-transform:uppercase; color:var(--ink); background:var(--mute); padding:3px 10px; border-radius:20px;}
+  .crux-dom.both{background:var(--pivot);}
+  .crux-q{font-family:"Fraunces",serif; font-weight:500; font-size:clamp(1.4rem,3vw,2rem); line-height:1.12; letter-spacing:-.01em; margin:0;}
+  .crux-sub{color:var(--mute); margin:9px 0 0; font-size:.98rem;}
+  .steels{display:grid; grid-template-columns:1fr 1fr; gap:0;}
+  .steel{padding:24px 28px; position:relative;}
+  .steel.s-found{background:linear-gradient(180deg,#1a2420,#191f1d);}
+  .steel.s-made{background:linear-gradient(180deg,#241f17,#1f1c16); border-left:1px solid var(--line-soft);}
+  .steel .side{font-family:"IBM Plex Mono",monospace; font-size:11px; letter-spacing:.14em; text-transform:uppercase; margin-bottom:5px;}
+  .steel.s-found .side{color:var(--found);}
+  .steel.s-made .side{color:var(--made);}
+  .steel .pos-name{font-family:"Fraunces",serif; font-weight:600; font-size:1.12rem; margin-bottom:9px; line-height:1.2;}
+  .steel.s-found .pos-name{color:var(--found);}
+  .steel.s-made .pos-name{color:var(--made);}
+  .steel .gist{font-weight:600; font-size:1.04rem; line-height:1.45; color:var(--bone); margin:0 0 13px; padding-bottom:13px; border-bottom:1px dashed var(--line);}
+  .steel .gist::before{content:"In plain terms"; display:block; font-family:"IBM Plex Mono",monospace; font-size:10px; font-weight:500; letter-spacing:.18em; text-transform:uppercase; color:var(--faint); margin-bottom:5px;}
+  .steel p{margin:0; font-size:.97rem; line-height:1.56; color:#e2dccd;}
+  .steel p em{font-style:italic; color:var(--bone);}
+  .crux-key{padding:18px 28px; background:#13161f; border-top:1px solid var(--line-soft); display:flex; gap:14px; align-items:flex-start;}
+  .crux-key .lab{font-family:"IBM Plex Mono",monospace; font-size:11px; letter-spacing:.16em; text-transform:uppercase; color:var(--faint); padding-top:3px; white-space:nowrap;}
+  .crux-key .txt{font-size:.99rem; color:var(--bone); line-height:1.5;}
+  .crux-key .txt b{font-weight:600;}
+  .same-tag{display:inline-block; margin-top:9px; font-family:"IBM Plex Mono",monospace; font-size:11px; letter-spacing:.08em; color:var(--pivot); border:1px solid var(--pivot); border-radius:20px; padding:3px 11px;}
+
+  /* ===== IV. PAYOFF ===== */
+  .fault-sec{background:linear-gradient(180deg,transparent, #13161f 30%, #13161f 70%, transparent);}
+  .fault-card{border:1px solid var(--line); border-radius:20px; background:#171b25; padding:clamp(24px,4vw,44px); box-shadow:0 30px 80px -50px #000;}
+  .fault-lead{font-family:"Fraunces",serif; font-weight:400; font-size:clamp(1.5rem,3.3vw,2.3rem); line-height:1.18; letter-spacing:-.01em; margin:0 0 8px; max-width:26ch;}
+  .fault-lead em{font-style:italic; color:var(--pivot);}
+  .fault-intro{color:var(--mute); max-width:64ch; margin:0 0 30px; font-size:1.02rem;}
+  .diagram{width:100%; height:auto; display:block; margin:6px 0 4px; overflow:visible;}
+  .fault-restate{display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:18px; margin-top:34px;}
+  .fr-item{border-top:2px solid var(--line); padding-top:13px;}
+  .fr-item.f1{border-top-color:var(--made);}
+  .fr-item.f2{border-top-color:var(--pivot);}
+  .fr-item.f3{border-top-color:var(--found);}
+  .fr-item.f4{border-top-color:var(--made);}
+  .fr-item .fr-n{font-family:"IBM Plex Mono",monospace; font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--faint);}
+  .fr-item .fr-t{font-family:"Fraunces",serif; font-weight:500; font-size:1.05rem; margin:4px 0 5px;}
+  .fr-item p{margin:0; font-size:.92rem; color:var(--mute); line-height:1.5;}
+  .fault-close{margin-top:36px; padding-top:26px; border-top:1px solid var(--line); font-family:"Fraunces",serif; font-style:italic; font-weight:400; font-size:clamp(1.15rem,2.4vw,1.5rem); line-height:1.35; color:var(--bone); max-width:44ch;}
+  .fault-close .ax{color:var(--found);}
+  .fault-close .mk{color:var(--made);}
+
+  /* ===== V. GO DEEPER (resources shelf) ===== */
+  .shelf{display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:24px;}
+  .shelf-col h4{font-family:"IBM Plex Mono",monospace; font-size:12px; letter-spacing:.18em; text-transform:uppercase; color:var(--mute); margin:0 0 14px; padding-bottom:10px; border-bottom:1px solid var(--line);}
+  .res{margin-bottom:15px;}
+  .res .t{font-family:"Fraunces",serif; font-weight:500; font-size:1.04rem; line-height:1.25;}
+  .res .t a{color:var(--bone); text-decoration:none; border-bottom:1px solid var(--line);}
+  .res .t a:hover{border-bottom-color:var(--mute);}
+  .res .by{font-family:"IBM Plex Mono",monospace; font-size:11.5px; color:var(--faint); margin-top:1px;}
+  .res .why{color:var(--mute); font-size:.9rem; margin-top:4px; line-height:1.45;}
+
+  /* ---------- footer ---------- */
+  footer{padding:54px 0 80px; border-top:1px solid var(--line-soft); margin-top:30px;}
+  .foot-note{color:var(--faint); font-size:.86rem; max-width:66ch; line-height:1.55;}
+  .foot-note b{color:var(--mute); font-weight:500;}
+
+  /* ---------- what would move them (per-crux concessions) ---------- */
+  .crux-cede{padding:16px 28px 22px; background:#13161f; border-top:1px solid var(--line-soft); display:flex; gap:14px; align-items:flex-start; flex-wrap:wrap;}
+  .crux-cede .lab{font-family:"IBM Plex Mono",monospace; font-size:11px; letter-spacing:.16em; text-transform:uppercase; color:var(--faint); padding-top:3px; white-space:nowrap;}
+  .crux-cede .cede{flex:1 1 320px; display:grid; gap:9px;}
+  .crux-cede .cede p{margin:0; font-size:.92rem; line-height:1.5; color:var(--mute); padding-left:13px; border-left:2px solid var(--line);}
+  .crux-cede .cede .c-found{border-left-color:var(--found);}
+  .crux-cede .cede .c-made{border-left-color:var(--made);}
+  .crux-cede .cede b{display:block; margin-bottom:1px; font-family:"IBM Plex Mono",monospace; font-size:10.5px; letter-spacing:.05em; text-transform:uppercase; font-weight:600; color:var(--bone);}
+  /* ---------- pole lean tag (colour-independent position marker) ---------- */
+  .pos .nm .lean{font-family:"IBM Plex Mono",monospace; font-size:9.5px; letter-spacing:.08em; text-transform:uppercase; color:var(--faint); border:1px solid var(--line); border-radius:4px; padding:1px 6px; white-space:nowrap; align-self:center; font-weight:500;}
+  .pos.found .nm .lean{color:var(--found); border-color:var(--found-deep);}
+  .pos.made .nm .lean{color:var(--made); border-color:var(--made-deep);}
+  .pos.pivot .nm .lean{color:var(--pivot); border-color:var(--pivot);}
+  .pos.camp-c .nm .lean{color:var(--camp-c); border-color:var(--camp-c-deep);}
+  /* ---------- reveal ---------- */
+  .reveal{opacity:0; transform:translateY(16px); transition:opacity .7s ease, transform .7s ease;}
+  .reveal.in{opacity:1; transform:none;}
+
+  :focus-visible{outline:2px solid var(--found); outline-offset:3px; border-radius:3px;}
+
+  /* ---------- responsive ---------- */
+  @media (max-width:760px){
+    body{font-size:16px;}
+    .fields{grid-template-columns:1fr;}
+    .steels{grid-template-columns:1fr;}
+    .steel.s-made{border-left:none; border-top:1px solid var(--line-soft);}
+    .spine{left:84px;}
+    .node{padding-left:112px;}
+    .node .yr{width:64px;}
+    .node .dot{left:78px;}
+    .lineage-tail{padding-left:112px;}
+    .axis-ends{flex-direction:column; gap:10px;}
+    .axis-ends .ax-made{text-align:left;}
+  }
+  @media (prefers-reduced-motion:reduce){
+    *{scroll-behavior:auto;}
+    .reveal{opacity:1; transform:none; transition:none;}
+    .draw{stroke-dashoffset:0 !important;}
+  }
+</style>
+</head>
+<body>
+
+<!-- ============================ HEADER ============================ -->
+<header class="wrap">
+  <a class="site-tie" href="/debates">All thought pages · brooker</a>
+  <p class="kicker">FIELD · political economy, the resource curse &amp; the Bolivarian project</p>
+  <h1 class="title">Did Venezuela ruin <em>itself</em> — or was it <span class="mk">strangled</span>?</h1>
+  <p class="dek">A century of oil built the richest country in Latin America; a quarter-century of Chavismo ended with the largest peacetime economic collapse the region has ever recorded, eight million people fled, and — on 3 January 2026 — a U.S. raid that flew the president to a courtroom in New York. The fight over <b>why</b> sorts into two answers: it was wrecked <b>from within</b> — socialism, misrule, a gutted oil company — or <b>from without</b> — U.S. sanctions, the oil crash, an empire that wanted it to fail. Below: the <b>lineage</b> of the rise and the fall, the <b>positions and who holds them</b>, and four <b>cruxes</b>, each with the strongest case both sides actually make. The hinge under all of it is the barrel of oil.</p>
+
+  <div class="legend reveal">
+    <div class="legend-top">One axis runs under all of it. Watch the two colors.</div>
+    <div class="axis-bar"></div>
+    <div class="axis-ends">
+      <span class="ax-found"><b>Ruined from within</b><small>socialism · misrule · PDVSA gutted</small></span>
+      <span class="ax-made"><b>Strangled from outside</b><small>sanctions · oil shock · empire</small></span>
+    </div>
+  </div>
+</header>
+
+<!-- ============================ I. LINEAGE ============================ -->
+<section class="wrap">
+  <div class="sec-head">
+    <div class="eyebrow"><span class="sec-num">I</span> &nbsp;the lineage</div>
+    <h2 class="ser">From the richest country in the region to the largest collapse</h2>
+    <p>Read top to bottom — the boom and the bust, braided with the ideas that frame them. A dot's halo marks where it leans: green for the wounds Venezuela dealt itself, gold for the blows that came from outside, lilac for the thing under both — an economy that was only ever a barrel of oil.</p>
+  </div>
+
+  <div class="lineage reveal">
+    <div class="spine" aria-hidden="true"></div>
+
+    <div class="node pivot">
+      <span class="yr">1922</span><span class="dot"></span>
+      <div class="who">The well at La Rosa blows<span class="dom">oil · the trap is set</span></div>
+      <div class="say">A gusher near Maracaibo turns a poor agricultural country into a petrostate almost overnight. Within a decade Venezuela is the world's second-largest oil producer. Everything that follows — the wealth, the dependence, the fragility — grows from the decision the country never really made: to live off one commodity and import the rest.</div>
+    </div>
+
+    <div class="node found">
+      <span class="yr">1958 → 1960</span><span class="dot"></span>
+      <div class="who">Punto Fijo democracy · OPEC<span class="dom">institutions · the rentier state</span></div>
+      <div class="say">A pact among elites ends dictatorship and makes Venezuela a stable democracy — funded by oil rents flowing through the state. Caracas co-founds OPEC in 1960. The model hardens: whoever holds the presidency holds the oil money, and politics becomes the contest to distribute it.</div>
+    </div>
+
+    <div class="node found">
+      <span class="yr">1976</span><span class="dot"></span>
+      <div class="who">Oil nationalized · PDVSA is born<span class="dom">the crown jewel</span></div>
+      <div class="say">President Carlos Andrés Pérez nationalizes the industry and creates Petróleos de Venezuela (PDVSA), but lets it run as an arm's-length technocracy — meritocratic, professional, world-class. For two decades it is the competent core of the state and the envy of the developing world. Remember this; it is the thing later broken.</div>
+    </div>
+
+    <div class="node made">
+      <span class="yr">1989</span><span class="dot"></span>
+      <div class="who">The Caracazo<span class="dom">grievance · the wound</span></div>
+      <div class="say">Pérez, returned to power, imposes an IMF austerity package. Caracas erupts; the army fires on the slums and hundreds — by some counts thousands — are killed. The neoliberal shock and the massacre that answered the protest become the founding grievance of Chavismo: proof, to a generation, that the old order served everyone but the poor.</div>
+    </div>
+
+    <div class="node found">
+      <span class="yr">1992</span><span class="dot"></span>
+      <div class="who">Chávez's failed coup · "por ahora"<span class="dom">the rise begins</span></div>
+      <div class="say">A paratrooper colonel, Hugo Chávez, leads a coup against Pérez. It fails, but on live television he takes responsibility and says the cause has lost "por ahora" — for now. The phrase makes him a folk hero. He goes to prison, is pardoned, and turns to the ballot box.</div>
+    </div>
+
+    <div class="node found">
+      <span class="yr">1998 → 1999</span><span class="dot"></span>
+      <div class="who">Chávez elected · the Bolivarian Republic<span class="dom">the project</span></div>
+      <div class="say">Chávez wins the presidency on a promise to end the Punto Fijo order and turn the oil toward the poor. A new 1999 constitution renames the country, refounds its institutions, and concentrates power in the presidency. The Bolivarian Revolution is underway.</div>
+    </div>
+
+    <div class="node made">
+      <span class="yr">Apr 2002</span><span class="dot"></span>
+      <div class="who">The coup that briefly toppled him<span class="dom">empire · the grievance hardens</span></div>
+      <div class="say">Business and military factions oust Chávez for 47 hours; the interim leader dissolves the constitution. Washington, almost alone, welcomes the change before a popular and military backlash returns Chávez to power. For Chavismo this is the proof that never fades: the United States will back anyone who moves against the revolution.</div>
+    </div>
+
+    <div class="node found">
+      <span class="yr">2002 → 2003</span><span class="dot"></span>
+      <div class="who">The PDVSA strike · 18,000 fired<span class="dom">the self-inflicted wound</span></div>
+      <div class="say">A management-led oil strike tries to force Chávez out. He survives it and fires roughly 18,000 PDVSA employees — the geologists, reservoir engineers, and managers who were the company's institutional memory — replacing them with political loyalists. The crown jewel is hollowed out. Output never fully recovers; this is the hinge the whole production collapse turns on.</div>
+    </div>
+
+    <div class="node found">
+      <span class="yr">2004 → 2012</span><span class="dot"></span>
+      <div class="who">The oil boom · the misiones<span class="dom">the apex of the rise</span></div>
+      <div class="say">Oil climbs past $100. Chávez pours the windfall into the <em>misiones</em>: clinics in the barrios, a literacy drive UNESCO credited with ending illiteracy, subsidized food, free education. Poverty falls from roughly 49% to the mid-20s; inequality, the lowest in the region. Real gains, lived by millions — funded entirely by a price that would not last, with nothing saved and firms expropriated by the hundreds.</div>
+    </div>
+
+    <div class="node found">
+      <span class="yr">2013</span><span class="dot"></span>
+      <div class="who">Chávez dies · Maduro inherits<span class="dom">succession</span></div>
+      <div class="say">Chávez dies of cancer and hands the movement to Nicolás Maduro, a former bus driver and foreign minister, who wins a narrow election. Oil is still near $100. The machine is still running — on a price about to break.</div>
+    </div>
+
+    <div class="node made">
+      <span class="yr">2014 → 2016</span><span class="dot"></span>
+      <div class="who">The oil price crashes<span class="dom">the external shock</span></div>
+      <div class="say">Brent falls from over $100 to under $30. An economy that imported nearly everything and saved nothing loses its only source of dollars. GDP contracts almost 5% in 2014 — before any broad sanctions — and the floor gives way. Shortages, price controls, and the printing press follow.</div>
+    </div>
+
+    <div class="node found">
+      <span class="yr">2016 → 2018</span><span class="dot"></span>
+      <div class="who">Hyperinflation<span class="dom">the collapse, before the oil sanctions</span></div>
+      <div class="say">The bolívar dies. Inflation passes 130,000% in 2018; GDP falls by double digits year after year. People lose weight for lack of food — the "Maduro diet." This catastrophe is already in motion while the U.S. is still <em>buying Venezuelan oil</em>: the timing is the single hardest fact in the whole argument.</div>
+    </div>
+
+    <div class="node made">
+      <span class="yr">Aug 2017 → 2019</span><span class="dot"></span>
+      <div class="who">Financial then oil sanctions · Guaidó<span class="dom">the squeeze tightens</span></div>
+      <div class="say">After targeted sanctions on officials from 2015, Washington bars Venezuela from U.S. credit markets in 2017 — blocking any debt restructuring — and in January 2019 sanctions PDVSA itself, cutting off its largest cash market, while recognizing opposition leader Juan Guaidó as president. A deep collapse meets a deliberate financial blockade.</div>
+    </div>
+
+    <div class="node made">
+      <span class="yr">2015 → 2024</span><span class="dot"></span>
+      <div class="who">The exodus<span class="dom">the human cost</span></div>
+      <div class="say">Some 7.7 million Venezuelans flee — the largest displacement in the Western Hemisphere's history, rivaling Syria. At home the economy partly stabilizes through unofficial dollarization, but the recovery is thin and brutally unequal. A 2024 election the opposition's own tally sheets show it winning is claimed by Maduro anyway.</div>
+    </div>
+
+    <div class="node pivot">
+      <span class="yr">3 Jan 2026</span><span class="dot"></span>
+      <div class="who">Operation Absolute Resolve · Maduro captured<span class="dom">the fall</span></div>
+      <div class="say">After months of a U.S. military build-up in the Caribbean and lethal strikes on alleged drug boats, American forces raid Caracas, seize Maduro and his wife, and fly them to New York to face narcotics charges. The Supreme Tribunal declares the presidency "temporarily" vacant and Vice-President Delcy Rodríguez assumes it. Chavismo's chief is gone — removed by foreign force, the constitution's succession clause followed to the letter.</div>
+    </div>
+
+    <div class="lineage-tail">
+      <div class="pin">
+        <b>Into the present</b>
+        <p>As of mid-2026 Venezuela is in a "calculated transition." Rodríguez has freed hundreds of political prisoners and courted Washington, which recognized her in March in exchange for cooperation and access to the oil; elections are promised for August. The opposition that won in 2024 — María Corina Machado, Edmundo González — is still pressing for a real handover, not a managed continuity. Whether this ends in democracy, a friendlier Chavismo, or a U.S.-supervised oil client is open today.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ II. POSITIONS ============================ -->
+<section class="wrap">
+  <div class="sec-head">
+    <div class="eyebrow"><span class="sec-num">II</span> &nbsp;the positions</div>
+    <h2 class="ser">Who blames what — and where it sits on the axis</h2>
+    <p>Two families: what caused the collapse, and what the whole project amounted to. A card's left edge is its lean; the tag is rough weight in the argument today, not a scorecard of who's right.</p>
+  </div>
+
+  <div class="fields reveal">
+    <div class="field">
+      <h3>On the cause of the collapse <small>within, or without</small></h3>
+
+      <div class="pos found">
+        <div class="nm"><span class="lean">◀ within</span> Socialism, predictably <span class="traction">the dominant Western read</span></div>
+        <div class="figs">Ricardo Hausmann · free-market economists · Mises tradition</div>
+        <div class="claim">Price controls, mass expropriation, a printing press run to cover deficits, and the abolition of the price mechanism produced exactly the shortages, capital flight, and hyperinflation the theory predicts. The currency died before Washington touched the oil.</div>
+        <span class="nb">The textbook case: you cannot suspend the laws of supply and demand by decree and expect goods on the shelves.</span>
+        <div class="src-links"><a href="https://mises.org/mises-wire/socialism-not-us-sanctions-ruined-venezuelan-economy">Mises Institute</a></div>
+      </div>
+
+      <div class="pos found">
+        <div class="nm"><span class="lean">◀ within</span> They broke the one thing that worked <span class="traction">the oil-economist consensus</span></div>
+        <div class="figs">Francisco Monaldi · energy analysts</div>
+        <div class="claim">Firing 18,000 PDVSA professionals in 2003 and packing the company with loyalists destroyed the technical core of the state. Oil output fell from ~3 million barrels a day toward 700,000 — a self-inflicted wound, not a market one.</div>
+        <span class="nb">Even with no sanctions and high prices, a hollowed-out PDVSA could not keep the wells flowing.</span>
+        <div class="src-links"><a href="https://www.cfr.org/backgrounders/venezuela-crisis">CFR backgrounder</a></div>
+      </div>
+
+      <div class="pos made">
+        <div class="nm"><span class="lean">▶ without</span> Economic war by sanctions <span class="traction">the Chavista &amp; left case</span></div>
+        <div class="figs">Weisbrot &amp; Sachs · Caracas · Francisco Rodríguez (partial)</div>
+        <div class="claim">The 2017 financial sanctions blocked the debt restructuring that could have stopped the spiral; the 2019 oil sanctions cut off the country's main source of dollars for food and medicine. One study tied them to tens of billions in losses and tens of thousands of excess deaths.</div>
+        <span class="nb">A government in crisis was denied the one tool — access to credit and its own oil revenue — that might have arrested it.</span>
+        <div class="src-links"><a href="https://sanctionsandsecurity.org/wp-content/uploads/2022/01/January-2022-Venezuela-Case_Rodriguez.pdf">Rodríguez case study</a></div>
+      </div>
+
+      <div class="pos made">
+        <div class="nm"><span class="lean">▶ without</span> The oil crash &amp; the resource curse <span class="traction">the structuralist read</span></div>
+        <div class="figs">resource-curse economists · development scholars</div>
+        <div class="claim">A one-commodity economy was always one price collapse away from ruin. Brent fell from $100 to under $30 in 2014; the fuse was lit by the market, not by ideology. Petrostates across the political spectrum boom and bust the same way.</div>
+        <span class="nb">Closest to the hinge: it points past both poles to the barrel of oil under everything.</span>
+        <div class="src-links"><a href="https://www.economicsobservatory.com/why-did-venezuelas-economy-collapse">Economics Observatory</a></div>
+      </div>
+    </div>
+
+    <div class="field">
+      <h3>On the project &amp; its end <small>what Chavismo was</small></h3>
+
+      <div class="pos found">
+        <div class="nm"><span class="lean">◀ within</span> An authoritarian wrecking project <span class="traction">the liberal-democratic verdict</span></div>
+        <div class="figs">opposition · democracy scholars · most of the press</div>
+        <div class="claim">Chávez and Maduro packed the courts, gutted the legislature, jailed and exiled rivals, and stole elections. The economic ruin was downstream of a power grab that treated the country as a thing to be owned.</div>
+        <span class="nb">On this view the "socialism vs. sanctions" fight misses the point: the rot was in the seizure of power itself.</span>
+      </div>
+
+      <div class="pos made">
+        <div class="nm"><span class="lean">▶ without</span> A real revolution, then besieged <span class="traction">the sympathetic-left read</span></div>
+        <div class="figs">Chavista base · parts of the global left</div>
+        <div class="claim">For a decade the misiones genuinely lifted millions out of poverty and gave the excluded a stake — measured by the UN, not invented. Then oil fell and Washington moved to strangle it, and the gains were deliberately erased.</div>
+        <span class="nb">The achievements were real while they lasted; the question is whether anything could have made them last.</span>
+        <div class="src-links"><a href="https://en.wikipedia.org/wiki/Bolivarian_missions">The Bolivarian missions</a></div>
+      </div>
+
+      <div class="pos found">
+        <div class="nm"><span class="lean">◀ within</span> Maduro's capture was overdue justice <span class="traction">the administration's read</span></div>
+        <div class="figs">U.S. government · much of the diaspora · opposition hardliners</div>
+        <div class="claim">A narco-indicted dictator who starved his people and stole the 2024 vote was removed; the constitution's own succession clause was honored. Most Venezuelans wanted him gone, and now he faces a court.</div>
+        <span class="nb">Liberation, on this read — the end of a tyranny, not the start of a colony.</span>
+        <div class="src-links"><a href="https://en.wikipedia.org/wiki/2026_United_States_intervention_in_Venezuela">The 2026 intervention</a></div>
+      </div>
+
+      <div class="pos made">
+        <div class="nm"><span class="lean">▶ without</span> Imperial regime change, for oil <span class="traction">the anti-intervention read</span></div>
+        <div class="figs">non-interventionists · the global south · realist critics</div>
+        <div class="claim">A foreign military seized the head of a sovereign state sitting atop the largest oil reserves on earth — and then backed Maduro's own vice-president over the elected opposition. 1953 in Iran, 2002 in Caracas, again: regime change for resources, dressed as drug enforcement.</div>
+        <span class="nb">The tell, critics say, is the oil access negotiated within weeks of the raid.</span>
+        <div class="src-links"><a href="https://www.as-coa.org/articles/timeline-us-military-ramp-caribbean-culminates-capture-maduro">AS/COA timeline</a></div>
+      </div>
+    </div>
+
+    <div class="pivot-card">
+      <div class="pv-tag">the hinge ↕</div>
+      <div class="pv-body">
+        <b>The petrostate trap</b>
+        <p>Strip the slogans and both poles are arguing about one machine: sell oil, import everything, save nothing, and buy political loyalty with the proceeds. That machine is older than Chávez — it is what Punto Fijo ran too — and it survives Maduro. High prices hid every flaw; the 2014 crash exposed all of them at once; the gutted PDVSA meant the country couldn't even pump its way out; and then sanctions turned a deep wound into a hemorrhage. "Socialism" and "imperialism" are each describing a blow that landed on a body already made fragile by oil. The real question underneath is whether <em>any</em> government of a single-commodity rentier state could have escaped — or whether the resource was the curse all along.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="traction-note">Tags are rough weight — how much pull a position has in the argument right now — not a verdict. "Traction" here means how many serious people hold it, not who is correct; the two keep separate books.</div>
+</section>
+
+<!-- ============================ III. CRUXES ============================ -->
+<section class="wrap">
+  <div class="sec-head">
+    <div class="eyebrow"><span class="sec-num">III</span> &nbsp;the cruxes</div>
+    <h2 class="ser">Four fair fights, each carrying part of the load</h2>
+    <p>The positions are bundles of answers; these are the questions that, answered one way or the other, split them. Both panels give the side's best case, in its own voice.</p>
+  </div>
+
+  <!-- CRUX 1 -->
+  <div class="crux reveal">
+    <div class="crux-head">
+      <div class="crux-meta"><span class="crux-n">Crux 01 — the timing</span><span class="crux-dom">economics · causation</span></div>
+      <h3 class="crux-q ser">Did socialism wreck the economy, or did sanctions?</h3>
+      <p class="crux-sub">The collapse and the blockade both happened. The fight is over the order of events — what was already falling, and what the sanctions then did to it.</p>
+    </div>
+    <div class="steels">
+      <div class="steel s-found">
+        <div class="side">▸ the currency died first</div>
+        <div class="pos-name">It was already in freefall</div>
+        <div class="gist">Hyperinflation, shortages, and double-digit GDP losses were in full motion years before the oil sanctions — while America was still buying the oil.</div>
+        <p>Put the dates side by side. GDP contracted nearly 5% in 2014. By 2017 the country was in hyperinflation; by 2018 prices rose more than 130,000% in a year. The broad oil sanctions did not arrive until January 2019. For the entire descent into catastrophe, the United States was Venezuela's largest oil customer, dollars were flowing in, and the shelves were still empty — because price controls had made production a losing business, expropriation had scared off investment, and the printing press was covering the deficit. You cannot blame a 2019 blockade for a 2016 famine. The sanctions landed on a corpse and are now credited with the murder.</p>
+      </div>
+      <div class="steel s-made">
+        <div class="side">▸ they slammed the only exit</div>
+        <div class="pos-name">Sanctions turned crisis into catastrophe</div>
+        <div class="gist">A country can recover from a deep recession; the 2017 financial sanctions blocked the debt restructuring that recovery required, and the 2019 oil sanctions cut off the dollars for food and medicine.</div>
+        <p>Yes, the economy was sick by 2016 — and a sick economy can still be treated. The standard treatment is to restructure your debt and stabilize the currency. The August 2017 sanctions made that illegal: no U.S. person could touch new Venezuelan bonds, so no restructuring was possible, and the spiral was locked in. Then the 2019 sanctions on PDVSA severed the country from its single largest cash market at the exact moment it needed every dollar for imports. Weisbrot and Sachs tied the squeeze to tens of billions in lost revenue and tens of thousands of excess deaths. Sanctions did not start the fire — they bolted the doors and took the water away. That is the difference between a crisis and a humanitarian catastrophe.</p>
+      </div>
+    </div>
+    <div class="crux-key">
+      <span class="lab">the crux</span>
+      <span class="txt">Was the collapse <b>already determined</b> by internal policy, with sanctions a cruel addendum — or did sanctions <b>convert a survivable downturn</b> into the worst humanitarian disaster in the region's modern history? The whole within-vs-without fight rests here.</span>
+    </div>
+    <div class="crux-cede">
+      <span class="lab">what would move them</span>
+      <div class="cede">
+        <p class="c-found"><b>The within side concedes if</b> the economy was stabilizing or recovering when sanctions hit, and the sanctions are what reversed it.</p>
+        <p class="c-made"><b>The without side concedes if</b> the descent into hyperinflation and mass shortage was already irreversible before the 2017–19 sanctions arrived.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- CRUX 2 -->
+  <div class="crux reveal">
+    <div class="crux-head">
+      <div class="crux-meta"><span class="crux-n">Crux 02 — the name</span><span class="crux-dom both">political economy · crossways</span></div>
+      <h3 class="crux-q ser">Is "socialism" the right name for what failed?</h3>
+      <p class="crux-sub">Before you argue causes, you've already decided what kind of thing collapsed — an economic system, or a state form. Most of the fight is downstream of that.</p>
+    </div>
+    <div class="steels">
+      <div class="steel s-found">
+        <div class="side">▸ an ideology did this</div>
+        <div class="pos-name">Socialism, by its own logic</div>
+        <div class="gist">Abolishing the price mechanism, seizing firms, and printing money to fund the state is socialism in practice, and it fails the same way wherever it's tried.</div>
+        <p>The defenders always say "that wasn't real socialism" after the fact, but look at what was actually done: price controls on thousands of goods, the expropriation of farms, factories, and stores by the hundreds, a currency regime of multiple fake exchange rates, and a central bank printing bolívars to cover a bottomless deficit. That is not a corruption of socialist policy; it <em>is</em> socialist policy, the suppression of the market in favor of central command. And it produced the result it always produces — the calculation problem made concrete, with empty shelves and a worthless currency. Calling it merely "corruption" or "bad luck" lets the ideology slip the charge, when the ideology is precisely what dismantled the institutions that make an economy run.</p>
+      </div>
+      <div class="steel s-made">
+        <div class="side">▸ a petrostate did this</div>
+        <div class="pos-name">The oil state, not the ideology</div>
+        <div class="gist">Oil-dependent states collapse across the whole political spectrum; what failed in Venezuela is the rentier petrostate, and "socialism" is a label pasted on after.</div>
+        <p>If socialism were the cause, you'd expect non-oil socialist economies to detonate the same way and oil capitalism to be safe — but neither holds. The Shah's Iran, Nigeria, Mexico, Russia: oil states of every ideology lurch from boom to bust, hollow out their non-oil industries, and rot from corruption — the textbook "resource curse." Meanwhile Norway runs a vast state oil company and a generous welfare state without any of this, because it saved and diversified. What broke Venezuela wasn't the redistribution; it was a one-commodity economy that saved nothing, a state oil firm gutted for loyalty, and a government that mistook a price spike for permanent wealth. "Socialism" is the name the winners gave it; "petrostate" is the mechanism.</p>
+      </div>
+    </div>
+    <div class="crux-key">
+      <span class="lab">the crux</span>
+      <span class="txt">Did an <b>economic system</b> fail — central planning, wherever it appears — or a <b>state form</b>, the oil-rentier petrostate, under bad management? <span class="same-tag">↳ this crux runs crossways to the others — it's the hidden second axis the within-vs-without line is plotted against.</span></span>
+    </div>
+    <div class="crux-cede">
+      <span class="lab">what would move them</span>
+      <div class="cede">
+        <p class="c-found"><b>The ideology side concedes if</b> oil states of every ideology collapse alike, and comparable non-oil economies running these policies do not.</p>
+        <p class="c-made"><b>The structure side concedes if</b> it's the specific socialist measures — controls, expropriation, monetary financing — that drove the collapse, independent of the oil dependence.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- CRUX 3 -->
+  <div class="crux reveal">
+    <div class="crux-head">
+      <div class="crux-meta"><span class="crux-n">Crux 03 — the gains</span><span class="crux-dom">development · what counts as progress</span></div>
+      <h3 class="crux-q ser">Were the Chávez-era gains real, or a mirage bought with oil?</h3>
+      <p class="crux-sub">Poverty did fall by half; illiteracy was declared gone; the barrios got clinics. Whether that was development or a sugar high is the question.</p>
+    </div>
+    <div class="steels">
+      <div class="steel s-found">
+        <div class="side">▸ borrowed time, not progress</div>
+        <div class="pos-name">A consumption boom, not development</div>
+        <div class="gist">The gains were funded by an unrepeatable oil windfall, with nothing saved and the productive economy hollowed — so they evaporated the moment prices fell.</div>
+        <p>Real development builds capacity that survives a bad year — industries, institutions, savings. Chavismo did the opposite: it spent a once-in-a-generation oil windfall on present consumption, saved none of it, ran down the strategic reserves, expropriated the firms that might have produced something, and left the country importing even its food. So when the price broke, there was nothing underneath. The poverty rate didn't just rise back — it blew past where it started, because the "gains" were never anchored to anything but the barrel. A welfare boom you can only afford while oil is at $100 isn't progress; it's a high-interest loan against a future the government chose not to fund. The eight million who fled are the repayment.</p>
+      </div>
+      <div class="steel s-made">
+        <div class="side">▸ real lives, really better</div>
+        <div class="pos-name">The gains were measured, and lived</div>
+        <div class="gist">Halved poverty, near-universal literacy, healthcare in neighborhoods that never had it — certified by the UN, lived by millions for a decade. Their later destruction doesn't unmake them.</div>
+        <p>These weren't propaganda numbers. ECLAC and the UN recorded poverty falling from roughly 49% to the mid-20s, the lowest inequality in Latin America, secondary enrollment jumping, and UNESCO crediting the literacy drive with effectively ending illiteracy. For a decade, people who had been invisible to the state had doctors, schooling, and subsidized food — and dignity, which doesn't show in a GDP table. That a windfall paid for it is true of every oil state's golden age, including the ones the West admires. And that the gains were later destroyed says something about the oil crash and the blockade that destroyed them, not about whether they were real while they lasted. You don't get to point at the wreckage and say the house was never built.</p>
+      </div>
+    </div>
+    <div class="crux-key">
+      <span class="lab">the crux</span>
+      <span class="txt">Is welfare funded by a commodity windfall <b>real progress</b> for as long as it lasts — or is durability the test, making impermanent gains a <b>mirage</b> by definition? You can read the very same statistics either way.</span>
+    </div>
+    <div class="crux-cede">
+      <span class="lab">what would move them</span>
+      <div class="cede">
+        <p class="c-found"><b>The mirage side concedes if</b> the social gains were built on a savings-and-investment base that could have outlasted the oil price.</p>
+        <p class="c-made"><b>The real-gains side concedes if</b> the improvements were statistical artifacts of the boom that left no lasting change in people's lives.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- CRUX 4 -->
+  <div class="crux reveal">
+    <div class="crux-head">
+      <div class="crux-meta"><span class="crux-n">Crux 04 — the raid</span><span class="crux-dom">sovereignty · the present</span></div>
+      <h3 class="crux-q ser">Was capturing Maduro liberation, or imperialism?</h3>
+      <p class="crux-sub">On 3 January 2026 U.S. forces flew a sitting president to a New York courtroom. Whether that closed a tyranny or opened a colony is the live question.</p>
+    </div>
+    <div class="steels">
+      <div class="steel s-found">
+        <div class="side">▸ a tyranny ended</div>
+        <div class="pos-name">Overdue justice</div>
+        <div class="gist">A narco-indicted dictator who starved his people and stole the 2024 election was removed; the constitution's succession clause was followed, and most Venezuelans wanted him gone.</div>
+        <p>Maduro wasn't an elected president defending a sovereign mandate; he was a man who lost the 2024 vote — the opposition has the tally sheets — and kept power by force, under a U.S. narcotics indictment, while presiding over the worst peacetime collapse in the hemisphere's history. Sovereignty is not a shield a regime earns by jailing its opposition and faking its elections. When he was taken, Venezuela's own Supreme Tribunal invoked Article 234 and the vice-president succeeded him; the state did not fall into chaos. Within months, hundreds of political prisoners walked free. Ask the eight million who fled, or the diaspora that danced in Doral, whether this was their colonization or their relief. A people does not need permission from the man oppressing them to be glad he's gone.</p>
+      </div>
+      <div class="steel s-made">
+        <div class="side">▸ the empire took the oil</div>
+        <div class="pos-name">Regime change, dressed as drug war</div>
+        <div class="gist">A foreign military seized the head of a sovereign state atop the world's largest oil reserves — then backed Maduro's own vice-president over the elected opposition. The pattern is old and the tell is the oil.</div>
+        <p>Strip the moral language and look at the act: the United States bombed and raided another country to abduct its president, with no declaration of war and no UN mandate, and flew him home for trial. Whatever Maduro was, that is the prerogative of empire, not of law — the same prerogative exercised against Mossadegh in 1953, attempted in Caracas in 2002, and rehearsed in Iraq. And watch what followed: not the elected opposition installed, but Maduro's hand-picked vice-president recognized by Washington in exchange for cooperation and oil access negotiated within weeks. If this were about democracy, the people who actually won the 2024 election would be governing. "Drug war" is the wrapper; the largest crude reserves on earth are the contents. A precedent that a superpower may seize any leader it indicts is not a victory for Venezuelans — it's a leash.</p>
+      </div>
+    </div>
+    <div class="crux-key">
+      <span class="lab">the crux</span>
+      <span class="txt">Does removing a <b>tyrant most of his people rejected</b> justify a foreign power seizing a head of state — or does the <b>precedent of empire</b> outweigh any one regime's crimes, whatever the man deserved? It's the crux that's about us as much as them. And it may be <b>both</b> at once.</span>
+    </div>
+    <div class="crux-cede">
+      <span class="lab">what would move them</span>
+      <div class="cede">
+        <p class="c-found"><b>The liberation side concedes if</b> the transition installs a pliant client over the opposition that actually won, and locks in U.S. control of the oil.</p>
+        <p class="c-made"><b>The imperialism side concedes if</b> the August 2026 elections are free, the 2024 winners take power, and the oil stays Venezuela's.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ IV. PAYOFF ============================ -->
+<section class="wrap fault-sec">
+  <div class="sec-head">
+    <div class="eyebrow"><span class="sec-num">IV</span> &nbsp;the payoff</div>
+  </div>
+
+  <div class="fault-card reveal">
+    <h3 class="fault-lead ser">Four cruxes, <em>two crossed questions</em> underneath</h3>
+    <p class="fault-intro">One axis is the loud one: was Venezuela ruined from within or strangled from without. But cut sideways and a quieter axis appears — did some <em>actor</em> choose this (Chávez's ideology, or Washington's malice), or did a <em>structure</em> impose it (the oil-rentier trap that boom-and-busts whoever holds the palace)? The socialism-vs-sanctions argument is being plotted against that second question all along. Plot both and the field stops looking like one fight. It looks like people standing on different squares, each answering a question the other never asked.</p>
+
+    <svg class="diagram" viewBox="0 0 980 600" role="img" aria-labelledby="dg-t dg-d">
+      <title id="dg-t">Two crossed questions under the Venezuela debate</title>
+      <desc id="dg-d">A grid with two axes. The horizontal axis runs from "ruined from within" on the left to "strangled from outside" on the right. The vertical axis runs from "an actor chose this" at the top to "the oil structure imposed it" at the bottom. Positions are plotted: free-market socialism-blamers at upper left; PDVSA-institutionalists at center-left; the sanctions-as-economic-war camp at upper right; resource-curse structuralists at lower right; and the petrostate trap as the hinge at center-bottom.</desc>
+      <defs>
+        <linearGradient id="axisgrad" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0" stop-color="#6dbaa4"/>
+          <stop offset="0.5" stop-color="#6e6b78"/>
+          <stop offset="1" stop-color="#d8a652"/>
+        </linearGradient>
+      </defs>
+
+      <!-- vertical axis: actor vs structure -->
+      <line x1="490" y1="80" x2="490" y2="500" stroke="#34384a" stroke-width="2"/>
+      <!-- horizontal axis: within vs without -->
+      <line x1="110" y1="290" x2="870" y2="290" stroke="url(#axisgrad)" stroke-width="6" stroke-linecap="round"/>
+      <circle cx="110" cy="290" r="7" fill="#6dbaa4"/>
+      <circle cx="870" cy="290" r="7" fill="#d8a652"/>
+
+      <!-- axis labels -->
+      <text x="110" y="322" fill="#6dbaa4" font-family="'IBM Plex Mono',monospace" font-size="15">ruined from within</text>
+      <text x="870" y="322" fill="#d8a652" font-family="'IBM Plex Mono',monospace" font-size="15" text-anchor="end">strangled from outside</text>
+      <text x="490" y="62" fill="#a6a394" font-family="'IBM Plex Mono',monospace" font-size="14" text-anchor="middle">an actor chose this</text>
+      <text x="490" y="528" fill="#a6a394" font-family="'IBM Plex Mono',monospace" font-size="14" text-anchor="middle">the oil structure imposed it</text>
+
+      <!-- plotted positions -->
+      <!-- upper-left: within + actor (the ideology) -->
+      <circle cx="250" cy="150" r="6" fill="#6dbaa4"/>
+      <text x="265" y="145" fill="#ebe5d6" font-family="'IBM Plex Sans',sans-serif" font-size="14.5">"Socialism did it"</text>
+
+      <!-- center-left, lower: within + leans structure (the institutions) -->
+      <circle cx="306" cy="372" r="6" fill="#6dbaa4"/>
+      <text x="321" y="377" fill="#ebe5d6" font-family="'IBM Plex Sans',sans-serif" font-size="14.5">PDVSA gutted · the crown jewel broken</text>
+
+      <!-- upper-right: without + actor (Washington's malice) -->
+      <circle cx="712" cy="168" r="6" fill="#d8a652"/>
+      <text x="697" y="163" fill="#ebe5d6" font-family="'IBM Plex Sans',sans-serif" font-size="14.5" text-anchor="end">"Economic war / sanctions"</text>
+
+      <!-- the pivot: center-bottom, the hinge -->
+      <circle cx="490" cy="290" r="8" fill="#a195bd" stroke="#171922" stroke-width="2"/>
+      <text x="506" y="285" fill="#a195bd" font-family="'IBM Plex Sans',sans-serif" font-size="14.5" font-style="italic">The petrostate trap</text>
+      <text x="506" y="304" fill="#a195bd" font-family="'IBM Plex Mono',monospace" font-size="11">one commodity, no savings</text>
+
+      <!-- lower-right: without + structure (the resource curse) -->
+      <circle cx="700" cy="418" r="6" fill="#d8a652"/>
+      <text x="685" y="423" fill="#ebe5d6" font-family="'IBM Plex Sans',sans-serif" font-size="14.5" text-anchor="end">The oil crash · resource curse</text>
+
+      <!-- far upper-right: the 2026 raid as actor+without -->
+      <circle cx="800" cy="110" r="6" fill="#d8a652"/>
+      <text x="785" y="105" fill="#ebe5d6" font-family="'IBM Plex Sans',sans-serif" font-size="14.5" text-anchor="end">"Imperial regime change"</text>
+    </svg>
+
+    <div class="fault-restate">
+      <div class="fr-item f1"><div class="fr-n">Crux 01 · the timing</div><div class="fr-t ser">Socialism or sanctions</div><p>The horizontal axis, asked of the dates. A collapse already underway, or one the blockade created.</p></div>
+      <div class="fr-item f2"><div class="fr-n">Crux 02 · the name</div><div class="fr-t ser">Ideology or petrostate</div><p>The vertical axis — the hidden one. A system that fails everywhere, or an oil state that fails like all oil states.</p></div>
+      <div class="fr-item f3"><div class="fr-n">Crux 03 · the gains</div><div class="fr-t ser">Progress or mirage</div><p>The same statistics, read by durability or by the decade they were lived. Where the moral weight of the project sits.</p></div>
+      <div class="fr-item f4"><div class="fr-n">Crux 04 · the raid</div><div class="fr-t ser">Liberation or empire</div><p>The horizontal axis brought to the present. A tyranny ended, or a precedent of seizure — possibly both.</p></div>
+    </div>
+
+    <p class="fault-close ser">Most arguments about Venezuela are really arguments about oil — the vertical axis. Work out whether you think an <span class="ax">actor chose the ruin</span> or the <span class="mk">barrel imposed it</span>, and you'll usually find your opponent disagreeing with you about that, and only seeming to disagree about socialism and sanctions.</p>
+  </div>
+</section>
+
+<!-- ============================ V. GO DEEPER ============================ -->
+<section class="wrap">
+  <div class="sec-head">
+    <div class="eyebrow"><span class="sec-num">V</span> &nbsp;go deeper</div>
+    <h2 class="ser">Where to take it next</h2>
+    <p>A few ways in, grouped by what they're for. A live situation — written in mid-2026 — so the analysis is dated; every link was checked.</p>
+  </div>
+
+  <div class="shelf reveal">
+    <div class="shelf-col">
+      <h4>The facts</h4>
+      <div class="res">
+        <div class="t"><a href="https://www.cfr.org/backgrounders/venezuela-crisis">Venezuela: The Rise and Fall of a Petrostate</a></div>
+        <div class="by">Council on Foreign Relations · backgrounder</div>
+        <div class="why">The whole arc in one place — oil, Chávez, the misiones, PDVSA, the collapse, the exodus. The single best starting point; lent this map its frame.</div>
+      </div>
+      <div class="res">
+        <div class="t"><a href="https://en.wikipedia.org/wiki/Crisis_in_Venezuela">Crisis in Venezuela</a></div>
+        <div class="by">Wikipedia · running entry</div>
+        <div class="why">The detailed timeline of the collapse, with the competing causal accounts catalogued and sourced. Good on the dates that drive Crux 01.</div>
+      </div>
+      <div class="res">
+        <div class="t"><a href="https://en.wikipedia.org/wiki/2026_United_States_intervention_in_Venezuela">The 2026 U.S. intervention</a></div>
+        <div class="by">Wikipedia · running entry</div>
+        <div class="why">Operation Absolute Resolve, the capture of Maduro, the succession, and the transition — the material of Crux 04, updated as it moves.</div>
+      </div>
+    </div>
+
+    <div class="shelf-col">
+      <h4>Analysis · mixed</h4>
+      <div class="res">
+        <div class="t"><a href="https://www.economicsobservatory.com/why-did-venezuelas-economy-collapse">Why did Venezuela's economy collapse?</a></div>
+        <div class="by">Economics Observatory</div>
+        <div class="why">A clear, even-handed walk through the causes — oil, mismanagement, and sanctions weighed against each other. The fairest single overview of Crux 01.</div>
+      </div>
+      <div class="res">
+        <div class="t"><a href="https://revista.drclas.harvard.edu/who-or-what-is-to-blame-for-the-venezuelan-crisis/">Who or what is to blame for the Venezuelan crisis?</a></div>
+        <div class="by">ReVista · Harvard DRCLAS</div>
+        <div class="why">Sorts the blame across mismanagement, the oil model, and external pressure without picking a villain. Good on the petrostate hinge.</div>
+      </div>
+      <div class="res">
+        <div class="t"><a href="https://www.as-coa.org/articles/timeline-us-military-ramp-caribbean-culminates-capture-maduro">Timeline: the U.S. ramp-up to Maduro's capture</a></div>
+        <div class="by">Americas Society / Council of the Americas</div>
+        <div class="why">The Caribbean build-up, the boat strikes, and the raid, dated step by step — the spine of the present-day argument.</div>
+      </div>
+    </div>
+
+    <div class="shelf-col">
+      <h4>The "within" case</h4>
+      <div class="res">
+        <div class="t"><a href="https://mises.org/mises-wire/socialism-not-us-sanctions-ruined-venezuelan-economy">Socialism, Not US Sanctions, Ruined the Venezuelan Economy</a></div>
+        <div class="by">Mises Institute</div>
+        <div class="why">The free-market case at its bluntest: the currency died before the sanctions, and the policy is the cause. The pole A argument, undiluted.</div>
+      </div>
+      <div class="res">
+        <div class="t"><a href="https://thedailyeconomy.org/article/sanctions-didnt-destroy-venezuelas-economy-socialism-did/">Sanctions Didn't Destroy Venezuela's Economy — Socialism Did</a></div>
+        <div class="by">The Daily Economy (AIER)</div>
+        <div class="why">Leans hard on the timeline — the GDP and inflation numbers that predate the oil sanctions. The empirical spine of Crux 01's within side.</div>
+      </div>
+    </div>
+
+    <div class="shelf-col">
+      <h4>The "without" case</h4>
+      <div class="res">
+        <div class="t"><a href="https://sanctionsandsecurity.org/wp-content/uploads/2022/01/January-2022-Venezuela-Case_Rodriguez.pdf">Sanctions and the Venezuelan Economy</a></div>
+        <div class="by">Francisco Rodríguez · case study (PDF)</div>
+        <div class="why">A Venezuelan economist — no Chavista — making the careful, data-driven version of the case that sanctions deepened the collapse. The serious "without" argument.</div>
+      </div>
+      <div class="res">
+        <div class="t">Economic Sanctions as Collective Punishment: The Case of Venezuela</div>
+        <div class="by">Mark Weisbrot &amp; Jeffrey Sachs · CEPR · 2019</div>
+        <div class="why">The report behind the "tens of thousands of excess deaths" figure — much cited, much contested. The pole B claim at its strongest; read the critiques alongside.</div>
+      </div>
+    </div>
+
+    <div class="shelf-col">
+      <h4>The books</h4>
+      <div class="res">
+        <div class="t">Dragon in the Tropics</div>
+        <div class="by">Javier Corrales &amp; Michael Penfold</div>
+        <div class="why">The standard scholarly account of the Chávez era — how the politics and the oil money actually worked. The clearest map of the rise.</div>
+      </div>
+      <div class="res">
+        <div class="t">Crude Nation</div>
+        <div class="by">Raúl Gallegos</div>
+        <div class="why">A reporter's ground-level portrait of how oil distorted everyday life in Venezuela. The petrostate trap, lived rather than charted.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ FOOTER ============================ -->
+<footer class="wrap">
+  <p class="foot-note"><b>On these summaries.</b> Each steelman is compressed to its strongest form — the economist's "you can't repeal supply and demand" and the critic's "they slammed the only exit" both run to books and datasets, and a panel here is a doorway, not the room. Mapping the best case for both sides is not endorsing either; the point is to find which question you actually disagree on, not to settle it. Dates mark a representative event, not the first time anyone made the move. This is a live situation — written in mid-2026, with the transition still unsettled — so specifics will age fast; check the facts links before relying on any of it. The two-pole axis is a lens for seeing structure, useful because it simplifies, and the lilac hinge flags the view that the line was drawn in the wrong place — that the argument was always about the oil.</p>
+  <div class="foot-links">
+    <a href="/debates">← All thought pages</a>
+    <a href="/">brooker.family</a>
+  </div>
+</footer>
+
+<script>
+(function(){
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var items = document.querySelectorAll('.reveal');
+  if(reduce || !('IntersectionObserver' in window)){
+    items.forEach(function(el){ el.classList.add('in'); });
+    return;
+  }
+  var io = new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); }
+    });
+  }, {threshold:0.12, rootMargin:'0px 0px -8% 0px'});
+  items.forEach(function(el){ io.observe(el); });
+})();
+</script>
+</body>
+</html>

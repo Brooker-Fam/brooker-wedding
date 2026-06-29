@@ -45,6 +45,15 @@ const DEBATES: DebateCard[] = [
     poleB: "Made",
   },
   {
+    slug: "venezuela",
+    group: "Live & contested",
+    field: "Political economy · history",
+    title: "Venezuela: ruined from within, or strangled from outside?",
+    hook: "The rise and fall of a petrostate — Chavismo, socialism, US sanctions, and the oil under it all.",
+    poleA: "Ruined from within",
+    poleB: "Strangled from outside",
+  },
+  {
     slug: "vaccines",
     group: "Live & contested",
     field: "Public health · law",
@@ -145,12 +154,12 @@ export default function DebatesIndexPage() {
             ← back home
           </Link>
           <h1 className="mt-5 font-[family-name:var(--font-cormorant-garamond)] text-4xl font-bold leading-tight text-forest dark:text-cream sm:text-5xl">
-            Debate Maps
+            Thought Pages
           </h1>
           <p className="mx-auto mt-4 max-w-xl font-[family-name:var(--font-quicksand)] text-[15px] leading-relaxed text-forest/65 dark:text-cream/65">
-            Contested questions, mapped as fair fights — the best case for{" "}
-            <strong>both sides</strong>, side by side. Pick one and find which question you actually
-            disagree on.
+            Long reads on big, contested questions — each one mapped as a fair fight, with the best
+            case for <strong>both sides</strong> side by side, and the history behind it. Pick one and
+            find which question you actually disagree on.
           </p>
         </motion.div>
 
@@ -179,7 +188,7 @@ export default function DebatesIndexPage() {
           {...fadeUp}
           className="mx-auto mt-12 max-w-xl text-center font-[family-name:var(--font-quicksand)] text-[11px] leading-relaxed text-forest/40 dark:text-cream/40"
         >
-          Each opens as a standalone map. A “steelman” is the strongest version of an argument,
+          Each opens as a standalone page. A “steelman” is the strongest version of an argument,
           stated charitably — presenting one is not endorsing it.
         </motion.p>
       </div>

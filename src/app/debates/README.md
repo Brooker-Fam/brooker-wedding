@@ -1,4 +1,8 @@
-# Debate Maps — Brooker house notes
+# Thought Pages — Brooker house notes
+
+> The index renders as **"Thought Pages"** (`/debates` route kept for stable URLs and
+> the old `/vaccine-debate` redirect). The individual pages are still built as
+> self-contained "field maps" in the editorial dark house style.
 
 Self-contained HTML "field maps" of contested questions. Each one takes a debate,
 lays out its lineage, catalogs the live positions, then stages the real
@@ -19,7 +23,13 @@ is adapted for **brooker.family** and how to add a new map.
 | Reference implementation / template | `public/debates/god.html` |
 | Old `/vaccine-debate` URL | redirects to `/debates/vaccines.html` |
 
-Current maps: `god`, `morality`, `vaccines`, `us-iran`.
+Current maps: `god`, `morality`, `vaccines`, `covid-vaccines`, `us-iran`,
+`ai-data-centers`, `saturated-fat`, `venezuela`.
+
+`venezuela` is a rise-and-fall history as well as a debate: its lineage section
+carries the boom-and-bust narrative, and the two-pole axis runs *ruined from
+within* (socialism / misrule) ↔ *strangled from outside* (sanctions / oil shock /
+empire), with the petrostate "resource curse" as the lilac hinge.
 
 ## What's customized for the Brooker site
 
@@ -27,7 +37,7 @@ The skill ships a neutral, standalone artifact. For this site we keep the
 editorial dark house style **exactly** (the look is the point) and add only a
 light "site tie" so a map doesn't feel orphaned:
 
-1. **Top back-link** — `<a class="site-tie" href="/debates">All debate maps · brooker</a>`
+1. **Top back-link** — `<a class="site-tie" href="/debates">All thought pages · brooker</a>`
    as the first child of `<header>`.
 2. **Footer links** — a `.foot-links` block linking back to `/debates` and `/`.
 3. **CSS** for both (`.site-tie`, `.foot-links`) added to the shared `<style>`.
