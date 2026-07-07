@@ -98,6 +98,15 @@ const DEBATES: DebateCard[] = [
     poleA: "Harmful — limit it",
     poleB: "Largely benign",
   },
+  {
+    slug: "sun-exposure",
+    group: "Live & contested",
+    field: "Dermatology · public health",
+    title: "Sunlight: a carcinogen to block, or a nutrient we're starved of?",
+    hook: "From prescribed cure to Group 1 carcinogen and partway back — vitamin D, nitric oxide, and whether avoidance is its own risk.",
+    poleA: "Shade it — the sun harms",
+    poleB: "Seek it — the sun heals",
+  },
 ];
 
 const GROUPS = ["Enduring questions", "Live & contested"] as const;

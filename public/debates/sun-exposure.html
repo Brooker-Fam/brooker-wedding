@@ -1,0 +1,844 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- Field map: sun exposure -->
+<title>Sunlight: a carcinogen to block, or a nutrient we're starved of? — a map of the sun-exposure debate</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,500&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#171922; --ink-2:#1e212c; --card:#23273380; --card-solid:#232734;
+    --line:#34384a; --line-soft:#2a2e3b;
+    --bone:#ebe5d6; --mute:#a6a394; --faint:#807e8a;
+    /* found = pole A (verdigris) · made = pole B (ochre) · pivot = the reconciling hinge (lilac).
+       Rename the *concepts* in your prose, but keep these three colors as the axis. */
+    --found:#6dbaa4; --found-deep:#2f6657; --found-glow:#6dbaa422;
+    --made:#d8a652; --made-deep:#7d5f29; --made-glow:#d8a65222;
+    --pivot:#a195bd; --pivot-glow:#a195bd1f;
+    /* third camp (slate-blue) — only for genuinely ternary debates; see SKILL.md */
+    --camp-c:#6f93c4; --camp-c-deep:#33506f; --camp-c-glow:#6f93c41f;
+    --maxw:1180px;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0; background:var(--ink); color:var(--bone);
+    font-family:"IBM Plex Sans",sans-serif; font-weight:400;
+    line-height:1.62; font-size:17px;
+    -webkit-font-smoothing:antialiased;
+    background-image:
+      radial-gradient(900px 600px at 82% -8%, #20243340, transparent 70%),
+      radial-gradient(700px 500px at 5% 18%, #1d212e55, transparent 70%);
+    background-attachment:fixed;
+  }
+  .wrap{max-width:var(--maxw); margin:0 auto; padding:0 26px;}
+  .mono{font-family:"IBM Plex Mono",monospace;}
+  .ser{font-family:"Fraunces",serif;}
+
+  /* ---------- eyebrows / dividers ---------- */
+  .eyebrow{
+    font-family:"IBM Plex Mono",monospace; font-size:12px; font-weight:500;
+    letter-spacing:.22em; text-transform:uppercase; color:var(--faint);
+    display:flex; align-items:center; gap:14px;
+  }
+  .eyebrow::before{content:""; width:30px; height:1px; background:var(--line); display:inline-block;}
+  .sec-num{color:var(--mute);}
+
+  /* ---------- brooker site tie (added for brooker.family/debates) ---------- */
+  .site-tie{
+    font-family:"IBM Plex Mono",monospace; font-size:12px; letter-spacing:.2em;
+    text-transform:uppercase; color:var(--faint); text-decoration:none;
+    display:inline-flex; align-items:center; gap:9px; margin:0 0 30px;
+    transition:color .2s;
+  }
+  .site-tie::before{content:""; width:22px; height:1px; background:var(--line); display:inline-block;}
+  .site-tie:hover{color:var(--bone);}
+  .foot-links{margin-top:22px; display:flex; gap:24px; flex-wrap:wrap;}
+  .foot-links a{
+    font-family:"IBM Plex Mono",monospace; font-size:11.5px; letter-spacing:.16em;
+    text-transform:uppercase; color:var(--mute); text-decoration:none;
+    border-bottom:1px solid var(--line); padding-bottom:2px;
+  }
+  .foot-links a:hover{color:var(--bone); border-bottom-color:var(--mute);}
+
+  /* ---------- header ---------- */
+  header{padding:clamp(56px,10vw,116px) 0 clamp(40px,7vw,80px);}
+  .kicker{
+    font-family:"IBM Plex Mono",monospace; font-size:12.5px; letter-spacing:.26em;
+    text-transform:uppercase; color:var(--faint); margin:0 0 26px;
+  }
+  h1.title{
+    font-family:"Fraunces",serif; font-weight:400; font-optical-sizing:auto;
+    font-size:clamp(2.5rem,6.4vw,4.7rem); line-height:1.02; letter-spacing:-.012em;
+    margin:0; max-width:16ch;
+  }
+  h1.title em{font-style:italic; color:var(--found);}
+  h1.title .mk{font-style:italic; color:var(--made);}
+  .dek{
+    font-size:clamp(1.05rem,2.1vw,1.35rem); color:var(--mute); line-height:1.5;
+    max-width:47ch; margin:30px 0 0; font-weight:400;
+  }
+  .dek b{color:var(--bone); font-weight:500;}
+
+  /* ---------- axis legend ---------- */
+  .legend{
+    margin-top:46px; border:1px solid var(--line-soft); border-radius:14px;
+    background:linear-gradient(100deg,#1c202c,#1a1e29);
+    padding:22px 24px; display:grid; gap:14px;
+  }
+  .legend-top{font-family:"IBM Plex Mono",monospace; font-size:11.5px; letter-spacing:.2em; text-transform:uppercase; color:var(--faint);}
+  .axis-bar{
+    height:7px; border-radius:6px;
+    background:linear-gradient(90deg,var(--found) 0%, #6e6b78 50%, var(--made) 100%);
+  }
+  .axis-ends{display:flex; justify-content:space-between; gap:16px; font-size:14.5px;}
+  .axis-ends .ax-found{color:var(--found);}
+  .axis-ends .ax-made{color:var(--made); text-align:right;}
+  .axis-ends span b{display:block; font-weight:600; font-size:15px; margin-bottom:1px;}
+  .axis-ends span small{color:var(--faint); font-size:12.5px; letter-spacing:.02em;}
+
+  /* ---------- section frame ---------- */
+  section{padding:clamp(54px,8vw,96px) 0;}
+  .sec-head{margin-bottom:42px;}
+  .sec-head h2{
+    font-family:"Fraunces",serif; font-weight:400; font-size:clamp(1.9rem,4vw,2.9rem);
+    line-height:1.06; letter-spacing:-.01em; margin:18px 0 0; max-width:24ch;
+  }
+  .sec-head p{color:var(--mute); max-width:62ch; margin:16px 0 0; font-size:1.02rem;}
+
+  /* ===== I. LINEAGE (timeline) ===== */
+  .lineage{position:relative;}
+  .spine{
+    position:absolute; left:140px; top:6px; bottom:6px; width:2px;
+    background:linear-gradient(var(--found-deep),var(--line),var(--made-deep));
+  }
+  .node{position:relative; padding:0 0 26px 172px; min-height:30px;}
+  .node .yr{
+    position:absolute; left:0; top:1px; width:118px; text-align:right;
+    font-family:"IBM Plex Mono",monospace; font-size:12.5px; color:var(--faint);
+    letter-spacing:.02em; padding-top:2px;
+  }
+  .node .dot{
+    position:absolute; left:134px; top:6px; width:14px; height:14px; border-radius:50%;
+    background:var(--ink); border:2px solid var(--mute); z-index:2;
+  }
+  .node.found .dot{border-color:var(--found); box-shadow:0 0 0 4px var(--found-glow);}
+  .node.made .dot{border-color:var(--made); box-shadow:0 0 0 4px var(--made-glow);}
+  .node.pivot .dot{border-color:var(--pivot); box-shadow:0 0 0 4px var(--pivot-glow);}
+  .node .who{font-family:"Fraunces",serif; font-size:1.24rem; font-weight:500; line-height:1.15; letter-spacing:-.005em;}
+  .node .dom{font-family:"IBM Plex Mono",monospace; font-size:10.5px; letter-spacing:.16em; text-transform:uppercase; margin-left:10px; color:var(--faint); vertical-align:middle;}
+  .node .say{color:var(--mute); font-size:.99rem; margin-top:4px; max-width:64ch;}
+  .node.camp-c .dot{border-color:var(--camp-c); box-shadow:0 0 0 4px var(--camp-c-glow);}
+  .node.found .who{color:var(--found);}
+  .node.made .who{color:var(--made);}
+  .node.pivot .who{color:var(--pivot);}
+  .node.camp-c .who{color:var(--camp-c);}
+  .lineage-tail{padding-left:172px; margin-top:2px;}
+  .lineage-tail .pin{
+    position:relative; padding:16px 20px; border:1px dashed var(--line);
+    border-radius:12px; background:#1b1f2a; max-width:60ch;
+  }
+  .lineage-tail .pin b{font-family:"Fraunces",serif; font-weight:500; font-size:1.05rem;}
+  .lineage-tail .pin p{margin:5px 0 0; color:var(--mute); font-size:.96rem;}
+
+  /* ===== II. POSITIONS (field guide) ===== */
+  .fields{display:grid; grid-template-columns:1fr 1fr; gap:30px;}
+  .field h3{
+    font-family:"IBM Plex Mono",monospace; font-size:12.5px; letter-spacing:.2em;
+    text-transform:uppercase; color:var(--bone); margin:0 0 18px; padding-bottom:12px;
+    border-bottom:1px solid var(--line); display:flex; justify-content:space-between; align-items:baseline;
+  }
+  .field h3 small{color:var(--faint); letter-spacing:.12em; font-weight:400;}
+  .pos{
+    border:1px solid var(--line-soft); border-left:3px solid var(--line);
+    border-radius:0 11px 11px 0; background:var(--card);
+    padding:16px 18px; margin-bottom:13px; transition:border-color .25s, background .25s, transform .25s;
+  }
+  .pos.found{border-left-color:var(--found);}
+  .pos.made{border-left-color:var(--made);}
+  .pos.pivot{border-left-color:var(--pivot);}
+  .pos.camp-c{border-left-color:var(--camp-c);}
+  .pos:hover{transform:translateX(3px); background:var(--card-solid);}
+  .pos .nm{font-family:"Fraunces",serif; font-weight:600; font-size:1.16rem; letter-spacing:-.005em; display:flex; align-items:baseline; gap:10px; flex-wrap:wrap;}
+  .pos.found .nm{color:var(--found);} .pos.made .nm{color:var(--made);} .pos.pivot .nm{color:var(--pivot);} .pos.camp-c .nm{color:var(--camp-c);}
+  /* go-deeper links on a card or in the shelf */
+  .src-links{margin-top:9px; display:flex; flex-wrap:wrap; gap:6px 14px;}
+  .src-links a{font-family:"IBM Plex Mono",monospace; font-size:11.5px; color:var(--mute); text-decoration:none; border-bottom:1px solid var(--line);}
+  .src-links a:hover{color:var(--bone); border-bottom-color:var(--mute);}
+  .src-links a::after{content:" ↗"; color:var(--faint);}
+  .traction{
+    font-family:"IBM Plex Mono",monospace; font-size:10px; letter-spacing:.08em; text-transform:uppercase;
+    color:var(--faint); border:1px solid var(--line); border-radius:20px; padding:2px 9px; white-space:nowrap;
+  }
+  .pos .figs{font-family:"IBM Plex Mono",monospace; font-size:12px; color:var(--mute); margin:7px 0 7px; letter-spacing:.01em;}
+  .pos .claim{color:var(--bone); font-size:.97rem; line-height:1.5;}
+  .pos .nb{display:block; margin-top:7px; color:var(--faint); font-size:.85rem; font-style:italic;}
+  .pivot-card{
+    grid-column:1/-1; border:1px solid var(--pivot); border-radius:13px;
+    background:linear-gradient(100deg,#211f2c,#1c1b25); padding:20px 22px; margin-top:4px;
+    display:flex; gap:18px; align-items:flex-start; flex-wrap:wrap;
+  }
+  .pivot-card .pv-tag{font-family:"IBM Plex Mono",monospace; font-size:11px; letter-spacing:.2em; text-transform:uppercase; color:var(--pivot); white-space:nowrap; padding-top:5px;}
+  .pivot-card .pv-body{flex:1 1 320px;}
+  .pivot-card .pv-body b{font-family:"Fraunces",serif; font-weight:600; font-size:1.2rem; color:var(--pivot);}
+  .pivot-card .pv-body p{margin:6px 0 0; color:var(--bone); font-size:.98rem;}
+  .traction-note{margin-top:20px; color:var(--faint); font-size:.84rem; font-style:italic; max-width:70ch; display:flex; gap:9px;}
+  .traction-note::before{content:"※"; color:var(--mute); font-style:normal;}
+
+  /* ===== III. CRUXES (confrontations) ===== */
+  .crux{border:1px solid var(--line-soft); border-radius:18px; overflow:hidden; margin-bottom:30px; background:#191d28;}
+  .crux-head{padding:24px 28px 20px; border-bottom:1px solid var(--line-soft);}
+  .crux-meta{display:flex; justify-content:space-between; gap:14px; align-items:baseline; flex-wrap:wrap; margin-bottom:12px;}
+  .crux-n{font-family:"IBM Plex Mono",monospace; font-size:13px; letter-spacing:.18em; color:var(--mute);}
+  .crux-dom{font-family:"IBM Plex Mono",monospace; font-size:10.5px; letter-spacing:.16em; text-transform:uppercase; color:var(--ink); background:var(--mute); padding:3px 10px; border-radius:20px;}
+  .crux-dom.both{background:var(--pivot);}
+  .crux-q{font-family:"Fraunces",serif; font-weight:500; font-size:clamp(1.4rem,3vw,2rem); line-height:1.12; letter-spacing:-.01em; margin:0;}
+  .crux-sub{color:var(--mute); margin:9px 0 0; font-size:.98rem;}
+  .steels{display:grid; grid-template-columns:1fr 1fr; gap:0;}
+  .steel{padding:24px 28px; position:relative;}
+  .steel.s-found{background:linear-gradient(180deg,#1a2420,#191f1d);}
+  .steel.s-made{background:linear-gradient(180deg,#241f17,#1f1c16); border-left:1px solid var(--line-soft);}
+  .steel .side{font-family:"IBM Plex Mono",monospace; font-size:11px; letter-spacing:.14em; text-transform:uppercase; margin-bottom:5px;}
+  .steel.s-found .side{color:var(--found);}
+  .steel.s-made .side{color:var(--made);}
+  .steel .pos-name{font-family:"Fraunces",serif; font-weight:600; font-size:1.12rem; margin-bottom:9px; line-height:1.2;}
+  .steel.s-found .pos-name{color:var(--found);}
+  .steel.s-made .pos-name{color:var(--made);}
+  .steel .gist{font-weight:600; font-size:1.04rem; line-height:1.45; color:var(--bone); margin:0 0 13px; padding-bottom:13px; border-bottom:1px dashed var(--line);}
+  .steel .gist::before{content:"In plain terms"; display:block; font-family:"IBM Plex Mono",monospace; font-size:10px; font-weight:500; letter-spacing:.18em; text-transform:uppercase; color:var(--faint); margin-bottom:5px;}
+  .steel p{margin:0; font-size:.97rem; line-height:1.56; color:#e2dccd;}
+  .steel p em{font-style:italic; color:var(--bone);}
+  .crux-key{padding:18px 28px; background:#13161f; border-top:1px solid var(--line-soft); display:flex; gap:14px; align-items:flex-start;}
+  .crux-key .lab{font-family:"IBM Plex Mono",monospace; font-size:11px; letter-spacing:.16em; text-transform:uppercase; color:var(--faint); padding-top:3px; white-space:nowrap;}
+  .crux-key .txt{font-size:.99rem; color:var(--bone); line-height:1.5;}
+  .crux-key .txt b{font-weight:600;}
+  .same-tag{display:inline-block; margin-top:9px; font-family:"IBM Plex Mono",monospace; font-size:11px; letter-spacing:.08em; color:var(--pivot); border:1px solid var(--pivot); border-radius:20px; padding:3px 11px;}
+
+  /* ===== IV. PAYOFF ===== */
+  .fault-sec{background:linear-gradient(180deg,transparent, #13161f 30%, #13161f 70%, transparent);}
+  .fault-card{border:1px solid var(--line); border-radius:20px; background:#171b25; padding:clamp(24px,4vw,44px); box-shadow:0 30px 80px -50px #000;}
+  .fault-lead{font-family:"Fraunces",serif; font-weight:400; font-size:clamp(1.5rem,3.3vw,2.3rem); line-height:1.18; letter-spacing:-.01em; margin:0 0 8px; max-width:26ch;}
+  .fault-lead em{font-style:italic; color:var(--pivot);}
+  .fault-intro{color:var(--mute); max-width:64ch; margin:0 0 30px; font-size:1.02rem;}
+  .diagram{width:100%; height:auto; display:block; margin:6px 0 4px; overflow:visible;}
+  .fault-restate{display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:18px; margin-top:34px;}
+  .fr-item{border-top:2px solid var(--line); padding-top:13px;}
+  .fr-item.f1{border-top-color:var(--made);}
+  .fr-item.f2{border-top-color:var(--pivot);}
+  .fr-item.f3{border-top-color:var(--found);}
+  .fr-item.f4{border-top-color:var(--made);}
+  .fr-item .fr-n{font-family:"IBM Plex Mono",monospace; font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--faint);}
+  .fr-item .fr-t{font-family:"Fraunces",serif; font-weight:500; font-size:1.05rem; margin:4px 0 5px;}
+  .fr-item p{margin:0; font-size:.92rem; color:var(--mute); line-height:1.5;}
+  .fault-close{margin-top:36px; padding-top:26px; border-top:1px solid var(--line); font-family:"Fraunces",serif; font-style:italic; font-weight:400; font-size:clamp(1.15rem,2.4vw,1.5rem); line-height:1.35; color:var(--bone); max-width:44ch;}
+  .fault-close .ax{color:var(--found);}
+  .fault-close .mk{color:var(--made);}
+
+  /* ===== V. GO DEEPER (resources shelf) ===== */
+  .shelf{display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:24px;}
+  .shelf-col h4{font-family:"IBM Plex Mono",monospace; font-size:12px; letter-spacing:.18em; text-transform:uppercase; color:var(--mute); margin:0 0 14px; padding-bottom:10px; border-bottom:1px solid var(--line);}
+  .res{margin-bottom:15px;}
+  .res .t{font-family:"Fraunces",serif; font-weight:500; font-size:1.04rem; line-height:1.25;}
+  .res .t a{color:var(--bone); text-decoration:none; border-bottom:1px solid var(--line);}
+  .res .t a:hover{border-bottom-color:var(--mute);}
+  .res .by{font-family:"IBM Plex Mono",monospace; font-size:11.5px; color:var(--faint); margin-top:1px;}
+  .res .why{color:var(--mute); font-size:.9rem; margin-top:4px; line-height:1.45;}
+
+  /* ---------- footer ---------- */
+  footer{padding:54px 0 80px; border-top:1px solid var(--line-soft); margin-top:30px;}
+  .foot-note{color:var(--faint); font-size:.86rem; max-width:66ch; line-height:1.55;}
+  .foot-note b{color:var(--mute); font-weight:500;}
+
+  /* ---------- what would move them (per-crux concessions) ---------- */
+  .crux-cede{padding:16px 28px 22px; background:#13161f; border-top:1px solid var(--line-soft); display:flex; gap:14px; align-items:flex-start; flex-wrap:wrap;}
+  .crux-cede .lab{font-family:"IBM Plex Mono",monospace; font-size:11px; letter-spacing:.16em; text-transform:uppercase; color:var(--faint); padding-top:3px; white-space:nowrap;}
+  .crux-cede .cede{flex:1 1 320px; display:grid; gap:9px;}
+  .crux-cede .cede p{margin:0; font-size:.92rem; line-height:1.5; color:var(--mute); padding-left:13px; border-left:2px solid var(--line);}
+  .crux-cede .cede .c-found{border-left-color:var(--found);}
+  .crux-cede .cede .c-made{border-left-color:var(--made);}
+  .crux-cede .cede b{display:block; margin-bottom:1px; font-family:"IBM Plex Mono",monospace; font-size:10.5px; letter-spacing:.05em; text-transform:uppercase; font-weight:600; color:var(--bone);}
+  /* ---------- pole lean tag (colour-independent position marker) ---------- */
+  .pos .nm .lean{font-family:"IBM Plex Mono",monospace; font-size:9.5px; letter-spacing:.08em; text-transform:uppercase; color:var(--faint); border:1px solid var(--line); border-radius:4px; padding:1px 6px; white-space:nowrap; align-self:center; font-weight:500;}
+  .pos.found .nm .lean{color:var(--found); border-color:var(--found-deep);}
+  .pos.made .nm .lean{color:var(--made); border-color:var(--made-deep);}
+  .pos.pivot .nm .lean{color:var(--pivot); border-color:var(--pivot);}
+  .pos.camp-c .nm .lean{color:var(--camp-c); border-color:var(--camp-c-deep);}
+  /* ---------- reveal ---------- */
+  .reveal{opacity:0; transform:translateY(16px); transition:opacity .7s ease, transform .7s ease;}
+  .reveal.in{opacity:1; transform:none;}
+
+  :focus-visible{outline:2px solid var(--found); outline-offset:3px; border-radius:3px;}
+
+  /* ---------- responsive ---------- */
+  @media (max-width:760px){
+    body{font-size:16px;}
+    .fields{grid-template-columns:1fr;}
+    .steels{grid-template-columns:1fr;}
+    .steel.s-made{border-left:none; border-top:1px solid var(--line-soft);}
+    .spine{left:84px;}
+    .node{padding-left:112px;}
+    .node .yr{width:64px;}
+    .node .dot{left:78px;}
+    .lineage-tail{padding-left:112px;}
+    .axis-ends{flex-direction:column; gap:10px;}
+    .axis-ends .ax-made{text-align:left;}
+  }
+  @media (prefers-reduced-motion:reduce){
+    *{scroll-behavior:auto;}
+    .reveal{opacity:1; transform:none; transition:none;}
+    .draw{stroke-dashoffset:0 !important;}
+  }
+</style>
+</head>
+<body>
+
+<!-- ============================ HEADER ============================ -->
+<header class="wrap">
+  <a class="site-tie" href="/debates">All thought pages · brooker</a>
+  <p class="kicker">FIELD · dermatology, photobiology &amp; public health</p>
+  <h1 class="title">Sunlight: <em>a carcinogen to block</em>, or <span class="mk">a nutrient we're starved of</span>?</h1>
+  <p class="dek">A century of advice that flipped — from prescribing the sun to fleeing it, and now back again. A dozen positions on whether to shade your skin or seek the light fold into four <b>disagreements</b>, and those into two <b>questions</b>: whether you weigh the whole body or only the skin, and whether the thing that heals is a molecule a pill can copy or a dose only the sun delivers. What rides on it: what you put on a child at the beach, whether a pale office worker is deficient or just prudent, and whose expertise gets to write the label. Below — the <b>lineage</b>, the <b>positions and who holds them</b>, and four <b>cruxes</b>, each with the strongest case both sides actually make.</p>
+
+  <div class="legend reveal">
+    <div class="legend-top">One axis runs under all of it. Watch the two colors.</div>
+    <div class="axis-bar"></div>
+    <div class="axis-ends">
+      <span class="ax-found"><b>Shade it — the sun harms</b><small>UV is a proven carcinogen · minimize the dose</small></span>
+      <span class="ax-made"><b>Seek it — the sun heals</b><small>avoidance is its own risk factor</small></span>
+    </div>
+  </div>
+</header>
+
+<!-- ============================ I. LINEAGE ============================ -->
+<section class="wrap">
+  <div class="sec-head">
+    <div class="eyebrow"><span class="sec-num">I</span> &nbsp;the lineage</div>
+    <h2 class="ser">From cure, to carcinogen, and partway back</h2>
+    <p>Read top to bottom. A dot's halo marks where the work landed — green for "the sun harms, shade it," gold for "the sun heals, we're starved of it," lilac for the reading that the dose and the skin were the missing variable all along.</p>
+  </div>
+
+  <div class="lineage reveal">
+    <div class="spine" aria-hidden="true"></div>
+
+    <div class="node made">
+      <span class="yr">1903</span><span class="dot"></span>
+      <div class="who">Niels Finsen<span class="dom">phototherapy · Nobel Prize</span></div>
+      <div class="say">A Danish physician wins the Nobel for treating lupus vulgaris — a disfiguring skin tuberculosis — with concentrated light. The sun and its lamps are cutting-edge medicine. For the first half of the century, a tan means health, and doctors send the sick outdoors.</div>
+    </div>
+
+    <div class="node made">
+      <span class="yr">1900s–30s</span><span class="dot"></span>
+      <div class="who">Auguste Rollier<span class="dom">heliotherapy · alpine clinics</span></div>
+      <div class="say">In the Swiss Alps, Rollier runs sun clinics where tuberculosis patients are laid out on balconies to heal in graduated doses of mountain sunlight. "Heliotherapy" is mainstream, and its central rule — <em>build the dose slowly, never burn</em> — is a lesson the field will spend a century forgetting and relearning.</div>
+    </div>
+
+    <div class="node made">
+      <span class="yr">1919–22</span><span class="dot"></span>
+      <div class="who">Huldschinsky · vitamin D<span class="dom">nutrition · rickets</span></div>
+      <div class="say">Kurt Huldschinsky cures rachitic children with ultraviolet lamps; researchers soon isolate vitamin D and connect the dots — sunlight on skin makes the vitamin that builds bone. Rickets, a scourge of sunless industrial cities, becomes preventable with light. The sun is, quite literally, nutrition.</div>
+    </div>
+
+    <div class="node found">
+      <span class="yr">1956</span><span class="dot"></span>
+      <div class="who">UV → skin cancer<span class="dom">epidemiology · the turn</span></div>
+      <div class="say">The evidence tying ultraviolet light to skin cancer hardens. Melanoma and the far commoner keratinocyte cancers get pinned on sun exposure, especially in fair skin. The verdict begins to invert: the thing that made bone also breaks DNA.</div>
+    </div>
+
+    <div class="node found">
+      <span class="yr">1981</span><span class="dot"></span>
+      <div class="who">Slip, Slop, Slap<span class="dom">public health · the campaign</span></div>
+      <div class="say">Australia — the melanoma capital of the world — launches Sid the Seagull and the slogan that defines the era: slip on a shirt, slop on sunscreen, slap on a hat. Photoprotection becomes a public-health movement. Over the next decades, "avoid the midday sun, cover up, wear SPF daily" hardens into standard advice across the fair-skinned world.</div>
+    </div>
+
+    <div class="node made">
+      <span class="yr">2004</span><span class="dot"></span>
+      <div class="who">Michael Holick<span class="dom">endocrinology · the dissent</span></div>
+      <div class="say"><em>The UV Advantage</em> argues that sensible, non-burning sun exposure is healthy and that blanket avoidance is driving widespread vitamin D deficiency. Holick is asked to step down as chair of dermatology at his university; he keeps his endocrinology post. The clash makes the split institutional — and personal.</div>
+    </div>
+
+    <div class="node found">
+      <span class="yr">2009</span><span class="dot"></span>
+      <div class="who">IARC · Group 1<span class="dom">carcinogen classification</span></div>
+      <div class="say">The WHO's cancer agency places UV-emitting tanning beds in Group 1 — the same "carcinogenic to humans" tier as tobacco and asbestos. Solar radiation was already there. On the harm side, the science is now about as settled as cancer epidemiology gets.</div>
+    </div>
+
+    <div class="node made">
+      <span class="yr">2014</span><span class="dot"></span>
+      <div class="who">Richard Weller<span class="dom">dermatology · nitric oxide</span></div>
+      <div class="say">An Edinburgh dermatologist shows that sunlight on skin releases nitric oxide, dilating blood vessels and lowering blood pressure — a benefit that has <em>nothing to do with vitamin D</em>. Since cardiovascular disease kills orders of magnitude more people than melanoma, he argues the ledger has been kept with only one column.</div>
+    </div>
+
+    <div class="node made">
+      <span class="yr">2016</span><span class="dot"></span>
+      <div class="who">Lindqvist · Swedish cohort<span class="dom">epidemiology · mortality</span></div>
+      <div class="say">Following ~29,000 Swedish women for twenty years, Pelle Lindqvist reports that sun avoiders die earlier — and that the size of the effect is comparable to smoking. Nonsmokers who avoided the sun had life expectancy like smokers who sought it. The finding reframes sun exposure as an all-cause-mortality question, not just a skin one.</div>
+    </div>
+
+    <div class="node found">
+      <span class="yr">2019–22</span><span class="dot"></span>
+      <div class="who">VITAL · D-Health<span class="dom">RCTs · the vitamin fails the test</span></div>
+      <div class="say">Large randomized trials of vitamin D <em>supplements</em> — VITAL in the US, D-Health in Australia — find little effect on cancer, heart disease, or death. For the harm camp this deflates the vitamin-D case; for the benefit camp it sharpens it: if the pill doesn't work but the sunlight does, the benefit was never really about the vitamin.</div>
+    </div>
+
+    <div class="node pivot">
+      <span class="yr">2020s</span><span class="dot"></span>
+      <div class="who">Circadian light · the online reopening<span class="dom">chronobiology · culture</span></div>
+      <div class="say">Morning-light and circadian arguments go mainstream through popular science; a "sunscreen is toxic, go outside" backlash surges on social media, and dermatologists push back hard against it. The mainstream position holds — burning and tanning beds are still out — but the framing shifts toward <em>dose, skin type, and what you're trading off</em>, not a single rule for everyone.</div>
+    </div>
+
+    <div class="lineage-tail">
+      <div class="pin">
+        <b>Into the present</b>
+        <p>A century in, the two hardest facts sit side by side and both are true: UV causes skin cancer, and sun avoidance tracks with dying younger. The argument has migrated from "sun: good or bad?" to a narrower set — how much, on which skin, at which latitude, weighed against what — and who gets to set the number.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ II. POSITIONS ============================ -->
+<section class="wrap">
+  <div class="sec-head">
+    <div class="eyebrow"><span class="sec-num">II</span> &nbsp;the positions</div>
+    <h2 class="ser">Who holds what — and where it sits on the axis</h2>
+    <p>Two families of position: claims about what sunlight does to the skin, and claims about what it does to the rest of the body. A card's left edge is its lean; the tag is rough sociology, not a scorecard.</p>
+  </div>
+
+  <div class="fields reveal">
+    <div class="field">
+      <h3>On the skin <small>cancer &amp; aging</small></h3>
+
+      <div class="pos found">
+        <div class="nm"><span class="lean">◀ shade it</span> Photoprotection consensus <span class="traction">the standing guideline</span></div>
+        <div class="figs">AAD · WHO/IARC · Cancer Council Australia</div>
+        <div class="claim">UV is a Group 1 carcinogen with no safe tanning dose. Seek shade, cover up, wear broad-spectrum sunscreen daily, and never burn. Get vitamin D from diet or a pill, not from courting DNA damage.</div>
+        <span class="nb">The advice most institutions issue; its weakest spot is treating every body and latitude as one fair-skinned Australian at noon.</span>
+        <div class="src-links"><a href="https://www.aad.org/public/everyday-care/sun-protection/sunscreen-patients/sunscreen-faqs">AAD: sunscreen FAQs</a></div>
+      </div>
+
+      <div class="pos found">
+        <div class="nm"><span class="lean">◀ shade it</span> Melanoma-first dermatology <span class="traction">clinical mainstream</span></div>
+        <div class="figs">practicing dermatologists · skin-cancer surgeons</div>
+        <div class="claim">Melanoma can kill a young, otherwise healthy person, and the common keratinocyte cancers cost a fortune in surgeries and scars. The prudent default is prevention, and intermittent burning in fair skin is the worst pattern of all.</div>
+        <span class="nb">Anchored in what a clinic actually sees; less moved by population-level mortality abstractions.</span>
+        <div class="src-links"><a href="https://en.wikipedia.org/wiki/Melanoma">Melanoma</a></div>
+      </div>
+
+      <div class="pos found">
+        <div class="nm"><span class="lean">◀ shade it</span> Photoaging &amp; cosmetic case <span class="traction">broad, consumer-facing</span></div>
+        <div class="figs">cosmetic dermatology · skincare science</div>
+        <div class="claim">Most of what people call "aging" skin — wrinkles, spots, leathering — is cumulative UV, not time. Daily sunscreen is the single best-evidenced anti-aging step there is.</div>
+        <span class="nb">On strong ground for the skin's appearance; says nothing about the rest of the body.</span>
+        <div class="src-links"><a href="https://en.wikipedia.org/wiki/Photoaging">Photoaging</a></div>
+      </div>
+    </div>
+
+    <div class="field">
+      <h3>On the whole body <small>the systemic case</small></h3>
+
+      <div class="pos made">
+        <div class="nm"><span class="lean">▶ seek it</span> Vitamin D advocates <span class="traction">large following, contested in trials</span></div>
+        <div class="figs">Michael Holick · endocrinology dissenters</div>
+        <div class="claim">Sensible, non-burning sun is the natural way to make vitamin D, and blanket avoidance has left much of the indoor world deficient. Skin makes far more, far faster, than most people eat.</div>
+        <span class="nb">Reframes sun as nutrition; dented by supplement trials that failed to show the promised benefits.</span>
+        <div class="src-links"><a href="https://en.wikipedia.org/wiki/Michael_F._Holick">Michael F. Holick</a></div>
+      </div>
+
+      <div class="pos made">
+        <div class="nm"><span class="lean">▶ seek it</span> Nitric-oxide / cardiovascular <span class="traction">newer, gaining traction</span></div>
+        <div class="figs">Richard Weller · photobiology labs</div>
+        <div class="claim">Sunlight on skin releases nitric oxide and lowers blood pressure — independent of vitamin D. Since heart disease and stroke dwarf melanoma as killers, even a small blood-pressure benefit could outweigh the skin-cancer cost at the population level.</div>
+        <span class="nb">Its strength is a mechanism a pill can't copy; still early, and short of long-term outcome trials.</span>
+        <div class="src-links"><a href="https://en.wikipedia.org/wiki/Nitric_oxide">Nitric oxide</a></div>
+      </div>
+
+      <div class="pos made">
+        <div class="nm"><span class="lean">▶ seek it</span> Sun-avoidance-as-risk <span class="traction">influential single cohort</span></div>
+        <div class="figs">Pelle Lindqvist · the Swedish women's study</div>
+        <div class="claim">Followed for two decades, women who avoided the sun died earlier across major causes — an effect on the order of smoking. Total avoidance isn't safety; it's a risk factor with a body count.</div>
+        <span class="nb">The most striking number in the debate — and the most exposed to confounding by who chooses the sun.</span>
+        <div class="src-links"><a href="https://pubmed.ncbi.nlm.nih.gov/26992108/">Lindqvist et al., 2016</a></div>
+      </div>
+
+      <div class="pos made">
+        <div class="nm"><span class="lean">▶ seek it</span> Circadian / light-environment <span class="traction">popular, mechanistically grounded</span></div>
+        <div class="figs">chronobiology · popular science</div>
+        <div class="claim">Bright daytime light — especially in the morning — sets the circadian clock, improving sleep, mood, and metabolic health. The relevant deficiency is spending life indoors under weak artificial light, not UV as such.</div>
+        <span class="nb">Sidesteps the cancer trade-off by leaning on visible light and timing rather than UV dose.</span>
+        <div class="src-links"><a href="https://en.wikipedia.org/wiki/Circadian_rhythm">Circadian rhythm</a></div>
+      </div>
+    </div>
+
+    <div class="pivot-card">
+      <div class="pv-tag">the hinge ↕</div>
+      <div class="pv-body">
+        <b>It's the dose and the skin, not all-or-nothing</b>
+        <p>The reconciling read says both slogans are too coarse to be true. "The sun is poison" and "the sun is medicine" both pretend there's one answer for a body, when the biology turns on variables the poles average away. It's <em>dose</em>: a regular, non-burning amount behaves nothing like an intermittent sunburn, and it's the burn — the acute, blistering hit on skin that rarely sees light — that carries most of the melanoma risk. It's <em>skin</em>: a fair Scot and a dark-skinned Nigerian have wildly different cancer risk and different vitamin-D economics from the same photons; one rule cannot fit both. It's <em>latitude and season</em>: winter sun in Stockholm can't make vitamin D at all, while equatorial noon is a different exposure entirely. Rollier knew the rule in 1910 — build the dose slowly, never burn. The century-long fight is, in part, the cost of collapsing that gradient into a single yes-or-no.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="traction-note">Tags are rough sociology — how the specialties and the literature shake out — not a verdict on who's right. Dermatology owns the skin endpoint; the systemic case is argued mostly from outside it. A position can be institutional and incomplete, or marginal and onto something.</div>
+</section>
+
+<!-- ============================ III. CRUXES ============================ -->
+<section class="wrap">
+  <div class="sec-head">
+    <div class="eyebrow"><span class="sec-num">III</span> &nbsp;the cruxes</div>
+    <h2 class="ser">Four fair fights, each carrying part of the load</h2>
+    <p>The positions are bundles of answers; these are the questions that, answered one way or the other, split them. Both panels give the side's best case, in its own voice.</p>
+  </div>
+
+  <!-- CRUX 1 -->
+  <div class="crux reveal">
+    <div class="crux-head">
+      <div class="crux-meta"><span class="crux-n">Crux 01 — the ledger</span><span class="crux-dom">epidemiology</span></div>
+      <h3 class="crux-q ser">Add up every effect on the whole body — does the sun end up net-harmful or net-helpful?</h3>
+      <p class="crux-sub">Skin cancer is a real cost. So, apparently, is avoidance. When you total the columns — cancer against blood pressure, mood, mortality — which way does the sum fall?</p>
+    </div>
+    <div class="steels">
+      <div class="steel s-found">
+        <div class="side">▸ the harm is proven, the benefit is soft</div>
+        <div class="pos-name">Net harm — bank the certain avoided cancer</div>
+        <div class="gist">Skin cancer from UV is about as well-established as causation gets; the systemic benefits are mostly observational and unproven in trials. You don't trade a certainty for a maybe.</div>
+        <p>Weigh the evidence by how hard it is to fake. UV causing skin cancer sits on molecular mechanism, dose-response, animal models, and a Group 1 classification — the whole apparatus. The benefit side rests on one striking cohort and a blood-pressure mechanism that hasn't yet produced an outcomes trial. When a hazard is certain and a benefit is speculative, the prudent move is to prevent the certain harm — especially when the benefit has a safe substitute. Want the vitamin? Take it as a pill. Want the mortality edge the sun-seekers seem to have? It's far more likely their money, their exercise, and their health that you're seeing than their photons. Don't court a proven carcinogen chasing an effect you can get another way or that may not be real.</p>
+      </div>
+      <div class="steel s-made">
+        <div class="side">▸ the ledger was kept with one column</div>
+        <div class="pos-name">Net benefit — the skin is a rounding error on the body</div>
+        <div class="gist">Melanoma is real but rare; the systemic upsides touch the diseases that actually kill. Optimize only the skin and you can win the small fight while losing the large one.</div>
+        <p>Look at what each side is counting. Dermatology counts skin, and on skin it's right. But cardiovascular disease kills orders of magnitude more people than melanoma, and if sunlight nudges blood pressure down through nitric oxide, that lever moves the biggest killer there is. The Swedish cohort didn't measure a tan — it measured <em>dying</em>, across all causes, and the avoiders lost years on a scale we compare to smoking. A public-health machine built entirely around the skin endpoint will happily trade a large, diffuse mortality benefit for a small, visible cancer reduction and call it a win, because it never had the whole body on its books. Count what kills, not what's easiest to photograph, and the sum flips.</p>
+      </div>
+    </div>
+    <div class="crux-key">
+      <span class="lab">the crux</span>
+      <span class="txt">Do you total the ledger over the <b>skin</b> or over the <b>whole body</b>? The harm side trusts the certain, narrow harm; the benefit side bets on the diffuse, systemic upside — and half the disagreement is just which column you're allowed to count.</span>
+    </div>
+    <div class="crux-cede">
+      <span class="lab">what would move them</span>
+      <div class="cede">
+        <p class="c-found"><b>The shade-it side concedes if</b> randomized or quasi-experimental trials show moderate sun exposure lowers all-cause mortality even after wealth, exercise, and outdoor lifestyle are fully controlled for.</p>
+        <p class="c-made"><b>The seek-it side concedes if</b> the mortality gap in sun-seekers dissolves once socioeconomic and activity confounders are removed, leaving skin cancer as the only robust net effect.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- CRUX 2 -->
+  <div class="crux reveal">
+    <div class="crux-head">
+      <div class="crux-meta"><span class="crux-n">Crux 02 — the mechanism</span><span class="crux-dom">photobiology</span></div>
+      <h3 class="crux-q ser">Whatever good the sun does — is it the vitamin D, which a pill can copy?</h3>
+      <p class="crux-sub">If the benefit is vitamin D, avoidance costs nothing: swallow the vitamin. If it's something else sunlight does, the pill is beside the point.</p>
+    </div>
+    <div class="steels">
+      <div class="steel s-found">
+        <div class="side">▸ it was the vitamin, and the pill failed</div>
+        <div class="pos-name">Supplement it and stay out of the sun</div>
+        <div class="gist">The one clear pathway from sun to health was vitamin D — and when it was tested as a pill in big trials, it didn't deliver. So either the vitamin was oversold, or you can just take it. Either way, no UV required.</div>
+        <p>For years the benefit case leaned on vitamin D, so we tested it the honest way: give thousands of people the vitamin, blinded, for years. VITAL and D-Health came back mostly null on cancer, heart disease, and death. Read that straight. If vitamin D drives the benefit, a pill supplies it without a single photon — sun avoidance costs you nothing you can't replace at the pharmacy. And if the pill <em>doesn't</em> work, then the low vitamin D seen in sick people was probably a marker of poor health, not its cause — sick, sedentary, indoor people have low D because they're sick, not sick because their D is low. The other proposed pathways are interesting lab findings, not established medicine. Don't accept real DNA damage to chase mechanisms that haven't earned a recommendation.</p>
+      </div>
+      <div class="steel s-made">
+        <div class="side">▸ the vitamin was the marker, not the mechanism</div>
+        <div class="pos-name">The pill was always the wrong test</div>
+        <div class="gist">That the supplement failed is our point. Sunlight does things a capsule can't — release nitric oxide, entrain the circadian clock — so a null pill trial refutes the vitamin, not the sun.</div>
+        <p>Everyone ran the same experiment and drew opposite lessons. We agree the pill mostly failed. But blood vitamin D was always partly a <em>readout</em> of how much time you spend outdoors, moving, in the light — a proxy for a whole exposure. Isolate one molecule, put it in a capsule, and you've stripped away everything else the sun was doing: the nitric oxide that drops blood pressure, the morning light that sets your clock and your sleep, the daytime brightness tied to mood and metabolism. None of that is in the pill, so of course the pill underperforms the sunshine. That's not evidence the sun is inert — it's evidence we were measuring the wrong thing and bottling the wrong part. You can't supplement your way to a photon's full effect.</p>
+      </div>
+    </div>
+    <div class="crux-key">
+      <span class="lab">the crux</span>
+      <span class="txt">Is sunlight's benefit <b>reducible to vitamin D</b> — and therefore replaceable by a pill — or does it run through pathways (<b>nitric oxide, circadian light</b>) a capsule can't reproduce? The same null supplement trials read as deflating or sharpening depending on your answer.</span>
+    </div>
+    <div class="crux-cede">
+      <span class="lab">what would move them</span>
+      <div class="cede">
+        <p class="c-found"><b>The shade-it side concedes if</b> a non-vitamin-D pathway — nitric oxide, circadian light — is shown in trials to improve hard outcomes that supplements and indoor light can't reproduce.</p>
+        <p class="c-made"><b>The seek-it side concedes if</b> the systemic benefits turn out to be fully captured by vitamin D status (or another suppliable factor), making a pill a complete substitute for the sun.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- CRUX 3 -->
+  <div class="crux reveal">
+    <div class="crux-head">
+      <div class="crux-meta"><span class="crux-n">Crux 03 — the confounder</span><span class="crux-dom">causal inference</span></div>
+      <h3 class="crux-q ser">Sun-seekers live longer — because of the sun, or because of who seeks it?</h3>
+      <p class="crux-sub">The headline number is observational. People who get more sun are also, on average, richer, thinner, more active, on holiday. Is the sun doing the work, or the lifestyle around it?</p>
+    </div>
+    <div class="steels">
+      <div class="steel s-made">
+        <div class="side">▸ the signal survives the controls</div>
+        <div class="pos-name">A dose-response this clean isn't just lifestyle</div>
+        <div class="gist">The cohorts adjust for the obvious confounders and the gradient holds — more sun, fewer deaths, step by step. A confounder would have to track sun dose almost perfectly to fake that.</div>
+        <p>Confounding is the right worry, and the researchers took it seriously — adjusting for income, education, exercise, smoking, comorbidity. The association didn't vanish; it stayed, and it stayed <em>graded</em>: moderate sun beat avoidance, high sun beat moderate. Invoking an unmeasured confounder is easy to say and hard to specify — you'd need a hidden factor that rises smoothly with sun exposure across the whole range and isn't captured by any of the socioeconomic variables already in the model. Meanwhile there's a mechanism sitting right there: sunlight lowers blood pressure through nitric oxide, and blood pressure is the leading driver of the cardiovascular deaths that move all-cause mortality. When a graded association lines up with a plausible mechanism, "it's probably just rich people on vacation" stops being the parsimonious explanation and starts being the hopeful one.</p>
+      </div>
+      <div class="steel s-found">
+        <div class="side">▸ it's the person, not the photon</div>
+        <div class="pos-name">Healthy people seek the sun; the sun didn't make them healthy</div>
+        <div class="gist">Sun-seeking is a marker of a whole healthy, affluent, outdoor life. Observational adjustment never fully removes that, and the one thing that could — a randomized trial — hasn't been done.</div>
+        <p>Ask who lies at the sunny end of that gradient. The person who holidays in the sun, gardens, walks at lunch, and isn't housebound by illness or poverty. Sun exposure is one of the purest markers of a healthy, active, well-off life there is — and reverse causation bites hard, because sick people stay indoors. You can adjust for measured income and exercise, but you're adjusting with blunt survey categories that never capture the full bundle; residual confounding is exactly what you'd expect to leak through and it explains a graded association just fine. The gold standard here would be to randomize people to more or less sun and follow the deaths — and that trial doesn't exist, partly because you can't ethically assign a carcinogen. Until it does, a mortality claim resting on observational data plus a blood-pressure mechanism is a hypothesis, not a license to tell fair-skinned people to bake.</p>
+      </div>
+    </div>
+    <div class="crux-key">
+      <span class="lab">the crux</span>
+      <span class="txt">Is the mortality gap <b>causal sunlight</b> or <b>residual confounding</b> by the healthy, affluent lives that seek the sun? <span class="same-tag">↳ this is Crux 01's ledger fought over one number — whether the benefit column is real or an artifact of who's in it.</span></span>
+    </div>
+    <div class="crux-cede">
+      <span class="lab">what would move them</span>
+      <div class="cede">
+        <p class="c-made"><b>The seek-it side concedes if</b> the dose-response flattens once fuller measures of wealth, fitness, and baseline health are added, or reverse causation (sick people staying in) explains the gap.</p>
+        <p class="c-found"><b>The shade-it side concedes if</b> the graded mortality benefit persists under strong confounder control, quasi-experimental designs, or a nitric-oxide outcomes trial.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- CRUX 4 -->
+  <div class="crux reveal">
+    <div class="crux-head">
+      <div class="crux-meta"><span class="crux-n">Crux 04 — the advice</span><span class="crux-dom both">public health · trust · crossways</span></div>
+      <h3 class="crux-q ser">Was "avoid the sun, wear sunscreen daily" sound public health, or dermatology overfitting to its own specialty?</h3>
+      <p class="crux-sub">Before scoring the biology, ask what to make of the advice itself — a hard-won safety message, or a one-size rule written by the one specialty that only sees the skin?</p>
+    </div>
+    <div class="steels">
+      <div class="steel s-found">
+        <div class="side">▸ a simple rule that saved skin</div>
+        <div class="pos-name">The message worked — don't unravel it for nuance</div>
+        <div class="gist">Blanket sun-protection advice is legible, safe, and demonstrably cut skin-cancer rates where it was pushed hardest. Public health needs rules people can follow, not personalized dosing nobody will.</div>
+        <p>Judge the advice by what it was for and what it did. Australia ran the boldest version — Slip, Slop, Slap — and melanoma trends in younger cohorts bent the right way. A public-health message has to survive contact with millions of ordinary people, which means it has to be simple: "don't burn, cover up, wear sunscreen" is a rule a parent can actually apply at a beach. The downside is genuinely small — worst case, take a cheap vitamin D pill. Now weigh the alternative the critics offer: "calculate your personal non-burning dose by skin type, latitude, and season." That's not advice, it's a homework assignment, and in practice it becomes a permission slip to tan that the tanning industry will happily amplify. The nuance is real in a seminar and dangerous on a billboard. Keep the rule; treat the exceptions in the clinic.</p>
+      </div>
+      <div class="steel s-made">
+        <div class="side">▸ the specialist optimized its own organ</div>
+        <div class="pos-name">One organ's experts wrote the whole body's rule</div>
+        <div class="gist">Dermatology was handed a whole-body question and answered it for the skin, because that's the endpoint it sees, funds, and is measured on. A rule that ignores latitude, skin color, and the rest of the body was overfit from the start.</div>
+        <p>Notice who wrote the advice and what they're accountable for. Dermatologists are judged on skin-cancer rates, not on blood pressure or all-cause mortality — so naturally they minimized the variable they own and discounted the columns they don't. That's not corruption; it's specialization doing what specialization does, and it's exactly why a single organ's guild shouldn't set a whole-body policy alone. The one-rule-for-everyone framing then papers over enormous variation: it tells a dark-skinned person at high latitude — at real risk of deficiency and at low melanoma risk — the same thing it tells a redhead in Queensland. Holick was pushed out of a dermatology chair for saying so. When the field's response to internal dissent is to remove the dissenter, that's a signal the rule is being defended as turf, not just as science. A whole-body question deserves a whole-body panel.</p>
+      </div>
+    </div>
+    <div class="crux-key">
+      <span class="lab">the crux</span>
+      <span class="txt">Is blanket avoidance advice <b>good public health under uncertainty</b>, or a <b>specialty overfitting</b> a whole-body question to the skin? <span class="same-tag">↳ this one runs crossways — it's about how much to trust the advice-givers before any single study is weighed.</span></span>
+    </div>
+    <div class="crux-cede">
+      <span class="lab">what would move them</span>
+      <div class="cede">
+        <p class="c-found"><b>The shade-it side concedes if</b> the net systemic harm of blanket avoidance is shown to exceed the skin-cancer it prevents, so the simple rule does more harm than good.</p>
+        <p class="c-made"><b>The seek-it side concedes if</b> personalized dosing proves unworkable or dangerous at population scale, making a simple protective default the better public-health bet even if it's imperfect.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ IV. PAYOFF ============================ -->
+<section class="wrap fault-sec">
+  <div class="sec-head">
+    <div class="eyebrow"><span class="sec-num">IV</span> &nbsp;the payoff</div>
+  </div>
+
+  <div class="fault-card reveal">
+    <h3 class="fault-lead ser">Four cruxes, <em>two questions</em> underneath</h3>
+    <p class="fault-intro">Most of the disagreement sorts onto two axes. The horizontal asks the verdict: shade the sun, or seek it. The vertical asks something prior — which endpoint counts, the skin alone or the whole body. Plot the camps and the field stops looking like one argument. It looks like people standing on different squares, often answering a question their opponent never asked: a dermatologist counting skin and a cardiologist counting deaths can both be right and still disagree forever.</p>
+
+    <svg class="diagram" viewBox="0 0 980 600" role="img" aria-labelledby="dg-t dg-d">
+      <title id="dg-t">Two crossed questions under the sun-exposure debate</title>
+      <desc id="dg-d">A grid with two axes. The horizontal axis runs from "shade the sun" on the left to "seek the sun" on the right. The vertical axis runs from "the skin is the endpoint that counts" at the top to "the whole body is the endpoint that counts" at the bottom. Positions are plotted as points: the photoprotection consensus and melanoma-first dermatology in the upper left; the photoaging camp in the upper left; vitamin D advocates on the right at mid-height; the nitric-oxide cardiovascular camp and the Lindqvist sun-avoidance cohort in the lower right; the circadian-light camp on the right, lower; and the dose-and-skin-type pivot at the center, marked as rejecting the framing.</desc>
+      <defs>
+        <linearGradient id="axisgrad" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0" stop-color="#6dbaa4"/>
+          <stop offset="0.5" stop-color="#6e6b78"/>
+          <stop offset="1" stop-color="#d8a652"/>
+        </linearGradient>
+      </defs>
+
+      <!-- vertical axis: the endpoint -->
+      <line x1="490" y1="80" x2="490" y2="500" stroke="#34384a" stroke-width="2"/>
+      <!-- horizontal axis: the verdict -->
+      <line x1="110" y1="290" x2="870" y2="290" stroke="url(#axisgrad)" stroke-width="6" stroke-linecap="round"/>
+      <circle cx="110" cy="290" r="7" fill="#6dbaa4"/>
+      <circle cx="870" cy="290" r="7" fill="#d8a652"/>
+
+      <!-- axis labels -->
+      <text x="110" y="322" fill="#6dbaa4" font-family="'IBM Plex Mono',monospace" font-size="15">shade the sun</text>
+      <text x="870" y="322" fill="#d8a652" font-family="'IBM Plex Mono',monospace" font-size="15" text-anchor="end">seek the sun</text>
+      <text x="490" y="56" fill="#a6a394" font-family="'IBM Plex Mono',monospace" font-size="13.5" text-anchor="middle">the skin is the endpoint that counts</text>
+      <text x="490" y="528" fill="#a6a394" font-family="'IBM Plex Mono',monospace" font-size="13.5" text-anchor="middle">the whole body is the endpoint that counts</text>
+
+      <!-- plotted positions (rows staggered so no two labels share a line) -->
+      <!-- upper-left: shade + skin endpoint -->
+      <circle cx="300" cy="140" r="6" fill="#6dbaa4"/>
+      <text x="316" y="145" fill="#ebe5d6" font-family="'IBM Plex Sans',sans-serif" font-size="14.5">Photoprotection consensus · AAD/IARC</text>
+
+      <!-- upper-left, distinct row: melanoma-first clinicians -->
+      <circle cx="356" cy="200" r="6" fill="#6dbaa4"/>
+      <text x="372" y="205" fill="#ebe5d6" font-family="'IBM Plex Sans',sans-serif" font-size="14.5">Melanoma-first dermatology</text>
+
+      <!-- upper-left, higher: photoaging -->
+      <circle cx="260" cy="238" r="6" fill="#6dbaa4"/>
+      <text x="276" y="243" fill="#ebe5d6" font-family="'IBM Plex Sans',sans-serif" font-size="14.5">Photoaging / cosmetic case</text>
+
+      <!-- right, mid-height: vitamin D advocates -->
+      <circle cx="712" cy="230" r="6" fill="#d8a652"/>
+      <text x="697" y="235" fill="#ebe5d6" font-family="'IBM Plex Sans',sans-serif" font-size="14.5" text-anchor="end">Vitamin D advocates · Holick</text>
+
+      <!-- the pivot: center, rejects the framing -->
+      <circle cx="490" cy="318" r="8" fill="#a195bd" stroke="#171922" stroke-width="2"/>
+      <text x="506" y="313" fill="#a195bd" font-family="'IBM Plex Sans',sans-serif" font-size="14.5" font-style="italic">Dose &amp; skin-type pivot · “it depends”</text>
+      <text x="506" y="332" fill="#a195bd" font-family="'IBM Plex Mono',monospace" font-size="11">denies one rule fits every body</text>
+
+      <!-- lower-right: nitric oxide / cardiovascular -->
+      <circle cx="720" cy="410" r="6" fill="#d8a652"/>
+      <text x="705" y="415" fill="#ebe5d6" font-family="'IBM Plex Sans',sans-serif" font-size="14.5" text-anchor="end">Nitric-oxide / cardiovascular · Weller</text>
+
+      <!-- lower-right, distinct row: Lindqvist mortality cohort -->
+      <circle cx="656" cy="452" r="6" fill="#d8a652"/>
+      <text x="641" y="457" fill="#ebe5d6" font-family="'IBM Plex Sans',sans-serif" font-size="14.5" text-anchor="end">Sun-avoidance-as-risk · Lindqvist</text>
+
+      <!-- right, lower: circadian light -->
+      <circle cx="756" cy="356" r="6" fill="#d8a652"/>
+      <text x="741" y="361" fill="#ebe5d6" font-family="'IBM Plex Sans',sans-serif" font-size="14.5" text-anchor="end">Circadian / light-environment</text>
+    </svg>
+
+    <div class="fault-restate">
+      <div class="fr-item f1"><div class="fr-n">Crux 01 · the ledger</div><div class="fr-t ser">Net harm or net help</div><p>Total the columns over skin or over the whole body. The vertical axis, asked of the sum.</p></div>
+      <div class="fr-item f2"><div class="fr-n">Crux 04 · the advice</div><div class="fr-t ser">Trust the rule?</div><p>The question under the vertical axis. Whether to credit a whole-body policy written by the skin's specialty.</p></div>
+      <div class="fr-item f3"><div class="fr-n">Crux 02 · the mechanism</div><div class="fr-t ser">Vitamin, or the light</div><p>Is the benefit a molecule a pill can copy, or something only sunlight does. The horizontal verdict, judged by mechanism.</p></div>
+      <div class="fr-item f4"><div class="fr-n">Crux 03 · the confounder</div><div class="fr-t ser">Photon or person</div><p>Does the mortality gap survive who seeks the sun. The horizontal verdict, judged by causal inference.</p></div>
+    </div>
+
+    <p class="fault-close ser">Find your own hinge. Most of the disagreement is downstream of two things — whether you count the <span class="ax">skin or the whole body</span>, and whether the good the sun does is <span class="mk">a molecule you can bottle or a dose you have to stand in</span>. Locate which one is doing the work for you, and you'll usually find the other person standing on the other axis.</p>
+  </div>
+</section>
+
+<!-- ============================ V. GO DEEPER ============================ -->
+<section class="wrap">
+  <div class="sec-head">
+    <div class="eyebrow"><span class="sec-num">V</span> &nbsp;go deeper</div>
+    <h2 class="ser">Where to take it next</h2>
+    <p>A few ways in, grouped by side and medium. Papers are listed by author, title, and year; the web links were checked.</p>
+  </div>
+
+  <div class="shelf reveal">
+    <div class="shelf-col">
+      <h4>Overview</h4>
+      <div class="res">
+        <div class="t"><a href="https://en.wikipedia.org/wiki/Health_effects_of_sunlight_exposure">Health effects of sunlight exposure</a></div>
+        <div class="by">Wikipedia</div>
+        <div class="why">The least partisan one-stop summary, with both the harms and the benefits laid out side by side.</div>
+      </div>
+      <div class="res">
+        <div class="t"><a href="https://en.wikipedia.org/wiki/Ultraviolet">Ultraviolet</a></div>
+        <div class="by">Wikipedia</div>
+        <div class="why">What UVA and UVB actually are and do — the physics under the whole fight.</div>
+      </div>
+      <div class="res">
+        <div class="t"><a href="https://en.wikipedia.org/wiki/Sunburn">Sunburn</a></div>
+        <div class="by">Wikipedia</div>
+        <div class="why">The acute injury at the center of the risk — and the thing the "dose" hinge says actually matters.</div>
+      </div>
+      <div class="res">
+        <div class="t"><a href="https://en.wikipedia.org/wiki/Fitzpatrick_scale">Fitzpatrick scale</a></div>
+        <div class="by">Wikipedia</div>
+        <div class="why">The skin-type classification that makes "one rule for everyone" untenable.</div>
+      </div>
+    </div>
+
+    <div class="shelf-col">
+      <h4>The shade-it case</h4>
+      <div class="res">
+        <div class="t"><a href="https://www.aad.org/public/everyday-care/sun-protection/sunscreen-patients/sunscreen-faqs">Sunscreen FAQs</a></div>
+        <div class="by">American Academy of Dermatology</div>
+        <div class="why">The photoprotection guideline straight from the body that holds it.</div>
+      </div>
+      <div class="res">
+        <div class="t"><a href="https://en.wikipedia.org/wiki/Melanoma">Melanoma</a></div>
+        <div class="by">Wikipedia</div>
+        <div class="why">The deadly cancer that anchors the harm side — its UV link, and why fair skin and burning matter most.</div>
+      </div>
+      <div class="res">
+        <div class="t"><a href="https://en.wikipedia.org/wiki/Indoor_tanning">Indoor tanning</a></div>
+        <div class="by">Wikipedia</div>
+        <div class="why">The Group 1 carcinogen classification and the clearest case where "seek UV" is simply wrong.</div>
+      </div>
+      <div class="res">
+        <div class="t"><a href="https://en.wikipedia.org/wiki/Photoaging">Photoaging</a></div>
+        <div class="by">Wikipedia</div>
+        <div class="why">The cosmetic case: how much of "aging" skin is really cumulative sun.</div>
+      </div>
+    </div>
+
+    <div class="shelf-col">
+      <h4>The seek-it case</h4>
+      <div class="res">
+        <div class="t"><a href="https://en.wikipedia.org/wiki/Michael_F._Holick">Michael F. Holick</a></div>
+        <div class="by">Wikipedia</div>
+        <div class="why">The endocrinologist whose sensible-sun dissent split from dermatology; <em>The UV Advantage</em> (2004) is its book-length form.</div>
+      </div>
+      <div class="res">
+        <div class="t"><a href="https://www.ted.com/talks/richard_weller_could_the_sun_be_good_for_your_heart">Could the sun be good for your heart?</a></div>
+        <div class="by">Richard Weller · TED</div>
+        <div class="why">The nitric-oxide, blood-pressure argument from the dermatologist who found it — the benefit a pill can't copy.</div>
+      </div>
+      <div class="res">
+        <div class="t"><a href="https://en.wikipedia.org/wiki/Circadian_rhythm">Circadian rhythm</a></div>
+        <div class="by">Wikipedia</div>
+        <div class="why">Why daytime light timing — not UV dose — may be the deficiency of an indoor life.</div>
+      </div>
+      <div class="res">
+        <div class="t"><a href="https://en.wikipedia.org/wiki/Vitamin_D_deficiency">Vitamin D deficiency</a></div>
+        <div class="by">Wikipedia</div>
+        <div class="why">The condition the sun once solved, and the marker at the heart of Crux 02.</div>
+      </div>
+    </div>
+
+    <div class="shelf-col">
+      <h4>Key papers &amp; sources</h4>
+      <div class="res">
+        <div class="t"><a href="https://pubmed.ncbi.nlm.nih.gov/26992108/">Avoidance of sun exposure as a risk factor for major causes of death</a></div>
+        <div class="by">Lindqvist et al. · J. Internal Medicine · 2016</div>
+        <div class="why">The Swedish cohort centerpiece: avoiders died earlier, an effect the authors compare to smoking.</div>
+      </div>
+      <div class="res">
+        <div class="t">Sunlight has cardiovascular benefits independently of vitamin D</div>
+        <div class="by">Weller · Blood Purification / J. Invest. Dermatology · 2014–16</div>
+        <div class="why">The nitric-oxide mechanism — the reason a null vitamin-D trial doesn't refute the sun.</div>
+      </div>
+      <div class="res">
+        <div class="t">Vitamin D Supplements and Prevention of Cancer and Cardiovascular Disease (VITAL)</div>
+        <div class="by">Manson et al. · New England J. Medicine · 2019</div>
+        <div class="why">The big randomized trial where the vitamin-as-pill largely failed — Crux 02's pivot point.</div>
+      </div>
+      <div class="res">
+        <div class="t"><a href="https://en.wikipedia.org/wiki/Heliotherapy">Heliotherapy</a></div>
+        <div class="by">Wikipedia</div>
+        <div class="why">The era when the sun was prescribed medicine — and where Rollier's "never burn" dose rule comes from.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ FOOTER ============================ -->
+<footer class="wrap">
+  <p class="foot-note"><b>On these summaries.</b> This is an educational map of a live scientific debate, not medical advice — for what's right for your skin, your latitude, and your health, talk to a clinician who knows them. Two things in this map are not really in dispute and shouldn't be read as "up for grabs": UV causes skin cancer, and tanning beds and sunburns are best avoided. The open questions are about the systemic ledger, the mechanism, and the one-size advice. Each steelman is compressed; the real arguments run to trials and books, and a card or a panel is a doorway, not the room. Dates mark a representative moment, not the first time anyone raised the point. Because the science is still moving, specifics here will age. The two-pole axis is a lens for seeing structure, useful precisely because it simplifies, and untrue to any view that won't sit on a line — which is what the lilac hinge is there to flag.</p>
+  <div class="foot-links">
+    <a href="/debates">← All thought pages</a>
+    <a href="/">brooker.family</a>
+  </div>
+</footer>
+
+<script>
+(function(){
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var items = document.querySelectorAll('.reveal');
+  if(reduce || !('IntersectionObserver' in window)){
+    items.forEach(function(el){ el.classList.add('in'); });
+    return;
+  }
+  var io = new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); }
+    });
+  }, {threshold:0.12, rootMargin:'0px 0px -8% 0px'});
+  items.forEach(function(el){ io.observe(el); });
+})();
+</script>
+</body>
+</html>
