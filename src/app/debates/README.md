@@ -24,7 +24,7 @@ is adapted for **brooker.family** and how to add a new map.
 | Old `/vaccine-debate` URL | redirects to `/debates/vaccines.html` |
 
 Current maps: `god`, `morality`, `vaccines`, `covid-vaccines`, `us-iran`,
-`ai-data-centers`, `saturated-fat`, `sun-exposure`, `venezuela`.
+`ai-data-centers`, `saturated-fat`, `sun-exposure`, `venezuela`, `milk-mucus`.
 
 `venezuela` is a rise-and-fall history as well as a debate: its lineage section
 carries the boom-and-bust narrative, and the two-pole axis runs *ruined from

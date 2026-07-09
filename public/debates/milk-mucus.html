@@ -1,0 +1,819 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- Field map: milk & mucus -->
+<title>Milk &amp; mucus: does dairy thicken congestion, or just feel like it? — a map of the milk-mucus debate</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,500&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#171922; --ink-2:#1e212c; --card:#23273380; --card-solid:#232734;
+    --line:#34384a; --line-soft:#2a2e3b;
+    --bone:#ebe5d6; --mute:#a6a394; --faint:#807e8a;
+    /* found = pole A (verdigris) · made = pole B (ochre) · pivot = the reconciling hinge (lilac).
+       Rename the *concepts* in your prose, but keep these three colors as the axis. */
+    --found:#6dbaa4; --found-deep:#2f6657; --found-glow:#6dbaa422;
+    --made:#d8a652; --made-deep:#7d5f29; --made-glow:#d8a65222;
+    --pivot:#a195bd; --pivot-glow:#a195bd1f;
+    /* third camp (slate-blue) — only for genuinely ternary debates; see SKILL.md */
+    --camp-c:#6f93c4; --camp-c-deep:#33506f; --camp-c-glow:#6f93c41f;
+    --maxw:1180px;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0; background:var(--ink); color:var(--bone);
+    font-family:"IBM Plex Sans",sans-serif; font-weight:400;
+    line-height:1.62; font-size:17px;
+    -webkit-font-smoothing:antialiased;
+    background-image:
+      radial-gradient(900px 600px at 82% -8%, #20243340, transparent 70%),
+      radial-gradient(700px 500px at 5% 18%, #1d212e55, transparent 70%);
+    background-attachment:fixed;
+  }
+  .wrap{max-width:var(--maxw); margin:0 auto; padding:0 26px;}
+  .mono{font-family:"IBM Plex Mono",monospace;}
+  .ser{font-family:"Fraunces",serif;}
+
+  /* ---------- eyebrows / dividers ---------- */
+  .eyebrow{
+    font-family:"IBM Plex Mono",monospace; font-size:12px; font-weight:500;
+    letter-spacing:.22em; text-transform:uppercase; color:var(--faint);
+    display:flex; align-items:center; gap:14px;
+  }
+  .eyebrow::before{content:""; width:30px; height:1px; background:var(--line); display:inline-block;}
+  .sec-num{color:var(--mute);}
+
+  /* ---------- brooker site tie (added for brooker.family/debates) ---------- */
+  .site-tie{
+    font-family:"IBM Plex Mono",monospace; font-size:12px; letter-spacing:.2em;
+    text-transform:uppercase; color:var(--faint); text-decoration:none;
+    display:inline-flex; align-items:center; gap:9px; margin:0 0 30px;
+    transition:color .2s;
+  }
+  .site-tie::before{content:""; width:22px; height:1px; background:var(--line); display:inline-block;}
+  .site-tie:hover{color:var(--bone);}
+  .foot-links{margin-top:22px; display:flex; gap:24px; flex-wrap:wrap;}
+  .foot-links a{
+    font-family:"IBM Plex Mono",monospace; font-size:11.5px; letter-spacing:.16em;
+    text-transform:uppercase; color:var(--mute); text-decoration:none;
+    border-bottom:1px solid var(--line); padding-bottom:2px;
+  }
+  .foot-links a:hover{color:var(--bone); border-bottom-color:var(--mute);}
+
+  /* ---------- header ---------- */
+  header{padding:clamp(56px,10vw,116px) 0 clamp(40px,7vw,80px);}
+  .kicker{
+    font-family:"IBM Plex Mono",monospace; font-size:12.5px; letter-spacing:.26em;
+    text-transform:uppercase; color:var(--faint); margin:0 0 26px;
+  }
+  h1.title{
+    font-family:"Fraunces",serif; font-weight:400; font-optical-sizing:auto;
+    font-size:clamp(2.5rem,6.4vw,4.7rem); line-height:1.02; letter-spacing:-.012em;
+    margin:0; max-width:16ch;
+  }
+  h1.title em{font-style:italic; color:var(--found);}
+  h1.title .mk{font-style:italic; color:var(--made);}
+  .dek{
+    font-size:clamp(1.05rem,2.1vw,1.35rem); color:var(--mute); line-height:1.5;
+    max-width:47ch; margin:30px 0 0; font-weight:400;
+  }
+  .dek b{color:var(--bone); font-weight:500;}
+
+  /* ---------- axis legend ---------- */
+  .legend{
+    margin-top:46px; border:1px solid var(--line-soft); border-radius:14px;
+    background:linear-gradient(100deg,#1c202c,#1a1e29);
+    padding:22px 24px; display:grid; gap:14px;
+  }
+  .legend-top{font-family:"IBM Plex Mono",monospace; font-size:11.5px; letter-spacing:.2em; text-transform:uppercase; color:var(--faint);}
+  .axis-bar{
+    height:7px; border-radius:6px;
+    background:linear-gradient(90deg,var(--found) 0%, #6e6b78 50%, var(--made) 100%);
+  }
+  .axis-ends{display:flex; justify-content:space-between; gap:16px; font-size:14.5px;}
+  .axis-ends .ax-found{color:var(--found);}
+  .axis-ends .ax-made{color:var(--made); text-align:right;}
+  .axis-ends span b{display:block; font-weight:600; font-size:15px; margin-bottom:1px;}
+  .axis-ends span small{color:var(--faint); font-size:12.5px; letter-spacing:.02em;}
+
+  /* ---------- section frame ---------- */
+  section{padding:clamp(54px,8vw,96px) 0;}
+  .sec-head{margin-bottom:42px;}
+  .sec-head h2{
+    font-family:"Fraunces",serif; font-weight:400; font-size:clamp(1.9rem,4vw,2.9rem);
+    line-height:1.06; letter-spacing:-.01em; margin:18px 0 0; max-width:24ch;
+  }
+  .sec-head p{color:var(--mute); max-width:62ch; margin:16px 0 0; font-size:1.02rem;}
+
+  /* ===== I. LINEAGE (timeline) ===== */
+  .lineage{position:relative;}
+  .spine{
+    position:absolute; left:140px; top:6px; bottom:6px; width:2px;
+    background:linear-gradient(var(--found-deep),var(--line),var(--made-deep));
+  }
+  .node{position:relative; padding:0 0 26px 172px; min-height:30px;}
+  .node .yr{
+    position:absolute; left:0; top:1px; width:118px; text-align:right;
+    font-family:"IBM Plex Mono",monospace; font-size:12.5px; color:var(--faint);
+    letter-spacing:.02em; padding-top:2px;
+  }
+  .node .dot{
+    position:absolute; left:134px; top:6px; width:14px; height:14px; border-radius:50%;
+    background:var(--ink); border:2px solid var(--mute); z-index:2;
+  }
+  .node.found .dot{border-color:var(--found); box-shadow:0 0 0 4px var(--found-glow);}
+  .node.made .dot{border-color:var(--made); box-shadow:0 0 0 4px var(--made-glow);}
+  .node.pivot .dot{border-color:var(--pivot); box-shadow:0 0 0 4px var(--pivot-glow);}
+  .node .who{font-family:"Fraunces",serif; font-size:1.24rem; font-weight:500; line-height:1.15; letter-spacing:-.005em;}
+  .node .dom{font-family:"IBM Plex Mono",monospace; font-size:10.5px; letter-spacing:.16em; text-transform:uppercase; margin-left:10px; color:var(--faint); vertical-align:middle;}
+  .node .say{color:var(--mute); font-size:.99rem; margin-top:4px; max-width:64ch;}
+  .node.camp-c .dot{border-color:var(--camp-c); box-shadow:0 0 0 4px var(--camp-c-glow);}
+  .node.found .who{color:var(--found);}
+  .node.made .who{color:var(--made);}
+  .node.pivot .who{color:var(--pivot);}
+  .node.camp-c .who{color:var(--camp-c);}
+  .lineage-tail{padding-left:172px; margin-top:2px;}
+  .lineage-tail .pin{
+    position:relative; padding:16px 20px; border:1px dashed var(--line);
+    border-radius:12px; background:#1b1f2a; max-width:60ch;
+  }
+  .lineage-tail .pin b{font-family:"Fraunces",serif; font-weight:500; font-size:1.05rem;}
+  .lineage-tail .pin p{margin:5px 0 0; color:var(--mute); font-size:.96rem;}
+
+  /* ===== II. POSITIONS (field guide) ===== */
+  .fields{display:grid; grid-template-columns:1fr 1fr; gap:30px;}
+  .field h3{
+    font-family:"IBM Plex Mono",monospace; font-size:12.5px; letter-spacing:.2em;
+    text-transform:uppercase; color:var(--bone); margin:0 0 18px; padding-bottom:12px;
+    border-bottom:1px solid var(--line); display:flex; justify-content:space-between; align-items:baseline;
+  }
+  .field h3 small{color:var(--faint); letter-spacing:.12em; font-weight:400;}
+  .pos{
+    border:1px solid var(--line-soft); border-left:3px solid var(--line);
+    border-radius:0 11px 11px 0; background:var(--card);
+    padding:16px 18px; margin-bottom:13px; transition:border-color .25s, background .25s, transform .25s;
+  }
+  .pos.found{border-left-color:var(--found);}
+  .pos.made{border-left-color:var(--made);}
+  .pos.pivot{border-left-color:var(--pivot);}
+  .pos.camp-c{border-left-color:var(--camp-c);}
+  .pos:hover{transform:translateX(3px); background:var(--card-solid);}
+  .pos .nm{font-family:"Fraunces",serif; font-weight:600; font-size:1.16rem; letter-spacing:-.005em; display:flex; align-items:baseline; gap:10px; flex-wrap:wrap;}
+  .pos.found .nm{color:var(--found);} .pos.made .nm{color:var(--made);} .pos.pivot .nm{color:var(--pivot);} .pos.camp-c .nm{color:var(--camp-c);}
+  /* go-deeper links on a card or in the shelf */
+  .src-links{margin-top:9px; display:flex; flex-wrap:wrap; gap:6px 14px;}
+  .src-links a{font-family:"IBM Plex Mono",monospace; font-size:11.5px; color:var(--mute); text-decoration:none; border-bottom:1px solid var(--line);}
+  .src-links a:hover{color:var(--bone); border-bottom-color:var(--mute);}
+  .src-links a::after{content:" ↗"; color:var(--faint);}
+  .traction{
+    font-family:"IBM Plex Mono",monospace; font-size:10px; letter-spacing:.08em; text-transform:uppercase;
+    color:var(--faint); border:1px solid var(--line); border-radius:20px; padding:2px 9px; white-space:nowrap;
+  }
+  .pos .figs{font-family:"IBM Plex Mono",monospace; font-size:12px; color:var(--mute); margin:7px 0 7px; letter-spacing:.01em;}
+  .pos .claim{color:var(--bone); font-size:.97rem; line-height:1.5;}
+  .pos .nb{display:block; margin-top:7px; color:var(--faint); font-size:.85rem; font-style:italic;}
+  .pivot-card{
+    grid-column:1/-1; border:1px solid var(--pivot); border-radius:13px;
+    background:linear-gradient(100deg,#211f2c,#1c1b25); padding:20px 22px; margin-top:4px;
+    display:flex; gap:18px; align-items:flex-start; flex-wrap:wrap;
+  }
+  .pivot-card .pv-tag{font-family:"IBM Plex Mono",monospace; font-size:11px; letter-spacing:.2em; text-transform:uppercase; color:var(--pivot); white-space:nowrap; padding-top:5px;}
+  .pivot-card .pv-body{flex:1 1 320px;}
+  .pivot-card .pv-body b{font-family:"Fraunces",serif; font-weight:600; font-size:1.2rem; color:var(--pivot);}
+  .pivot-card .pv-body p{margin:6px 0 0; color:var(--bone); font-size:.98rem;}
+  .traction-note{margin-top:20px; color:var(--faint); font-size:.84rem; font-style:italic; max-width:70ch; display:flex; gap:9px;}
+  .traction-note::before{content:"※"; color:var(--mute); font-style:normal;}
+
+  /* ===== III. CRUXES (confrontations) ===== */
+  .crux{border:1px solid var(--line-soft); border-radius:18px; overflow:hidden; margin-bottom:30px; background:#191d28;}
+  .crux-head{padding:24px 28px 20px; border-bottom:1px solid var(--line-soft);}
+  .crux-meta{display:flex; justify-content:space-between; gap:14px; align-items:baseline; flex-wrap:wrap; margin-bottom:12px;}
+  .crux-n{font-family:"IBM Plex Mono",monospace; font-size:13px; letter-spacing:.18em; color:var(--mute);}
+  .crux-dom{font-family:"IBM Plex Mono",monospace; font-size:10.5px; letter-spacing:.16em; text-transform:uppercase; color:var(--ink); background:var(--mute); padding:3px 10px; border-radius:20px;}
+  .crux-dom.both{background:var(--pivot);}
+  .crux-q{font-family:"Fraunces",serif; font-weight:500; font-size:clamp(1.4rem,3vw,2rem); line-height:1.12; letter-spacing:-.01em; margin:0;}
+  .crux-sub{color:var(--mute); margin:9px 0 0; font-size:.98rem;}
+  .steels{display:grid; grid-template-columns:1fr 1fr; gap:0;}
+  .steel{padding:24px 28px; position:relative;}
+  .steel.s-found{background:linear-gradient(180deg,#1a2420,#191f1d);}
+  .steel.s-made{background:linear-gradient(180deg,#241f17,#1f1c16); border-left:1px solid var(--line-soft);}
+  .steel .side{font-family:"IBM Plex Mono",monospace; font-size:11px; letter-spacing:.14em; text-transform:uppercase; margin-bottom:5px;}
+  .steel.s-found .side{color:var(--found);}
+  .steel.s-made .side{color:var(--made);}
+  .steel .pos-name{font-family:"Fraunces",serif; font-weight:600; font-size:1.12rem; margin-bottom:9px; line-height:1.2;}
+  .steel.s-found .pos-name{color:var(--found);}
+  .steel.s-made .pos-name{color:var(--made);}
+  .steel .gist{font-weight:600; font-size:1.04rem; line-height:1.45; color:var(--bone); margin:0 0 13px; padding-bottom:13px; border-bottom:1px dashed var(--line);}
+  .steel .gist::before{content:"In plain terms"; display:block; font-family:"IBM Plex Mono",monospace; font-size:10px; font-weight:500; letter-spacing:.18em; text-transform:uppercase; color:var(--faint); margin-bottom:5px;}
+  .steel p{margin:0; font-size:.97rem; line-height:1.56; color:#e2dccd;}
+  .steel p em{font-style:italic; color:var(--bone);}
+  .crux-key{padding:18px 28px; background:#13161f; border-top:1px solid var(--line-soft); display:flex; gap:14px; align-items:flex-start;}
+  .crux-key .lab{font-family:"IBM Plex Mono",monospace; font-size:11px; letter-spacing:.16em; text-transform:uppercase; color:var(--faint); padding-top:3px; white-space:nowrap;}
+  .crux-key .txt{font-size:.99rem; color:var(--bone); line-height:1.5;}
+  .crux-key .txt b{font-weight:600;}
+  .same-tag{display:inline-block; margin-top:9px; font-family:"IBM Plex Mono",monospace; font-size:11px; letter-spacing:.08em; color:var(--pivot); border:1px solid var(--pivot); border-radius:20px; padding:3px 11px;}
+
+  /* ===== IV. PAYOFF ===== */
+  .fault-sec{background:linear-gradient(180deg,transparent, #13161f 30%, #13161f 70%, transparent);}
+  .fault-card{border:1px solid var(--line); border-radius:20px; background:#171b25; padding:clamp(24px,4vw,44px); box-shadow:0 30px 80px -50px #000;}
+  .fault-lead{font-family:"Fraunces",serif; font-weight:400; font-size:clamp(1.5rem,3.3vw,2.3rem); line-height:1.18; letter-spacing:-.01em; margin:0 0 8px; max-width:26ch;}
+  .fault-lead em{font-style:italic; color:var(--pivot);}
+  .fault-intro{color:var(--mute); max-width:64ch; margin:0 0 30px; font-size:1.02rem;}
+  .diagram{width:100%; height:auto; display:block; margin:6px 0 4px; overflow:visible;}
+  .fault-restate{display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:18px; margin-top:34px;}
+  .fr-item{border-top:2px solid var(--line); padding-top:13px;}
+  .fr-item.f1{border-top-color:var(--made);}
+  .fr-item.f2{border-top-color:var(--pivot);}
+  .fr-item.f3{border-top-color:var(--found);}
+  .fr-item.f4{border-top-color:var(--made);}
+  .fr-item .fr-n{font-family:"IBM Plex Mono",monospace; font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--faint);}
+  .fr-item .fr-t{font-family:"Fraunces",serif; font-weight:500; font-size:1.05rem; margin:4px 0 5px;}
+  .fr-item p{margin:0; font-size:.92rem; color:var(--mute); line-height:1.5;}
+  .fault-close{margin-top:36px; padding-top:26px; border-top:1px solid var(--line); font-family:"Fraunces",serif; font-style:italic; font-weight:400; font-size:clamp(1.15rem,2.4vw,1.5rem); line-height:1.35; color:var(--bone); max-width:44ch;}
+  .fault-close .ax{color:var(--found);}
+  .fault-close .mk{color:var(--made);}
+
+  /* ===== V. GO DEEPER (resources shelf) ===== */
+  .shelf{display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:24px;}
+  .shelf-col h4{font-family:"IBM Plex Mono",monospace; font-size:12px; letter-spacing:.18em; text-transform:uppercase; color:var(--mute); margin:0 0 14px; padding-bottom:10px; border-bottom:1px solid var(--line);}
+  .res{margin-bottom:15px;}
+  .res .t{font-family:"Fraunces",serif; font-weight:500; font-size:1.04rem; line-height:1.25;}
+  .res .t a{color:var(--bone); text-decoration:none; border-bottom:1px solid var(--line);}
+  .res .t a:hover{border-bottom-color:var(--mute);}
+  .res .by{font-family:"IBM Plex Mono",monospace; font-size:11.5px; color:var(--faint); margin-top:1px;}
+  .res .why{color:var(--mute); font-size:.9rem; margin-top:4px; line-height:1.45;}
+
+  /* ---------- footer ---------- */
+  footer{padding:54px 0 80px; border-top:1px solid var(--line-soft); margin-top:30px;}
+  .foot-note{color:var(--faint); font-size:.86rem; max-width:66ch; line-height:1.55;}
+  .foot-note b{color:var(--mute); font-weight:500;}
+
+  /* ---------- what would move them (per-crux concessions) ---------- */
+  .crux-cede{padding:16px 28px 22px; background:#13161f; border-top:1px solid var(--line-soft); display:flex; gap:14px; align-items:flex-start; flex-wrap:wrap;}
+  .crux-cede .lab{font-family:"IBM Plex Mono",monospace; font-size:11px; letter-spacing:.16em; text-transform:uppercase; color:var(--faint); padding-top:3px; white-space:nowrap;}
+  .crux-cede .cede{flex:1 1 320px; display:grid; gap:9px;}
+  .crux-cede .cede p{margin:0; font-size:.92rem; line-height:1.5; color:var(--mute); padding-left:13px; border-left:2px solid var(--line);}
+  .crux-cede .cede .c-found{border-left-color:var(--found);}
+  .crux-cede .cede .c-made{border-left-color:var(--made);}
+  .crux-cede .cede b{display:block; margin-bottom:1px; font-family:"IBM Plex Mono",monospace; font-size:10.5px; letter-spacing:.05em; text-transform:uppercase; font-weight:600; color:var(--bone);}
+  /* ---------- pole lean tag (colour-independent position marker) ---------- */
+  .pos .nm .lean{font-family:"IBM Plex Mono",monospace; font-size:9.5px; letter-spacing:.08em; text-transform:uppercase; color:var(--faint); border:1px solid var(--line); border-radius:4px; padding:1px 6px; white-space:nowrap; align-self:center; font-weight:500;}
+  .pos.found .nm .lean{color:var(--found); border-color:var(--found-deep);}
+  .pos.made .nm .lean{color:var(--made); border-color:var(--made-deep);}
+  .pos.pivot .nm .lean{color:var(--pivot); border-color:var(--pivot);}
+  .pos.camp-c .nm .lean{color:var(--camp-c); border-color:var(--camp-c-deep);}
+  /* ---------- reveal ---------- */
+  .reveal{opacity:0; transform:translateY(16px); transition:opacity .7s ease, transform .7s ease;}
+  .reveal.in{opacity:1; transform:none;}
+
+  :focus-visible{outline:2px solid var(--found); outline-offset:3px; border-radius:3px;}
+
+  /* ---------- responsive ---------- */
+  @media (max-width:760px){
+    body{font-size:16px;}
+    .fields{grid-template-columns:1fr;}
+    .steels{grid-template-columns:1fr;}
+    .steel.s-made{border-left:none; border-top:1px solid var(--line-soft);}
+    .spine{left:84px;}
+    .node{padding-left:112px;}
+    .node .yr{width:64px;}
+    .node .dot{left:78px;}
+    .lineage-tail{padding-left:112px;}
+    .axis-ends{flex-direction:column; gap:10px;}
+    .axis-ends .ax-made{text-align:left;}
+  }
+  @media (prefers-reduced-motion:reduce){
+    *{scroll-behavior:auto;}
+    .reveal{opacity:1; transform:none; transition:none;}
+    .draw{stroke-dashoffset:0 !important;}
+  }
+</style>
+</head>
+<body>
+
+<!-- ============================ HEADER ============================ -->
+<header class="wrap">
+  <a class="site-tie" href="/debates">All thought pages · brooker</a>
+  <p class="kicker">FIELD · respiratory physiology, sensory science &amp; folk medicine</p>
+  <h1 class="title">Milk &amp; mucus: does dairy <em>thicken congestion</em>, or just <span class="mk">feel like it</span>?</h1>
+  <p class="dek">An 800-year-old warning — Maimonides to Dr. Spock — meets the blinded challenge trials. A dozen positions on whether a glass of milk worsens a stuffy nose fold into four <b>disagreements</b>, and those into two <b>questions</b>: whether the thing to measure is mucus <b>secreted</b> or mucus <b>felt</b>, and whether a genuine allergic minority should write the advice for everyone. What rides on it: what you drink with a cold, what a parent cuts from a wheezing kid's plate, and how a belief this universal squares with trials that keep coming back null. Below — the <b>lineage</b>, the <b>positions and who holds them</b>, and four <b>cruxes</b>, each with the strongest case both sides actually make.</p>
+
+  <div class="legend reveal">
+    <div class="legend-top">One axis runs under all of it. Watch the two colors.</div>
+    <div class="axis-bar"></div>
+    <div class="axis-ends">
+      <span class="ax-found"><b>Milk thickens it</b><small>more phlegm · worse congestion</small></span>
+      <span class="ax-made"><b>It's a myth</b><small>no change in what's secreted</small></span>
+    </div>
+  </div>
+</header>
+
+<!-- ============================ I. LINEAGE ============================ -->
+<section class="wrap">
+  <div class="sec-head">
+    <div class="eyebrow"><span class="sec-num">I</span> &nbsp;the lineage</div>
+    <h2 class="ser">Eight centuries of a stuffy nose, in one column</h2>
+    <p>Read top to bottom. A dot's halo marks where the work landed — green for "milk thickens it," gold for "it's a myth, the snot was weighed," lilac for the reading that both are true because they measure different things.</p>
+  </div>
+
+  <div class="lineage reveal">
+    <div class="spine" aria-hidden="true"></div>
+
+    <div class="node found">
+      <span class="yr">c. 1190</span><span class="dot"></span>
+      <div class="who">Moses Maimonides<span class="dom">folk medicine · the first warning</span></div>
+      <div class="say">In his <em>Treatise on Asthma</em>, the physician-philosopher tells his patient to avoid milk and cheese because they cause "a stuffing in the head." The belief that dairy generates phlegm is written down here as medical advice, and it never really leaves.</div>
+    </div>
+
+    <div class="node found">
+      <span class="yr">antiquity–</span><span class="dot"></span>
+      <div class="who">Humoral &amp; Eastern traditions<span class="dom">systems · phlegm foods</span></div>
+      <div class="say">Galenic humoral medicine classes milk as "cold and moist," a phlegm-breeder; traditional Chinese and Ayurvedic systems file dairy under "damp"- or mucus-forming foods. Different cultures, same verdict — which is either convergent observation or convergent intuition, depending on whom you ask.</div>
+    </div>
+
+    <div class="node found">
+      <span class="yr">1946</span><span class="dot"></span>
+      <div class="who">Dr. Benjamin Spock<span class="dom">pediatrics · the belief goes mass-market</span></div>
+      <div class="say"><em>Baby and Child Care</em> — one of the best-selling books of the century — advises that milk can aggravate congestion and asthma and can be cut when a child is stuffed up. Grandmother's rule now carries a pediatrician's authority, and a generation of parents pours it out at the first sniffle.</div>
+    </div>
+
+    <div class="node made">
+      <span class="yr">1990</span><span class="dot"></span>
+      <div class="who">Pinnock, Graham et al.<span class="dom">challenge trial · Adelaide</span></div>
+      <div class="say">Sixty volunteers are infected with a common-cold virus (rhinovirus-2) and tracked for ten days. Every used tissue is weighed. Milk intake — from zero to eleven glasses a day — shows <em>no</em> relationship to how much nasal secretion anyone produced. Believers reported more congestion; their tissues said otherwise.</div>
+    </div>
+
+    <div class="node pivot">
+      <span class="yr">1993</span><span class="dot"></span>
+      <div class="who">Arney &amp; Pinnock<span class="dom">sensory analysis · the mouthfeel</span></div>
+      <div class="say">A double-blind test pits flavored cow's milk against a texture-matched soy drink that tasters couldn't tell apart. Both produce the same reports — a "coating" over the mouth and throat, saliva that feels "thicker, harder to swallow." The sensation is real and reproducible, but it isn't specific to milk. The hinge of the whole debate.</div>
+    </div>
+
+    <div class="node found">
+      <span class="yr">2003</span><span class="dot"></span>
+      <div class="who">Trompette et al.<span class="dom">gut biology · a mechanism appears</span></div>
+      <div class="say">In rat intestine, β-casomorphin-7 — an opioid-like peptide released when A1 milk casein is digested — stimulates mucus release from MUC5AC glands. It's the bowel, not the airway, but for the first time the folk belief has a molecule to point at.</div>
+    </div>
+
+    <div class="node found">
+      <span class="yr">2010</span><span class="dot"></span>
+      <div class="who">Bartley &amp; McGlashan<span class="dom">hypothesis · the A1 route</span></div>
+      <div class="say"><em>Does milk increase mucus production?</em> proposes the pathway explicitly: β-casomorphin-7 could, via the bloodstream, drive MUC5AC mucus glands in an <em>already-inflamed</em> respiratory tract. A careful "maybe, in some people" — the strongest modern case that the belief isn't pure illusion.</div>
+    </div>
+
+    <div class="node pivot">
+      <span class="yr">2019</span><span class="dot"></span>
+      <div class="who">Ian Balfour-Lynn<span class="dom">review · myth, with an asterisk</span></div>
+      <div class="say"><em>Milk, mucus and myths</em> weighs the BCM-7 idea and sets it aside for most people: the effect is in the gut, and it shouldn't reach a healthy airway. What people feel, he argues, is milk's emulsion mixing with saliva to thicken and coat. Verdict: no extra secretion — but he leaves the door ajar for the inflamed few.</div>
+    </div>
+
+    <div class="node made">
+      <span class="yr">2020</span><span class="dot"></span>
+      <div class="who">Controlled trials in children<span class="dom">RCT · asthmatic &amp; not</span></div>
+      <div class="say">Randomized studies give asthmatic and non-asthmatic children milk versus a matched non-dairy drink and measure lung function and symptoms. Acute milk doesn't worsen either group. The modern, better-controlled evidence keeps landing where the 1990 challenge did.</div>
+    </div>
+
+    <div class="node pivot">
+      <span class="yr">2019–2026</span><span class="dot"></span>
+      <div class="who">A1/A2 milk &amp; the market<span class="dom">commerce · the debate goes retail</span></div>
+      <div class="say">"a2" milk — bred to carry only A2 casein, so it releases no β-casomorphin-7 — sells the mechanism directly to shoppers, while dairy-free elimination trends run on personal testimony. The science hasn't moved much; the belief now has a price tag, and a genuine milk-allergic minority sits underneath the marketing.</div>
+    </div>
+
+    <div class="lineage-tail">
+      <div class="pin">
+        <b>Into the present</b>
+        <p>Eight centuries on, the folk belief is intact and the blinded trials are null — and both keep being true. The argument has narrowed from "does milk make phlegm?" to a sharper set: secretion or sensation, healthy airway or inflamed one, the average drinker or the allergic exception.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ II. POSITIONS ============================ -->
+<section class="wrap">
+  <div class="sec-head">
+    <div class="eyebrow"><span class="sec-num">II</span> &nbsp;the positions</div>
+    <h2 class="ser">Who holds what — and where it sits on the axis</h2>
+    <p>Two families of position: claims about what happens in the body, and claims about what the trials and the tasting-room actually show. A card's left edge is its lean; the tag is rough sociology, not a scorecard.</p>
+  </div>
+
+  <div class="fields reveal">
+    <div class="field">
+      <h3>On the body <small>secretion &amp; mechanism</small></h3>
+
+      <div class="pos found">
+        <div class="nm"><span class="lean">◀ thickens</span> Phlegm-food tradition <span class="traction">the folk consensus</span></div>
+        <div class="figs">Maimonides · humoral &amp; Eastern medicine · countless parents</div>
+        <div class="claim">Milk and dairy make the body produce more respiratory mucus. When you're congested or fighting a cold, cut the dairy and you'll clear up faster.</div>
+        <span class="nb">The intuition every trial is up against; its weak spot is exactly where researchers weighed the secretion and it didn't budge.</span>
+      </div>
+
+      <div class="pos found">
+        <div class="nm"><span class="lean">◀ thickens</span> The A1 / β-casomorphin-7 mechanism <span class="traction">a live hypothesis</span></div>
+        <div class="figs">Bartley &amp; McGlashan · Trompette et al.</div>
+        <div class="claim">β-casomorphin-7, released when A1-type casein is digested, stimulates MUC5AC mucus glands in the gut — and in an already-inflamed airway could plausibly do the same via the bloodstream.</div>
+        <span class="nb">Gives the belief a real molecular pathway. Its weak point is getting the peptide from the bowel to the bronchus in an otherwise healthy person.</span>
+        <div class="src-links"><a href="https://pubmed.ncbi.nlm.nih.gov/19932941/">Does milk increase mucus production?</a></div>
+      </div>
+
+      <div class="pos made">
+        <div class="nm"><span class="lean">▶ myth</span> The weighed-secretion null <span class="traction">the standing medical view</span></div>
+        <div class="figs">Pinnock et al. · mainstream respiratory medicine</div>
+        <div class="claim">When you actually collect and weigh nasal secretions, milk intake makes no difference — even mid-cold. The airway epithelium doesn't get a "make mucus" signal from a drink in the stomach.</div>
+        <span class="nb">Rests on direct measurement rather than report. Its burden is explaining why the felt experience is so vivid and so universal.</span>
+        <div class="src-links"><a href="https://pubmed.ncbi.nlm.nih.gov/2154152/">Rhinovirus-2 challenge (1990)</a></div>
+      </div>
+
+      <div class="pos made">
+        <div class="nm"><span class="lean">▶ myth</span> "It's rheology, not secretion" <span class="traction">the ascendant explanation</span></div>
+        <div class="figs">dairy &amp; sensory scientists · Balfour-Lynn</div>
+        <div class="claim">Milk is an oil-in-water emulsion. Mixed with saliva it flocculates and coats the mouth and throat, so saliva feels thicker and harder to swallow — a texture change, not a new drop of mucus.</div>
+        <span class="nb">Explains the universal sensation with basic physics and no airway effect at all. Sits close to the hinge.</span>
+      </div>
+    </div>
+
+    <div class="field">
+      <h3>On the evidence <small>trials, taste tests, allergy</small></h3>
+
+      <div class="pos made">
+        <div class="nm"><span class="lean">▶ myth</span> The blinded-challenge camp <span class="traction">the experimental default</span></div>
+        <div class="figs">Arney &amp; Pinnock · double-blind sensory trials</div>
+        <div class="claim">A soy drink matched for texture reproduces milk's "coating" and "thick saliva" just as well — so the effect isn't specific to cow's milk. Believing the theory predicts reporting the symptom.</div>
+        <span class="nb">The cleanest test there is: swap the milk out, keep the mouthfeel, and the complaint survives.</span>
+        <div class="src-links"><a href="https://pubmed.ncbi.nlm.nih.gov/8452378/">Cow's milk vs soy placebo</a></div>
+      </div>
+
+      <div class="pos found">
+        <div class="nm"><span class="lean">◀ thickens</span> Believers &amp; clinical experience <span class="traction">huge lay following</span></div>
+        <div class="figs">parents · some ENTs &amp; naturopaths</div>
+        <div class="claim">People report, consistently and across cultures, more phlegm and a thicker throat after dairy — and some feel genuinely clearer after a dairy-free stretch. Dismissing that as illusion is its own kind of overreach.</div>
+        <span class="nb">A real, reported experience. The open question is only whether it's secretion or sensation — not whether it's felt.</span>
+        <div class="src-links"><a href="https://pubmed.ncbi.nlm.nih.gov/8452377/">The milk-mucus belief &amp; believers</a></div>
+      </div>
+
+      <div class="pos camp-c">
+        <div class="nm"><span class="lean">◆ subset</span> The allergic / intolerant minority <span class="traction">a genuine clinical group</span></div>
+        <div class="figs">cow's-milk-protein allergy · pediatric allergy</div>
+        <div class="claim">A real, diagnosable minority has IgE or non-IgE reactions to milk protein — and rhinitis, congestion, and wheeze are documented features. For them, dairy really does drive airway symptoms.</div>
+        <span class="nb">Not the myth — an actual diagnosis. The fight is whether this true exception should set the rule for everyone else.</span>
+      </div>
+
+      <div class="pos made">
+        <div class="nm"><span class="lean">▶ myth</span> The asthma-trial camp <span class="traction">modern controlled evidence</span></div>
+        <div class="figs">pediatric respiratory RCTs</div>
+        <div class="claim">Give asthmatic and non-asthmatic children milk versus a matched non-dairy drink and measure lung function: acute milk doesn't worsen breathing in either group.</div>
+        <span class="nb">The best-controlled modern data, aimed squarely at the population the belief worries about most — and it comes back null.</span>
+        <div class="src-links"><a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC7488715/">Acute milk in children · RCT</a></div>
+      </div>
+    </div>
+
+    <div class="pivot-card">
+      <div class="pv-tag">the hinge ↕</div>
+      <div class="pv-body">
+        <b>It's mouthfeel, not mucus — and a real minority is the exception</b>
+        <p>The reconciling read says the sensation is real and the secretion isn't. Milk's fat-and-protein emulsion mixes with saliva, thickens, and coats — you genuinely feel more "phlegm" — while the tissues you actually weigh show no extra mucus. That's why a texture-matched soy drink fools believers just as well, and why the effect is strongest in people who already expect it. Two true things sit stacked on top of each other: a universal sensory effect that isn't disease, and a genuine milk-allergic minority for whom dairy really does drive airway symptoms. "Milk makes mucus" and "milk does nothing" are both too coarse — the first measures the feeling and calls it secretion, the second waves off the exception.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="traction-note">Tags are rough sociology — how the clinics, the labs, and the kitchen table shake out — not a verdict on who's right. A belief can be ancient and mistaken, or fringe and onto something; that ledger is kept separately from this one.</div>
+</section>
+
+<!-- ============================ III. CRUXES ============================ -->
+<section class="wrap">
+  <div class="sec-head">
+    <div class="eyebrow"><span class="sec-num">III</span> &nbsp;the cruxes</div>
+    <h2 class="ser">Four fair fights, each carrying part of the load</h2>
+    <p>The positions are bundles of answers; these are the questions that, answered one way or the other, split them. Both panels give the side's best case, in its own voice.</p>
+  </div>
+
+  <!-- CRUX 1 -->
+  <div class="crux reveal">
+    <div class="crux-head">
+      <div class="crux-meta"><span class="crux-n">Crux 01 — the measurement</span><span class="crux-dom">physiology</span></div>
+      <h3 class="crux-q ser">Does milk increase mucus, or only the feeling of it?</h3>
+      <p class="crux-sub">The belief is about phlegm. The trials weighed tissues. Is the thing that changes after a glass of milk the secretion, or the sensation?</p>
+    </div>
+    <div class="steels">
+      <div class="steel s-found">
+        <div class="side">▸ it thickens the mucus</div>
+        <div class="pos-name">More phlegm, not just a feeling</div>
+        <div class="gist">A complaint this consistent, across cultures and centuries, is reporting something real — and there's a plausible pathway by which the airway could make more mucus.</div>
+        <p>Don't be too quick to file this under illusion. People in wildly different food cultures land on the same observation — dairy, then thicker phlegm — and independent convergence is usually a clue, not a coincidence. The felt experience is specific: it's not "my mouth is coated," it's "I'm bringing up more, my chest is heavier." And there's now a mechanism with lab footing: β-casomorphin-7 from milk digestion stimulates MUC5AC mucus glands, the very glands that flood an inflamed airway. The challenge studies that found "nothing" were small, ran on healthy young adults, and measured nasal-tissue weight during an ordinary cold — the wrong people and arguably the wrong fluid. Absence of an effect in a handful of narrow experiments isn't proof the effect is absent.</p>
+      </div>
+      <div class="steel s-made">
+        <div class="side">▸ it's sensation, not secretion</div>
+        <div class="pos-name">The snot was weighed; it didn't change</div>
+        <div class="gist">When you actually collect and weigh the mucus, milk makes no difference — and a texture-matched placebo reproduces the whole feeling, so the feeling isn't evidence of mucus.</div>
+        <p>Run the experiment the belief demands. Infect people with a cold, weigh every tissue, and log every glass of milk: the secretion tracks the virus, not the dairy — no correlation, across hundreds of person-days. Then isolate the sensation. Give tasters cow's milk and an indistinguishable soy drink; both produce the same "coating" and "thicker saliva." If a milk-free placebo makes the exact same feeling, the feeling can't be milk-specific mucus. What's happening is physics: an emulsion meets saliva, flocculates, and coats — <em>you feel it</em>, but nothing new is being secreted. And believing it primes it: the people surest that milk makes mucus are the ones who report the most, with no extra fluid to show for it.</p>
+      </div>
+    </div>
+    <div class="crux-key">
+      <span class="lab">the crux</span>
+      <span class="txt">Is what changes <b>measured secretion</b>, or <b>perceived texture</b>? Everything downstream turns on whether "I feel phlegmy" counts as evidence of mucus, or of mouthfeel.</span>
+    </div>
+    <div class="crux-cede">
+      <span class="lab">what would move them</span>
+      <div class="cede">
+        <p class="c-found"><b>The thickens-it side concedes if</b> properly measured airway mucus reliably fails to rise after dairy <em>and</em> a texture-matched placebo reproduces the felt effect every time.</p>
+        <p class="c-made"><b>The myth side concedes if</b> blinded studies show real secreted mucus increasing after milk, beyond anything a non-dairy placebo of the same texture produces.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- CRUX 2 -->
+  <div class="crux reveal">
+    <div class="crux-head">
+      <div class="crux-meta"><span class="crux-n">Crux 02 — the mechanism</span><span class="crux-dom">biochemistry</span></div>
+      <h3 class="crux-q ser">Is there a real pathway from a glass of milk to the bronchi?</h3>
+      <p class="crux-sub">β-casomorphin-7 stimulates mucus glands in the gut. Does that license a claim about the airway — or stop at the bowel wall?</p>
+    </div>
+    <div class="steels">
+      <div class="steel s-found">
+        <div class="side">▸ the A1 pathway is plausible</div>
+        <div class="pos-name">Gut mucus glands, then airway ones</div>
+        <div class="gist">The peptide is real, the gut effect is demonstrated, and the same MUC5AC glands line the airway — in an inflamed tract, the biology is there for the belief to be true.</div>
+        <p>Start from what's shown: digest A1 casein and you get β-casomorphin-7, an opioid-active peptide; give it to intestinal tissue and MUC5AC glands release mucus. Those glands aren't unique to the gut — they're the workhorses of airway mucus too. In someone whose respiratory lining is already inflamed and leaky, a blood-borne exorphin acting on the same receptors is not a wild leap; it's the default expectation until someone rules it out. That's exactly why "a2" milk, bred to release no BCM-7, exists as a product. The honest version of the claim was never "milk drowns everyone in phlegm." It's "in a subset with the wrong casein and an inflamed airway, there's a route." Mechanism first; the definitive human trials simply haven't been run.</p>
+      </div>
+      <div class="steel s-made">
+        <div class="side">▸ it stops at the gut</div>
+        <div class="pos-name">A bowel effect in rats isn't an airway rule</div>
+        <div class="gist">The mucus release is in the intestine, in animals, behind a gut wall that doesn't hand the peptide to the lungs of a healthy person — and no human study shows the airway effect the theory needs.</div>
+        <p>Look hard at what the mechanism actually establishes: local mucus release in <em>rat intestine</em>. That's a long way from a human bronchus. The peptide acts where it's produced, on the gut lining; to reach airway glands it has to survive digestion, cross into the blood in a meaningful dose, and act on a distant organ — a chain nobody has demonstrated in people. Meanwhile the outcome the theory predicts, extra airway mucus after milk, is precisely what the challenge trials and the pediatric RCTs looked for and didn't find. A mechanism that fires only in an already-inflamed gut, if it reaches the airway at all, is not the general rule the folk belief states. It's a maybe-someday footnote being read as a law.</p>
+      </div>
+    </div>
+    <div class="crux-key">
+      <span class="lab">the crux</span>
+      <span class="txt">Does a demonstrated <b>gut</b> effect license an <b>airway</b> claim? <span class="same-tag">↳ this is Crux 01 fought over the biology instead of the measurement — same disagreement, argued from the mechanism.</span></span>
+    </div>
+    <div class="crux-cede">
+      <span class="lab">what would move them</span>
+      <div class="cede">
+        <p class="c-found"><b>The thickens-it side concedes if</b> the BCM-7 route is shown not to reach or act on airway mucus glands in humans at dietary doses.</p>
+        <p class="c-made"><b>The myth side concedes if</b> a human study demonstrates dietary A1 milk raising airway mucus through the β-casomorphin-7 pathway, with A2 milk sparing it.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- CRUX 3 -->
+  <div class="crux reveal">
+    <div class="crux-head">
+      <div class="crux-meta"><span class="crux-n">Crux 03 — the subset</span><span class="crux-dom">allergy · immunology</span></div>
+      <h3 class="crux-q ser">A myth for everyone, or real for a minority?</h3>
+      <p class="crux-sub">Cow's-milk-protein allergy genuinely causes respiratory symptoms. Should the general advice follow the exception, or the tested majority?</p>
+    </div>
+    <div class="steels">
+      <div class="steel s-found">
+        <div class="side">▸ real reactions are real</div>
+        <div class="pos-name">Don't gaslight the allergic</div>
+        <div class="gist">For the milk-allergic and some sensitive children, dairy documentably drives rhinitis, congestion, and wheeze — telling them it's "all in the mouthfeel" misses a diagnosis.</div>
+        <p>The blanket "milk-mucus is a myth" headline does real harm to the people it steps on. Cow's-milk-protein allergy is a recognized condition, and its symptoms include a running or blocked nose, chronic congestion, and wheeze — not imagined, not mouthfeel, but an immune response. Parents who notice their child is clearer off dairy are often not victims of folklore; they're doing uncontrolled n-of-1 experiments and sometimes finding something the clinic later confirms. "It doesn't happen in double-blind averages" is cold comfort to the household where it plainly does. The population null and the individual reaction aren't in conflict — but the myth-busting slogan pretends the second doesn't exist, and that's a failure of care, not of the belief.</p>
+      </div>
+      <div class="steel s-made">
+        <div class="side">▸ the exception isn't the rule</div>
+        <div class="pos-name">A diagnosis, not a dietary law</div>
+        <div class="gist">True milk allergy is a small, testable minority; generalizing from them to "milk makes everyone phlegmy" is exactly the error the trials exist to correct.</div>
+        <p>Everyone agrees milk allergy is real — that's not the claim in dispute. The claim in dispute is the universal one your grandmother stated: milk makes <em>mucus</em>, in <em>people generally</em>, so <em>everyone</em> should skip it with a cold. That's what the challenge trials and the pediatric RCTs refute. Folding a diagnosable allergic minority into the folk rule doesn't rescue the rule; it smuggles a different, narrower, true claim in under the old broad, false one. And there's a real cost to the broad version: parents needlessly stripping calcium and protein from a growing kid's diet on a hunch, when the fix for the allergic few is a diagnosis, not a nation-wide dairy scare. Treat the exception as an exception — name it, test it — and stop letting it launder the myth.</p>
+      </div>
+    </div>
+    <div class="crux-key">
+      <span class="lab">the crux</span>
+      <span class="txt">Should general advice follow the <b>allergic minority</b> or the <b>trial-tested majority</b>? The fight is whether a true exception rewrites the rule or stays an exception.</span>
+    </div>
+    <div class="crux-cede">
+      <span class="lab">what would move them</span>
+      <div class="cede">
+        <p class="c-found"><b>The thickens-it side concedes if</b> milk-driven airway symptoms are confined to a diagnosable allergic minority, with no general mucus effect in everyone else.</p>
+        <p class="c-made"><b>The myth side concedes if</b> a large share of ordinary, non-allergic people show a genuine airway response to dairy, not just the known allergic subset.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- CRUX 4 -->
+  <div class="crux reveal">
+    <div class="crux-head">
+      <div class="crux-meta"><span class="crux-n">Crux 04 — the record</span><span class="crux-dom both">history · belief · crossways</span></div>
+      <h3 class="crux-q ser">Why does everyone "know" it, if the trials say no?</h3>
+      <p class="crux-sub">Before scoring the arguments, ask what to make of the belief's staying power — folk wisdom the science hasn't caught up to, or a sticky illusion doing what myths do.</p>
+    </div>
+    <div class="steels">
+      <div class="steel s-found">
+        <div class="side">▸ the belief tracks something real</div>
+        <div class="pos-name">Universal and old for a reason</div>
+        <div class="gist">A belief this widespread and this ancient usually encodes a real experience; the trials are small, short, and measure the wrong fluid, so the belief has outrun the evidence, not been beaten by it.</div>
+        <p>Weigh the record honestly. Independent cultures — medieval Jewish medicine, Galenic Europe, Chinese and Ayurvedic traditions — converged on "dairy makes phlegm" without talking to each other. That kind of convergence is how humans detected plenty of true things long before they could measure them. Against it sits a thin experimental record: a couple of small challenge studies on healthy adults, some tasting-room work, no large trial in the congested and inflamed people who actually make the complaint. "The snot didn't get heavier in twenty college students with a cold" is not the same as "the belief is false." The reasonable read is that the felt airway change is real and under-measured — the science hasn't yet looked in the right place, at the right people, for the right fluid.</p>
+      </div>
+      <div class="steel s-made">
+        <div class="side">▸ a textbook sticky myth</div>
+        <div class="pos-name">Exactly what an illusion looks like</div>
+        <div class="gist">Universality is what you'd predict from a shared sensory illusion plus centuries of authoritative repetition — the placebo reproduces it, and "the trials measured the wrong thing" is an unfalsifiable retreat.</div>
+        <p>Ask what a persistent-but-false belief would look like, and this is it exactly. A real, reproducible sensation everyone can feel — the emulsion coating the throat — gets a plausible-sounding causal story attached to it, and then authority does the rest: Maimonides, then Spock, then every parent. Convergence across cultures isn't evidence of a hidden mucus effect; it's evidence that everyone's mouth does the same physics with an emulsion. And notice the shape of the defense: every time the outcome is measured and comes back null, the goalposts move — wrong people, wrong fluid, too short, not inflamed enough. A claim that survives every disconfirmation by relocating isn't hard-won wisdom awaiting vindication; it's a myth with good PR and a mouthfeel to lean on.</p>
+      </div>
+    </div>
+    <div class="crux-key">
+      <span class="lab">the crux</span>
+      <span class="txt">Is the belief's persistence <b>evidence for it</b>, or <b>just what myths do</b>? <span class="same-tag">↳ this one runs crossways to the other three — it's about how much you credit folk experience versus blinded measurement before any single study is weighed.</span></span>
+    </div>
+    <div class="crux-cede">
+      <span class="lab">what would move them</span>
+      <div class="cede">
+        <p class="c-found"><b>The thickens-it side concedes if</b> a large, well-designed trial in congested, inflamed people — the right fluid measured — still finds no dairy effect beyond placebo.</p>
+        <p class="c-made"><b>The myth side concedes if</b> the felt effect turns out to track real secreted mucus once the belief and the mouthfeel are properly controlled for.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ IV. PAYOFF ============================ -->
+<section class="wrap fault-sec">
+  <div class="sec-head">
+    <div class="eyebrow"><span class="sec-num">IV</span> &nbsp;the payoff</div>
+  </div>
+
+  <div class="fault-card reveal">
+    <h3 class="fault-lead ser">Four cruxes, <em>two questions</em> underneath</h3>
+    <p class="fault-intro">Most of the disagreement sorts onto two axes. The horizontal asks the verdict: milk worsens congestion, or it's a myth. The vertical asks something prior — whether the thing worth counting is mucus you can <em>weigh</em> or mucus you can <em>feel</em>. Plot the camps and the field stops looking like one argument. It looks like people standing on different squares, often answering a question their opponent never asked.</p>
+
+    <svg class="diagram" viewBox="0 0 980 600" role="img" aria-labelledby="dg-t dg-d">
+      <title id="dg-t">Two crossed questions under the milk-mucus debate</title>
+      <desc id="dg-d">A grid with two axes. The horizontal axis runs from "milk worsens congestion" on the left to "it's a myth" on the right. The vertical axis runs from "count mucus that is secreted and measured" at the top to "count mucus that is felt and reported" at the bottom. Positions are plotted as points: the phlegm-food tradition and the A1/BCM-7 mechanism camp in the upper left; the weighed-secretion null and the asthma-trial camp in the upper right; the allergic-subset clinicians on the lower left; the sensory rheology and blinded-placebo camps in the lower right; and the "mouthfeel, not mucus" pivot at the center, marked as rejecting the framing.</desc>
+      <defs>
+        <linearGradient id="axisgrad" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0" stop-color="#6dbaa4"/>
+          <stop offset="0.5" stop-color="#6e6b78"/>
+          <stop offset="1" stop-color="#d8a652"/>
+        </linearGradient>
+      </defs>
+
+      <!-- vertical axis: what to count -->
+      <line x1="490" y1="80" x2="490" y2="500" stroke="#34384a" stroke-width="2"/>
+      <!-- horizontal axis: the verdict -->
+      <line x1="110" y1="290" x2="870" y2="290" stroke="url(#axisgrad)" stroke-width="6" stroke-linecap="round"/>
+      <circle cx="110" cy="290" r="7" fill="#6dbaa4"/>
+      <circle cx="870" cy="290" r="7" fill="#d8a652"/>
+
+      <!-- axis labels -->
+      <text x="110" y="322" fill="#6dbaa4" font-family="'IBM Plex Mono',monospace" font-size="15">milk worsens congestion</text>
+      <text x="870" y="322" fill="#d8a652" font-family="'IBM Plex Mono',monospace" font-size="15" text-anchor="end">it's a myth</text>
+      <text x="490" y="56" fill="#a6a394" font-family="'IBM Plex Mono',monospace" font-size="13.5" text-anchor="middle">count the mucus that's secreted &amp; weighed</text>
+      <text x="490" y="528" fill="#a6a394" font-family="'IBM Plex Mono',monospace" font-size="13.5" text-anchor="middle">count the mucus that's felt &amp; reported</text>
+
+      <!-- plotted positions (rows staggered so no two labels share a line; none crosses the vertical axis) -->
+      <!-- upper-left: worsens + it's real secretion -->
+      <circle cx="150" cy="150" r="6" fill="#6dbaa4"/>
+      <text x="166" y="155" fill="#ebe5d6" font-family="'IBM Plex Sans',sans-serif" font-size="14.5">Phlegm-food tradition · Maimonides–Spock</text>
+
+      <!-- upper-left, lower row: A1/BCM-7 mechanism -->
+      <circle cx="210" cy="215" r="6" fill="#6dbaa4"/>
+      <text x="226" y="220" fill="#ebe5d6" font-family="'IBM Plex Sans',sans-serif" font-size="14.5">A1 / BCM-7 mechanism · Bartley</text>
+
+      <!-- upper-right: myth, and they measured secretion -->
+      <circle cx="860" cy="155" r="6" fill="#d8a652"/>
+      <text x="845" y="160" fill="#ebe5d6" font-family="'IBM Plex Sans',sans-serif" font-size="14.5" text-anchor="end">Weighed-secretion null · Pinnock</text>
+
+      <!-- upper-right, lower row: asthma RCTs -->
+      <circle cx="880" cy="220" r="6" fill="#d8a652"/>
+      <text x="865" y="225" fill="#ebe5d6" font-family="'IBM Plex Sans',sans-serif" font-size="14.5" text-anchor="end">Asthma-trial camp · pediatric RCTs</text>
+
+      <!-- the pivot: center, rejects the framing -->
+      <circle cx="490" cy="318" r="8" fill="#a195bd" stroke="#171922" stroke-width="2"/>
+      <text x="506" y="313" fill="#a195bd" font-family="'IBM Plex Sans',sans-serif" font-size="14.5" font-style="italic">Mouthfeel, not mucus · Balfour-Lynn</text>
+      <text x="506" y="332" fill="#a195bd" font-family="'IBM Plex Mono',monospace" font-size="11">the feeling is real; the secretion isn't</text>
+
+      <!-- lower-left: allergic subset — real for them, and it's real symptoms -->
+      <circle cx="150" cy="410" r="6" fill="#6f93c4"/>
+      <text x="166" y="415" fill="#ebe5d6" font-family="'IBM Plex Sans',sans-serif" font-size="14.5">Allergic-subset clinicians · a real minority</text>
+
+      <!-- lower-right: sensory / rheology + blinded placebo -->
+      <circle cx="820" cy="415" r="6" fill="#d8a652"/>
+      <text x="805" y="420" fill="#ebe5d6" font-family="'IBM Plex Sans',sans-serif" font-size="14.5" text-anchor="end">Rheology &amp; placebo camp · Arney</text>
+    </svg>
+
+    <div class="fault-restate">
+      <div class="fr-item f1"><div class="fr-n">Crux 01 · the measurement</div><div class="fr-t ser">Secretion or sensation</div><p>Weigh the mucus, or trust the feeling. The vertical axis, asked of what actually changes after a glass.</p></div>
+      <div class="fr-item f2"><div class="fr-n">Crux 04 · the record</div><div class="fr-t ser">Trust the belief?</div><p>The question under the vertical axis. Whether an ancient, universal belief is evidence, or just what sticky myths look like.</p></div>
+      <div class="fr-item f3"><div class="fr-n">Crux 02 · the mechanism</div><div class="fr-t ser">Gut to bronchi</div><p>Does a demonstrated bowel effect reach the airway. The horizontal verdict, argued from the biology.</p></div>
+      <div class="fr-item f4"><div class="fr-n">Crux 03 · the subset</div><div class="fr-t ser">Myth or minority</div><p>Everyone, or a diagnosable allergic few. The horizontal verdict, asked about who the rule is for.</p></div>
+    </div>
+
+    <p class="fault-close ser">Find your own hinge. Most of the disagreement is downstream of two things — whether you count <span class="ax">mucus you can weigh or mucus you can feel</span>, and whether you're writing advice for <span class="mk">the average drinker or the allergic exception</span>. Locate which one is doing the work for you, and you'll usually find the other person standing on the other axis.</p>
+  </div>
+</section>
+
+<!-- ============================ V. GO DEEPER ============================ -->
+<section class="wrap">
+  <div class="sec-head">
+    <div class="eyebrow"><span class="sec-num">V</span> &nbsp;go deeper</div>
+    <h2 class="ser">Where to take it next</h2>
+    <p>A few ways in, grouped by side and medium. Papers are listed by author, title, and year; the web links were drawn from live sources.</p>
+  </div>
+
+  <div class="shelf reveal">
+    <div class="shelf-col">
+      <h4>Overview</h4>
+      <div class="res">
+        <div class="t"><a href="https://pubmed.ncbi.nlm.nih.gov/30190283/">Milk, mucus and myths</a></div>
+        <div class="by">Balfour-Lynn · Arch. Dis. Child. · 2019</div>
+        <div class="why">The modern review that frames the whole thing: weighs the BCM-7 idea, lands on mouthfeel for most, and leaves the door ajar. Start here.</div>
+      </div>
+      <div class="res">
+        <div class="t"><a href="https://www.sciencealert.com/experts-bust-myth-that-drinking-milk-produces-more-phlegm-mucus">It's a myth that milk makes more phlegm, expert says</a></div>
+        <div class="by">ScienceAlert</div>
+        <div class="why">The plain-language version of Balfour-Lynn's review — the emulsion-and-saliva explanation without the journal paywall.</div>
+      </div>
+      <div class="res">
+        <div class="t"><a href="https://www.cfp.ca/content/58/2/165.long">Milk consumption and mucus production in children with asthma</a></div>
+        <div class="by">Canadian Family Physician · 2012</div>
+        <div class="why">A clinician-facing summary of the evidence, aimed at the exact worry — kids, milk, and breathing.</div>
+      </div>
+    </div>
+
+    <div class="shelf-col">
+      <h4>The "it thickens it" case</h4>
+      <div class="res">
+        <div class="t"><a href="https://pubmed.ncbi.nlm.nih.gov/19932941/">Does milk increase mucus production?</a></div>
+        <div class="by">Bartley &amp; McGlashan · Medical Hypotheses · 2010</div>
+        <div class="why">The mechanistic steelman: the β-casomorphin-7 → MUC5AC pathway spelled out, "maybe, in some people."</div>
+      </div>
+      <div class="res">
+        <div class="t"><a href="https://www.ncbi.nlm.nih.gov/pubmed/14608064">Milk bioactive peptides and β-casomorphins induce mucus release in rat jejunum</a></div>
+        <div class="by">Trompette et al. · 2003</div>
+        <div class="why">The gut-mucus experiment the A1 hypothesis is built on — the demonstrated end of the proposed chain.</div>
+      </div>
+      <div class="res">
+        <div class="t"><a href="https://pubmed.ncbi.nlm.nih.gov/8452377/">The milk-mucus belief: sensations and characteristics of believers</a></div>
+        <div class="by">Pinnock &amp; Arney · Appetite · 1993</div>
+        <div class="why">Documents what believers actually report — the phenomenology the "thickens it" side is defending.</div>
+      </div>
+    </div>
+
+    <div class="shelf-col">
+      <h4>The "it's a myth" case</h4>
+      <div class="res">
+        <div class="t"><a href="https://pubmed.ncbi.nlm.nih.gov/2154152/">Milk intake and mucus production in adults challenged with rhinovirus-2</a></div>
+        <div class="by">Pinnock, Graham et al. · 1990</div>
+        <div class="why">The weighed-secretion null: infect, weigh every tissue, and milk shows no relationship to how much mucus you make.</div>
+      </div>
+      <div class="res">
+        <div class="t"><a href="https://pubmed.ncbi.nlm.nih.gov/8452378/">The milk-mucus belief: sensory analysis comparing cow's milk and a soy placebo</a></div>
+        <div class="by">Pinnock &amp; Arney · Appetite · 1993</div>
+        <div class="why">The placebo that breaks the case: a texture-matched soy drink reproduces the "coating" and "thick saliva" just as well.</div>
+      </div>
+      <div class="res">
+        <div class="t"><a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC7488715/">Respiratory effects of acute milk in asthmatic and non-asthmatic children</a></div>
+        <div class="by">Randomized controlled study · 2020</div>
+        <div class="why">The modern, better-controlled test aimed at the population that worries most — and it comes back null.</div>
+      </div>
+    </div>
+
+    <div class="shelf-col">
+      <h4>Context &amp; the market</h4>
+      <div class="res">
+        <div class="t"><a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC12428782/">β-casein A1/A2 variants and β-casomorphin-7 in milk products</a></div>
+        <div class="by">review · 2024</div>
+        <div class="why">The A1/A2 casein science behind "a2" milk — where the commercial version of the mechanism argument comes from.</div>
+      </div>
+      <div class="res">
+        <div class="t"><a href="https://www.today.com/health/does-milk-cause-mucus-pediatric-doctor-clears-common-myth-t136986">Does milk cause mucus? A pediatric doctor clears up the myth</a></div>
+        <div class="by">TODAY</div>
+        <div class="why">How the debunking reaches parents — useful for seeing the popular framing the belief lives in.</div>
+      </div>
+      <div class="res">
+        <div class="t"><a href="https://www.minnpost.com/second-opinion/2018/09/debunking-the-myth-about-milk-and-mucus/">Debunking the myth about milk and mucus</a></div>
+        <div class="by">MinnPost · Second Opinion</div>
+        <div class="why">A tidy walk through the challenge and placebo studies for the general reader.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ FOOTER ============================ -->
+<footer class="wrap">
+  <p class="foot-note"><b>On these summaries.</b> This is an educational map of a small, mostly good-natured scientific debate — not medical advice. A genuine cow's-milk allergy is real and worth a clinician's attention; if dairy plainly gives you or your child airway trouble, get it tested rather than settling it from a web page. Each steelman is compressed; the real arguments run to papers and trials, and a card or a panel is a doorway, not the room. Dates mark a representative study, not the first time anyone raised the point. The two-pole axis is a lens for seeing structure, useful precisely because it simplifies — and untrue to any view that won't sit on a line, which is what the lilac hinge is there to flag.</p>
+  <div class="foot-links">
+    <a href="/debates">← All thought pages</a>
+    <a href="/">brooker.family</a>
+  </div>
+</footer>
+
+<script>
+(function(){
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var items = document.querySelectorAll('.reveal');
+  if(reduce || !('IntersectionObserver' in window)){
+    items.forEach(function(el){ el.classList.add('in'); });
+    return;
+  }
+  var io = new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); }
+    });
+  }, {threshold:0.12, rootMargin:'0px 0px -8% 0px'});
+  items.forEach(function(el){ io.observe(el); });
+})();
+</script>
+</body>
+</html>

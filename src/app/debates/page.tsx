@@ -90,6 +90,15 @@ const DEBATES: DebateCard[] = [
     poleB: "Rein it in",
   },
   {
+    slug: "milk-mucus",
+    group: "Live & contested",
+    field: "Respiratory physiology · folk medicine",
+    title: "Milk & mucus: does dairy thicken congestion?",
+    hook: "An 800-year-old belief meets the blinded challenge trials — mucus weighed, sensation felt, and the A1/BCM-7 mechanism that keeps the door ajar.",
+    poleA: "Milk thickens it",
+    poleB: "It's a myth",
+  },
+  {
     slug: "saturated-fat",
     group: "Live & contested",
     field: "Nutrition science",
