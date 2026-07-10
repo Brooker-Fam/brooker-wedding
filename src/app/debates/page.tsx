@@ -45,6 +45,15 @@ const DEBATES: DebateCard[] = [
     poleB: "Made",
   },
   {
+    slug: "habits-intentions",
+    group: "Enduring questions",
+    field: "Ethics · moral psychology",
+    title: "Are we made good by habit, or by intention?",
+    hook: "Aristotle's trained character vs Kant's good will — where moral worth lives, how virtue is formed, and whether stable character even exists.",
+    poleA: "Habit & character",
+    poleB: "Will & intention",
+  },
+  {
     slug: "venezuela",
     group: "Live & contested",
     field: "Political economy · history",

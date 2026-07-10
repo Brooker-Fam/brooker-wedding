@@ -23,8 +23,8 @@ is adapted for **brooker.family** and how to add a new map.
 | Reference implementation / template | `public/debates/god.html` |
 | Old `/vaccine-debate` URL | redirects to `/debates/vaccines.html` |
 
-Current maps: `god`, `morality`, `vaccines`, `covid-vaccines`, `us-iran`,
-`ai-data-centers`, `saturated-fat`, `sun-exposure`, `venezuela`.
+Current maps: `god`, `morality`, `habits-intentions`, `vaccines`, `covid-vaccines`,
+`us-iran`, `ai-data-centers`, `saturated-fat`, `sun-exposure`, `venezuela`.
 
 `venezuela` is a rise-and-fall history as well as a debate: its lineage section
 carries the boom-and-bust narrative, and the two-pole axis runs *ruined from

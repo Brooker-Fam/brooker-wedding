@@ -1,0 +1,815 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- Field map: habits vs intentions (virtue ethics) -->
+<title>Habit or intention? — a map of the virtue-ethics debate</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,500&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#171922; --ink-2:#1e212c; --card:#23273380; --card-solid:#232734;
+    --line:#34384a; --line-soft:#2a2e3b;
+    --bone:#ebe5d6; --mute:#a6a394; --faint:#807e8a;
+    /* found = pole A (verdigris) · made = pole B (ochre) · pivot = the reconciling hinge (lilac).
+       Rename the *concepts* in your prose, but keep these three colors as the axis. */
+    --found:#6dbaa4; --found-deep:#2f6657; --found-glow:#6dbaa422;
+    --made:#d8a652; --made-deep:#7d5f29; --made-glow:#d8a65222;
+    --pivot:#a195bd; --pivot-glow:#a195bd1f;
+    /* third camp (slate-blue) — only for genuinely ternary debates; see SKILL.md */
+    --camp-c:#6f93c4; --camp-c-deep:#33506f; --camp-c-glow:#6f93c41f;
+    --maxw:1180px;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0; background:var(--ink); color:var(--bone);
+    font-family:"IBM Plex Sans",sans-serif; font-weight:400;
+    line-height:1.62; font-size:17px;
+    -webkit-font-smoothing:antialiased;
+    background-image:
+      radial-gradient(900px 600px at 82% -8%, #20243340, transparent 70%),
+      radial-gradient(700px 500px at 5% 18%, #1d212e55, transparent 70%);
+    background-attachment:fixed;
+  }
+  .wrap{max-width:var(--maxw); margin:0 auto; padding:0 26px;}
+  .mono{font-family:"IBM Plex Mono",monospace;}
+  .ser{font-family:"Fraunces",serif;}
+
+  /* ---------- eyebrows / dividers ---------- */
+  .eyebrow{
+    font-family:"IBM Plex Mono",monospace; font-size:12px; font-weight:500;
+    letter-spacing:.22em; text-transform:uppercase; color:var(--faint);
+    display:flex; align-items:center; gap:14px;
+  }
+  .eyebrow::before{content:""; width:30px; height:1px; background:var(--line); display:inline-block;}
+  .sec-num{color:var(--mute);}
+
+  /* ---------- brooker site tie (added for brooker.family/debates) ---------- */
+  .site-tie{
+    font-family:"IBM Plex Mono",monospace; font-size:12px; letter-spacing:.2em;
+    text-transform:uppercase; color:var(--faint); text-decoration:none;
+    display:inline-flex; align-items:center; gap:9px; margin:0 0 30px;
+    transition:color .2s;
+  }
+  .site-tie::before{content:""; width:22px; height:1px; background:var(--line); display:inline-block;}
+  .site-tie:hover{color:var(--bone);}
+  .foot-links{margin-top:22px; display:flex; gap:24px; flex-wrap:wrap;}
+  .foot-links a{
+    font-family:"IBM Plex Mono",monospace; font-size:11.5px; letter-spacing:.16em;
+    text-transform:uppercase; color:var(--mute); text-decoration:none;
+    border-bottom:1px solid var(--line); padding-bottom:2px;
+  }
+  .foot-links a:hover{color:var(--bone); border-bottom-color:var(--mute);}
+
+  /* ---------- header ---------- */
+  header{padding:clamp(56px,10vw,116px) 0 clamp(40px,7vw,80px);}
+  .kicker{
+    font-family:"IBM Plex Mono",monospace; font-size:12.5px; letter-spacing:.26em;
+    text-transform:uppercase; color:var(--faint); margin:0 0 26px;
+  }
+  h1.title{
+    font-family:"Fraunces",serif; font-weight:400; font-optical-sizing:auto;
+    font-size:clamp(2.5rem,6.4vw,4.7rem); line-height:1.02; letter-spacing:-.012em;
+    margin:0; max-width:16ch;
+  }
+  h1.title em{font-style:italic; color:var(--found);}
+  h1.title .mk{font-style:italic; color:var(--made);}
+  .dek{
+    font-size:clamp(1.05rem,2.1vw,1.35rem); color:var(--mute); line-height:1.5;
+    max-width:47ch; margin:30px 0 0; font-weight:400;
+  }
+  .dek b{color:var(--bone); font-weight:500;}
+
+  /* ---------- axis legend ---------- */
+  .legend{
+    margin-top:46px; border:1px solid var(--line-soft); border-radius:14px;
+    background:linear-gradient(100deg,#1c202c,#1a1e29);
+    padding:22px 24px; display:grid; gap:14px;
+  }
+  .legend-top{font-family:"IBM Plex Mono",monospace; font-size:11.5px; letter-spacing:.2em; text-transform:uppercase; color:var(--faint);}
+  .axis-bar{
+    height:7px; border-radius:6px;
+    background:linear-gradient(90deg,var(--found) 0%, #6e6b78 50%, var(--made) 100%);
+  }
+  .axis-ends{display:flex; justify-content:space-between; gap:16px; font-size:14.5px;}
+  .axis-ends .ax-found{color:var(--found);}
+  .axis-ends .ax-made{color:var(--made); text-align:right;}
+  .axis-ends span b{display:block; font-weight:600; font-size:15px; margin-bottom:1px;}
+  .axis-ends span small{color:var(--faint); font-size:12.5px; letter-spacing:.02em;}
+
+  /* ---------- section frame ---------- */
+  section{padding:clamp(54px,8vw,96px) 0;}
+  .sec-head{margin-bottom:42px;}
+  .sec-head h2{
+    font-family:"Fraunces",serif; font-weight:400; font-size:clamp(1.9rem,4vw,2.9rem);
+    line-height:1.06; letter-spacing:-.01em; margin:18px 0 0; max-width:24ch;
+  }
+  .sec-head p{color:var(--mute); max-width:62ch; margin:16px 0 0; font-size:1.02rem;}
+
+  /* ===== I. LINEAGE (timeline) ===== */
+  .lineage{position:relative;}
+  .spine{
+    position:absolute; left:140px; top:6px; bottom:6px; width:2px;
+    background:linear-gradient(var(--found-deep),var(--line),var(--made-deep));
+  }
+  .node{position:relative; padding:0 0 26px 172px; min-height:30px;}
+  .node .yr{
+    position:absolute; left:0; top:1px; width:118px; text-align:right;
+    font-family:"IBM Plex Mono",monospace; font-size:12.5px; color:var(--faint);
+    letter-spacing:.02em; padding-top:2px;
+  }
+  .node .dot{
+    position:absolute; left:134px; top:6px; width:14px; height:14px; border-radius:50%;
+    background:var(--ink); border:2px solid var(--mute); z-index:2;
+  }
+  .node.found .dot{border-color:var(--found); box-shadow:0 0 0 4px var(--found-glow);}
+  .node.made .dot{border-color:var(--made); box-shadow:0 0 0 4px var(--made-glow);}
+  .node.pivot .dot{border-color:var(--pivot); box-shadow:0 0 0 4px var(--pivot-glow);}
+  .node .who{font-family:"Fraunces",serif; font-size:1.24rem; font-weight:500; line-height:1.15; letter-spacing:-.005em;}
+  .node .dom{font-family:"IBM Plex Mono",monospace; font-size:10.5px; letter-spacing:.16em; text-transform:uppercase; margin-left:10px; color:var(--faint); vertical-align:middle;}
+  .node .say{color:var(--mute); font-size:.99rem; margin-top:4px; max-width:64ch;}
+  .node.camp-c .dot{border-color:var(--camp-c); box-shadow:0 0 0 4px var(--camp-c-glow);}
+  .node.found .who{color:var(--found);}
+  .node.made .who{color:var(--made);}
+  .node.pivot .who{color:var(--pivot);}
+  .node.camp-c .who{color:var(--camp-c);}
+  .lineage-tail{padding-left:172px; margin-top:2px;}
+  .lineage-tail .pin{
+    position:relative; padding:16px 20px; border:1px dashed var(--line);
+    border-radius:12px; background:#1b1f2a; max-width:60ch;
+  }
+  .lineage-tail .pin b{font-family:"Fraunces",serif; font-weight:500; font-size:1.05rem;}
+  .lineage-tail .pin p{margin:5px 0 0; color:var(--mute); font-size:.96rem;}
+
+  /* ===== II. POSITIONS (field guide) ===== */
+  .fields{display:grid; grid-template-columns:1fr 1fr; gap:30px;}
+  .field h3{
+    font-family:"IBM Plex Mono",monospace; font-size:12.5px; letter-spacing:.2em;
+    text-transform:uppercase; color:var(--bone); margin:0 0 18px; padding-bottom:12px;
+    border-bottom:1px solid var(--line); display:flex; justify-content:space-between; align-items:baseline;
+  }
+  .field h3 small{color:var(--faint); letter-spacing:.12em; font-weight:400;}
+  .pos{
+    border:1px solid var(--line-soft); border-left:3px solid var(--line);
+    border-radius:0 11px 11px 0; background:var(--card);
+    padding:16px 18px; margin-bottom:13px; transition:border-color .25s, background .25s, transform .25s;
+  }
+  .pos.found{border-left-color:var(--found);}
+  .pos.made{border-left-color:var(--made);}
+  .pos.pivot{border-left-color:var(--pivot);}
+  .pos.camp-c{border-left-color:var(--camp-c);}
+  .pos:hover{transform:translateX(3px); background:var(--card-solid);}
+  .pos .nm{font-family:"Fraunces",serif; font-weight:600; font-size:1.16rem; letter-spacing:-.005em; display:flex; align-items:baseline; gap:10px; flex-wrap:wrap;}
+  .pos.found .nm{color:var(--found);} .pos.made .nm{color:var(--made);} .pos.pivot .nm{color:var(--pivot);} .pos.camp-c .nm{color:var(--camp-c);}
+  /* go-deeper links on a card or in the shelf */
+  .src-links{margin-top:9px; display:flex; flex-wrap:wrap; gap:6px 14px;}
+  .src-links a{font-family:"IBM Plex Mono",monospace; font-size:11.5px; color:var(--mute); text-decoration:none; border-bottom:1px solid var(--line);}
+  .src-links a:hover{color:var(--bone); border-bottom-color:var(--mute);}
+  .src-links a::after{content:" ↗"; color:var(--faint);}
+  .traction{
+    font-family:"IBM Plex Mono",monospace; font-size:10px; letter-spacing:.08em; text-transform:uppercase;
+    color:var(--faint); border:1px solid var(--line); border-radius:20px; padding:2px 9px; white-space:nowrap;
+  }
+  .pos .figs{font-family:"IBM Plex Mono",monospace; font-size:12px; color:var(--mute); margin:7px 0 7px; letter-spacing:.01em;}
+  .pos .claim{color:var(--bone); font-size:.97rem; line-height:1.5;}
+  .pos .nb{display:block; margin-top:7px; color:var(--faint); font-size:.85rem; font-style:italic;}
+  .pivot-card{
+    grid-column:1/-1; border:1px solid var(--pivot); border-radius:13px;
+    background:linear-gradient(100deg,#211f2c,#1c1b25); padding:20px 22px; margin-top:4px;
+    display:flex; gap:18px; align-items:flex-start; flex-wrap:wrap;
+  }
+  .pivot-card .pv-tag{font-family:"IBM Plex Mono",monospace; font-size:11px; letter-spacing:.2em; text-transform:uppercase; color:var(--pivot); white-space:nowrap; padding-top:5px;}
+  .pivot-card .pv-body{flex:1 1 320px;}
+  .pivot-card .pv-body b{font-family:"Fraunces",serif; font-weight:600; font-size:1.2rem; color:var(--pivot);}
+  .pivot-card .pv-body p{margin:6px 0 0; color:var(--bone); font-size:.98rem;}
+  .traction-note{margin-top:20px; color:var(--faint); font-size:.84rem; font-style:italic; max-width:70ch; display:flex; gap:9px;}
+  .traction-note::before{content:"※"; color:var(--mute); font-style:normal;}
+
+  /* ===== III. CRUXES (confrontations) ===== */
+  .crux{border:1px solid var(--line-soft); border-radius:18px; overflow:hidden; margin-bottom:30px; background:#191d28;}
+  .crux-head{padding:24px 28px 20px; border-bottom:1px solid var(--line-soft);}
+  .crux-meta{display:flex; justify-content:space-between; gap:14px; align-items:baseline; flex-wrap:wrap; margin-bottom:12px;}
+  .crux-n{font-family:"IBM Plex Mono",monospace; font-size:13px; letter-spacing:.18em; color:var(--mute);}
+  .crux-dom{font-family:"IBM Plex Mono",monospace; font-size:10.5px; letter-spacing:.16em; text-transform:uppercase; color:var(--ink); background:var(--mute); padding:3px 10px; border-radius:20px;}
+  .crux-dom.both{background:var(--pivot);}
+  .crux-q{font-family:"Fraunces",serif; font-weight:500; font-size:clamp(1.4rem,3vw,2rem); line-height:1.12; letter-spacing:-.01em; margin:0;}
+  .crux-sub{color:var(--mute); margin:9px 0 0; font-size:.98rem;}
+  .steels{display:grid; grid-template-columns:1fr 1fr; gap:0;}
+  .steel{padding:24px 28px; position:relative;}
+  .steel.s-found{background:linear-gradient(180deg,#1a2420,#191f1d);}
+  .steel.s-made{background:linear-gradient(180deg,#241f17,#1f1c16); border-left:1px solid var(--line-soft);}
+  .steel .side{font-family:"IBM Plex Mono",monospace; font-size:11px; letter-spacing:.14em; text-transform:uppercase; margin-bottom:5px;}
+  .steel.s-found .side{color:var(--found);}
+  .steel.s-made .side{color:var(--made);}
+  .steel .pos-name{font-family:"Fraunces",serif; font-weight:600; font-size:1.12rem; margin-bottom:9px; line-height:1.2;}
+  .steel.s-found .pos-name{color:var(--found);}
+  .steel.s-made .pos-name{color:var(--made);}
+  .steel .gist{font-weight:600; font-size:1.04rem; line-height:1.45; color:var(--bone); margin:0 0 13px; padding-bottom:13px; border-bottom:1px dashed var(--line);}
+  .steel .gist::before{content:"In plain terms"; display:block; font-family:"IBM Plex Mono",monospace; font-size:10px; font-weight:500; letter-spacing:.18em; text-transform:uppercase; color:var(--faint); margin-bottom:5px;}
+  .steel p{margin:0; font-size:.97rem; line-height:1.56; color:#e2dccd;}
+  .steel p em{font-style:italic; color:var(--bone);}
+  .crux-key{padding:18px 28px; background:#13161f; border-top:1px solid var(--line-soft); display:flex; gap:14px; align-items:flex-start;}
+  .crux-key .lab{font-family:"IBM Plex Mono",monospace; font-size:11px; letter-spacing:.16em; text-transform:uppercase; color:var(--faint); padding-top:3px; white-space:nowrap;}
+  .crux-key .txt{font-size:.99rem; color:var(--bone); line-height:1.5;}
+  .crux-key .txt b{font-weight:600;}
+  .same-tag{display:inline-block; margin-top:9px; font-family:"IBM Plex Mono",monospace; font-size:11px; letter-spacing:.08em; color:var(--pivot); border:1px solid var(--pivot); border-radius:20px; padding:3px 11px;}
+
+  /* ===== IV. PAYOFF ===== */
+  .fault-sec{background:linear-gradient(180deg,transparent, #13161f 30%, #13161f 70%, transparent);}
+  .fault-card{border:1px solid var(--line); border-radius:20px; background:#171b25; padding:clamp(24px,4vw,44px); box-shadow:0 30px 80px -50px #000;}
+  .fault-lead{font-family:"Fraunces",serif; font-weight:400; font-size:clamp(1.5rem,3.3vw,2.3rem); line-height:1.18; letter-spacing:-.01em; margin:0 0 8px; max-width:26ch;}
+  .fault-lead em{font-style:italic; color:var(--pivot);}
+  .fault-intro{color:var(--mute); max-width:64ch; margin:0 0 30px; font-size:1.02rem;}
+  .diagram{width:100%; height:auto; display:block; margin:6px 0 4px; overflow:visible;}
+  .fault-restate{display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:18px; margin-top:34px;}
+  .fr-item{border-top:2px solid var(--line); padding-top:13px;}
+  .fr-item.f1{border-top-color:var(--made);}
+  .fr-item.f2{border-top-color:var(--pivot);}
+  .fr-item.f3{border-top-color:var(--found);}
+  .fr-item.f4{border-top-color:var(--made);}
+  .fr-item .fr-n{font-family:"IBM Plex Mono",monospace; font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--faint);}
+  .fr-item .fr-t{font-family:"Fraunces",serif; font-weight:500; font-size:1.05rem; margin:4px 0 5px;}
+  .fr-item p{margin:0; font-size:.92rem; color:var(--mute); line-height:1.5;}
+  .fault-close{margin-top:36px; padding-top:26px; border-top:1px solid var(--line); font-family:"Fraunces",serif; font-style:italic; font-weight:400; font-size:clamp(1.15rem,2.4vw,1.5rem); line-height:1.35; color:var(--bone); max-width:44ch;}
+  .fault-close .ax{color:var(--found);}
+  .fault-close .mk{color:var(--made);}
+
+  /* ===== V. GO DEEPER (resources shelf) ===== */
+  .shelf{display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:24px;}
+  .shelf-col h4{font-family:"IBM Plex Mono",monospace; font-size:12px; letter-spacing:.18em; text-transform:uppercase; color:var(--mute); margin:0 0 14px; padding-bottom:10px; border-bottom:1px solid var(--line);}
+  .res{margin-bottom:15px;}
+  .res .t{font-family:"Fraunces",serif; font-weight:500; font-size:1.04rem; line-height:1.25;}
+  .res .t a{color:var(--bone); text-decoration:none; border-bottom:1px solid var(--line);}
+  .res .t a:hover{border-bottom-color:var(--mute);}
+  .res .by{font-family:"IBM Plex Mono",monospace; font-size:11.5px; color:var(--faint); margin-top:1px;}
+  .res .why{color:var(--mute); font-size:.9rem; margin-top:4px; line-height:1.45;}
+
+  /* ---------- footer ---------- */
+  footer{padding:54px 0 80px; border-top:1px solid var(--line-soft); margin-top:30px;}
+  .foot-note{color:var(--faint); font-size:.86rem; max-width:66ch; line-height:1.55;}
+  .foot-note b{color:var(--mute); font-weight:500;}
+
+  /* ---------- what would move them (per-crux concessions) ---------- */
+  .crux-cede{padding:16px 28px 22px; background:#13161f; border-top:1px solid var(--line-soft); display:flex; gap:14px; align-items:flex-start; flex-wrap:wrap;}
+  .crux-cede .lab{font-family:"IBM Plex Mono",monospace; font-size:11px; letter-spacing:.16em; text-transform:uppercase; color:var(--faint); padding-top:3px; white-space:nowrap;}
+  .crux-cede .cede{flex:1 1 320px; display:grid; gap:9px;}
+  .crux-cede .cede p{margin:0; font-size:.92rem; line-height:1.5; color:var(--mute); padding-left:13px; border-left:2px solid var(--line);}
+  .crux-cede .cede .c-found{border-left-color:var(--found);}
+  .crux-cede .cede .c-made{border-left-color:var(--made);}
+  .crux-cede .cede b{display:block; margin-bottom:1px; font-family:"IBM Plex Mono",monospace; font-size:10.5px; letter-spacing:.05em; text-transform:uppercase; font-weight:600; color:var(--bone);}
+  /* ---------- pole lean tag (colour-independent position marker) ---------- */
+  .pos .nm .lean{font-family:"IBM Plex Mono",monospace; font-size:9.5px; letter-spacing:.08em; text-transform:uppercase; color:var(--faint); border:1px solid var(--line); border-radius:4px; padding:1px 6px; white-space:nowrap; align-self:center; font-weight:500;}
+  .pos.found .nm .lean{color:var(--found); border-color:var(--found-deep);}
+  .pos.made .nm .lean{color:var(--made); border-color:var(--made-deep);}
+  .pos.pivot .nm .lean{color:var(--pivot); border-color:var(--pivot);}
+  .pos.camp-c .nm .lean{color:var(--camp-c); border-color:var(--camp-c-deep);}
+  /* ---------- reveal ---------- */
+  .reveal{opacity:0; transform:translateY(16px); transition:opacity .7s ease, transform .7s ease;}
+  .reveal.in{opacity:1; transform:none;}
+
+  :focus-visible{outline:2px solid var(--found); outline-offset:3px; border-radius:3px;}
+
+  /* ---------- responsive ---------- */
+  @media (max-width:760px){
+    body{font-size:16px;}
+    .fields{grid-template-columns:1fr;}
+    .steels{grid-template-columns:1fr;}
+    .steel.s-made{border-left:none; border-top:1px solid var(--line-soft);}
+    .spine{left:84px;}
+    .node{padding-left:112px;}
+    .node .yr{width:64px;}
+    .node .dot{left:78px;}
+    .lineage-tail{padding-left:112px;}
+    .axis-ends{flex-direction:column; gap:10px;}
+    .axis-ends .ax-made{text-align:left;}
+  }
+  @media (prefers-reduced-motion:reduce){
+    *{scroll-behavior:auto;}
+    .reveal{opacity:1; transform:none; transition:none;}
+    .draw{stroke-dashoffset:0 !important;}
+  }
+</style>
+</head>
+<body>
+
+<!-- ============================ HEADER ============================ -->
+<header class="wrap">
+  <a class="site-tie" href="/debates">All thought pages · brooker</a>
+  <p class="kicker">FIELD · ethics &amp; moral psychology</p>
+  <h1 class="title">Are we made good by <em>habit</em> — or by <span class="mk">what we intend</span>?</h1>
+  <p class="dek">The oldest question in ethics of character, mapped. A dozen positions on what makes a person and an action good fold into four <b>disagreements</b>, and those into two <b>questions</b>: does moral weight fall on settled character or the present will — and do stable character traits even exist? Below — the <b>lineage</b>, the <b>positions and who held them</b>, and four <b>cruxes</b>, each with the strongest case both sides actually make.</p>
+
+  <div class="legend reveal">
+    <div class="legend-top">One axis runs under all of it. Watch the two colors.</div>
+    <div class="axis-bar"></div>
+    <div class="axis-ends">
+      <span class="ax-found"><b>Habit &amp; character</b><small>the trained disposition · what you reliably do</small></span>
+      <span class="ax-made"><b>Will &amp; intention</b><small>the reason you act · what you mean to do</small></span>
+    </div>
+  </div>
+</header>
+
+<!-- ============================ I. LINEAGE ============================ -->
+<section class="wrap">
+  <div class="sec-head">
+    <div class="eyebrow"><span class="sec-num">I</span> &nbsp;the lineage</div>
+    <h2 class="ser">One quarrel, from ritual to the good will</h2>
+    <p>Read top to bottom. A dot's halo marks where the thinker stands — green for character formed by habit, gold for goodness located in the will, lilac for the view that the two can't be pulled apart.</p>
+  </div>
+
+  <div class="lineage reveal">
+    <div class="spine" aria-hidden="true"></div>
+
+    <div class="node found">
+      <span class="yr">c. 500 BCE</span><span class="dot"></span>
+      <div class="who">Confucius<span class="dom">ethics · ritual</span></div>
+      <div class="say">In the <em>Analects</em>, the person of virtue (<em>ren</em>) is formed through <em>li</em> — ritual and practice repeated until it reshapes what one wants. Character is not declared but drilled; you become humane by rehearsing humane conduct until it is yours.</div>
+    </div>
+
+    <div class="node found">
+      <span class="yr">c. 350 BCE</span><span class="dot"></span>
+      <div class="who">Aristotle<span class="dom">philosophy · the founder</span></div>
+      <div class="say">The <em>Nicomachean Ethics</em>: moral virtue "comes about as a result of habit." We become just by doing just acts, temperate by doing temperate acts — yet he adds a catch that seeds the whole hinge: the act must be <em>chosen</em>, for its own sake, from a firm character. A settled state concerned with choice.</div>
+    </div>
+
+    <div class="node made">
+      <span class="yr">c. 100 CE</span><span class="dot"></span>
+      <div class="who">Epictetus &amp; the Stoics<span class="dom">philosophy · the will</span></div>
+      <div class="say">Training (<em>askēsis</em>) matters, but the good sits in the soul's rational <em>assent</em> — the judgments that are wholly "up to us." Externals, and even trained feeling, are secondary to what the mind chooses to affirm. The locus of virtue slides toward the will.</div>
+    </div>
+
+    <div class="node made">
+      <span class="yr">c. 400</span><span class="dot"></span>
+      <div class="who">Augustine<span class="dom">theology · love &amp; will</span></div>
+      <div class="say">Goodness is a matter of rightly-ordered love and a reordered will — "love, and do what you will." Habit (<em>consuetudo</em>) appears mostly as a <em>chain</em>, the weight of old sin, broken not by more drilling but by grace turning the will around.</div>
+    </div>
+
+    <div class="node pivot">
+      <span class="yr">c. 1270</span><span class="dot"></span>
+      <div class="who">Thomas Aquinas<span class="dom">theology · habitus</span></div>
+      <div class="say">Virtue is a <em>habitus</em> — but a habit perfected by, and expressing, reason and will. The acquired disposition and the intending intellect are not rivals; they are one operation. The clearest medieval statement that the split is a mistake.</div>
+    </div>
+
+    <div class="node made">
+      <span class="yr">1785</span><span class="dot"></span>
+      <div class="who">Immanuel Kant<span class="dom">philosophy · the good will</span></div>
+      <div class="say">The <em>Groundwork</em>: nothing is good without qualification but a <em>good will</em>. An act has moral worth only when done <em>from duty</em>, for the sake of the law — and a good deed done from habit or inclination earns none of it. Kant even warns that habit drains actions of their worth by dulling the mind's freedom.</div>
+    </div>
+
+    <div class="node found">
+      <span class="yr">1958</span><span class="dot"></span>
+      <div class="who">G. E. M. Anscombe<span class="dom">philosophy · revival</span></div>
+      <div class="say">"Modern Moral Philosophy" detonates the law-without-a-lawgiver "moral ought" of Kant and the utilitarians, and sends philosophy back to the virtues and to what a good human life is. The starting gun for the neo-Aristotelian revival.</div>
+    </div>
+
+    <div class="node found">
+      <span class="yr">1978</span><span class="dot"></span>
+      <div class="who">Philippa Foot<span class="dom">philosophy · neo-Aristotelian</span></div>
+      <div class="say"><em>Virtues and Vices</em> rebuilds virtue as a genuine feature of a good human life, not a mask over self-interest. Character traits — not rules and not consequences — become the primary bearers of moral value again.</div>
+    </div>
+
+    <div class="node found">
+      <span class="yr">1999</span><span class="dot"></span>
+      <div class="who">Rosalind Hursthouse<span class="dom">philosophy · virtue ethics</span></div>
+      <div class="say"><em>On Virtue Ethics</em> gives the view a full action-guiding form: the right act is what a person of virtuous character would characteristically do. Habituated character does the normative heavy lifting.</div>
+    </div>
+
+    <div class="node made">
+      <span class="yr">1999</span><span class="dot"></span>
+      <div class="who">Harman &amp; Doris<span class="dom">psychology · situationism</span></div>
+      <div class="say">The empirical broadside: Milgram, the Good Samaritan seminarians, the dime in the phone booth. Behavior tracks trivial situational features far more than any cross-situational "trait" — so the robust character the whole tradition leans on may barely exist.</div>
+    </div>
+
+    <div class="node pivot">
+      <span class="yr">2011</span><span class="dot"></span>
+      <div class="who">Julia Annas<span class="dom">philosophy · the skill model</span></div>
+      <div class="say"><em>Intelligent Virtue</em> presses the fusion: virtue is like a practical skill — a pianist's, a doctor's — habituated but <em>intelligent</em>, reason-responsive, articulate. Not a reflex and not a bare resolve, but a trained way of choosing well. The hinge, argued in full.</div>
+    </div>
+
+    <div class="lineage-tail">
+      <div class="pin">
+        <b>Into the present</b>
+        <p>Few now defend the crude split: the mainstream reading holds that mature virtue is a trained disposition <em>to choose well</em>, so habit and intention are two faces of one thing. The live fight has moved underneath — to the empirical question of whether robust character traits exist at all.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ II. POSITIONS ============================ -->
+<section class="wrap">
+  <div class="sec-head">
+    <div class="eyebrow"><span class="sec-num">II</span> &nbsp;the positions</div>
+    <h2 class="ser">Who holds what — and where it sits on the axis</h2>
+    <p>Two families: those who locate goodness in <b>settled character</b> and those who locate it in the <b>will</b>. A card's left edge is its lean; the tag is rough sociology, not a scorecard.</p>
+  </div>
+
+  <div class="fields reveal">
+    <div class="field">
+      <h3>The primacy of character <small>habit &amp; disposition</small></h3>
+
+      <div class="pos found">
+        <div class="nm"><span class="lean">◀ habit</span> Aristotelian virtue ethics <span class="traction">the founding view, now dominant in the field</span></div>
+        <div class="figs">Aristotle · Foot · Hursthouse · MacIntyre</div>
+        <div class="claim">Goodness is a <em>hexis</em> — a settled state built by habituation. The virtuous person reliably does the right thing, does it gladly, and does it because that is the kind of person practice has made them.</div>
+        <span class="nb">Note the built-in caveat: for Aristotle the act must also be chosen for its own sake — which is why this view keeps sliding toward the hinge.</span>
+        <div class="src-links"><a href="https://plato.stanford.edu/entries/aristotle-ethics/">SEP: Aristotle's Ethics</a></div>
+      </div>
+
+      <div class="pos found">
+        <div class="nm"><span class="lean">◀ habit</span> Confucian ritual &amp; role ethics <span class="traction">the East Asian mainstream</span></div>
+        <div class="figs">Confucius · Xunzi · Mencius</div>
+        <div class="claim">Character (<em>ren</em>) is cultivated through <em>li</em> — repeated ritual and role-practice that gradually retunes desire itself, so that in the end one wants what is right.</div>
+        <span class="nb">Xunzi presses hardest on drill; Mencius roots it in innate "sprouts" that practice extends — a family argument inside the habit camp.</span>
+        <div class="src-links"><a href="https://plato.stanford.edu/entries/confucius/">SEP: Confucius</a></div>
+      </div>
+
+      <div class="pos found">
+        <div class="nm"><span class="lean">◀ habit</span> Neo-Aristotelian revival <span class="traction">the mainstream of academic virtue ethics</span></div>
+        <div class="figs">Anscombe · Foot · Hursthouse · Slote</div>
+        <div class="claim">After Anscombe's 1958 attack on rule-based ethics, right action is defined by reference to character: what the person of practical wisdom would characteristically do.</div>
+        <span class="nb">Restores the agent, not the act or its results, to the center of moral theory.</span>
+      </div>
+
+      <div class="pos pivot">
+        <div class="nm"><span class="lean">◆ hinge</span> Thomist <em>habitus</em> <span class="traction">the classical synthesis</span></div>
+        <div class="figs">Aquinas · Anscombe · MacIntyre</div>
+        <div class="claim">Virtue is a habit — but one informed and directed by reason and will. The trained disposition and the intending mind are a single perfected power, not two competitors.</div>
+        <span class="nb">Straddles both poles on purpose: it exists to deny that habit and intention come apart.</span>
+      </div>
+    </div>
+
+    <div class="field">
+      <h3>The primacy of the will <small>intention &amp; assent</small></h3>
+
+      <div class="pos made">
+        <div class="nm"><span class="lean">▶ intent</span> Kantian deontology <span class="traction">the dominant modern rival</span></div>
+        <div class="figs">Kant · Korsgaard · O'Neill</div>
+        <div class="claim">The only unconditional good is a good will. Moral worth lies in the <em>maxim</em> — in acting from duty for the law's sake — and a good act done from habit or inclination has none of it.</div>
+        <span class="nb">Kant treats settled habit with suspicion: automatic goodness, on his view, is exactly what freedom and worth are not.</span>
+        <div class="src-links"><a href="https://plato.stanford.edu/entries/kant-moral/">SEP: Kant's Moral Philosophy</a></div>
+      </div>
+
+      <div class="pos made">
+        <div class="nm"><span class="lean">▶ intent</span> Stoic rationalism <span class="traction">the ancient counter-current</span></div>
+        <div class="figs">Epictetus · Seneca · Marcus Aurelius</div>
+        <div class="claim">Virtue is the soul's right <em>assent</em> — the rational judgment that alone is "up to us." Trained feeling helps, but the good is the will affirming what reason sees, not the groove of behavior.</div>
+        <span class="nb">Askēsis is real training, but it serves the judgment; the verdict, not the reflex, is where virtue lives.</span>
+      </div>
+
+      <div class="pos made">
+        <div class="nm"><span class="lean">▶ intent</span> Augustinian voluntarism <span class="traction">the Christian inward turn</span></div>
+        <div class="figs">Augustine · Bernard · Luther</div>
+        <div class="claim">Goodness is a rightly-ordered will and rightly-directed love; what you <em>mean</em> and love is the heart of the act. Habit figures mainly as the chain of sin, undone by grace, not by more repetition.</div>
+        <span class="nb">"Love, and do what you will" makes the inner orientation, not the outward drill, decisive.</span>
+      </div>
+
+      <div class="pos made">
+        <div class="nm"><span class="lean">▶ skeptic</span> Situationism &amp; character skepticism <span class="traction">the live empirical challenge</span></div>
+        <div class="figs">Harman · Doris · Merritt</div>
+        <div class="claim">Robust, cross-situational character traits are largely a fiction; conduct is driven by circumstance. If so, the "habit" the first family leans on may not exist — leaving momentary, situation-aware intention as the only real lever.</div>
+        <span class="nb">Not a fourth virtue theory but a solvent poured on the whole debate — which is why it runs crossways below.</span>
+        <div class="src-links"><a href="https://plato.stanford.edu/entries/moral-character-empirical/">SEP: Moral Character — Empirical Approaches</a></div>
+      </div>
+    </div>
+
+    <div class="pivot-card">
+      <div class="pv-tag">the hinge ↕</div>
+      <div class="pv-body">
+        <b>The view that the dichotomy is false</b>
+        <p>Aristotle's own definition already fuses the poles: virtue is a <em>hexis</em> concerned with <em>prohairesis</em> — a settled disposition to <em>choose</em> well, knowingly and for its own sake. A drilled reflex that can't say why it acts is, for him, mere "continence," not virtue; a warm intention that never sets into reliable conduct is only a wish. Aquinas's <em>habitus</em> and Julia Annas's skill model make the same move from opposite eras: mature virtue is <em>intelligent habit</em>, a trained way of intending that stays responsive to reasons, the way a musician's or a doctor's expertise is both practiced and alert. On this reading "habit or intention?" mistakes two aspects of one thing for two rival candidates — and the interesting question is not which wins but how they lock together.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="traction-note">Tags are rough sociology — how the literature shakes out — not a verdict. Positions on both sides have held the field at different times; popularity and truth keep separate books.</div>
+</section>
+
+<!-- ============================ III. CRUXES ============================ -->
+<section class="wrap">
+  <div class="sec-head">
+    <div class="eyebrow"><span class="sec-num">III</span> &nbsp;the cruxes</div>
+    <h2 class="ser">Four fair fights, each carrying part of the load</h2>
+    <p>The positions are bundles of answers; these are the questions that, answered one way or the other, split them. Both panels give the side's best case, in its own voice.</p>
+  </div>
+
+  <!-- CRUX 1 -->
+  <div class="crux reveal">
+    <div class="crux-head">
+      <div class="crux-meta"><span class="crux-n">Crux 01 — the worth</span><span class="crux-dom">value</span></div>
+      <h3 class="crux-q ser">Where does an action's moral worth come from — the character it flows from, or the reason behind it?</h3>
+      <p class="crux-sub">Two people give the same coin to the same beggar. One is generous; the other is calculating. Are they morally equal?</p>
+    </div>
+    <div class="steels">
+      <div class="steel s-found">
+        <div class="side">▸ worth is in the disposition</div>
+        <div class="pos-name">Virtue as reliable character</div>
+        <div class="gist">An act is good because it flows from a settled good character; the person who reliably does right, without fuss, is the one we rightly call good.</div>
+        <p>When a generous person gives, they don't first consult a principle — giving is simply what a generous person does, and that reliability <em>is</em> the virtue. It's also the only thing a friend or a community can actually lean on. Intentions, by contrast, are cheap, private, and endlessly self-flattering: everyone means well at 6 a.m. What reveals a person is the grain of conduct worn in over years, not the resolution formed this morning. "The road to hell is paved with good intentions" is not cynicism — it is the plain observation that meaning well and doing well come apart, and only the second is character you can trust.</p>
+      </div>
+      <div class="steel s-made">
+        <div class="side">▸ worth is in the will</div>
+        <div class="pos-name">The good will (Kant)</div>
+        <div class="gist">An act has moral worth only when done <em>for</em> the right reason; a good deed done from mere habit or inclination earns no more credit than a well-made machine.</div>
+        <p>Kant's shopkeeper gives honest change — but only because cheating would cost him custom. He does the right thing and deserves nothing for it; his honesty is prudence wearing virtue's coat. Set beside him the man who is honest <em>when it hurts</em>, from duty alone: there the moral worth shines, visible precisely because inclination isn't doing the work. A habit is a kind of mechanism, and a mechanism can't be praised — only its maker can. If your goodness is just conditioning that happened to take, the credit belongs to your upbringing, not to you. Worth requires that the good be <em>willed</em>, not merely emitted.</p>
+      </div>
+    </div>
+    <div class="crux-key">
+      <span class="lab">the crux</span>
+      <span class="txt">Does moral worth reside in the <b>reliable disposition</b> or the <b>reason one acts</b>? Who deserves praise, and what we try to instill in children, both turn on this.</span>
+    </div>
+    <div class="crux-cede">
+      <span class="lab">what would move them</span>
+      <div class="cede">
+        <p class="c-found"><b>The character side concedes if</b> a person who acts rightly with no good reason at all — mechanically, unable to say why — is shown to be as admirable as one who acts from understanding.</p>
+        <p class="c-made"><b>The will side concedes if</b> reliable good conduct is shown to be genuinely praiseworthy even with no conscious moral intention behind it — if "doing good without thinking" can be a virtue and not just a lucky reflex.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- CRUX 2 -->
+  <div class="crux reveal">
+    <div class="crux-head">
+      <div class="crux-meta"><span class="crux-n">Crux 02 — the making</span><span class="crux-dom">moral education</span></div>
+      <h3 class="crux-q ser">How do people actually become good — by doing before understanding, or by understanding before doing?</h3>
+      <p class="crux-sub">Hand the same child two upbringings: one drills the conduct, the other reasons it out. Which one raises virtue?</p>
+    </div>
+    <div class="steels">
+      <div class="steel s-found">
+        <div class="side">▸ practice comes first</div>
+        <div class="pos-name">Habituation (Aristotle)</div>
+        <div class="gist">You acquire virtue the way you learn an instrument — by doing the acts first; the right feelings and the understanding follow the drill, not the reverse.</div>
+        <p>"We become just by doing just acts, temperate by doing temperate acts," Aristotle writes — we don't first grasp justice in the abstract and then deploy it, any more than a builder learns to build by lecture. Children are held to honesty long before they can argue for it, and the practice slowly reshapes what they <em>want</em>, until the good feels natural rather than imposed. Insight without the groove is inert: everyone already knows they ought to be patient. The person who has drilled patience for twenty years is the one who actually <em>has</em> it. Character is carved by repetition — you act your way into right feeling, not the other way round.</p>
+      </div>
+      <div class="steel s-made">
+        <div class="side">▸ understanding comes first</div>
+        <div class="pos-name">Conditioning isn't virtue</div>
+        <div class="gist">A disposition installed without understanding is mere training — you'd have shaped a person the way you shape a dog. Real virtue must be grasped and endorsed, or it isn't the agent's own.</div>
+        <p>Drill a child into compliant habits and you may get reliable behavior, but you have not yet produced a moral agent — you've produced a well-trained animal whose "virtue" evaporates the instant the training's assumptions fail. What makes conduct <em>yours</em> is that you understand and endorse it; the will has to be engaged, or the goodness belongs to whoever ran the conditioning. And habit is a neutral engine: the cruel become cruel by practice just as surely as the kind become kind. Repetition on its own entrenches whatever it's fed. Without a reason the agent can grasp and own, habituation is as likely to set vice as virtue — understanding has to be there to <em>steer</em>.</p>
+      </div>
+    </div>
+    <div class="crux-key">
+      <span class="lab">the crux</span>
+      <span class="txt">Does virtue come from <b>practice preceding insight</b> or <b>insight governing practice</b>? At stake is whether moral education is fundamentally drill or dialogue.</span>
+    </div>
+    <div class="crux-cede">
+      <span class="lab">what would move them</span>
+      <div class="cede">
+        <p class="c-found"><b>The practice side concedes if</b> habituation without any understanding is shown to entrench vice about as readily as virtue — so that the drill, by itself, guarantees nothing.</p>
+        <p class="c-made"><b>The understanding side concedes if</b> children are shown to become reliably good through practice <em>before</em> they can grasp or endorse the reasons — so that understanding follows habit rather than founding it.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- CRUX 3 -->
+  <div class="crux reveal">
+    <div class="crux-head">
+      <div class="crux-meta"><span class="crux-n">Crux 03 — the effort</span><span class="crux-dom">agency · freedom</span></div>
+      <h3 class="crux-q ser">Is the ideal to do good effortlessly and automatically, or to do good as a fresh, free choice each time?</h3>
+      <p class="crux-sub">One person does the right thing without a second thought; another does it after wrestling down the urge to bolt. Which is the better human being?</p>
+    </div>
+    <div class="steels">
+      <div class="steel s-found">
+        <div class="side">▸ second nature is the summit</div>
+        <div class="pos-name">Effortless virtue</div>
+        <div class="gist">The fully virtuous person does right without struggle and takes pleasure in it; having to grit your teeth is a lower grade of goodness, not a higher one.</div>
+        <p>Aristotle draws a sharp line between the <em>virtuous</em> person, who does the generous thing gladly, and the merely <em>continent</em> one, who does it while pinning down a contrary desire. The second is admirable but incomplete — still at war with himself. The summit is the disposition so settled that the right response arrives unbidden, the way a master reads a board at a glance. To demand that every good act be a fresh effort of will is to freeze everyone at the beginner's stage and then call the trembling the achievement. In every other domain we recognize that mastery <em>is</em> the disappearance of struggle; morality is no exception.</p>
+      </div>
+      <div class="steel s-made">
+        <div class="side">▸ freedom is the whole point</div>
+        <div class="pos-name">The willed act (Kant)</div>
+        <div class="gist">Goodness on autopilot is brittle and, worse, unfree; only an act that could have been chosen otherwise is one the agent can answer for.</div>
+        <p>The person who does good <em>against</em> inclination shows the will at its purest — which is exactly why Kant finds moral worth blazing where habit and desire pull the other way. Automatic virtue is also fragile: it doesn't adapt when the situation shifts under it, and someone running on grooves can't truly answer for what the grooves do. Kant warned outright that habit "deprives even good actions of their moral worth" by impairing the mind's freedom. Responsibility requires that each act stay, in principle, a live choice — not a reflex worn smooth. A saint who <em>couldn't</em> do otherwise is not a saint but a mechanism that happens to be aimed well.</p>
+      </div>
+    </div>
+    <div class="crux-key">
+      <span class="lab">the crux</span>
+      <span class="txt">Is the good life <b>effortless mastery</b> or <b>perpetual free choice</b>? The dispute is whether struggle marks virtue's shortfall or its dignity.</span>
+    </div>
+    <div class="crux-cede">
+      <span class="lab">what would move them</span>
+      <div class="cede">
+        <p class="c-found"><b>The mastery side concedes if</b> effortless, unstruggling good conduct is shown to be less admirable — or less free — than the same conduct done against inclination.</p>
+        <p class="c-made"><b>The freedom side concedes if</b> the person for whom goodness has become second nature is shown to be fully free and responsible in it — so that the absence of struggle costs nothing in agency.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- CRUX 4 -->
+  <div class="crux reveal">
+    <div class="crux-head">
+      <div class="crux-meta"><span class="crux-n">Crux 04 — the reality</span><span class="crux-dom both">psychology · crossways</span></div>
+      <h3 class="crux-q ser">Before asking whether habit or intention weighs more — is "character" even real?</h3>
+      <p class="crux-sub">The first three cruxes assume there are honest people and cowardly ones. The psychology lab asks whether that assumption survives contact with the evidence.</p>
+    </div>
+    <div class="steels">
+      <div class="steel s-found">
+        <div class="side">▸ character is real</div>
+        <div class="pos-name">Trait realism</div>
+        <div class="gist">People do have robust dispositions — the honest, the coward, the kind — and we predict, trust, and build our lives around them every day, mostly rightly.</div>
+        <p>We are not fooled at random. We lend to the reliable, confide in the discreet, keep our distance from the cruel — and across years and settings we are mostly right. The famous experiments show that decent people can be pushed into bad acts under engineered pressure; they do not show that there is no difference between people. That some situations overwhelm most characters was never news to Aristotle, who thought full virtue rare and hard-won. Fragility at the extremes is entirely compatible with real, stable traits in the ordinary run of life — which is the only place character was ever claimed to operate.</p>
+      </div>
+      <div class="steel s-made">
+        <div class="side">▸ character is largely a fiction</div>
+        <div class="pos-name">Situationism (Harman, Doris)</div>
+        <div class="gist">The evidence says behavior tracks trivial situational features far more than any cross-situational trait — so the "character" the whole debate leans on may barely exist.</div>
+        <p>Whether you stop to help a stranger turns out to hinge on whether you just found a dime, or passed a bakery, or were told you're running late — not on how "kind" you are. Milgram's subjects, ordinary people, delivered what they believed were lethal shocks because a man in a coat told them to continue. If conduct is this hostage to circumstance, then "the honest person" is a summary of past luck, not a reliable engine of future acts. And if robust traits are largely a fiction, the habit-versus-intention contest is built on sand: what's left to work with is deliberate, situation-aware intention — noticing the pressure you're under and choosing against it.</p>
+      </div>
+    </div>
+    <div class="crux-key">
+      <span class="lab">the crux</span>
+      <span class="txt">Are cross-situational <b>character traits real</b>, or an <b>attribution error</b>? <span class="same-tag">↳ this runs crossways to Cruxes 01–03 — it asks whether the "habit" they all presuppose even exists.</span></span>
+    </div>
+    <div class="crux-cede">
+      <span class="lab">what would move them</span>
+      <div class="cede">
+        <p class="c-found"><b>The trait-realist side concedes if</b> rigorous studies find no stable, cross-situational differences in conduct once the situation is controlled — no honest-vs-dishonest signal that survives the setting.</p>
+        <p class="c-made"><b>The situationist side concedes if</b> character traits are shown to predict behavior across varied, uncontrived situations better than the situation does — so that "character" earns its explanatory keep.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ IV. PAYOFF ============================ -->
+<section class="wrap fault-sec">
+  <div class="sec-head">
+    <div class="eyebrow"><span class="sec-num">IV</span> &nbsp;the payoff</div>
+  </div>
+
+  <div class="fault-card reveal">
+    <h3 class="fault-lead ser">Four cruxes, <em>two questions</em> underneath</h3>
+    <p class="fault-intro">Cruxes 01–03 are three angles on a single question: when we judge a person or an act, does the weight fall on the trained disposition or on the present will — on what you reliably do, or on why you do it? Crux 04 runs crossways: it asks whether the disposition the first three lean on is even real. Plot both and the field stops looking like one long duel between Aristotle and Kant. It looks like people standing on different squares — and, as often as not, refusing a choice that isn't forced, since mature virtue is a habit of intending well.</p>
+
+    <svg class="diagram" viewBox="0 0 980 600" role="img" aria-labelledby="dg-t dg-d">
+      <title id="dg-t">Two crossed questions under the habits-vs-intentions debate</title>
+      <desc id="dg-d">A grid with two axes. The horizontal axis runs from "habit and character" on the left to "will and intention" on the right. The vertical axis runs from "character is real" at the top to "traits are a fiction" at the bottom. Positions are plotted as points: Confucius and Aristotle upper left (habit, traits real); neo-Aristotelians center-left; Aquinas top center; Stoics and Kant upper right (will, traits real); Julia Annas at the very crossing, marked as fusing habit and intention; and situationism (Harman, Doris) at the bottom, marking traits as largely a fiction.</desc>
+      <defs>
+        <linearGradient id="axisgrad" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0" stop-color="#6dbaa4"/>
+          <stop offset="0.5" stop-color="#6e6b78"/>
+          <stop offset="1" stop-color="#d8a652"/>
+        </linearGradient>
+      </defs>
+
+      <!-- vertical axis: is character real -->
+      <line x1="490" y1="80" x2="490" y2="500" stroke="#34384a" stroke-width="2"/>
+      <!-- horizontal axis: habit vs intention -->
+      <line x1="110" y1="290" x2="870" y2="290" stroke="url(#axisgrad)" stroke-width="6" stroke-linecap="round"/>
+      <circle cx="110" cy="290" r="7" fill="#6dbaa4"/>
+      <circle cx="870" cy="290" r="7" fill="#d8a652"/>
+
+      <!-- axis labels -->
+      <text x="110" y="322" fill="#6dbaa4" font-family="'IBM Plex Mono',monospace" font-size="15">habit &amp; character</text>
+      <text x="870" y="322" fill="#d8a652" font-family="'IBM Plex Mono',monospace" font-size="15" text-anchor="end">will &amp; intention</text>
+      <text x="490" y="62" fill="#a6a394" font-family="'IBM Plex Mono',monospace" font-size="14" text-anchor="middle">character is real</text>
+      <text x="490" y="528" fill="#a6a394" font-family="'IBM Plex Mono',monospace" font-size="14" text-anchor="middle">traits are a fiction</text>
+
+      <!-- plotted positions (rows staggered so no two labels share a line) -->
+      <!-- top center-left: Aquinas, hinge but traits real -->
+      <circle cx="452" cy="120" r="6" fill="#a195bd"/>
+      <text x="437" y="116" fill="#a195bd" font-family="'IBM Plex Sans',sans-serif" font-size="14.5" text-anchor="end">Aquinas · habitus</text>
+
+      <!-- upper-left: Confucius (habit, traits real) -->
+      <circle cx="252" cy="162" r="6" fill="#6dbaa4"/>
+      <text x="267" y="167" fill="#ebe5d6" font-family="'IBM Plex Sans',sans-serif" font-size="14.5">Confucius · ritual</text>
+
+      <!-- upper-right: Kant (will, traits real-ish) -->
+      <circle cx="712" cy="150" r="6" fill="#d8a652"/>
+      <text x="697" y="155" fill="#ebe5d6" font-family="'IBM Plex Sans',sans-serif" font-size="14.5" text-anchor="end">Kant · the good will</text>
+
+      <!-- upper-left lower row: Aristotle (habit + choice) -->
+      <circle cx="318" cy="216" r="6" fill="#6dbaa4"/>
+      <text x="333" y="221" fill="#ebe5d6" font-family="'IBM Plex Sans',sans-serif" font-size="14.5">Aristotle · habituation</text>
+
+      <!-- upper-right lower row: Stoics -->
+      <circle cx="672" cy="220" r="6" fill="#d8a652"/>
+      <text x="657" y="225" fill="#ebe5d6" font-family="'IBM Plex Sans',sans-serif" font-size="14.5" text-anchor="end">Stoics · right assent</text>
+
+      <!-- center-left near axis: neo-Aristotelians -->
+      <circle cx="360" cy="262" r="6" fill="#6dbaa4"/>
+      <text x="345" y="258" fill="#ebe5d6" font-family="'IBM Plex Sans',sans-serif" font-size="14.5" text-anchor="end">Foot · Hursthouse</text>
+
+      <!-- the pivot: sits on the crossing, fuses the poles -->
+      <circle cx="490" cy="290" r="8" fill="#a195bd" stroke="#171922" stroke-width="2"/>
+      <text x="506" y="285" fill="#a195bd" font-family="'IBM Plex Sans',sans-serif" font-size="14.5" font-style="italic">Annas · intelligent virtue</text>
+      <text x="506" y="304" fill="#a195bd" font-family="'IBM Plex Mono',monospace" font-size="11">fuses habit &amp; intention</text>
+
+      <!-- bottom center-right: situationism, traits a fiction -->
+      <circle cx="556" cy="430" r="6" fill="#a6a394"/>
+      <text x="571" y="435" fill="#ebe5d6" font-family="'IBM Plex Sans',sans-serif" font-size="14.5">Situationism · Harman, Doris</text>
+      <text x="571" y="453" fill="#a6a394" font-family="'IBM Plex Mono',monospace" font-size="11">denies the stable trait</text>
+    </svg>
+
+    <div class="fault-restate">
+      <div class="fr-item f1"><div class="fr-n">Crux 01 · worth</div><div class="fr-t ser">Where worth lives</div><p>The horizontal axis, asked of a single act. In the reliable disposition, or in the reason one wills it.</p></div>
+      <div class="fr-item f2"><div class="fr-n">Crux 04 · reality</div><div class="fr-t ser">Is character real</div><p>The vertical axis. Whether the stable trait the other three lean on exists at all — the question that can pull the floor out.</p></div>
+      <div class="fr-item f3"><div class="fr-n">Crux 02 · formation</div><div class="fr-t ser">How virtue is made</div><p>The horizontal axis again, aimed at upbringing. Practice before insight, or insight governing practice.</p></div>
+      <div class="fr-item f4"><div class="fr-n">Crux 03 · effort</div><div class="fr-t ser">Automatic or free</div><p>The horizontal axis stress-tested. Effortless second nature, or the freely willed act.</p></div>
+    </div>
+
+    <p class="fault-close ser">Find your own hinge. Few people are torn on all four — one carries the weight. Locate it, work out whether you're really arguing about <span class="ax">what a person reliably is</span> or about <span class="mk">what they mean in the moment</span> — and you may find, with Aristotle and Kant both, that the deepest answer refuses the choice.</p>
+  </div>
+</section>
+
+<!-- ============================ V. GO DEEPER ============================ -->
+<section class="wrap">
+  <div class="sec-head">
+    <div class="eyebrow"><span class="sec-num">V</span> &nbsp;go deeper</div>
+    <h2 class="ser">Where to take it next</h2>
+    <p>A few ways in, grouped by medium. Books are listed by author and year; every link was checked.</p>
+  </div>
+
+  <div class="shelf reveal">
+    <div class="shelf-col">
+      <h4>Books</h4>
+      <div class="res">
+        <div class="t">Nicomachean Ethics</div>
+        <div class="by">Aristotle · c. 350 BCE</div>
+        <div class="why">The source. Book II makes the habituation case; the definition of virtue as a state concerned with choice already contains the hinge.</div>
+      </div>
+      <div class="res">
+        <div class="t">Groundwork of the Metaphysics of Morals</div>
+        <div class="by">Immanuel Kant · 1785</div>
+        <div class="why">The good will and the honest shopkeeper — the classic argument that worth lives in the maxim, not the deed or the disposition.</div>
+      </div>
+      <div class="res">
+        <div class="t">On Virtue Ethics</div>
+        <div class="by">Rosalind Hursthouse · 1999</div>
+        <div class="why">The fullest modern neo-Aristotelian system: right action defined as what the person of good character would characteristically do.</div>
+      </div>
+      <div class="res">
+        <div class="t">Intelligent Virtue</div>
+        <div class="by">Julia Annas · 2011</div>
+        <div class="why">The hinge, argued in full: virtue as a practical skill — habituated but intelligent and answerable to reasons.</div>
+      </div>
+      <div class="res">
+        <div class="t">Lack of Character</div>
+        <div class="by">John M. Doris · 2002</div>
+        <div class="why">The book-length situationist case that robust character traits are a psychological illusion. Crux 04's home turf.</div>
+      </div>
+    </div>
+
+    <div class="shelf-col">
+      <h4>Podcasts</h4>
+      <div class="res">
+        <div class="t"><a href="https://philosophybites.com/podcast/julia-annas-on-what-is-virtue-ethics-for/">Philosophy Bites — Julia Annas on What Is Virtue Ethics For?</a></div>
+        <div class="by">Annas &amp; Edmonds / Warburton</div>
+        <div class="why">Short and clear on what virtue ethics actually claims, and why it differs from a rules-first or results-first ethic.</div>
+      </div>
+    </div>
+
+    <div class="shelf-col">
+      <h4>Essays &amp; entries</h4>
+      <div class="res">
+        <div class="t"><a href="https://plato.stanford.edu/entries/ethics-virtue/">SEP — Virtue Ethics</a></div>
+        <div class="by">Stanford Encyclopedia of Philosophy</div>
+        <div class="why">The reliable map of the whole terrain — habituation, practical wisdom, and the situationist objection in one place.</div>
+      </div>
+      <div class="res">
+        <div class="t"><a href="https://plato.stanford.edu/entries/moral-character/">SEP — Moral Character</a></div>
+        <div class="by">Stanford Encyclopedia of Philosophy</div>
+        <div class="why">On what a character trait even is — the concept the whole debate turns on.</div>
+      </div>
+      <div class="res">
+        <div class="t"><a href="https://plato.stanford.edu/entries/moral-character-empirical/">SEP — Moral Character: Empirical Approaches</a></div>
+        <div class="by">Stanford Encyclopedia of Philosophy</div>
+        <div class="why">The situationism literature laid out fairly — Milgram, the seminarians, and the replies. Crux 04.</div>
+      </div>
+      <div class="res">
+        <div class="t"><a href="https://plato.stanford.edu/entries/kant-moral/">SEP — Kant's Moral Philosophy</a></div>
+        <div class="by">Stanford Encyclopedia of Philosophy</div>
+        <div class="why">The good will and acting from duty, stated carefully — the strongest form of the intention pole.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ FOOTER ============================ -->
+<footer class="wrap">
+  <p class="foot-note"><b>On these summaries.</b> Each steelman is compressed; the real arguments run to books, and a card or a panel is a doorway, not the room. Dates mark a well-known work, not the first time anyone had the thought. The two-pole axis is a lens for seeing structure — useful precisely because it's a simplification, and untrue to any view that won't sit on a line, which is what the lilac hinge is there to flag.</p>
+  <div class="foot-links">
+    <a href="/debates">← All thought pages</a>
+    <a href="/">brooker.family</a>
+  </div>
+</footer>
+
+<script>
+(function(){
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var items = document.querySelectorAll('.reveal');
+  if(reduce || !('IntersectionObserver' in window)){
+    items.forEach(function(el){ el.classList.add('in'); });
+    return;
+  }
+  var io = new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); }
+    });
+  }, {threshold:0.12, rootMargin:'0px 0px -8% 0px'});
+  items.forEach(function(el){ io.observe(el); });
+})();
+</script>
+</body>
+</html>
