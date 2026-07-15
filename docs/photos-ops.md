@@ -30,3 +30,33 @@ Blob URLs are **public and permanent**, and `/photos` is unauthenticated. Decide
 
 - **Keep it up** — ongoing storage + any egress. Fine if the spend cap is set.
 - **Take it down** — run the export (#1) for the archive, then delete the blobs (the `del()` path in `src/app/api/photos/route.ts` already exists; a "delete all" sweep would reuse it).
+
+## 4. Guest-facing export (zip + Google Photos)
+
+`/photos` has a "💾 Take the memories home" panel (shown once the album has content):
+
+- **Download everything (.zip)** — the browser fetches every blob and zips it client-side
+  (`src/components/photos/ExportPanel.tsx`, `fflate`). On Chromium it streams straight to
+  disk via the File System Access API; elsewhere it assembles in memory (the UI warns past
+  ~800 MB). Videos are opt-in via checkbox. Same `{date}_{id}_{uploader}.{ext}` naming as
+  `scripts/export-photos.js`. This is also the **Apple Photos** path: download, then import
+  the folder (there is no public web API for Apple Photos).
+- **Export to Google Photos** — per-guest OAuth (`photoslibrary.appendonly` scope, the one
+  that survived Google's March 2025 Library API changes). Creates an album
+  "Matt & Brittany's Celebration 🎉" in *their* account and relays every item
+  Blob → serverless → Google in client-driven batches (`/api/photos/google-export`).
+  The access token lives only in a ~1h httpOnly cookie; nothing is stored server-side.
+  Videos over 100 MB are skipped (the relay buffers files in function memory) — the zip
+  covers those.
+
+### One-time Google setup (reuses the calendar OAuth app)
+
+1. In the same Google Cloud project: **enable the Photos Library API**.
+2. On the OAuth client, add an authorized redirect URI:
+   `{BASE_URL}/api/photos/google-export/callback` (next to the calendar one).
+3. While the consent screen is in **Testing** mode only listed test users can export.
+   Add family as test users, or publish the app (the photoslibrary scope needs Google
+   verification for public use).
+
+If setup is missing, the button either hides (`configured: false` — no client id) or the
+export fails with Google's "API has not been used in project…" message, which is the hint.

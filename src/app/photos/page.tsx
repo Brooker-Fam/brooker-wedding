@@ -4,17 +4,8 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { upload } from "@vercel/blob/client";
 import { AnimatePresence, motion } from "framer-motion";
 
-interface Photo {
-  id: number;
-  url: string;
-  thumb_url: string | null;
-  content_type: string | null;
-  media_type: "image" | "video";
-  uploader_name: string | null;
-  width: number | null;
-  height: number | null;
-  created_at: string;
-}
+import ExportPanel from "@/components/photos/ExportPanel";
+import type { Photo } from "@/components/photos/types";
 
 interface QueueItem {
   key: string;
@@ -27,6 +18,25 @@ interface QueueItem {
 const STORE_DIM = 4096;
 const THUMB_DIM = 512;
 const VIDEO_LIMIT = 500 * 1024 * 1024;
+const PAGE_SIZE = 200;
+
+// Resize through Vercel's image optimizer for photos that have no stored
+// thumbnail (uploads that predate thumbs, HEIC fallbacks) — otherwise a grid
+// tile would pull the full ~4096px original. Widths must come from Next's
+// default deviceSizes allowlist.
+function optimizedUrl(url: string, width: 640 | 2048): string {
+  return `/_next/image?url=${encodeURIComponent(url)}&w=${width}&q=75`;
+}
+
+// If the optimizer can't decode a source (e.g. a HEIC original), swap the
+// tag back to the raw blob URL once instead of showing a broken tile.
+function fallbackToOriginal(e: React.SyntheticEvent<HTMLImageElement>, original: string) {
+  const img = e.currentTarget;
+  if (!img.dataset.fellBack) {
+    img.dataset.fellBack = "1";
+    img.src = original;
+  }
+}
 
 async function renderJpeg(
   bitmap: ImageBitmap,
@@ -71,6 +81,63 @@ async function processImage(file: File): Promise<{
       thumb: null,
     };
   }
+}
+
+// Grab a frame from a video and shrink it to a poster thumbnail, so grid
+// tiles for videos are a single small JPEG instead of a preload="metadata"
+// fetch against a potentially-huge blob. Best-effort: codecs the browser
+// can't decode (e.g. HEVC outside Safari) resolve to null and the grid
+// falls back to the old <video> tile.
+function captureVideoPoster(
+  file: File
+): Promise<{ blob: Blob; width: number; height: number } | null> {
+  return new Promise((resolve) => {
+    const objectUrl = URL.createObjectURL(file);
+    const video = document.createElement("video");
+    let settled = false;
+    const finish = (result: { blob: Blob; width: number; height: number } | null) => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(timer);
+      video.src = "";
+      URL.revokeObjectURL(objectUrl);
+      resolve(result);
+    };
+    const timer = setTimeout(() => finish(null), 8000);
+
+    video.muted = true;
+    video.playsInline = true;
+    video.preload = "auto";
+    video.onerror = () => finish(null);
+    video.onloadedmetadata = () => {
+      try {
+        // Skip just past t=0 — plenty of phone videos open on a black frame.
+        video.currentTime = Math.min(0.1, video.duration || 0.1);
+      } catch {
+        finish(null);
+      }
+    };
+    video.onseeked = () => {
+      try {
+        if (!video.videoWidth || !video.videoHeight) return finish(null);
+        const scale = Math.min(1, THUMB_DIM / Math.max(video.videoWidth, video.videoHeight));
+        const canvas = document.createElement("canvas");
+        canvas.width = Math.max(1, Math.round(video.videoWidth * scale));
+        canvas.height = Math.max(1, Math.round(video.videoHeight * scale));
+        const ctx = canvas.getContext("2d");
+        if (!ctx) return finish(null);
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+        canvas.toBlob(
+          (b) => finish(b ? { blob: b, width: video.videoWidth, height: video.videoHeight } : null),
+          "image/jpeg",
+          0.7
+        );
+      } catch {
+        finish(null);
+      }
+    };
+    video.src = objectUrl;
+  });
 }
 
 // The blob upload and this metadata save are two separate requests; on flaky
@@ -118,6 +185,8 @@ export default function PhotosPage() {
   const [uploaderName, setUploaderName] = useState("");
   const [photos, setPhotos] = useState<Photo[]>([]);
   const [loaded, setLoaded] = useState(false);
+  const [hasMore, setHasMore] = useState(false);
+  const [loadingMore, setLoadingMore] = useState(false);
   const [queue, setQueue] = useState<QueueItem[]>([]);
   const [lightboxId, setLightboxId] = useState<number | null>(null);
   const [myTokens, setMyTokens] = useState<Record<number, string>>({});
@@ -193,11 +262,13 @@ export default function PhotosPage() {
 
   useEffect(() => {
     let active = true;
-    fetch("/api/photos")
+    fetch(`/api/photos?limit=${PAGE_SIZE}`)
       .then((r) => r.json())
       .then((json) => {
         if (!active) return;
-        mergePhotos(json.data ?? []);
+        const batch: Photo[] = json.data ?? [];
+        mergePhotos(batch);
+        setHasMore(batch.length >= PAGE_SIZE);
         setLoaded(true);
       })
       .catch(() => active && setLoaded(true));
@@ -205,6 +276,22 @@ export default function PhotosPage() {
       active = false;
     };
   }, [mergePhotos]);
+
+  // The initial fetch only covers the newest page; older moments load on demand.
+  const loadOlder = useCallback(async () => {
+    setLoadingMore(true);
+    try {
+      const oldest = photos.length > 0 ? Math.min(...photos.map((p) => p.id)) : 0;
+      const res = await fetch(`/api/photos?limit=${PAGE_SIZE}&before=${oldest}`);
+      const json = await res.json();
+      const batch: Photo[] = json.data ?? [];
+      mergePhotos(batch);
+      setHasMore(batch.length >= PAGE_SIZE);
+    } catch {
+    } finally {
+      setLoadingMore(false);
+    }
+  }, [photos, mergePhotos]);
 
   // Poll for new uploads from other guests.
   useEffect(() => {
@@ -281,6 +368,13 @@ export default function PhotosPage() {
             width = processed.full.width;
             height = processed.full.height;
             thumb = processed.thumb;
+          } else {
+            const poster = await captureVideoPoster(file);
+            if (poster) {
+              width = poster.width;
+              height = poster.height;
+              thumb = { data: poster.blob, filename: file.name.replace(/\.[^.]+$/, "") + "-poster.jpg" };
+            }
           }
 
           const result = await upload(filename, payload, {
@@ -357,12 +451,17 @@ export default function PhotosPage() {
 
         <UploadQueue queue={queue} />
 
+        {photos.length > 0 && <ExportPanel />}
+
         <Gallery
           photos={photos}
           loaded={loaded}
           onOpen={setLightboxId}
           myTokens={myTokens}
           onDelete={handleDelete}
+          hasMore={hasMore}
+          loadingMore={loadingMore}
+          onLoadMore={loadOlder}
         />
       </div>
 
@@ -548,12 +647,18 @@ function Gallery({
   onOpen,
   myTokens,
   onDelete,
+  hasMore,
+  loadingMore,
+  onLoadMore,
 }: {
   photos: Photo[];
   loaded: boolean;
   onOpen: (i: number) => void;
   myTokens: Record<number, string>;
   onDelete: (id: number) => void;
+  hasMore: boolean;
+  loadingMore: boolean;
+  onLoadMore: () => void;
 }) {
   if (!loaded) {
     return (
@@ -583,6 +688,7 @@ function Gallery({
   }
 
   return (
+    <>
     <div className="mt-10 grid grid-cols-2 gap-1.5 sm:grid-cols-3 sm:gap-2 md:grid-cols-4 lg:grid-cols-5">
       {photos.map((photo) => (
         <div
@@ -592,13 +698,24 @@ function Gallery({
           <button onClick={() => onOpen(photo.id)} className="block h-full w-full" aria-label="Open photo">
             {photo.media_type === "video" ? (
               <>
-                <video
-                  src={`${photo.url}#t=0.1`}
-                  muted
-                  playsInline
-                  preload="metadata"
-                  className="h-full w-full object-cover"
-                />
+                {photo.thumb_url ? (
+                  <img
+                    src={photo.thumb_url}
+                    alt={photo.uploader_name ? `Video shared by ${photo.uploader_name}` : "Guest video"}
+                    loading="lazy"
+                    decoding="async"
+                    className="h-full w-full object-cover"
+                  />
+                ) : (
+                  // Older videos have no poster; metadata preload is the best we can do.
+                  <video
+                    src={`${photo.url}#t=0.1`}
+                    muted
+                    playsInline
+                    preload="metadata"
+                    className="h-full w-full object-cover"
+                  />
+                )}
                 <span className="absolute inset-0 flex items-center justify-center">
                   <span className="flex h-11 w-11 items-center justify-center rounded-full bg-black/45 text-lg text-white backdrop-blur-sm">
                     ▶
@@ -607,9 +724,11 @@ function Gallery({
               </>
             ) : (
               <img
-                src={photo.thumb_url ?? photo.url}
+                src={photo.thumb_url ?? optimizedUrl(photo.url, 640)}
+                onError={(e) => fallbackToOriginal(e, photo.url)}
                 alt={photo.uploader_name ? `Shared by ${photo.uploader_name}` : "Guest photo"}
                 loading="lazy"
+                decoding="async"
                 className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
               />
             )}
@@ -632,6 +751,19 @@ function Gallery({
         </div>
       ))}
     </div>
+    {hasMore && (
+      <div className="mt-6 text-center">
+        <button
+          type="button"
+          onClick={onLoadMore}
+          disabled={loadingMore}
+          className="min-h-[44px] rounded-xl border border-sage/30 px-6 py-3 text-sm font-medium text-deep-plum transition-all hover:bg-sage/10 disabled:opacity-60 dark:border-sage/40 dark:text-cream dark:hover:bg-sage/20"
+        >
+          {loadingMore ? "Loading…" : "Show earlier moments"}
+        </button>
+      </div>
+    )}
+    </>
   );
 }
 
@@ -724,14 +856,18 @@ function Lightbox({
         {photo.media_type === "video" ? (
           <video
             src={photo.url}
+            poster={photo.thumb_url ?? undefined}
             controls
             autoPlay
             playsInline
             className="max-h-[88dvh] max-w-full rounded-lg"
           />
         ) : (
+          // ~2048px via the optimizer, not the ~4096px stored original —
+          // "Save" below still downloads the full-resolution file.
           <img
-            src={photo.url}
+            src={optimizedUrl(photo.url, 2048)}
+            onError={(e) => fallbackToOriginal(e, photo.url)}
             alt={photo.uploader_name ? `Shared by ${photo.uploader_name}` : "Guest photo"}
             className="max-h-[88dvh] max-w-full rounded-lg object-contain"
           />

@@ -104,16 +104,27 @@ export async function GET(request: NextRequest) {
 
     const limit = Math.min(Number(searchParams.get("limit") || 200), 500);
     const sinceId = Number(searchParams.get("since") || 0);
+    // Cursor for paging into older photos ("Show earlier" + full export).
+    const beforeId = Number(searchParams.get("before") || 0);
+
+    const FIELDS = `id, url, thumb_url, content_type, media_type, uploader_name, width, height, size_bytes, created_at`;
 
     const result = sinceId > 0
       ? await query(
-          `SELECT id, url, thumb_url, content_type, media_type, uploader_name, width, height, created_at
+          `SELECT ${FIELDS}
            FROM photos WHERE approved = TRUE AND id > $1
            ORDER BY id DESC LIMIT $2`,
           [sinceId, limit]
         )
+      : beforeId > 0
+      ? await query(
+          `SELECT ${FIELDS}
+           FROM photos WHERE approved = TRUE AND id < $1
+           ORDER BY id DESC LIMIT $2`,
+          [beforeId, limit]
+        )
       : await query(
-          `SELECT id, url, thumb_url, content_type, media_type, uploader_name, width, height, created_at
+          `SELECT ${FIELDS}
            FROM photos WHERE approved = TRUE
            ORDER BY id DESC LIMIT $1`,
           [limit]
