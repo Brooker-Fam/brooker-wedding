@@ -105,70 +105,6 @@ const SCENARIOS: Scenario[] = [
     ],
   },
   {
-    id: "loj-colden",
-    trailhead: "loj",
-    label: "Lake Colden",
-    short: "Loj → Lake Colden (via Lake Arnold)",
-    driveLabel: "≈2 hrs from Greenwich to Adirondak Loj",
-    driveH: 2.0,
-    situation:
-      "Normally you'd cruise through Avalanche Pass to Lake Colden in 5.5 mi — but that trail is closed at the slide, so the only Loj-side way in is up and over the Lake Arnold col: longer, ~1,500 ft of climbing with full packs, and DEC's official warning for it is \"you may need to be in water that is knee deep or greater\" (the floating bog bridging is unreliable). You land in gorgeous country with Colden, Marshall, and Algonquin all around you. It just costs real, wet work getting in and out.",
-    carryIn: {
-      mi: "≈7 mi",
-      gain: "+1,600 ft (over the 3,800 ft col)",
-      time: "≈4–5 hrs with full packs",
-      desc: "Loj → Marcy Dam → Lake Arnold → down past the Feldspar junction → Lake Colden lean-tos. Knee-deep-plus water likely near the Opalescent crossing — camp shoes and pack liners earn their keep.",
-    },
-    packOutH: 4.0,
-    packOutLabel: "≈4 hrs back over Lake Arnold to the car",
-    runs: [
-      {
-        peak: "Colden via the west ladders (4,714 ft — #11)",
-        rt: "≈3.4 mi RT",
-        gain: "+1,900 ft",
-        time: "3½–4½ hrs",
-        note: "Steep, fun, ladders. Straight up from camp.",
-        flag: "Verify the west-side trail is clear of slide closures before counting on it",
-        link: AT.colden,
-      },
-      {
-        peak: "Marshall via Herbert Brook (4,360 ft — #25)",
-        rt: "≈5 mi RT",
-        gain: "+1,700 ft",
-        time: "4–5 hrs",
-        note: "Walk the shoreline to Flowed Lands, then the herd path. Dan's 46er.",
-        link: AT.marshall,
-      },
-      {
-        peak: "Algonquin from the south (5,114 ft — #2)",
-        rt: "≈4.8 mi RT",
-        gain: "+2,300 ft",
-        time: "4½–5½ hrs",
-        note: "Brutally steep but short. Above-treeline payoff.",
-        flag: "Bridge near the Algonquin junction was under repair — check status",
-        link: AT.algonquin,
-      },
-      {
-        peak: "Marcy via Feldspar / Four Corners",
-        rt: "≈9 mi RT",
-        gain: "+2,700 ft",
-        time: "6–8 hrs",
-        note: "The quiet back way up Marcy.",
-        link: AT.marcy,
-      },
-    ],
-    pros: [
-      "Best summit menu — Colden, Marshall, Algonquin, Marcy all from camp",
-      "Prettiest, wildest camping of the options",
-      "Works for both Liam's Marcy wish and Dan's Marshall",
-    ],
-    cons: [
-      "Hardest carry in AND out while the pass is closed",
-      "Sunday exit is long — earliest leave-camp deadline of any option",
-      "Lake Arnold mud with full packs, twice",
-    ],
-  },
-  {
     id: "uw-flowed",
     trailhead: "uw",
     label: "Flowed Lands",
@@ -354,7 +290,7 @@ export default function RouteDecider() {
       {/* Step 2: scenario picker */}
       <div className="soft-card dark:soft-card-dark p-5">
         <h3 className="font-semibold">2 · Trailhead + basecamp</h3>
-        <div className="mt-3 grid gap-2 sm:grid-cols-2">
+        <div className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
           {SCENARIOS.map((s) => (
             <button
               key={s.id}
