@@ -96,9 +96,11 @@ const SCENARIOS: Scenario[] = [
       "Marcy is right there (Liam's pick)",
       "Easiest Sunday exit math, latest leave-camp time",
       "Bear can rental at the trailhead (HPIC)",
+      "15 designated sites confirmed open (Aug 2026)",
     ],
     cons: [
       "Marshall is out of range — no 46er progress for Dan",
+      "Loj lot fills before 6 AM on summer Saturdays — pre-dawn drive required",
       "Busiest camping area in the High Peaks; sites go early on Saturdays",
     ],
   },
@@ -110,12 +112,12 @@ const SCENARIOS: Scenario[] = [
     driveLabel: "≈2 hrs from Greenwich to Adirondak Loj",
     driveH: 2.0,
     situation:
-      "Normally you'd cruise through Avalanche Pass to Lake Colden in 5.5 mi — but that trail is closed at the slide, so the only Loj-side way in is up and over the Lake Arnold col: longer, ~1,500 ft of climbing with full packs, and famously muddy on the far side. You land in gorgeous country with Colden, Marshall, and Algonquin all around you. It just costs real work getting in and out.",
+      "Normally you'd cruise through Avalanche Pass to Lake Colden in 5.5 mi — but that trail is closed at the slide, so the only Loj-side way in is up and over the Lake Arnold col: longer, ~1,500 ft of climbing with full packs, and DEC's official warning for it is \"you may need to be in water that is knee deep or greater\" (the floating bog bridging is unreliable). You land in gorgeous country with Colden, Marshall, and Algonquin all around you. It just costs real, wet work getting in and out.",
     carryIn: {
       mi: "≈7 mi",
       gain: "+1,600 ft (over the 3,800 ft col)",
       time: "≈4–5 hrs with full packs",
-      desc: "Loj → Marcy Dam → Lake Arnold → down past the Feldspar junction → Lake Colden lean-tos. Wet crossings near the col.",
+      desc: "Loj → Marcy Dam → Lake Arnold → down past the Feldspar junction → Lake Colden lean-tos. Knee-deep-plus water likely near the Opalescent crossing — camp shoes and pack liners earn their keep.",
     },
     packOutH: 4.0,
     packOutLabel: "≈4 hrs back over Lake Arnold to the car",
@@ -174,12 +176,12 @@ const SCENARIOS: Scenario[] = [
     driveLabel: "≈2 hrs from Greenwich to Upper Works (Tahawus)",
     driveH: 2.0,
     situation:
-      "The closure-dodge. Coming in from the south via Calamity Brook you never touch Avalanche Pass, the carry is gentler than the Lake Arnold slog, and you camp at the foot of Marshall — the wreck-and-46er side of the range. Marcy and Algonquin get far; this is the all-in Marshall/Colden plan.",
+      "The closure-dodge, with a catch. Coming in from the south via Calamity Brook you never touch Avalanche Pass, the carry is gentler than the Lake Arnold slog, and you camp at the foot of Marshall — the wreck-and-46er side of the range. The catch (DEC, Aug 2026): the Calamity Brook high-water bridge is OUT. Rock crossings work in low water; after heavy rain the trail can become impassable. Dry week = great plan. Wet week = rethink.",
     carryIn: {
       mi: "≈4.6 mi",
       gain: "+1,200 ft",
       time: "≈2½–3 hrs with full packs",
-      desc: "Upper Works → Calamity Brook Trail → Flowed Lands lean-tos. Steady, unglamorous, effective.",
+      desc: "Upper Works → Calamity Brook Trail → Flowed Lands lean-tos. Steady, unglamorous, effective — one bridge-less crossing (rock-hop; sketchy in high water).",
     },
     packOutH: 2.5,
     packOutLabel: "≈2½ hrs back to the car",
@@ -221,10 +223,11 @@ const SCENARIOS: Scenario[] = [
     pros: [
       "Avoids the closure entirely — easiest carry to the Colden/Marshall side",
       "Marshall (and the wreck side) right out the tent door",
-      "Quieter trailhead, free parking, no 7 AM panic",
+      "Quieter trailhead, free parking, no pre-dawn parking panic",
       "Reasonable Sunday exit",
     ],
     cons: [
+      "Calamity Brook high-water bridge is OUT — rain in the forecast kills this plan",
       "No bear can rental at Upper Works — must sort can #2 beforehand",
       "Marcy/Algonquin effectively out of reach — tough sell for Liam's Marcy wish",
       "Cell-dead gravel road to the trailhead",
@@ -238,7 +241,7 @@ const SCENARIOS: Scenario[] = [
     driveLabel: "≈2 hrs from Greenwich to Upper Works (Tahawus)",
     driveH: 2.0,
     situation:
-      "Same southern approach, but push ~1 more mile past Flowed Lands to camp at Lake Colden itself. Slightly longer carry buys you the prettier lake, a shorter Colden climb, and a marginally better launch point for the Feldspar side. Marshall gets a touch farther than from Flowed Lands.",
+      "Same southern approach (same broken Calamity Brook bridge — fine in low water, bad after rain), but push ~1 more mile past Flowed Lands to camp at Lake Colden itself. Slightly longer carry buys you the prettier lake, a shorter Colden climb, a staffed ranger outpost nearby, and a better launch point for the Feldspar side. Marshall gets a touch farther than from Flowed Lands.",
     carryIn: {
       mi: "≈5.7 mi",
       gain: "+1,300 ft",
@@ -288,6 +291,7 @@ const SCENARIOS: Scenario[] = [
       "Balanced menu: Colden + Marshall Saturday/Sunday is realistic",
     ],
     cons: [
+      "Same broken high-water bridge as the Flowed Lands plan",
       "No bear can rental at Upper Works",
       "A longer carry than Flowed Lands for modest gains",
       "Sunday exit a bit tighter than Flowed Lands",

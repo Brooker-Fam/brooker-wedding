@@ -40,32 +40,44 @@ export default function BackpackingPage() {
         id="closure"
         className="mb-10 rounded-2xl border-2 border-soft-gold bg-soft-gold/15 p-5"
       >
-        <h2 className="font-semibold">⚠️ Avalanche Pass Trail is CLOSED (slide damage)</h2>
+        <h2 className="font-semibold">⚠️ Avalanche Pass Trail is CLOSED (confirmed Aug 6, 2026)</h2>
         <p className="mt-1 text-sm leading-relaxed">
           The classic Loj → Avalanche Lake → Lake Colden route is closed between the Lake Arnold
-          Trail junction and the south end of Avalanche Lake (July 2025 landslide; crews are
-          rebuilding it this summer). <strong>Detour: the Lake Arnold Trail</strong> gets us to Lake
-          Colden from Marcy Dam — expect mud and wet crossings near Lake Arnold. The two Avalanche
-          Lake campsites are also closed. Check the{" "}
+          Trail junction and the south end of Avalanche Lake (July 2025 landslide). Crews are
+          rebuilding it this summer with <strong>no published reopening date</strong>. DEC&apos;s
+          official detour is the <strong>Lake Arnold Trail</strong>, with this warning verbatim:
+          &quot;you may need to be in water that is knee deep or greater&quot; — the floating bog
+          bridging near the Opalescent crossing is unreliable. The two Avalanche Lake campsites are
+          closed too. On the south side, the <strong>Calamity Brook high-water bridge is out</strong>{" "}
+          (rock crossings possible in low water). Re-check the{" "}
           <a
             className="underline"
-            href="https://dec.ny.gov/places/adirondack-backcountry-information"
+            href="https://dec.ny.gov/things-to-do/hiking/adirondack-backcountry/backcountry-information-for-adirondack-park"
             target="_blank"
             rel="noopener noreferrer"
           >
-            DEC Adirondack Backcountry Information page
+            DEC backcountry info page
           </a>{" "}
-          the week of the trip — status is changing week to week.
+          and the{" "}
+          <a
+            className="underline"
+            href="https://adk.org/high-peaks-conditions-report/"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            ADK conditions report
+          </a>{" "}
+          the week of the trip.
         </p>
       </div>
 
       {/* Quick facts */}
       <div className="mb-10 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         {[
-          ["🚗 Drive", "≈2 hrs from Greenwich → Adirondak Loj, 1002 Adirondak Loj Rd, Lake Placid"],
-          ["🅿️ Parking", "Loj: paid ADK lot, first-come — arrive by 7 AM on an August Saturday. Upper Works: free and low-drama"],
+          ["🚗 Drive", "≈2 hrs from Greenwich → Adirondak Loj, 1002 Adirondak Loj Rd, Lake Placid (Upper Works is similar)"],
+          ["🅿️ Parking", "Loj: $25/day non-member ($10 ADK member), first-come, and lots fill BEFORE 6 AM summer Saturdays — full means turned away. Multi-day parking allowed; call HPIC (518-523-3441 x121) about overnight billing. Upper Works: free"],
           ["📋 Permits", "None needed on this side (that's the AMR/Indian Head system, not here). Sign the trail register"],
-          ["🐻 Bear cans", "REQUIRED overnight in the Eastern High Peaks — rentals at the High Peaks Info Center"],
+          ["🐻 Bear cans", "REQUIRED for overnights in the Eastern High Peaks Apr 1–Nov 30 — rentals at the High Peaks Info Center at the Loj"],
         ].map(([title, body]) => (
           <div key={title} className="soft-card dark:soft-card-dark p-4">
             <div className="font-semibold">{title}</div>
@@ -86,9 +98,12 @@ export default function BackpackingPage() {
           <div className="soft-card dark:soft-card-dark p-5">
             <h3 className="font-semibold">Saturday 8/15</h3>
             <ul className="mt-2 space-y-1.5 text-sm">
-              <li>☀️ ~5:30 AM — leave Greenwich (beat the parking rush)</li>
-              <li>🅿️ ~7:30 AM — park (Loj or Upper Works), sign the register, sort bear cans</li>
-              <li>🥾 8 AM — hike in to camp (1–5 hrs depending on the route decider pick)</li>
+              <li>
+                ☀️ Leave Greenwich ~3:45 AM for the Loj (ADK: lots fill <em>before 6 AM</em> on
+                summer Saturdays, and full = turned away) · Upper Works is mellower, ~5:30 AM works
+              </li>
+              <li>🅿️ Park, sign the register, sort bear cans (rent #2 at HPIC if we&apos;re at the Loj)</li>
+              <li>🥾 Hike in to camp (1–5 hrs depending on the route decider pick)</li>
               <li>⛺ Set up camp, stash overnight stuff, eat lunch (eggs!)</li>
               <li>🏃 Afternoon — summit run #1 with light packs</li>
               <li>🍜 Peak Refuel dinner, everything smellable into the cans</li>
@@ -149,33 +164,48 @@ export default function BackpackingPage() {
         <SectionTitle>⛺ Where we sleep</SectionTitle>
         <div className="soft-card dark:soft-card-dark p-5 text-sm leading-relaxed">
           <p>
-            The Eastern High Peaks is <strong>designated-sites-only</strong> camping (look for the
-            yellow &quot;Camp Here&quot; discs), below 3,500 ft, and{" "}
-            <strong>no campfires anywhere</strong> — that&apos;s why we bring the stove. Lean-tos
-            are first-come, first-served and shared with strangers when full, which is why the tents
+            Eastern High Peaks rules (per{" "}
+            <a
+              className="underline"
+              href="https://dec.ny.gov/places/high-peaks-wilderness-complex"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              DEC
+            </a>
+            ): camp in designated sites (yellow &quot;Camp Here&quot; discs) whenever possible —
+            at-large camping is legal only 150+ ft from any road, trail, or water. No camping above
+            3,500 ft except at a lean-to, <strong>no campfires anywhere in the Eastern Zone</strong>{" "}
+            (that&apos;s why we bring the stove), and overnight groups max out at 8. Lean-tos are
+            first-come, first-served and shared with strangers when full, which is why the tents
             come regardless.
           </p>
           <ul className="mt-3 list-disc space-y-1.5 pl-5">
             <li>
-              <strong>Marcy Dam area</strong> — designated tent sites + lean-tos nearby (the dam
-              pond drained after Irene, still a great basecamp). Plan A home base.
+              <strong>Marcy Dam area — 15 designated tent sites, confirmed open</strong> (ADK, Aug
+              2026 — three old sites closed, the rest now numbered). Lean-to situation is murky
+              post-Irene, so plan on tents. Plan A home base.
             </li>
             <li>
-              <strong>Avalanche Camps lean-tos</strong> — a bit past Marcy Dam toward the pass;
-              fine to use, they&apos;re before the closed section.
+              <strong>Avalanche Camps lean-tos</strong> — a bit past Marcy Dam toward the pass, at
+              the edge of the closed section. Likely open (trail crews are staged there), but
+              unconfirmed.
             </li>
             <li>
               <strong>Lake Colden / Flowed Lands lean-tos + tent sites</strong> — the interior
-              bases. While the pass is closed, reach them via Lake Arnold (from the Loj) or the
-              Calamity Brook trail (from Upper Works — easier with packs).
+              bases, no closure notices. There&apos;s a staffed ranger outpost at Lake Colden.
+              Reach them via Lake Arnold (knee-deep water, from the Loj) or Calamity Brook (bridge
+              out — rock-hop, from Upper Works). Note: the Feldspar lean-to access bridge has a
+              broken stringer, per DEC.
             </li>
             <li>
-              <strong>Avalanche Lake sites — CLOSED</strong> (slide damage). Don&apos;t plan on
-              them.
+              <strong>Avalanche Lake sites — CLOSED</strong> (slide damage), not relocated yet.
+              Don&apos;t plan on them.
             </li>
           </ul>
           <p className="mt-3 text-xs opacity-70">
-            Camp only in designated spots, 15+ ft from water at established sites. Rangers do check.
+            Rangers patrol this corridor more than anywhere in the park — the rules above get
+            enforced.
           </p>
         </div>
       </section>
@@ -270,10 +300,10 @@ export default function BackpackingPage() {
             <li>Stash cans 100+ ft downwind of the tents, lid down, not near water or a cliff edge</li>
             <li>Cook and eat away from the tents; never bring so much as a granola bar inside</li>
             <li>
-              Read DEC&apos;s{" "}
+              Required April 1 – Nov 30; hangs and stuff sacks don&apos;t count. Read DEC&apos;s{" "}
               <a
                 className="underline"
-                href="https://dec.ny.gov/nature/animals-fish-plants/black-bear/reduce-conflicts"
+                href="https://dec.ny.gov/nature/animals-fish-plants/black-bear/management/bear-resistant-canisters"
                 target="_blank"
                 rel="noopener noreferrer"
               >
@@ -328,10 +358,11 @@ export default function BackpackingPage() {
         <SectionTitle>🔗 The link shelf</SectionTitle>
         <div className="soft-card dark:soft-card-dark grid gap-2 p-5 text-sm sm:grid-cols-2">
           {[
-            ["DEC Adirondack Backcountry Info (trail conditions)", "https://dec.ny.gov/places/adirondack-backcountry-information"],
-            ["DEC High Peaks Wilderness (rules + closures)", "https://dec.ny.gov/places/high-peaks-wilderness"],
-            ["ADK Heart Lake / Adirondak Loj (parking + rentals)", "https://adk.org/visit/heart-lake-program-center/"],
-            ["High Peaks Info Center (bear can rental)", "https://adk.org/visit/high-peaks-information-center/"],
+            ["DEC Adirondack Backcountry Info (trail conditions, updated weekly)", "https://dec.ny.gov/things-to-do/hiking/adirondack-backcountry/backcountry-information-for-adirondack-park"],
+            ["ADK High Peaks Conditions Report (updated Fridays)", "https://adk.org/high-peaks-conditions-report/"],
+            ["DEC High Peaks Wilderness (rules + closures)", "https://dec.ny.gov/places/high-peaks-wilderness-complex"],
+            ["ADK hiker parking at Heart Lake (rates + fill times)", "https://adk.org/hiker-parking-at-heart-lake/"],
+            ["High Peaks Info Center (bear can rental, 518-523-3441 x121)", "https://adk.org/high-peaks-information-center/"],
             ["NWS forecast — Lake Colden", "https://forecast.weather.gov/MapClick.php?lat=44.1266&lon=-73.9672"],
             ["CalTopo map of the corridor", "https://caltopo.com/map.html#ll=44.1266,-73.9672&z=13"],
             ["Peak Refuel meals (what we're eating)", "https://www.amazon.com/dp/B0C28YLH8H"],

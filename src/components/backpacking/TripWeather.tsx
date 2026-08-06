@@ -31,6 +31,12 @@ function icon(short: string, day: boolean): string {
   return day ? "🌥️" : "☁️";
 }
 
+// Trip window: Fri Aug 14 evening through Sun Aug 16, 2026.
+function isTripPeriod(p: Period): boolean {
+  const d = new Date(p.startTime);
+  return d.getFullYear() === 2026 && d.getMonth() === 7 && d.getDate() >= 14 && d.getDate() <= 16;
+}
+
 export default function TripWeather() {
   const [periods, setPeriods] = useState<Period[] | null>(null);
   const [error, setError] = useState(false);
@@ -43,7 +49,7 @@ export default function TripWeather() {
         const point = await pointRes.json();
         const fcRes = await fetch(point.properties.forecast);
         const fc = await fcRes.json();
-        if (!cancelled) setPeriods(fc.properties.periods.slice(0, 10));
+        if (!cancelled) setPeriods(fc.properties.periods);
       } catch {
         if (!cancelled) setError(true);
       }
@@ -53,17 +59,18 @@ export default function TripWeather() {
     };
   }, []);
 
-  const isTripDay = (p: Period) => {
-    const d = new Date(p.startTime);
-    const m = d.getMonth();
-    const day = d.getDate();
-    return m === 7 && (day === 15 || day === 16);
-  };
+  const tripPeriods = periods?.filter(isTripPeriod) ?? [];
+  const tripInRange = tripPeriods.length > 0;
+  // Until Aug 15 enters the ~7-day NWS window, show the tail of what exists so
+  // the "coverage hasn't reached the trip yet" state is self-explanatory.
+  const shown = tripInRange ? tripPeriods : (periods ?? []).slice(0, 6);
 
   return (
     <div className="soft-card dark:soft-card-dark p-5">
       <div className="mb-1 flex flex-wrap items-baseline justify-between gap-2">
-        <h3 className="font-semibold">🌦️ Live forecast — Marcy Dam / Lake Colden</h3>
+        <h3 className="font-semibold">
+          🌦️ {tripInRange ? "Trip forecast" : "Live forecast"} — Marcy Dam / Lake Colden
+        </h3>
         <a
           href={`https://forecast.weather.gov/MapClick.php?lat=${LAT}&lon=${LON}`}
           target="_blank"
@@ -73,10 +80,20 @@ export default function TripWeather() {
           full NWS forecast ↗
         </a>
       </div>
-      <p className="mb-4 text-xs opacity-70">
+      <p className="mb-2 text-xs opacity-70">
         Valley forecast (~2,400 ft). Summits run 10–20°F colder and much windier — treat any
         thunderstorm chance as a hard turnaround signal above treeline.
       </p>
+
+      {!tripInRange && periods && (
+        <p className="mb-4 rounded-lg bg-sage/10 px-3 py-2 text-xs leading-relaxed">
+          <strong>Why no Aug 15–16 yet:</strong> the National Weather Service only forecasts ~7
+          days ahead, and the trip is still outside that window. This card flips to Fri–Sun trip
+          days automatically once they come into range (around Aug 9) — until then, here&apos;s the
+          current outlook. Mid-August normals up there: valley highs in the 70s, lows 45–55°F,
+          summits in the 40s with wind, and afternoon thunderstorms are the standard pattern.
+        </p>
+      )}
 
       {error && (
         <p className="text-sm opacity-70">
@@ -87,15 +104,13 @@ export default function TripWeather() {
 
       {periods && (
         <div className="flex gap-3 overflow-x-auto pb-2">
-          {periods.map((p) => {
+          {shown.map((p) => {
             const precip = p.probabilityOfPrecipitation?.value ?? 0;
             return (
               <div
                 key={p.number}
                 className={`min-w-[7.5rem] shrink-0 rounded-xl border p-3 text-center ${
-                  isTripDay(p)
-                    ? "border-soft-gold bg-soft-gold/15"
-                    : "border-sage/20"
+                  isTripPeriod(p) ? "border-soft-gold bg-soft-gold/15" : "border-sage/20"
                 }`}
               >
                 <div className="text-xs font-semibold">{p.name}</div>
