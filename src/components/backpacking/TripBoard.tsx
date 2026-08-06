@@ -17,6 +17,8 @@ type GearItem = {
 
 type Vote = { question_id: string; person: string; choice: string };
 
+type Filter = "all" | "mine" | "unclaimed";
+
 const QUESTIONS: { id: string; label: string; sub?: string; options: string[] }[] = [
   {
     id: "dan",
@@ -53,6 +55,10 @@ function splitNames(claimed: string | null): string[] {
   return claimed ? claimed.split(",").map((s) => s.trim()).filter(Boolean) : [];
 }
 
+function isOptional(item: GearItem): boolean {
+  return item.name.toLowerCase().includes("optional");
+}
+
 export default function TripBoard() {
   const [person, setPerson] = useState<string | null>(null);
   const [items, setItems] = useState<GearItem[]>([]);
@@ -60,8 +66,10 @@ export default function TripBoard() {
   const [mock, setMock] = useState(false);
   const [loading, setLoading] = useState(true);
   const [toast, setToast] = useState<string | null>(null);
+  const [filter, setFilter] = useState<Filter>("all");
+  const [hidePacked, setHidePacked] = useState(false);
   const [adding, setAdding] = useState(false);
-  const [newItem, setNewItem] = useState({ name: "", category: "kitchen", qty: "", notes: "" });
+  const [newItem, setNewItem] = useState({ name: "", category: "kitchen", qty: "" });
 
   useEffect(() => {
     try {
@@ -102,10 +110,17 @@ export default function TripBoard() {
 
   useEffect(() => {
     load();
-    // Refresh when the tab regains focus so two people editing stay in sync.
+    // Stay in sync while two people edit at once: refresh on focus + a slow
+    // poll that only runs while the tab is visible.
     const onFocus = () => load();
     window.addEventListener("focus", onFocus);
-    return () => window.removeEventListener("focus", onFocus);
+    const interval = setInterval(() => {
+      if (document.visibilityState === "visible") load();
+    }, 45000);
+    return () => {
+      window.removeEventListener("focus", onFocus);
+      clearInterval(interval);
+    };
   }, [load]);
 
   const patchItem = async (id: number, patch: Partial<GearItem>) => {
@@ -172,14 +187,13 @@ export default function TripBoard() {
           name: newItem.name,
           category: newItem.category,
           qty: newItem.qty || null,
-          notes: newItem.notes || null,
           claimed_by: person,
         }),
       });
       const data = await res.json();
       if (data.data) {
         setItems((cur) => [...cur, data.data]);
-        setNewItem({ name: "", category: "kitchen", qty: "", notes: "" });
+        setNewItem({ name: "", category: "kitchen", qty: "" });
       } else {
         flash(mock ? "Preview mode — can't add items" : "Couldn't add that item");
       }
@@ -204,58 +218,327 @@ export default function TripBoard() {
 
   const stats = useMemo(() => {
     const claimed = items.filter((it) => splitNames(it.claimed_by).length > 0).length;
-    const perPerson: Record<string, number> = {};
-    for (const p of TRIP_PEOPLE) {
-      perPerson[p] = items.filter((it) => splitNames(it.claimed_by).includes(p)).length;
-    }
-    return { claimed, total: items.length, perPerson };
-  }, [items]);
+    const packed = items.filter((it) => it.packed).length;
+    const unclaimedSerious = items.filter(
+      (it) => splitNames(it.claimed_by).length === 0 && !isOptional(it)
+    ).length;
+    const mine = person
+      ? items.filter((it) => splitNames(it.claimed_by).includes(person)).length
+      : 0;
+    const minePacked = person
+      ? items.filter((it) => splitNames(it.claimed_by).includes(person) && it.packed).length
+      : 0;
+    return { claimed, packed, unclaimedSerious, mine, minePacked, total: items.length };
+  }, [items, person]);
+
+  const matchesFilter = useCallback(
+    (it: GearItem): boolean => {
+      if (hidePacked && it.packed) return false;
+      const names = splitNames(it.claimed_by);
+      if (filter === "mine") return person !== null && names.includes(person);
+      if (filter === "unclaimed") return names.length === 0;
+      return true;
+    },
+    [filter, hidePacked, person]
+  );
 
   const voteFor = (qid: string) => votes.filter((v) => v.question_id === qid);
 
+  const FILTER_TABS: { id: Filter; label: string; badge?: number }[] = [
+    { id: "all", label: "Everything" },
+    { id: "mine", label: person ? `${person}'s stuff` : "My stuff", badge: stats.mine },
+    { id: "unclaimed", label: "Needs an owner", badge: stats.unclaimedSerious },
+  ];
+
   return (
-    <div className="space-y-10">
+    <div className="space-y-8">
       {toast && (
         <div className="fixed bottom-6 left-1/2 z-50 -translate-x-1/2 rounded-full bg-forest px-5 py-2.5 text-sm text-cream shadow-lg dark:bg-soft-gold dark:text-forest-dark">
           {toast}
         </div>
       )}
 
-      {/* Who are you */}
-      <div className="soft-card dark:soft-card-dark p-6">
-        <h3 className="mb-1 font-[family-name:var(--font-cormorant-garamond)] text-2xl font-semibold">
-          Who are you?
-        </h3>
-        <p className="mb-4 text-sm opacity-75">
-          Pick your name so your claims and votes are yours. It sticks on this device.
-        </p>
-        <div className="flex flex-wrap gap-3">
+      {/* Who are you — compact strip */}
+      <div className="soft-card dark:soft-card-dark flex flex-wrap items-center justify-between gap-3 p-4">
+        <div className="flex flex-wrap items-center gap-3">
+          <span className="text-sm font-semibold">You are:</span>
           {TRIP_PEOPLE.map((p) => (
             <button
               key={p}
               onClick={() => pickPerson(p)}
-              className={`rounded-full border-2 px-6 py-2 font-semibold transition-all ${
-                person === p
-                  ? PERSON_COLORS[p]
-                  : "border-sage/40 bg-transparent hover:border-sage"
+              className={`rounded-full border-2 px-4 py-1.5 text-sm font-semibold transition-all ${
+                person === p ? PERSON_COLORS[p] : "border-sage/40 hover:border-sage"
               }`}
             >
               {p}
             </button>
           ))}
         </div>
-        {mock && (
-          <p className="mt-4 rounded-lg bg-soft-gold/15 px-3 py-2 text-xs">
-            Local preview — the live site saves everyone&apos;s changes.
-          </p>
+        {person && (
+          <span className="text-sm opacity-75">
+            You&apos;re bringing <strong>{stats.mine}</strong>{" "}
+            {stats.mine === 1 ? "thing" : "things"} · {stats.minePacked} packed
+          </span>
         )}
+        {!person && <span className="text-sm opacity-75">Pick your name so taps count as you</span>}
       </div>
+
+      {mock && (
+        <p className="rounded-lg bg-soft-gold/15 px-3 py-2 text-xs">
+          Local preview — the live site saves everyone&apos;s changes.
+        </p>
+      )}
+
+      {/* Gear */}
+      <section id="gear">
+        <h2 className="mb-1 font-[family-name:var(--font-cormorant-garamond)] text-3xl font-semibold">
+          🎒 The packing list
+        </h2>
+        <p className="mb-4 text-sm opacity-75">
+          Tap <em>I&apos;ll bring it</em> to claim something, the initials to assign someone else,
+          and the box once it&apos;s physically in a pack.
+        </p>
+
+        {/* Progress + filters */}
+        {!loading && (
+          <div className="soft-card dark:soft-card-dark mb-5 p-4">
+            <div className="mb-2 flex items-baseline justify-between text-xs font-semibold">
+              <span>
+                {stats.claimed}/{stats.total} claimed · {stats.packed} packed
+              </span>
+              {stats.unclaimedSerious > 0 ? (
+                <button className="underline opacity-80" onClick={() => setFilter("unclaimed")}>
+                  {stats.unclaimedSerious} still need an owner →
+                </button>
+              ) : (
+                <span className="text-forest dark:text-soft-gold">
+                  Everything essential has an owner 🎉
+                </span>
+              )}
+            </div>
+            <div className="mb-3 h-2 overflow-hidden rounded-full bg-sage/20">
+              <div className="relative h-full">
+                <div
+                  className="absolute inset-y-0 left-0 rounded-full bg-sage"
+                  style={{ width: `${stats.total ? (stats.claimed / stats.total) * 100 : 0}%` }}
+                />
+                <div
+                  className="absolute inset-y-0 left-0 rounded-full bg-soft-gold"
+                  style={{ width: `${stats.total ? (stats.packed / stats.total) * 100 : 0}%` }}
+                />
+              </div>
+            </div>
+            <div className="flex flex-wrap items-center gap-2">
+              {FILTER_TABS.map((t) => (
+                <button
+                  key={t.id}
+                  onClick={() => setFilter(t.id)}
+                  className={`rounded-full border px-3 py-1.5 text-xs font-semibold transition-all ${
+                    filter === t.id
+                      ? "border-forest bg-forest text-cream dark:border-soft-gold dark:bg-soft-gold dark:text-forest-dark"
+                      : "border-sage/35 hover:border-sage/70"
+                  }`}
+                >
+                  {t.label}
+                  {t.badge !== undefined && t.badge > 0 && (
+                    <span className="ml-1.5 rounded-full bg-black/15 px-1.5 dark:bg-black/25">
+                      {t.badge}
+                    </span>
+                  )}
+                </button>
+              ))}
+              <label className="ml-auto flex cursor-pointer items-center gap-1.5 text-xs opacity-80">
+                <input
+                  type="checkbox"
+                  checked={hidePacked}
+                  onChange={(e) => setHidePacked(e.target.checked)}
+                  className="h-3.5 w-3.5 accent-[#C49A3C]"
+                />
+                hide packed
+              </label>
+            </div>
+          </div>
+        )}
+
+        {loading ? (
+          <div className="soft-card dark:soft-card-dark p-8 text-center opacity-70">
+            Loading the list…
+          </div>
+        ) : filter === "mine" && !person ? (
+          <div className="soft-card dark:soft-card-dark p-8 text-center text-sm opacity-75">
+            Pick your name up top and this becomes your personal packing list.
+          </div>
+        ) : (
+          <div className="space-y-5">
+            {GEAR_CATEGORIES.map((cat) => {
+              const allCatItems = items.filter((it) => it.category === cat.id);
+              const catItems = allCatItems
+                .filter(matchesFilter)
+                .sort((a, b) => a.sort - b.sort || a.id - b.id);
+              if (catItems.length === 0) return null;
+              const catClaimed = allCatItems.filter(
+                (it) => splitNames(it.claimed_by).length > 0
+              ).length;
+              return (
+                <div key={cat.id} className="soft-card dark:soft-card-dark overflow-hidden">
+                  <div className="flex items-baseline justify-between border-b border-sage/20 px-5 py-3">
+                    <div>
+                      <h3 className="font-semibold">
+                        {cat.emoji} {cat.label}
+                      </h3>
+                      {cat.blurb && <p className="mt-0.5 text-xs opacity-70">{cat.blurb}</p>}
+                    </div>
+                    <span className="shrink-0 text-xs font-semibold opacity-60">
+                      {catClaimed}/{allCatItems.length}
+                    </span>
+                  </div>
+                  <ul className="divide-y divide-sage/15">
+                    {catItems.map((item) => {
+                      const names = splitNames(item.claimed_by);
+                      const unclaimed = names.length === 0;
+                      const mine = person !== null && names.includes(person);
+                      const others = person
+                        ? TRIP_PEOPLE.filter((p) => p !== person)
+                        : TRIP_PEOPLE;
+                      return (
+                        <li
+                          key={item.id}
+                          className={`flex flex-col gap-2 px-5 py-3 sm:flex-row sm:items-center sm:justify-between ${
+                            unclaimed && !isOptional(item)
+                              ? "border-l-4 border-l-soft-gold"
+                              : "border-l-4 border-l-transparent"
+                          } ${item.packed ? "opacity-55" : ""}`}
+                        >
+                          <div className="min-w-0 flex-1">
+                            <div className="flex flex-wrap items-baseline gap-2">
+                              <span className={`font-medium ${item.packed ? "line-through" : ""}`}>
+                                {item.name}
+                              </span>
+                              {item.qty && (
+                                <span className="rounded-full bg-sage/15 px-2 py-0.5 text-[11px] font-semibold">
+                                  {item.qty}
+                                </span>
+                              )}
+                              {names
+                                .filter((n) => n !== person)
+                                .map((n) => (
+                                  <span
+                                    key={n}
+                                    className={`rounded-full border px-2 py-0.5 text-[10px] font-bold ${PERSON_COLORS[n] ?? "border-sage/40"}`}
+                                  >
+                                    {n}
+                                  </span>
+                                ))}
+                            </div>
+                            {item.notes && <p className="mt-0.5 text-xs opacity-70">{item.notes}</p>}
+                          </div>
+                          <div className="flex shrink-0 flex-wrap items-center gap-2">
+                            {person && (
+                              <button
+                                onClick={() => toggleClaim(item, person)}
+                                className={`rounded-full border px-3 py-1.5 text-xs font-bold transition-all ${
+                                  mine
+                                    ? PERSON_COLORS[person]
+                                    : "border-sage/40 hover:border-sage"
+                                }`}
+                              >
+                                {mine ? "✓ Got it" : "I'll bring it"}
+                              </button>
+                            )}
+                            <span className="flex gap-1">
+                              {others.map((p) => (
+                                <button
+                                  key={p}
+                                  onClick={() => toggleClaim(item, p)}
+                                  title={
+                                    names.includes(p)
+                                      ? `${p} is bringing this — tap to un-assign`
+                                      : `Assign to ${p}`
+                                  }
+                                  className={`rounded-full border px-2 py-1 text-[11px] font-bold transition-all ${
+                                    names.includes(p)
+                                      ? PERSON_COLORS[p]
+                                      : "border-sage/30 opacity-45 hover:opacity-100"
+                                  }`}
+                                >
+                                  {p[0]}
+                                </button>
+                              ))}
+                            </span>
+                            <label className="flex cursor-pointer items-center gap-1 text-xs opacity-80">
+                              <input
+                                type="checkbox"
+                                checked={item.packed}
+                                onChange={(e) => patchItem(item.id, { packed: e.target.checked })}
+                                className="h-4 w-4 accent-[#C49A3C]"
+                              />
+                              packed
+                            </label>
+                            {item.slug === null && (
+                              <button
+                                onClick={() => deleteItem(item.id)}
+                                className="text-xs opacity-40 hover:opacity-100"
+                                title="Remove item"
+                              >
+                                ✕
+                              </button>
+                            )}
+                          </div>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                </div>
+              );
+            })}
+
+            {/* Add item */}
+            <div className="soft-card dark:soft-card-dark p-4">
+              <div className="flex flex-col gap-2 sm:flex-row">
+                <input
+                  value={newItem.name}
+                  onChange={(e) => setNewItem({ ...newItem, name: e.target.value })}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") addItem();
+                  }}
+                  placeholder="➕ Add something we forgot…"
+                  className="enchanted-input flex-1 rounded-lg px-3 py-2 text-sm"
+                />
+                <select
+                  value={newItem.category}
+                  onChange={(e) => setNewItem({ ...newItem, category: e.target.value })}
+                  className="enchanted-input rounded-lg px-3 py-2 text-sm sm:max-w-48"
+                >
+                  {GEAR_CATEGORIES.map((c) => (
+                    <option key={c.id} value={c.id}>
+                      {c.label}
+                    </option>
+                  ))}
+                </select>
+                <button
+                  onClick={addItem}
+                  disabled={adding || !newItem.name.trim()}
+                  className="rounded-lg bg-forest px-5 py-2 text-sm font-semibold text-cream transition-opacity disabled:opacity-40 dark:bg-soft-gold dark:text-forest-dark"
+                >
+                  {adding ? "Adding…" : "Add"}
+                </button>
+              </div>
+              <p className="mt-1.5 text-xs opacity-60">
+                New items get claimed by you automatically{person ? ` (${person})` : " once you pick your name"}.
+              </p>
+            </div>
+          </div>
+        )}
+      </section>
 
       {/* Decisions */}
       <section id="decisions">
-        <h2 className="mb-4 font-[family-name:var(--font-cormorant-garamond)] text-3xl font-semibold">
+        <h2 className="mb-1 font-[family-name:var(--font-cormorant-garamond)] text-3xl font-semibold">
           🗳️ Group decisions
         </h2>
+        <p className="mb-4 text-sm opacity-75">
+          These change the plan — vote once you know.
+        </p>
         <div className="grid gap-4 md:grid-cols-2">
           {QUESTIONS.map((q) => {
             const qVotes = voteFor(q.id);
@@ -266,13 +549,13 @@ export default function TripBoard() {
                 <div className="mt-3 space-y-2">
                   {q.options.map((opt) => {
                     const voters = qVotes.filter((v) => v.choice === opt).map((v) => v.person);
-                    const mine = person !== null && voters.includes(person);
+                    const mineVote = person !== null && voters.includes(person);
                     return (
                       <button
                         key={opt}
                         onClick={() => castVote(q.id, opt)}
                         className={`flex w-full items-center justify-between gap-2 rounded-xl border px-4 py-2.5 text-left text-sm transition-all ${
-                          mine
+                          mineVote
                             ? "border-soft-gold bg-soft-gold/20 font-semibold"
                             : "border-sage/25 hover:border-sage/60"
                         }`}
@@ -296,150 +579,6 @@ export default function TripBoard() {
             );
           })}
         </div>
-      </section>
-
-      {/* Gear list */}
-      <section id="gear">
-        <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
-          <h2 className="font-[family-name:var(--font-cormorant-garamond)] text-3xl font-semibold">
-            🎒 Gear — who&apos;s bringing what
-          </h2>
-          {!loading && (
-            <div className="text-sm opacity-75">
-              {stats.claimed}/{stats.total} claimed ·{" "}
-              {TRIP_PEOPLE.map((p) => `${p} ${stats.perPerson[p]}`).join(" · ")}
-            </div>
-          )}
-        </div>
-        <p className="mb-5 text-sm opacity-75">
-          Tap a name chip to claim an item (or un-claim it). Rows marked{" "}
-          <span className="mx-0.5 inline-block h-3 w-3 rounded-sm bg-soft-gold align-middle" /> still
-          need an owner. Check the box once it&apos;s physically in a pack.
-        </p>
-
-        {loading ? (
-          <div className="soft-card dark:soft-card-dark p-8 text-center opacity-70">
-            Loading the list…
-          </div>
-        ) : (
-          <div className="space-y-6">
-            {GEAR_CATEGORIES.map((cat) => {
-              const catItems = items
-                .filter((it) => it.category === cat.id)
-                .sort((a, b) => a.sort - b.sort || a.id - b.id);
-              if (catItems.length === 0) return null;
-              return (
-                <div key={cat.id} className="soft-card dark:soft-card-dark overflow-hidden">
-                  <div className="border-b border-sage/20 px-5 py-3">
-                    <h3 className="font-semibold">
-                      {cat.emoji} {cat.label}
-                    </h3>
-                    {cat.blurb && <p className="mt-0.5 text-xs opacity-70">{cat.blurb}</p>}
-                  </div>
-                  <ul className="divide-y divide-sage/15">
-                    {catItems.map((item) => {
-                      const names = splitNames(item.claimed_by);
-                      const unclaimed = names.length === 0;
-                      return (
-                        <li
-                          key={item.id}
-                          className={`flex flex-col gap-2 px-5 py-3 sm:flex-row sm:items-center sm:justify-between ${
-                            unclaimed ? "border-l-4 border-l-soft-gold" : "border-l-4 border-l-transparent"
-                          } ${item.packed ? "opacity-60" : ""}`}
-                        >
-                          <div className="min-w-0 flex-1">
-                            <div className="flex flex-wrap items-baseline gap-2">
-                              <span className={`font-medium ${item.packed ? "line-through" : ""}`}>
-                                {item.name}
-                              </span>
-                              {item.qty && (
-                                <span className="rounded-full bg-sage/15 px-2 py-0.5 text-[11px] font-semibold">
-                                  {item.qty}
-                                </span>
-                              )}
-                            </div>
-                            {item.notes && <p className="mt-0.5 text-xs opacity-70">{item.notes}</p>}
-                          </div>
-                          <div className="flex shrink-0 items-center gap-2">
-                            {TRIP_PEOPLE.map((p) => (
-                              <button
-                                key={p}
-                                onClick={() => toggleClaim(item, p)}
-                                title={names.includes(p) ? `${p} is bringing this` : `Claim for ${p}`}
-                                className={`rounded-full border px-2.5 py-1 text-xs font-bold transition-all ${
-                                  names.includes(p)
-                                    ? PERSON_COLORS[p]
-                                    : "border-sage/30 opacity-50 hover:opacity-100"
-                                }`}
-                              >
-                                {p[0]}
-                              </button>
-                            ))}
-                            <label className="ml-1 flex cursor-pointer items-center gap-1 text-xs opacity-80">
-                              <input
-                                type="checkbox"
-                                checked={item.packed}
-                                onChange={(e) => patchItem(item.id, { packed: e.target.checked })}
-                                className="h-4 w-4 accent-[#C49A3C]"
-                              />
-                              packed
-                            </label>
-                            {item.slug === null && (
-                              <button
-                                onClick={() => deleteItem(item.id)}
-                                className="ml-1 text-xs opacity-40 hover:opacity-100"
-                                title="Remove item"
-                              >
-                                ✕
-                              </button>
-                            )}
-                          </div>
-                        </li>
-                      );
-                    })}
-                  </ul>
-                </div>
-              );
-            })}
-
-            {/* Add item */}
-            <div className="soft-card dark:soft-card-dark p-5">
-              <h3 className="mb-3 font-semibold">➕ Add something we forgot</h3>
-              <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
-                <input
-                  value={newItem.name}
-                  onChange={(e) => setNewItem({ ...newItem, name: e.target.value })}
-                  placeholder="Item name"
-                  className="enchanted-input flex-1 rounded-lg px-3 py-2 text-sm"
-                />
-                <select
-                  value={newItem.category}
-                  onChange={(e) => setNewItem({ ...newItem, category: e.target.value })}
-                  className="enchanted-input rounded-lg px-3 py-2 text-sm"
-                >
-                  {GEAR_CATEGORIES.map((c) => (
-                    <option key={c.id} value={c.id}>
-                      {c.label}
-                    </option>
-                  ))}
-                </select>
-                <input
-                  value={newItem.qty}
-                  onChange={(e) => setNewItem({ ...newItem, qty: e.target.value })}
-                  placeholder="Qty (optional)"
-                  className="enchanted-input w-full rounded-lg px-3 py-2 text-sm sm:w-32"
-                />
-                <button
-                  onClick={addItem}
-                  disabled={adding || !newItem.name.trim()}
-                  className="rounded-lg bg-forest px-5 py-2 text-sm font-semibold text-cream transition-opacity disabled:opacity-40 dark:bg-soft-gold dark:text-forest-dark"
-                >
-                  {adding ? "Adding…" : "Add"}
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
       </section>
     </div>
   );
