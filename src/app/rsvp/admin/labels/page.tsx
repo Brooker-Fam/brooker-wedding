@@ -436,6 +436,40 @@ export default function LabelsAdminPage() {
     downloadCsv(`${slug || "mailing-list"}-${date}.csv`, rows);
   };
 
+  // One-click dump of every RSVP in the system (attending, declined, and
+  // admin-added) — no list needed. Same columns as a per-list export so it
+  // drops into Avery / Word Mail Merge the same way. Addressee defaults to the
+  // RSVP name; synthetic admin emails are blanked so they don't hit labels.
+  const exportEveryone = () => {
+    if (allRsvps.length === 0) return;
+    const header = [
+      "Addressee",
+      "Mailing Address",
+      "Notes",
+      "Email",
+      "Phone",
+      "RSVP Name",
+      "Attendee Names",
+      "Attending",
+    ];
+    const rows = [header];
+    for (const r of allRsvps) {
+      const isManualEmail = /^manual-rsvp-.*@brooker-wedding\.local$/.test(r.email);
+      rows.push([
+        r.name,
+        r.mailing_address ?? "",
+        "",
+        isManualEmail ? "" : r.email ?? "",
+        r.phone ?? "",
+        r.name,
+        r.attendee_names ?? "",
+        r.attending ? "Yes" : "No",
+      ]);
+    }
+    const date = new Date().toISOString().slice(0, 10);
+    downloadCsv(`everyone-invited-${date}.csv`, rows);
+  };
+
   return (
     <div className="enchanted-bg min-h-screen">
       <div className="mx-auto max-w-7xl px-4 pt-24 pb-16 sm:pt-28 sm:pb-20">
@@ -520,6 +554,21 @@ export default function LabelsAdminPage() {
                   </li>
                 ))}
               </ul>
+
+              <div className="mt-4 border-t border-sage/20 pt-4">
+                <button
+                  type="button"
+                  onClick={exportEveryone}
+                  disabled={allRsvps.length === 0}
+                  className="w-full rounded-lg bg-soft-gold px-3 py-2 text-sm font-semibold text-[#2A1A00] hover:bg-soft-gold-dark disabled:opacity-50"
+                >
+                  Export everyone ({allRsvps.length})
+                </button>
+                <p className="mt-2 text-xs text-deep-plum/60 dark:text-cream/60">
+                  One CSV of every RSVP in the system — attending, declined, and
+                  admin-added — ready for mailing labels. No list needed.
+                </p>
+              </div>
             </aside>
 
             {/* Main */}
