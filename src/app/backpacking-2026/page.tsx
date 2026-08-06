@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import TripBoard from "@/components/backpacking/TripBoard";
 import TripWeather from "@/components/backpacking/TripWeather";
+import RouteDecider from "@/components/backpacking/RouteDecider";
 
 export const metadata: Metadata = {
   title: "High Peaks Backpacking — Aug 15–16, 2026",
@@ -8,65 +9,6 @@ export const metadata: Metadata = {
     "Matt, Liam (and maybe Dan) backpack the Adirondack High Peaks from Adirondak Loj. Routes, gear claiming, schedule, and trail beta.",
   robots: { index: false },
 };
-
-// Filled from DEC/ADK research — see the links on each card.
-type Route = {
-  name: string;
-  stats: string;
-  from: string;
-  vibe: string;
-  alltrails?: string;
-  extra?: { label: string; href: string };
-  notes: string[];
-};
-
-const DAY_ROUTES: Route[] = [
-  {
-    name: "Mount Marcy (5,344 ft — #1)",
-    stats: "≈14.8 mi RT from the Loj · ≈10 mi RT from Marcy Dam · ~3,200 ft gain",
-    from: "Van Hoevenberg Trail — does NOT touch the Avalanche Pass closure",
-    vibe: "NY's highest. Huge open summit cone, 360° views. Liam's pick.",
-    alltrails: "https://www.alltrails.com/trail/us/new-york/mount-marcy-via-van-hoevenberg-trail",
-    notes: [
-      "From a Marcy Dam basecamp it's a very doable out-and-back with daypacks",
-      "Above treeline: stay on bare rock, alpine vegetation is fragile",
-      "Start early — afternoon thunderstorms are the summer pattern",
-    ],
-  },
-  {
-    name: "Mount Colden (4,714 ft — #11)",
-    stats: "≈4.5 mi one-way from Marcy Dam via Lake Arnold · ~2,100 ft gain",
-    from: "Lake Arnold Trail from the Avalanche Camps side (open)",
-    vibe: "Killer views straight down Avalanche Lake and across to the MacIntyres.",
-    alltrails: "https://www.alltrails.com/trail/us/new-york/mount-colden-via-lake-arnold",
-    notes: [
-      "The WEST side trail (ladders from Lake Colden) may be affected by the slide closure — check the DEC page",
-      "Pairs naturally with a Lake Arnold-side camp",
-    ],
-  },
-  {
-    name: "Mount Marshall (4,360 ft — #25) + the plane wreck",
-    stats: "≈3 mi RT, ~1,200 ft gain from the Herbert Brook junction at Flowed Lands",
-    from: "Herbert Brook herd path off the Lake Colden / Flowed Lands corridor",
-    vibe: "Dan's 46er target. Wooded summit, but a classic herd-path adventure.",
-    alltrails: "https://www.alltrails.com/trail/us/new-york/mount-marshall-via-herbert-brook",
-    notes: [
-      "The 1969 plane crash wreckage sits near Cold Brook Pass on the Iroquois side — a separate detour from the Herbert Brook route; see the route research links",
-      "Herd path = unmarked but well-worn; follow the brook",
-    ],
-  },
-  {
-    name: "Algonquin (5,114 ft — #2) + Wright (+ Iroquois)",
-    stats: "≈8 mi RT from the Loj for Algonquin · +1 mi RT for Wright · +2 mi RT for Iroquois · ~3,000 ft gain",
-    from: "MacIntyre Range trail from the Loj — best as a hike-out-day option or separate trip",
-    vibe: "Second-highest, above-treeline ridge walking, the best-looking range in the park.",
-    alltrails: "https://www.alltrails.com/trail/us/new-york/algonquin-peak-via-adirondack-loj",
-    notes: [
-      "From a Lake Colden camp, the trail up Algonquin's back side is steep and the bottom section is near the slide zone — check status",
-      "Realistically this is the 'if we're feeling great Sunday morning' stretch goal",
-    ],
-  },
-];
 
 function SectionTitle({ children }: { children: React.ReactNode }) {
   return (
@@ -121,7 +63,7 @@ export default function BackpackingPage() {
       <div className="mb-10 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         {[
           ["🚗 Drive", "≈2 hrs from Greenwich → Adirondak Loj, 1002 Adirondak Loj Rd, Lake Placid"],
-          ["🅿️ Parking", "Paid lot at the Loj (ADK), first-come — arrive by 7 AM on an August Saturday"],
+          ["🅿️ Parking", "Loj: paid ADK lot, first-come — arrive by 7 AM on an August Saturday. Upper Works: free and low-drama"],
           ["📋 Permits", "None needed on this side (that's the AMR/Indian Head system, not here). Sign the trail register"],
           ["🐻 Bear cans", "REQUIRED overnight in the Eastern High Peaks — rentals at the High Peaks Info Center"],
         ].map(([title, body]) => (
@@ -145,8 +87,8 @@ export default function BackpackingPage() {
             <h3 className="font-semibold">Saturday 8/15</h3>
             <ul className="mt-2 space-y-1.5 text-sm">
               <li>☀️ ~5:30 AM — leave Greenwich (beat the parking rush)</li>
-              <li>🅿️ ~7:30 AM — park at the Loj, sign register, sort bear cans</li>
-              <li>🥾 8 AM — hike in to camp (Marcy Dam ≈1 hr · Lake Colden side ≈3 hrs)</li>
+              <li>🅿️ ~7:30 AM — park (Loj or Upper Works), sign the register, sort bear cans</li>
+              <li>🥾 8 AM — hike in to camp (1–5 hrs depending on the route decider pick)</li>
               <li>⛺ Set up camp, stash overnight stuff, eat lunch (eggs!)</li>
               <li>🏃 Afternoon — summit run #1 with light packs</li>
               <li>🍜 Peak Refuel dinner, everything smellable into the cans</li>
@@ -158,80 +100,27 @@ export default function BackpackingPage() {
             <ul className="mt-2 space-y-1.5 text-sm">
               <li>🌅 Light snack at first light — optional quick summit run</li>
               <li>🍳 Big breakfast, break camp, pack out everything</li>
-              <li>🥾 Hike out — leave camp by ~11 AM (Colden side) / ~1 PM (Marcy Dam)</li>
+              <li>🥾 Hike out — the route decider computes the exact leave-camp deadline</li>
               <li>🚗 On the road by ~2–3 PM</li>
               <li>🏡 Home before 5–6 PM (hard stop: 7 PM)</li>
             </ul>
             <p className="mt-3 rounded-lg bg-sage/10 px-3 py-2 text-xs">
-              The Sunday math is the constraint: from a Lake Colden camp it&apos;s ≈3–3.5 hrs out
-              with full packs, so a Sunday summit means alpine start.
+              The Sunday math is the real constraint — a Sunday summit run means an alpine start
+              from the farther camps. Each decider card shows the deadline.
             </p>
           </div>
         </div>
       </section>
 
-      {/* Route options */}
+      {/* Route decider */}
       <section className="mb-12">
-        <SectionTitle>🥾 Route options</SectionTitle>
-        <div className="mb-6 grid gap-4 md:grid-cols-2">
-          <div className="soft-card dark:soft-card-dark border-l-4 border-l-forest p-5">
-            <h3 className="font-semibold">Plan A — Marcy focus (if Dan&apos;s out)</h3>
-            <p className="mt-1 text-sm opacity-80">
-              Base at <strong>Marcy Dam</strong> (short 2.3 mi carry-in, tent sites + nearby
-              lean-tos). Saturday: Marcy via Van Hoevenberg with daypacks. Sunday: optional Phelps
-              (≈4 mi RT from camp) or Tabletop, then an easy stroll out. Zero dependence on the
-              closure, maximum summit time, easiest Sunday exit.
-            </p>
-          </div>
-          <div className="soft-card dark:soft-card-dark border-l-4 border-l-deep-plum p-5">
-            <h3 className="font-semibold">Plan B — Marshall + friends (if Dan&apos;s in)</h3>
-            <p className="mt-1 text-sm opacity-80">
-              Carry over <strong>Lake Arnold to the Lake Colden / Flowed Lands area</strong> (≈5.5
-              mi with packs, muddy). Saturday: Marshall via Herbert Brook (Dan&apos;s 46er) — wreck
-              detour if time allows. Sunday: Colden on the way back over Lake Arnold, or straight
-              out. Algonquin/Wright/Iroquois realistically becomes its own future trip from this
-              side while the pass is closed.
-            </p>
-          </div>
-        </div>
-
-        <div className="grid gap-4 md:grid-cols-2">
-          {DAY_ROUTES.map((r) => (
-            <div key={r.name} className="soft-card dark:soft-card-dark p-5">
-              <h3 className="font-semibold">{r.name}</h3>
-              <p className="mt-1 text-xs font-semibold opacity-70">{r.stats}</p>
-              <p className="mt-0.5 text-xs opacity-70">{r.from}</p>
-              <p className="mt-2 text-sm">{r.vibe}</p>
-              <ul className="mt-2 list-disc space-y-1 pl-5 text-xs opacity-80">
-                {r.notes.map((n) => (
-                  <li key={n}>{n}</li>
-                ))}
-              </ul>
-              <div className="mt-3 flex flex-wrap gap-3 text-xs">
-                {r.alltrails && (
-                  <a
-                    className="rounded-full bg-forest px-3 py-1.5 font-semibold text-cream dark:bg-soft-gold dark:text-forest-dark"
-                    href={r.alltrails}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    AllTrails ↗
-                  </a>
-                )}
-                {r.extra && (
-                  <a
-                    className="rounded-full border border-sage/40 px-3 py-1.5 font-semibold"
-                    href={r.extra.href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    {r.extra.label} ↗
-                  </a>
-                )}
-              </div>
-            </div>
-          ))}
-        </div>
+        <SectionTitle>🧭 Route decider — pick your adventure</SectionTitle>
+        <p className="mb-5 text-sm opacity-80">
+          Where we camp decides what we can climb and when we have to leave. Toggle the options —
+          every card recalculates the carry, the summit menu, and the Sunday
+          get-Matt-home-by-dinner deadline.
+        </p>
+        <RouteDecider />
         <p className="mt-4 text-sm opacity-75">
           🗺️ Paper maps are packed; also download offline maps and see the{" "}
           <a
@@ -276,8 +165,9 @@ export default function BackpackingPage() {
               fine to use, they&apos;re before the closed section.
             </li>
             <li>
-              <strong>Lake Colden / Flowed Lands lean-tos + tent sites</strong> — Plan B home base,
-              reached via Lake Arnold while the pass is closed.
+              <strong>Lake Colden / Flowed Lands lean-tos + tent sites</strong> — the interior
+              bases. While the pass is closed, reach them via Lake Arnold (from the Loj) or the
+              Calamity Brook trail (from Upper Works — easier with packs).
             </li>
             <li>
               <strong>Avalanche Lake sites — CLOSED</strong> (slide damage). Don&apos;t plan on
