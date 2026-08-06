@@ -40,7 +40,7 @@ export default function BackpackingOverviewPage() {
       {/* Quick facts */}
       <div className="mb-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         {[
-          ["🚗 Drive", "≈2 hrs from Greenwich → Adirondak Loj, 1002 Adirondak Loj Rd, Lake Placid (Upper Works is similar)"],
+          ["🚗 Drive", "≈2½ hrs Greenwich → Adirondak Loj (I-87 exit 30) · ≈2¾ hrs → Upper Works (exit 29, then slow county roads). Verify in Maps — search tools confuse Greenwich NY with Greenwich CT"],
           ["🅿️ Parking", "Loj: $25/day non-member ($10 ADK member), first-come — lots fill BEFORE 6 AM summer Saturdays. Multi-day allowed; call HPIC (518-523-3441 x121) about overnight billing. Upper Works: free"],
           ["📋 Permits", "None needed on this side (that's the AMR/Indian Head system, not here). Sign the trail register"],
           ["🐻 Bear cans", "REQUIRED for overnights in the Eastern High Peaks Apr 1–Nov 30 — rentals at the High Peaks Info Center at the Loj"],
@@ -65,21 +65,22 @@ export default function BackpackingOverviewPage() {
             <h3 className="font-semibold">Saturday 8/15</h3>
             <ul className="mt-2 space-y-1.5 text-sm">
               <li>
-                ☀️ Leave Greenwich ~3:45 AM for the Loj (ADK: lots fill <em>before 6 AM</em> on
-                summer Saturdays, and full = turned away) · Upper Works is mellower, ~5:30 AM works
+                ☀️ Leave Greenwich ~3:15 AM for the Loj (ADK: lots fill <em>before 6 AM</em> on
+                summer Saturdays, and full = turned away) · Upper Works is mellower — ~5 AM works
+                for its 60-car free lot
               </li>
               <li>🅿️ Park, sign the register, sort bear cans (rent #2 at HPIC if we&apos;re at the Loj)</li>
-              <li>🥾 Hike in to camp (1–3 hrs depending on the route pick)</li>
+              <li>🥾 Hike in to camp (1–4 hrs depending on the route pick)</li>
               <li>⛺ Set up camp, stash overnight stuff, eat lunch (eggs!)</li>
               <li>🏃 Afternoon — summit run #1 with light packs</li>
               <li>🍜 Peak Refuel dinner, everything smellable into the cans</li>
-              <li>🌌 Stars. The interior lakes are properly dark</li>
+              <li>🌇 Sunset 8:02 PM — the valley walls steal usable light well before that</li>
             </ul>
           </div>
           <div className="soft-card dark:soft-card-dark p-5">
             <h3 className="font-semibold">Sunday 8/16</h3>
             <ul className="mt-2 space-y-1.5 text-sm">
-              <li>🌅 Light snack at first light — optional quick summit run</li>
+              <li>🌅 Sunrise 5:59 AM — light snack at first light, optional quick summit run</li>
               <li>🍳 Big breakfast, break camp, pack out everything</li>
               <li>
                 🥾 Hike out — the{" "}

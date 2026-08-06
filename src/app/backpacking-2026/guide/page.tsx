@@ -126,7 +126,11 @@ export default function GuidePage() {
             <li><strong>On the move:</strong> UV sterilizer for quick bottle refills</li>
             <li><strong>Backup:</strong> iodine tabs live in the med kit, weigh nothing</li>
             <li>Carry ~2L per person on summit runs; tank up at camp with electrolytes</li>
-            <li>Dry stretch warning: no reliable water on Marcy&apos;s summit cone — fill at the last brook crossing</li>
+            <li>
+              <strong>Last-water points:</strong> Indian Falls / Phelps Brook is the last reliable
+              fill before Marcy&apos;s summit (~4.8 dry miles after); MacIntyre Falls (~2.6 mi up)
+              is the last before Algonquin
+            </li>
           </ul>
         </div>
       </section>
