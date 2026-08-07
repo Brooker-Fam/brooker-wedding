@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 
 export default function BackpackingLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="mx-auto max-w-5xl px-4 pb-24 pt-24 sm:px-6">
+    <div className="mx-auto max-w-5xl px-4 pb-24 pt-10 sm:px-6">
       <header className="mb-6 text-center">
         <p className="mb-1 text-xs font-semibold uppercase tracking-widest text-soft-gold-dark dark:text-soft-gold">
           Brooker &amp; co. expedition

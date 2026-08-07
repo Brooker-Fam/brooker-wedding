@@ -14,8 +14,8 @@ export default function TripNav() {
   const pathname = usePathname();
 
   return (
-    <nav className="sticky top-[72px] z-40 -mx-4 mb-8 px-4 sm:-mx-6 sm:px-6">
-      <div className="flex gap-1.5 overflow-x-auto rounded-full border border-sage/25 bg-cream/95 p-1.5 backdrop-blur-md dark:bg-[#12240F]/95">
+    <nav className="sticky top-2 z-40 -mx-4 mb-8 px-4 sm:-mx-6 sm:px-6">
+      <div className="flex gap-1.5 overflow-x-auto rounded-full border border-sage/25 bg-cream/95 p-1.5 backdrop-blur-md [scrollbar-width:none] [&::-webkit-scrollbar]:hidden dark:bg-[#12240F]/95">
         {TABS.map((tab) => {
           const active = pathname === tab.href;
           return (
