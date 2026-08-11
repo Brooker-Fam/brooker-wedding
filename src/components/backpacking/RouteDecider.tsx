@@ -24,6 +24,8 @@ type Run = {
   note?: string;
   flag?: string;
   link?: string;
+  /** Route-book id — deep-links into the mile-by-mile card below. */
+  doc?: string;
 };
 
 type Scenario = {
@@ -35,6 +37,8 @@ type Scenario = {
   driveH: number;
   situation: string;
   carryIn: { mi: string; gain: string; time: string; desc: string };
+  /** Route-book id for the carry-in leg. */
+  carryDoc: string;
   packOutH: number;
   packOutLabel: string;
   runs: Run[];
@@ -48,7 +52,10 @@ const AT = {
   marcyUW: "https://www.alltrails.com/trail/us/new-york/mount-marcy-from-upper-works-trail",
   coldenNE: "https://www.alltrails.com/trail/us/new-york/mount-colden-via-van-hoevenberg-trail",
   coldenWest: "https://www.alltrails.com/trail/us/new-york/mount-colden-loop-via-lake-colden",
-  marshall: "https://www.alltrails.com/trail/us/new-york/lake-colden-to-mount-marshall-loop",
+  marshall: "https://www.alltrails.com/trail/us/new-york/mount-marshall-via-the-calamity-brook-trail",
+  phelps: "https://www.alltrails.com/trail/us/new-york/phelps-mountain-trail--2",
+  phelpsTabletop: "https://www.alltrails.com/trail/us/new-york/phelps-and-tabletop-mountains-trail",
+  wright: "https://www.alltrails.com/trail/us/new-york/wright-peak-via-van-hoevenberg-trail",
   algonquinWright:
     "https://www.alltrails.com/trail/us/new-york/algonquin-peak-and-wright-peak-via-algonquin-trail",
 };
@@ -67,8 +74,9 @@ const SCENARIOS: Scenario[] = [
       mi: "2.3 mi",
       gain: "+250 ft",
       time: "≈1–1¼ hrs with full packs",
-      desc: "Loj → Marcy Dam tent sites / nearby lean-tos. Smooth, popular trail.",
+      desc: "Loj → Marcy Dam tent sites / nearby lean-tos. Smooth, popular trail, one signed junction at 1.0 mi.",
     },
+    carryDoc: "loj-to-marcydam",
     packOutH: 1.25,
     packOutLabel: "≈1¼ hrs back to the car",
     runs: [
@@ -77,39 +85,55 @@ const SCENARIOS: Scenario[] = [
         rt: "≈10.2 mi RT",
         gain: "+2,900 ft",
         time: "7–8½ hrs",
-        note: "The main event with daypacks. Huge bare summit cone. Waypoints from camp: Phelps jct ~1 mi, Indian Falls 2, treeline 4.5, summit 5.1.",
+        note: "The main event with daypacks. Huge bare summit cone. Waypoints from camp: Phelps jct 0.7 mi, Indian Falls 2.0 (last water), treeline 4.5, summit 5.1.",
         link: AT.marcy,
-      },
-      {
-        peak: "Phelps (4,161 ft — #32)",
-        rt: "≈4.4 mi RT",
-        gain: "+2,000 ft",
-        time: "3–4 hrs",
-        note: "Perfect Sunday-morning quickie before packing out.",
-      },
-      {
-        peak: "Tabletop (4,427 ft — #19)",
-        rt: "≈7.4 mi RT",
-        gain: "+2,400 ft",
-        time: "4½–5½ hrs",
-        note: "Wooded summit, herd path off the Van Ho.",
-      },
-      {
-        peak: "Colden via Lake Arnold (4,714 ft — #11)",
-        rt: "≈8 mi RT",
-        gain: "+2,300 ft",
-        time: "5½–7 hrs",
-        note: "The day-run way to get Colden without moving camp.",
-        flag: "DEC: knee-deep-plus water near Lake Arnold, and a short bushwhack around slide debris on the SE side",
-        link: AT.coldenNE,
+        doc: "marcy-vanho",
       },
       {
         peak: "Algonquin + Wright (5,114 / 4,580 ft — #2 & #16)",
-        rt: "≈9–9.4 mi RT from the Loj (not from camp)",
-        gain: "+3,600–4,050 ft",
-        time: "6–8 hrs",
-        note: "The other zero-closure big day. Starts at the Loj, so it's a do-it-on-the-way-out option or its own future trip.",
+        rt: "≈9.6 mi RT from the Loj · ≈9 mi via the Whale's Tail connector",
+        gain: "+3,700 ft",
+        time: "7–8½ hrs",
+        note: "#2 in the state, the best bare summit in the park, and a 0.8-mi spur that buys Wright on the way. Zero interaction with the closure. From camp you either walk back to the Loj or take the Whale's Tail ski-trail connector — both are in the route book.",
         link: AT.algonquinWright,
+        doc: "algonquin-wright",
+      },
+      {
+        peak: "Wright alone (4,580 ft — #16)",
+        rt: "≈6.7 mi RT from the Loj",
+        gain: "+2,400 ft",
+        time: "4½–5½ hrs",
+        note: "The half-day version when Algonquin's weather looks bad but the lower summit doesn't. Still fully exposed up top.",
+        link: AT.wright,
+        doc: "algonquin-wright",
+      },
+      {
+        peak: "Phelps (4,161 ft — #32)",
+        rt: "≈3.8 mi RT",
+        gain: "+2,000 ft",
+        time: "3–4 hrs",
+        note: "Perfect Sunday-morning quickie before packing out — the junction is only 0.7 mi from camp.",
+        link: AT.phelps,
+        doc: "phelps-tabletop",
+      },
+      {
+        peak: "Tabletop (4,427 ft — #19)",
+        rt: "≈5.0 mi RT",
+        gain: "+2,200 ft",
+        time: "4–5 hrs",
+        note: "Wooded summit. The herd path is unmarked and leaves the Van Ho just past Indian Falls — bring a downloaded map.",
+        link: AT.phelpsTabletop,
+        doc: "phelps-tabletop",
+      },
+      {
+        peak: "Colden via Lake Arnold (4,714 ft — #11)",
+        rt: "≈7–8 mi RT",
+        gain: "+2,300 ft",
+        time: "5½–7 hrs",
+        note: "The day-run way to get Colden without moving camp. Peel off south at Avalanche Camp — the pass itself is closed.",
+        flag: "DEC: knee-deep-plus water near Lake Arnold, and a short bushwhack around slide debris on the SE side",
+        link: AT.coldenNE,
+        doc: "colden-arnold",
       },
     ],
     pros: [
@@ -124,7 +148,7 @@ const SCENARIOS: Scenario[] = [
       "Loj lot fills before 6 AM on summer Saturdays — pre-dawn drive required",
       "Busiest camping area in the High Peaks; sites go early on Saturdays",
     ],
-    mapKeys: ["loj", "marcydam", "marcy", "phelps", "tabletop", "colden", "algonquin", "wright"],
+    mapKeys: ["loj", "marcydam", "indianfalls", "marcy", "phelps", "tabletop", "lakearnold", "colden", "algonquin", "wright"],
   },
   {
     id: "uw-flowed",
@@ -139,43 +163,48 @@ const SCENARIOS: Scenario[] = [
       mi: "≈4.6 mi",
       gain: "+1,000–1,225 ft",
       time: "≈2½–3½ hrs with full packs",
-      desc: "Upper Works → Calamity Brook Trail → Flowed Lands lean-tos. Steady, unglamorous, effective — the bridge-less crossing is ~2.7 mi in.",
+      desc: "Upper Works → Calamity Brook Trail → Flowed Lands lean-tos. Steady, unglamorous, effective. Red discs to the T junction at 1.4 mi, then blue; the bridge-less crossing is at ~2.8 mi.",
     },
+    carryDoc: "uw-to-colden",
     packOutH: 2.5,
     packOutLabel: "≈2½ hrs back to the car",
     runs: [
       {
         peak: "Marshall via Herbert Brook (4,360 ft — #25)",
-        rt: "≈4.6–5.5 mi RT",
+        rt: "≈5.5–6.5 mi RT",
         gain: "+1,745 ft",
-        time: "3–3½ hrs",
-        note: "Dan's 46er, Saturday-afternoon material. Cairn marks the herd path ~0.25 mi past the Lake Colden dam; it crosses Herbert Brook over and over.",
+        time: "3½–4 hrs",
+        note: "Dan's 46er, Saturday-afternoon material — add the mile from Flowed Lands up to the dam each way. Cairn marks the herd path ~0.25 mi past the Lake Colden dam; it crosses Herbert Brook over and over.",
         link: AT.marshall,
+        doc: "marshall-herbert",
       },
       {
         peak: "Colden via the west ladders (4,714 ft — #11)",
-        rt: "≈5–6.5 mi RT",
+        rt: "≈6.5–7 mi RT",
         gain: "+2,000 ft",
-        time: "4–5 hrs",
+        time: "5–6 hrs",
         note: "Walk up past Lake Colden, then the red-blazed ladder trail. Confirmed OPEN — the closure is the Avalanche Pass corridor, not this trail.",
         link: AT.coldenWest,
+        doc: "colden-west",
       },
       {
         peak: "The plane wreck (Cold Brook Pass, ~3,800 ft)",
-        rt: "≈4–5 mi RT",
+        rt: "≈5 mi RT",
         gain: "+1,050 ft",
-        time: "2½–3 hrs",
+        time: "3–3½ hrs",
         note: "1969 Piper Cherokee, ~100 ft west of the trail behind a ten-foot boulder just below the col. Full story under the decider.",
         flag: "DEC calls Cold Brook Pass \"not a viable option\" — unmaintained 10+ years. Dry-day, fresh-legs judgment call",
+        doc: "wreck",
       },
       {
         peak: "Marcy via Feldspar / Four Corners",
-        rt: "≈9–10 mi RT",
+        rt: "≈12 mi RT",
         gain: "+3,000 ft",
-        time: "7–9 hrs",
-        note: "Possible but a monster day from here.",
+        time: "8–10 hrs",
+        note: "Possible but a monster day from here — Lake Colden is a better launch pad for this one.",
         flag: "Feldspar lean-to access bridge has a broken stringer (DEC) — use caution at the Opalescent",
         link: AT.marcyUW,
+        doc: "marcy-feldspar",
       },
     ],
     pros: [
@@ -190,7 +219,7 @@ const SCENARIOS: Scenario[] = [
       "Marcy is a monster from here and Algonquin is out — tough sell for Liam's Marcy wish",
       "Longest drive of the options, ending on slow cell-dead county roads",
     ],
-    mapKeys: ["upperworks", "flowed", "marshall", "wreck", "colden", "marcy"],
+    mapKeys: ["upperworks", "henderson", "flowed", "marshall", "wreck", "colden", "feldspar", "marcy"],
   },
   {
     id: "uw-colden",
@@ -205,43 +234,48 @@ const SCENARIOS: Scenario[] = [
       mi: "≈5.6 mi",
       gain: "+1,325 ft",
       time: "≈3–4 hrs with full packs",
-      desc: "Upper Works → Calamity Brook → Flowed Lands → around to the Lake Colden lean-tos (rolling ups and downs on the last stretch).",
+      desc: "Upper Works → Calamity Brook → Flowed Lands (4.6 mi) → around the shore to the Lake Colden lean-tos (rolling ups and downs on the last mile).",
     },
+    carryDoc: "uw-to-colden",
     packOutH: 3.0,
     packOutLabel: "≈3 hrs back to the car",
     runs: [
       {
         peak: "Colden via the west ladders (4,714 ft — #11)",
-        rt: "≈3.2 mi RT (or 6.5 mi lake loop)",
+        rt: "≈4.4–4.8 mi RT",
         gain: "+2,000 ft",
-        time: "3½–4½ hrs",
-        note: "Straight up from camp on the red-blazed ladder trail. Confirmed OPEN.",
+        time: "4–5 hrs",
+        note: "Shortest summit from any of our camps. Along the lake for 0.8 mi, then the red-blazed ladder trail turns uphill — 1.6 mi and 2,000 ft from that junction. Confirmed OPEN.",
         link: AT.coldenWest,
+        doc: "colden-west",
       },
       {
         peak: "Marshall via Herbert Brook (4,360 ft — #25)",
-        rt: "≈4.6 mi RT",
+        rt: "≈4.0–4.6 mi RT",
         gain: "+1,745 ft",
         time: "3–3½ hrs",
-        note: "The cairn-marked herd path starts ~0.25 mi past the Lake Colden dam.",
+        note: "The cairn-marked herd path starts ~0.25 mi past the Lake Colden dam. No signs, no markers — scout the cairn on the way past the evening before.",
         link: AT.marshall,
+        doc: "marshall-herbert",
       },
       {
         peak: "The plane wreck (Cold Brook Pass, ~3,800 ft)",
         rt: "≈3 mi RT",
         gain: "+1,050 ft",
-        time: "≈2 hrs",
+        time: "≈2 hrs plus searching",
         note: "Closest launch of any camp — story under the decider.",
         flag: "DEC calls Cold Brook Pass \"not a viable option\" — unmaintained 10+ years. Dry-day judgment call",
+        doc: "wreck",
       },
       {
         peak: "Marcy via Feldspar / Four Corners",
-        rt: "≈8–9.5 mi RT",
+        rt: "≈10 mi RT",
         gain: "+2,700–3,000 ft",
-        time: "6–8 hrs",
-        note: "The quiet back way up Marcy — long but launchable from here.",
+        time: "7–9 hrs",
+        note: "The quiet back way up Marcy, past Lake Tear of the Clouds — long but launchable from here. Saturday only, never Sunday.",
         flag: "Feldspar lean-to access bridge has a broken stringer (DEC) — use caution at the Opalescent",
         link: AT.marcyUW,
+        doc: "marcy-feldspar",
       },
     ],
     pros: [
@@ -255,7 +289,7 @@ const SCENARIOS: Scenario[] = [
       "A longer carry than Flowed Lands for modest gains",
       "Sunday exit a bit tighter than Flowed Lands",
     ],
-    mapKeys: ["upperworks", "lakecolden", "marshall", "wreck", "colden", "marcy"],
+    mapKeys: ["upperworks", "henderson", "lakecolden", "marshall", "wreck", "colden", "feldspar", "marcy"],
   },
 ];
 
@@ -367,6 +401,12 @@ export default function RouteDecider() {
               · {scenario.carryIn.time}
             </p>
             <p className="mt-1 text-xs opacity-70">{scenario.carryIn.desc}</p>
+            <a
+              href={`#route-${scenario.carryDoc}`}
+              className="mt-1.5 inline-block text-xs font-semibold underline opacity-80 hover:opacity-100"
+            >
+              Mile-by-mile ↓
+            </a>
           </div>
           <div className="px-5 py-4">
             <div className="text-xs font-bold uppercase tracking-wide opacity-60">
@@ -397,16 +437,26 @@ export default function RouteDecider() {
                 {r.flag && (
                   <p className="mt-1 rounded bg-soft-gold/20 px-2 py-1 text-xs">⚠️ {r.flag}</p>
                 )}
-                {r.link && (
-                  <a
-                    href={r.link}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="mt-1 inline-block text-xs underline opacity-70 hover:opacity-100"
-                  >
-                    AllTrails ↗
-                  </a>
-                )}
+                <div className="mt-1.5 flex flex-wrap gap-x-3 gap-y-1">
+                  {r.doc && (
+                    <a
+                      href={`#route-${r.doc}`}
+                      className="text-xs font-semibold underline opacity-80 hover:opacity-100"
+                    >
+                      Mile-by-mile ↓
+                    </a>
+                  )}
+                  {r.link && (
+                    <a
+                      href={r.link}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-xs underline opacity-70 hover:opacity-100"
+                    >
+                      AllTrails ↗
+                    </a>
+                  )}
+                </div>
               </li>
             ))}
           </ul>
@@ -437,9 +487,16 @@ export default function RouteDecider() {
       </div>
 
       <p className="text-xs opacity-70">
-        Times assume ~1.5 mph with full packs, ~2 mph with daypacks — normal for High Peaks
-        terrain. Mileages are planning-grade and drive times are assembled from road segments —
-        sanity-check Google Maps the week of. The paper map wins arguments on trail.
+        Times assume ~1.5 mph with full packs, ~2 mph with daypacks — normal for High Peaks terrain.
+        Mileages are planning-grade; the{" "}
+        <a className="underline" href="#route-library">
+          route book
+        </a>{" "}
+        below has the junction-by-junction breakdown behind each number, and{" "}
+        <a className="underline" href="#getting-there">
+          Getting to the trailhead
+        </a>{" "}
+        has live Google Maps directions from the farm. The paper map wins arguments on trail.
       </p>
     </div>
   );

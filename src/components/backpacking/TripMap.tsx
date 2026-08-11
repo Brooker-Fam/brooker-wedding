@@ -28,6 +28,10 @@ export const MAP_POINTS: Record<string, MapPoint> = {
   wright: { name: "Wright 4,580 ft", emoji: "⛰️", lat: 44.1516, lon: -73.977 },
   marshall: { name: "Mount Marshall 4,360 ft", emoji: "⛰️", lat: 44.127, lon: -74.0117 },
   wreck: { name: "Plane wreck (Cold Brook Pass)", emoji: "✈️", lat: 44.1305, lon: -74.006 },
+  indianfalls: { name: "Indian Falls (last water for Marcy)", emoji: "💧", lat: 44.1385, lon: -73.9375 },
+  lakearnold: { name: "Lake Arnold (the muddy way to Colden)", emoji: "💧", lat: 44.1305, lon: -73.9485 },
+  feldspar: { name: "Feldspar lean-to", emoji: "🛖", lat: 44.1119, lon: -73.9585 },
+  henderson: { name: "Henderson Monument (Calamity Pond)", emoji: "🪦", lat: 44.1105, lon: -74.0022 },
 };
 
 export default function TripMap({ pointKeys }: { pointKeys: string[] }) {
