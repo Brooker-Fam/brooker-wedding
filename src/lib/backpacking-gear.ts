@@ -2,7 +2,7 @@
 // on migrate (ON CONFLICT DO NOTHING keyed by slug), and used as the read-only
 // fallback when DATABASE_URL is unset.
 
-export const TRIP_PEOPLE = ["Matt", "Liam", "Dan"] as const;
+export const TRIP_PEOPLE = ["Matt", "Liam"] as const;
 export type TripPerson = (typeof TRIP_PEOPLE)[number];
 
 export type GearCategory =
@@ -17,7 +17,7 @@ export type GearCategory =
 export const GEAR_CATEGORIES: { id: GearCategory; label: string; emoji: string; blurb?: string }[] = [
   { id: "shelter", label: "Shelter", emoji: "⛺" },
   { id: "sleep", label: "Sleep", emoji: "🛌" },
-  { id: "kitchen", label: "Kitchen & Food", emoji: "🍳", blurb: "Everything smellable has to fit in the bear cans — repackage, skip cans and glass." },
+  { id: "kitchen", label: "Kitchen & Food", emoji: "🍳", blurb: "Everything smellable has to fit in the ONE bear can — repackage everything, no boxes, no glass." },
   { id: "water", label: "Water", emoji: "💧" },
   { id: "clothing", label: "Clothing", emoji: "🧥", blurb: "Everyone packs their own. No cotton — it stays wet and cold." },
   { id: "safety", label: "Safety & Navigation", emoji: "🧭" },
@@ -41,8 +41,7 @@ export const DEFAULT_GEAR: GearSeed[] = [
   { slug: "groundsheet", name: "Groundsheet / cheap tarp", category: "shelter", notes: "Under the tent floor; also rain cover for packs at camp", sort: 30 },
 
   // Sleep
-  { slug: "sleeping-bags", name: "Sleeping bags", category: "sleep", qty: "2", claimedBy: "Matt", notes: "Matt has two — covers Matt + Liam", sort: 10 },
-  { slug: "sleeping-bag-dan", name: "Sleeping bag (Dan)", category: "sleep", notes: "Dan brings his own if he's in", sort: 20 },
+  { slug: "sleeping-bags", name: "Sleeping bags", category: "sleep", qty: "2", claimedBy: "Matt", notes: "Matt has two — covers both of us", sort: 10 },
   { slug: "sleeping-pads", name: "Sleeping pads", category: "sleep", qty: "1 each", notes: "NOT on Matt's list yet — the ground is cold even in August. Foam or inflatable, one per person", sort: 30 },
   { slug: "pillow", name: "Pillow (optional)", category: "sleep", notes: "Or just stuff clothes in a stuff sack", sort: 40 },
 
@@ -52,13 +51,12 @@ export const DEFAULT_GEAR: GearSeed[] = [
   { slug: "pot", name: "Pot", category: "kitchen", claimedBy: "Matt", sort: 30 },
   { slug: "lighter", name: "Lighter + backup matches", category: "kitchen", claimedBy: "Matt", notes: "Matches in a ziplock as backup", sort: 40 },
   { slug: "meals", name: "Peak Refuel freeze-dried meals", category: "kitchen", claimedBy: "Matt", notes: "Sat dinner + Sun breakfast, just add hot water", sort: 50 },
-  { slug: "eggs", name: "Hardboiled eggs", category: "kitchen", claimedBy: "Matt", notes: "Sat lunch — eat them first, they hog bear-can space", sort: 60 },
-  { slug: "snacks", name: "Trail snacks", category: "kitchen", qty: "each", notes: "Bars, trail mix, jerky — dense stuff that packs small in the can", sort: 70 },
+  { slug: "eggs", name: "Hardboiled eggs", category: "kitchen", claimedBy: "Matt", notes: "Sat lunch — eat them first, they hog bear-can space (and we only have one can)", sort: 60 },
+  { slug: "snacks", name: "Trail snacks", category: "kitchen", qty: "each", notes: "Bars, trail mix, jerky — dense stuff that packs small. Out of the wrappers-in-a-box format before it goes in the can", sort: 70 },
   { slug: "breakfast-extras", name: "Big-breakfast extras", category: "kitchen", notes: "Oatmeal/granola + instant coffee for Sunday", sort: 80 },
   { slug: "sporks", name: "Sporks / spoons", category: "kitchen", qty: "1 each", sort: 90 },
   { slug: "mugs", name: "Mug or bowl (optional)", category: "kitchen", notes: "Peak Refuel eats fine from the pouch", sort: 100 },
-  { slug: "bear-can-1", name: "Bear canister #1", category: "kitchen", claimedBy: "Matt", notes: "Required in the Eastern High Peaks — ALL food, trash + toiletries go in", sort: 110 },
-  { slug: "bear-can-2", name: "Bear canister #2", category: "kitchen", notes: "One can won't fit 2-3 people's food. Rent at the High Peaks Info Center at the trailhead, or borrow one", sort: 120 },
+  { slug: "bear-can-1", name: "Bear canister (the only one)", category: "kitchen", claimedBy: "Matt", notes: "Required in the Eastern High Peaks — ALL food, trash + toiletries go in. Two people, two days, ONE can: everything gets repackaged out of its box and the eggs get eaten first", sort: 110 },
   { slug: "trash-bags", name: "Ziplocks / trash bag", category: "kitchen", notes: "Pack out everything, wrappers included", sort: 130 },
 
   // Water
@@ -66,7 +64,7 @@ export const DEFAULT_GEAR: GearSeed[] = [
   { slug: "uv-sterilizer", name: "UV sterilizer", category: "water", claimedBy: "Matt", notes: "Backup #1", sort: 20 },
   { slug: "iodine", name: "Iodine tablets", category: "water", claimedBy: "Matt", notes: "Backup #2 — nearly weightless, always in the med kit", sort: 30 },
   { slug: "bladders", name: "3L bladders", category: "water", qty: "2", claimedBy: "Matt", sort: 40 },
-  { slug: "bottles", name: "Extra bottle (Dan / spare)", category: "water", notes: "A Smartwater bottle each is handy for mixing electrolytes", sort: 50 },
+  { slug: "bottles", name: "Spare bottle", category: "water", qty: "1 each", notes: "A Smartwater bottle each is handy for mixing electrolytes", sort: 50 },
   { slug: "electrolytes", name: "Electrolytes", category: "water", claimedBy: "Matt", notes: "IQMIX packets (easier than the Zerolyte ziplock)", sort: 60 },
 
   // Clothing (everyone)
@@ -93,10 +91,8 @@ export const DEFAULT_GEAR: GearSeed[] = [
   // Packs & personal
   { slug: "pack-matt", name: "Overnight pack (Matt)", category: "personal", claimedBy: "Matt", sort: 10 },
   { slug: "pack-liam", name: "Pack for Liam", category: "personal", notes: "Own overnight pack, or borrow one of Matt's — tell Matt which", sort: 20 },
-  { slug: "pack-dan", name: "Pack for Dan", category: "personal", notes: "If Dan's in", sort: 30 },
   { slug: "pack-liners", name: "Pack liners / trash bags", category: "personal", qty: "each", notes: "Line the pack — nothing worse than a wet sleeping bag", sort: 40 },
   { slug: "trowel-tp", name: "TP + hand sanitizer (+ trowel)", category: "personal", notes: "Privies at the designated sites; TP in a ziplock as backup", sort: 50 },
   { slug: "toothbrush", name: "Toothbrush + travel paste", category: "personal", qty: "each", notes: "Toothpaste sleeps in the bear can", sort: 60 },
-  { slug: "trekking-poles", name: "Trekking poles (optional)", category: "personal", notes: "Big help in the Lake Arnold mud and on descents", sort: 70 },
-  { slug: "cash", name: "Cash/card for parking", category: "personal", notes: "Day fee per day at the Loj lot", sort: 80 },
-];
+  { slug: "trekking-poles", name: "Trekking poles (optional)", category: "personal", notes: "Big help on the Calamity Brook crossings and the steep descents", sort: 70 },
+  ];

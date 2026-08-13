@@ -4,7 +4,7 @@ import TripNav from "@/components/backpacking/TripNav";
 export const metadata: Metadata = {
   title: "High Peaks Backpacking — Aug 15–16, 2026",
   description:
-    "Matt, Liam (and maybe Dan) backpack the Adirondack High Peaks. Routes, gear claiming, schedule, and trail beta.",
+    "Matt and Liam backpack the Adirondack High Peaks. Routes, gear claiming, schedule, and trail beta.",
   robots: { index: false },
 };
 
@@ -19,7 +19,7 @@ export default function BackpackingLayout({ children }: { children: React.ReactN
           ⛰️ High Peaks Backpacking
         </h1>
         <p className="mt-2 opacity-80">
-          Sat Aug 15 – Sun Aug 16, 2026 · Matt, Liam &amp; maybe Dan
+          Sat Aug 15 – Sun Aug 16, 2026 · Matt &amp; Liam
         </p>
       </header>
       <TripNav />

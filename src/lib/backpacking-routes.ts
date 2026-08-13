@@ -162,7 +162,7 @@ export const ROUTES: RouteDoc[] = [
     ],
     warnings: [
       "The 2.8-mi crossing is the single point of failure for every Upper Works plan. Check DEC's backcountry page the week of, and check the sky the morning of.",
-      "No bear can rental at Upper Works — can #2 has to be sorted before we leave Greenwich.",
+      "ONE bear can for the two of us — it fits, but only if everything is repackaged out of its boxes at home. No rental at Upper Works.",
       "No cell service from partway up Tahawus Rd onward. Download offline maps at home.",
     ],
     links: [
@@ -265,7 +265,7 @@ export const ROUTES: RouteDoc[] = [
     time: "3–3½ hrs",
     markers: "NO MARKERS. Unmaintained herd path, cairn at the start, brook as the handrail",
     summary:
-      "Dan's 46er, and the single best argument for camping on the Upper Works side. Short, steep, wet, and completely unmarked — you follow Herbert Brook up and cross it over and over. Legitimately a half-day, which makes it Saturday-afternoon material after the carry in.",
+      "The half-day peak, and a good use of a Saturday afternoon after the carry in. Short, steep, wet, and completely unmarked — you follow Herbert Brook up and cross it over and over. Legitimately a half-day, which makes it Saturday-afternoon material after the carry in.",
     legs: [
       {
         mi: 0,
@@ -299,7 +299,7 @@ export const ROUTES: RouteDoc[] = [
         at: "Mount Marshall summit",
         ele: "4,360 ft",
         doThis:
-          "Wooded summit with a small opening — Colden and Iroquois through the trees. Sign the canister if there is one and get Dan a photo.",
+          "Wooded summit with a small opening — Colden and Iroquois through the trees. Sign the summit canister if there is one.",
         note: "Descending an unmarked path is harder than climbing it. Keep the group together.",
         major: true,
       },

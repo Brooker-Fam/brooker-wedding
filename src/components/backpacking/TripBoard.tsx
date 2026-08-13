@@ -21,15 +21,9 @@ type Filter = "all" | "mine" | "unclaimed";
 
 const QUESTIONS: { id: string; label: string; sub?: string; options: string[] }[] = [
   {
-    id: "dan",
-    label: "Dan — you in?",
-    sub: "The route plan changes depending on this one.",
-    options: ["I'm in 🎉", "Can't make it", "Still deciding"],
-  },
-  {
     id: "meetup",
     label: "Pre-trip gear check at Matt's?",
-    sub: "Lay everything out, pack the bear cans, weigh packs.",
+    sub: "Lay everything out, pack the bear can, weigh packs.",
     options: ["Thursday 8/13", "Friday 8/14", "Either works", "Can't do either"],
   },
   {
@@ -40,15 +34,20 @@ const QUESTIONS: { id: string; label: string; sub?: string; options: string[] }[
   },
   {
     id: "route",
-    label: "Route vibe?",
-    options: ["Plan A: Marcy", "Plan B: Marshall + the wreck", "Decide that morning"],
+    label: "Saturday's summit?",
+    sub: "Camp is Lake Colden either way — this is just which run we aim at.",
+    options: [
+      "Marcy (+ Gray? + Skylight?)",
+      "Algonquin from the lake",
+      "Colden ladders",
+      "Decide that morning",
+    ],
   },
 ];
 
 const PERSON_COLORS: Record<string, string> = {
   Matt: "bg-forest text-cream border-forest",
   Liam: "bg-soft-gold text-forest-dark border-soft-gold",
-  Dan: "bg-deep-plum text-cream border-deep-plum",
 };
 
 function splitNames(claimed: string | null): string[] {

@@ -46,7 +46,7 @@ export default function BackpackingOverviewPage() {
           ["🚗 Drive", "≈2¾ hrs Greenwich → Upper Works (I-87 exit 29, then slow county roads). Verify in Maps — search tools confuse Greenwich NY with Greenwich CT. Directions on the Routes page"],
           ["🅿️ Parking", "Upper Works is free, 60 cars, and rarely fills — no pre-dawn panic. Leaving Greenwich ~5 AM puts us on trail by 8"],
           ["📋 Permits", "None needed on this side (that's the AMR/Indian Head system, not here). Sign the trail register"],
-          ["🐻 Bear cans", "REQUIRED for overnights in the Eastern High Peaks Apr 1–Nov 30. NO rental at Upper Works — can #2 gets sorted before we leave Greenwich"],
+          ["🐻 Bear can", "REQUIRED for overnights in the Eastern High Peaks Apr 1–Nov 30. We're taking ONE for the two of us — everything smellable has to fit, so repackage at home"],
         ].map(([title, body]) => (
           <div key={title} className="soft-card dark:soft-card-dark p-4">
             <div className="font-semibold">{title}</div>
@@ -68,14 +68,14 @@ export default function BackpackingOverviewPage() {
             <h3 className="font-semibold">Saturday 8/15</h3>
             <ul className="mt-2 space-y-1.5 text-sm">
               <li>
-                ☀️ Leave Greenwich ~5 AM for Upper Works (60-car free lot, rarely fills) — cans
-                packed the night before, since there&apos;s no rental there
+                ☀️ Leave Greenwich ~5 AM for Upper Works (60-car free lot, rarely fills) — the
+                can packed and closed the night before
               </li>
               <li>🅿️ Park, sign the register at the trailhead</li>
               <li>🥾 Carry in to Lake Colden — ≈5.6 mi, 3–4 hrs with full packs</li>
               <li>⛺ Set up camp, stash overnight stuff, eat lunch (eggs!)</li>
               <li>🏃 Afternoon — summit run #1 with light packs</li>
-              <li>🍜 Peak Refuel dinner, everything smellable into the cans</li>
+              <li>🍜 Peak Refuel dinner, everything smellable back into the can</li>
               <li>🌇 Sunset 8:02 PM — the valley walls steal usable light well before that</li>
             </ul>
           </div>
@@ -120,7 +120,7 @@ export default function BackpackingOverviewPage() {
             {
               href: "/backpacking-2026/gear",
               title: "🎒 Gear & Votes",
-              body: "Claim what you're bringing, tick it off as it's packed, and vote on the open questions (Dan? gear-check night? tents?).",
+              body: "Claim what you're bringing, tick it off as it's packed, and vote on the open questions (gear-check night, tents, Saturday's summit).",
             },
             {
               href: "/backpacking-2026/guide",

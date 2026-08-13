@@ -135,7 +135,7 @@ const SCENARIOS: Scenario[] = [
         rt: "≈4.0–4.6 mi RT",
         gain: "+1,745 ft",
         time: "3–3½ hrs",
-        note: "Dan's 46er if he's in — half-day material. The cairn-marked herd path starts ~0.25 mi past the Lake Colden dam; scout the cairn the evening before.",
+        note: "The half-day option — a realistic Saturday afternoon after the carry in. The cairn-marked herd path starts ~0.25 mi past the Lake Colden dam; scout the cairn the evening before.",
         link: AT.marshall,
         doc: "marshall-herbert",
       },
@@ -157,7 +157,7 @@ const SCENARIOS: Scenario[] = [
     ],
     cons: [
       "Washed-out bridge at ~2.8 mi — heavy rain can close the whole approach",
-      "No bear can rental at Upper Works — can #2 sorted before we leave",
+      "One bear can for the two of us — everything repackaged at home, no rental at Upper Works",
       "3-hr pack-out makes Sunday's leave-camp deadline the earliest of the options",
     ],
     mapKeys: [
@@ -251,7 +251,7 @@ const SCENARIOS: Scenario[] = [
     cons: [
       "Adds ~2 mi RT to every summit run vs Lake Colden",
       "Same bridge-less crossing at ~2.8 mi",
-      "No bear can rental at Upper Works — can #2 sorted before we leave",
+      "One bear can for the two of us — everything repackaged at home, no rental at Upper Works",
     ],
     mapKeys: ["upperworks", "henderson", "flowed", "marshall", "wreck", "colden", "feldspar", "marcy"],
   },

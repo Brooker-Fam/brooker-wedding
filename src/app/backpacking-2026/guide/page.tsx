@@ -54,7 +54,7 @@ export default function GuidePage() {
 
       {/* Food */}
       <section className="mb-12">
-        <SectionTitle>🍽️ Food plan (bear-can tetris)</SectionTitle>
+        <SectionTitle>🍽️ Food plan (one-can tetris)</SectionTitle>
         <div className="soft-card dark:soft-card-dark overflow-x-auto p-5">
           <table className="w-full min-w-[36rem] text-left text-sm">
             <thead>
@@ -98,10 +98,11 @@ export default function GuidePage() {
             </tbody>
           </table>
           <div className="mt-4 rounded-lg bg-soft-gold/15 px-4 py-3 text-sm">
-            <strong>Space rules:</strong> one bear can does not fit 2–3 people × 2 days once trash
-            and toiletries join. There is <strong>no can rental at Upper Works</strong> — can #2
-            gets borrowed or bought before we leave Greenwich. Repackage everything (no boxes, no
-            cans), squeeze the air out of bags, and remember trash rides home in the can too.
+            <strong>Space rules:</strong> we&apos;re taking <strong>ONE can for the two of
+            us</strong>, which fits — but only if we pack it properly. Repackage everything at home
+            (no boxes, no cans, no glass), squeeze the air out of every bag, eat the bulkiest food
+            first, and remember trash rides home in there too. Nothing smellable sleeps outside
+            it, including toothpaste and sunscreen.
           </div>
         </div>
       </section>
@@ -135,12 +136,12 @@ export default function GuidePage() {
         <div className="soft-card dark:soft-card-dark p-5 text-sm leading-relaxed">
           <p>
             The Eastern High Peaks requires <strong>bear-resistant canisters for all overnight
-            campers</strong> — it&apos;s regulation, and the Marcy Dam / Lake Colden corridor is
-            exactly where the habituated bears are. Hanging food is not legal here.
+            campers</strong> — it&apos;s regulation, and Lake Colden is exactly where the
+            habituated bears are. Hanging food is not legal here.
           </p>
           <ul className="mt-3 list-disc space-y-1.5 pl-5">
-            <li>EVERYTHING smellable goes in: food, trash, toothpaste, sunscreen, bug spray, electrolyte powder</li>
-            <li>Stash cans 100+ ft downwind of the tents, lid down, not near water or a cliff edge</li>
+            <li>EVERYTHING smellable goes in the one can: food, trash, toothpaste, sunscreen, bug spray, electrolyte powder</li>
+            <li>Stash the can 100+ ft downwind of the tents, lid down, not near water or a cliff edge</li>
             <li>Cook and eat away from the tents; never bring so much as a granola bar inside</li>
             <li>
               Required April 1 – Nov 30; hangs and stuff sacks don&apos;t count. Read DEC&apos;s{" "}
@@ -204,7 +205,6 @@ export default function GuidePage() {
             ["DEC Adirondack Backcountry Info (trail conditions, updated weekly)", "https://dec.ny.gov/things-to-do/hiking/adirondack-backcountry/backcountry-information-for-adirondack-park"],
             ["ADK High Peaks Conditions Report (updated Fridays)", "https://adk.org/high-peaks-conditions-report/"],
             ["DEC High Peaks Wilderness (rules + closures)", "https://dec.ny.gov/places/high-peaks-wilderness-complex"],
-            ["High Peaks Info Center (bear can rental — Loj side, ~50 min from Upper Works; last resort)", "https://adk.org/high-peaks-information-center/"],
             ["NWS forecast — Lake Colden", "https://forecast.weather.gov/MapClick.php?lat=44.1266&lon=-73.9672"],
             ["CalTopo map of the corridor", "https://caltopo.com/map.html#ll=44.1266,-73.9672&z=13"],
             ["Peak Refuel meals (what we're eating)", "https://www.amazon.com/dp/B0C28YLH8H"],

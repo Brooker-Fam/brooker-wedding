@@ -11,7 +11,7 @@ export default function GearPage() {
     <div>
       <TripBoard />
       <p className="mt-8 text-sm opacity-75">
-        What we&apos;re eating and how the bear cans get packed lives on the{" "}
+        What we&apos;re eating and how the one bear can gets packed lives on the{" "}
         <Link className="underline" href="/backpacking-2026/guide">
           Camp Guide
         </Link>
