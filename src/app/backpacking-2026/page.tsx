@@ -111,6 +111,11 @@ export default function BackpackingOverviewPage() {
               body: "The interactive decider: pick trailhead + basecamp, get the carry, the summit menu, and the Sunday deadline for each option.",
             },
             {
+              href: "/backpacking-2026/weather",
+              title: "🌦️ Weather",
+              body: "Hour by hour: when the rain starts, how much falls, whether there's thunder in it, and what the summits are doing versus camp.",
+            },
+            {
               href: "/backpacking-2026/gear",
               title: "🎒 Gear & Votes",
               body: "Claim what you're bringing, tick it off as it's packed, and vote on the open questions (Dan? gear-check night? tents?).",
