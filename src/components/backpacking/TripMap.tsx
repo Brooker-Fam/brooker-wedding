@@ -15,22 +15,20 @@ export type MapPoint = {
 };
 
 export const MAP_POINTS: Record<string, MapPoint> = {
-  loj: { name: "Adirondak Loj (trailhead)", emoji: "🅿️", lat: 44.1829, lon: -73.9639 },
   upperworks: { name: "Upper Works (trailhead)", emoji: "🅿️", lat: 44.0886, lon: -74.0562 },
-  marcydam: { name: "Marcy Dam (camp)", emoji: "⛺", lat: 44.1594, lon: -73.9513 },
-  flowed: { name: "Flowed Lands (camp)", emoji: "⛺", lat: 44.1147, lon: -73.9975 },
+  flowed: { name: "Flowed Lands (backup camp)", emoji: "⛺", lat: 44.1147, lon: -73.9975 },
   lakecolden: { name: "Lake Colden (camp)", emoji: "⛺", lat: 44.124, lon: -73.986 },
   marcy: { name: "Mount Marcy 5,344 ft", emoji: "⛰️", lat: 44.1126, lon: -73.9235 },
-  phelps: { name: "Phelps 4,161 ft", emoji: "⛰️", lat: 44.1615, lon: -73.927 },
-  tabletop: { name: "Tabletop 4,427 ft", emoji: "⛰️", lat: 44.1354, lon: -73.9282 },
+  gray: { name: "Gray Peak 4,840 ft", emoji: "⛰️", lat: 44.1114, lon: -73.9349 },
+  skylight: { name: "Mount Skylight 4,926 ft", emoji: "⛰️", lat: 44.0994, lon: -73.9308 },
+  laketear: { name: "Lake Tear of the Clouds", emoji: "💧", lat: 44.1067, lon: -73.9358 },
+  fourcorners: { name: "Four Corners junction", emoji: "🪧", lat: 44.1043, lon: -73.933 },
   colden: { name: "Mount Colden 4,714 ft", emoji: "⛰️", lat: 44.1191, lon: -73.96 },
   algonquin: { name: "Algonquin 5,114 ft", emoji: "⛰️", lat: 44.1436, lon: -73.9866 },
   wright: { name: "Wright 4,580 ft", emoji: "⛰️", lat: 44.1516, lon: -73.977 },
   marshall: { name: "Mount Marshall 4,360 ft", emoji: "⛰️", lat: 44.127, lon: -74.0117 },
   wreck: { name: "Plane wreck (Cold Brook Pass)", emoji: "✈️", lat: 44.1305, lon: -74.006 },
-  indianfalls: { name: "Indian Falls (last water for Marcy)", emoji: "💧", lat: 44.1385, lon: -73.9375 },
-  lakearnold: { name: "Lake Arnold (the muddy way to Colden)", emoji: "💧", lat: 44.1305, lon: -73.9485 },
-  feldspar: { name: "Feldspar lean-to", emoji: "🛖", lat: 44.1119, lon: -73.9585 },
+  feldspar: { name: "Feldspar lean-to", emoji: "🛖", lat: 44.1125, lon: -73.947 },
   henderson: { name: "Henderson Monument (Calamity Pond)", emoji: "🪦", lat: 44.1105, lon: -74.0022 },
 };
 

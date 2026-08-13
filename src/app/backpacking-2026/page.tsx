@@ -5,17 +5,20 @@ import SectionTitle from "@/components/backpacking/SectionTitle";
 export default function BackpackingOverviewPage() {
   return (
     <div>
-      {/* Closure alert — verified against DEC/ADK Aug 6-7, 2026 */}
+      {/* Camp decision + closure context — verified against DEC/ADK Aug 6-7, 2026 */}
       <div className="mb-8 rounded-2xl border-2 border-soft-gold bg-soft-gold/15 p-5">
-        <h2 className="font-semibold">⚠️ Avalanche Pass Trail is CLOSED (confirmed Aug 6, 2026)</h2>
+        <h2 className="font-semibold">
+          ✅ Decided: we camp at Lake Colden, in from Upper Works
+        </h2>
         <p className="mt-1 text-sm leading-relaxed">
-          The classic Loj → Avalanche Lake → Lake Colden route is closed at the 2025 slide, with{" "}
-          <strong>no published reopening date</strong>. The workarounds (Lake Arnold detour,
-          Upper Works approach) each have their own catch — the{" "}
+          The classic Loj-side approach through Avalanche Pass is closed at the 2025 slide with no
+          reopening date, so we come in from the south — Upper Works → Calamity Brook → Lake Colden
+          (Flowed Lands is the bail-out camp). The catch to watch: the Calamity Brook high-water
+          bridge is out (easy rock-hop when dry, no-go after a deluge). The{" "}
           <Link className="underline" href="/backpacking-2026/routes">
             Routes page
           </Link>{" "}
-          lays it all out. Re-check the{" "}
+          has the mile-by-mile. Re-check the{" "}
           <a
             className="underline"
             href="https://dec.ny.gov/things-to-do/hiking/adirondack-backcountry/backcountry-information-for-adirondack-park"
@@ -40,10 +43,10 @@ export default function BackpackingOverviewPage() {
       {/* Quick facts */}
       <div className="mb-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         {[
-          ["🚗 Drive", "≈2½ hrs Greenwich → Adirondak Loj (I-87 exit 30) · ≈2¾ hrs → Upper Works (exit 29, then slow county roads). Verify in Maps — search tools confuse Greenwich NY with Greenwich CT"],
-          ["🅿️ Parking", "Loj: $25/day non-member ($10 ADK member), first-come — lots fill BEFORE 6 AM summer Saturdays. Multi-day allowed; call HPIC (518-523-3441 x121) about overnight billing. Upper Works: free"],
+          ["🚗 Drive", "≈2¾ hrs Greenwich → Upper Works (I-87 exit 29, then slow county roads). Verify in Maps — search tools confuse Greenwich NY with Greenwich CT. Directions on the Routes page"],
+          ["🅿️ Parking", "Upper Works is free, 60 cars, and rarely fills — no pre-dawn panic. Leaving Greenwich ~5 AM puts us on trail by 8"],
           ["📋 Permits", "None needed on this side (that's the AMR/Indian Head system, not here). Sign the trail register"],
-          ["🐻 Bear cans", "REQUIRED for overnights in the Eastern High Peaks Apr 1–Nov 30 — rentals at the High Peaks Info Center at the Loj"],
+          ["🐻 Bear cans", "REQUIRED for overnights in the Eastern High Peaks Apr 1–Nov 30. NO rental at Upper Works — can #2 gets sorted before we leave Greenwich"],
         ].map(([title, body]) => (
           <div key={title} className="soft-card dark:soft-card-dark p-4">
             <div className="font-semibold">{title}</div>
@@ -65,12 +68,11 @@ export default function BackpackingOverviewPage() {
             <h3 className="font-semibold">Saturday 8/15</h3>
             <ul className="mt-2 space-y-1.5 text-sm">
               <li>
-                ☀️ Leave Greenwich ~3:15 AM for the Loj (ADK: lots fill <em>before 6 AM</em> on
-                summer Saturdays, and full = turned away) · Upper Works is mellower — ~5 AM works
-                for its 60-car free lot
+                ☀️ Leave Greenwich ~5 AM for Upper Works (60-car free lot, rarely fills) — cans
+                packed the night before, since there&apos;s no rental there
               </li>
-              <li>🅿️ Park, sign the register, sort bear cans (rent #2 at HPIC if we&apos;re at the Loj)</li>
-              <li>🥾 Hike in to camp (1–4 hrs depending on the route pick)</li>
+              <li>🅿️ Park, sign the register at the trailhead</li>
+              <li>🥾 Carry in to Lake Colden — ≈5.6 mi, 3–4 hrs with full packs</li>
               <li>⛺ Set up camp, stash overnight stuff, eat lunch (eggs!)</li>
               <li>🏃 Afternoon — summit run #1 with light packs</li>
               <li>🍜 Peak Refuel dinner, everything smellable into the cans</li>
@@ -108,7 +110,7 @@ export default function BackpackingOverviewPage() {
             {
               href: "/backpacking-2026/routes",
               title: "🧭 Routes",
-              body: "The interactive decider: pick trailhead + basecamp, get the carry, the summit menu, and the Sunday deadline for each option.",
+              body: "The Lake Colden plan: the carry-in, the full summit menu (Marcy, Gray, Skylight, Algonquin, Marshall, Colden…), and the mile-by-mile route book.",
             },
             {
               href: "/backpacking-2026/weather",

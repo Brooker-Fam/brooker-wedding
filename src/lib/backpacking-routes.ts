@@ -38,11 +38,17 @@ export type TrailLink = {
   caution?: boolean;
 };
 
+export type Variant = {
+  label: string;
+  dist: string;
+  gain: string;
+  time: string;
+  note?: string;
+};
+
 export type RouteDoc = {
   id: string;
   kind: "approach" | "summit" | "detour";
-  /** Which trailhead this route belongs under. */
-  trailhead: "loj" | "uw";
   title: string;
   /** One-line "from → to". */
   path: string;
@@ -52,6 +58,8 @@ export type RouteDoc = {
   /** Trail markers / colours, as signed. */
   markers: string;
   summary: string;
+  /** Same-approach itineraries of different sizes (e.g. Marcy / +Gray / +Skylight). */
+  variants?: Variant[];
   legs: Leg[];
   warnings?: string[];
   links: TrailLink[];
@@ -71,7 +79,6 @@ export const ROUTES: RouteDoc[] = [
   {
     id: "uw-to-colden",
     kind: "approach",
-    trailhead: "uw",
     title: "Upper Works → Flowed Lands → Lake Colden",
     path: "Upper Works trailhead → Calamity Brook Trail → Flowed Lands (4.6) → Lake Colden (5.6)",
     dist: "4.6 mi to Flowed Lands · 5.6 mi to Lake Colden",
@@ -79,7 +86,7 @@ export const ROUTES: RouteDoc[] = [
     time: "2½–3½ hrs / 3–4 hrs with full packs",
     markers: "RED discs to the 1.4-mi junction, then BLUE discs the rest of the way",
     summary:
-      "The southern approach, and the whole reason the Upper Works options exist — it never touches the closed Avalanche Pass. Flat and easy for the first 1.4 miles, then a steady unglamorous grind up alongside Calamity Brook. Both camps are on the same trail: Flowed Lands is the early bail-out, Lake Colden is one more mile of rolling shoreline.",
+      "THE carry-in. It never touches the closed Avalanche Pass: flat and easy for the first 1.4 miles, then a steady unglamorous grind up alongside Calamity Brook. Both camps are on this one trail — Flowed Lands is the built-in bail-out, Lake Colden (the plan) is one more mile of rolling shoreline.",
     legs: [
       {
         mi: 0,
@@ -128,7 +135,7 @@ export const ROUTES: RouteDoc[] = [
         at: "Flowed Lands",
         ele: "~2,750 ft",
         doThis:
-          "First big view — Colden fills the whole skyline across the water. Lean-tos and designated tent sites here. CAMP OPTION #1: stop here and you're done carrying.",
+          "First big view — Colden fills the whole skyline across the water. Lean-tos and designated tent sites here. THE BAIL-OUT CAMP: if the carry's gone long or the weather's turning, stop here and nothing else changes much.",
         note: "Water right there. If anyone's cooked, this is the honest place to call it.",
         major: true,
       },
@@ -143,7 +150,7 @@ export const ROUTES: RouteDoc[] = [
         at: "Lake Colden dam + lean-tos",
         ele: "~2,760 ft",
         doThis:
-          "CAMP OPTION #2. Lean-tos and designated sites around the lake, interior ranger outpost nearby, and the shortest launch for Colden, Marshall, and the wreck.",
+          "HOME. Lean-tos and designated sites around the lake, interior ranger outpost nearby, and every summit run on the menu launches from here.",
         major: true,
       },
       {
@@ -177,445 +184,12 @@ export const ROUTES: RouteDoc[] = [
     ],
     caltopo: caltopo(44.11, -74.02, 13),
   },
-  {
-    id: "loj-to-marcydam",
-    kind: "approach",
-    trailhead: "loj",
-    title: "Adirondak Loj → Marcy Dam",
-    path: "Adirondak Loj / Heart Lake → Van Hoevenberg Trail → Marcy Dam",
-    dist: "2.3 mi",
-    gain: "+250 ft",
-    time: "1–1¼ hrs with full packs",
-    markers: "BLUE discs (Van Hoevenberg Trail) the whole way",
-    summary:
-      "The easiest carry in the High Peaks and the reason this option exists — an hour of nearly flat walking and the overnight weight is off your back. One junction, well signed, impossible to botch.",
-    legs: [
-      {
-        mi: 0,
-        at: "Adirondak Loj / Heart Lake parking",
-        ele: "~2,180 ft",
-        doThis:
-          "Pay at the booth, then hit the High Peaks Information Center for bear can #2 before starting. Trail leaves from the far end of the lot.",
-        note: "$25/day non-member, $10 ADK member. Lot fills BEFORE 6 AM on summer Saturdays.",
-        major: true,
-      },
-      {
-        mi: 0.1,
-        at: "Trail register",
-        doThis: "Sign in — name, party size, destination, expected out date. Sign out on Sunday.",
-      },
-      {
-        mi: 1.0,
-        at: "Algonquin junction",
-        doThis:
-          "Signed split. LEFT/west is the Algonquin (MacIntyre Range) Trail — that's the Algonquin + Wright day. Stay RIGHT on the blue Van Hoevenberg for Marcy Dam.",
-        note: "Worth registering mentally: this is where an Algonquin day would peel off if we start from the car.",
-      },
-      {
-        mi: 1.6,
-        at: "MacIntyre Brook",
-        doThis: "Cross and keep rolling. Gentle grade, well-worn, busy.",
-      },
-      {
-        mi: 2.3,
-        at: "Marcy Dam",
-        ele: "~2,320 ft",
-        doThis:
-          "CAMP. 15 numbered designated tent sites (confirmed open Aug 2026), privies, and the classic Colden view across the flats. Pick a site, hang nothing, cans 100+ ft downwind.",
-        note: "The dam itself is breached post-Irene; the crossing is a bridge. Marcy Brook is the water source.",
-        major: true,
-      },
-    ],
-    warnings: [
-      "Parking is the real risk, not the trail. ADK says the lot fills before 6 AM on summer Saturdays and full means turned away — hence the ~3:15 AM departure.",
-      "Busiest camping area in the High Peaks. Sites go early on a Saturday.",
-    ],
-    links: [
-      {
-        label: "AllTrails — Marcy Dam Trail",
-        url: "https://www.alltrails.com/trail/us/new-york/marcy-dam-trail",
-        diff: "Exactly our carry, listed as a 4.7 mi out-and-back day hike. We walk half of it Saturday and half Sunday.",
-      },
-      {
-        label: "ADK — hiker parking at Heart Lake",
-        url: "https://adk.org/hiker-parking-at-heart-lake/",
-        diff: "Current rates and how early the lot actually fills.",
-      },
-    ],
-    caltopo: caltopo(44.17, -73.955, 14),
-  },
-
   /* ------------------------------------------------------------------ *
-   * SUMMIT RUNS — LOJ / MARCY DAM SIDE
-   * ------------------------------------------------------------------ */
-  {
-    id: "marcy-vanho",
-    kind: "summit",
-    trailhead: "loj",
-    title: "Mount Marcy (5,344 ft — #1) via the Van Hoevenberg Trail",
-    path: "Marcy Dam camp → Phelps jct → Indian Falls → Hopkins jct → summit",
-    dist: "≈10.2 mi RT from camp (14.8 mi RT from the Loj)",
-    gain: "+2,900 ft",
-    time: "7–8½ hrs",
-    markers: "BLUE discs (Van Hoevenberg) all the way to the summit",
-    summary:
-      "The main event, and the reason Marcy Dam is a good basecamp — the highest point in New York, on daypacks, straight out the tent door. The last mile is bare alpine rock with a summit cone you can see from a long way off. Zero interaction with the Avalanche Pass closure.",
-    legs: [
-      {
-        mi: 0,
-        at: "Marcy Dam camp",
-        ele: "~2,320 ft",
-        doThis: "Leave by 7 AM at the latest. Full water, layers, headlamps regardless.",
-        major: true,
-      },
-      {
-        mi: 0.7,
-        at: "Phelps Mountain junction",
-        doThis:
-          "Signed junction, trail to Phelps leaves left. Stay straight for Marcy. (Loj mile 3.0.)",
-        note: "This is the bail-out/bonus junction — Phelps is 1.2 mi and +1,000 ft from here.",
-      },
-      {
-        mi: 1.3,
-        at: "Phelps Brook",
-        doThis: "Cross. Grade picks up after this.",
-      },
-      {
-        mi: 2.0,
-        at: "Indian Falls",
-        ele: "~3,700 ft",
-        doThis:
-          "Short spur left to open rock at the top of the falls. Full-frontal MacIntyre Range view — the best rest stop on the route. (Loj mile 4.3.)",
-        note: "LAST RELIABLE WATER. Everything above here is dry. Tank up: ~2L each for the rest.",
-        major: true,
-      },
-      {
-        mi: 2.1,
-        at: "Tabletop herd path",
-        doThis:
-          "Unmarked path on the left just past Indian Falls. Ignore it unless we're bagging Tabletop (0.6 mi, +500 ft, wooded summit).",
-      },
-      {
-        mi: 3.7,
-        at: "Hopkins Trail junction",
-        doThis:
-          "Trail from Johns Brook / Keene Valley joins from the left. Stay on the blue trail toward Marcy. (Loj mile 6.0.)",
-      },
-      {
-        mi: 4.5,
-        at: "Phelps Trail junction + treeline",
-        doThis:
-          "Second Keene Valley trail joins from the left. Treeline is right about here — the trail turns into cairns and yellow paint blazes on open rock. (Loj mile 6.8.)",
-        warn: "Above treeline the wind and temperature change completely. Shells on before you leave the trees, not after. In fog, cairn-to-cairn only.",
-      },
-      {
-        mi: 5.1,
-        at: "Mount Marcy summit",
-        ele: "5,344 ft",
-        doThis:
-          "The high point of New York. Stay on bare rock — the alpine vegetation up there is the rarest plant community in the state and a summit steward will (rightly) say something.",
-        note: "On a clear day: Whiteface, the Great Range, Algonquin, and on the far horizon Vermont.",
-        major: true,
-      },
-    ],
-    warnings: [
-      "Turnaround discipline: if we're not at treeline by 1 PM, we're not summiting. The descent is slower than it feels.",
-      "Marcy makes its own weather. A 75°F trailhead and a 45°F gusty summit is a completely normal August pairing.",
-    ],
-    links: [
-      {
-        label: "AllTrails — Mount Marcy via Van Hoevenberg Trail",
-        url: "https://www.alltrails.com/trail/us/new-york/mount-marcy-via-van-hoevenberg-trail--5",
-        diff: "Same trail, but measured from the Loj: 14.8 mi / ~3,570 ft. We're starting at Marcy Dam, so subtract 4.6 mi round trip and ~250 ft of gain — call it 10.2 mi / 2,900 ft for us.",
-      },
-      {
-        label: "AllTrails — Marcy + Tabletop via Van Hoevenberg",
-        url: "https://www.alltrails.com/trail/us/new-york/mount-marcy-and-tabletop-via-van-hoevenberg-trail",
-        diff: "The two-peak version, 15.7 mi / 4,288 ft from the Loj. From camp that's ≈11 mi — the greedy option if the weather is perfect and everyone's moving well.",
-      },
-    ],
-    caltopo: caltopo(44.13, -73.935, 14),
-  },
-  {
-    id: "algonquin-wright",
-    kind: "summit",
-    trailhead: "loj",
-    title: "Algonquin (5,114 ft — #2) + Wright (4,580 ft — #16)",
-    path: "Adirondak Loj → Algonquin (MacIntyre Range) Trail → Wright spur → Algonquin summit",
-    dist: "≈8.6 mi RT Algonquin alone · ≈9.6 mi RT with Wright",
-    gain: "+2,940 ft / +3,700 ft with Wright",
-    time: "6–7 hrs / 7–8½ hrs with Wright",
-    markers: "Signed for Algonquin from the Loj junction; yellow paint + cairns above treeline",
-    summary:
-      "The second-highest peak in New York and the best bare-summit view in the park, plus a 0.8-mile round-trip detour that buys a second 46er. Steep and relentless — it gains almost 3,000 ft in 4 miles with no flat sections to recover on. Completely untouched by the Avalanche Pass closure.",
-    legs: [
-      {
-        mi: 0,
-        at: "Adirondak Loj / Heart Lake",
-        ele: "~2,180 ft",
-        doThis: "Same trailhead and same first mile as Marcy Dam.",
-        major: true,
-      },
-      {
-        mi: 1.0,
-        at: "Algonquin junction",
-        doThis: "Bear LEFT/west where the blue Van Hoevenberg continues right to Marcy Dam.",
-      },
-      {
-        mi: 1.6,
-        at: "MacIntyre Brook",
-        doThis: "Cross. The trail steepens and stops pretending from here on.",
-      },
-      {
-        mi: 2.6,
-        at: "MacIntyre Falls",
-        doThis: "Waterfall on the left, and the rock-step section starts right after.",
-        note: "LAST RELIABLE WATER before Algonquin. Fill here.",
-        major: true,
-      },
-      {
-        mi: 3.0,
-        at: "Sharp left + DEC alpine warning sign",
-        doThis:
-          "The trail bends hard left at the posted warning about above-treeline weather. Take the sign seriously — this is where you decide whether the day is on.",
-        warn: "If it's socked in or the wind is up, this is the honest turnaround point. Wright and Algonquin are both fully exposed.",
-      },
-      {
-        mi: 3.2,
-        at: "Wright Peak spur junction",
-        doThis:
-          "Signed spur left/east: 0.4 mi and +400 ft to Wright's summit. Do it on the way UP if the weather is good and on the way down if it's marginal.",
-        note: "Wreckage and a memorial plaque from a 1962 B-47 bomber crash sit near the summit — a second plane wreck, and this one you don't have to bushwhack for.",
-      },
-      {
-        mi: 3.6,
-        at: "Wright Peak summit (spur)",
-        ele: "4,580 ft",
-        doThis: "Bare, exposed, and a straight-down look at Heart Lake. Back the way you came.",
-        major: true,
-      },
-      {
-        mi: 4.3,
-        at: "Algonquin summit",
-        ele: "5,114 ft",
-        doThis:
-          "Huge open alpine dome. Cairns and yellow paint above treeline — stay on the rock, the vegetation up there is protected.",
-        note: "Best seat in the house for Colden's slides, Iroquois, and the Marcy massif across the valley.",
-        major: true,
-      },
-    ],
-    warnings: [
-      "This route starts at the LOJ, not at Marcy Dam camp. From camp you either walk the 2.3 mi back to the car first (adds ~4.6 mi to the day) or take the Whale's Tail connector below.",
-      "Both summits are fully above treeline with no shelter. Turn around at the 3.0-mi sign if the weather is doing anything at all.",
-    ],
-    links: [
-      {
-        label: "AllTrails — Algonquin + Wright via Algonquin Trail",
-        url: "https://www.alltrails.com/trail/us/new-york/algonquin-peak-and-wright-peak-via-algonquin-trail",
-        diff: "This one is exact — 9.6 mi / ~3,700 ft, same trailhead, same spur. Nothing to adjust. Download this one.",
-      },
-      {
-        label: "AllTrails — Wright Peak only",
-        url: "https://www.alltrails.com/trail/us/new-york/wright-peak-via-van-hoevenberg-trail",
-        diff: "Wright alone, ~6.7 mi RT — the half-day version if Algonquin's weather looks bad but the lower summit doesn't.",
-      },
-      {
-        label: "AllTrails — Algonquin + Iroquois + Wright",
-        url: "https://www.alltrails.com/trail/us/new-york/algonquin-peak-and-iroquois-peak-via-algonquin-trail--2",
-        diff: "Adds Iroquois (#8) past Algonquin via the Boundary Peak herd path — ~11.5 mi and a much longer day. Filed under 'next trip', not this one.",
-      },
-    ],
-    caltopo: caltopo(44.155, -73.975, 14),
-  },
-  {
-    id: "whalestail",
-    kind: "detour",
-    trailhead: "loj",
-    title: "Connector: Marcy Dam camp → Algonquin Trail (Whale's Tail)",
-    path: "Marcy Dam → Whale's Tail Ski Trail → Algonquin Trail (~1.5 mi mark)",
-    dist: "≈1.2 mi (planning estimate)",
-    gain: "+250 ft",
-    time: "40–50 min",
-    markers: "Signed ski trail — narrower, wetter, and rougher than the hiking trails",
-    summary:
-      "The shortcut that makes Algonquin and Wright reachable from a Marcy Dam camp without walking back to the car. The Whale's Tail Ski Trail cuts west from the Marcy Dam area through Whale's Tail Notch and joins the Algonquin Trail roughly a mile and a half above the Loj.",
-    planningGrade: true,
-    legs: [
-      {
-        mi: 0,
-        at: "Marcy Dam",
-        doThis: "Pick up the signed Whale's Tail Ski Trail heading west from the Marcy Dam area.",
-        major: true,
-      },
-      {
-        mi: 0.6,
-        at: "Whale's Tail Notch",
-        doThis: "The high point of the connector, between Whale's Tail Mtn and the MacIntyre spur.",
-      },
-      {
-        mi: 1.2,
-        at: "Algonquin Trail junction",
-        ele: "~2,360 ft",
-        doThis:
-          "Join the Algonquin Trail somewhere around its 1.5-mile mark. Turn LEFT/uphill for Algonquin and Wright.",
-        note: "Coming back down, this junction is easy to blow past — it's a ski-trail-width opening, not an obvious fork.",
-        major: true,
-      },
-    ],
-    warnings: [
-      "MILEAGE IS AN ESTIMATE. This is the one route on this page not cross-checked against a published trail description — it's a ski trail, so summer maintenance and signage are both weaker.",
-      "SAFE ALTERNATIVE: walk the 2.3 mi back to the Loj and start Algonquin from the car. Costs about 2 extra miles round trip and removes all doubt. If anyone's uneasy, take the sure thing.",
-      "Do not attempt this connector in the dark or in fog on the way back.",
-    ],
-    links: [
-      {
-        label: "Lake Placid — Whale's Tail Ski Trail",
-        url: "https://www.lakeplacid.com/story/2014/03/whales-tail-ski-trail",
-        diff: "Written for skiers in winter, which is when this trail gets used most. It confirms the connection and roughly where it meets the Algonquin Trail, but not summer mileage or conditions.",
-        caution: true,
-      },
-    ],
-    caltopo: caltopo(44.158, -73.965, 15),
-  },
-  {
-    id: "colden-arnold",
-    kind: "summit",
-    trailhead: "loj",
-    title: "Mount Colden (4,714 ft — #11) via Lake Arnold",
-    path: "Marcy Dam camp → Avalanche Camp → Lake Arnold → L. Morgan Porter Trail → summit",
-    dist: "≈7–8 mi RT from camp",
-    gain: "+2,300 ft",
-    time: "5½–7 hrs",
-    markers: "BLUE discs to Lake Arnold, then the signed Colden (L. Morgan Porter) trail",
-    summary:
-      "How to get Colden from the Marcy Dam side without touching the closed pass. You walk toward Avalanche Pass, peel off south at Avalanche Camp, slog up past Lake Arnold, and come at the summit from the north-east. The Lake Arnold section is legendarily wet — DEC is currently warning about knee-deep-plus water on it.",
-    planningGrade: true,
-    legs: [
-      {
-        mi: 0,
-        at: "Marcy Dam camp",
-        doThis: "Head south toward Avalanche Camp.",
-        major: true,
-      },
-      {
-        mi: 1.1,
-        at: "Avalanche Camp junction",
-        doThis:
-          "Lean-to and tent sites here. RIGHT/west is Avalanche Pass — CLOSED at the 2025 slide, don't. Bear LEFT/south onto the Lake Arnold trail. (Loj mile 3.4.)",
-        warn: "This is the junction where the closure bites. Signed, but read it.",
-        major: true,
-      },
-      {
-        mi: 2.1,
-        at: "Lake Arnold",
-        ele: "~3,900 ft",
-        doThis: "Small boggy pond at the height of land. Wet feet from here are a certainty.",
-        warn: "DEC currently flags knee-deep or greater water on this trail. Waterproof socks won't save you — plan to walk through it, not around it (widening the mud is how the trail dies).",
-      },
-      {
-        mi: 2.3,
-        at: "Colden junction (L. Morgan Porter Trail)",
-        doThis: "Signed junction — turn RIGHT/west and start climbing Colden proper.",
-      },
-      {
-        mi: 3.5,
-        at: "Mount Colden summit",
-        ele: "4,714 ft",
-        doThis:
-          "Open rock with the single best look straight down at Avalanche Lake, plus Marcy and Algonquin filling either side.",
-        warn: "DEC reports a short bushwhack around slide debris on the south-east side. Expect one confusing stretch and look for where the boots have gone.",
-        major: true,
-      },
-    ],
-    warnings: [
-      "This is the wet option. Everyone brings a dry pair of camp socks or nobody enjoys the evening.",
-      "Do not improvise a loop back through Avalanche Pass — it's closed at the slide, with no reopening date.",
-    ],
-    links: [
-      {
-        label: "AllTrails — Mount Colden via Van Hoevenberg Trail",
-        url: "https://www.alltrails.com/trail/us/new-york/mount-colden-via-van-hoevenberg-trail",
-        diff: "Measured from the Loj (~13 mi RT) and it may still describe the Avalanche Pass side of the loop, which is CLOSED. Use it for the Lake Arnold half of the track only, and subtract our 4.6 mi of approach.",
-        caution: true,
-      },
-      {
-        label: "Adirondack Explorer — Colden via the Lake Arnold route",
-        url: "https://www.adirondackexplorer.org/recreation/hiking/mount-colden-trail-lake-arnold-route-with-high-peak-views/",
-        diff: "A written description of exactly the half we care about, and honest about the mud. No GPX.",
-      },
-    ],
-    caltopo: caltopo(44.128, -73.955, 14),
-  },
-  {
-    id: "phelps-tabletop",
-    kind: "summit",
-    trailhead: "loj",
-    title: "Phelps (4,161 ft — #32) & Tabletop (4,427 ft — #19)",
-    path: "Marcy Dam camp → Van Hoevenberg Trail → Phelps jct (0.7) / Tabletop herd path (2.1)",
-    dist: "Phelps ≈3.8 mi RT · Tabletop ≈5.0 mi RT · both together ≈7 mi",
-    gain: "+2,000 ft / +2,200 ft",
-    time: "3–4 hrs / 4½–5½ hrs",
-    markers: "Blue Van Hoevenberg to the junctions; Phelps is signed, Tabletop is an unmarked herd path",
-    summary:
-      "The two short ones. Both hang off the Marcy trail within the first two miles of camp, which makes either a genuinely realistic Sunday-morning peak before we break camp and drive home. Phelps has the better summit; Tabletop is wooded and mostly a 46er checkbox.",
-    planningGrade: true,
-    legs: [
-      { mi: 0, at: "Marcy Dam camp", doThis: "Head up the Van Hoevenberg toward Marcy.", major: true },
-      {
-        mi: 0.7,
-        at: "Phelps junction",
-        doThis: "Signed trail leaves LEFT. 1.2 mi and ~+1,000 ft of steady steep to the summit.",
-      },
-      {
-        mi: 1.9,
-        at: "Phelps summit",
-        ele: "4,161 ft",
-        doThis:
-          "Rocky opening rather than a true bare summit — but Marcy sits dead centre in the view, framed by the Great Range.",
-        major: true,
-      },
-      {
-        mi: 2.0,
-        at: "Indian Falls (for Tabletop)",
-        doThis: "Continue past the Phelps junction on the main trail to Indian Falls. Water here.",
-      },
-      {
-        mi: 2.1,
-        at: "Tabletop herd path",
-        doThis:
-          "Unmarked, unsigned, on the LEFT just past Indian Falls. 0.6 mi and +500 ft. Wooded, muddy, and genuinely easy to walk straight past.",
-        warn: "No sign, no markers. If you're doing Tabletop, someone needs a downloaded map with the herd path on it.",
-      },
-      {
-        mi: 2.7,
-        at: "Tabletop summit",
-        ele: "4,427 ft",
-        doThis: "Wooded summit with one small viewpoint. Bag it and go.",
-        major: true,
-      },
-    ],
-    links: [
-      {
-        label: "AllTrails — Phelps Mountain Trail",
-        url: "https://www.alltrails.com/trail/us/new-york/phelps-mountain-trail--2",
-        diff: "From the Loj at ~8.4 mi RT. Our camp sits 2.3 mi along that track, so from the tent it's roughly 3.8 mi round trip.",
-      },
-      {
-        label: "AllTrails — Phelps + Tabletop",
-        url: "https://www.alltrails.com/trail/us/new-york/phelps-and-tabletop-mountains-trail",
-        diff: "Both peaks in one loop from the Loj. Same subtraction: our start is 2.3 mi in. Useful mainly because it has the unmarked Tabletop herd path drawn on the map.",
-      },
-    ],
-    caltopo: caltopo(44.148, -73.935, 14),
-  },
-
-  /* ------------------------------------------------------------------ *
-   * SUMMIT RUNS — LAKE COLDEN / UPPER WORKS SIDE
+   * SUMMIT RUNS — from the Lake Colden basecamp
    * ------------------------------------------------------------------ */
   {
     id: "colden-west",
     kind: "summit",
-    trailhead: "uw",
     title: "Mount Colden (4,714 ft — #11) via the west ladders",
     path: "Lake Colden camp → north along the lake → Lake Colden (L. Morgan Porter) Trail → summit",
     dist: "≈4.4–4.8 mi RT from Lake Colden camp",
@@ -684,7 +258,6 @@ export const ROUTES: RouteDoc[] = [
   {
     id: "marshall-herbert",
     kind: "summit",
-    trailhead: "uw",
     title: "Mount Marshall (4,360 ft — #25) via Herbert Brook",
     path: "Lake Colden camp → dam → Herbert Brook herd path → summit",
     dist: "≈4.0–4.6 mi RT from Lake Colden camp",
@@ -753,21 +326,45 @@ export const ROUTES: RouteDoc[] = [
   {
     id: "marcy-feldspar",
     kind: "summit",
-    trailhead: "uw",
-    title: "Mount Marcy (5,344 ft — #1) via Feldspar & Four Corners",
-    path: "Lake Colden camp → Opalescent River → Feldspar Brook → Lake Tear → Four Corners → summit",
-    dist: "≈10 mi RT from Lake Colden camp",
-    gain: "+2,700–3,000 ft",
-    time: "7–9 hrs",
-    markers: "Signed junctions the whole way, but a long chain of them — read every sign",
+    title: "Marcy, Gray & Skylight (5,344 / 4,840 / 4,926 ft — #1, #7, #4)",
+    path: "Lake Colden camp → Opalescent River → Feldspar Brook → Lake Tear → Four Corners → pick your peaks",
+    dist: "≈10–12 mi RT depending on the variant",
+    gain: "+3,000–4,000 ft",
+    time: "7–11 hrs",
+    markers:
+      "Marked and signed the whole chain (yellow up the Opalescent/Feldspar, red Skylight, blue Marcy) — EXCEPT Gray, which is an unmarked herd path",
     summary:
-      "The quiet back way up Marcy, and a monster day from either southern camp. It's the prettier approach — the Opalescent gorge, Feldspar Brook, and Lake Tear of the Clouds, the highest source of the Hudson — but it's a full-value 7–9 hours that has to start in the dark.",
+      "The big day, and the whole argument for camping at Lake Colden: one approach up the Opalescent and Feldspar Brook puts three of the state's five highest within reach, and you decide how greedy to be AT Four Corners, not in camp. Marcy is the main event; Gray is a cheap 46er detour from Lake Tear; Skylight is the best open summit of the three and a half-mile hop from the junction.",
     planningGrade: true,
+    variants: [
+      {
+        label: "Marcy only",
+        dist: "≈10 mi RT",
+        gain: "+3,000 ft",
+        time: "7–9 hrs",
+        note: "The default. Committed but honest — turn around at Four Corners by 1 PM if the pace is off.",
+      },
+      {
+        label: "Marcy + Gray",
+        dist: "≈11 mi RT",
+        gain: "+3,500 ft",
+        time: "8–10 hrs",
+        note: "Gray costs ~1.2 mi and ~500 ft round trip from Lake Tear — the cheapest 46er add-on of the weekend. Do Gray FIRST (on the way up, legs fresh), then Marcy.",
+      },
+      {
+        label: "Marcy + Gray + Skylight",
+        dist: "≈12 mi RT",
+        gain: "+4,000 ft",
+        time: "9–11 hrs",
+        note: "The triple. Only on the table if we're at Four Corners by ~11 AM with weather holding — Skylight is the one to drop if anything's tight, and the one to KEEP if Marcy's summit is socked in (its view is the sleeper hit).",
+      },
+    ],
     legs: [
       {
         mi: 0,
         at: "Lake Colden camp",
-        doThis: "Alpine start. This day does not work if you leave after 7 AM.",
+        doThis:
+          "Alpine start — packs ready the night before, walking by 6 AM. This day does not work if you leave after 7.",
         major: true,
       },
       {
@@ -782,42 +379,49 @@ export const ROUTES: RouteDoc[] = [
           "The trail hugs the river through a flume section — walkways and rock. The prettiest half-mile of the trip.",
       },
       {
-        mi: 2.3,
-        at: "Feldspar Brook junction",
-        doThis: "Bear LEFT/east and start up Feldspar Brook.",
-        warn: "DEC reports a BROKEN STRINGER on the Feldspar lean-to access bridge. Use caution at the Opalescent crossing here — and in high water treat this whole approach the same as the Calamity crossing.",
-      },
-      {
-        mi: 3.2,
-        at: "Feldspar lean-to",
-        doThis: "Water and the last good rest spot before the climb steepens.",
+        mi: 2.2,
+        at: "Feldspar lean-to + Feldspar Brook confluence",
+        doThis:
+          "Feldspar Brook comes in from the east and the trail bends up alongside it. Water and the last good rest spot before the climb steepens.",
+        warn: "DEC reports a BROKEN STRINGER on the Feldspar lean-to access bridge over the Opalescent. Use caution here — and in high water treat this whole approach the same as the Calamity crossing.",
         major: true,
       },
       {
-        mi: 3.9,
+        mi: 2.7,
+        at: "Uphill lean-to + Lake Arnold junction",
+        doThis:
+          "The Lake Arnold trail forks LEFT/north (that's the way toward the closed-side country — not today). Stay RIGHT, climbing with Feldspar Brook toward Lake Tear.",
+      },
+      {
+        mi: 3.8,
         at: "Lake Tear of the Clouds",
         ele: "4,293 ft",
         doThis:
-          "The highest source of the Hudson River — the same water we crossed on a bridge 5 miles from the car. The Gray Peak herd path leaves from here.",
+          "The highest source of the Hudson River — the same water we crossed on a bridge 5 miles from the car. GRAY VARIANT: the herd path leaves near the outlet, marked by a cairn — ~0.6 mi and ~450 ft each way, unmarked but well-trodden, one short scramble. Summit is wooded with a lookout.",
+        note: "Last reliable water before Marcy's summit cone. Tank up here either way.",
         major: true,
       },
       {
-        mi: 4.1,
-        at: "Four Corners",
+        mi: 4.0,
+        at: "Four Corners — decision point",
+        ele: "~4,300 ft",
         doThis:
-          "Four-way junction. LEFT/north is Marcy (0.9 mi). RIGHT is Skylight (0.5 mi, and the standing rule is you carry a rock up).",
+          "Four-way junction and the day's real decision. LEFT/north: Marcy, 0.9 mi and +1,050 ft on the blue trail, above treeline for the last stretch. RIGHT/south: Skylight, 0.5 mi and +600 ft on the red trail, open summit. SKYLIGHT VARIANT: do it before or after Marcy from right here — and carry a rock up; tradition says it keeps the rain off.",
+        major: true,
       },
       {
-        mi: 5.0,
+        mi: 4.9,
         at: "Mount Marcy summit",
         ele: "5,344 ft",
-        doThis: "Up the south side, above treeline for the last stretch. Same descent, all of it.",
+        doThis:
+          "The state's high point, from its quiet side. Cairns and paint above treeline — stay on bare rock, the alpine plants are the rarest community in New York. Same descent, all of it.",
         major: true,
       },
     ],
     warnings: [
-      "TURNAROUND TIME IS THE WHOLE GAME. Set it before leaving camp and honour it — 10 miles at High Peaks pace is not something to be optimistic about.",
-      "This is a Saturday day, never a Sunday day. It does not fit inside the drive-home deadline.",
+      "TURNAROUND TIME IS THE WHOLE GAME. Set it before leaving camp and honour it — 10+ miles at High Peaks pace is not something to be optimistic about.",
+      "This is a Saturday day, never a Sunday day. No variant fits inside the drive-home deadline.",
+      "Gray's herd path is unmarked: if the cairn at Lake Tear isn't obvious, don't freelance — the drainage terrain up there is confusing in fog.",
     ],
     links: [
       {
@@ -825,13 +429,127 @@ export const ROUTES: RouteDoc[] = [
         url: "https://www.alltrails.com/trail/us/new-york/mount-marcy-from-upper-works-trail",
         diff: "Same chain of junctions, but door-to-door from the car — roughly 20 mi RT. Ours is that route minus the 5.6-mi approach on each end, because we sleep at Lake Colden. Their track is what we want; their mileage isn't.",
       },
+      {
+        label: "AllTrails — Mount Skylight, Mount Marcy & Gray Peak Loop",
+        url: "https://www.alltrails.com/trail/us/new-york/mount-skylight-mount-marcy-and-gray-peak-loop-trail",
+        diff: "The three-peak day as most people do it — an 18.2-mi loop from the Loj side. Useful because it has the Gray herd path and the Skylight trail drawn on the map, and its Lake Tear → Four Corners → summits core is exactly ours. Ignore its approach entirely; we come up the Feldspar side from camp.",
+        caution: true,
+      },
     ],
-    caltopo: caltopo(44.115, -73.95, 14),
+    caltopo: caltopo(44.109, -73.933, 14),
+  },
+  {
+    id: "algonquin-lc",
+    kind: "summit",
+    title: "Algonquin (5,114 ft — #2) from the lake — plus Wright (4,580 ft — #16)",
+    path: "Lake Colden camp → NW shore → Algonquin trail (southeast side) → summit → optional Wright out-and-back",
+    dist: "≈4.5 mi RT · ≈7 mi RT with Wright",
+    gain: "+2,350 ft / +3,900 ft with Wright",
+    time: "4½–6 hrs / 7–9 hrs with Wright",
+    markers: "YELLOW discs from the lake to the summit area; cairns + paint above treeline",
+    summary:
+      "The state's #2 summit, straight up from camp — one of the steepest marked climbs in the park, gaining ~2,350 ft in roughly two miles, with slab and a headwall before treeline. The payoff is the best bare summit of the whole range. Wright is available as an add-on, but it lives 0.9 mi down the FAR side, so the return climbs most of Algonquin again — price it honestly before committing.",
+    planningGrade: true,
+    variants: [
+      {
+        label: "Algonquin only",
+        dist: "≈4.5 mi RT",
+        gain: "+2,350 ft",
+        time: "4½–6 hrs",
+        note: "Short, brutal, spectacular. The honest half-day-plus option.",
+      },
+      {
+        label: "Algonquin + Wright",
+        dist: "≈7 mi RT",
+        gain: "+3,900 ft",
+        time: "7–9 hrs",
+        note: "Two 46ers, but the return re-climbs ~1,000 ft of Algonquin. Full-day commitment with three above-treeline crossings of the summit ridge — weather has to be solid, not just OK.",
+      },
+    ],
+    legs: [
+      {
+        mi: 0,
+        at: "Lake Colden camp",
+        doThis: "Head to the lake's northwest side, past the interior ranger outpost.",
+        major: true,
+      },
+      {
+        mi: 0.3,
+        at: "Algonquin trail junction",
+        doThis:
+          "The signed YELLOW trail for Algonquin turns uphill/west off the lakeshore trail. Straight ahead continues toward Avalanche Lake — pretty, but the corridor beyond it to the Loj side is CLOSED, and it's not our day anyway.",
+        warn: "Check in at the outpost if the ranger's there — best current intel on the upper mountain.",
+      },
+      {
+        mi: 1.0,
+        at: "The brook and the falls",
+        doThis:
+          "The trail climbs beside a cascading brook. LAST WATER — fill everything; the upper mountain is bone dry.",
+        note: "The grade so far is the gentle part. It gets steeper.",
+        major: true,
+      },
+      {
+        mi: 1.5,
+        at: "Slab and headwall",
+        doThis:
+          "Open rock slab pitches, some with water seeps. Hands come out of pockets. In the wet this section is the reason to pick a different day.",
+        warn: "Slick when wet — same rule as the Colden ladders: steady rain cancels this route.",
+      },
+      {
+        mi: 1.9,
+        at: "Treeline",
+        doThis:
+          "Shells on BEFORE stepping out of the trees. Cairns and yellow paint from here — in fog, navigate cairn-to-cairn and no other way.",
+      },
+      {
+        mi: 2.1,
+        at: "Algonquin summit",
+        ele: "5,114 ft",
+        doThis:
+          "Full-circle alpine dome: Colden's slides across the valley, Marcy behind it, Iroquois next door. Stay on bare rock — the summit steward's plants are the rarest in the state.",
+        note: "WRIGHT DECISION HAPPENS HERE, with the weather in front of you — not in camp.",
+        major: true,
+      },
+      {
+        mi: 3.0,
+        at: "Wright spur junction (Wright variant)",
+        doThis:
+          "Descend Algonquin's NORTH side 0.9 mi (−1,000 ft, above treeline at first) to the signed spur, then 0.4 mi and ~+500 ft east to Wright's summit.",
+        warn: "COMMITTING: from Wright, camp is back over Algonquin's summit — there is no way around. Budget the re-climb before you drop.",
+      },
+      {
+        mi: 3.4,
+        at: "Wright summit (Wright variant)",
+        ele: "4,580 ft",
+        doThis:
+          "Bare and exposed, with wreckage and a memorial plaque from a 1962 B-47 bomber crash near the top. Then back: spur down, 0.9 mi and ~1,000 ft back up Algonquin, over the top, and down the yellow trail to camp.",
+        major: true,
+      },
+    ],
+    warnings: [
+      "This southeast side is significantly steeper than the standard Loj route — daypacks light, poles out, no racing the descent.",
+      "Both summits are fully exposed. Any thunder forecast in the window kills this route — there is nowhere to hide up there.",
+      "The Wright add-on doubles the above-treeline time. It's the first thing to drop when the sky argues.",
+    ],
+    links: [
+      {
+        label: "AllTrails — Wright, Algonquin, Colden Loop",
+        url: "https://www.alltrails.com/trail/us/new-york/wright-algonquin-colden",
+        diff: "A 14.3-mi / 5,101-ft Loj-side loop whose Algonquin → Lake Colden descent leg is exactly our climb, in reverse. Use it for the track between the lake and the summit; ignore the rest (its loop runs through the closed corridor's side of the range).",
+        caution: true,
+      },
+      {
+        label: "AllTrails — Algonquin + Wright via Algonquin Trail",
+        url: "https://www.alltrails.com/trail/us/new-york/algonquin-peak-and-wright-peak-via-algonquin-trail",
+        diff: "The Loj-side version of Algonquin + Wright. Wrong approach for us, but the summit-to-Wright segment (the 0.9-mi descent + 0.4-mi spur) is exactly the piece we'd walk — read it for that section only.",
+        caution: true,
+      },
+    ],
+    caltopo: caltopo(44.135, -73.982, 14),
   },
   {
     id: "wreck",
     kind: "detour",
-    trailhead: "uw",
     title: "The 1969 plane wreck (Cold Brook Pass, ~3,800 ft)",
     path: "Lake Colden camp → Cold Brook Pass trail → ~⅓ mi below the col",
     dist: "≈3 mi RT from Lake Colden camp",
@@ -904,7 +622,7 @@ const gmapsPin = (lat: number, lon: number) =>
   `https://www.google.com/maps/search/?api=1&query=${lat},${lon}`;
 
 export type Trailhead = {
-  id: "loj" | "uw";
+  id: "uw";
   name: string;
   drive: string;
   coords: string;
@@ -920,26 +638,6 @@ export type Trailhead = {
 };
 
 export const TRAILHEADS: Trailhead[] = [
-  {
-    id: "loj",
-    name: "Adirondak Loj (Heart Lake)",
-    drive: "≈2½ hrs from the farm",
-    coords: "44.1829, −73.9639 · 1002 Adirondak Loj Rd, Lake Placid, NY 12946",
-    directionsUrl: gmapsDir("Adirondak Loj, 1002 Adirondak Loj Rd, Lake Placid, NY 12946"),
-    pinUrl: gmapsPin(44.1829, -73.9639),
-    roadSteps: [
-      "From the farm, get on I-87 (the Northway) NORTH.",
-      "Take EXIT 30.",
-      "Turn LEFT onto NY-73 toward Keene / Lake Placid. Stay on it for 26.5 miles — this is the long, pretty, twisty part.",
-      "Turn LEFT onto Adirondak Loj Rd at the brown 'High Peaks Trailhead' sign.",
-      "5 miles to the end of the road. Pay at the toll booth, park.",
-    ],
-    parking: "$25/day non-member, $10 ADK member. First-come, first-served. Multi-day parking is allowed — call the High Peaks Info Center (518-523-3441 x121) ahead about overnight billing.",
-    lastServices:
-      "Last reliable gas and food: Keene or Lake Placid on NY-73. Cell service holds most of the way and dies on Adirondak Loj Rd.",
-    leaveBy:
-      "LEAVE GREENWICH ~3:15 AM. ADK says the lot fills before 6 AM on summer Saturdays, and full means turned away. This is the least flexible thing about the whole trip.",
-  },
   {
     id: "uw",
     name: "Upper Works (Tahawus)",

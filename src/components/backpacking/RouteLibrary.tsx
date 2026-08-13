@@ -15,8 +15,8 @@ const KIND_LABEL: Record<RouteDoc["kind"], string> = {
 
 const FILTERS = [
   { id: "all", label: "Everything" },
-  { id: "loj", label: "🅿️ From the Loj" },
-  { id: "uw", label: "🅿️ From Upper Works" },
+  { id: "summit", label: "⛰️ Summit runs" },
+  { id: "other", label: "🎒 Carry-in & detours" },
 ] as const;
 
 function LegRow({ leg, isLast }: { leg: Leg; isLast: boolean }) {
@@ -92,6 +92,47 @@ function RouteCard({ route, open, onToggle }: { route: RouteDoc; open: boolean; 
             <span className="font-bold uppercase tracking-wide opacity-60">Trail markers · </span>
             <span className="opacity-85">{route.markers}</span>
           </div>
+
+          {route.variants && route.variants.length > 0 && (
+            <div className="border-b border-sage/15 px-5 py-4">
+              <div className="mb-2 text-xs font-bold uppercase tracking-wide opacity-60">
+                Pick your day
+              </div>
+              <div className="overflow-x-auto">
+                <table className="w-full min-w-[28rem] text-left text-xs">
+                  <thead>
+                    <tr className="border-b border-sage/25 uppercase tracking-wide opacity-60">
+                      <th className="py-1.5 pr-3">Itinerary</th>
+                      <th className="py-1.5 pr-3">Round trip</th>
+                      <th className="py-1.5 pr-3">Gain</th>
+                      <th className="py-1.5">Time</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-sage/15">
+                    {route.variants.map((v) => (
+                      <tr key={v.label}>
+                        <td className="py-2 pr-3 font-semibold">{v.label}</td>
+                        <td className="py-2 pr-3 tabular-nums">{v.dist}</td>
+                        <td className="py-2 pr-3 tabular-nums">{v.gain}</td>
+                        <td className="py-2 tabular-nums">{v.time}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              {route.variants.some((v) => v.note) && (
+                <ul className="mt-2 space-y-1 text-xs opacity-75">
+                  {route.variants
+                    .filter((v) => v.note)
+                    .map((v) => (
+                      <li key={v.label}>
+                        <strong>{v.label}:</strong> {v.note}
+                      </li>
+                    ))}
+                </ul>
+              )}
+            </div>
+          )}
 
           {/* the actual turn-by-turn */}
           <div className="px-5 py-4">
@@ -185,7 +226,11 @@ export default function RouteLibrary() {
     return () => window.removeEventListener("hashchange", openFromHash);
   }, []);
 
-  const shown = ROUTES.filter((r) => filter === "all" || r.trailhead === filter);
+  const shown = ROUTES.filter(
+    (r) =>
+      filter === "all" ||
+      (filter === "summit" ? r.kind === "summit" : r.kind !== "summit"),
+  );
   const allOpen = shown.length > 0 && shown.every((r) => openIds.includes(r.id));
 
   const toggle = (id: string) =>

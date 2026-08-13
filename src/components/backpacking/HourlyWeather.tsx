@@ -328,7 +328,7 @@ export default function HourlyWeather() {
       )}
 
       <p className="text-xs leading-relaxed opacity-70">
-        Point forecast for the Lake Colden / Marcy Dam corridor (~{VALLEY_FT.toLocaleString()} ft).
+        Point forecast for the Lake Colden basin (~{VALLEY_FT.toLocaleString()} ft).
         The summit toggle applies a standard 3.5°F-per-1,000-ft lapse rate to about{" "}
         {SUMMIT_FT.toLocaleString()} ft — it is an estimate, and it says nothing about wind, which
         routinely runs two to three times the valley speed on Marcy and Algonquin. NWS publishes

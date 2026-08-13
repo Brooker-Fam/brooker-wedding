@@ -31,11 +31,11 @@ export default function WeatherPage() {
             <li>
               <strong>Thunder beats everything.</strong> Any thunderstorm in the window and the
               above-treeline sections of{" "}
-              <Link className="underline" href="/backpacking-2026/routes#route-marcy-vanho">
+              <Link className="underline" href="/backpacking-2026/routes#route-marcy-feldspar">
                 Marcy
               </Link>{" "}
               and{" "}
-              <Link className="underline" href="/backpacking-2026/routes#route-algonquin-wright">
+              <Link className="underline" href="/backpacking-2026/routes#route-algonquin-lc">
                 Algonquin
               </Link>{" "}
               are off. Those summits are exposed rock with nowhere to go — you want to be below

@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 
-// NWS point forecast for the Lake Colden / Marcy Dam corridor (~2,400 ft).
+// NWS point forecast for the Lake Colden basin (~2,400 ft).
 // Summits run 10–20°F colder with real wind — the banner note covers that.
 const LAT = 44.1266;
 const LON = -73.9672;
@@ -70,7 +70,7 @@ export default function TripWeather({ showHourlyLink = true }: { showHourlyLink?
     <div className="soft-card dark:soft-card-dark p-5">
       <div className="mb-1 flex flex-wrap items-baseline justify-between gap-2">
         <h3 className="font-semibold">
-          🌦️ {tripInRange ? "Trip forecast" : "Live forecast"} — Marcy Dam / Lake Colden
+          🌦️ {tripInRange ? "Trip forecast" : "Live forecast"} — Lake Colden
         </h3>
         <a
           href={`https://forecast.weather.gov/MapClick.php?lat=${LAT}&lon=${LON}`}

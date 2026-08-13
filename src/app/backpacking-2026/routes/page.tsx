@@ -11,11 +11,12 @@ export const metadata: Metadata = {
 export default function RoutesPage() {
   return (
     <div>
-      <SectionTitle>🧭 Route decider — pick your adventure</SectionTitle>
+      <SectionTitle>🧭 The plan — Lake Colden via Upper Works</SectionTitle>
       <p className="mb-5 text-sm opacity-80">
-        Where we camp decides what we can climb and when we have to leave. Toggle the options —
-        every card recalculates the carry, the summit menu, and the Sunday
-        get-Matt-home-by-dinner deadline. Once you&apos;ve picked, the{" "}
+        Decided: we carry in from Upper Works and camp at <strong>Lake Colden</strong>. Flowed
+        Lands stays on the board as the bail-out camp if the carry goes long or the sites are
+        taken. Each card shows the carry, the summit menu, and the Sunday
+        get-Matt-home-by-dinner deadline; the{" "}
         <a className="underline" href="#route-library">
           mile-by-mile route book
         </a>{" "}
@@ -25,10 +26,10 @@ export default function RoutesPage() {
 
       {/* Getting there */}
       <section id="getting-there" className="mt-12 scroll-mt-24">
-        <SectionTitle>🚗 Getting to the trailhead</SectionTitle>
+        <SectionTitle>🚗 Getting to Upper Works</SectionTitle>
         <p className="mb-5 text-sm opacity-80">
-          Both approaches lose cell service before the parking lot, so the written directions matter
-          as much as the links. Screenshot the one we pick.
+          Cell service dies partway up Tahawus Rd and never comes back, so the written directions
+          matter as much as the links. Screenshot this before leaving.
         </p>
         <TrailheadDirections />
       </section>
@@ -37,11 +38,10 @@ export default function RoutesPage() {
       <section id="route-library" className="mt-12 scroll-mt-24">
         <SectionTitle>📖 The route book — every junction, mile by mile</SectionTitle>
         <p className="mb-5 text-sm opacity-80">
-          The decider tells you which plan. This tells you how to walk it: cumulative mileage, which
-          way to turn at each junction, where the water is, and the specific spots where people get
-          it wrong. Tap any route to open it. Distances marked{" "}
-          <em>estimated mileage</em> are derived rather than published — trust the junction order,
-          sanity-check the numbers.
+          How to actually walk each route from camp: cumulative mileage, which way to turn at each
+          junction, where the water is, and the specific spots where people get it wrong. Tap any
+          route to open it. Distances marked <em>estimated mileage</em> are derived rather than
+          published — trust the junction order, sanity-check the numbers.
         </p>
         <RouteLibrary />
       </section>

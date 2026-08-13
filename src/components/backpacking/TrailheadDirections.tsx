@@ -6,7 +6,7 @@ import { TRAILHEADS, NAV_APPS } from "@/lib/backpacking-routes";
 export default function TrailheadDirections() {
   return (
     <div className="space-y-4">
-      <div className="grid gap-4 lg:grid-cols-2">
+      <div className={`grid gap-4 ${TRAILHEADS.length > 1 ? "lg:grid-cols-2" : ""}`}>
         {TRAILHEADS.map((t) => (
           <div key={t.id} className="soft-card dark:soft-card-dark overflow-hidden">
             <div className="border-b border-sage/20 bg-sage/5 px-5 py-4">

@@ -30,7 +30,9 @@ type Run = {
 
 type Scenario = {
   id: string;
-  trailhead: "loj" | "uw";
+  trailhead: "uw";
+  /** "the plan" / "backup" chip on the picker card. */
+  badge: string;
   label: string;
   short: string;
   driveLabel: string;
@@ -48,117 +50,143 @@ type Scenario = {
 };
 
 const AT = {
-  marcy: "https://www.alltrails.com/trail/us/new-york/mount-marcy-via-van-hoevenberg-trail--5",
   marcyUW: "https://www.alltrails.com/trail/us/new-york/mount-marcy-from-upper-works-trail",
-  coldenNE: "https://www.alltrails.com/trail/us/new-york/mount-colden-via-van-hoevenberg-trail",
   coldenWest: "https://www.alltrails.com/trail/us/new-york/mount-colden-loop-via-lake-colden",
   marshall: "https://www.alltrails.com/trail/us/new-york/mount-marshall-via-the-calamity-brook-trail",
-  phelps: "https://www.alltrails.com/trail/us/new-york/phelps-mountain-trail--2",
-  phelpsTabletop: "https://www.alltrails.com/trail/us/new-york/phelps-and-tabletop-mountains-trail",
-  wright: "https://www.alltrails.com/trail/us/new-york/wright-peak-via-van-hoevenberg-trail",
-  algonquinWright:
-    "https://www.alltrails.com/trail/us/new-york/algonquin-peak-and-wright-peak-via-algonquin-trail",
 };
 
 const SCENARIOS: Scenario[] = [
   {
-    id: "loj-marcydam",
-    trailhead: "loj",
-    label: "Marcy Dam",
-    short: "Loj → Marcy Dam",
-    driveLabel: "≈2½ hrs from Greenwich to Adirondak Loj (I-87 exit 30)",
-    driveH: 2.58,
+    id: "uw-colden",
+    trailhead: "uw",
+    badge: "✓ the plan",
+    label: "Lake Colden",
+    short: "Upper Works → Lake Colden",
+    driveLabel: "≈2¾ hrs from Greenwich to Upper Works (I-87 exit 29, then slow county roads)",
+    driveH: 2.83,
     situation:
-      "The easy-living option. A short flat carry gets the overnight weight off your backs fast, and every summit run leaves from camp on the Van Hoevenberg corridor — none of it touches the Avalanche Pass closure. The tradeoff is that Marshall (and the wreck) are effectively out of range from here.",
+      "This is the plan. In from the south via Calamity Brook — never touching the closed Avalanche Pass — past Flowed Lands to camp at Lake Colden itself: the prettier lake, a staffed ranger outpost, and the shortest launch for everything on the menu below. The one thing to watch is the washed-out Calamity Brook bridge at ~2.8 mi (easy rock-hop when dry, no-go right after heavy rain).",
     carryIn: {
-      mi: "2.3 mi",
-      gain: "+250 ft",
-      time: "≈1–1¼ hrs with full packs",
-      desc: "Loj → Marcy Dam tent sites / nearby lean-tos. Smooth, popular trail, one signed junction at 1.0 mi.",
+      mi: "≈5.6 mi",
+      gain: "+1,325 ft",
+      time: "≈3–4 hrs with full packs",
+      desc: "Upper Works → Calamity Brook → Flowed Lands (4.6 mi) → around the shore to the Lake Colden lean-tos (rolling ups and downs on the last mile).",
     },
-    carryDoc: "loj-to-marcydam",
-    packOutH: 1.25,
-    packOutLabel: "≈1¼ hrs back to the car",
+    carryDoc: "uw-to-colden",
+    packOutH: 3.0,
+    packOutLabel: "≈3 hrs back to the car",
     runs: [
       {
-        peak: "Mount Marcy (5,344 ft — #1)",
-        rt: "≈10.2 mi RT",
-        gain: "+2,900 ft",
-        time: "7–8½ hrs",
-        note: "The main event with daypacks. Huge bare summit cone. Waypoints from camp: Phelps jct 0.7 mi, Indian Falls 2.0 (last water), treeline 4.5, summit 5.1.",
-        link: AT.marcy,
-        doc: "marcy-vanho",
+        peak: "Marcy alone (5,344 ft — #1)",
+        rt: "≈9.5–10 mi RT",
+        gain: "+3,000 ft",
+        time: "7–9 hrs",
+        note: "The quiet back way up the state's high point — the Opalescent gorge, Feldspar Brook, Lake Tear of the Clouds, then the summit cone from Four Corners. Saturday only, alpine start.",
+        flag: "Feldspar lean-to access bridge has a broken stringer (DEC) — use caution at the Opalescent",
+        link: AT.marcyUW,
+        doc: "marcy-feldspar",
       },
       {
-        peak: "Algonquin + Wright (5,114 / 4,580 ft — #2 & #16)",
-        rt: "≈9.6 mi RT from the Loj · ≈9 mi via the Whale's Tail connector",
-        gain: "+3,700 ft",
-        time: "7–8½ hrs",
-        note: "#2 in the state, the best bare summit in the park, and a 0.8-mi spur that buys Wright on the way. Zero interaction with the closure. From camp you either walk back to the Loj or take the Whale's Tail ski-trail connector — both are in the route book.",
-        link: AT.algonquinWright,
-        doc: "algonquin-wright",
+        peak: "Marcy + Gray (adds #46-list Gray, 4,840 ft — #7)",
+        rt: "≈11 mi RT",
+        gain: "+3,500 ft",
+        time: "8–10 hrs",
+        note: "Gray is a 0.6-mi unmarked herd path from Lake Tear's outlet — right on the way. The cheapest extra 46er of the whole weekend.",
+        link: AT.marcyUW,
+        doc: "marcy-feldspar",
       },
       {
-        peak: "Wright alone (4,580 ft — #16)",
-        rt: "≈6.7 mi RT from the Loj",
-        gain: "+2,400 ft",
-        time: "4½–5½ hrs",
-        note: "The half-day version when Algonquin's weather looks bad but the lower summit doesn't. Still fully exposed up top.",
-        link: AT.wright,
-        doc: "algonquin-wright",
+        peak: "Marcy + Gray + Skylight (the triple, +4,926 ft — #4)",
+        rt: "≈12 mi RT",
+        gain: "+4,000 ft",
+        time: "9–11 hrs",
+        note: "Skylight is 0.5 mi from Four Corners on a marked trail, with one of the best open summits in the park (carry a rock up — tradition says it keeps the rain off). The full day. All three only if we're at Four Corners by ~11 AM.",
+        link: AT.marcyUW,
+        doc: "marcy-feldspar",
       },
       {
-        peak: "Phelps (4,161 ft — #32)",
-        rt: "≈3.8 mi RT",
+        peak: "Algonquin from the lake (5,114 ft — #2)",
+        rt: "≈4.5 mi RT",
+        gain: "+2,350 ft",
+        time: "4½–6 hrs",
+        note: "The steep southeast route straight up from Lake Colden — 2.1 mi and 2,350 ft, one of the steepest marked climbs in the park. Same bare-summit payoff as the Loj side without the Loj.",
+        doc: "algonquin-lc",
+      },
+      {
+        peak: "Algonquin + Wright (adds 4,580 ft — #16)",
+        rt: "≈7 mi RT",
+        gain: "+3,900 ft",
+        time: "7–9 hrs",
+        note: "Wright is 0.9 mi down Algonquin's far (north) side plus a 0.4-mi spur — and you re-climb ~1,000 ft of Algonquin to get home. Two 46ers, honestly earned.",
+        flag: "Committing: once you drop toward Wright, the only way back to camp is back over Algonquin's summit",
+        doc: "algonquin-lc",
+      },
+      {
+        peak: "Colden via the west ladders (4,714 ft — #11)",
+        rt: "≈4.4–4.8 mi RT",
         gain: "+2,000 ft",
-        time: "3–4 hrs",
-        note: "Perfect Sunday-morning quickie before packing out — the junction is only 0.7 mi from camp.",
-        link: AT.phelps,
-        doc: "phelps-tabletop",
-      },
-      {
-        peak: "Tabletop (4,427 ft — #19)",
-        rt: "≈5.0 mi RT",
-        gain: "+2,200 ft",
         time: "4–5 hrs",
-        note: "Wooded summit. The herd path is unmarked and leaves the Van Ho just past Indian Falls — bring a downloaded map.",
-        link: AT.phelpsTabletop,
-        doc: "phelps-tabletop",
+        note: "Along the lake for 0.8 mi, then the red-blazed ladder trail — 1.6 mi and 2,000 ft from that junction. Confirmed OPEN. Skip it in the rain; the ladders and slab get dangerous wet.",
+        link: AT.coldenWest,
+        doc: "colden-west",
       },
       {
-        peak: "Colden via Lake Arnold (4,714 ft — #11)",
-        rt: "≈7–8 mi RT",
-        gain: "+2,300 ft",
-        time: "5½–7 hrs",
-        note: "The day-run way to get Colden without moving camp. Peel off south at Avalanche Camp — the pass itself is closed.",
-        flag: "DEC: knee-deep-plus water near Lake Arnold, and a short bushwhack around slide debris on the SE side",
-        link: AT.coldenNE,
-        doc: "colden-arnold",
+        peak: "Marshall via Herbert Brook (4,360 ft — #25)",
+        rt: "≈4.0–4.6 mi RT",
+        gain: "+1,745 ft",
+        time: "3–3½ hrs",
+        note: "Dan's 46er if he's in — half-day material. The cairn-marked herd path starts ~0.25 mi past the Lake Colden dam; scout the cairn the evening before.",
+        link: AT.marshall,
+        doc: "marshall-herbert",
+      },
+      {
+        peak: "The plane wreck (Cold Brook Pass, ~3,800 ft)",
+        rt: "≈3 mi RT",
+        gain: "+1,050 ft",
+        time: "≈2 hrs plus searching",
+        note: "Closest launch of any camp — story under the route book.",
+        flag: "DEC calls Cold Brook Pass \"not a viable option\" — unmaintained 10+ years. Dry-day judgment call",
+        doc: "wreck",
       },
     ],
     pros: [
-      "Shortest carry — most energy left for summits",
-      "Marcy is right there (Liam's pick)",
-      "Easiest Sunday exit math, latest leave-camp time",
-      "Bear can rental at the trailhead (HPIC)",
-      "15 designated sites confirmed open (Aug 2026)",
+      "Every peak on the wish list launches from the tent door",
+      "Marcy, Gray, and Skylight stack on one approach — pick the day size at Four Corners",
+      "Staffed ranger outpost nearby, best interior camping",
+      "Colden is the short-day / bad-weather fallback",
     ],
     cons: [
-      "Marshall is out of range — no 46er progress for Dan",
-      "Loj lot fills before 6 AM on summer Saturdays — pre-dawn drive required",
-      "Busiest camping area in the High Peaks; sites go early on Saturdays",
+      "Washed-out bridge at ~2.8 mi — heavy rain can close the whole approach",
+      "No bear can rental at Upper Works — can #2 sorted before we leave",
+      "3-hr pack-out makes Sunday's leave-camp deadline the earliest of the options",
     ],
-    mapKeys: ["loj", "marcydam", "indianfalls", "marcy", "phelps", "tabletop", "lakearnold", "colden", "algonquin", "wright"],
+    mapKeys: [
+      "upperworks",
+      "henderson",
+      "lakecolden",
+      "marshall",
+      "wreck",
+      "colden",
+      "algonquin",
+      "wright",
+      "feldspar",
+      "laketear",
+      "gray",
+      "fourcorners",
+      "skylight",
+      "marcy",
+    ],
   },
   {
     id: "uw-flowed",
     trailhead: "uw",
+    badge: "backup camp",
     label: "Flowed Lands",
     short: "Upper Works → Flowed Lands",
     driveLabel: "≈2¾ hrs from Greenwich to Upper Works (I-87 exit 29, then slow county roads)",
     driveH: 2.83,
     situation:
-      "The closure-dodge, with a catch. Coming in from the south via Calamity Brook you never touch Avalanche Pass, the carry is gentler than the Lake Arnold slog, and you camp at the foot of Marshall — the wreck-and-46er side of the range. The catch: the Calamity Brook high-water bridge washed out in March 2026. Recent trip reports call it an easy rock-hop in normal flows, but DEC warns the trail may be impassable during or right after heavy rain. Dry week = great plan. Deluge = rethink.",
+      "The bail-out, one mile short of the plan. Same approach, same bridge-less crossing — but if the carry is going long, the weather's turning, or Lake Colden's sites are taken, we stop here and camp above the big Colden view instead. Everything on the Lake Colden menu still works; it just costs about two extra round-trip miles per run.",
     carryIn: {
       mi: "≈4.6 mi",
       gain: "+1,000–1,225 ft",
@@ -174,7 +202,7 @@ const SCENARIOS: Scenario[] = [
         rt: "≈5.5–6.5 mi RT",
         gain: "+1,745 ft",
         time: "3½–4 hrs",
-        note: "Dan's 46er, Saturday-afternoon material — add the mile from Flowed Lands up to the dam each way. Cairn marks the herd path ~0.25 mi past the Lake Colden dam; it crosses Herbert Brook over and over.",
+        note: "Add the mile from Flowed Lands up to the dam each way. Cairn marks the herd path ~0.25 mi past the Lake Colden dam.",
         link: AT.marshall,
         doc: "marshall-herbert",
       },
@@ -183,7 +211,7 @@ const SCENARIOS: Scenario[] = [
         rt: "≈6.5–7 mi RT",
         gain: "+2,000 ft",
         time: "5–6 hrs",
-        note: "Walk up past Lake Colden, then the red-blazed ladder trail. Confirmed OPEN — the closure is the Avalanche Pass corridor, not this trail.",
+        note: "Walk up past Lake Colden, then the red-blazed ladder trail. Confirmed OPEN.",
         link: AT.coldenWest,
         doc: "colden-west",
       },
@@ -192,106 +220,43 @@ const SCENARIOS: Scenario[] = [
         rt: "≈5 mi RT",
         gain: "+1,050 ft",
         time: "3–3½ hrs",
-        note: "1969 Piper Cherokee, ~100 ft west of the trail behind a ten-foot boulder just below the col. Full story under the decider.",
+        note: "1969 Piper Cherokee, ~100 ft west of the trail behind a ten-foot boulder just below the col.",
         flag: "DEC calls Cold Brook Pass \"not a viable option\" — unmaintained 10+ years. Dry-day, fresh-legs judgment call",
         doc: "wreck",
       },
       {
-        peak: "Marcy via Feldspar / Four Corners",
-        rt: "≈12 mi RT",
-        gain: "+3,000 ft",
-        time: "8–10 hrs",
-        note: "Possible but a monster day from here — Lake Colden is a better launch pad for this one.",
+        peak: "Marcy / Gray / Skylight via Feldspar",
+        rt: "≈11.5–14 mi RT",
+        gain: "+3,200–4,200 ft",
+        time: "9–12 hrs",
+        note: "All the Lake Colden variants work from here with ~2 mi added — but the triple becomes a genuinely huge day. From this camp, Marcy-only is the honest call.",
         flag: "Feldspar lean-to access bridge has a broken stringer (DEC) — use caution at the Opalescent",
         link: AT.marcyUW,
         doc: "marcy-feldspar",
       },
+      {
+        peak: "Algonquin from the lake (5,114 ft — #2)",
+        rt: "≈6.5 mi RT",
+        gain: "+2,350 ft",
+        time: "5½–7 hrs",
+        note: "The steep southeast route — reach the trailhead by walking the shore mile past the Lake Colden dam first.",
+        doc: "algonquin-lc",
+      },
     ],
     pros: [
-      "Avoids the closure entirely — easiest carry to the Colden/Marshall side",
-      "Marshall (and the wreck side) right out the tent door",
-      "Quieter trailhead, free parking, no pre-dawn parking panic",
-      "Reasonable Sunday exit",
+      "Shorter carry, gentler Sunday deadline",
+      "Big open water-and-Colden view from camp",
+      "Same closure-free approach; nothing on the menu is lost, only lengthened",
     ],
     cons: [
-      "Bridge out ~2.7 mi in — easy rock-hop when dry, impassable after a deluge",
-      "No bear can rental at Upper Works — must sort can #2 beforehand",
-      "Marcy is a monster from here and Algonquin is out — tough sell for Liam's Marcy wish",
-      "Longest drive of the options, ending on slow cell-dead county roads",
+      "Adds ~2 mi RT to every summit run vs Lake Colden",
+      "Same bridge-less crossing at ~2.8 mi",
+      "No bear can rental at Upper Works — can #2 sorted before we leave",
     ],
     mapKeys: ["upperworks", "henderson", "flowed", "marshall", "wreck", "colden", "feldspar", "marcy"],
   },
-  {
-    id: "uw-colden",
-    trailhead: "uw",
-    label: "Lake Colden",
-    short: "Upper Works → Lake Colden",
-    driveLabel: "≈2¾ hrs from Greenwich to Upper Works (I-87 exit 29, then slow county roads)",
-    driveH: 2.83,
-    situation:
-      "Same southern approach (same washed-out Calamity Brook bridge — easy rock-hop when dry, bad after rain), but push ~1 more mile past Flowed Lands to camp at Lake Colden itself. The longer carry buys you the prettier lake, the shortest Colden climb, a staffed ranger outpost nearby, and the closest launch for the plane wreck and the Feldspar side.",
-    carryIn: {
-      mi: "≈5.6 mi",
-      gain: "+1,325 ft",
-      time: "≈3–4 hrs with full packs",
-      desc: "Upper Works → Calamity Brook → Flowed Lands (4.6 mi) → around the shore to the Lake Colden lean-tos (rolling ups and downs on the last mile).",
-    },
-    carryDoc: "uw-to-colden",
-    packOutH: 3.0,
-    packOutLabel: "≈3 hrs back to the car",
-    runs: [
-      {
-        peak: "Colden via the west ladders (4,714 ft — #11)",
-        rt: "≈4.4–4.8 mi RT",
-        gain: "+2,000 ft",
-        time: "4–5 hrs",
-        note: "Shortest summit from any of our camps. Along the lake for 0.8 mi, then the red-blazed ladder trail turns uphill — 1.6 mi and 2,000 ft from that junction. Confirmed OPEN.",
-        link: AT.coldenWest,
-        doc: "colden-west",
-      },
-      {
-        peak: "Marshall via Herbert Brook (4,360 ft — #25)",
-        rt: "≈4.0–4.6 mi RT",
-        gain: "+1,745 ft",
-        time: "3–3½ hrs",
-        note: "The cairn-marked herd path starts ~0.25 mi past the Lake Colden dam. No signs, no markers — scout the cairn on the way past the evening before.",
-        link: AT.marshall,
-        doc: "marshall-herbert",
-      },
-      {
-        peak: "The plane wreck (Cold Brook Pass, ~3,800 ft)",
-        rt: "≈3 mi RT",
-        gain: "+1,050 ft",
-        time: "≈2 hrs plus searching",
-        note: "Closest launch of any camp — story under the decider.",
-        flag: "DEC calls Cold Brook Pass \"not a viable option\" — unmaintained 10+ years. Dry-day judgment call",
-        doc: "wreck",
-      },
-      {
-        peak: "Marcy via Feldspar / Four Corners",
-        rt: "≈10 mi RT",
-        gain: "+2,700–3,000 ft",
-        time: "7–9 hrs",
-        note: "The quiet back way up Marcy, past Lake Tear of the Clouds — long but launchable from here. Saturday only, never Sunday.",
-        flag: "Feldspar lean-to access bridge has a broken stringer (DEC) — use caution at the Opalescent",
-        link: AT.marcyUW,
-        doc: "marcy-feldspar",
-      },
-    ],
-    pros: [
-      "Closure-free approach with the best of the interior camping",
-      "Colden is a short steep hop from camp",
-      "Balanced menu: Colden + Marshall Saturday/Sunday is realistic",
-    ],
-    cons: [
-      "Same broken high-water bridge as the Flowed Lands plan",
-      "No bear can rental at Upper Works",
-      "A longer carry than Flowed Lands for modest gains",
-      "Sunday exit a bit tighter than Flowed Lands",
-    ],
-    mapKeys: ["upperworks", "henderson", "lakecolden", "marshall", "wreck", "colden", "feldspar", "marcy"],
-  },
 ];
+
 
 // Sunday deadline math: home target 6 PM, hard stop 7 PM, plus a 15-min
 // pack-the-car buffer at the trailhead.
@@ -306,49 +271,20 @@ function leaveCampBy(s: Scenario, homeByHour: number): string {
 }
 
 export default function RouteDecider() {
-  const [danIn, setDanIn] = useState<boolean | null>(null);
-  const [scenarioId, setScenarioId] = useState<string>("loj-marcydam");
+  const [scenarioId, setScenarioId] = useState<string>("uw-colden");
 
   const scenario = SCENARIOS.find((s) => s.id === scenarioId)!;
 
-  const recommendedId = danIn === null ? null : danIn ? "uw-flowed" : "loj-marcydam";
-
   return (
     <div className="space-y-5">
-      {/* Step 1: crew */}
+      {/* Basecamp picker — the decision is made; the backup stays one tap away */}
       <div className="soft-card dark:soft-card-dark p-5">
-        <h3 className="font-semibold">1 · Is Dan coming?</h3>
+        <h3 className="font-semibold">Basecamp</h3>
         <p className="mt-0.5 text-xs opacity-70">
-          Dan needs Marshall for his 46. Liam wants big and pretty (Marcy). This swings the whole
-          plan.
+          Lake Colden is the plan. Flowed Lands is what happens if the carry goes long, the
+          weather turns, or the sites are full — tap it to see how the day changes.
         </p>
-        <div className="mt-3 flex flex-wrap gap-2">
-          {[
-            [true, "Dan's in — Marshall matters"],
-            [false, "Dan's out — Marcy focus"],
-          ].map(([val, label]) => (
-            <button
-              key={String(val)}
-              onClick={() => {
-                setDanIn(val as boolean);
-                setScenarioId(val ? "uw-flowed" : "loj-marcydam");
-              }}
-              className={`rounded-full border-2 px-4 py-2 text-sm font-semibold transition-all ${
-                danIn === val
-                  ? "border-soft-gold bg-soft-gold/20"
-                  : "border-sage/30 hover:border-sage/70"
-              }`}
-            >
-              {label as string}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* Step 2: scenario picker */}
-      <div className="soft-card dark:soft-card-dark p-5">
-        <h3 className="font-semibold">2 · Trailhead + basecamp</h3>
-        <div className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="mt-3 grid gap-2 sm:grid-cols-2">
           {SCENARIOS.map((s) => (
             <button
               key={s.id}
@@ -363,11 +299,9 @@ export default function RouteDecider() {
               <div className="mt-0.5 text-xs opacity-70">
                 carry {s.carryIn.mi} · out {s.packOutLabel.replace("back to the car", "").trim()}
               </div>
-              {recommendedId === s.id && (
-                <span className="absolute -top-2 right-3 rounded-full bg-forest px-2 py-0.5 text-[10px] font-bold text-cream dark:bg-soft-gold dark:text-forest-dark">
-                  suggested
-                </span>
-              )}
+              <span className="absolute -top-2 right-3 rounded-full bg-forest px-2 py-0.5 text-[10px] font-bold text-cream dark:bg-soft-gold dark:text-forest-dark">
+                {s.badge}
+              </span>
             </button>
           ))}
         </div>

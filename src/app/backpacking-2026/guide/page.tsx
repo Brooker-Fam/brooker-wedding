@@ -31,24 +31,18 @@ export default function GuidePage() {
           </p>
           <ul className="mt-3 list-disc space-y-1.5 pl-5">
             <li>
-              <strong>Marcy Dam area — 15 designated tent sites, confirmed open</strong> (ADK, Aug
-              2026 — three old sites closed, the rest now numbered). Lean-to situation is murky
-              post-Irene, so plan on tents.
+              <strong>Lake Colden — our camp.</strong> Lean-tos and designated tent sites around
+              the lake, a staffed ranger outpost nearby, no closure notices. Lean-tos are
+              first-come — whoever&apos;s ahead of the group claims one, tents come regardless.
             </li>
             <li>
-              <strong>Avalanche Camps lean-tos</strong> — a bit past Marcy Dam toward the pass, at
-              the edge of the closed section. Likely open (trail crews are staged there), but
-              unconfirmed.
+              <strong>Flowed Lands — the bail-out camp</strong>, one mile earlier on the same
+              trail. Lean-tos + tent sites with the big Colden view. If the carry goes long or
+              Lake Colden is full, we stop here and nothing else changes much.
             </li>
             <li>
-              <strong>Lake Colden / Flowed Lands lean-tos + tent sites</strong> — the interior
-              bases, no closure notices. There&apos;s a staffed ranger outpost at Lake Colden.
-              Reached via Calamity Brook from Upper Works while the pass is closed (bridge out —
-              rock-hop). Note: the Feldspar lean-to access bridge has a broken stringer, per DEC.
-            </li>
-            <li>
-              <strong>Avalanche Lake sites — CLOSED</strong> (slide damage), not relocated yet.
-              Don&apos;t plan on them.
+              <strong>Avalanche Lake sites — CLOSED</strong> (slide damage). Not on our route
+              anyway — the whole Loj side is out of the plan while the pass is shut.
             </li>
           </ul>
           <p className="mt-3 text-xs opacity-70">
@@ -105,9 +99,9 @@ export default function GuidePage() {
           </table>
           <div className="mt-4 rounded-lg bg-soft-gold/15 px-4 py-3 text-sm">
             <strong>Space rules:</strong> one bear can does not fit 2–3 people × 2 days once trash
-            and toiletries join. Rent can #2 at the High Peaks Info Center at the trailhead.
-            Repackage everything (no boxes, no cans), squeeze the air out of bags, and remember
-            trash rides home in the can too.
+            and toiletries join. There is <strong>no can rental at Upper Works</strong> — can #2
+            gets borrowed or bought before we leave Greenwich. Repackage everything (no boxes, no
+            cans), squeeze the air out of bags, and remember trash rides home in the can too.
           </div>
         </div>
       </section>
@@ -117,9 +111,9 @@ export default function GuidePage() {
         <SectionTitle>💧 Water</SectionTitle>
         <div className="soft-card dark:soft-card-dark p-5 text-sm leading-relaxed">
           <p>
-            Water is everywhere on these routes — Marcy Brook at Marcy Dam, Phelps Brook on the
-            Van Hoevenberg trail, the Opalescent and Herbert Brook on the Colden side — but{" "}
-            <strong>treat all of it</strong> (giardia is real in the High Peaks).
+            Water is everywhere on these routes — Calamity Brook on the carry-in, the lake and the
+            Opalescent at camp, Herbert Brook on the Marshall path, Feldspar Brook on the way to
+            Marcy — but <strong>treat all of it</strong> (giardia is real in the High Peaks).
           </p>
           <ul className="mt-3 list-disc space-y-1.5 pl-5">
             <li><strong>Primary:</strong> pump filter — fastest for filling the 3L bladders at camp</li>
@@ -127,9 +121,9 @@ export default function GuidePage() {
             <li><strong>Backup:</strong> iodine tabs live in the med kit, weigh nothing</li>
             <li>Carry ~2L per person on summit runs; tank up at camp with electrolytes</li>
             <li>
-              <strong>Last-water points:</strong> Indian Falls / Phelps Brook is the last reliable
-              fill before Marcy&apos;s summit (~4.8 dry miles after); MacIntyre Falls (~2.6 mi up)
-              is the last before Algonquin
+              <strong>Last-water points:</strong> Lake Tear of the Clouds is the last reliable fill
+              before Marcy&apos;s summit cone from our side; on the Algonquin climb from the lake,
+              fill where the trail leaves the brook — the upper mountain is dry
             </li>
           </ul>
         </div>
@@ -210,8 +204,7 @@ export default function GuidePage() {
             ["DEC Adirondack Backcountry Info (trail conditions, updated weekly)", "https://dec.ny.gov/things-to-do/hiking/adirondack-backcountry/backcountry-information-for-adirondack-park"],
             ["ADK High Peaks Conditions Report (updated Fridays)", "https://adk.org/high-peaks-conditions-report/"],
             ["DEC High Peaks Wilderness (rules + closures)", "https://dec.ny.gov/places/high-peaks-wilderness-complex"],
-            ["ADK hiker parking at Heart Lake (rates + fill times)", "https://adk.org/hiker-parking-at-heart-lake/"],
-            ["High Peaks Info Center (bear can rental, 518-523-3441 x121)", "https://adk.org/high-peaks-information-center/"],
+            ["High Peaks Info Center (bear can rental — Loj side, ~50 min from Upper Works; last resort)", "https://adk.org/high-peaks-information-center/"],
             ["NWS forecast — Lake Colden", "https://forecast.weather.gov/MapClick.php?lat=44.1266&lon=-73.9672"],
             ["CalTopo map of the corridor", "https://caltopo.com/map.html#ll=44.1266,-73.9672&z=13"],
             ["Peak Refuel meals (what we're eating)", "https://www.amazon.com/dp/B0C28YLH8H"],
