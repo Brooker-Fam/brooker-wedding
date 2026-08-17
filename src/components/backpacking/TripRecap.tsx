@@ -19,6 +19,7 @@ type Hike = {
   date: string;
   strava: string;
   map: string;
+  packs: "full" | "light";
   miles: number;
   ft: number;
   sec: number;
@@ -33,25 +34,25 @@ const RAW: Hike[] = [
   {
     n: 1, day: "Sat", short: "Hike in to camp",
     name: "Hike in to Colden / Opalescent lean-to", date: "Sat Aug 15",
-    strava: "19779744295", map: "/backpacking/route-hike-in.jpg",
+    strava: "19779744295", map: "/backpacking/route-hike-in.jpg", packs: "full",
     miles: 7.48, ft: 1287, sec: 11592, kcal: 1122, hrAvg: 114, hrMax: 157, cad: 53.6, peaks: 0,
   },
   {
     n: 2, day: "Sat", short: "Marcy trio",
     name: "Marcy · Skylight · Gray", date: "Sat Aug 15",
-    strava: "19779846297", map: "/backpacking/route-marcy-trio.jpg",
+    strava: "19779846297", map: "/backpacking/route-marcy-trio.jpg", packs: "light",
     miles: 12.0, ft: 3827, sec: 23818, kcal: 2714, hrAvg: 121, hrMax: 189, cad: 58.3, peaks: 3,
   },
   {
     n: 3, day: "Sun", short: "Algonquin trio",
     name: "Algonquin · Wright · Iroquois", date: "Sun Aug 16",
-    strava: "19779965672", map: "/backpacking/route-algonquin-trio.jpg",
+    strava: "19779965672", map: "/backpacking/route-algonquin-trio.jpg", packs: "light",
     miles: 11.06, ft: 4517, sec: 29883, kcal: 2758, hrAvg: 110, hrMax: 166, cad: 58.7, peaks: 3,
   },
   {
     n: 4, day: "Sun", short: "Walk out",
     name: "Back to the car", date: "Sun Aug 16",
-    strava: "19779989265", map: "/backpacking/route-walk-out.jpg",
+    strava: "19779989265", map: "/backpacking/route-walk-out.jpg", packs: "full",
     miles: 6.0, ft: 209, sec: 8777, kcal: 773, hrAvg: 109, hrMax: 156, cad: 54.9, peaks: 0,
   },
 ];
@@ -79,12 +80,50 @@ const TOT = {
 const AVG_HR = Math.round(HIKES.reduce((a, h) => a + h.hrAvg * h.sec, 0) / TOT.sec);
 const MAX_HR = Math.max(...HIKES.map((h) => h.hrMax));
 
+type Peak = { name: string; day: Day; ft: number; rank: number; href: string; note: string };
+
+const PEAKS: Peak[] = [
+  {
+    name: "Mount Marcy", day: "Sat", ft: 5344, rank: 1,
+    href: "https://en.wikipedia.org/wiki/Mount_Marcy",
+    note: "The highest point in New York. Ebenezer Emmons named it for Governor William Marcy after the first recorded ascent in August 1837. A month later the writer Charles Fenno Hoffman offered \u201cTahawus\u201d, cloud-splitter, and it was soon taken for the name the mountain had always had. Nobody has found it in use before Hoffman.",
+  },
+  {
+    name: "Mount Skylight", day: "Sat", ft: 4924, rank: 4,
+    href: "https://en.wikipedia.org/wiki/Mount_Skylight",
+    note: "Named in 1857 by the painter Frederick Perkins and the guide Orson \u201cOld Mountain\u201d Phelps, for a rock formation up top that reads like a window. Hikers used to carry a stone up from below to feed the summit cairn; the practice is discouraged now.",
+  },
+  {
+    name: "Gray Peak", day: "Sat", ft: 4840, rank: 7,
+    href: "https://en.wikipedia.org/wiki/Gray_Peak_(New_York)",
+    note: "The highest peak in the Adirondacks with no maintained, marked trail to it \u2014 you leave the trail at Lake Tear of the Clouds and follow a herd path up. Verplanck Colvin made the first recorded ascent in 1872 and named it for the botanist Asa Gray.",
+  },
+  {
+    name: "Algonquin Peak", day: "Sun", ft: 5114, rank: 2,
+    href: "https://en.wikipedia.org/wiki/Algonquin_Peak",
+    note: "Second highest, and the largest alpine tundra in the Adirondacks: 23.5 acres of arctic plants holding on above treeline, with summit stewards posted through the season to keep boots off them. It was Mount McIntyre until Colvin renamed it in 1880.",
+  },
+  {
+    name: "Wright Peak", day: "Sun", ft: 4580, rank: 16,
+    href: "https://en.wikipedia.org/wiki/Wright_Peak",
+    note: "Colvin named it for Governor Silas Wright in 1873. On 16 January 1962 a B-47 out of Plattsburgh came thirty miles off course in bad weather and hit the mountain; all four crew died. Pieces of the aircraft are still on the summit slabs, beside a plaque.",
+  },
+  {
+    name: "Iroquois Peak", day: "Sun", ft: 4840, rank: 8,
+    href: "https://en.wikipedia.org/wiki/Iroquois_Peak",
+    note: "No official trail; a cairned herd path runs the 1.1 miles over from Algonquin. Colvin named the pair of them for the Algonquin and the Iroquois, on either side of a boundary he understood to run through the range. The boundary was never actually there.",
+  },
+];
+
 const ALBUM_URL = "https://photos.app.goo.gl/FRqUvUWCk6c7pfDbA";
 const ALBUM_COVER = "/backpacking/album-cover.jpg";
 
 /* ---------------------------------- utils --------------------------------- */
 
 const comma = (n: number) => Math.round(n).toLocaleString("en-US");
+
+// McDonald's published figure, so the calorie total has a unit anyone can picture.
+const DQPC_KCAL = 740;
 
 const niceCeil = (v: number, step: number) => Math.ceil(v / step) * step;
 const niceFloor = (v: number, step: number) => Math.floor(v / step) * step;
@@ -228,7 +267,7 @@ export default function TripRecap() {
     ["Distance", `${TOT.miles.toFixed(1)} mi`, "across 4 hikes"],
     ["Time on foot", fmtHM(TOT.sec), "of a 48-hour weekend"],
     ["High Peaks", String(TOT.peaks), "Marcy, Skylight, Gray, Algonquin, Wright, Iroquois"],
-    ["Calories", `${comma(TOT.kcal)} kcal`, "nearly 4 days of normal eating"],
+    ["Calories", `${comma(TOT.kcal)} kcal`, `\u2248 ${Math.round(TOT.kcal / DQPC_KCAL)} Double Quarter Pounders with cheese`],
     ["Steps", `≈ ${comma(TOT.steps / 1000)}K`, "estimated, not measured"],
     ["Average grade", `${comma(TOT.ft / TOT.miles)} ft/mi`, "climbing per mile walked"],
   ];
@@ -257,7 +296,7 @@ export default function TripRecap() {
             <span className="text-xl font-semibold drop-shadow-lg">ft climbed</span>
           </div>
           <p className="mt-1 text-sm opacity-90 drop-shadow-lg">
-            ≈ 3,000 vertical metres, in two days, carrying a pack
+            ≈ 3,000 vertical metres, in two days, across six summits
           </p>
           <p className="mt-3 text-xs opacity-70 drop-shadow-lg">
             Flowed Lands in the morning, Colden&apos;s slides on the right
@@ -353,13 +392,57 @@ export default function TripRecap() {
             </div>
           </section>
 
+          {/* peaks */}
+          <section className="soft-card dark:soft-card-dark mb-4 p-5">
+            <h2 className="text-lg font-bold">The six</h2>
+            <p className="mb-4 mt-0.5 text-sm opacity-75">
+              Three on Saturday out of camp, three on Sunday before walking out. Two of them have no
+              maintained trail at all. Almost every name up here was handed out by one surveyor,
+              Verplanck Colvin, in the 1870s and 80s.
+            </p>
+            {(["Sat", "Sun"] as Day[]).map((d) => (
+              <div key={d} className="mb-4 last:mb-0">
+                <div className="mb-2 flex items-center gap-2 text-sm font-bold">
+                  <span
+                    className="inline-block h-2.5 w-3.5 rounded-sm"
+                    style={{ background: col(d) }}
+                  />
+                  {d === "Sat" ? "Saturday · out of camp and back" : "Sunday · before the walk out"}
+                </div>
+                <div className="grid gap-3 sm:grid-cols-3">
+                  {PEAKS.filter((pk) => pk.day === d).map((pk) => (
+                    <div
+                      key={pk.name}
+                      className="rounded-2xl border border-sage/20 p-4 dark:border-soft-gold/20"
+                      style={{ background: wash(pk.day) }}
+                    >
+                      <a
+                        href={pk.href}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-sm font-bold underline decoration-dotted underline-offset-2"
+                      >
+                        {pk.name}
+                      </a>
+                      <div className="mt-0.5 text-xs font-bold tabular-nums opacity-70">
+                        {comma(pk.ft)} ft · #{pk.rank} of 46
+                      </div>
+                      <p className="mt-1.5 text-xs leading-relaxed opacity-80">{pk.note}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </section>
+
           {/* routes */}
           <section className="soft-card dark:soft-card-dark mb-4 p-5">
             <h2 className="text-lg font-bold">Where we actually walked</h2>
             <p className="mb-4 mt-0.5 text-sm opacity-75">
               The recorded track for each leg. The hike in and the walk out are the same corridor
               from Upper Works run in opposite directions; the two summit days fan out from camp
-              and come back to it.
+              and come back to it. Full packs only on the first and last legs — everything heavy
+              stayed at camp while we went up.
             </p>
             <div className="grid gap-4 sm:grid-cols-2">
               {HIKES.map((h) => (
@@ -388,6 +471,9 @@ export default function TripRecap() {
                     </div>
                     <p className="mt-1 text-xs tabular-nums opacity-70">
                       {h.date} · {h.miles.toFixed(2)} mi · {comma(h.ft)} ft · {fmtHM(h.sec)}
+                    </p>
+                    <p className="mt-1 text-[11px] opacity-60">
+                      {h.packs === "full" ? "🎒 full packs" : "🥾 light packs from camp"}
                     </p>
                     <span
                       className="mt-1.5 inline-block text-xs font-bold"
@@ -476,6 +562,48 @@ export default function TripRecap() {
               easy aerobic territory — the spikes are the summit pushes.
             </p>
             <HeartRateChart narrow={narrow} hit={hit} />
+          </section>
+
+          {/* water */}
+          <section className="soft-card dark:soft-card-dark mb-4 p-5">
+            <h2 className="text-lg font-bold">Water, one way and another</h2>
+            <p className="mt-0.5 text-sm leading-relaxed opacity-80">
+              The MSR pump was the villain of the weekend. Every refill turned into a squatting,
+              forearm-burning shift at the edge of a stream, and with two of us drinking hard we did
+              it far more often than anyone wanted. It stopped being a chore and became the theme of
+              the trip: not the climbing, the pumping.
+            </p>
+            <p className="mt-3 text-sm leading-relaxed opacity-80">
+              Then we passed a guy who scooped straight out of the brook into a bottle with a filter
+              in the cap and drank as he walked away. No pumping, no waiting, no hose. The other
+              answer is chlorine dioxide drops — dose it, wait, carry on. Either one buys back most
+              of the hours we spent hunched over the intake.
+            </p>
+            <p className="mt-3 text-sm leading-relaxed opacity-80">
+              Water was better company on the way down off Algonquin. We swam in Lake Colden before
+              getting back to camp, and it was the best thing that happened all weekend — which is
+              also the one thing none of the charts above can show you.
+            </p>
+          </section>
+
+          {/* trail talk */}
+          <section className="soft-card dark:soft-card-dark mb-4 p-5">
+            <h2 className="text-lg font-bold">What we talked about</h2>
+            <p className="mt-0.5 text-sm leading-relaxed opacity-80">
+              Twenty hours on foot is mostly conversation. A long stretch of it went to Romans 1 and
+              general revelation — whether what can be known of God is really legible in the made
+              world, and what follows for someone who never had the book handed to them at all. It
+              is a strange thing to work over while standing on a summit a surveyor named for one
+              people on the strength of a border he had drawn himself.
+            </p>
+            <p className="mt-3 text-sm leading-relaxed opacity-80">
+              The rest of it: original sin, and how much of a person it actually accounts for;
+              whether the Christian life follows from belief or belief settles out of the practice;
+              and, when the arguing got tired, the plainer question sitting underneath all of it.
+              Somewhere on the descent we got onto the Classical-to-Romantic handoff instead —
+              Haydn&apos;s tidy rooms giving way to Beethoven putting a boot through the wall, and
+              whether the Romantics gained anything they did not also spend.
+            </p>
           </section>
 
           {/* album */}
