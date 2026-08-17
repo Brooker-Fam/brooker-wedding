@@ -4,9 +4,10 @@ import Image from "next/image";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 /* ------------------------------------------------------------------ *
- * The weekend, as recorded. Distance / vert / time / calories / HR all
- * come straight off the four Strava activities from Aug 15-16, 2026.
- * Steps are the single derived figure (avg cadence x time on foot).
+ * The weekend, as recorded. Distance / vert / moving time / calories / HR
+ * come off the four Strava activities from Aug 15-16, 2026. Steps and
+ * elapsed time come off the same four on Garmin, which counts both
+ * directly. Nothing here is estimated.
  * ------------------------------------------------------------------ */
 
 type Day = "Sat" | "Sun";
@@ -26,7 +27,8 @@ type Hike = {
   kcal: number;
   hrAvg: number;
   hrMax: number;
-  cad: number;
+  steps: number;
+  elapsed: number;
   peaks: number;
 };
 
@@ -35,44 +37,50 @@ const RAW: Hike[] = [
     n: 1, day: "Sat", short: "Hike in to camp",
     name: "Hike in to Colden / Opalescent lean-to", date: "Sat Aug 15",
     strava: "19779744295", map: "/backpacking/route-hike-in.jpg", packs: "full",
-    miles: 7.48, ft: 1287, sec: 11592, kcal: 1122, hrAvg: 114, hrMax: 157, cad: 53.6, peaks: 0,
+    miles: 7.48, ft: 1287, sec: 11592, kcal: 1122, hrAvg: 114, hrMax: 157,
+    steps: 16030, elapsed: 11817, peaks: 0,
   },
   {
     n: 2, day: "Sat", short: "Marcy trio",
     name: "Marcy · Skylight · Gray", date: "Sat Aug 15",
     strava: "19779846297", map: "/backpacking/route-marcy-trio.jpg", packs: "light",
-    miles: 12.0, ft: 3827, sec: 23818, kcal: 2714, hrAvg: 121, hrMax: 189, cad: 58.3, peaks: 3,
+    miles: 12.0, ft: 3827, sec: 23818, kcal: 2714, hrAvg: 121, hrMax: 189,
+    steps: 28284, elapsed: 30625, peaks: 3,
   },
   {
     n: 3, day: "Sun", short: "Algonquin trio",
     name: "Algonquin · Wright · Iroquois", date: "Sun Aug 16",
     strava: "19779965672", map: "/backpacking/route-algonquin-trio.jpg", packs: "light",
-    miles: 11.06, ft: 4517, sec: 29883, kcal: 2758, hrAvg: 110, hrMax: 166, cad: 58.7, peaks: 3,
+    miles: 11.06, ft: 4517, sec: 29883, kcal: 2758, hrAvg: 110, hrMax: 166,
+    steps: 27240, elapsed: 34627, peaks: 3,
   },
   {
     n: 4, day: "Sun", short: "Walk out",
     name: "Back to the car", date: "Sun Aug 16",
     strava: "19779989265", map: "/backpacking/route-walk-out.jpg", packs: "full",
-    miles: 6.0, ft: 209, sec: 8777, kcal: 773, hrAvg: 109, hrMax: 156, cad: 54.9, peaks: 0,
+    miles: 6.0, ft: 209, sec: 8777, kcal: 773, hrAvg: 109, hrMax: 156,
+    steps: 12798, elapsed: 8833, peaks: 0,
   },
 ];
 
 const HIKES = RAW.map((h) => ({
   ...h,
   hours: h.sec / 3600,
-  steps: Math.round(h.cad * 2 * (h.sec / 60)),
   ftPerMi: h.ft / h.miles,
   mph: h.miles / (h.sec / 3600),
+  // Elapsed runs from first step to last; the gap is time we stood still.
+  stopped: h.elapsed - h.sec,
 }));
 
 type Row = (typeof HIKES)[number];
-type NumKey = "miles" | "ft" | "sec" | "kcal" | "steps" | "peaks";
+type NumKey = "miles" | "ft" | "sec" | "kcal" | "steps" | "peaks" | "elapsed" | "stopped";
 
 const total = (k: NumKey) => HIKES.reduce((a, h) => a + h[k], 0);
 
 const TOT = {
   miles: total("miles"), ft: total("ft"), sec: total("sec"),
   kcal: total("kcal"), steps: total("steps"), peaks: total("peaks"),
+  elapsed: total("elapsed"), stopped: total("stopped"),
 };
 
 // Weighted by time on foot; a plain mean of the four averages would let the
@@ -117,6 +125,39 @@ const PEAKS: Peak[] = [
 
 const ALBUM_URL = "https://photos.app.goo.gl/FRqUvUWCk6c7pfDbA";
 const ALBUM_COVER = "/backpacking/album-cover.jpg";
+
+/* -------------------------------- the poem -------------------------------- *
+ * Figures in the verse are spelled out rather than interpolated. If TOT.elapsed,
+ * TOT.sec or TOT.stopped ever change, the third stanza has to be rewritten.    */
+
+const WATER_POEM = `The work was not the climbing.
+It was the squat at the brook's edge,
+the pump handle worked
+until the forearms quit.
+Two of us drinking in August
+meant going back down to the water
+more often than we wanted.
+
+The brook ran clear off the rock.
+We looked at it a long while.
+Believing the water is clean
+is not the same as drinking it.
+
+A man passed us, dipped his bottle,
+screwed the cap on, drank walking away.
+Some carry drops instead, and wait.
+
+The watch kept the account:
+twenty-three hours and fifty-one minutes out,
+twenty and a half of them moving.
+Three hours standing still, some of it lunch,
+much of it one of us bent over a hose.
+
+Coming down off Algonquin
+we stopped at Lake Colden and went in.
+No pump. No hose. No waiting.
+That was the only water all weekend
+we took the way it came.`;
 
 /* ---------------------------------- utils --------------------------------- */
 
@@ -265,10 +306,10 @@ export default function TripRecap() {
 
   const kpis: [string, string, string][] = [
     ["Distance", `${TOT.miles.toFixed(1)} mi`, "across 4 hikes"],
-    ["Time on foot", fmtHM(TOT.sec), "of a 48-hour weekend"],
+    ["Time on foot", fmtHM(TOT.sec), `${fmtHM(TOT.elapsed)} out there, first step to last`],
     ["High Peaks", String(TOT.peaks), "Marcy, Skylight, Gray, Algonquin, Wright, Iroquois"],
     ["Calories", `${comma(TOT.kcal)} kcal`, `\u2248 ${Math.round(TOT.kcal / DQPC_KCAL)} Double Quarter Pounders with cheese`],
-    ["Steps", `≈ ${comma(TOT.steps / 1000)}K`, "estimated, not measured"],
+    ["Steps", comma(TOT.steps), "counted by the watch, not estimated"],
     ["Average grade", `${comma(TOT.ft / TOT.miles)} ft/mi`, "climbing per mile walked"],
   ];
 
@@ -308,7 +349,7 @@ export default function TripRecap() {
         We went. Here is what it added up to — four recorded activities across two days, plus the
         photo album. Six High Peaks: Marcy, Skylight and Gray on Saturday; Algonquin, Wright and
         Iroquois on Sunday. The plan had been a tidy, classical sort of thing. What we actually did
-        had the Romantics all over it: more summits than sense, and a swim.
+        ran long, went in for excess, and finished both days in the dark.
       </p>
 
       {/* legend + view toggle — one row, above everything it scopes */}
@@ -569,25 +610,10 @@ export default function TripRecap() {
           </section>
 
           {/* water */}
-          <section className="soft-card dark:soft-card-dark mb-4 p-5">
+          <section className="soft-card dark:soft-card-dark mb-4 p-5 sm:p-7">
             <h2 className="text-lg font-bold">Water, one way and another</h2>
-            <p className="mt-0.5 text-sm leading-relaxed opacity-80">
-              The MSR pump was the villain of the weekend. Every refill turned into a squatting,
-              forearm-burning shift at the edge of a stream, and with two of us drinking hard we did
-              it far more often than anyone wanted. It stopped being a chore and became the theme of
-              the trip: not the climbing, the pumping. The brook ran clear enough to drink as it
-              came, too. Thinking so and doing it are different acts, so we pumped.
-            </p>
-            <p className="mt-3 text-sm leading-relaxed opacity-80">
-              Then we passed a guy who scooped straight out of the brook into a bottle with a filter
-              in the cap and drank as he walked away. No pumping, no waiting, no hose. The other
-              answer is chlorine dioxide drops — dose it, wait, carry on. Either one buys back most
-              of the hours we spent hunched over the intake.
-            </p>
-            <p className="mt-3 text-sm leading-relaxed opacity-80">
-              Water was better company on the way down off Algonquin. We swam in Lake Colden before
-              getting back to camp, and it was the best thing that happened all weekend — which is
-              also the one thing none of the charts above can show you.
+            <p className="mt-4 max-w-[46ch] whitespace-pre-line font-[family-name:var(--font-cormorant-garamond)] text-lg leading-[1.7] opacity-90 sm:text-xl">
+              {WATER_POEM}
             </p>
           </section>
 
@@ -623,10 +649,10 @@ export default function TripRecap() {
       {showTable && <RecapTable />}
 
       <p className="px-1 text-xs leading-relaxed opacity-55">
-        Distance, elevation, time, calories and heart rate come straight off the four recorded Strava
-        activities. Steps are the one estimate here — derived from average cadence × time on foot
-        (≈{comma(TOT.steps / 1000)}K for the weekend), so treat that figure as ±20%; everything
-        else is measured.
+        Distance, elevation, moving time, calories and heart rate come off the four recorded
+        Strava activities; steps and elapsed time come off the same four on Garmin, which counts
+        both directly. Nothing above is an estimate. Time on foot is moving time, so it runs
+        shorter than the {fmtHM(TOT.elapsed)} the clock was actually running.
       </p>
 
       <Tooltip tip={tip} />
@@ -843,7 +869,7 @@ function HeartRateChart({ narrow, hit }: { narrow: boolean; hit: Hit }) {
 /* --------------------------------- table ---------------------------------- */
 
 function RecapTable() {
-  const cols = ["Hike", "Day", "Miles", "Vert (ft)", "Time", "Pace (mph)", "ft/mi", "kcal", "Avg HR", "Max HR", "Steps (est.)"];
+  const cols = ["Hike", "Day", "Miles", "Vert (ft)", "Time", "Pace (mph)", "ft/mi", "kcal", "Avg HR", "Max HR", "Steps"];
   return (
     <section className="soft-card dark:soft-card-dark mb-4 p-5">
       <h2 className="mb-3 text-lg font-bold">Every number</h2>
