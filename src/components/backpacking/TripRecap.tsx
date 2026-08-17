@@ -18,6 +18,7 @@ type Hike = {
   name: string;
   date: string;
   strava: string;
+  map: string;
   miles: number;
   ft: number;
   sec: number;
@@ -32,25 +33,25 @@ const RAW: Hike[] = [
   {
     n: 1, day: "Sat", short: "Hike in to camp",
     name: "Hike in to Colden / Opalescent lean-to", date: "Sat Aug 15",
-    strava: "19779744295",
+    strava: "19779744295", map: "/backpacking/route-hike-in.jpg",
     miles: 7.48, ft: 1287, sec: 11592, kcal: 1122, hrAvg: 114, hrMax: 157, cad: 53.6, peaks: 0,
   },
   {
     n: 2, day: "Sat", short: "Marcy trio",
     name: "Marcy · Skylight · Gray", date: "Sat Aug 15",
-    strava: "19779846297",
+    strava: "19779846297", map: "/backpacking/route-marcy-trio.jpg",
     miles: 12.0, ft: 3827, sec: 23818, kcal: 2714, hrAvg: 121, hrMax: 189, cad: 58.3, peaks: 3,
   },
   {
     n: 3, day: "Sun", short: "Algonquin trio",
     name: "Algonquin · Wright · Iroquois", date: "Sun Aug 16",
-    strava: "19779965672",
+    strava: "19779965672", map: "/backpacking/route-algonquin-trio.jpg",
     miles: 11.06, ft: 4517, sec: 29883, kcal: 2758, hrAvg: 110, hrMax: 166, cad: 58.7, peaks: 3,
   },
   {
     n: 4, day: "Sun", short: "Walk out",
     name: "Back to the car", date: "Sun Aug 16",
-    strava: "19779989265",
+    strava: "19779989265", map: "/backpacking/route-walk-out.jpg",
     miles: 6.0, ft: 209, sec: 8777, kcal: 773, hrAvg: 109, hrMax: 156, cad: 54.9, peaks: 0,
   },
 ];
@@ -350,6 +351,57 @@ export default function TripRecap() {
                 );
               })}
             </div>
+          </section>
+
+          {/* routes */}
+          <section className="soft-card dark:soft-card-dark mb-4 p-5">
+            <h2 className="text-lg font-bold">Where we actually walked</h2>
+            <p className="mb-4 mt-0.5 text-sm opacity-75">
+              The recorded track for each leg. The hike in and the walk out are the same corridor
+              from Upper Works run in opposite directions; the two summit days fan out from camp
+              and come back to it.
+            </p>
+            <div className="grid gap-4 sm:grid-cols-2">
+              {HIKES.map((h) => (
+                <a
+                  key={h.n}
+                  href={`https://www.strava.com/activities/${h.strava}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="game-card-hover block overflow-hidden rounded-2xl border border-sage/20 dark:border-soft-gold/20"
+                >
+                  <Image
+                    src={h.map}
+                    alt={`Recorded GPS track for ${h.name}`}
+                    width={1200}
+                    height={630}
+                    sizes="(min-width: 640px) 480px, 100vw"
+                    className="h-auto w-full"
+                  />
+                  <div className="p-3">
+                    <div className="flex items-center gap-2 text-sm font-bold">
+                      <span
+                        className="inline-block h-2.5 w-3.5 shrink-0 rounded-sm"
+                        style={{ background: col(h.day) }}
+                      />
+                      {h.name}
+                    </div>
+                    <p className="mt-1 text-xs tabular-nums opacity-70">
+                      {h.date} · {h.miles.toFixed(2)} mi · {comma(h.ft)} ft · {fmtHM(h.sec)}
+                    </p>
+                    <span
+                      className="mt-1.5 inline-block text-xs font-bold"
+                      style={{ color: col(h.day) }}
+                    >
+                      View on Strava →
+                    </span>
+                  </div>
+                </a>
+              ))}
+            </div>
+            <p className="mt-3 text-[11px] opacity-55">
+              Route maps rendered by Strava over OpenStreetMap data.
+            </p>
           </section>
 
           {/* small multiples */}
