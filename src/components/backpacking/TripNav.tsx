@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 const RECAP = { href: "/backpacking-2026", label: "📊 Recap" };
+const SHARE = { href: "/backpacking-2026/share", label: "📸 Share card" };
 
 const PLANNING = [
   { href: "/backpacking-2026/plan", label: "🗓️ Plan" },
@@ -42,6 +43,7 @@ export default function TripNav() {
     <nav className="sticky top-2 z-40 -mx-4 mb-8 px-4 sm:-mx-6 sm:px-6">
       <div className="flex items-center gap-1.5 overflow-x-auto rounded-full border border-sage/25 bg-cream/95 p-1.5 backdrop-blur-md [scrollbar-width:none] [&::-webkit-scrollbar]:hidden dark:bg-[#12240F]/95">
         {pill(RECAP.href, RECAP.label, false)}
+        {pill(SHARE.href, SHARE.label, false)}
         <span
           aria-hidden="true"
           className="ml-1 mr-0.5 hidden shrink-0 whitespace-nowrap text-[10px] font-bold uppercase tracking-widest opacity-40 sm:inline"

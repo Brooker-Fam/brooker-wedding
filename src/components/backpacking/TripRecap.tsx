@@ -339,19 +339,15 @@ export default function TripRecap() {
             <span className="text-xl font-semibold drop-shadow-lg">ft climbed</span>
           </div>
           <p className="mt-1 text-sm opacity-90 drop-shadow-lg">
-            ≈ 3,000 vertical metres, in two days, across six summits
-          </p>
-          <p className="mt-3 text-xs opacity-70 drop-shadow-lg">
-            Flowed Lands in the morning, Colden&apos;s slides on the right
+            in two days, across six summits
           </p>
         </figcaption>
       </figure>
 
       <p className="mb-5 px-1 text-sm leading-relaxed opacity-80">
-        We went. Here is what it added up to — four recorded activities across two days, plus the
-        photo album. Six High Peaks: Marcy, Skylight and Gray on Saturday; Algonquin, Wright and
-        Iroquois on Sunday. The plan had been a tidy, classical sort of thing. What we actually did
-        ran long, went in for excess, and finished both days in the dark.
+        Six High Peaks: Marcy, Skylight and Gray on Saturday; Algonquin, Wright and Iroquois on
+        Sunday. The plan had been a tidy, classical sort of thing. What we actually did ran long,
+        went in for excess, and finished both days in the dark.
       </p>
 
       {/* legend + view toggle — one row, above everything it scopes */}
