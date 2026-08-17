@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 /* ------------------------------------------------------------------ *
@@ -72,13 +73,20 @@ const TOT = {
   kcal: total("kcal"), steps: total("steps"), peaks: total("peaks"),
 };
 
+// Weighted by time on foot; a plain mean of the four averages would let the
+// 2h40m walk out count as much as the 8h20m Algonquin day.
+const AVG_HR = Math.round(HIKES.reduce((a, h) => a + h.hrAvg * h.sec, 0) / TOT.sec);
+const MAX_HR = Math.max(...HIKES.map((h) => h.hrMax));
+
 const ALBUM_URL = "https://photos.app.goo.gl/FRqUvUWCk6c7pfDbA";
-const ALBUM_COVER =
-  "https://lh3.googleusercontent.com/pw/AP1GczOj41bJSWXejox79kwKisR17wTQ3ttXkOyHLVEWSaJXu16a40yE4SZOXh69iGVqWlDCB7w5ZC6x4dav3jeSWr3CLtdrvJ6bT8vtohntynY-qOm7AxDK=w600-h315-p-k";
+const ALBUM_COVER = "/backpacking/album-cover.jpg";
 
 /* ---------------------------------- utils --------------------------------- */
 
 const comma = (n: number) => Math.round(n).toLocaleString("en-US");
+
+const niceCeil = (v: number, step: number) => Math.ceil(v / step) * step;
+const niceFloor = (v: number, step: number) => Math.floor(v / step) * step;
 
 function fmtHM(sec: number) {
   const m = Math.floor(sec / 60);
@@ -156,7 +164,7 @@ function Tooltip({ tip }: { tip: Tip }) {
   return (
     <div
       ref={ref}
-      role="status"
+      aria-hidden="true"
       className="pointer-events-none fixed z-50 max-w-[300px] rounded-xl border border-sage/25 bg-cream px-2.5 py-2 text-xs whitespace-nowrap shadow-lg dark:border-soft-gold/25 dark:bg-[#162618]"
       style={{ left: Math.max(8, left), top }}
     >
@@ -219,7 +227,7 @@ export default function TripRecap() {
     ["Distance", `${TOT.miles.toFixed(1)} mi`, "across 4 hikes"],
     ["Time on foot", fmtHM(TOT.sec), "of a 48-hour weekend"],
     ["High Peaks", String(TOT.peaks), "Marcy, Skylight, Gray, Algonquin, Wright, Iroquois"],
-    ["Calories", `${comma(TOT.kcal)} kcal`, "≈ 3½ days of normal eating"],
+    ["Calories", `${comma(TOT.kcal)} kcal`, "nearly 4 days of normal eating"],
     ["Steps", `≈ ${comma(TOT.steps / 1000)}K`, "estimated, not measured"],
     ["Average grade", `${comma(TOT.ft / TOT.miles)} ft/mi`, "climbing per mile walked"],
   ];
@@ -227,6 +235,40 @@ export default function TripRecap() {
   return (
     <div className="trip-recap" ref={hostRef}>
       <style>{CSS}</style>
+
+      {/* hero — edge to edge on phones, inset once the container has margins of its own */}
+      <figure className="relative -mx-4 mb-5 overflow-hidden sm:-mx-6 md:mx-0 md:rounded-3xl">
+        <Image
+          src="/backpacking/flowed-lands-morning.jpg"
+          alt="Flowed Lands at first light: mist sitting on flat water, spruce islands mid-lake, and a long slide-scarred ridge catching the sun on the right."
+          width={1800}
+          height={2397}
+          priority
+          sizes="(min-width: 768px) 1024px, 100vw"
+          className="h-[360px] w-full object-cover object-[50%_55%] sm:h-[440px] md:h-[500px]"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-black/5" />
+        <figcaption className="absolute inset-x-0 bottom-0 p-5 text-cream sm:p-7">
+          <div className="flex flex-wrap items-baseline gap-x-4 gap-y-1">
+            <span className="font-[family-name:var(--font-cormorant-garamond)] text-6xl font-bold leading-none drop-shadow-lg sm:text-7xl">
+              {comma(TOT.ft)}
+            </span>
+            <span className="text-xl font-semibold drop-shadow-lg">ft climbed</span>
+          </div>
+          <p className="mt-1 text-sm opacity-90 drop-shadow-lg">
+            ≈ 3,000 vertical metres, in two days, carrying a pack
+          </p>
+          <p className="mt-3 text-xs opacity-70 drop-shadow-lg">
+            Flowed Lands in the morning, Colden&apos;s slides on the right
+          </p>
+        </figcaption>
+      </figure>
+
+      <p className="mb-5 px-1 text-sm leading-relaxed opacity-80">
+        We went. Here is what it added up to — four recorded activities across two days, plus the
+        photo album. Six High Peaks: Marcy, Skylight and Gray on Saturday; Algonquin, Wright and
+        Iroquois on Sunday.
+      </p>
 
       {/* legend + view toggle — one row, above everything it scopes */}
       <div className="soft-card dark:soft-card-dark mb-4 flex flex-wrap items-center gap-x-5 gap-y-3 px-4 py-3">
@@ -258,17 +300,6 @@ export default function TripRecap() {
 
       {!showTable && (
         <>
-          {/* hero */}
-          <div className="soft-card dark:soft-card-dark mb-3 flex flex-wrap items-baseline gap-x-6 gap-y-1 p-6">
-            <div>
-              <span className="font-[family-name:var(--font-cormorant-garamond)] text-6xl font-bold leading-none sm:text-7xl">
-                {comma(TOT.ft)}
-              </span>{" "}
-              <span className="text-xl font-semibold opacity-80">ft climbed</span>
-            </div>
-            <p className="text-sm opacity-70">≈ 3,000 vertical metres, in two days, carrying a pack</p>
-          </div>
-
           {/* KPI row */}
           <div className="mb-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {kpis.map((k) => (
@@ -344,16 +375,17 @@ export default function TripRecap() {
                   <div key={title}>
                     <h3 className="text-[13px] font-bold">{title}</h3>
                     <p className="mb-1 text-[11px] opacity-55">{unit}</p>
-                    <svg viewBox={`0 0 400 ${H}`} role="img" aria-label={`${title} by hike`}>
+                    <svg viewBox={`0 0 400 ${H}`} role="group" aria-label={`${title} by hike`}>
                       {HIKES.map((h, i) => {
                         const y = TOP + i * ROW_H;
                         const w = (get(h) / max) * (X1 - X0);
+                        const props = hit(h);
                         return (
                           <g key={h.n}>
                             <text x={96} y={y + BH / 2 + 4} textAnchor="end" className="r-lbl">{h.short}</text>
                             <path d={barPath(X0, y, w, BH)} fill={col(h.day)} />
                             <text x={X0 + w + 7} y={y + BH / 2 + 4} className="r-val">{fmt(get(h))}</text>
-                            {hit(h) && <rect x={X0 - 4} y={y - 6} width={X1 - X0 + 56} height={BH + 12} {...hit(h)!} />}
+                            {props && <rect x={X0 - 4} y={y - 6} width={X1 - X0 + 56} height={BH + 12} {...props} />}
                           </g>
                         );
                       })}
@@ -401,12 +433,13 @@ export default function TripRecap() {
             rel="noopener noreferrer"
             className="soft-card dark:soft-card-dark game-card-hover mb-4 flex flex-col items-stretch gap-5 p-5 sm:flex-row sm:items-center"
           >
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
+            <Image
               src={ALBUM_COVER}
               alt=""
-              loading="lazy"
-              className="h-36 w-full flex-none rounded-xl object-cover sm:h-[118px] sm:w-[210px]"
+              width={1200}
+              height={1600}
+              sizes="(min-width: 640px) 210px, 100vw"
+              className="h-36 w-full flex-none rounded-xl object-cover object-[50%_30%] sm:h-[118px] sm:w-[210px]"
             />
             <div>
               <h2 className="text-lg font-bold">📷 High peaks backpacking with Matt and Liam</h2>
@@ -427,7 +460,7 @@ export default function TripRecap() {
       <p className="px-1 text-xs leading-relaxed opacity-55">
         Distance, elevation, time, calories and heart rate come straight off the four recorded Strava
         activities. Steps are the one estimate here — derived from average cadence × time on foot
-        (≈{comma(TOT.steps / 1000)},000 for the weekend), so treat that figure as ±20%; everything
+        (≈{comma(TOT.steps / 1000)}K for the weekend), so treat that figure as ±20%; everything
         else is measured.
       </p>
 
@@ -448,11 +481,12 @@ function CumulativeChart({ narrow, hit }: { narrow: boolean; hit: Hit }) {
   const MT = narrow ? 26 : 28;
   const MB = narrow ? 38 : 40;
   const maxH = TOT.sec / 3600;
-  const maxY = 10000;
+  const maxY = niceCeil(TOT.ft, 2500);
   const px = (t: number) => ML + (t / maxH) * (W - ML - MR);
   const py = (v: number) => H - MB - (v / maxY) * (H - MT - MB);
-  const yTicks = narrow ? [0, 5000, 10000] : [0, 2500, 5000, 7500, 10000];
-  const xTicks = narrow ? [0, 5, 10, 15, 20] : [0, 4, 8, 12, 16, 20];
+  const yTicks = (narrow ? [0, 0.5, 1] : [0, 0.25, 0.5, 0.75, 1]).map((f) => f * maxY);
+  const xStep = narrow ? 5 : 4;
+  const xTicks = Array.from({ length: Math.floor(maxH / xStep) + 1 }, (_, i) => i * xStep);
 
   const pts: { t: number; v: number; day: Day; hike?: Row }[] = [{ t: 0, v: 0, day: "Sat" }];
   let ct = 0;
@@ -462,11 +496,11 @@ function CumulativeChart({ narrow, hit }: { narrow: boolean; hit: Hit }) {
     cv += h.ft;
     pts.push({ t: ct, v: cv, day: h.day, hike: h });
   });
-  const bnd = pts[2].t;
+  const bnd = pts.filter((p) => p.hike?.day === "Sat").at(-1)!.t;
   const last = pts[pts.length - 1];
 
   return (
-    <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label="Cumulative elevation gain over time on foot">
+    <svg viewBox={`0 0 ${W} ${H}`} role="group" aria-label="Cumulative elevation gain over time on foot">
       {yTicks.map((v) => (
         <g key={v}>
           <line x1={ML} y1={py(v)} x2={W - MR} y2={py(v)} stroke={v === 0 ? "var(--r-axis)" : "var(--r-grid)"} strokeWidth={1} />
@@ -504,14 +538,21 @@ function CumulativeChart({ narrow, hit }: { narrow: boolean; hit: Hit }) {
 
       {pts.slice(1).map((p, i) => {
         const props = hit(p.hike as Row);
-        return props ? <rect key={`hit${i}`} x={px(p.t) - 22} y={MT} width={44} height={H - MT - MB} {...props} /> : null;
+        if (!props) return null;
+        // Nearest-point bands. The last two points sit under 44px apart on the narrow
+        // layout, so fixed-width targets overlapped and stole each other's hovers.
+        const x0 = i === 0 ? ML : (px(pts[i].t) + px(p.t)) / 2;
+        const nxt = pts[i + 2];
+        const x1 = nxt ? (px(p.t) + px(nxt.t)) / 2 : W - MR;
+        return <rect key={`hit${i}`} x={x0} y={MT} width={Math.max(0, x1 - x0)} height={H - MT - MB} {...props} />;
       })}
     </svg>
   );
 }
 
 function SteepChart({ narrow, hit }: { narrow: boolean; hit: Hit }) {
-  const MAXV = 470;
+  // 15% past the steepest hike leaves room for the value label beyond the bar end.
+  const MAXV = niceCeil(Math.max(...HIKES.map((h) => h.ftPerMi)) * 1.15, 10);
   const avg = TOT.ft / TOT.miles;
 
   if (narrow) {
@@ -520,7 +561,7 @@ function SteepChart({ narrow, hit }: { narrow: boolean; hit: Hit }) {
     const sc = (v: number) => (v / MAXV) * BARW;
     const ax = X0 + sc(avg);
     return (
-      <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label="Feet of elevation gain per mile, by hike">
+      <svg viewBox={`0 0 ${W} ${H}`} role="group" aria-label="Feet of elevation gain per mile, by hike">
         <line x1={ax} y1={TOP - 18} x2={ax} y2={TOP + HIKES.length * ROW_H - (ROW_H - BH)} stroke="var(--r-axis)" strokeWidth={1} />
         <text x={ax - 3} y={TOP - 24} textAnchor="end" className="r-note">weekend avg {comma(avg)} ft/mi</text>
         {HIKES.map((h, i) => {
@@ -544,7 +585,7 @@ function SteepChart({ narrow, hit }: { narrow: boolean; hit: Hit }) {
   const sc = (v: number) => (v / MAXV) * (X1 - X0);
   const ax = X0 + sc(avg);
   return (
-    <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label="Feet of elevation gain per mile, by hike">
+    <svg viewBox={`0 0 ${W} ${H}`} role="group" aria-label="Feet of elevation gain per mile, by hike">
       <line x1={ax} y1={TOP - 14} x2={ax} y2={TOP + HIKES.length * ROW_H - 14} stroke="var(--r-axis)" strokeWidth={1} />
       <text x={ax + 7} y={TOP - 18} className="r-note">weekend average {comma(avg)} ft/mi</text>
       {HIKES.map((h, i) => {
@@ -564,7 +605,9 @@ function SteepChart({ narrow, hit }: { narrow: boolean; hit: Hit }) {
 }
 
 function HeartRateChart({ narrow, hit }: { narrow: boolean; hit: Hit }) {
-  const LO = 95, HI = 198;
+  // Padded past the data both ways so the dots and their labels clear the plot edges.
+  const LO = niceFloor(Math.min(...HIKES.map((h) => h.hrAvg)) - 15, 5);
+  const HI = niceCeil(MAX_HR + 10, 5);
 
   if (narrow) {
     const W = 360, ROW_H = 50, TOP = 22, X0 = 6, X1 = 352;
@@ -572,7 +615,7 @@ function HeartRateChart({ narrow, hit }: { narrow: boolean; hit: Hit }) {
     const H = base + 40;
     const px = (v: number) => X0 + ((v - LO) / (HI - LO)) * (X1 - X0);
     return (
-      <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label="Average and maximum heart rate by hike">
+      <svg viewBox={`0 0 ${W} ${H}`} role="group" aria-label="Average and maximum heart rate by hike">
         {HIKES.map((h, i) => {
           const yl = TOP + i * ROW_H;
           const yt = yl + 15;
@@ -605,7 +648,7 @@ function HeartRateChart({ narrow, hit }: { narrow: boolean; hit: Hit }) {
   const px = (v: number) => X0 + ((v - LO) / (HI - LO)) * (X1 - X0);
   const base = TOP + HIKES.length * ROW_H - 8;
   return (
-    <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label="Average and maximum heart rate by hike">
+    <svg viewBox={`0 0 ${W} ${H}`} role="group" aria-label="Average and maximum heart rate by hike">
       {[100, 120, 140, 160, 180].map((t) => (
         <g key={t}>
           <line x1={px(t)} y1={TOP - 6} x2={px(t)} y2={base} stroke="var(--r-grid)" strokeWidth={1} />
@@ -688,17 +731,25 @@ function RecapTable() {
               {[
                 "Weekend total", "2 days", TOT.miles.toFixed(2), comma(TOT.ft), fmtHM(TOT.sec),
                 (TOT.miles / (TOT.sec / 3600)).toFixed(2), comma(TOT.ft / TOT.miles),
-                comma(TOT.kcal), "—", "189", comma(TOT.steps),
-              ].map((v, i) => (
-                <td
-                  key={i}
-                  className={`whitespace-nowrap border-t-2 border-sage/40 px-2.5 py-2 font-bold tabular-nums dark:border-soft-gold/40 ${
-                    i === 0 ? "text-left" : "text-right"
-                  }`}
-                >
-                  {v}
-                </td>
-              ))}
+                comma(TOT.kcal), String(AVG_HR), String(MAX_HR), comma(TOT.steps),
+              ].map((v, i) =>
+                i === 0 ? (
+                  <th
+                    key={i}
+                    scope="row"
+                    className="whitespace-nowrap border-t-2 border-sage/40 px-2.5 py-2 text-left font-bold dark:border-soft-gold/40"
+                  >
+                    {v}
+                  </th>
+                ) : (
+                  <td
+                    key={i}
+                    className="whitespace-nowrap border-t-2 border-sage/40 px-2.5 py-2 text-right font-bold tabular-nums dark:border-soft-gold/40"
+                  >
+                    {v}
+                  </td>
+                ),
+              )}
             </tr>
           </tfoot>
         </table>

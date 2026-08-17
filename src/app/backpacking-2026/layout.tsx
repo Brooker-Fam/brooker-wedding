@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
 import TripNav from "@/components/backpacking/TripNav";
+import PlanningArchiveNote from "@/components/backpacking/PlanningArchiveNote";
 
 export const metadata: Metadata = {
   title: "High Peaks Backpacking — Aug 15–16, 2026",
   description:
-    "Matt and Liam backpack the Adirondack High Peaks. Routes, gear claiming, schedule, and trail beta.",
+    "Matt and Liam backpacked the Adirondack High Peaks: six summits, 36.5 miles and 9,840 feet of climbing in two days. The recap, plus the planning archive.",
   robots: { index: false },
 };
 
@@ -19,10 +20,11 @@ export default function BackpackingLayout({ children }: { children: React.ReactN
           ⛰️ High Peaks Backpacking
         </h1>
         <p className="mt-2 opacity-80">
-          Sat Aug 15 – Sun Aug 16, 2026 · Matt &amp; Liam
+          Sat Aug 15 – Sun Aug 16, 2026 · Matt &amp; Liam · six High Peaks
         </p>
       </header>
       <TripNav />
+      <PlanningArchiveNote />
       {children}
     </div>
   );
