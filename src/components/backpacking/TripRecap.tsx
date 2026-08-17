@@ -130,34 +130,33 @@ const ALBUM_COVER = "/backpacking/album-cover.jpg";
  * Figures in the verse are spelled out rather than interpolated. If TOT.elapsed,
  * TOT.sec or TOT.stopped ever change, the third stanza has to be rewritten.    */
 
-const WATER_POEM = `The work was not the climbing.
-It was the squat at the brook's edge,
-the pump handle worked
+const WATER_POEM = `Every liter came through the pump:
+a squat at the brook's edge,
+the handle worked
 until the forearms quit.
 Two of us drinking in August
-meant going back down to the water
+sent us back to the water
 more often than we wanted.
 
 The brook ran clear off the rock.
 We looked at it a long while.
-Believing the water is clean
+Believing it is clean
 is not the same as drinking it.
 
 A man passed us, dipped his bottle,
 screwed the cap on, drank walking away.
-Some carry drops instead, and wait.
 
-The watch kept the account:
-twenty-three hours and fifty-one minutes out,
-twenty and a half of them moving.
-Three hours standing still, some of it lunch,
-much of it one of us bent over a hose.
+The watch says twenty-three hours
+and fifty-one minutes out,
+twenty hours and thirty-four minutes moving.
+What is left is standing still,
+some of it lunch and the summits,
+much of it one of us crouched over the hose.
 
 Coming down off Algonquin
 we stopped at Lake Colden and went in.
-No pump. No hose. No waiting.
-That was the only water all weekend
-we took the way it came.`;
+The pump stayed in the pack.
+We walked into camp wet.`;
 
 /* ---------------------------------- utils --------------------------------- */
 
@@ -614,6 +613,10 @@ export default function TripRecap() {
             <h2 className="text-lg font-bold">Water, one way and another</h2>
             <p className="mt-4 max-w-[46ch] whitespace-pre-line font-[family-name:var(--font-cormorant-garamond)] text-lg leading-[1.7] opacity-90 sm:text-xl">
               {WATER_POEM}
+            </p>
+            <p className="mt-5 max-w-[52ch] text-xs leading-relaxed opacity-55">
+              For anyone else carrying a pump: the bottle with the filter in the cap, or chlorine
+              dioxide drops — dose it, wait, carry on. Either one buys back the hours.
             </p>
           </section>
 
