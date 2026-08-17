@@ -127,36 +127,37 @@ const ALBUM_URL = "https://photos.app.goo.gl/FRqUvUWCk6c7pfDbA";
 const ALBUM_COVER = "/backpacking/album-cover.jpg";
 
 /* -------------------------------- the poem -------------------------------- *
- * Figures in the verse are spelled out rather than interpolated. If TOT.elapsed,
- * TOT.sec or TOT.stopped ever change, the third stanza has to be rewritten.    */
+ * No figures in the verse. The standing-still time it used to quote is a stat
+ * card now; here that cost is carried by the kneeling, which is also the thread
+ * running from the pump through to the lake.                                  */
 
 const WATER_POEM = `Every liter came through the pump:
 a squat at the brook's edge,
 the handle worked
 until the forearms quit.
 Two of us drinking in August
-sent us back to the water
-more often than we wanted.
+sent us back down more often than we wanted.
 
 The brook ran clear off the rock.
-We looked at it a long while.
-Believing it is clean
-is not the same as drinking it.
+We knelt in it a long while.
+We believed it was clean.
+We pumped it anyway.
 
-A man passed us, dipped his bottle,
-screwed the cap on, drank walking away.
+A man came down the trail,
+dipped his bottle, screwed the cap on,
+and drank it walking away.
 
-The watch says twenty-three hours
-and fifty-one minutes out,
-twenty hours and thirty-four minutes moving.
-What is left is standing still,
-some of it lunch and the summits,
-much of it one of us crouched over the hose.
+We went for more that evening
+and again in the morning.
+The forearm quit before the bottle filled.
+We switched hands and finished it.
+What rest we got, we got kneeling.
 
 Coming down off Algonquin
 we stopped at Lake Colden and went in.
-The pump stayed in the pack.
-We walked into camp wet.`;
+The pump never came out of the pack.
+We stayed in until we were cold,
+then walked the rest of the way to camp.`;
 
 /* ---------------------------------- utils --------------------------------- */
 
