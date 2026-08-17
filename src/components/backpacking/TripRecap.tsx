@@ -307,7 +307,8 @@ export default function TripRecap() {
       <p className="mb-5 px-1 text-sm leading-relaxed opacity-80">
         We went. Here is what it added up to — four recorded activities across two days, plus the
         photo album. Six High Peaks: Marcy, Skylight and Gray on Saturday; Algonquin, Wright and
-        Iroquois on Sunday.
+        Iroquois on Sunday. The plan had been a tidy, classical sort of thing. What we actually did
+        had the Romantics all over it: more summits than sense, and a swim.
       </p>
 
       {/* legend + view toggle — one row, above everything it scopes */}
@@ -398,7 +399,8 @@ export default function TripRecap() {
             <p className="mb-4 mt-0.5 text-sm opacity-75">
               Three on Saturday out of camp, three on Sunday before walking out. Two of them have no
               maintained trail at all. Almost every name up here was handed out by one surveyor,
-              Verplanck Colvin, in the 1870s and 80s.
+              Verplanck Colvin, in the 1870s and 80s — which mostly serves to remind you that the
+              range was here, and perfectly legible, long before anyone got round to labelling it.
             </p>
             {(["Sat", "Sun"] as Day[]).map((d) => (
               <div key={d} className="mb-4 last:mb-0">
@@ -439,10 +441,11 @@ export default function TripRecap() {
           <section className="soft-card dark:soft-card-dark mb-4 p-5">
             <h2 className="text-lg font-bold">Where we actually walked</h2>
             <p className="mb-4 mt-0.5 text-sm opacity-75">
-              The recorded track for each leg. The hike in and the walk out are the same corridor
-              from Upper Works run in opposite directions; the two summit days fan out from camp
-              and come back to it. Full packs only on the first and last legs — everything heavy
-              stayed at camp while we went up.
+              Four legs, and they fall into movements: a long approach, two big ones in the middle,
+              and a short coda back to the car. The hike in and the walk out are the same corridor
+              from Upper Works run in opposite directions; the summit days fan out from camp and
+              come back to it. Full packs only on the first and last legs — everything heavy stayed
+              at camp while we went up.
             </p>
             <div className="grid gap-4 sm:grid-cols-2">
               {HIKES.map((h) => (
@@ -548,7 +551,8 @@ export default function TripRecap() {
           <section className="soft-card dark:soft-card-dark mb-4 p-5">
             <h2 className="text-lg font-bold">How steep it actually was</h2>
             <p className="mb-3 mt-0.5 text-sm opacity-75">
-              Feet of climbing per mile — the honest measure of which hike hurt. The hairline is the
+              Feet of climbing per mile — the honest measure of which hike hurt. Some of the weight
+              is what you put on your back and some of it you brought with you. The hairline is the
               weekend average.
             </p>
             <SteepChart narrow={narrow} hit={hit} />
@@ -571,7 +575,8 @@ export default function TripRecap() {
               The MSR pump was the villain of the weekend. Every refill turned into a squatting,
               forearm-burning shift at the edge of a stream, and with two of us drinking hard we did
               it far more often than anyone wanted. It stopped being a chore and became the theme of
-              the trip: not the climbing, the pumping.
+              the trip: not the climbing, the pumping. The brook ran clear enough to drink as it
+              came, too. Thinking so and doing it are different acts, so we pumped.
             </p>
             <p className="mt-3 text-sm leading-relaxed opacity-80">
               Then we passed a guy who scooped straight out of the brook into a bottle with a filter
@@ -583,26 +588,6 @@ export default function TripRecap() {
               Water was better company on the way down off Algonquin. We swam in Lake Colden before
               getting back to camp, and it was the best thing that happened all weekend — which is
               also the one thing none of the charts above can show you.
-            </p>
-          </section>
-
-          {/* trail talk */}
-          <section className="soft-card dark:soft-card-dark mb-4 p-5">
-            <h2 className="text-lg font-bold">What we talked about</h2>
-            <p className="mt-0.5 text-sm leading-relaxed opacity-80">
-              Twenty hours on foot is mostly conversation. A long stretch of it went to Romans 1 and
-              general revelation — whether what can be known of God is really legible in the made
-              world, and what follows for someone who never had the book handed to them at all. It
-              is a strange thing to work over while standing on a summit a surveyor named for one
-              people on the strength of a border he had drawn himself.
-            </p>
-            <p className="mt-3 text-sm leading-relaxed opacity-80">
-              The rest of it: original sin, and how much of a person it actually accounts for;
-              whether the Christian life follows from belief or belief settles out of the practice;
-              and, when the arguing got tired, the plainer question sitting underneath all of it.
-              Somewhere on the descent we got onto the Classical-to-Romantic handoff instead —
-              Haydn&apos;s tidy rooms giving way to Beethoven putting a boot through the wall, and
-              whether the Romantics gained anything they did not also spend.
             </p>
           </section>
 
