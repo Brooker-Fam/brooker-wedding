@@ -303,13 +303,15 @@ export default function TripRecap() {
     [fine],
   );
 
+  // Six, not seven: the steepness chart already carries the weekend ft/mi average
+  // on its hairline, and a seventh card left an orphan on the last row.
   const kpis: [string, string, string][] = [
     ["Distance", `${TOT.miles.toFixed(1)} mi`, "across 4 hikes"],
     ["Time on foot", fmtHM(TOT.sec), `${fmtHM(TOT.elapsed)} out there, first step to last`],
+    ["Standing still", fmtHM(TOT.stopped), "of that, nearly all on the two summit days"],
     ["High Peaks", String(TOT.peaks), "Marcy, Skylight, Gray, Algonquin, Wright, Iroquois"],
     ["Calories", `${comma(TOT.kcal)} kcal`, `\u2248 ${Math.round(TOT.kcal / DQPC_KCAL)} Double Quarter Pounders with cheese`],
     ["Steps", comma(TOT.steps), "counted by the watch, not estimated"],
-    ["Average grade", `${comma(TOT.ft / TOT.miles)} ft/mi`, "climbing per mile walked"],
   ];
 
   return (
