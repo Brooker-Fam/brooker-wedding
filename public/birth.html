@@ -849,6 +849,8 @@ body:has(.bar.hidden){padding-bottom:28px}
   function renderJobs() {
     return '<div class="sheetin"><h2>On arrival</h2>' + JOBS.arrival.map(jobRow).join("") +
       "<h2>Every hour, all day</h2>" + JOBS.ongoing.map(jobRow).join("") +
+      '<div class="blurb">The pee timer counts up from her last trip and turns amber ' +
+      "at an hour. Tap it in the bar whenever she goes to restart the hour. Visual only — it never makes a sound.</div>" +
       '<div class="rowbtns"><button id="jobPee">' +
       (L.peeStart != null ? "STOP PEE TIMER" : "START PEE TIMER") +
       '</button><button id="jobReset">CLEAR CHECKS</button></div>' +
@@ -1006,13 +1008,13 @@ body:has(.bar.hidden){padding-bottom:28px}
     app.innerHTML = L.mode === "room" ? renderRoom()
       : L.mode === "plan" ? renderPlan() : renderPrep();
 
-    var inRoom = L.mode === "room";
+    var running = L.peeStart != null;
     btnBack.classList.toggle("hidden", !(openTrig || inStep));
     btnNext.classList.toggle("hidden", !inStep);
-    btnPee.classList.toggle("hidden", !inRoom);
-    document.getElementById("btnJob").classList.toggle("hidden", !inRoom);
+    btnPee.classList.toggle("hidden", inStep && !running);
+    document.getElementById("btnJob").classList.toggle("hidden", inStep);
     if (inStep) btnNext.textContent = L.step >= STEPS.length - 1 ? "DONE ✓" : "NEXT ▶";
-    document.querySelector(".bar").classList.toggle("hidden", !(inRoom || inStep));
+    document.querySelector(".bar").classList.remove("hidden");
 
     buildPrint();
     tickPee();
@@ -1156,19 +1158,50 @@ body:has(.bar.hidden){padding-bottom:28px}
       if (L.jobs[id]) delete L.jobs[id]; else L.jobs[id] = true;
       saveLoc(); openJobs(); return;
     }
-    if (e.target.closest("#jobPee")) { L.peeStart = L.peeStart == null ? Date.now() : null; saveLoc(); tickPee(); openJobs(); return; }
+    if (e.target.closest("#jobPee")) {
+      L.peeStart = L.peeStart == null ? Date.now() : null;
+      saveLoc(); peeFlashUntil = 0; tickPee(); render(true); openJobs(); return;
+    }
     if (e.target.closest("#jobReset")) { L.jobs = {}; saveLoc(); openJobs(); }
   });
 
-  /* ---------------- hourly pee nudge (visual only) ---------------- */
+  /* ---------------- hourly pee nudge (visual only, no sound) ---------------- */
+  var HOUR = 3600000;
+  var peeFlashUntil = 0;
+
+  function sinceLabel(ms) {
+    var sec = Math.floor(ms / 1000);
+    if (sec < 60) return sec + "s";
+    var min = Math.floor(sec / 60);
+    if (min < 60) return min + "m";
+    return Math.floor(min / 60) + "h" + ("0" + (min % 60)).slice(-2);
+  }
+
   function tickPee() {
-    if (L.peeStart == null) { btnPee.textContent = "PEE TIMER"; btnPee.classList.remove("due"); return; }
-    var mins = Math.floor((Date.now() - L.peeStart) / 60000), due = mins >= 60;
-    btnPee.textContent = (due ? "▸ PEE  " : "PEE  ") + Math.floor(mins / 60) + ":" + ("0" + (mins % 60)).slice(-2);
+    if (Date.now() < peeFlashUntil) return;      // leave the tap confirmation up
+    if (L.peeStart == null) {
+      btnPee.textContent = "START PEE TIMER";
+      btnPee.classList.remove("due");
+      return;
+    }
+    var ms = Date.now() - L.peeStart, due = ms >= HOUR;
+    btnPee.textContent = (due ? "▸ PEE  " : "PEE  ") + sinceLabel(ms);
     btnPee.classList.toggle("due", due);
   }
-  btnPee.onclick = function () { L.peeStart = Date.now(); saveLoc(); tickPee(); };
-  setInterval(tickPee, 15000);
+
+  // A tap means "she just went" -- restart the hour. It used to do this
+  // silently, which looked identical to nothing happening.
+  btnPee.onclick = function () {
+    var wasRunning = L.peeStart != null;
+    L.peeStart = Date.now();
+    saveLoc();
+    btnPee.classList.remove("due");
+    btnPee.textContent = wasRunning ? "RESET ✓" : "STARTED ✓";
+    peeFlashUntil = Date.now() + 1400;
+    setTimeout(function () { peeFlashUntil = 0; tickPee(); render(true); }, 1400);
+  };
+
+  setInterval(function () { if (!document.hidden) tickPee(); }, 1000);
 
   /* ---------------- lifecycle ---------------- */
   window.addEventListener("beforeprint", buildPrint);
