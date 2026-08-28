@@ -1,0 +1,947 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0c0f0d">
+<meta name="color-scheme" content="dark">
+<meta name="robots" content="noindex, nofollow">
+<title>Labor Support</title>
+<link rel="manifest" href="/birth.webmanifest">
+<link rel="apple-touch-icon" href="/icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230c0f0d'/%3E%3Cpath d='M16 25C10 20.5 7 17.6 7 14.2 7 11.3 9.2 9.2 12 9.2c1.7 0 3.2.8 4 2.1.8-1.3 2.3-2.1 4-2.1 2.8 0 5 2.1 5 5 0 3.4-3 6.3-9 10.8z' fill='%23c49a3c'/%3E%3C/svg%3E">
+<style>
+/* ---------- base ---------- */
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{background:#0c0f0d}
+:root{
+  --bg:#0c0f0d; --bg2:#121814; --card:#161e19; --card2:#1b2520;
+  --line:#2a3831; --line2:#3a4c42;
+  --fg:#e2e9e2; --dim:#8fa295; --faint:#5e6f65;
+  --gold:#c9a24a; --yes:#7cae66; --maybe:#a294c9; --veto:#d06a6a;
+  --pad: env(safe-area-inset-bottom, 0px);
+}
+body{
+  margin:0; background:var(--bg); color:var(--fg);
+  font-family:ui-rounded,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,system-ui,sans-serif;
+  font-size:17px; line-height:1.45;
+  -webkit-text-size-adjust:100%;
+  overscroll-behavior-y:none;
+  padding-bottom:calc(96px + var(--pad));
+}
+button,input,textarea{font:inherit;color:inherit}
+button{background:none;border:0;padding:0;cursor:pointer;text-align:left}
+h1,h2,h3{margin:0;font-weight:700;letter-spacing:.01em}
+.wrap{max-width:720px;margin:0 auto;padding:0 12px}
+
+/* ---------- top bar ---------- */
+.top{
+  position:sticky;top:0;z-index:40;background:var(--bg);
+  border-bottom:1px solid var(--line);
+  padding:calc(env(safe-area-inset-top,0px) + 8px) 12px 8px;
+}
+.topin{max-width:720px;margin:0 auto;display:flex;align-items:center;gap:10px}
+.brand{font-size:13px;letter-spacing:.16em;color:var(--faint);text-transform:uppercase;flex:1;min-width:0;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.brand.open{font-size:19px;letter-spacing:0;text-transform:none;color:var(--gold);font-weight:700}
+.modes{display:flex;border:1px solid var(--line2);border-radius:11px;overflow:hidden}
+.modes button{padding:11px 15px;font-size:13px;font-weight:700;letter-spacing:.1em;color:var(--dim);background:var(--bg2)}
+.modes button[aria-pressed="true"]{background:var(--card2);color:var(--gold)}
+.iconbtn{padding:11px 12px;border:1px solid var(--line2);border-radius:11px;background:var(--bg2);color:var(--dim);font-size:13px;font-weight:700;letter-spacing:.08em}
+
+/* ---------- veto box ---------- */
+.vetobox{
+  border:1px solid var(--veto);border-radius:14px;background:#1d1414;
+  padding:12px 14px;margin:14px 0;
+}
+.vetobox h2{font-size:12px;letter-spacing:.18em;color:var(--veto);text-transform:uppercase;margin-bottom:8px}
+.vetolist{margin:0;padding:0;list-style:none}
+.vetolist li{font-size:17px;font-weight:600;padding:3px 0 3px 18px;position:relative;color:#f0d9d9}
+.vetolist li:before{content:"\00d7";position:absolute;left:0;color:var(--veto);font-weight:700}
+.vetoempty{color:var(--faint);font-size:15px;font-style:italic}
+.vetoinputs{display:grid;gap:8px;margin-top:4px}
+.vetoinputs input{
+  background:#241818;border:1px solid #4a2c2c;border-radius:10px;
+  padding:13px 12px;font-size:16px;width:100%;
+}
+.vetoinputs input::placeholder{color:#7c6060}
+.vetobar{
+  display:flex;flex-wrap:wrap;gap:2px 9px;align-items:baseline;
+  border:1px solid #5a2f2f;border-left:4px solid var(--veto);border-radius:10px;
+  background:#1b1313;padding:8px 11px;margin:10px 0 2px;font-size:14px;line-height:1.28;
+}
+.vetobar b{font-size:11px;letter-spacing:.16em;color:var(--veto)}
+.vetobar span{font-weight:600;color:#f0d9d9}
+.vetobar span+span:before{content:"\00b7";color:var(--veto);margin-right:9px}
+.vetobar.empty{color:var(--faint);font-style:italic;font-size:13.5px}
+
+/* ---------- trigger grid ---------- */
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:14px 0}
+.grid .trig{
+  background:var(--card);border:1px solid var(--line);border-radius:16px;
+  min-height:104px;padding:14px;display:flex;flex-direction:column;justify-content:center;gap:5px;
+}
+.grid .trig:active{background:var(--card2)}
+.grid .trig .ic{font-size:21px;line-height:1}
+.grid .trig .tn{font-size:17px;font-weight:700;line-height:1.2}
+.grid .trig .ts{font-size:13px;color:var(--dim);line-height:1.25}
+
+/* ---------- items ---------- */
+.trighead{padding:16px 2px 6px}
+.trighead h2{font-size:23px;color:var(--gold);line-height:1.15}
+.trighead .sub{font-size:14px;color:var(--dim);margin-top:3px}
+.rule{
+  margin:8px 0 2px;padding:10px 12px;border-radius:12px;
+  background:#1a1710;border:1px solid #453a1d;color:#e8d5a4;
+  font-size:14.5px;font-weight:600;line-height:1.32;
+}
+.item{
+  background:var(--card);border:1px solid var(--line);border-radius:16px;
+  padding:12px 14px;margin:9px 0;
+}
+.item .nm{font-size:19px;font-weight:700;line-height:1.25;display:flex;gap:8px;align-items:baseline}
+.item .how{font-size:16px;color:#cfdacf;margin-top:5px;line-height:1.42}
+.item .got{
+  font-size:14.5px;color:#e0c98d;margin-top:7px;padding-left:11px;
+  border-left:2px solid #6a5a2c;line-height:1.4;
+}
+.dot{width:9px;height:9px;border-radius:50%;background:var(--yes);flex:0 0 auto;margin-top:6px}
+.dot.m{background:var(--maybe)}
+.morebtn{
+  display:block;width:100%;text-align:center;padding:14px;margin:8px 0 0;
+  color:var(--faint);font-size:14px;letter-spacing:.08em;border:1px dashed var(--line2);border-radius:12px;
+}
+.none{color:var(--dim);padding:18px 4px;font-size:16px}
+
+/* ---------- prep mode ---------- */
+.prepnote{color:var(--dim);font-size:15px;margin:14px 2px;line-height:1.4}
+.tally{display:flex;gap:14px;font-size:13px;color:var(--dim);margin:0 2px 10px;letter-spacing:.04em}
+.tally b{color:var(--fg)}
+.cat{border-top:1px solid var(--line);margin-top:10px}
+.cathead{width:100%;display:flex;align-items:center;gap:10px;padding:17px 2px;font-size:17px;font-weight:700}
+.cathead .cnt{margin-left:auto;font-size:13px;color:var(--faint);font-weight:600}
+.cathead .car{color:var(--gold);font-size:13px;width:14px}
+.marks{display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px;margin-top:12px}
+.marks button{
+  text-align:center;padding:13px 4px;border-radius:11px;border:1px solid var(--line2);
+  background:var(--bg2);color:var(--dim);font-size:12.5px;font-weight:700;letter-spacing:.1em;
+}
+.marks button[aria-pressed="true"][data-m="yes"]{background:#1c2c18;border-color:var(--yes);color:var(--yes)}
+.marks button[aria-pressed="true"][data-m="maybe"]{background:#211d2c;border-color:var(--maybe);color:var(--maybe)}
+.marks button[aria-pressed="true"][data-m="veto"]{background:#2c1818;border-color:var(--veto);color:var(--veto)}
+.item.vetoed{opacity:.45}
+.item.vetoed .how,.item.vetoed .got{display:none}
+.trigtags{font-size:12px;color:var(--faint);margin-top:9px;letter-spacing:.03em}
+
+/* ---------- bottom bar ---------- */
+.bar{
+  position:fixed;left:0;right:0;bottom:0;z-index:50;
+  background:#101613;border-top:1px solid var(--line2);
+  padding:8px 10px calc(8px + var(--pad));
+}
+.barin{max-width:720px;margin:0 auto;display:flex;gap:8px;align-items:stretch}
+.bar button{
+  border:1px solid var(--line2);border-radius:13px;background:var(--card);
+  padding:14px 12px;font-size:14px;font-weight:700;letter-spacing:.06em;text-align:center;
+  display:flex;align-items:center;justify-content:center;gap:7px;min-height:52px;
+}
+.bar .back{flex:1.1;color:var(--gold)}
+.bar .pee{flex:1.3;font-variant-numeric:tabular-nums}
+.bar .job{flex:1}
+.bar button:active{background:var(--card2)}
+.pee.due{background:#2e2410;border-color:var(--gold);color:#f0d59a;animation:breathe 2.4s ease-in-out infinite}
+@keyframes breathe{0%,100%{opacity:1}50%{opacity:.55}}
+.hidden{display:none !important}
+
+/* ---------- my job sheet ---------- */
+.sheet{
+  position:fixed;inset:0;z-index:60;background:rgba(4,7,5,.72);
+  display:flex;align-items:flex-end;
+}
+.sheetin{
+  width:100%;max-height:82vh;overflow:auto;background:var(--bg2);
+  border-top:1px solid var(--line2);border-radius:20px 20px 0 0;
+  padding:16px 14px calc(20px + var(--pad));
+}
+.sheetin h2{font-size:12px;letter-spacing:.18em;color:var(--gold);text-transform:uppercase;margin:14px 2px 8px}
+.sheetin h2:first-child{margin-top:0}
+.chk{
+  display:flex;gap:12px;align-items:flex-start;width:100%;
+  padding:13px 12px;margin:7px 0;border:1px solid var(--line);border-radius:12px;background:var(--card);
+  font-size:16px;line-height:1.35;
+}
+.chk .bx{
+  width:24px;height:24px;flex:0 0 auto;border:2px solid var(--line2);border-radius:7px;
+  display:flex;align-items:center;justify-content:center;font-size:15px;color:var(--yes);margin-top:1px;
+}
+.chk[aria-pressed="true"]{color:var(--faint)}
+.chk[aria-pressed="true"] .bx{border-color:var(--yes)}
+.chk .sm{display:block;font-size:13.5px;color:var(--dim);margin-top:2px}
+.chk[aria-pressed="true"] .sm{color:var(--faint)}
+/* pinned to the bottom of the sheet so they stay in the thumb zone
+   no matter how far the checklist has been scrolled */
+.rowbtns{
+  display:flex;gap:8px;margin-top:14px;position:sticky;bottom:0;
+  background:var(--bg2);padding-top:8px;
+}
+.rowbtns+.rowbtns{margin-top:0;padding-bottom:2px}
+.rowbtns button{
+  flex:1;text-align:center;padding:14px;border:1px solid var(--line2);border-radius:12px;
+  background:var(--card);font-size:14px;font-weight:700;letter-spacing:.06em;
+}
+.closebtn{color:var(--gold)}
+
+/* ---------- print ---------- */
+#sheetprint{display:none}
+@media print{
+  @page{size:letter portrait;margin:.34in .32in}
+  html,body{background:#fff !important;color:#000 !important}
+  body{padding:0 !important;font-family:"Helvetica Neue",Helvetica,Arial,sans-serif}
+  .top,.bar,.sheet,#app,.noprint{display:none !important}
+  #sheetprint{display:block !important;font-size:8.3pt;line-height:1.25;color:#000}
+  #sheetprint .pg2{break-before:page;page-break-before:always;padding-top:2pt}
+  #sheetprint .ph{
+    display:flex;justify-content:space-between;align-items:baseline;
+    border-bottom:1.5pt solid #000;padding-bottom:2pt;margin-bottom:4pt;
+  }
+  #sheetprint .ph b{font-size:12pt;letter-spacing:.06em}
+  #sheetprint .ph span{font-size:7.6pt;letter-spacing:.04em}
+  #sheetprint .pveto{border:1.6pt solid #000;padding:4pt 6pt;margin-bottom:5pt}
+  #sheetprint .pveto b{font-size:9.5pt;letter-spacing:.1em;display:block;margin-bottom:1pt}
+  #sheetprint .pveto ul{margin:0;padding-left:12pt}
+  #sheetprint .pveto li{font-size:10pt;font-weight:700}
+  #sheetprint .prule{border:.8pt solid #000;padding:3pt 5pt;margin-bottom:5pt;font-size:8.8pt;font-weight:700}
+  #sheetprint .prule span{display:block;font-weight:400;font-size:8.2pt}
+  #sheetprint .cols{column-count:2;column-gap:14pt;column-rule:.4pt solid #999}
+  #sheetprint .blk{break-inside:avoid;page-break-inside:avoid;margin-bottom:5pt}
+  #sheetprint .blk h3{
+    font-size:9pt;letter-spacing:.05em;text-transform:uppercase;
+    border-bottom:.8pt solid #000;margin:0 0 1.5pt;padding-bottom:.8pt;
+  }
+  #sheetprint .blk .nt{font-size:7.8pt;font-style:italic;margin:0 0 1.5pt}
+  #sheetprint .blk p{margin:0 0 2.2pt}
+  #sheetprint .blk p b{font-weight:700}
+  #sheetprint .jobs{break-inside:avoid;border:1.2pt solid #000;padding:3pt 5pt;margin-bottom:5pt}
+  #sheetprint .jobs b{font-size:9pt;letter-spacing:.06em}
+  #sheetprint .jobs p{margin:1pt 0}
+  #sheetprint .ft{margin-top:4pt;border-top:.8pt solid #000;padding-top:2pt;font-size:7.2pt;text-align:center}
+}
+</style>
+</head>
+<body>
+
+<header class="top noprint">
+  <div class="topin">
+    <div class="brand" id="brand">Labor support</div>
+    <div class="modes" role="group" aria-label="Mode">
+      <button id="mPrep" aria-pressed="true">PREP</button>
+      <button id="mRoom" aria-pressed="false">ROOM</button>
+    </div>
+    <button class="iconbtn" id="btnPrint" title="Print the pocket sheet">PRINT</button>
+  </div>
+</header>
+
+<main id="app" class="wrap"></main>
+
+<nav class="bar noprint">
+  <div class="barin">
+    <button class="back hidden" id="btnBack">&#9664; BACK</button>
+    <button class="pee" id="btnPee">PEE TIMER</button>
+    <button class="job" id="btnJob">MY JOB</button>
+  </div>
+</nav>
+
+<div class="sheet hidden" id="jobSheet"></div>
+<div id="sheetprint"></div>
+
+<script>
+/* =====================================================================
+   CONTENT — edit this block and nothing else.
+
+   ITEMS: one object per comfort measure.
+     id     unique short string (used to store yes/maybe/veto marks —
+            if you change an id, that item loses its saved mark)
+     name   short imperative label
+     how    ONE line, specific enough to execute without thinking
+     got    optional gotcha / the thing that makes it fail
+     cat    which Prep-mode section it lives in (see CATS)
+
+   TRIGGERS: what I tap in the room. Each lists item ids in priority
+   order. Room mode shows the first 4 that survive (vetoes removed,
+   "yes" items floated to the top), so it is fine to list 6-8 here.
+   ===================================================================== */
+
+const CATS = [
+  ["hands",    "Hands-on"],
+  ["position", "Positions — rotate every ~30 min"],
+  ["water",    "Water & temperature"],
+  ["sensory",  "Sensory & mental"],
+  ["music",    "Music"],
+  ["early",    "Early labor"],
+  ["stall",    "Stalls"],
+  ["trans",    "Transition script"],
+  ["push",     "Pushing"],
+  ["between",  "Between contractions"],
+  ["advocacy", "Advocacy"]
+];
+
+const ITEMS = [
+/* ---------- HANDS-ON ---------- */
+{id:"sacral", cat:"hands", name:"Sacral counterpressure",
+ how:"Heel of your hand at the TOP of the butt crease, not the low back. Lean your body weight in; don't push with your arms.",
+ got:"Ask “higher or lower” once, then stop asking. Hold steady straight through the peak — don't let up when she gets loud."},
+{id:"hipsqueeze", cat:"hands", name:"Double hip squeeze",
+ how:"A hand on each side of her hips, on the meat. Push in and slightly UP toward her ears for the whole contraction.",
+ got:"Fleshy part, not the bony points. Squeeze, don't pinch. Best while she leans forward over the bed or the ball."},
+{id:"kneepress", cat:"hands", name:"Knee press",
+ how:"She sits upright, feet flat on the floor. Cup a knee in each palm and press straight back toward her hips — level, not down.",
+ got:"She needs something solid behind her back or you'll push her over."},
+{id:"rebozo", cat:"hands", name:"Rebozo sifting (“shaking the apple tree”)",
+ how:"She's on hands and knees. Sling the scarf under her belly, hold both ends, jiggle her belly side to side — fast and light — for a minute or two.",
+ got:"Between contractions, never during. Loose and floppy, not hard pulls."},
+{id:"effleurage", cat:"hands", name:"Effleurage",
+ how:"Fingertips, feather-light, slow circles on her belly and thighs, timed to her breathing.",
+ got:"Early labor and rest only. Too light to register at the peak of hard ones."},
+{id:"tennisball", cat:"hands", name:"Tennis ball / rolling pin on the sacrum",
+ how:"When your hands give out, roll a tennis ball or the rolling pin over the same spot with your body weight behind it.",
+ got:"Pack them. Your hands WILL give out, probably around hour six."},
+
+/* ---------- POSITIONS ---------- */
+{id:"handsknees", cat:"position", name:"Hands and knees",
+ how:"On the bed or the floor, forearms on a stack of pillows. Rock her hips, or slow cat/cow between contractions.",
+ got:"First thing to try for back labor — it takes the baby's weight off her spine."},
+{id:"sidelying", cat:"position", name:"Side-lying with the peanut ball",
+ how:"On her side, peanut ball between her knees to hold the pelvis open. Ask the nurse for a peanut ball on arrival.",
+ got:"The only true rest position that still opens the pelvis. Switch sides every 30 min."},
+{id:"lunges", cat:"position", name:"Standing lunge",
+ how:"One foot up on a chair or the bed rail. Lunge slowly toward that side and hold there through the whole contraction.",
+ got:"Lunge toward the side where she feels more pressure. Hold onto her — she is off balance."},
+{id:"slowdance", cat:"position", name:"Slow dancing on me",
+ how:"Her arms over your shoulders, her weight on your chest, sway side to side while you press her sacrum.",
+ got:"Gravity plus counterpressure at once. This is the default when nothing in particular is wrong."},
+{id:"toilet", cat:"position", name:"Toilet sitting",
+ how:"Put her on the toilet for 20–30 minutes, facing forward or backward, towel over the tank to lean on.",
+ got:"The “dilation station” — she relaxes her pelvic floor there without trying. Covers the hourly pee too."},
+{id:"squatbar", cat:"position", name:"Squat bar",
+ how:"She hangs from or squats against the bar through the contraction, resting back on the bed between.",
+ got:"Ask them to attach the bar EARLY. Nobody wants to hunt one down at 8cm."},
+{id:"standlean", cat:"position", name:"Standing lean over the raised bed",
+ how:"Raise the bed to her chest, she drapes over it, you work her sacrum from behind.",
+ got:"The easiest upright position to hold for a long stretch. Same over the ball on a chair."},
+{id:"stairs", cat:"position", name:"Sideways stair climbing",
+ how:"Sideways up the stairs two at a time leading with the same foot, normally back down. Ten minutes.",
+ got:"Opens the pelvis asymmetrically. Hold her arm the whole way."},
+{id:"walking", cat:"position", name:"Hallway walking",
+ how:"Walk the hall. Stop for each contraction, lean on the wall or on you and sway, then keep going.",
+ got:"Get her off continuous monitoring first — ask about wireless or intermittent."},
+{id:"deepsquat", cat:"position", name:"Supported deep squat",
+ how:"She squats holding your hands or the bar, for the contraction only, then back up.",
+ got:"Opens the outlet a lot but burns her legs. Save it for late — don't spend it early."},
+{id:"miles", cat:"position", name:"Miles Circuit",
+ how:"30 min open knee-chest, then 30 min exaggerated side-lying with the peanut ball, then 30 min walking or lunging. In that order.",
+ got:"For a stall or a badly positioned baby. It takes 90 minutes — start it before you're desperate."},
+
+/* ---------- WATER & TEMP ---------- */
+{id:"tub", cat:"water", name:"The tub room",
+ how:"ASK ABOUT THE TUB ROOM THE MINUTE YOU ARRIVE — before she wants it.",
+ got:"The Snuggery has ONE tub room, first come first served. Asking when she wants it is already too late."},
+{id:"shower", cat:"water", name:"Shower, handheld sprayer on the low back",
+ how:"Sit her on the ball or the shower chair, hot water from the handheld straight onto her sacrum. Reach in from outside.",
+ got:"The reliable backup for the tub — always available. Pack dry clothes for yourself."},
+{id:"ricesock", cat:"water", name:"Warm rice sock",
+ how:"Microwave 60–90 seconds, test it on your own forearm, then onto her low back or lower belly.",
+ got:"Test it on yourself every single time. Her skin is more sensitive in labor."},
+{id:"coldcloth", cat:"water", name:"Cold cloth, forehead and neck",
+ how:"Cold wet cloth on her forehead, a second on the back of her neck, swapped for a fresh cold one every few contractions.",
+ got:"Keep two going so one is always actually cold."},
+{id:"icechips", cat:"water", name:"Ice chips",
+ how:"Hold the cup up between contractions. Don't ask, just offer.",
+ got:"Her mouth goes bone dry from the breathing."},
+{id:"popsicles", cat:"water", name:"Popsicles",
+ how:"Ask the nurse where the popsicles are when you arrive. Fluid and sugar she'll actually accept.",
+ got:"Best calories she'll take once active labor starts."},
+
+/* ---------- SENSORY & MENTAL ---------- */
+{id:"dimlights", cat:"sensory", name:"Dim the lights, drape the monitor",
+ how:"Kill the overheads. Throw a receiving blanket over the monitor screen so nothing is glowing at her.",
+ got:"Do this the moment you're in the room, before anything else. It sets the whole tone."},
+{id:"candles", cat:"sensory", name:"Battery candles",
+ how:"Windowsill and the bathroom counter, then leave the room lights off entirely.",
+ got:"Battery only. Pack them."},
+{id:"aroma", cat:"sensory", name:"Aromatherapy on a cotton ball",
+ how:"Few drops on a cotton ball held near her face. Lavender to calm, peppermint for nausea, citrus to lift.",
+ got:"Check the unit's policy on arrival. Cotton ball, no diffuser. If she winces at a smell it leaves the room immediately."},
+{id:"toning", cat:"sensory", name:"Low open “ohhh” toning",
+ how:"When her sound goes high and thin, start making a low open “ohhhh” yourself and let her find it. Don't instruct her.",
+ got:"Low sounds keep her open. High tight sounds mean she's fighting the contraction."},
+{id:"horselips", cat:"sensory", name:"Horse lips",
+ how:"Blow a loose raspberry through slack lips and let her copy you.",
+ got:"Fastest way to unclench her jaw. Do it with her, don't tell her to do it."},
+{id:"counting", cat:"sensory", name:"Count out loud through it",
+ how:"Count slowly out loud from one. They peak around 30–45 seconds — she hears the number and knows it's coming down.",
+ got:"Gives the pain an end point she can hear."},
+{id:"breathwith", cat:"sensory", name:"Breathe loud enough for her to follow",
+ how:"Get in her sightline and breathe the pace you want her at, out loud. She'll lock on.",
+ got:"Beats any breathing instruction you could give her."},
+{id:"relaxtracks", cat:"sensory", name:"Guided relaxation tracks",
+ how:"Play the exact tracks she practiced with. Downloaded to the phone, before you leave the house.",
+ got:"Only the ones she already knows. Labor is not the time for a new voice."},
+{id:"focalpoint", cat:"sensory", name:"Focal point",
+ how:"Give her one thing to hold with her eyes — your eyes, or a photo taped to the wall she's facing.",
+ got:"Your eyes are the best one. Hold still and hold the gaze."},
+{id:"affirmations", cat:"sensory", name:"Affirmation cards",
+ how:"Tape them where she is actually facing. Read one out loud between contractions.",
+ got:"Where she's facing changes every time she changes position. Move them."},
+{id:"meditation", cat:"sensory", name:"Her meditation practice",
+ how:"Cue the practice she already has — same words, same order, said quietly in her ear.",
+ got:"Her language, not new language."},
+
+/* ---------- MUSIC ---------- */
+{id:"playlist", cat:"music", name:"Her playlist",
+ how:"Downloaded for offline before you leave the house. Speaker and its charger in the bag.",
+ got:"Hospital wifi will fail you. Download it now, not there."},
+{id:"singing", cat:"music", name:"Me singing to her",
+ how:"Quiet, close to her ear, songs she knows.",
+ got:"Read her face once. If it's a no, it's a no, and stop."},
+{id:"mandolin", cat:"music", name:"Me playing mandolin",
+ how:"Early labor only, while she still wants input in the room. Play what she asks for.",
+ got:"Put it away once active labor starts."},
+
+/* ---------- EARLY LABOR ---------- */
+{id:"e_normal", cat:"early", name:"Do normal life",
+ how:"Make food, watch something, walk the dog, nap. Do not start labor-coping yet.",
+ got:"The #1 early labor mistake is treating early labor like active labor. You'll both burn out before it counts."},
+{id:"e_eat", cat:"early", name:"Feed her a real meal",
+ how:"Real food now, while she can keep it down. Later it's ice chips and popsicles.",
+ got:"Feed yourself at the same time. Same meal."},
+{id:"e_sleep", cat:"early", name:"Sleep if it's night",
+ how:"If she can doze between them, sleep — even twenty minutes. You too.",
+ got:"You cannot bank this sleep later. This is the only chance."},
+{id:"e_time", cat:"early", name:"Time them, but only sometimes",
+ how:"Time twenty minutes of contractions every couple of hours, not continuously. Call when they're 5 min apart, 1 min long, for 1 hour.",
+ got:"Confirm the 5-1-1 rule with her provider ahead of time. Watching the timer all day makes it worse."},
+{id:"e_bag", cat:"early", name:"Load the car",
+ how:"Bag, snacks for YOU, speaker + charger, battery candles, rice sock, tennis ball, rebozo, birth plan copies.",
+ got:"Do it during early labor while you have hands and a brain."},
+
+/* ---------- STALLS ---------- */
+{id:"s_bladder", cat:"stall", name:"Empty her bladder",
+ how:"Toilet, right now, before you try anything else.",
+ got:"A full bladder is the most common reason labor stalls. Check this FIRST every single time."},
+{id:"s_privacy", cat:"stall", name:"Clear the room",
+ how:"Fewer people, lights down, door shut, thirty minutes alone with her.",
+ got:"Labor stalls when she feels watched. This includes being watched by you — be present, not observing."},
+{id:"s_nipple", cat:"stall", name:"Nipple stimulation",
+ how:"Ask the nurse first, then her own hand or the pump, five minutes on and five off.",
+ got:"Ask first — it can make contractions strong fast."},
+{id:"s_eat", cat:"stall", name:"Fuel her",
+ how:"Honey stick, popsicle, juice, broth. A stall is sometimes just an empty tank.",
+ got:"Same for you."},
+
+/* ---------- TRANSITION ---------- */
+{id:"tr_nonew", cat:"trans", name:"Offer nothing new",
+ how:"No new positions, no new ideas, no questions. Keep doing exactly what you were already doing.",
+ got:"This is the rule for the entire phase. Breaking it is the main way to make transition worse."},
+{id:"tr_are", cat:"trans", name:"Say: “You ARE doing it”",
+ how:"Not “you can do it.” She is already doing it. Say it after every contraction.",
+ got:"“You can do it” sounds like she hasn't started."},
+{id:"tr_one", cat:"trans", name:"One contraction at a time",
+ how:"“Just this one. You don't have to do the next one yet.” Repeat it. That's the whole script.",
+ got:""},
+{id:"tr_eyes", cat:"trans", name:"Breathe with her, eyes locked",
+ how:"Your face a foot from hers, in her line of sight, breathing the pace. Do not break the gaze.",
+ got:"Don't look at the monitor. Look at her."},
+{id:"tr_water", cat:"trans", name:"Water and a cold cloth between EVERY contraction",
+ how:"Every single one. Straw to her lips, fresh cold cloth on her forehead. Don't ask first.",
+ got:""},
+{id:"tr_short", cat:"trans", name:"Name it: this is the shortest part",
+ how:"“I can't do this” usually means she's nearly there. “This is the part right before the baby. It's the shortest part.”",
+ got:"Say it once, calmly. Don't argue with her about whether she can."},
+
+/* ---------- PUSHING ---------- */
+{id:"pu_breathe", cat:"push", name:"Breathe the baby down",
+ how:"Let her push with her own urge and her own breath.",
+ got:"Don't purple-push (held breath, counting to ten) unless the provider is directing it."},
+{id:"pu_position", cat:"push", name:"Change position if pushing stalls",
+ how:"Side-lying with the peanut ball, hands and knees, or the squat bar. Ask for a change after ~30 min of no progress.",
+ got:"Flat on her back is the worst one. Say something if she's been stuck there."},
+{id:"pu_compress", cat:"push", name:"Warm compress on the perineum",
+ how:"Ask the nurse for warm compresses — it's a normal ask here.",
+ got:""},
+{id:"pu_hold", cat:"push", name:"Hold her up",
+ how:"Take a leg, hand behind her shoulders, curl her forward into each push. Follow the nurse's lead on the hold.",
+ got:"Rest her back down completely between pushes."},
+{id:"pu_mirror", cat:"push", name:"Mirror, if she wants it",
+ how:"Ask ONCE, between contractions: “do you want the mirror?” Take the answer and drop it.",
+ got:""},
+{id:"pu_water", cat:"push", name:"Water and cold cloth between pushes",
+ how:"Every break. She is working harder than she has all day.",
+ got:""},
+
+/* ---------- BETWEEN CONTRACTIONS ---------- */
+{id:"bt_window", cat:"between", name:"This is the only window",
+ how:"New ideas, questions, water, food, position changes — only between. During a contraction you go quiet and just apply pressure.",
+ got:"The single most important rule on this sheet."},
+{id:"bt_water", cat:"between", name:"Water, every time",
+ how:"Straw to her lips after every contraction. Don't ask, just put it there.",
+ got:""},
+{id:"bt_praise", cat:"between", name:"Tell her exactly what she just did",
+ how:"“That was a big one and you stayed loose.” Specific, not generic cheering.",
+ got:""},
+{id:"bt_reset", cat:"between", name:"Reset her jaw and shoulders",
+ how:"Hand on her shoulders, press down as she exhales. Touch her jaw and say one word: “soft.”",
+ got:"Tight jaw means tight pelvic floor. Every time."},
+{id:"bt_position", cat:"between", name:"Position change on the clock",
+ how:"If it's been ~30 minutes in one position, offer the next one now, between contractions.",
+ got:"Offer two options, not a list. “Shower or hands and knees?”"},
+{id:"bt_me", cat:"between", name:"Take care of yourself here",
+ how:"Drink, eat a handful of something, sit down for sixty seconds, shake out your hands.",
+ got:"You are the equipment. If you crash at hour fourteen she loses her whole support plan."},
+
+/* ---------- ADVOCACY ---------- */
+{id:"ad_five", cat:"advocacy", name:"“Can we have five minutes to talk about that?”",
+ how:"Say it out loud to any provider proposing anything non-emergency, then talk to her alone.",
+ got:"Almost nothing in a normal labor needs an answer in under five minutes."},
+{id:"ad_monitor", cat:"advocacy", name:"Ask about intermittent or wireless monitoring",
+ how:"“Is she a candidate for intermittent or wireless monitoring so she can move around?” Ask on arrival.",
+ got:"Continuous wired monitoring pins her to the bed and kills half of this list."},
+{id:"ad_shift", cat:"advocacy", name:"Brief the incoming nurse at shift change",
+ how:"“Here's what's working: [X, Y]. Here's what she doesn't want: [the vetoes].”",
+ got:"Shift change is roughly 7 and 19. Do it before they have to guess."},
+{id:"ad_words", cat:"advocacy", name:"Use her words, not yours",
+ how:"“She's saying she wants X.” Don't answer for her unless she asked you to.",
+ got:""}
+];
+
+const TRIGGERS = [
+  {id:"early", short:"Early labor", ic:"○", name:"Early labor", sub:"nothing's happening yet",
+   rule:"Do not start coping yet. Rest, eat, and stay home as long as you can.",
+   items:["e_normal","e_sleep","e_eat","e_time","effleurage","walking","slowdance","mandolin","e_bag"]},
+
+  {id:"back", short:"Back labor", ic:"↓", name:"It's in her back", sub:"back labor",
+   rule:"Tell the nurse “she's having back labor” — they have tricks. Baby is probably facing her front.",
+   items:["sacral","handsknees","hipsqueeze","shower","tennisball","lunges","sidelying","ricesock","rebozo"]},
+
+  {id:"stalled", short:"Stalled", pin:1, ic:"⏸", name:"Stalled", sub:"contractions spacing out",
+   rule:"Bladder first, privacy second, movement third.",
+   items:["s_bladder","s_privacy","walking","miles","stairs","lunges","toilet","s_eat","s_nipple","tub"]},
+
+  {id:"tense", short:"Tensing up", ic:"≈", name:"She's tensing up", sub:"tight jaw, high sounds",
+   rule:"Don't tell her to relax. Demonstrate and let her copy you.",
+   items:["horselips","toning","breathwith","bt_reset","coldcloth","counting","shower","effleurage"]},
+
+  {id:"rest", short:"Rest", ic:"☽", name:"She needs to rest", sub:"between the work",
+   rule:"Lights off, everybody quiet — including you. Silence is a comfort measure.",
+   items:["sidelying","dimlights","tub","relaxtracks","e_sleep","effleurage","ricesock","meditation"]},
+
+  {id:"transition", short:"Transition", pin:3, ic:"⚑", name:"“I can't do this”", sub:"transition",
+   rule:"OFFER NOTHING NEW. Keep doing exactly what you were doing.",
+   items:["tr_nonew","tr_are","tr_one","tr_eyes","tr_water","tr_short","coldcloth","sacral"]},
+
+  {id:"pushing", short:"Pushing", pin:1, ic:"▼", name:"Pushing", sub:"",
+   rule:"Her urge, her breath, unless the provider says otherwise.",
+   items:["pu_breathe","pu_position","pu_hold","pu_compress","pu_water","pu_mirror","tr_are"]},
+
+  {id:"between", short:"Between", pin:1, ic:"▫", name:"Between contractions", sub:"my checklist",
+   rule:"This is the ONLY time to offer something new, ask a question, or hand her water.",
+   items:["bt_window","bt_water","bt_reset","bt_praise","bt_position","bt_me","ad_five","ad_shift"]}
+];
+
+/* The printed sheet is two sides of one page. FRONT is what you grab when
+   things are hard; BACK is everything else. Reorder freely. */
+const PRINT_PAGES = [
+  ["transition", "between", "back", "tense"],
+  ["stalled", "rest", "pushing", "early"]
+];
+
+const JOBS = {
+  arrival: [
+    ["j_tub",     "Ask about the tub room",        "ONE tub room, first come first served. Ask now."],
+    ["j_peanut",  "Ask for a peanut ball",         "And ask them to attach the squat bar early."],
+    ["j_monitor", "Ask about wireless monitoring", "So she can move and walk."],
+    ["j_lights",  "Lights off, drape the monitor", "Battery candles out."],
+    ["j_pops",    "Find the popsicles and ice",    "Ask where they live on the unit."],
+    ["j_vetoes",  "Tell the nurse her vetoes",     "Read them off the top of this sheet."]
+  ],
+  ongoing: [
+    ["j_pee",   "Pee — every hour",        "A full bladder stalls labor and hurts. Don't wait for her to ask."],
+    ["j_water", "Water after every contraction","Straw to her lips. Don't ask."],
+    ["j_food",  "Food for her",                 "Popsicle, honey stick, broth, juice."],
+    ["j_myfood","EAT SOMETHING YOURSELF",       "You are the equipment. Do not skip this."],
+    ["j_pos",   "Position change ~every 30 min","Offer two options, not a list."],
+    ["j_shift", "Shift change handoff",         "What's working, what she doesn't want. Roughly 7 and 19."]
+  ]
+};
+</script>
+
+<script>
+/* =====================================================================
+   APP — no dependencies, no network, no build step.
+   ===================================================================== */
+(function () {
+  "use strict";
+
+  var KEY = "birth.v1";
+  var BY = {};
+  ITEMS.forEach(function (i) { BY[i.id] = i; });
+
+  var S = {
+    mode: "prep",
+    trig: null,
+    marks: {},          // itemId -> "yes" | "maybe" | "veto"
+    vetoes: ["", "", ""],
+    jobs: {},           // jobId -> true
+    peeStart: null,     // ms epoch, or null
+    open: {}            // prep category id -> true
+  };
+
+  try {
+    var saved = JSON.parse(localStorage.getItem(KEY) || "null");
+    if (saved && typeof saved === "object") {
+      for (var k in S) if (saved[k] !== undefined && saved[k] !== null) S[k] = saved[k];
+      if (!Array.isArray(S.vetoes)) S.vetoes = ["", "", ""];
+      while (S.vetoes.length < 3) S.vetoes.push("");
+    }
+  } catch (e) { /* corrupt storage is not a reason to fail on labor day */ }
+
+  // Written synchronously on every change. The payload is ~2KB and this is a
+  // tool you reload at 4am on a dying phone -- a debounce that loses the last
+  // tap is not a trade worth making.
+  function save() {
+    try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {}
+  }
+
+  function esc(s) {
+    return String(s == null ? "" : s)
+      .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
+  }
+
+  /* --- ordering: vetoed out, "yes" floated up, source order otherwise.
+         A trigger's first `pin` items are locked to the front so a "yes"
+         elsewhere can't push the thing that always goes first off the top
+         (the transition script, "check her bladder", etc). --- */
+  function resolve(trig) {
+    var live = trig.items
+      .map(function (id) { return BY[id]; })
+      .filter(function (it) { return it && S.marks[it.id] !== "veto"; });
+    var pins = [];
+    for (var i = 0; i < trig.items.length && pins.length < (trig.pin || 0); i++) {
+      var it = BY[trig.items[i]];
+      if (it && S.marks[it.id] !== "veto") pins.push(it);
+    }
+    var floatable = live.filter(function (x) { return pins.indexOf(x) < 0; });
+    var yes = floatable.filter(function (x) { return S.marks[x.id] === "yes"; });
+    var rest = floatable.filter(function (x) { return S.marks[x.id] !== "yes"; });
+    return pins.concat(yes, rest);
+  }
+
+  function vetoWords() {
+    return S.vetoes.map(function (v) { return (v || "").trim(); }).filter(Boolean);
+  }
+
+  /* ---------------- veto block ---------------- */
+  function vetoStrip() {
+    var v = vetoWords();
+    if (!v.length) return '<div class="vetobar empty">No vetoes written down</div>';
+    return '<div class="vetobar"><b>NOT</b>' +
+      v.map(function (x) { return "<span>" + esc(x) + "</span>"; }).join("") + "</div>";
+  }
+
+  function vetoRead() {
+    var v = vetoWords();
+    return '<section class="vetobox"><h2>She does not want</h2>' +
+      (v.length
+        ? '<ul class="vetolist">' + v.map(function (x) { return "<li>" + esc(x) + "</li>"; }).join("") + "</ul>"
+        : '<div class="vetoempty">Nothing written down yet — fill this in with her in Prep mode.</div>') +
+      "</section>";
+  }
+
+  function vetoEdit() {
+    return '<section class="vetobox"><h2>Her three vetoes</h2>' +
+      '<div class="vetoinputs">' +
+      S.vetoes.slice(0, 3).map(function (v, i) {
+        return '<input type="text" data-veto="' + i + '" value="' + esc(v) +
+          '" placeholder="' + ["Do not offer me…", "Do not say…", "Do not…"][i] +
+          '" autocomplete="off" autocapitalize="sentences">';
+      }).join("") +
+      "</div></section>";
+  }
+
+  /* ---------------- item card ---------------- */
+  function itemCard(it, withMarks) {
+    var m = S.marks[it.id];
+    var dot = m === "yes" ? '<span class="dot"></span>'
+            : m === "maybe" ? '<span class="dot m"></span>' : "";
+    var h = '<article class="item' + (m === "veto" ? " vetoed" : "") + '">' +
+      '<div class="nm">' + dot + "<span>" + esc(it.name) + "</span></div>" +
+      '<div class="how">' + esc(it.how) + "</div>" +
+      (it.got ? '<div class="got">' + esc(it.got) + "</div>" : "");
+    if (withMarks) {
+      var tags = TRIGGERS.filter(function (t) { return t.items.indexOf(it.id) >= 0; })
+        .map(function (t) { return t.name; });
+      if (tags.length) h += '<div class="trigtags">Room mode: ' + esc(tags.join(" · ")) + "</div>";
+      h += '<div class="marks" data-item="' + esc(it.id) + '">' +
+        ["yes", "maybe", "veto"].map(function (x) {
+          return '<button data-m="' + x + '" aria-pressed="' + (m === x) + '">' + x.toUpperCase() + "</button>";
+        }).join("") + "</div>";
+    }
+    return h + "</article>";
+  }
+
+  /* ---------------- room mode ---------------- */
+  function renderRoom() {
+    if (!S.trig) {
+      return vetoRead() + '<div class="grid">' + TRIGGERS.map(function (t) {
+        return '<button class="trig" data-trig="' + esc(t.id) + '">' +
+          '<span class="ic">' + t.ic + "</span>" +
+          '<span class="tn">' + esc(t.name) + "</span>" +
+          (t.sub ? '<span class="ts">' + esc(t.sub) + "</span>" : "") +
+          "</button>";
+      }).join("") + "</div>";
+    }
+    var t = TRIGGERS.filter(function (x) { return x.id === S.trig; })[0];
+    if (!t) { S.trig = null; return renderRoom(); }
+
+    var list = resolve(t);
+    var top = list.slice(0, 4);
+    var more = list.slice(4);
+
+    var h = vetoStrip() + (t.rule ? '<div class="rule">' + esc(t.rule) + "</div>" : "");
+
+    h += top.length
+      ? top.map(function (i) { return itemCard(i, false); }).join("")
+      : '<div class="none">Everything here is vetoed. Go back and pick another trigger.</div>';
+
+    if (more.length) {
+      h += '<button class="morebtn" id="btnMore">+ ' + more.length + " more</button>" +
+        '<div id="moreWrap" class="hidden">' +
+        more.map(function (i) { return itemCard(i, false); }).join("") + "</div>";
+    }
+    return h;
+  }
+
+  /* ---------------- prep mode ---------------- */
+  function renderPrep() {
+    var counts = { yes: 0, maybe: 0, veto: 0 };
+    ITEMS.forEach(function (i) { if (S.marks[i.id]) counts[S.marks[i.id]]++; });
+
+    var h = '<div class="prepnote">Go through this with Britt. Mark every item yes, maybe, or veto. ' +
+      'Vetoed items disappear from Room mode and from the printed sheet; yes items sort to the top. ' +
+      'The point is that by labor day it is already in your head.</div>' +
+      vetoEdit() +
+      '<div class="tally"><span><b>' + counts.yes + "</b> yes</span><span><b>" +
+      counts.maybe + "</b> maybe</span><span><b>" + counts.veto + "</b> veto</span><span><b>" +
+      (ITEMS.length - counts.yes - counts.maybe - counts.veto) + "</b> unmarked</span></div>";
+
+    CATS.forEach(function (c) {
+      var id = c[0], label = c[1];
+      var items = ITEMS.filter(function (i) { return i.cat === id; });
+      if (!items.length) return;
+      var open = !!S.open[id];
+      var done = items.filter(function (i) { return S.marks[i.id]; }).length;
+      h += '<section class="cat"><button class="cathead" data-cat="' + esc(id) + '" aria-expanded="' + open + '">' +
+        '<span class="car">' + (open ? "▼" : "▶") + "</span>" +
+        "<span>" + esc(label) + "</span>" +
+        '<span class="cnt">' + done + "/" + items.length + "</span></button>" +
+        (open ? items.map(function (i) { return itemCard(i, true); }).join("") : "") +
+        "</section>";
+    });
+    return h;
+  }
+
+  /* ---------------- my job sheet ---------------- */
+  function jobRow(j) {
+    var on = !!S.jobs[j[0]];
+    return '<button class="chk" data-job="' + esc(j[0]) + '" aria-pressed="' + on + '">' +
+      '<span class="bx">' + (on ? "✓" : "") + "</span>" +
+      "<span>" + esc(j[1]) + '<span class="sm">' + esc(j[2]) + "</span></span></button>";
+  }
+
+  function renderJobs() {
+    var peeOn = S.peeStart != null;
+    return '<div class="sheetin">' +
+      "<h2>On arrival</h2>" + JOBS.arrival.map(jobRow).join("") +
+      "<h2>Every hour, all day</h2>" + JOBS.ongoing.map(jobRow).join("") +
+      '<div class="rowbtns">' +
+      '<button id="jobPee">' + (peeOn ? "STOP PEE TIMER" : "START PEE TIMER") + "</button>" +
+      '<button id="jobReset">CLEAR CHECKS</button>' +
+      "</div>" +
+      '<div class="rowbtns"><button class="closebtn" id="jobClose">CLOSE</button></div>' +
+      "</div>";
+  }
+
+  /* ---------------- print sheet ---------------- */
+  function buildPrint() {
+    var v = vetoWords();
+    var h = '<div class="ph"><b>LABOR SUPPORT — BRITT</b><span>JOYCE STOCK SNUGGERY · GLENS FALLS</span></div>';
+
+    h += '<div class="pveto"><b>SHE DOES NOT WANT</b>' +
+      (v.length ? "<ul>" + v.map(function (x) { return "<li>" + esc(x) + "</li>"; }).join("") + "</ul>"
+                : "<div>[ fill in before you go ]</div>") + "</div>";
+
+    h += '<div class="prule">DURING a contraction: go quiet, apply pressure, breathe where she can see you.' +
+      "<span>BETWEEN contractions is the only time to offer anything new, ask anything, or hand her water.</span></div>";
+
+    h += '<div class="jobs"><b>MY JOB</b>' +
+      "<p><b>On arrival:</b> " + JOBS.arrival.map(function (j) { return j[1].toLowerCase(); }).join(" · ") + "</p>" +
+      "<p><b>All day:</b> " + JOBS.ongoing.map(function (j) { return j[1].toLowerCase(); }).join(" · ") + "</p>" +
+      '<p><b>Advocacy:</b> "can we have five minutes to talk about that?" · ' +
+      "at shift change tell the new nurse what's working and her vetoes</p></div>";
+
+    function cols(ids) {
+      return '<div class="cols">' + ids.map(function (id) {
+        var t = TRIGGERS.filter(function (x) { return x.id === id; })[0];
+        if (!t) return "";
+        var list = resolve(t);
+        if (!list.length) return "";
+        return '<div class="blk"><h3>' + esc(t.name.toUpperCase()) + "</h3>" +
+          (t.rule ? '<div class="nt">' + esc(t.rule) + "</div>" : "") +
+          list.map(function (i) {
+            return "<p><b>" + esc(i.name) + ".</b> " + esc(i.how) + "</p>";
+          }).join("") + "</div>";
+      }).join("") + "</div>";
+    }
+
+    // Anything not assigned to a page still gets printed, on the back.
+    var placed = PRINT_PAGES.join(",").split(",");
+    var orphans = TRIGGERS.filter(function (t) { return placed.indexOf(t.id) < 0; })
+      .map(function (t) { return t.id; });
+
+    h += cols(PRINT_PAGES[0]);
+    h += '<div class="ft">FRONT — fold in half twice · brooker.family/birth</div>';
+    h += '<div class="pg2"><div class="ph"><b>LABOR SUPPORT — BRITT</b>' +
+      "<span>BACK</span></div>" +
+      // repeated so the vetoes are readable whichever side is facing up
+      '<div class="pveto"><b>SHE DOES NOT WANT</b>' +
+      (v.length ? "<ul>" + v.map(function (x) { return "<li>" + esc(x) + "</li>"; }).join("") + "</ul>"
+                : "<div>[ fill in before you go ]</div>") + "</div>" +
+      cols((PRINT_PAGES[1] || []).concat(orphans)) +
+      '<div class="ft">During a contraction: quiet, pressure, breathe where she can see you.</div></div>';
+    document.getElementById("sheetprint").innerHTML = h;
+  }
+
+  /* ---------------- render ---------------- */
+  var app = document.getElementById("app");
+  var jobSheet = document.getElementById("jobSheet");
+  var btnBack = document.getElementById("btnBack");
+
+  function render(keepScroll) {
+    var y = window.scrollY;
+    document.getElementById("mPrep").setAttribute("aria-pressed", S.mode === "prep");
+    document.getElementById("mRoom").setAttribute("aria-pressed", S.mode === "room");
+    var brand = document.getElementById("brand");
+    var openTrig = S.mode === "room" && S.trig
+      ? TRIGGERS.filter(function (x) { return x.id === S.trig; })[0] : null;
+    brand.textContent = openTrig ? (openTrig.short || openTrig.name)
+      : (S.mode === "room" ? "Room mode" : "Prep mode");
+    brand.classList.toggle("open", !!openTrig);
+    app.innerHTML = S.mode === "room" ? renderRoom() : renderPrep();
+    btnBack.classList.toggle("hidden", !(S.mode === "room" && S.trig));
+    buildPrint();
+    tickPee();
+    if (keepScroll) window.scrollTo(0, y);
+    save();
+  }
+
+  /* ---------------- events (delegated) ---------------- */
+  document.getElementById("mPrep").onclick = function () { S.mode = "prep"; render(); window.scrollTo(0, 0); };
+  document.getElementById("mRoom").onclick = function () { S.mode = "room"; render(); window.scrollTo(0, 0); };
+  document.getElementById("btnPrint").onclick = function () { buildPrint(); window.print(); };
+  btnBack.onclick = function () { S.trig = null; render(); window.scrollTo(0, 0); };
+
+  app.addEventListener("click", function (e) {
+    var t = e.target.closest("[data-trig]");
+    if (t) { S.trig = t.getAttribute("data-trig"); render(); window.scrollTo(0, 0); return; }
+
+    var c = e.target.closest("[data-cat]");
+    if (c) {
+      var id = c.getAttribute("data-cat");
+      S.open[id] = !S.open[id];
+      render(true);
+      return;
+    }
+
+    var m = e.target.closest("[data-m]");
+    if (m) {
+      var itemId = m.parentNode.getAttribute("data-item");
+      var val = m.getAttribute("data-m");
+      S.marks[itemId] = S.marks[itemId] === val ? undefined : val;
+      if (!S.marks[itemId]) delete S.marks[itemId];
+      render(true);
+      return;
+    }
+
+    if (e.target.closest("#btnMore")) {
+      document.getElementById("moreWrap").classList.remove("hidden");
+      e.target.closest("#btnMore").remove();
+    }
+  });
+
+  app.addEventListener("input", function (e) {
+    var v = e.target.getAttribute && e.target.getAttribute("data-veto");
+    if (v == null) return;
+    S.vetoes[+v] = e.target.value;
+    save();
+    buildPrint();
+  });
+
+  /* ---------------- my job sheet ---------------- */
+  function openJobs() { jobSheet.innerHTML = renderJobs(); jobSheet.classList.remove("hidden"); }
+  function closeJobs() { jobSheet.classList.add("hidden"); }
+  document.getElementById("btnJob").onclick = openJobs;
+
+  jobSheet.addEventListener("click", function (e) {
+    if (e.target === jobSheet || e.target.closest("#jobClose")) { closeJobs(); return; }
+    var j = e.target.closest("[data-job]");
+    if (j) {
+      var id = j.getAttribute("data-job");
+      if (S.jobs[id]) delete S.jobs[id]; else S.jobs[id] = true;
+      save(); openJobs(); return;
+    }
+    if (e.target.closest("#jobPee")) {
+      S.peeStart = S.peeStart == null ? Date.now() : null;
+      save(); tickPee(); openJobs(); return;
+    }
+    if (e.target.closest("#jobReset")) {
+      S.jobs = {}; save(); openJobs(); return;
+    }
+  });
+
+  /* ---------------- hourly pee nudge (visual only, no sound) ---------------- */
+  var btnPee = document.getElementById("btnPee");
+  function tickPee() {
+    if (S.peeStart == null) {
+      btnPee.textContent = "PEE TIMER";
+      btnPee.classList.remove("due");
+      return;
+    }
+    var ms = Date.now() - S.peeStart;
+    var mins = Math.floor(ms / 60000);
+    var due = mins >= 60;
+    btnPee.textContent = (due ? "▸ PEE  " : "PEE  ") +
+      Math.floor(mins / 60) + ":" + ("0" + (mins % 60)).slice(-2);
+    btnPee.classList.toggle("due", due);
+  }
+  btnPee.onclick = function () {
+    S.peeStart = Date.now();   // tap = she just went, restart the hour
+    save(); tickPee();
+  };
+  setInterval(tickPee, 15000);
+  document.addEventListener("visibilitychange", function () { if (!document.hidden) tickPee(); });
+
+  window.addEventListener("beforeprint", buildPrint);
+
+  render();
+
+  /* ---------------- offline ---------------- */
+  if ("serviceWorker" in navigator && location.protocol.indexOf("http") === 0) {
+    navigator.serviceWorker.register("/birth-sw.js", { scope: "/birth" }).catch(function () {});
+  }
+})();
+</script>
+</body>
+</html>
