@@ -3,8 +3,8 @@
    Strategy: serve from cache first (hospital wifi is assumed broken),
    refresh in the background when there happens to be a network. */
 
-const CACHE = "birth-v1";
-const ASSETS = ["/birth", "/birth.html", "/birth.webmanifest"];
+const CACHE = "birth-v2";
+const ASSETS = ["/birth", "/birth.html", "/birth-content.js", "/birth.webmanifest"];
 
 self.addEventListener("install", (e) => {
   e.waitUntil(
@@ -27,6 +27,9 @@ self.addEventListener("activate", (e) => {
 self.addEventListener("fetch", (e) => {
   const req = e.request;
   if (req.method !== "GET") return;
+  // The sync API must always hit the network -- a cached plan would be a
+  // stale plan, and the client already has its own offline copy.
+  if (new URL(req.url).pathname.startsWith("/api/")) return;
 
   e.respondWith(
     caches.match(req, { ignoreSearch: true }).then((hit) => {

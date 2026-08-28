@@ -31,6 +31,7 @@ body{
   -webkit-text-size-adjust:100%;
   overscroll-behavior-y:none;
   padding-bottom:calc(96px + var(--pad));
+  transition:none;
 }
 button,input,textarea{font:inherit;color:inherit}
 button{background:none;border:0;padding:0;cursor:pointer;text-align:left}
@@ -155,6 +156,7 @@ h1,h2,h3{margin:0;font-weight:700;letter-spacing:.01em}
 .pee.due{background:#2e2410;border-color:var(--gold);color:#f0d59a;animation:breathe 2.4s ease-in-out infinite}
 @keyframes breathe{0%,100%{opacity:1}50%{opacity:.55}}
 .hidden{display:none !important}
+body:has(.bar.hidden){padding-bottom:28px}
 
 /* ---------- my job sheet ---------- */
 .sheet{
@@ -230,6 +232,144 @@ h1,h2,h3{margin:0;font-weight:700;letter-spacing:.01em}
   #sheetprint .ft{margin-top:4pt;border-top:.8pt solid #000;padding-top:2pt;font-size:7.2pt;text-align:center}
 }
 </style>
+
+<style>
+/* ---------- sync status ---------- */
+.syncbar{
+  max-width:720px;margin:6px auto 0;font-size:11.5px;letter-spacing:.09em;
+  color:var(--faint);text-transform:uppercase;display:flex;gap:7px;align-items:center;
+}
+.syncbar .d{width:7px;height:7px;border-radius:50%;background:var(--faint);flex:0 0 auto}
+.syncbar.ok .d{background:var(--yes)} .syncbar.busy .d{background:var(--gold)}
+.syncbar.off .d{background:var(--faint)} .syncbar.err .d{background:var(--veto)}
+.syncbar button{margin-left:auto;color:var(--gold);font-size:11.5px;letter-spacing:.09em;text-transform:uppercase}
+
+/* ---------- wizard ---------- */
+.chapter{margin:20px 0 6px;font-size:11.5px;letter-spacing:.18em;color:var(--gold);text-transform:uppercase}
+.steplist{display:grid;gap:8px}
+.steprow{
+  display:flex;align-items:center;gap:12px;width:100%;padding:15px 14px;
+  border:1px solid var(--line);border-radius:14px;background:var(--card);font-size:16.5px;font-weight:600;
+}
+.steprow:active{background:var(--card2)}
+.steprow .ring{
+  width:22px;height:22px;flex:0 0 auto;border-radius:50%;border:2px solid var(--line2);
+  display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--yes);
+}
+.steprow.done .ring{border-color:var(--yes)}
+.steprow.part .ring{border-color:var(--gold);color:var(--gold)}
+.steprow .cnt{margin-left:auto;font-size:12.5px;color:var(--faint);font-weight:600;letter-spacing:.04em}
+.bigbtn{
+  display:block;width:100%;text-align:center;padding:18px;margin:16px 0 4px;border-radius:15px;
+  background:#1b2a1c;border:1px solid var(--yes);color:#cfe8c4;font-size:16px;font-weight:700;letter-spacing:.06em;
+}
+.ghostbtn{
+  display:block;width:100%;text-align:center;padding:15px;margin:10px 0;border-radius:13px;
+  border:1px solid var(--line2);background:var(--card);color:var(--dim);font-size:14.5px;font-weight:700;letter-spacing:.06em;
+}
+.prog{height:3px;background:var(--line);border-radius:2px;overflow:hidden;margin:2px 0 12px}
+.prog i{display:block;height:100%;background:var(--gold)}
+.stepno{font-size:11.5px;letter-spacing:.16em;color:var(--faint);text-transform:uppercase;margin:14px 0 3px}
+.steptitle{font-size:25px;color:var(--gold);line-height:1.15;margin-bottom:4px}
+.blurb{font-size:15px;color:var(--dim);line-height:1.42;margin:6px 0 4px}
+
+.q{border-top:1px solid var(--line);padding:16px 0 4px;margin-top:12px}
+.q:first-of-type{border-top:0}
+.qhead{display:flex;gap:10px;align-items:flex-start}
+.qhead .qt{font-size:18px;font-weight:700;line-height:1.3;flex:1}
+.star{
+  flex:0 0 auto;width:44px;height:44px;margin:-10px -8px 0 0;border-radius:12px;
+  display:flex;align-items:center;justify-content:center;font-size:19px;color:var(--faint);
+}
+.star[aria-pressed="true"]{color:var(--gold)}
+.opts{display:grid;gap:7px;margin-top:10px}
+.opt{
+  display:flex;gap:11px;align-items:flex-start;width:100%;padding:13px 13px;
+  border:1px solid var(--line);border-radius:13px;background:var(--card);
+  font-size:16px;line-height:1.32;
+}
+.opt .bx{
+  width:22px;height:22px;flex:0 0 auto;border:2px solid var(--line2);
+  display:flex;align-items:center;justify-content:center;font-size:13px;color:var(--yes);margin-top:1px;
+}
+.opt.radio .bx{border-radius:50%}
+.opt.check .bx{border-radius:6px}
+.opt[aria-pressed="true"]{background:#1b2a1c;border-color:var(--yes)}
+.opt[aria-pressed="true"] .bx{border-color:var(--yes)}
+.enterinput,.entertext{
+  width:100%;background:var(--card);border:1px solid var(--line2);border-radius:12px;
+  padding:14px 13px;font-size:16px;margin-top:10px;line-height:1.4;
+}
+.entertext{min-height:96px;resize:vertical}
+.enterinput::placeholder,.entertext::placeholder{color:var(--faint)}
+
+.optrow{display:flex;gap:6px;align-items:stretch}
+.optrow .opt{flex:1}
+.ostar{
+  flex:0 0 auto;width:50px;border:1px solid var(--line);border-radius:13px;background:var(--card);
+  display:flex;align-items:center;justify-content:center;font-size:20px;color:var(--faint);
+}
+.ostar[aria-pressed="true"]{color:var(--gold);border-color:#5a4a20;background:#241f10}
+.hint{font-size:12.5px;color:var(--faint);margin-top:6px;letter-spacing:.02em}
+.starred{margin:14px 0}
+.starred .s{
+  display:flex;gap:9px;padding:11px 13px;margin:7px 0;border-radius:12px;
+  background:#241f10;border:1px solid #574722;color:#f0dca6;font-size:15.5px;line-height:1.35;
+}
+.answered{font-size:14px;color:var(--dim);margin-top:9px;line-height:1.4}
+.answered b{color:#cfdacf;font-weight:600}
+
+/* ---------- modal ---------- */
+.modalin{
+  width:100%;max-height:86vh;overflow:auto;background:var(--bg2);
+  border-top:1px solid var(--line2);border-radius:20px 20px 0 0;
+  padding:18px 15px calc(20px + var(--pad));
+}
+.modalin h2{font-size:12px;letter-spacing:.18em;color:var(--gold);text-transform:uppercase;margin-bottom:10px}
+.modalin p{font-size:15px;color:var(--dim);line-height:1.45;margin:0 0 12px}
+.pickbtn{
+  display:block;width:100%;text-align:left;padding:16px 15px;margin:9px 0;border-radius:14px;
+  border:1px solid var(--line2);background:var(--card);font-size:17px;font-weight:700;
+}
+.pickbtn span{display:block;font-size:13.5px;color:var(--dim);font-weight:400;margin-top:3px;line-height:1.35}
+.linkbox{
+  background:var(--card);border:1px solid var(--line2);border-radius:12px;padding:12px;
+  font-size:13px;word-break:break-all;color:#cfdacf;line-height:1.4;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+
+/* ---------- print: which sheet ---------- */
+#planprint{display:none}
+@media print{
+  body[data-print="plan"] #sheetprint{display:none !important}
+  body[data-print="plan"] #planprint{
+    display:block !important;font-size:8.3pt;line-height:1.27;color:#000;
+    font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;
+  }
+  #planprint .ph{display:flex;justify-content:space-between;align-items:baseline;
+    border-bottom:1.5pt solid #000;padding-bottom:3pt;margin-bottom:5pt}
+  #planprint .ph b{font-size:13pt;letter-spacing:.02em}
+  #planprint .ph span{font-size:8pt}
+  #planprint .who{font-size:8.4pt;margin-bottom:6pt;display:flex;flex-wrap:wrap;gap:2pt 14pt}
+  #planprint .boxes{display:flex;gap:7pt;margin-bottom:6pt;align-items:flex-start}
+  #planprint .box{border:1.6pt solid #000;padding:4pt 7pt;flex:1}
+  #planprint .box.half{flex:0 0 38%}
+  #planprint .box b{font-size:8.6pt;letter-spacing:.1em;display:block;margin-bottom:2pt}
+  #planprint .box ul{margin:0;padding-left:12pt}
+  #planprint .box li{font-size:9.4pt;font-weight:700;margin-bottom:1pt}
+  #planprint .note{border:.8pt solid #000;padding:3pt 6pt;margin-bottom:6pt;font-size:8.4pt}
+  #planprint .note b{letter-spacing:.06em}
+  #planprint .cols{column-count:2;column-gap:16pt;column-rule:.4pt solid #999}
+  #planprint .sec{break-inside:avoid;page-break-inside:avoid;margin-bottom:5pt}
+  #planprint .sec h3{font-size:8.8pt;letter-spacing:.06em;text-transform:uppercase;
+    border-bottom:.8pt solid #000;margin:0 0 2pt;padding-bottom:1pt}
+  #planprint .sec p{margin:0 0 1.6pt;padding-left:8pt;text-indent:-8pt}
+  #planprint .sec p:before{content:"\2022  "}
+  #planprint .sec .free{padding-left:0;text-indent:0;font-style:italic}
+  #planprint .sec .free:before{content:""}
+  #planprint .close{margin-top:6pt;border-top:.8pt solid #000;padding-top:4pt;font-size:8.6pt;font-style:italic}
+  #planprint .ft{margin-top:3pt;font-size:7pt;text-align:center;color:#444}
+}
+</style>
 </head>
 <body>
 
@@ -237,11 +377,13 @@ h1,h2,h3{margin:0;font-weight:700;letter-spacing:.01em}
   <div class="topin">
     <div class="brand" id="brand">Labor support</div>
     <div class="modes" role="group" aria-label="Mode">
-      <button id="mPrep" aria-pressed="true">PREP</button>
+      <button id="mPlan" aria-pressed="true">PLAN</button>
+      <button id="mPrep" aria-pressed="false">LIST</button>
       <button id="mRoom" aria-pressed="false">ROOM</button>
     </div>
-    <button class="iconbtn" id="btnPrint" title="Print the pocket sheet">PRINT</button>
+    <button class="iconbtn" id="btnPrint" title="Print">PRINT</button>
   </div>
+  <div class="syncbar" id="syncBar"></div>
 </header>
 
 <main id="app" class="wrap"></main>
@@ -249,369 +391,97 @@ h1,h2,h3{margin:0;font-weight:700;letter-spacing:.01em}
 <nav class="bar noprint">
   <div class="barin">
     <button class="back hidden" id="btnBack">&#9664; BACK</button>
+    <button class="next hidden" id="btnNext">NEXT &#9654;</button>
     <button class="pee" id="btnPee">PEE TIMER</button>
     <button class="job" id="btnJob">MY JOB</button>
   </div>
 </nav>
 
 <div class="sheet hidden" id="jobSheet"></div>
+<div class="sheet hidden" id="modal"></div>
 <div id="sheetprint"></div>
+<div id="planprint"></div>
+
+<script src="/birth-content.js"></script>
 
 <script>
 /* =====================================================================
-   CONTENT — edit this block and nothing else.
-
-   ITEMS: one object per comfort measure.
-     id     unique short string (used to store yes/maybe/veto marks —
-            if you change an id, that item loses its saved mark)
-     name   short imperative label
-     how    ONE line, specific enough to execute without thinking
-     got    optional gotcha / the thing that makes it fail
-     cat    which Prep-mode section it lives in (see CATS)
-
-   TRIGGERS: what I tap in the room. Each lists item ids in priority
-   order. Room mode shows the first 4 that survive (vetoes removed,
-   "yes" items floated to the top), so it is fine to list 6-8 here.
-   ===================================================================== */
-
-const CATS = [
-  ["hands",    "Hands-on"],
-  ["position", "Positions — rotate every ~30 min"],
-  ["water",    "Water & temperature"],
-  ["sensory",  "Sensory & mental"],
-  ["music",    "Music"],
-  ["early",    "Early labor"],
-  ["stall",    "Stalls"],
-  ["trans",    "Transition script"],
-  ["push",     "Pushing"],
-  ["between",  "Between contractions"],
-  ["advocacy", "Advocacy"]
-];
-
-const ITEMS = [
-/* ---------- HANDS-ON ---------- */
-{id:"sacral", cat:"hands", name:"Sacral counterpressure",
- how:"Heel of your hand at the TOP of the butt crease, not the low back. Lean your body weight in; don't push with your arms.",
- got:"Ask “higher or lower” once, then stop asking. Hold steady straight through the peak — don't let up when she gets loud."},
-{id:"hipsqueeze", cat:"hands", name:"Double hip squeeze",
- how:"A hand on each side of her hips, on the meat. Push in and slightly UP toward her ears for the whole contraction.",
- got:"Fleshy part, not the bony points. Squeeze, don't pinch. Best while she leans forward over the bed or the ball."},
-{id:"kneepress", cat:"hands", name:"Knee press",
- how:"She sits upright, feet flat on the floor. Cup a knee in each palm and press straight back toward her hips — level, not down.",
- got:"She needs something solid behind her back or you'll push her over."},
-{id:"rebozo", cat:"hands", name:"Rebozo sifting (“shaking the apple tree”)",
- how:"She's on hands and knees. Sling the scarf under her belly, hold both ends, jiggle her belly side to side — fast and light — for a minute or two.",
- got:"Between contractions, never during. Loose and floppy, not hard pulls."},
-{id:"effleurage", cat:"hands", name:"Effleurage",
- how:"Fingertips, feather-light, slow circles on her belly and thighs, timed to her breathing.",
- got:"Early labor and rest only. Too light to register at the peak of hard ones."},
-{id:"tennisball", cat:"hands", name:"Tennis ball / rolling pin on the sacrum",
- how:"When your hands give out, roll a tennis ball or the rolling pin over the same spot with your body weight behind it.",
- got:"Pack them. Your hands WILL give out, probably around hour six."},
-
-/* ---------- POSITIONS ---------- */
-{id:"handsknees", cat:"position", name:"Hands and knees",
- how:"On the bed or the floor, forearms on a stack of pillows. Rock her hips, or slow cat/cow between contractions.",
- got:"First thing to try for back labor — it takes the baby's weight off her spine."},
-{id:"sidelying", cat:"position", name:"Side-lying with the peanut ball",
- how:"On her side, peanut ball between her knees to hold the pelvis open. Ask the nurse for a peanut ball on arrival.",
- got:"The only true rest position that still opens the pelvis. Switch sides every 30 min."},
-{id:"lunges", cat:"position", name:"Standing lunge",
- how:"One foot up on a chair or the bed rail. Lunge slowly toward that side and hold there through the whole contraction.",
- got:"Lunge toward the side where she feels more pressure. Hold onto her — she is off balance."},
-{id:"slowdance", cat:"position", name:"Slow dancing on me",
- how:"Her arms over your shoulders, her weight on your chest, sway side to side while you press her sacrum.",
- got:"Gravity plus counterpressure at once. This is the default when nothing in particular is wrong."},
-{id:"toilet", cat:"position", name:"Toilet sitting",
- how:"Put her on the toilet for 20–30 minutes, facing forward or backward, towel over the tank to lean on.",
- got:"The “dilation station” — she relaxes her pelvic floor there without trying. Covers the hourly pee too."},
-{id:"squatbar", cat:"position", name:"Squat bar",
- how:"She hangs from or squats against the bar through the contraction, resting back on the bed between.",
- got:"Ask them to attach the bar EARLY. Nobody wants to hunt one down at 8cm."},
-{id:"standlean", cat:"position", name:"Standing lean over the raised bed",
- how:"Raise the bed to her chest, she drapes over it, you work her sacrum from behind.",
- got:"The easiest upright position to hold for a long stretch. Same over the ball on a chair."},
-{id:"stairs", cat:"position", name:"Sideways stair climbing",
- how:"Sideways up the stairs two at a time leading with the same foot, normally back down. Ten minutes.",
- got:"Opens the pelvis asymmetrically. Hold her arm the whole way."},
-{id:"walking", cat:"position", name:"Hallway walking",
- how:"Walk the hall. Stop for each contraction, lean on the wall or on you and sway, then keep going.",
- got:"Get her off continuous monitoring first — ask about wireless or intermittent."},
-{id:"deepsquat", cat:"position", name:"Supported deep squat",
- how:"She squats holding your hands or the bar, for the contraction only, then back up.",
- got:"Opens the outlet a lot but burns her legs. Save it for late — don't spend it early."},
-{id:"miles", cat:"position", name:"Miles Circuit",
- how:"30 min open knee-chest, then 30 min exaggerated side-lying with the peanut ball, then 30 min walking or lunging. In that order.",
- got:"For a stall or a badly positioned baby. It takes 90 minutes — start it before you're desperate."},
-
-/* ---------- WATER & TEMP ---------- */
-{id:"tub", cat:"water", name:"The tub room",
- how:"ASK ABOUT THE TUB ROOM THE MINUTE YOU ARRIVE — before she wants it.",
- got:"The Snuggery has ONE tub room, first come first served. Asking when she wants it is already too late."},
-{id:"shower", cat:"water", name:"Shower, handheld sprayer on the low back",
- how:"Sit her on the ball or the shower chair, hot water from the handheld straight onto her sacrum. Reach in from outside.",
- got:"The reliable backup for the tub — always available. Pack dry clothes for yourself."},
-{id:"ricesock", cat:"water", name:"Warm rice sock",
- how:"Microwave 60–90 seconds, test it on your own forearm, then onto her low back or lower belly.",
- got:"Test it on yourself every single time. Her skin is more sensitive in labor."},
-{id:"coldcloth", cat:"water", name:"Cold cloth, forehead and neck",
- how:"Cold wet cloth on her forehead, a second on the back of her neck, swapped for a fresh cold one every few contractions.",
- got:"Keep two going so one is always actually cold."},
-{id:"icechips", cat:"water", name:"Ice chips",
- how:"Hold the cup up between contractions. Don't ask, just offer.",
- got:"Her mouth goes bone dry from the breathing."},
-{id:"popsicles", cat:"water", name:"Popsicles",
- how:"Ask the nurse where the popsicles are when you arrive. Fluid and sugar she'll actually accept.",
- got:"Best calories she'll take once active labor starts."},
-
-/* ---------- SENSORY & MENTAL ---------- */
-{id:"dimlights", cat:"sensory", name:"Dim the lights, drape the monitor",
- how:"Kill the overheads. Throw a receiving blanket over the monitor screen so nothing is glowing at her.",
- got:"Do this the moment you're in the room, before anything else. It sets the whole tone."},
-{id:"candles", cat:"sensory", name:"Battery candles",
- how:"Windowsill and the bathroom counter, then leave the room lights off entirely.",
- got:"Battery only. Pack them."},
-{id:"aroma", cat:"sensory", name:"Aromatherapy on a cotton ball",
- how:"Few drops on a cotton ball held near her face. Lavender to calm, peppermint for nausea, citrus to lift.",
- got:"Check the unit's policy on arrival. Cotton ball, no diffuser. If she winces at a smell it leaves the room immediately."},
-{id:"toning", cat:"sensory", name:"Low open “ohhh” toning",
- how:"When her sound goes high and thin, start making a low open “ohhhh” yourself and let her find it. Don't instruct her.",
- got:"Low sounds keep her open. High tight sounds mean she's fighting the contraction."},
-{id:"horselips", cat:"sensory", name:"Horse lips",
- how:"Blow a loose raspberry through slack lips and let her copy you.",
- got:"Fastest way to unclench her jaw. Do it with her, don't tell her to do it."},
-{id:"counting", cat:"sensory", name:"Count out loud through it",
- how:"Count slowly out loud from one. They peak around 30–45 seconds — she hears the number and knows it's coming down.",
- got:"Gives the pain an end point she can hear."},
-{id:"breathwith", cat:"sensory", name:"Breathe loud enough for her to follow",
- how:"Get in her sightline and breathe the pace you want her at, out loud. She'll lock on.",
- got:"Beats any breathing instruction you could give her."},
-{id:"relaxtracks", cat:"sensory", name:"Guided relaxation tracks",
- how:"Play the exact tracks she practiced with. Downloaded to the phone, before you leave the house.",
- got:"Only the ones she already knows. Labor is not the time for a new voice."},
-{id:"focalpoint", cat:"sensory", name:"Focal point",
- how:"Give her one thing to hold with her eyes — your eyes, or a photo taped to the wall she's facing.",
- got:"Your eyes are the best one. Hold still and hold the gaze."},
-{id:"affirmations", cat:"sensory", name:"Affirmation cards",
- how:"Tape them where she is actually facing. Read one out loud between contractions.",
- got:"Where she's facing changes every time she changes position. Move them."},
-{id:"meditation", cat:"sensory", name:"Her meditation practice",
- how:"Cue the practice she already has — same words, same order, said quietly in her ear.",
- got:"Her language, not new language."},
-
-/* ---------- MUSIC ---------- */
-{id:"playlist", cat:"music", name:"Her playlist",
- how:"Downloaded for offline before you leave the house. Speaker and its charger in the bag.",
- got:"Hospital wifi will fail you. Download it now, not there."},
-{id:"singing", cat:"music", name:"Me singing to her",
- how:"Quiet, close to her ear, songs she knows.",
- got:"Read her face once. If it's a no, it's a no, and stop."},
-{id:"mandolin", cat:"music", name:"Me playing mandolin",
- how:"Early labor only, while she still wants input in the room. Play what she asks for.",
- got:"Put it away once active labor starts."},
-
-/* ---------- EARLY LABOR ---------- */
-{id:"e_normal", cat:"early", name:"Do normal life",
- how:"Make food, watch something, walk the dog, nap. Do not start labor-coping yet.",
- got:"The #1 early labor mistake is treating early labor like active labor. You'll both burn out before it counts."},
-{id:"e_eat", cat:"early", name:"Feed her a real meal",
- how:"Real food now, while she can keep it down. Later it's ice chips and popsicles.",
- got:"Feed yourself at the same time. Same meal."},
-{id:"e_sleep", cat:"early", name:"Sleep if it's night",
- how:"If she can doze between them, sleep — even twenty minutes. You too.",
- got:"You cannot bank this sleep later. This is the only chance."},
-{id:"e_time", cat:"early", name:"Time them, but only sometimes",
- how:"Time twenty minutes of contractions every couple of hours, not continuously. Call when they're 5 min apart, 1 min long, for 1 hour.",
- got:"Confirm the 5-1-1 rule with her provider ahead of time. Watching the timer all day makes it worse."},
-{id:"e_bag", cat:"early", name:"Load the car",
- how:"Bag, snacks for YOU, speaker + charger, battery candles, rice sock, tennis ball, rebozo, birth plan copies.",
- got:"Do it during early labor while you have hands and a brain."},
-
-/* ---------- STALLS ---------- */
-{id:"s_bladder", cat:"stall", name:"Empty her bladder",
- how:"Toilet, right now, before you try anything else.",
- got:"A full bladder is the most common reason labor stalls. Check this FIRST every single time."},
-{id:"s_privacy", cat:"stall", name:"Clear the room",
- how:"Fewer people, lights down, door shut, thirty minutes alone with her.",
- got:"Labor stalls when she feels watched. This includes being watched by you — be present, not observing."},
-{id:"s_nipple", cat:"stall", name:"Nipple stimulation",
- how:"Ask the nurse first, then her own hand or the pump, five minutes on and five off.",
- got:"Ask first — it can make contractions strong fast."},
-{id:"s_eat", cat:"stall", name:"Fuel her",
- how:"Honey stick, popsicle, juice, broth. A stall is sometimes just an empty tank.",
- got:"Same for you."},
-
-/* ---------- TRANSITION ---------- */
-{id:"tr_nonew", cat:"trans", name:"Offer nothing new",
- how:"No new positions, no new ideas, no questions. Keep doing exactly what you were already doing.",
- got:"This is the rule for the entire phase. Breaking it is the main way to make transition worse."},
-{id:"tr_are", cat:"trans", name:"Say: “You ARE doing it”",
- how:"Not “you can do it.” She is already doing it. Say it after every contraction.",
- got:"“You can do it” sounds like she hasn't started."},
-{id:"tr_one", cat:"trans", name:"One contraction at a time",
- how:"“Just this one. You don't have to do the next one yet.” Repeat it. That's the whole script.",
- got:""},
-{id:"tr_eyes", cat:"trans", name:"Breathe with her, eyes locked",
- how:"Your face a foot from hers, in her line of sight, breathing the pace. Do not break the gaze.",
- got:"Don't look at the monitor. Look at her."},
-{id:"tr_water", cat:"trans", name:"Water and a cold cloth between EVERY contraction",
- how:"Every single one. Straw to her lips, fresh cold cloth on her forehead. Don't ask first.",
- got:""},
-{id:"tr_short", cat:"trans", name:"Name it: this is the shortest part",
- how:"“I can't do this” usually means she's nearly there. “This is the part right before the baby. It's the shortest part.”",
- got:"Say it once, calmly. Don't argue with her about whether she can."},
-
-/* ---------- PUSHING ---------- */
-{id:"pu_breathe", cat:"push", name:"Breathe the baby down",
- how:"Let her push with her own urge and her own breath.",
- got:"Don't purple-push (held breath, counting to ten) unless the provider is directing it."},
-{id:"pu_position", cat:"push", name:"Change position if pushing stalls",
- how:"Side-lying with the peanut ball, hands and knees, or the squat bar. Ask for a change after ~30 min of no progress.",
- got:"Flat on her back is the worst one. Say something if she's been stuck there."},
-{id:"pu_compress", cat:"push", name:"Warm compress on the perineum",
- how:"Ask the nurse for warm compresses — it's a normal ask here.",
- got:""},
-{id:"pu_hold", cat:"push", name:"Hold her up",
- how:"Take a leg, hand behind her shoulders, curl her forward into each push. Follow the nurse's lead on the hold.",
- got:"Rest her back down completely between pushes."},
-{id:"pu_mirror", cat:"push", name:"Mirror, if she wants it",
- how:"Ask ONCE, between contractions: “do you want the mirror?” Take the answer and drop it.",
- got:""},
-{id:"pu_water", cat:"push", name:"Water and cold cloth between pushes",
- how:"Every break. She is working harder than she has all day.",
- got:""},
-
-/* ---------- BETWEEN CONTRACTIONS ---------- */
-{id:"bt_window", cat:"between", name:"This is the only window",
- how:"New ideas, questions, water, food, position changes — only between. During a contraction you go quiet and just apply pressure.",
- got:"The single most important rule on this sheet."},
-{id:"bt_water", cat:"between", name:"Water, every time",
- how:"Straw to her lips after every contraction. Don't ask, just put it there.",
- got:""},
-{id:"bt_praise", cat:"between", name:"Tell her exactly what she just did",
- how:"“That was a big one and you stayed loose.” Specific, not generic cheering.",
- got:""},
-{id:"bt_reset", cat:"between", name:"Reset her jaw and shoulders",
- how:"Hand on her shoulders, press down as she exhales. Touch her jaw and say one word: “soft.”",
- got:"Tight jaw means tight pelvic floor. Every time."},
-{id:"bt_position", cat:"between", name:"Position change on the clock",
- how:"If it's been ~30 minutes in one position, offer the next one now, between contractions.",
- got:"Offer two options, not a list. “Shower or hands and knees?”"},
-{id:"bt_me", cat:"between", name:"Take care of yourself here",
- how:"Drink, eat a handful of something, sit down for sixty seconds, shake out your hands.",
- got:"You are the equipment. If you crash at hour fourteen she loses her whole support plan."},
-
-/* ---------- ADVOCACY ---------- */
-{id:"ad_five", cat:"advocacy", name:"“Can we have five minutes to talk about that?”",
- how:"Say it out loud to any provider proposing anything non-emergency, then talk to her alone.",
- got:"Almost nothing in a normal labor needs an answer in under five minutes."},
-{id:"ad_monitor", cat:"advocacy", name:"Ask about intermittent or wireless monitoring",
- how:"“Is she a candidate for intermittent or wireless monitoring so she can move around?” Ask on arrival.",
- got:"Continuous wired monitoring pins her to the bed and kills half of this list."},
-{id:"ad_shift", cat:"advocacy", name:"Brief the incoming nurse at shift change",
- how:"“Here's what's working: [X, Y]. Here's what she doesn't want: [the vetoes].”",
- got:"Shift change is roughly 7 and 19. Do it before they have to guess."},
-{id:"ad_words", cat:"advocacy", name:"Use her words, not yours",
- how:"“She's saying she wants X.” Don't answer for her unless she asked you to.",
- got:""}
-];
-
-const TRIGGERS = [
-  {id:"early", short:"Early labor", ic:"○", name:"Early labor", sub:"nothing's happening yet",
-   rule:"Do not start coping yet. Rest, eat, and stay home as long as you can.",
-   items:["e_normal","e_sleep","e_eat","e_time","effleurage","walking","slowdance","mandolin","e_bag"]},
-
-  {id:"back", short:"Back labor", ic:"↓", name:"It's in her back", sub:"back labor",
-   rule:"Tell the nurse “she's having back labor” — they have tricks. Baby is probably facing her front.",
-   items:["sacral","handsknees","hipsqueeze","shower","tennisball","lunges","sidelying","ricesock","rebozo"]},
-
-  {id:"stalled", short:"Stalled", pin:1, ic:"⏸", name:"Stalled", sub:"contractions spacing out",
-   rule:"Bladder first, privacy second, movement third.",
-   items:["s_bladder","s_privacy","walking","miles","stairs","lunges","toilet","s_eat","s_nipple","tub"]},
-
-  {id:"tense", short:"Tensing up", ic:"≈", name:"She's tensing up", sub:"tight jaw, high sounds",
-   rule:"Don't tell her to relax. Demonstrate and let her copy you.",
-   items:["horselips","toning","breathwith","bt_reset","coldcloth","counting","shower","effleurage"]},
-
-  {id:"rest", short:"Rest", ic:"☽", name:"She needs to rest", sub:"between the work",
-   rule:"Lights off, everybody quiet — including you. Silence is a comfort measure.",
-   items:["sidelying","dimlights","tub","relaxtracks","e_sleep","effleurage","ricesock","meditation"]},
-
-  {id:"transition", short:"Transition", pin:3, ic:"⚑", name:"“I can't do this”", sub:"transition",
-   rule:"OFFER NOTHING NEW. Keep doing exactly what you were doing.",
-   items:["tr_nonew","tr_are","tr_one","tr_eyes","tr_water","tr_short","coldcloth","sacral"]},
-
-  {id:"pushing", short:"Pushing", pin:1, ic:"▼", name:"Pushing", sub:"",
-   rule:"Her urge, her breath, unless the provider says otherwise.",
-   items:["pu_breathe","pu_position","pu_hold","pu_compress","pu_water","pu_mirror","tr_are"]},
-
-  {id:"between", short:"Between", pin:1, ic:"▫", name:"Between contractions", sub:"my checklist",
-   rule:"This is the ONLY time to offer something new, ask a question, or hand her water.",
-   items:["bt_window","bt_water","bt_reset","bt_praise","bt_position","bt_me","ad_five","ad_shift"]}
-];
-
-/* The printed sheet is two sides of one page. FRONT is what you grab when
-   things are hard; BACK is everything else. Reorder freely. */
-const PRINT_PAGES = [
-  ["transition", "between", "back", "tense"],
-  ["stalled", "rest", "pushing", "early"]
-];
-
-const JOBS = {
-  arrival: [
-    ["j_tub",     "Ask about the tub room",        "ONE tub room, first come first served. Ask now."],
-    ["j_peanut",  "Ask for a peanut ball",         "And ask them to attach the squat bar early."],
-    ["j_monitor", "Ask about wireless monitoring", "So she can move and walk."],
-    ["j_lights",  "Lights off, drape the monitor", "Battery candles out."],
-    ["j_pops",    "Find the popsicles and ice",    "Ask where they live on the unit."],
-    ["j_vetoes",  "Tell the nurse her vetoes",     "Read them off the top of this sheet."]
-  ],
-  ongoing: [
-    ["j_pee",   "Pee — every hour",        "A full bladder stalls labor and hurts. Don't wait for her to ask."],
-    ["j_water", "Water after every contraction","Straw to her lips. Don't ask."],
-    ["j_food",  "Food for her",                 "Popsicle, honey stick, broth, juice."],
-    ["j_myfood","EAT SOMETHING YOURSELF",       "You are the equipment. Do not skip this."],
-    ["j_pos",   "Position change ~every 30 min","Offer two options, not a list."],
-    ["j_shift", "Shift change handoff",         "What's working, what she doesn't want. Roughly 7 and 19."]
-  ]
-};
-</script>
-
-<script>
-/* =====================================================================
-   APP — no dependencies, no network, no build step.
+   APP — no dependencies, no build step. Works with no network.
    ===================================================================== */
 (function () {
   "use strict";
 
-  var KEY = "birth.v1";
+  var DOC_KEY = "birth.doc";     // synced: marks, plan answers, vetoes, stars
+  var LOC_KEY = "birth.local";   // this device only: place, checklist, timer
+  var OLD_KEY = "birth.v1";      // pre-sync format
+
   var BY = {};
   ITEMS.forEach(function (i) { BY[i.id] = i; });
+  var SECT = {};
+  PLAN.forEach(function (s) { SECT[s.id] = s; });
 
-  var S = {
-    mode: "prep",
-    trig: null,
-    marks: {},          // itemId -> "yes" | "maybe" | "veto"
-    vetoes: ["", "", ""],
-    jobs: {},           // jobId -> true
-    peeStart: null,     // ms epoch, or null
-    open: {}            // prep category id -> true
-  };
+  var STEPS = PLAN.map(function (s) {
+    return { kind: "plan", id: s.id, title: s.title, blurb: s.blurb, qs: s.qs };
+  }).concat(TRIAGE.map(function (t) {
+    return { kind: "triage", id: t.id, title: t.title, cats: t.cats };
+  }));
+  var PLAN_STEPS = PLAN.length;
 
-  try {
-    var saved = JSON.parse(localStorage.getItem(KEY) || "null");
-    if (saved && typeof saved === "object") {
-      for (var k in S) if (saved[k] !== undefined && saved[k] !== null) S[k] = saved[k];
-      if (!Array.isArray(S.vetoes)) S.vetoes = ["", "", ""];
-      while (S.vetoes.length < 3) S.vetoes.push("");
+  /* ---------------- state ----------------
+     D is the synced document: { section: { field: {v, t} } }. Every write
+     stamps a timestamp so two phones merge per field instead of one
+     overwriting the other wholesale. */
+  var D = { marks: {}, plan: {}, vetoes: {}, stars: {} };
+  var L = { mode: "plan", trig: null, step: null, open: {}, jobs: {}, peeStart: null, key: null };
+
+  function readJSON(k) {
+    try { return JSON.parse(localStorage.getItem(k) || "null"); } catch (e) { return null; }
+  }
+  function writeJSON(k, v) {
+    try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {}
+  }
+
+  (function load() {
+    var d = readJSON(DOC_KEY);
+    if (d && typeof d === "object") {
+      ["marks", "plan", "vetoes", "stars"].forEach(function (s) {
+        if (d[s] && typeof d[s] === "object") D[s] = d[s];
+      });
     }
-  } catch (e) { /* corrupt storage is not a reason to fail on labor day */ }
+    var l = readJSON(LOC_KEY);
+    if (l && typeof l === "object") for (var k in L) if (l[k] != null) L[k] = l[k];
 
-  // Written synchronously on every change. The payload is ~2KB and this is a
-  // tool you reload at 4am on a dying phone -- a debounce that loses the last
-  // tap is not a trade worth making.
-  function save() {
-    try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {}
+    // one-time carry-over from the pre-sync version
+    var old = readJSON(OLD_KEY);
+    if (old && !d) {
+      var t = Date.now() - 1;   // older than anything typed from here on
+      if (old.marks) for (var id in old.marks) D.marks[id] = { v: old.marks[id], t: t };
+      if (Array.isArray(old.vetoes)) old.vetoes.forEach(function (v, i) {
+        if (v) D.vetoes[String(i)] = { v: v, t: t };
+      });
+      if (old.jobs) L.jobs = old.jobs;
+      if (old.peeStart != null) L.peeStart = old.peeStart;
+      saveDoc();
+    }
+  })();
+
+  function saveDoc() { writeJSON(DOC_KEY, D); }
+  function saveLoc() { writeJSON(LOC_KEY, L); }
+
+  function get(sec, key, dflt) {
+    var leaf = D[sec] && D[sec][key];
+    return leaf ? leaf.v : dflt;
+  }
+  function set(sec, key, val) {
+    if (!D[sec]) D[sec] = {};
+    if (val === undefined || val === null || val === "" ||
+        (Array.isArray(val) && !val.length)) {
+      D[sec][key] = { v: null, t: Date.now() };   // tombstone, so a clear syncs too
+    } else {
+      D[sec][key] = { v: val, t: Date.now() };
+    }
+    saveDoc();
+    schedulePush();
   }
 
   function esc(s) {
@@ -620,70 +490,177 @@ const JOBS = {
       .replace(/"/g, "&quot;");
   }
 
-  /* --- ordering: vetoed out, "yes" floated up, source order otherwise.
-         A trigger's first `pin` items are locked to the front so a "yes"
-         elsewhere can't push the thing that always goes first off the top
-         (the transition script, "check her bladder", etc). --- */
-  function resolve(trig) {
-    var live = trig.items
-      .map(function (id) { return BY[id]; })
-      .filter(function (it) { return it && S.marks[it.id] !== "veto"; });
-    var pins = [];
-    for (var i = 0; i < trig.items.length && pins.length < (trig.pin || 0); i++) {
-      var it = BY[trig.items[i]];
-      if (it && S.marks[it.id] !== "veto") pins.push(it);
+  /* ---------------- sync ---------------- */
+  var sync = { state: "idle", pending: false, timer: null, busy: false };
+
+  function newKey() {
+    var a = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    var out = "", buf = new Uint8Array(24);
+    (window.crypto || window.msCrypto).getRandomValues(buf);
+    for (var i = 0; i < buf.length; i++) out += a[buf[i] % a.length];
+    return out;
+  }
+
+  (function initKey() {
+    var m = /[#&]k=([A-Za-z0-9_-]{16,64})/.exec(location.hash);
+    if (m) L.key = m[1];                       // opened from a shared link
+    if (!L.key) L.key = newKey();
+    saveLoc();
+    if (!m && history.replaceState) {
+      history.replaceState(null, "", location.pathname + "#k=" + L.key);
     }
-    var floatable = live.filter(function (x) { return pins.indexOf(x) < 0; });
-    var yes = floatable.filter(function (x) { return S.marks[x.id] === "yes"; });
-    var rest = floatable.filter(function (x) { return S.marks[x.id] !== "yes"; });
-    return pins.concat(yes, rest);
+  })();
+
+  function mergeInto(remote) {
+    var changed = false;
+    for (var s in remote) {
+      if (!D[s]) D[s] = {};
+      var rs = remote[s];
+      for (var k in rs) {
+        var r = rs[k], mine = D[s][k];
+        if (!r || typeof r.t !== "number") continue;
+        if (!mine || r.t > mine.t) { D[s][k] = r; changed = true; }
+      }
+    }
+    if (changed) saveDoc();
+    return changed;
+  }
+
+  function setSync(state, label) {
+    sync.state = state;
+    var bar = document.getElementById("syncBar");
+    bar.className = "syncbar " + state;
+    bar.innerHTML = '<span class="d"></span><span>' + esc(label) + "</span>" +
+      '<button id="btnShare">Share</button>';
+  }
+
+  function pull() {
+    if (!navigator.onLine) { setSync("off", "Offline — saved on this phone"); return Promise.resolve(); }
+    setSync("busy", "Checking…");
+    return fetch("/api/birth", { headers: { "x-birth-key": L.key }, cache: "no-store" })
+      .then(function (r) { return r.ok ? r.json() : Promise.reject(r.status); })
+      .then(function (j) {
+        if (mergeInto(j.doc || {})) renderSafely();
+        setSync("ok", "Synced");
+      })
+      .catch(function (e) {
+        setSync(e === 503 ? "off" : "err",
+          e === 503 ? "Sync unavailable — saved on this phone" : "Can't reach sync — saved on this phone");
+      });
+  }
+
+  function push() {
+    if (sync.busy) { sync.pending = true; return; }
+    if (!navigator.onLine) { sync.pending = true; setSync("off", "Offline — saved on this phone"); return; }
+    sync.busy = true;
+    sync.pending = false;
+    setSync("busy", "Saving…");
+    fetch("/api/birth", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ key: L.key, doc: D }),
+      keepalive: true
+    })
+      .then(function (r) { return r.ok ? r.json() : Promise.reject(r.status); })
+      .then(function (j) {
+        if (mergeInto(j.doc || {})) renderSafely();
+        setSync("ok", "Synced");
+      })
+      .catch(function (e) {
+        sync.pending = true;
+        setSync(e === 503 ? "off" : "err",
+          e === 503 ? "Sync unavailable — saved on this phone" : "Not synced — saved on this phone");
+      })
+      .then(function () {
+        sync.busy = false;
+        if (sync.pending) setTimeout(push, 2000);
+      });
+  }
+
+  function schedulePush() {
+    clearTimeout(sync.timer);
+    sync.timer = setTimeout(push, 1000);
+  }
+
+  /* ---------------- answers ---------------- */
+  function qkey(secId, q) { return secId + "." + q.id; }
+
+  function answerLines(secId, q) {
+    var v = get("plan", qkey(secId, q));
+    if (v == null || v === "") return [];
+    if (q.type === "text" || q.type === "note") return [{ free: true, s: String(v) }];
+    var picked = Array.isArray(v) ? v : [v];
+    return (q.opts || [])
+      .filter(function (o) { return picked.indexOf(o.v) >= 0 && o.say; })
+      .map(function (o) { return { free: false, s: o.say }; });
+  }
+
+  function isAnswered(secId, q) {
+    var v = get("plan", qkey(secId, q));
+    return v != null && v !== "" && !(Array.isArray(v) && !v.length);
+  }
+
+  function stepProgress(i) {
+    var st = STEPS[i];
+    if (st.kind === "plan") {
+      var done = st.qs.filter(function (q) { return isAnswered(st.id, q); }).length;
+      return { done: done, total: st.qs.length };
+    }
+    var items = ITEMS.filter(function (it) { return st.cats.indexOf(it.cat) >= 0; });
+    var m = items.filter(function (it) { return get("marks", it.id); }).length;
+    return { done: m, total: items.length };
+  }
+
+  function dropStar(sk) { if (get("stars", sk)) set("stars", sk, null); }
+
+  function starKeys() {
+    var out = [];
+    for (var k in D.stars) if (D.stars[k] && D.stars[k].v) out.push(k);
+    return out;
   }
 
   function vetoWords() {
-    return S.vetoes.map(function (v) { return (v || "").trim(); }).filter(Boolean);
+    return ["0", "1", "2"].map(function (i) { return (get("vetoes", i, "") || "").trim(); })
+      .filter(Boolean);
   }
 
-  /* ---------------- veto block ---------------- */
+  /* ---------------- shared bits ---------------- */
+  function resolve(trig) {
+    var live = trig.items.map(function (id) { return BY[id]; })
+      .filter(function (it) { return it && get("marks", it.id) !== "veto"; });
+    var pins = [];
+    for (var i = 0; i < trig.items.length && pins.length < (trig.pin || 0); i++) {
+      var it = BY[trig.items[i]];
+      if (it && get("marks", it.id) !== "veto") pins.push(it);
+    }
+    var rest = live.filter(function (x) { return pins.indexOf(x) < 0; });
+    var yes = rest.filter(function (x) { return get("marks", x.id) === "yes"; });
+    var no = rest.filter(function (x) { return get("marks", x.id) !== "yes"; });
+    return pins.concat(yes, no);
+  }
+
   function vetoStrip() {
     var v = vetoWords();
     if (!v.length) return '<div class="vetobar empty">No vetoes written down</div>';
     return '<div class="vetobar"><b>NOT</b>' +
       v.map(function (x) { return "<span>" + esc(x) + "</span>"; }).join("") + "</div>";
   }
-
   function vetoRead() {
     var v = vetoWords();
     return '<section class="vetobox"><h2>She does not want</h2>' +
-      (v.length
-        ? '<ul class="vetolist">' + v.map(function (x) { return "<li>" + esc(x) + "</li>"; }).join("") + "</ul>"
-        : '<div class="vetoempty">Nothing written down yet — fill this in with her in Prep mode.</div>') +
+      (v.length ? '<ul class="vetolist">' + v.map(function (x) { return "<li>" + esc(x) + "</li>"; }).join("") + "</ul>"
+                : '<div class="vetoempty">Nothing written down yet — fill this in on the Vetoes step.</div>') +
       "</section>";
   }
 
-  function vetoEdit() {
-    return '<section class="vetobox"><h2>Her three vetoes</h2>' +
-      '<div class="vetoinputs">' +
-      S.vetoes.slice(0, 3).map(function (v, i) {
-        return '<input type="text" data-veto="' + i + '" value="' + esc(v) +
-          '" placeholder="' + ["Do not offer me…", "Do not say…", "Do not…"][i] +
-          '" autocomplete="off" autocapitalize="sentences">';
-      }).join("") +
-      "</div></section>";
-  }
-
-  /* ---------------- item card ---------------- */
   function itemCard(it, withMarks) {
-    var m = S.marks[it.id];
-    var dot = m === "yes" ? '<span class="dot"></span>'
-            : m === "maybe" ? '<span class="dot m"></span>' : "";
+    var m = get("marks", it.id);
+    var dot = m === "yes" ? '<span class="dot"></span>' : m === "maybe" ? '<span class="dot m"></span>' : "";
     var h = '<article class="item' + (m === "veto" ? " vetoed" : "") + '">' +
       '<div class="nm">' + dot + "<span>" + esc(it.name) + "</span></div>" +
       '<div class="how">' + esc(it.how) + "</div>" +
       (it.got ? '<div class="got">' + esc(it.got) + "</div>" : "");
     if (withMarks) {
-      var tags = TRIGGERS.filter(function (t) { return t.items.indexOf(it.id) >= 0; })
-        .map(function (t) { return t.name; });
-      if (tags.length) h += '<div class="trigtags">Room mode: ' + esc(tags.join(" · ")) + "</div>";
       h += '<div class="marks" data-item="' + esc(it.id) + '">' +
         ["yes", "maybe", "veto"].map(function (x) {
           return '<button data-m="' + x + '" aria-pressed="' + (m === x) + '">' + x.toUpperCase() + "</button>";
@@ -692,100 +669,201 @@ const JOBS = {
     return h + "</article>";
   }
 
-  /* ---------------- room mode ---------------- */
-  function renderRoom() {
-    if (!S.trig) {
-      return vetoRead() + '<div class="grid">' + TRIGGERS.map(function (t) {
-        return '<button class="trig" data-trig="' + esc(t.id) + '">' +
-          '<span class="ic">' + t.ic + "</span>" +
-          '<span class="tn">' + esc(t.name) + "</span>" +
-          (t.sub ? '<span class="ts">' + esc(t.sub) + "</span>" : "") +
-          "</button>";
+  /* ---------------- plan wizard ---------------- */
+  function renderWizardHome() {
+    var totalQ = 0, doneQ = 0;
+    STEPS.forEach(function (_, i) { var p = stepProgress(i); totalQ += p.total; doneQ += p.done; });
+    var pct = totalQ ? Math.round((doneQ / totalQ) * 100) : 0;
+    var resume = L.step != null ? L.step : firstUnfinished();
+
+    var h = '<div class="prepnote">Work through this with Britt whenever you have twenty minutes. ' +
+      'It saves as you go and syncs to both phones. Two printouts come out the other end: ' +
+      'a one-page birth plan for the care team, and your comfort pocket sheet.</div>' +
+      '<div class="prog"><i style="width:' + pct + '%"></i></div>' +
+      '<div class="tally"><span><b>' + doneQ + "</b> of <b>" + totalQ + "</b> answered</span>" +
+      "<span><b>" + starKeys().length + "</b>/3 starred</span></div>" +
+      '<button class="bigbtn" data-step="' + resume + '">' +
+      (doneQ ? "CONTINUE — " + esc(STEPS[resume].title) : "START") + "</button>";
+
+    function rows(from, to) {
+      var out = '<div class="steplist">';
+      for (var i = from; i < to; i++) {
+        var p = stepProgress(i);
+        var cls = p.done === 0 ? "" : p.done >= p.total ? " done" : " part";
+        out += '<button class="steprow' + cls + '" data-step="' + i + '">' +
+          '<span class="ring">' + (p.done >= p.total ? "✓" : p.done ? "•" : "") + "</span>" +
+          "<span>" + esc(STEPS[i].title) + "</span>" +
+          '<span class="cnt">' + p.done + "/" + p.total + "</span></button>";
+      }
+      return out + "</div>";
+    }
+
+    h += '<div class="chapter">Birth plan — for the care team</div>' + rows(0, PLAN_STEPS);
+    h += '<div class="chapter">Comfort measures — for me</div>' + rows(PLAN_STEPS, STEPS.length);
+    h += '<button class="ghostbtn" id="btnPrint2">PRINT / EXPORT</button>';
+    return h;
+  }
+
+  function firstUnfinished() {
+    for (var i = 0; i < STEPS.length; i++) {
+      var p = stepProgress(i);
+      if (p.done < p.total) return i;
+    }
+    return 0;
+  }
+
+  function renderQuestion(secId, q) {
+    var key = qkey(secId, q);
+    var v = get("plan", key);
+    var starred = !!get("stars", key);
+    var freeform = q.type === "text" || q.type === "note";
+    var h = '<div class="q"><div class="qhead"><div class="qt">' + esc(q.q) + "</div>" +
+      (freeform
+        ? '<button class="star" data-star="' + esc(key) + '" aria-pressed="' + starred +
+          '" title="One of our top 3">' + (starred ? "★" : "☆") + "</button>"
+        : "") + "</div>" +
+      (freeform ? "" : '<div class="hint">Star a choice to put it in the top-3 box on the plan</div>');
+
+    if (q.type === "text") {
+      h += '<input class="enterinput" type="text" data-ans="' + esc(key) + '" value="' + esc(v || "") +
+        '" placeholder="' + esc(q.ph || "") + '" autocomplete="off">';
+    } else if (q.type === "note") {
+      h += '<textarea class="entertext" data-ans="' + esc(key) + '" placeholder="' +
+        esc(q.ph || "") + '">' + esc(v || "") + "</textarea>";
+    } else {
+      var multi = q.type === "many";
+      var picked = multi ? (Array.isArray(v) ? v : []) : [v];
+      h += '<div class="opts">' + q.opts.map(function (o) {
+        var on = picked.indexOf(o.v) >= 0;
+        var sk = key + ":" + o.v;
+        // Only a chosen option that actually prints can be a top-3 priority.
+        var canStar = on && !!o.say;
+        return '<div class="optrow">' +
+          '<button class="opt ' + (multi ? "check" : "radio") + '" data-opt="' + esc(o.v) +
+          '" data-q="' + esc(key) + '" data-multi="' + multi + '" aria-pressed="' + on + '">' +
+          '<span class="bx">' + (on ? "✓" : "") + "</span><span>" + esc(o.label) + "</span></button>" +
+          (canStar ? '<button class="ostar" data-star="' + esc(sk) + '" aria-pressed="' +
+            !!get("stars", sk) + '" title="One of our top 3">' +
+            (get("stars", sk) ? "★" : "☆") + "</button>" : "") +
+          "</div>";
       }).join("") + "</div>";
     }
-    var t = TRIGGERS.filter(function (x) { return x.id === S.trig; })[0];
-    if (!t) { S.trig = null; return renderRoom(); }
+    return h + "</div>";
+  }
 
-    var list = resolve(t);
-    var top = list.slice(0, 4);
-    var more = list.slice(4);
+  function renderStep(i) {
+    var st = STEPS[i];
+    var pct = Math.round(((i + 1) / STEPS.length) * 100);
+    var h = '<button class="stepno" id="btnSteps">&#9664; ALL STEPS &middot; ' +
+      (i + 1) + " OF " + STEPS.length + "</button>" +
+      '<div class="prog"><i style="width:' + pct + '%"></i></div>' +
+      '<h2 class="steptitle">' + esc(st.title) + "</h2>" +
+      (st.blurb ? '<div class="blurb">' + esc(st.blurb) + "</div>" : "");
 
-    var h = vetoStrip() + (t.rule ? '<div class="rule">' + esc(t.rule) + "</div>" : "");
+    if (st.kind === "triage") {
+      var items = ITEMS.filter(function (it) { return st.cats.indexOf(it.cat) >= 0; });
+      h += '<div class="blurb">Mark each one. Vetoed items vanish from Room mode and both printouts; ' +
+        "yes items sort to the top.</div>" +
+        items.map(function (it) { return itemCard(it, true); }).join("");
+      return h;
+    }
 
-    h += top.length
-      ? top.map(function (i) { return itemCard(i, false); }).join("")
-      : '<div class="none">Everything here is vetoed. Go back and pick another trigger.</div>';
+    // the vetoes live on the pain step, where they actually get decided
+    if (st.id === "pain") {
+      h += '<div class="q"><div class="qhead"><div class="qt">Three things you know you won\'t want</div></div>' +
+        '<div class="blurb">These print on both sheets and show at the top of Room mode.</div>' +
+        '<div class="vetoinputs">' +
+        ["0", "1", "2"].map(function (i2) {
+          return '<input type="text" data-veto="' + i2 + '" value="' + esc(get("vetoes", i2, "")) +
+            '" placeholder="' + ["Don't offer me…", "Don't say…", "Don't…"][i2] +
+            '" autocomplete="off" autocapitalize="sentences">';
+        }).join("") + "</div></div>";
+    }
 
-    if (more.length) {
-      h += '<button class="morebtn" id="btnMore">+ ' + more.length + " more</button>" +
-        '<div id="moreWrap" class="hidden">' +
-        more.map(function (i) { return itemCard(i, false); }).join("") + "</div>";
+    h += st.qs.map(function (q) { return renderQuestion(st.id, q); }).join("");
+
+    if (i === STEPS.length - 1) {
+      h += '<button class="ghostbtn" id="btnPrint2">PRINT / EXPORT</button>';
     }
     return h;
   }
 
-  /* ---------------- prep mode ---------------- */
+  function renderPlan() {
+    return L.step == null ? renderWizardHome() : renderStep(L.step);
+  }
+
+  /* ---------------- list (browse) mode ---------------- */
   function renderPrep() {
     var counts = { yes: 0, maybe: 0, veto: 0 };
-    ITEMS.forEach(function (i) { if (S.marks[i.id]) counts[S.marks[i.id]]++; });
-
-    var h = '<div class="prepnote">Go through this with Britt. Mark every item yes, maybe, or veto. ' +
-      'Vetoed items disappear from Room mode and from the printed sheet; yes items sort to the top. ' +
-      'The point is that by labor day it is already in your head.</div>' +
-      vetoEdit() +
+    ITEMS.forEach(function (i) { var m = get("marks", i.id); if (m) counts[m]++; });
+    var h = '<div class="prepnote">The whole comfort corpus, for editing a mark you already made. ' +
+      "The guided pass through it lives in Plan mode.</div>" +
+      vetoRead() +
       '<div class="tally"><span><b>' + counts.yes + "</b> yes</span><span><b>" +
       counts.maybe + "</b> maybe</span><span><b>" + counts.veto + "</b> veto</span><span><b>" +
       (ITEMS.length - counts.yes - counts.maybe - counts.veto) + "</b> unmarked</span></div>";
 
     CATS.forEach(function (c) {
-      var id = c[0], label = c[1];
-      var items = ITEMS.filter(function (i) { return i.cat === id; });
+      var items = ITEMS.filter(function (i) { return i.cat === c[0]; });
       if (!items.length) return;
-      var open = !!S.open[id];
-      var done = items.filter(function (i) { return S.marks[i.id]; }).length;
-      h += '<section class="cat"><button class="cathead" data-cat="' + esc(id) + '" aria-expanded="' + open + '">' +
-        '<span class="car">' + (open ? "▼" : "▶") + "</span>" +
-        "<span>" + esc(label) + "</span>" +
+      var open = !!L.open[c[0]];
+      var done = items.filter(function (i) { return get("marks", i.id); }).length;
+      h += '<section class="cat"><button class="cathead" data-cat="' + esc(c[0]) + '" aria-expanded="' + open + '">' +
+        '<span class="car">' + (open ? "▼" : "▶") + "</span><span>" + esc(c[1]) + "</span>" +
         '<span class="cnt">' + done + "/" + items.length + "</span></button>" +
-        (open ? items.map(function (i) { return itemCard(i, true); }).join("") : "") +
-        "</section>";
+        (open ? items.map(function (i) { return itemCard(i, true); }).join("") : "") + "</section>";
     });
+    return h;
+  }
+
+  /* ---------------- room mode ---------------- */
+  function renderRoom() {
+    if (!L.trig) {
+      return vetoRead() + '<div class="grid">' + TRIGGERS.map(function (t) {
+        return '<button class="trig" data-trig="' + esc(t.id) + '">' +
+          '<span class="ic">' + t.ic + '</span><span class="tn">' + esc(t.name) + "</span>" +
+          (t.sub ? '<span class="ts">' + esc(t.sub) + "</span>" : "") + "</button>";
+      }).join("") + "</div>";
+    }
+    var t = TRIGGERS.filter(function (x) { return x.id === L.trig; })[0];
+    if (!t) { L.trig = null; return renderRoom(); }
+
+    var list = resolve(t), top = list.slice(0, 4), more = list.slice(4);
+    var h = vetoStrip() + (t.rule ? '<div class="rule">' + esc(t.rule) + "</div>" : "");
+    h += top.length ? top.map(function (i) { return itemCard(i, false); }).join("")
+                    : '<div class="none">Everything here is vetoed. Go back and pick another trigger.</div>';
+    if (more.length) {
+      h += '<button class="morebtn" id="btnMore">+ ' + more.length + " more</button>" +
+        '<div id="moreWrap" class="hidden">' + more.map(function (i) { return itemCard(i, false); }).join("") + "</div>";
+    }
     return h;
   }
 
   /* ---------------- my job sheet ---------------- */
   function jobRow(j) {
-    var on = !!S.jobs[j[0]];
+    var on = !!L.jobs[j[0]];
     return '<button class="chk" data-job="' + esc(j[0]) + '" aria-pressed="' + on + '">' +
-      '<span class="bx">' + (on ? "✓" : "") + "</span>" +
-      "<span>" + esc(j[1]) + '<span class="sm">' + esc(j[2]) + "</span></span></button>";
+      '<span class="bx">' + (on ? "✓" : "") + '</span><span>' + esc(j[1]) +
+      '<span class="sm">' + esc(j[2]) + "</span></span></button>";
   }
-
   function renderJobs() {
-    var peeOn = S.peeStart != null;
-    return '<div class="sheetin">' +
-      "<h2>On arrival</h2>" + JOBS.arrival.map(jobRow).join("") +
+    return '<div class="sheetin"><h2>On arrival</h2>' + JOBS.arrival.map(jobRow).join("") +
       "<h2>Every hour, all day</h2>" + JOBS.ongoing.map(jobRow).join("") +
-      '<div class="rowbtns">' +
-      '<button id="jobPee">' + (peeOn ? "STOP PEE TIMER" : "START PEE TIMER") + "</button>" +
-      '<button id="jobReset">CLEAR CHECKS</button>' +
-      "</div>" +
-      '<div class="rowbtns"><button class="closebtn" id="jobClose">CLOSE</button></div>' +
-      "</div>";
+      '<div class="rowbtns"><button id="jobPee">' +
+      (L.peeStart != null ? "STOP PEE TIMER" : "START PEE TIMER") +
+      '</button><button id="jobReset">CLEAR CHECKS</button></div>' +
+      '<div class="rowbtns"><button class="closebtn" id="jobClose">CLOSE</button></div></div>';
   }
 
-  /* ---------------- print sheet ---------------- */
-  function buildPrint() {
+  /* ---------------- print: comfort pocket sheet ---------------- */
+  function buildSheetPrint() {
     var v = vetoWords();
     var h = '<div class="ph"><b>LABOR SUPPORT — BRITT</b><span>JOYCE STOCK SNUGGERY · GLENS FALLS</span></div>';
-
     h += '<div class="pveto"><b>SHE DOES NOT WANT</b>' +
       (v.length ? "<ul>" + v.map(function (x) { return "<li>" + esc(x) + "</li>"; }).join("") + "</ul>"
                 : "<div>[ fill in before you go ]</div>") + "</div>";
-
     h += '<div class="prule">DURING a contraction: go quiet, apply pressure, breathe where she can see you.' +
       "<span>BETWEEN contractions is the only time to offer anything new, ask anything, or hand her water.</span></div>";
-
     h += '<div class="jobs"><b>MY JOB</b>' +
       "<p><b>On arrival:</b> " + JOBS.arrival.map(function (j) { return j[1].toLowerCase(); }).join(" · ") + "</p>" +
       "<p><b>All day:</b> " + JOBS.ongoing.map(function (j) { return j[1].toLowerCase(); }).join(" · ") + "</p>" +
@@ -800,22 +878,17 @@ const JOBS = {
         if (!list.length) return "";
         return '<div class="blk"><h3>' + esc(t.name.toUpperCase()) + "</h3>" +
           (t.rule ? '<div class="nt">' + esc(t.rule) + "</div>" : "") +
-          list.map(function (i) {
-            return "<p><b>" + esc(i.name) + ".</b> " + esc(i.how) + "</p>";
-          }).join("") + "</div>";
+          list.map(function (i) { return "<p><b>" + esc(i.name) + ".</b> " + esc(i.how) + "</p>"; }).join("") +
+          "</div>";
       }).join("") + "</div>";
     }
-
-    // Anything not assigned to a page still gets printed, on the back.
     var placed = PRINT_PAGES.join(",").split(",");
     var orphans = TRIGGERS.filter(function (t) { return placed.indexOf(t.id) < 0; })
       .map(function (t) { return t.id; });
 
     h += cols(PRINT_PAGES[0]);
     h += '<div class="ft">FRONT — fold in half twice · brooker.family/birth</div>';
-    h += '<div class="pg2"><div class="ph"><b>LABOR SUPPORT — BRITT</b>' +
-      "<span>BACK</span></div>" +
-      // repeated so the vetoes are readable whichever side is facing up
+    h += '<div class="pg2"><div class="ph"><b>LABOR SUPPORT — BRITT</b><span>BACK</span></div>' +
       '<div class="pveto"><b>SHE DOES NOT WANT</b>' +
       (v.length ? "<ul>" + v.map(function (x) { return "<li>" + esc(x) + "</li>"; }).join("") + "</ul>"
                 : "<div>[ fill in before you go ]</div>") + "</div>" +
@@ -824,57 +897,203 @@ const JOBS = {
     document.getElementById("sheetprint").innerHTML = h;
   }
 
+  /* ---------------- print: the birth plan (one page, for the care team) ---------------- */
+  function buildPlanPrint() {
+    var names = get("plan", "basics.names", "") || "Our birth plan";
+    var due = get("plan", "basics.due", "");
+    var prov = get("plan", "basics.provider", "");
+    var supp = get("plan", "basics.support", "");
+    var health = get("plan", "basics.health", "");
+
+    var h = '<div class="ph"><b>' + esc(names) + "</b><span>BIRTH PLAN</span></div>";
+
+    var who = [];
+    if (due) who.push("<span><b>Due:</b> " + esc(due) + "</span>");
+    if (prov) who.push("<span><b>Provider:</b> " + esc(prov) + "</span>");
+    if (supp) who.push("<span><b>With me:</b> " + esc(supp) + "</span>");
+    who.push("<span><b>Where:</b> Joyce Stock Snuggery, Glens Falls Hospital</span>");
+    h += '<div class="who">' + who.join("") + "</div>";
+
+    // the two things a nurse should read if they read nothing else
+    var stars = starKeys().map(function (k) {
+      var opt = null, base = k;
+      var colon = k.indexOf(":");
+      if (colon > 0) { opt = k.slice(colon + 1); base = k.slice(0, colon); }
+      var parts = base.split("."), sec = SECT[parts[0]];
+      if (!sec) return null;
+      var q = sec.qs.filter(function (x) { return x.id === parts[1]; })[0];
+      if (!q) return null;
+      if (opt) {
+        var o = (q.opts || []).filter(function (x) { return x.v === opt; })[0];
+        return o && o.say ? o.say : null;
+      }
+      var lines = answerLines(parts[0], q);
+      return lines.length ? lines[0].s : null;   // one line, never a paragraph
+    }).filter(Boolean);
+    var vet = vetoWords();
+
+    if (stars.length || vet.length) {
+      h += '<div class="boxes">';
+      if (stars.length) {
+        h += '<div class="box"><b>MOST IMPORTANT TO US</b><ul>' +
+          stars.map(function (x) { return "<li>" + esc(x) + "</li>"; }).join("") + "</ul></div>";
+      }
+      if (vet.length) {
+        h += '<div class="box' + (stars.length ? " half" : "") + '"><b>PLEASE DON\'T</b><ul>' +
+          vet.map(function (x) { return "<li>" + esc(x) + "</li>"; }).join("") + "</ul></div>";
+      }
+      h += "</div>";
+    }
+
+    if (health) {
+      h += '<div class="note"><b>PLEASE KNOW:</b> ' + esc(health) + "</div>";
+    }
+
+    h += '<div class="cols">' + PLAN_PRINT.map(function (secId) {
+      var sec = SECT[secId];
+      if (!sec) return "";
+      var body = "";
+      sec.qs.forEach(function (q) {
+        answerLines(secId, q).forEach(function (l) {
+          body += '<p class="' + (l.free ? "free" : "") + '">' +
+            (l.free ? "<b>" + esc(q.printAs || q.q) + ":</b> " : "") + esc(l.s) + "</p>";
+        });
+      });
+      return body ? '<div class="sec"><h3>' + esc(sec.title) + "</h3>" + body + "</div>" : "";
+    }).join("") + "</div>";
+
+    var closeQ = SECT.closing.qs[0];
+    var closing = get("plan", "closing.words", "") || closeQ.ph;
+    h += '<div class="close">' + esc(closing) + "</div>";
+    h += '<div class="ft">brooker.family/birth · ' + new Date().toLocaleDateString() + "</div>";
+
+    document.getElementById("planprint").innerHTML = h;
+  }
+
+  function buildPrint() { buildSheetPrint(); buildPlanPrint(); }
+
+  function doPrint(which) {
+    buildPrint();
+    document.body.dataset.print = which;
+    window.print();
+  }
+
   /* ---------------- render ---------------- */
   var app = document.getElementById("app");
   var jobSheet = document.getElementById("jobSheet");
+  var modal = document.getElementById("modal");
   var btnBack = document.getElementById("btnBack");
+  var btnNext = document.getElementById("btnNext");
+  var btnPee = document.getElementById("btnPee");
 
   function render(keepScroll) {
     var y = window.scrollY;
-    document.getElementById("mPrep").setAttribute("aria-pressed", S.mode === "prep");
-    document.getElementById("mRoom").setAttribute("aria-pressed", S.mode === "room");
+    ["plan", "prep", "room"].forEach(function (m) {
+      document.getElementById("m" + m[0].toUpperCase() + m.slice(1))
+        .setAttribute("aria-pressed", L.mode === m);
+    });
+
     var brand = document.getElementById("brand");
-    var openTrig = S.mode === "room" && S.trig
-      ? TRIGGERS.filter(function (x) { return x.id === S.trig; })[0] : null;
+    var openTrig = L.mode === "room" && L.trig
+      ? TRIGGERS.filter(function (x) { return x.id === L.trig; })[0] : null;
+    var inStep = L.mode === "plan" && L.step != null;
+    // The pressed mode button already names the mode -- the brand slot is
+    // worth more as the trigger name / step counter than as a duplicate label.
     brand.textContent = openTrig ? (openTrig.short || openTrig.name)
-      : (S.mode === "room" ? "Room mode" : "Prep mode");
+      : inStep ? (L.step + 1) + "/" + STEPS.length : "";
     brand.classList.toggle("open", !!openTrig);
-    app.innerHTML = S.mode === "room" ? renderRoom() : renderPrep();
-    btnBack.classList.toggle("hidden", !(S.mode === "room" && S.trig));
+
+    app.innerHTML = L.mode === "room" ? renderRoom()
+      : L.mode === "plan" ? renderPlan() : renderPrep();
+
+    var inRoom = L.mode === "room";
+    btnBack.classList.toggle("hidden", !(openTrig || inStep));
+    btnNext.classList.toggle("hidden", !inStep);
+    btnPee.classList.toggle("hidden", !inRoom);
+    document.getElementById("btnJob").classList.toggle("hidden", !inRoom);
+    if (inStep) btnNext.textContent = L.step >= STEPS.length - 1 ? "DONE ✓" : "NEXT ▶";
+    document.querySelector(".bar").classList.toggle("hidden", !(inRoom || inStep));
+
     buildPrint();
     tickPee();
     if (keepScroll) window.scrollTo(0, y);
-    save();
+    saveLoc();
   }
 
-  /* ---------------- events (delegated) ---------------- */
-  document.getElementById("mPrep").onclick = function () { S.mode = "prep"; render(); window.scrollTo(0, 0); };
-  document.getElementById("mRoom").onclick = function () { S.mode = "room"; render(); window.scrollTo(0, 0); };
-  document.getElementById("btnPrint").onclick = function () { buildPrint(); window.print(); };
-  btnBack.onclick = function () { S.trig = null; render(); window.scrollTo(0, 0); };
+  // A sync pull mustn't yank the keyboard out from under someone mid-sentence.
+  function renderSafely() {
+    var a = document.activeElement;
+    if (a && (a.tagName === "INPUT" || a.tagName === "TEXTAREA")) return;
+    render(true);
+  }
+
+  function goStep(i) {
+    L.step = Math.max(0, Math.min(STEPS.length - 1, i));
+    render();
+    window.scrollTo(0, 0);
+  }
+
+  /* ---------------- events ---------------- */
+  document.getElementById("mPlan").onclick = function () { L.mode = "plan"; render(); window.scrollTo(0, 0); };
+  document.getElementById("mPrep").onclick = function () { L.mode = "prep"; render(); window.scrollTo(0, 0); };
+  document.getElementById("mRoom").onclick = function () { L.mode = "room"; render(); window.scrollTo(0, 0); };
+  document.getElementById("btnPrint").onclick = openPrintPicker;
+
+  btnBack.onclick = function () {
+    if (L.mode === "room") { L.trig = null; render(); }
+    else if (L.step === 0) { L.step = null; render(); }
+    else goStep(L.step - 1);
+    window.scrollTo(0, 0);
+  };
+  btnNext.onclick = function () {
+    if (L.step >= STEPS.length - 1) { L.step = null; render(); window.scrollTo(0, 0); }
+    else goStep(L.step + 1);
+  };
+
+  document.getElementById("syncBar").addEventListener("click", function (e) {
+    if (e.target.closest("#btnShare")) openShare();
+  });
 
   app.addEventListener("click", function (e) {
-    var t = e.target.closest("[data-trig]");
-    if (t) { S.trig = t.getAttribute("data-trig"); render(); window.scrollTo(0, 0); return; }
+    var el;
+    if ((el = e.target.closest("[data-step]"))) { goStep(+el.getAttribute("data-step")); return; }
+    if (e.target.closest("#btnSteps")) { L.step = null; render(); window.scrollTo(0, 0); return; }
+    if (e.target.closest("#btnPrint2")) { openPrintPicker(); return; }
 
-    var c = e.target.closest("[data-cat]");
-    if (c) {
-      var id = c.getAttribute("data-cat");
-      S.open[id] = !S.open[id];
-      render(true);
-      return;
+    if ((el = e.target.closest("[data-trig]"))) { L.trig = el.getAttribute("data-trig"); render(); window.scrollTo(0, 0); return; }
+    if ((el = e.target.closest("[data-cat]"))) {
+      var c = el.getAttribute("data-cat"); L.open[c] = !L.open[c]; render(true); return;
     }
-
-    var m = e.target.closest("[data-m]");
-    if (m) {
-      var itemId = m.parentNode.getAttribute("data-item");
-      var val = m.getAttribute("data-m");
-      S.marks[itemId] = S.marks[itemId] === val ? undefined : val;
-      if (!S.marks[itemId]) delete S.marks[itemId];
-      render(true);
-      return;
+    if ((el = e.target.closest("[data-m]"))) {
+      var itemId = el.parentNode.getAttribute("data-item"), val = el.getAttribute("data-m");
+      set("marks", itemId, get("marks", itemId) === val ? null : val);
+      render(true); return;
     }
-
+    if ((el = e.target.closest("[data-star]"))) {
+      var sk = el.getAttribute("data-star"), on = !!get("stars", sk);
+      if (!on && starKeys().length >= 3) {
+        el.textContent = "3 max";
+        setTimeout(function () { render(true); }, 900);
+        return;
+      }
+      set("stars", sk, on ? null : true);
+      render(true); return;
+    }
+    if ((el = e.target.closest("[data-opt]"))) {
+      var key = el.getAttribute("data-q"), v = el.getAttribute("data-opt");
+      if (el.getAttribute("data-multi") === "true") {
+        var cur = get("plan", key); cur = Array.isArray(cur) ? cur.slice() : [];
+        var at = cur.indexOf(v);
+        if (at >= 0) { cur.splice(at, 1); dropStar(key + ":" + v); } else cur.push(v);
+        set("plan", key, cur);
+      } else {
+        var was = get("plan", key);
+        if (was && was !== v) dropStar(key + ":" + was);
+        if (was === v) dropStar(key + ":" + v);
+        set("plan", key, was === v ? null : v);
+      }
+      render(true); return;
+    }
     if (e.target.closest("#btnMore")) {
       document.getElementById("moreWrap").classList.remove("hidden");
       e.target.closest("#btnMore").remove();
@@ -882,62 +1101,89 @@ const JOBS = {
   });
 
   app.addEventListener("input", function (e) {
-    var v = e.target.getAttribute && e.target.getAttribute("data-veto");
-    if (v == null) return;
-    S.vetoes[+v] = e.target.value;
-    save();
-    buildPrint();
+    var t = e.target, k;
+    if ((k = t.getAttribute("data-veto")) != null) { set("vetoes", k, t.value); return; }
+    if ((k = t.getAttribute("data-ans")) != null) { set("plan", k, t.value); return; }
   });
 
-  /* ---------------- my job sheet ---------------- */
-  function openJobs() { jobSheet.innerHTML = renderJobs(); jobSheet.classList.remove("hidden"); }
-  function closeJobs() { jobSheet.classList.add("hidden"); }
-  document.getElementById("btnJob").onclick = openJobs;
+  /* ---------------- modals ---------------- */
+  function openModal(html) { modal.innerHTML = '<div class="modalin">' + html + "</div>"; modal.classList.remove("hidden"); }
+  function closeModal() { modal.classList.add("hidden"); }
 
+  function openPrintPicker() {
+    openModal("<h2>Print</h2>" +
+      '<button class="pickbtn" data-print="plan">Birth plan' +
+      "<span>One page for the nurses and your provider. Only what you've answered.</span></button>" +
+      '<button class="pickbtn" data-print="sheet">Comfort pocket sheet' +
+      "<span>Two sides, folds to pocket size. Comfort measures by trigger — this one's yours.</span></button>" +
+      '<div class="rowbtns"><button class="closebtn" id="modalClose">CLOSE</button></div>');
+  }
+
+  function openShare() {
+    var url = location.origin + location.pathname + "#k=" + L.key;
+    openModal("<h2>Share with Britt</h2>" +
+      "<p>Open this link on her phone and you'll both be editing the same plan. " +
+      "Anyone with the link can read and edit it, so don't post it anywhere.</p>" +
+      '<div class="linkbox">' + esc(url) + "</div>" +
+      '<div class="rowbtns"><button id="btnCopy">COPY LINK</button>' +
+      '<button id="btnPull">REFRESH NOW</button></div>' +
+      '<div class="rowbtns"><button class="closebtn" id="modalClose">CLOSE</button></div>');
+  }
+
+  modal.addEventListener("click", function (e) {
+    if (e.target === modal || e.target.closest("#modalClose")) { closeModal(); return; }
+    var p = e.target.closest("[data-print]");
+    if (p) { closeModal(); setTimeout(function () { doPrint(p.getAttribute("data-print")); }, 60); return; }
+    if (e.target.closest("#btnCopy")) {
+      var url = location.origin + location.pathname + "#k=" + L.key;
+      var btn = e.target.closest("#btnCopy");
+      (navigator.clipboard ? navigator.clipboard.writeText(url) : Promise.reject())
+        .then(function () { btn.textContent = "COPIED ✓"; })
+        .catch(function () { btn.textContent = "SELECT IT ABOVE"; });
+      return;
+    }
+    if (e.target.closest("#btnPull")) { pull(); closeModal(); }
+  });
+
+  /* ---------------- my job ---------------- */
+  function openJobs() { jobSheet.innerHTML = renderJobs(); jobSheet.classList.remove("hidden"); }
+  document.getElementById("btnJob").onclick = openJobs;
   jobSheet.addEventListener("click", function (e) {
-    if (e.target === jobSheet || e.target.closest("#jobClose")) { closeJobs(); return; }
+    if (e.target === jobSheet || e.target.closest("#jobClose")) { jobSheet.classList.add("hidden"); return; }
     var j = e.target.closest("[data-job]");
     if (j) {
       var id = j.getAttribute("data-job");
-      if (S.jobs[id]) delete S.jobs[id]; else S.jobs[id] = true;
-      save(); openJobs(); return;
+      if (L.jobs[id]) delete L.jobs[id]; else L.jobs[id] = true;
+      saveLoc(); openJobs(); return;
     }
-    if (e.target.closest("#jobPee")) {
-      S.peeStart = S.peeStart == null ? Date.now() : null;
-      save(); tickPee(); openJobs(); return;
-    }
-    if (e.target.closest("#jobReset")) {
-      S.jobs = {}; save(); openJobs(); return;
-    }
+    if (e.target.closest("#jobPee")) { L.peeStart = L.peeStart == null ? Date.now() : null; saveLoc(); tickPee(); openJobs(); return; }
+    if (e.target.closest("#jobReset")) { L.jobs = {}; saveLoc(); openJobs(); }
   });
 
-  /* ---------------- hourly pee nudge (visual only, no sound) ---------------- */
-  var btnPee = document.getElementById("btnPee");
+  /* ---------------- hourly pee nudge (visual only) ---------------- */
   function tickPee() {
-    if (S.peeStart == null) {
-      btnPee.textContent = "PEE TIMER";
-      btnPee.classList.remove("due");
-      return;
-    }
-    var ms = Date.now() - S.peeStart;
-    var mins = Math.floor(ms / 60000);
-    var due = mins >= 60;
-    btnPee.textContent = (due ? "▸ PEE  " : "PEE  ") +
-      Math.floor(mins / 60) + ":" + ("0" + (mins % 60)).slice(-2);
+    if (L.peeStart == null) { btnPee.textContent = "PEE TIMER"; btnPee.classList.remove("due"); return; }
+    var mins = Math.floor((Date.now() - L.peeStart) / 60000), due = mins >= 60;
+    btnPee.textContent = (due ? "▸ PEE  " : "PEE  ") + Math.floor(mins / 60) + ":" + ("0" + (mins % 60)).slice(-2);
     btnPee.classList.toggle("due", due);
   }
-  btnPee.onclick = function () {
-    S.peeStart = Date.now();   // tap = she just went, restart the hour
-    save(); tickPee();
-  };
+  btnPee.onclick = function () { L.peeStart = Date.now(); saveLoc(); tickPee(); };
   setInterval(tickPee, 15000);
-  document.addEventListener("visibilitychange", function () { if (!document.hidden) tickPee(); });
 
+  /* ---------------- lifecycle ---------------- */
   window.addEventListener("beforeprint", buildPrint);
+  window.addEventListener("online", function () { pull().then(push); });
+  window.addEventListener("offline", function () { setSync("off", "Offline — saved on this phone"); });
+  document.addEventListener("visibilitychange", function () {
+    if (document.hidden) { if (sync.pending) push(); }
+    else { tickPee(); pull(); }
+  });
+  setInterval(function () { if (!document.hidden) pull(); }, 90000);
 
   render();
+  setSync("busy", "Checking…");
+  pull().then(function () { if (sync.pending) push(); });
 
-  /* ---------------- offline ---------------- */
   if ("serviceWorker" in navigator && location.protocol.indexOf("http") === 0) {
     navigator.serviceWorker.register("/birth-sw.js", { scope: "/birth" }).catch(function () {});
   }
