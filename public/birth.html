@@ -318,6 +318,16 @@ body:has(.bar.hidden){padding-bottom:28px}
 .notice b{color:#fff2cf}
 .notice .linkbox{margin-top:9px}
 .notice .rowbtns{position:static;background:none;padding:0;margin-top:11px}
+.memberlist{margin-bottom:12px}
+.member{
+  display:flex;align-items:center;gap:10px;padding:12px 13px;margin:7px 0;
+  border:1px solid var(--line);border-radius:12px;background:var(--card);font-size:15.5px;
+}
+.member span{flex:1;word-break:break-all}
+.member i{font-style:normal;font-size:11.5px;letter-spacing:.12em;color:var(--gold);text-transform:uppercase}
+.member button{color:var(--veto);font-size:13px;font-weight:700;letter-spacing:.06em;padding:6px 2px}
+.err{color:var(--veto);font-size:14px;margin-top:9px;line-height:1.35}
+.syncbar.out .d{background:var(--gold)}
 .starred{margin:14px 0}
 .starred .s{
   display:flex;gap:9px;padding:11px 13px;margin:7px 0;border-radius:12px;
@@ -439,7 +449,14 @@ body:has(.bar.hidden){padding-bottom:28px}
      stamps a timestamp so two phones merge per field instead of one
      overwriting the other wholesale. */
   var D = { marks: {}, plan: {}, vetoes: {}, stars: {} };
-  var L = { mode: "plan", trig: null, step: null, open: {}, jobs: {}, peeStart: null, key: null };
+  // Every field must be listed: the loader below copies the keys of this
+  // object, so anything missing here silently fails to survive a reload.
+  var L = {
+    mode: "plan", trig: null, step: null, open: {}, jobs: {}, peeStart: null,
+    account: null,      // last known signed-in identity, so offline doesn't look signed out
+    mergedWith: null,   // whose plan this phone has already reconciled against
+    authMsg: null       // one-shot message from the sign-in redirect
+  };
 
   function readJSON(k) {
     try { return JSON.parse(localStorage.getItem(k) || "null"); } catch (e) { return null; }
@@ -497,48 +514,128 @@ body:has(.bar.hidden){padding-bottom:28px}
       .replace(/"/g, "&quot;");
   }
 
-  /* ---------------- sync ---------------- */
-  var sync = { state: "idle", pending: false, timer: null, busy: false };
+  /* ---------------- account + sync ----------------
+     Identity comes from signing in with Google. There is no key, no secret
+     link, and nothing to lose: the server resolves your plan from your
+     membership. Signed out, the tool still works completely -- it just keeps
+     everything on this phone. */
+  var A = { signedIn: false, configured: true, email: null, role: null, members: [] };
+  var sync = { state: "idle", pending: false, timer: null, busy: false, decided: false };
+  var pendingRemote = null;
 
-  function newKey() {
-    var a = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-    var out = "", buf = new Uint8Array(24);
-    (window.crypto || window.msCrypto).getRandomValues(buf);
-    for (var i = 0; i < buf.length; i++) out += a[buf[i] % a.length];
-    return out;
+  if (L.account && L.account.email) {
+    // Assume the last known session until the server says otherwise, so a
+    // dead hospital network doesn't make the UI claim you're signed out.
+    A.signedIn = true; A.email = L.account.email; A.role = L.account.role || "member";
+  }
+
+  function api(path, opts) {
+    return fetch(path, Object.assign({ credentials: "same-origin", cache: "no-store" }, opts || {}));
   }
 
   function docHasContent(d) {
-    for (var s in d) for (var k in d[s]) {
-      var leaf = d[s][k];
+    for (var s2 in d) for (var k in d[s2]) {
+      var leaf = d[s2][k];
       if (leaf && leaf.v !== null && leaf.v !== undefined && leaf.v !== "" &&
           !(Array.isArray(leaf.v) && !leaf.v.length)) return true;
     }
     return false;
   }
 
-  (function initKey() {
-    var m = /[#&]k=([A-Za-z0-9_-]{16,64})/.exec(location.hash);
-    var shared = m && m[1];
+  function setSync(state, label) {
+    sync.state = state;
+    var bar = document.getElementById("syncBar");
+    bar.className = "syncbar " + state;
+    bar.innerHTML = '<span class="d"></span><span>' + esc(label) + "</span>" +
+      '<button id="btnAccount">' + (A.signedIn ? "Account" : "Sign in") + "</button>";
+  }
 
-    // Opening someone else's link on a phone that already has its own plan:
-    // the two documents must not be merged. Local edits are newer, so they'd
-    // win the merge and then be pushed into the shared plan on the next
-    // change -- quietly overwriting it with a plan nobody meant to share.
-    // Park the old one under its own key instead; nothing is lost.
-    if (shared && L.key && shared !== L.key && docHasContent(D)) {
-      writeJSON(DOC_KEY + "." + L.key, D);
-      L.switchedFrom = L.key;
-      D = { marks: {}, plan: {}, vetoes: {}, stars: {} };
-      saveDoc();
+  function signedOutLabel() {
+    return A.configured === false
+      ? "Sign-in not set up — saved on this phone"
+      : "Not signed in — saved on this phone";
+  }
+
+  function refreshAccount() {
+    return api("/api/birth/auth/me")
+      .then(function (r) { return r.json(); })
+      .then(function (j) {
+        A = {
+          signedIn: !!j.signedIn, configured: j.configured !== false,
+          email: j.email || null, role: j.role || null, members: j.members || []
+        };
+        L.account = j.signedIn ? { email: j.email, role: j.role } : null;
+        saveLoc();
+        return A;
+      })
+      .catch(function () { return A; });   // offline: keep what we had
+  }
+
+  function handleSyncError(e) {
+    if (e === 401) {
+      A.signedIn = false; L.account = null; saveLoc();
+      setSync("out", signedOutLabel());
+      render(true);
+      return;
     }
-    if (shared) L.key = shared;
-    if (!L.key) L.key = newKey();
-    saveLoc();
-    if (!shared && history.replaceState) {
-      history.replaceState(null, "", location.pathname + "#k=" + L.key);
+    sync.pending = true;
+    setSync(e === 503 ? "off" : "err",
+      e === 503 ? "Sync unavailable — saved on this phone" : "Not synced — saved on this phone");
+  }
+
+  /* The one moment the two copies can genuinely disagree: this phone has
+     answers and the shared plan already has some too. Merging silently could
+     resurrect a draft nobody meant to share, so ask once. */
+  function adopt(remote) {
+    if (!sync.decided && L.mergedWith !== A.email &&
+        docHasContent(D) && docHasContent(remote)) {
+      pendingRemote = remote;
+      openImportModal();
+      return false;
     }
-  })();
+    sync.decided = true;
+    L.mergedWith = A.email; saveLoc();
+    if (mergeInto(remote)) renderSafely();
+    // Signing in on a phone that already has answers has to send them up.
+    // Without this they'd sit here unsynced until the next edit happened to
+    // trigger a push -- and on a second phone, never.
+    if (docHasContent(D)) schedulePush();
+    return true;
+  }
+
+  function pull() {
+    if (!navigator.onLine) { setSync("off", "Offline — saved on this phone"); return Promise.resolve(); }
+    if (!A.signedIn) { setSync("out", signedOutLabel()); return Promise.resolve(); }
+    setSync("busy", "Checking\u2026");
+    return api("/api/birth")
+      .then(function (r) { return r.ok ? r.json() : Promise.reject(r.status); })
+      .then(function (j) { if (adopt(j.doc || {})) setSync("ok", "Synced"); })
+      .catch(handleSyncError);
+  }
+
+  function push() {
+    if (!A.signedIn) { setSync("out", signedOutLabel()); return; }
+    if (sync.busy) { sync.pending = true; return; }
+    if (!navigator.onLine) { sync.pending = true; setSync("off", "Offline — saved on this phone"); return; }
+    sync.busy = true; sync.pending = false;
+    setSync("busy", "Saving\u2026");
+    api("/api/birth", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ doc: D }),
+      keepalive: true
+    })
+      .then(function (r) { return r.ok ? r.json() : Promise.reject(r.status); })
+      .then(function (j) { if (mergeInto(j.doc || {})) renderSafely(); setSync("ok", "Synced"); })
+      .catch(handleSyncError)
+      .then(function () { sync.busy = false; if (sync.pending) setTimeout(push, 2000); });
+  }
+
+  function schedulePush() {
+    if (!A.signedIn) return;               // nothing to push to yet
+    clearTimeout(sync.timer);
+    sync.timer = setTimeout(push, 1000);
+  }
 
   function mergeInto(remote) {
     var changed = false;
@@ -555,61 +652,6 @@ body:has(.bar.hidden){padding-bottom:28px}
     return changed;
   }
 
-  function setSync(state, label) {
-    sync.state = state;
-    var bar = document.getElementById("syncBar");
-    bar.className = "syncbar " + state;
-    bar.innerHTML = '<span class="d"></span><span>' + esc(label) + "</span>" +
-      '<button id="btnShare">Share</button>';
-  }
-
-  function pull() {
-    if (!navigator.onLine) { setSync("off", "Offline — saved on this phone"); return Promise.resolve(); }
-    setSync("busy", "Checking…");
-    return fetch("/api/birth", { headers: { "x-birth-key": L.key }, cache: "no-store" })
-      .then(function (r) { return r.ok ? r.json() : Promise.reject(r.status); })
-      .then(function (j) {
-        if (mergeInto(j.doc || {})) renderSafely();
-        setSync("ok", "Synced");
-      })
-      .catch(function (e) {
-        setSync(e === 503 ? "off" : "err",
-          e === 503 ? "Sync unavailable — saved on this phone" : "Can't reach sync — saved on this phone");
-      });
-  }
-
-  function push() {
-    if (sync.busy) { sync.pending = true; return; }
-    if (!navigator.onLine) { sync.pending = true; setSync("off", "Offline — saved on this phone"); return; }
-    sync.busy = true;
-    sync.pending = false;
-    setSync("busy", "Saving…");
-    fetch("/api/birth", {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ key: L.key, doc: D }),
-      keepalive: true
-    })
-      .then(function (r) { return r.ok ? r.json() : Promise.reject(r.status); })
-      .then(function (j) {
-        if (mergeInto(j.doc || {})) renderSafely();
-        setSync("ok", "Synced");
-      })
-      .catch(function (e) {
-        sync.pending = true;
-        setSync(e === 503 ? "off" : "err",
-          e === 503 ? "Sync unavailable — saved on this phone" : "Not synced — saved on this phone");
-      })
-      .then(function () {
-        sync.busy = false;
-        if (sync.pending) setTimeout(push, 2000);
-      });
-  }
-
-  function schedulePush() {
-    clearTimeout(sync.timer);
-    sync.timer = setTimeout(push, 1000);
-  }
 
   /* ---------------- answers ---------------- */
   function qkey(secId, q) { return secId + "." + q.id; }
@@ -1036,7 +1078,7 @@ body:has(.bar.hidden){padding-bottom:28px}
 
     var body = L.mode === "room" ? renderRoom()
       : L.mode === "plan" ? renderPlan() : renderPrep();
-    app.innerHTML = (L.switchedFrom ? switchNotice() : "") + body;
+    app.innerHTML = (L.authMsg ? authNotice() : "") + body;
 
     var running = L.peeStart != null;
     btnBack.classList.toggle("hidden", !(openTrig || inStep));
@@ -1052,12 +1094,21 @@ body:has(.bar.hidden){padding-bottom:28px}
     saveLoc();
   }
 
-  function switchNotice() {
-    return '<div class="notice"><b>You opened a shared plan.</b> ' +
-      "The plan that was on this phone is untouched and still saved — reopen it any time with the link below." +
-      '<div class="linkbox">' + esc(location.origin + location.pathname + "#k=" + L.switchedFrom) + "</div>" +
-      '<div class="rowbtns"><button id="noticeGo">GO BACK TO IT</button>' +
-      '<button id="noticeOk">GOT IT</button></div></div>';
+  var AUTH_MSGS = {
+    ok:             "Signed in. This plan now syncs to any phone you sign in on.",
+    denied:         "Sign-in was cancelled. Everything is still saved on this phone.",
+    not_invited:    "That Google account isn't on this plan. Ask whoever set it up to add your email.",
+    not_configured: "Google sign-in isn't set up on this site yet.",
+    unavailable:    "Couldn't reach the database. Everything is still saved on this phone.",
+    bad_state:      "Sign-in didn't complete — please try again.",
+    no_code:        "Sign-in didn't complete — please try again.",
+    no_email:       "Google didn't share a verified email address.",
+    failed:         "Sign-in failed. Everything is still saved on this phone."
+  };
+
+  function authNotice() {
+    return '<div class="notice">' + esc(AUTH_MSGS[L.authMsg] || L.authMsg) +
+      '<div class="rowbtns"><button id="noticeOk">GOT IT</button></div></div>';
   }
 
   // A sync pull mustn't yank the keyboard out from under someone mid-sentence.
@@ -1091,16 +1142,12 @@ body:has(.bar.hidden){padding-bottom:28px}
   };
 
   document.getElementById("syncBar").addEventListener("click", function (e) {
-    if (e.target.closest("#btnShare")) openShare();
+    if (e.target.closest("#btnAccount")) openAccount();
   });
 
   app.addEventListener("click", function (e) {
     var el;
-    if (e.target.closest("#noticeOk")) { delete L.switchedFrom; render(true); return; }
-    if (e.target.closest("#noticeGo")) {
-      location.href = location.pathname + "#k=" + L.switchedFrom;
-      location.reload(); return;
-    }
+    if (e.target.closest("#noticeOk")) { delete L.authMsg; saveLoc(); render(true); return; }
     if ((el = e.target.closest("[data-step]"))) { goStep(+el.getAttribute("data-step")); return; }
     if (e.target.closest("#btnSteps")) { L.step = null; render(); window.scrollTo(0, 0); return; }
     if (e.target.closest("#btnPrint2")) { openPrintPicker(); return; }
@@ -1164,33 +1211,110 @@ body:has(.bar.hidden){padding-bottom:28px}
       '<div class="rowbtns"><button class="closebtn" id="modalClose">CLOSE</button></div>');
   }
 
-  function openShare() {
-    var url = location.origin + location.pathname + "#k=" + L.key;
-    openModal("<h2>Share with Britt</h2>" +
-      "<p>Open this link on her phone and you'll both be editing the same plan — " +
-      "every change either of you makes shows up on both.</p>" +
-      "<p><b>Save this link somewhere.</b> It's the only way back to this plan. " +
-      "Anyone who has it can read and edit, so don't post it anywhere. " +
-      "If her phone already has a plan of its own, that one stays saved separately.</p>" +
-      '<div class="linkbox">' + esc(url) + "</div>" +
-      '<div class="rowbtns"><button id="btnCopy">COPY LINK</button>' +
-      '<button id="btnPull">REFRESH NOW</button></div>' +
-      '<div class="rowbtns"><button class="closebtn" id="modalClose">CLOSE</button></div>');
+  function openAccount() {
+    if (!A.signedIn) {
+      openModal("<h2>Sync across both phones</h2>" +
+        (A.configured === false
+          ? "<p>Google sign-in isn't configured on this site yet, so the plan is saved on this phone only. Everything still works — the printouts too.</p>"
+          : "<p>Sign in with Google and this plan follows you to any phone you sign in on. " +
+            "Then add Britt's email and you'll both be editing the same plan.</p>" +
+            "<p>Signed out, the tool works exactly the same — it just keeps everything on this phone.</p>" +
+            '<button class="pickbtn" id="btnSignIn">Sign in with Google' +
+            "<span>Only your email address — no calendar, no photos, no contacts.</span></button>") +
+        '<div class="rowbtns"><button class="closebtn" id="modalClose">CLOSE</button></div>');
+      return;
+    }
+    var owner = A.role === "owner";
+    openModal("<h2>Who can see this plan</h2>" +
+      '<div class="memberlist">' + A.members.map(function (m) {
+        return '<div class="member"><span>' + esc(m.email) + "</span>" +
+          (m.role === "owner" ? '<i>owner</i>'
+            : owner ? '<button data-drop="' + esc(m.email) + '">Remove</button>' : "") +
+          "</div>";
+      }).join("") + "</div>" +
+      (owner
+        ? '<input class="enterinput" id="inviteEmail" type="email" inputmode="email" ' +
+          'autocapitalize="off" autocomplete="off" placeholder="britt@example.com">' +
+          '<div class="rowbtns"><button id="btnInvite">ADD TO THIS PLAN</button></div>'
+        : "<p>Ask the plan owner to add anyone else.</p>") +
+      '<div id="acctMsg"></div>' +
+      '<div class="rowbtns"><button id="btnSignOut">SIGN OUT</button>' +
+      '<button class="closebtn" id="modalClose">CLOSE</button></div>');
+  }
+
+  function openImportModal() {
+    openModal("<h2>Two sets of answers</h2>" +
+      "<p>This phone has answers that aren't in the shared plan, and the shared plan " +
+      "has answers of its own. Which do you want?</p>" +
+      '<button class="pickbtn" data-import="merge">Combine them' +
+      "<span>Keep both. Where the same question was answered twice, the more recent answer wins.</span></button>" +
+      '<button class="pickbtn" data-import="theirs">Use the shared plan' +
+      "<span>Discard what's on this phone and take the shared plan as it stands.</span></button>");
   }
 
   modal.addEventListener("click", function (e) {
     if (e.target === modal || e.target.closest("#modalClose")) { closeModal(); return; }
     var p = e.target.closest("[data-print]");
     if (p) { closeModal(); setTimeout(function () { doPrint(p.getAttribute("data-print")); }, 60); return; }
-    if (e.target.closest("#btnCopy")) {
-      var url = location.origin + location.pathname + "#k=" + L.key;
-      var btn = e.target.closest("#btnCopy");
-      (navigator.clipboard ? navigator.clipboard.writeText(url) : Promise.reject())
-        .then(function () { btn.textContent = "COPIED ✓"; })
-        .catch(function () { btn.textContent = "SELECT IT ABOVE"; });
+    if (e.target.closest("#btnSignIn")) { location.href = "/api/birth/auth/start"; return; }
+
+    if (e.target.closest("#btnSignOut")) {
+      api("/api/birth/auth/signout", { method: "POST" }).then(function () {
+        A = { signedIn: false, configured: true, email: null, role: null, members: [] };
+        L.account = null; delete L.mergedWith; saveLoc();
+        sync.decided = false;
+        closeModal(); setSync("out", signedOutLabel()); render(true);
+      });
       return;
     }
-    if (e.target.closest("#btnPull")) { pull(); closeModal(); }
+
+    if (e.target.closest("#btnInvite")) {
+      var input = document.getElementById("inviteEmail");
+      var msg = document.getElementById("acctMsg");
+      var btn = e.target.closest("#btnInvite");
+      btn.textContent = "ADDING\u2026";
+      api("/api/birth/members", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: input.value })
+      })
+        .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); })
+        .then(function (res) {
+          if (!res.ok) {
+            msg.innerHTML = '<div class="err">' + esc(res.j.error || "Couldn't add that address") + "</div>";
+            btn.textContent = "ADD TO THIS PLAN"; return;
+          }
+          A.members = res.j.members; openAccount();
+        })
+        .catch(function () {
+          msg.innerHTML = '<div class="err">No connection.</div>';
+          btn.textContent = "ADD TO THIS PLAN";
+        });
+      return;
+    }
+
+    var drop = e.target.closest("[data-drop]");
+    if (drop) {
+      api("/api/birth/members?email=" + encodeURIComponent(drop.getAttribute("data-drop")),
+          { method: "DELETE" })
+        .then(function (r) { return r.json(); })
+        .then(function (j) { if (j.members) { A.members = j.members; openAccount(); } });
+      return;
+    }
+
+    var imp = e.target.closest("[data-import]");
+    if (imp) {
+      var remote = pendingRemote || {};
+      if (imp.getAttribute("data-import") === "theirs") {
+        D = { marks: {}, plan: {}, vetoes: {}, stars: {} };
+      }
+      mergeInto(remote);
+      sync.decided = true;
+      L.mergedWith = A.email;
+      saveDoc(); saveLoc(); closeModal(); render(true);
+      push();
+      return;
+    }
   });
 
   /* ---------------- my job ---------------- */
@@ -1250,16 +1374,8 @@ body:has(.bar.hidden){padding-bottom:28px}
   setInterval(function () { if (!document.hidden) tickPee(); }, 1000);
 
   /* ---------------- lifecycle ---------------- */
-  // Changing only the fragment is a same-document navigation -- the page does
-  // not reload, so nothing would re-read the key and the URL would claim to be
-  // on a plan we aren't actually on. Force a real load so initKey runs.
-  window.addEventListener("hashchange", function () {
-    var m = /[#&]k=([A-Za-z0-9_-]{16,64})/.exec(location.hash);
-    if (m && m[1] !== L.key) location.reload();
-  });
-
   window.addEventListener("beforeprint", buildPrint);
-  window.addEventListener("online", function () { pull().then(push); });
+  window.addEventListener("online", function () { refreshAccount().then(pull).then(push); });
   window.addEventListener("offline", function () { setSync("off", "Offline — saved on this phone"); });
   document.addEventListener("visibilitychange", function () {
     if (document.hidden) { if (sync.pending) push(); }
@@ -1267,9 +1383,18 @@ body:has(.bar.hidden){padding-bottom:28px}
   });
   setInterval(function () { if (!document.hidden) pull(); }, 90000);
 
+  (function readAuthResult() {
+    var m = /[?&]auth=([a-z_]+)/.exec(location.search);
+    if (!m) return;
+    L.authMsg = m[1]; saveLoc();
+    if (history.replaceState) history.replaceState(null, "", location.pathname);
+  })();
+
   render();
   setSync("busy", "Checking…");
-  pull().then(function () { if (sync.pending) push(); });
+  refreshAccount()
+    .then(function () { render(true); return pull(); })
+    .then(function () { if (sync.pending) push(); });
 
   if ("serviceWorker" in navigator && location.protocol.indexOf("http") === 0) {
     navigator.serviceWorker.register("/birth-sw.js", { scope: "/birth" }).catch(function () {});
