@@ -311,6 +311,13 @@ body:has(.bar.hidden){padding-bottom:28px}
 }
 .ostar[aria-pressed="true"]{color:var(--gold);border-color:#5a4a20;background:#241f10}
 .hint{font-size:12.5px;color:var(--faint);margin-top:6px;letter-spacing:.02em}
+.notice{
+  border:1px solid var(--gold);border-left:4px solid var(--gold);border-radius:13px;
+  background:#241f10;padding:13px 14px;margin:14px 0;font-size:15px;line-height:1.42;color:#f0dca6;
+}
+.notice b{color:#fff2cf}
+.notice .linkbox{margin-top:9px}
+.notice .rowbtns{position:static;background:none;padding:0;margin-top:11px}
 .starred{margin:14px 0}
 .starred .s{
   display:flex;gap:9px;padding:11px 13px;margin:7px 0;border-radius:12px;
@@ -501,12 +508,34 @@ body:has(.bar.hidden){padding-bottom:28px}
     return out;
   }
 
+  function docHasContent(d) {
+    for (var s in d) for (var k in d[s]) {
+      var leaf = d[s][k];
+      if (leaf && leaf.v !== null && leaf.v !== undefined && leaf.v !== "" &&
+          !(Array.isArray(leaf.v) && !leaf.v.length)) return true;
+    }
+    return false;
+  }
+
   (function initKey() {
     var m = /[#&]k=([A-Za-z0-9_-]{16,64})/.exec(location.hash);
-    if (m) L.key = m[1];                       // opened from a shared link
+    var shared = m && m[1];
+
+    // Opening someone else's link on a phone that already has its own plan:
+    // the two documents must not be merged. Local edits are newer, so they'd
+    // win the merge and then be pushed into the shared plan on the next
+    // change -- quietly overwriting it with a plan nobody meant to share.
+    // Park the old one under its own key instead; nothing is lost.
+    if (shared && L.key && shared !== L.key && docHasContent(D)) {
+      writeJSON(DOC_KEY + "." + L.key, D);
+      L.switchedFrom = L.key;
+      D = { marks: {}, plan: {}, vetoes: {}, stars: {} };
+      saveDoc();
+    }
+    if (shared) L.key = shared;
     if (!L.key) L.key = newKey();
     saveLoc();
-    if (!m && history.replaceState) {
+    if (!shared && history.replaceState) {
       history.replaceState(null, "", location.pathname + "#k=" + L.key);
     }
   })();
@@ -1005,8 +1034,9 @@ body:has(.bar.hidden){padding-bottom:28px}
       : inStep ? (L.step + 1) + "/" + STEPS.length : "";
     brand.classList.toggle("open", !!openTrig);
 
-    app.innerHTML = L.mode === "room" ? renderRoom()
+    var body = L.mode === "room" ? renderRoom()
       : L.mode === "plan" ? renderPlan() : renderPrep();
+    app.innerHTML = (L.switchedFrom ? switchNotice() : "") + body;
 
     var running = L.peeStart != null;
     btnBack.classList.toggle("hidden", !(openTrig || inStep));
@@ -1020,6 +1050,14 @@ body:has(.bar.hidden){padding-bottom:28px}
     tickPee();
     if (keepScroll) window.scrollTo(0, y);
     saveLoc();
+  }
+
+  function switchNotice() {
+    return '<div class="notice"><b>You opened a shared plan.</b> ' +
+      "The plan that was on this phone is untouched and still saved — reopen it any time with the link below." +
+      '<div class="linkbox">' + esc(location.origin + location.pathname + "#k=" + L.switchedFrom) + "</div>" +
+      '<div class="rowbtns"><button id="noticeGo">GO BACK TO IT</button>' +
+      '<button id="noticeOk">GOT IT</button></div></div>';
   }
 
   // A sync pull mustn't yank the keyboard out from under someone mid-sentence.
@@ -1058,6 +1096,11 @@ body:has(.bar.hidden){padding-bottom:28px}
 
   app.addEventListener("click", function (e) {
     var el;
+    if (e.target.closest("#noticeOk")) { delete L.switchedFrom; render(true); return; }
+    if (e.target.closest("#noticeGo")) {
+      location.href = location.pathname + "#k=" + L.switchedFrom;
+      location.reload(); return;
+    }
     if ((el = e.target.closest("[data-step]"))) { goStep(+el.getAttribute("data-step")); return; }
     if (e.target.closest("#btnSteps")) { L.step = null; render(); window.scrollTo(0, 0); return; }
     if (e.target.closest("#btnPrint2")) { openPrintPicker(); return; }
@@ -1124,8 +1167,11 @@ body:has(.bar.hidden){padding-bottom:28px}
   function openShare() {
     var url = location.origin + location.pathname + "#k=" + L.key;
     openModal("<h2>Share with Britt</h2>" +
-      "<p>Open this link on her phone and you'll both be editing the same plan. " +
-      "Anyone with the link can read and edit it, so don't post it anywhere.</p>" +
+      "<p>Open this link on her phone and you'll both be editing the same plan — " +
+      "every change either of you makes shows up on both.</p>" +
+      "<p><b>Save this link somewhere.</b> It's the only way back to this plan. " +
+      "Anyone who has it can read and edit, so don't post it anywhere. " +
+      "If her phone already has a plan of its own, that one stays saved separately.</p>" +
       '<div class="linkbox">' + esc(url) + "</div>" +
       '<div class="rowbtns"><button id="btnCopy">COPY LINK</button>' +
       '<button id="btnPull">REFRESH NOW</button></div>' +
@@ -1204,6 +1250,14 @@ body:has(.bar.hidden){padding-bottom:28px}
   setInterval(function () { if (!document.hidden) tickPee(); }, 1000);
 
   /* ---------------- lifecycle ---------------- */
+  // Changing only the fragment is a same-document navigation -- the page does
+  // not reload, so nothing would re-read the key and the URL would claim to be
+  // on a plan we aren't actually on. Force a real load so initKey runs.
+  window.addEventListener("hashchange", function () {
+    var m = /[#&]k=([A-Za-z0-9_-]{16,64})/.exec(location.hash);
+    if (m && m[1] !== L.key) location.reload();
+  });
+
   window.addEventListener("beforeprint", buildPrint);
   window.addEventListener("online", function () { pull().then(push); });
   window.addEventListener("offline", function () { setSync("off", "Offline — saved on this phone"); });
