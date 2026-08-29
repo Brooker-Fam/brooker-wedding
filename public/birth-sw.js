@@ -3,7 +3,7 @@
    Strategy: serve from cache first (hospital wifi is assumed broken),
    refresh in the background when there happens to be a network. */
 
-const CACHE = "birth-v3";
+const CACHE = "birth-v4";
 const ASSETS = ["/birth", "/birth.html", "/birth-content.js", "/birth.webmanifest"];
 
 self.addEventListener("install", (e) => {

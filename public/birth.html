@@ -1221,6 +1221,7 @@ body:has(.bar.hidden){padding-bottom:28px}
             "<p>Signed out, the tool works exactly the same — it just keeps everything on this phone.</p>" +
             '<button class="pickbtn" id="btnSignIn">Sign in with Google' +
             "<span>Only your email address — no calendar, no photos, no contacts.</span></button>") +
+        '<button class="ghostbtn" id="btnBackup">BACK UP / RESTORE</button>' +
         '<div class="rowbtns"><button class="closebtn" id="modalClose">CLOSE</button></div>');
       return;
     }
@@ -1238,7 +1239,32 @@ body:has(.bar.hidden){padding-bottom:28px}
           '<div class="rowbtns"><button id="btnInvite">ADD TO THIS PLAN</button></div>'
         : "<p>Ask the plan owner to add anyone else.</p>") +
       '<div id="acctMsg"></div>' +
+      '<button class="ghostbtn" id="btnBackup">BACK UP / RESTORE</button>' +
       '<div class="rowbtns"><button id="btnSignOut">SIGN OUT</button>' +
+      '<button class="closebtn" id="modalClose">CLOSE</button></div>');
+  }
+
+  function backupText() {
+    return JSON.stringify({
+      format: "brooker-birth-backup", version: 1,
+      exported: new Date().toISOString(),
+      doc: D, jobs: L.jobs
+    });
+  }
+
+  function openBackup() {
+    openModal("<h2>Back up this phone</h2>" +
+      "<p>Everything you've filled in, as text. Copy it into a note or save the file — " +
+      "it restores on any phone, with or without signing in.</p>" +
+      '<textarea class="entertext" id="backupBox" readonly>' + esc(backupText()) + "</textarea>" +
+      '<div class="rowbtns"><button id="btnCopyBackup">COPY</button>' +
+      '<button id="btnDownloadBackup">SAVE FILE</button></div>' +
+      "<h2>Restore</h2>" +
+      "<p>Paste a backup here and restore. Existing answers are kept — where the same " +
+      "question appears in both, the more recent one wins.</p>" +
+      '<textarea class="entertext" id="restoreBox" placeholder="Paste a backup"></textarea>' +
+      '<div id="backupMsg"></div>' +
+      '<div class="rowbtns"><button id="btnRestore">RESTORE</button>' +
       '<button class="closebtn" id="modalClose">CLOSE</button></div>');
   }
 
@@ -1256,6 +1282,44 @@ body:has(.bar.hidden){padding-bottom:28px}
     if (e.target === modal || e.target.closest("#modalClose")) { closeModal(); return; }
     var p = e.target.closest("[data-print]");
     if (p) { closeModal(); setTimeout(function () { doPrint(p.getAttribute("data-print")); }, 60); return; }
+    if (e.target.closest("#btnBackup")) { openBackup(); return; }
+
+    if (e.target.closest("#btnCopyBackup")) {
+      var box = document.getElementById("backupBox");
+      var cb = e.target.closest("#btnCopyBackup");
+      box.select(); box.setSelectionRange(0, 999999);
+      (navigator.clipboard ? navigator.clipboard.writeText(box.value) : Promise.reject())
+        .then(function () { cb.textContent = "COPIED ✓"; })
+        .catch(function () { cb.textContent = "SELECTED — COPY IT"; });
+      return;
+    }
+
+    if (e.target.closest("#btnDownloadBackup")) {
+      var blob = new Blob([backupText()], { type: "application/json" });
+      var a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = "birth-plan-backup-" + new Date().toISOString().slice(0, 10) + ".json";
+      document.body.appendChild(a); a.click();
+      setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
+      return;
+    }
+
+    if (e.target.closest("#btnRestore")) {
+      var msg = document.getElementById("backupMsg");
+      var raw = document.getElementById("restoreBox").value.trim();
+      var parsed;
+      try { parsed = JSON.parse(raw); } catch (err) { parsed = null; }
+      if (!parsed || !parsed.doc) {
+        msg.innerHTML = '<div class="err">That doesn\'t look like a backup.</div>';
+        return;
+      }
+      mergeInto(parsed.doc);
+      if (parsed.jobs) { L.jobs = parsed.jobs; }
+      saveDoc(); saveLoc(); closeModal(); render(true);
+      if (A.signedIn) schedulePush();
+      return;
+    }
+
     if (e.target.closest("#btnSignIn")) { location.href = "/api/birth/auth/start"; return; }
 
     if (e.target.closest("#btnSignOut")) {
