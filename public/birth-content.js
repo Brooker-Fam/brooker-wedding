@@ -12,6 +12,9 @@
    TRIGGERS: what I tap in the room. Each lists item ids in priority
    order. Room mode shows the first 4 that survive (vetoes removed,
    "yes" items floated to the top), so it is fine to list 6-8 here.
+
+   You can also add or reword items and plan options from inside the
+   app (the ✎ buttons). Those live in the synced document, not here.
    ===================================================================== */
 
 const CATS = [
@@ -19,6 +22,7 @@ const CATS = [
   ["position", "Positions — rotate every ~30 min"],
   ["water",    "Water & temperature"],
   ["sensory",  "Sensory & mental"],
+  ["mind",     "Mindfulness & hypnobirthing"],
   ["music",    "Music"],
   ["early",    "Early labor"],
   ["stall",    "Stalls"],
@@ -139,6 +143,36 @@ const ITEMS = [
  how:"Cue the practice she already has — same words, same order, said quietly in her ear.",
  got:"Her language, not new language."},
 
+/* ---------- MINDFULNESS & HYPNOBIRTHING ----------
+   The mindfulness items are from Nancy Bardacke's "Mindful Birthing":
+   one wave at a time, the breath as an anchor (attention, not a
+   technique), pain vs. suffering, and really resting in the space
+   between waves. The hb_ items are the hypnobirthing practice. */
+{id:"mb_onewave", cat:"mind", name:"One wave at a time",
+ how:"She never has to do all of labor — only this wave. “Just this one. It's already on its way out.”",
+ got:"A wave lasts about a minute. The twelve-hour version of labor only exists in your heads — keep both of you out of it."},
+{id:"mb_breaths", cat:"mind", name:"Count the wave in breaths, not minutes",
+ how:"Time a few waves, then say the math out loud between them: “Yours run about eight slow breaths.” During one, count quietly: “…four… five… it's coming down.”",
+ got:"The number has to be real — use the Waves timer in Room mode, don't guess."},
+{id:"mb_anchor", cat:"mind", name:"Back to the breath",
+ how:"Not a breathing pattern — just attention. When a wave sweeps her off, one quiet cue: “Feel this one breath.” Then breathe it with her.",
+ got:"If counting or pacing starts to annoy her, drop it all and just breathe audibly where she can see you."},
+{id:"mb_rest", cat:"mind", name:"End the wave when it ends",
+ how:"The second it releases: “Done. That one's gone.” Let her go completely slack — no replaying the last wave, no bracing for the next.",
+ got:"Most of labor is the space between waves. Dreading the next one is how you both suffer twice."},
+{id:"mb_scan", cat:"mind", name:"Mini body scan between waves",
+ how:"Name three spots, slowly, in her ear: “jaw… shoulders… hands.” Pause after each so she can soften it.",
+ got:"Works because it's specific. “Relax” is not a place in the body."},
+{id:"mb_suffer", cat:"mind", name:"Sensation, not emergency",
+ how:"“It's big, and it's safe. It's your body opening.” Pain fought becomes suffering; pain allowed stays a wave that ends.",
+ got:"Say the reframe once, calmly, then be quiet. Repeating it turns it into arguing."},
+{id:"hb_cue", cat:"mind", name:"Her hypnobirthing anchor",
+ how:"The exact cue she practiced — the word, the touch on her shoulder, the track. Same one, every time.",
+ got:"It works because it's rehearsed. Don't improvise new hypno language mid-labor."},
+{id:"hb_language", cat:"mind", name:"Surge language, all day",
+ how:"“Surge,” “wave,” “opening,” “pressure.” Never “pain,” “hurt,” or “how much longer.” Quietly ask staff to match.",
+ got:"Repeat it at shift change, right after the vetoes."},
+
 /* ---------- MUSIC ---------- */
 {id:"playlist", cat:"music", name:"Her playlist",
  how:"Downloaded for offline before you leave the house. Speaker and its charger in the bag.",
@@ -161,8 +195,11 @@ const ITEMS = [
  how:"If she can doze between them, sleep — even twenty minutes. You too.",
  got:"You cannot bank this sleep later. This is the only chance."},
 {id:"e_time", cat:"early", name:"Time them, but only sometimes",
- how:"Time twenty minutes of contractions every couple of hours, not continuously. Call when they're 5 min apart, 1 min long, for 1 hour.",
+ how:"Time twenty minutes of waves every couple of hours, not continuously — the Waves timer in Room mode does the math. Call when they're 5 min apart, 1 min long, for 1 hour.",
  got:"Confirm the 5-1-1 rule with her provider ahead of time. Watching the timer all day makes it worse."},
+{id:"e_ice", cat:"early", name:"Rehearse one wave with ice",
+ how:"She holds ice in her fist for 60 seconds while you run the Waves timer and breathe with her. That's the length of a real one.",
+ got:"Straight out of Mindful Birthing. One minute of ice teaches you both, in the body, that a minute ends."},
 {id:"e_bag", cat:"early", name:"Load the car",
  how:"Bag, snacks for YOU, speaker + charger, battery candles, rice sock, tennis ball, rebozo, birth plan copies.",
  got:"Do it during early labor while you have hands and a brain."},
@@ -259,7 +296,7 @@ const ITEMS = [
 const TRIGGERS = [
   {id:"early", short:"Early labor", ic:"○", name:"Early labor", sub:"nothing's happening yet",
    rule:"Do not start coping yet. Rest, eat, and stay home as long as you can.",
-   items:["e_normal","e_sleep","e_eat","e_time","effleurage","walking","slowdance","mandolin","e_bag"]},
+   items:["e_normal","e_sleep","e_eat","e_time","e_ice","effleurage","walking","slowdance","mandolin","e_bag"]},
 
   {id:"back", short:"Back labor", ic:"↓", name:"It's in her back", sub:"back labor",
    rule:"Tell the nurse “she's having back labor” — they have tricks. Baby is probably facing her front.",
@@ -271,15 +308,15 @@ const TRIGGERS = [
 
   {id:"tense", short:"Tensing up", ic:"≈", name:"She's tensing up", sub:"tight jaw, high sounds",
    rule:"Don't tell her to relax. Demonstrate and let her copy you.",
-   items:["horselips","toning","breathwith","bt_reset","coldcloth","counting","shower","effleurage"]},
+   items:["horselips","toning","breathwith","mb_anchor","mb_suffer","hb_cue","bt_reset","coldcloth","counting","shower"]},
 
   {id:"rest", short:"Rest", ic:"☽", name:"She needs to rest", sub:"between the work",
    rule:"Lights off, everybody quiet — including you. Silence is a comfort measure.",
-   items:["sidelying","dimlights","tub","relaxtracks","e_sleep","effleurage","ricesock","meditation"]},
+   items:["mb_rest","sidelying","dimlights","tub","relaxtracks","mb_scan","e_sleep","effleurage","ricesock","meditation"]},
 
   {id:"transition", short:"Transition", pin:3, ic:"⚑", name:"“I can't do this”", sub:"transition",
    rule:"OFFER NOTHING NEW. Keep doing exactly what you were doing.",
-   items:["tr_nonew","tr_are","tr_one","tr_eyes","tr_water","tr_short","coldcloth","sacral"]},
+   items:["tr_nonew","tr_are","tr_one","mb_breaths","tr_eyes","tr_water","tr_short","coldcloth","sacral"]},
 
   {id:"pushing", short:"Pushing", pin:1, ic:"▼", name:"Pushing", sub:"",
    rule:"Her urge, her breath, unless the provider says otherwise.",
@@ -287,7 +324,7 @@ const TRIGGERS = [
 
   {id:"between", short:"Between", pin:1, ic:"▫", name:"Between contractions", sub:"my checklist",
    rule:"This is the ONLY time to offer something new, ask a question, or hand her water.",
-   items:["bt_window","bt_water","bt_reset","bt_praise","bt_position","bt_me","ad_five","ad_shift"]}
+   items:["bt_window","mb_rest","bt_water","bt_reset","mb_scan","mb_onewave","bt_praise","bt_position","bt_me","ad_five","ad_shift"]}
 ];
 
 /* The printed sheet is two sides of one page. FRONT is what you grab when
@@ -455,6 +492,18 @@ const PLAN = [
     {v:"sterile", label:"Sterile water injections for back labor", say:"I'm open to sterile water injections for back labor."},
     {v:"epidural",label:"Epidural",                    say:"I'm open to an epidural."},
     {v:"local",   label:"Local anesthetic only, if repair is needed", say:"Local anesthetic only, if a repair is needed."}
+  ]},
+  {id:"lang", type:"many", q:"Language in the room — we're using hypnobirthing & Mindful Birthing", opts:[
+    {v:"surge",   label:"Say “surge” or “wave”, not “contraction”",
+     say:"We use hypnobirthing — we say “surge” or “wave” rather than “contraction.” Please join us if you can."},
+    {v:"nopain",  label:"Avoid “pain” and “hurt” unless I use them first",
+     say:"Please avoid the words “pain” and “hurt” unless I use them first."},
+    {v:"norate",  label:"Only ask me to rate pain when it's clinically needed",
+     say:"Please only ask me to rate my pain when it's clinically needed."},
+    {v:"between", label:"Questions between surges only",
+     say:"Please save questions and conversation for the breaks between surges."},
+    {v:"tracks",  label:"I'll have relaxation tracks / headphones going",
+     say:"I may be listening to hypnobirthing tracks — please don't take the headphones as rudeness."}
   ]},
   {id:"painnote", type:"note", q:"Anything else about pain",
    ph:"e.g. 'If I ask for an epidural before 6cm, remind me once what I said I wanted, then get it.'"}
@@ -655,6 +704,7 @@ const TRIAGE = [
   {id:"t_pos",     title:"Positions",             cats:["position"]},
   {id:"t_water",   title:"Water & temperature",   cats:["water"]},
   {id:"t_sensory", title:"Sensory & mental",      cats:["sensory","music"]},
+  {id:"t_mind",    title:"Mindfulness & hypnobirthing", cats:["mind"]},
   {id:"t_phases",  title:"Early labor & stalls",  cats:["early","stall"]},
   {id:"t_birth",   title:"Transition & pushing",  cats:["trans","push"]},
   {id:"t_me",      title:"My job & advocacy",     cats:["between","advocacy"]}

@@ -336,6 +336,49 @@ body:has(.bar.hidden){padding-bottom:28px}
 .answered{font-size:14px;color:var(--dim);margin-top:9px;line-height:1.4}
 .answered b{color:#cfdacf;font-weight:600}
 
+/* ---------- custom content (add / reword) ---------- */
+.item{position:relative}
+.editpen{position:absolute;top:5px;right:6px;padding:9px 11px;color:var(--faint);font-size:15px}
+.item:has(.editpen) .nm{padding-right:32px}
+.addlink{display:block;width:100%;text-align:center;padding:12px;margin:10px 0 2px;
+  color:var(--faint);font-size:13.5px;letter-spacing:.06em;border:1px dashed var(--line2);border-radius:12px}
+.yours{font-style:normal;font-size:10.5px;letter-spacing:.12em;color:var(--gold);text-transform:uppercase;margin-left:6px}
+select.enterinput{appearance:none;-webkit-appearance:none}
+.edlabel{font-size:12.5px;color:var(--faint);letter-spacing:.06em;margin:12px 2px 0;text-transform:uppercase}
+
+/* ---------- wave timer ---------- */
+.wavetile{display:flex;flex-direction:column;gap:5px;width:100%;margin:14px 0 -4px;
+  background:#241f10;border:1px solid #574722;border-radius:16px;padding:14px;text-align:left}
+.wavetile:active{background:#2c2614}
+.wavetile .ic{font-size:21px;line-height:1;color:var(--gold)}
+.wavetile .tn{font-size:17px;font-weight:700;color:#f0dca6}
+.wavetile .ts{font-size:13px;color:var(--dim);line-height:1.25}
+.wavebig{display:block;width:100%;text-align:center;padding:22px 14px;margin:14px 0;
+  border-radius:16px;background:#1b2a1c;border:1px solid var(--yes);color:#cfe8c4;
+  font-size:17px;font-weight:700;letter-spacing:.06em}
+.wavebig:active{background:#233623}
+.wavebig.end{background:#241f10;border-color:var(--gold);color:#f0dca6}
+.wavehero{text-align:center;padding:6px 0 0}
+.pacer{width:110px;height:110px;margin:14px auto 6px;position:relative}
+.pacer i{position:absolute;inset:0;border-radius:50%;
+  background:radial-gradient(circle at 50% 42%, #e8cf8f, #c9a24a 62%, #6e5820);
+  opacity:.92;animation:pace 8s ease-in-out infinite}
+@keyframes pace{0%,100%{transform:scale(.55)}45%,55%{transform:scale(1)}}
+@media (prefers-reduced-motion:reduce){.pacer i{animation:none;transform:scale(.8)}}
+.pacecap{font-size:12.5px;color:var(--faint);letter-spacing:.04em}
+.waveclock{font-size:44px;font-weight:700;font-variant-numeric:tabular-nums;margin-top:8px;line-height:1.1}
+.wavesub{font-size:14px;color:var(--gold);font-weight:700;letter-spacing:.1em;text-transform:uppercase;margin-top:2px}
+.wavehint{font-size:15px;color:var(--dim);margin:8px auto 0;max-width:340px;line-height:1.4}
+.wavecard{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:13px 14px;margin:10px 0;font-size:15.5px;line-height:1.45}
+.wavecard>b{color:#f0dca6;font-size:13px;letter-spacing:.12em;text-transform:uppercase}
+.wavecard p{margin:6px 0 0}
+.wavecard .dim{color:var(--dim);font-size:14px}
+.restclock{font-size:26px;font-weight:700;font-variant-numeric:tabular-nums}
+.wavelog{width:100%;border-collapse:collapse;font-size:14px;margin-top:2px}
+.wavelog td{padding:7px 4px;border-top:1px solid var(--line);color:#cfdacf;font-variant-numeric:tabular-nums}
+.wavelog td:first-child{color:var(--dim)}
+.wavelog td:last-child{text-align:right;color:var(--dim)}
+
 /* ---------- modal ---------- */
 .modalin{
   width:100%;max-height:86vh;overflow:auto;background:var(--bg2);
@@ -448,11 +491,13 @@ body:has(.bar.hidden){padding-bottom:28px}
      D is the synced document: { section: { field: {v, t} } }. Every write
      stamps a timestamp so two phones merge per field instead of one
      overwriting the other wholesale. */
-  var D = { marks: {}, plan: {}, vetoes: {}, stars: {} };
+  var D = { marks: {}, plan: {}, vetoes: {}, stars: {}, custom: {} };
   // Every field must be listed: the loader below copies the keys of this
   // object, so anything missing here silently fails to survive a reload.
   var L = {
     mode: "plan", trig: null, step: null, open: {}, jobs: {}, peeStart: null,
+    waves: [],          // contraction log for this device: [{s,e}, ...]
+    waveOn: null,       // start of the wave being timed right now, or null
     account: null,      // last known signed-in identity, so offline doesn't look signed out
     mergedWith: null,   // whose plan this phone has already reconciled against
     authMsg: null       // one-shot message from the sign-in redirect
@@ -468,7 +513,7 @@ body:has(.bar.hidden){padding-bottom:28px}
   (function load() {
     var d = readJSON(DOC_KEY);
     if (d && typeof d === "object") {
-      ["marks", "plan", "vetoes", "stars"].forEach(function (s) {
+      ["marks", "plan", "vetoes", "stars", "custom"].forEach(function (s) {
         if (d[s] && typeof d[s] === "object") D[s] = d[s];
       });
     }
@@ -653,6 +698,51 @@ body:has(.bar.hidden){padding-bottom:28px}
   }
 
 
+  /* ---------------- custom content ----------------
+     Items and plan options the two of you add or reword in the app.
+     They live in the synced doc (section "custom"), so both phones see
+     them and they merge exactly like answers do.
+       custom.items           [{id,cat,name,how,got}]  your own items
+       custom["ovi:"+id]      {name,how,got}           reword of a built-in item
+       custom["opts:"+qkey]   [{v,label,say}]          your own options
+       custom["ovo:"+qkey+":"+v]  {label,say}          reword of a built-in option */
+  function customItems() {
+    var v = get("custom", "items");
+    return Array.isArray(v) ? v : [];
+  }
+  function byId(id) {
+    if (BY[id]) return BY[id];
+    var c = customItems();
+    for (var i = 0; i < c.length; i++) if (c[i].id === id) return c[i];
+    return null;
+  }
+  function eff(it) {
+    var ov = get("custom", "ovi:" + it.id);
+    if (!ov) return it;
+    return { id: it.id, cat: it.cat, name: ov.name || it.name,
+             how: ov.how || it.how, got: ov.got != null ? ov.got : it.got };
+  }
+  function itemsForCats(cats) {
+    return ITEMS.concat(customItems()).filter(function (it) {
+      return cats.indexOf(it.cat) >= 0;
+    });
+  }
+  function customOpts(key) {
+    var v = get("custom", "opts:" + key);
+    return Array.isArray(v) ? v : [];
+  }
+  function allOpts(secId, q) {
+    var key = qkey(secId, q);
+    return (q.opts || []).map(function (o) {
+      var ov = get("custom", "ovo:" + key + ":" + o.v);
+      // A reword replaces the print line entirely: emptying it in the
+      // editor is how an option is kept off the printout.
+      return ov ? { v: o.v, label: ov.label || o.label, say: ov.say || undefined } : o;
+    }).concat(customOpts(key).map(function (o) {
+      return { v: o.v, label: o.label, say: o.say || o.label, custom: true };
+    }));
+  }
+
   /* ---------------- answers ---------------- */
   function qkey(secId, q) { return secId + "." + q.id; }
 
@@ -661,7 +751,7 @@ body:has(.bar.hidden){padding-bottom:28px}
     if (v == null || v === "") return [];
     if (q.type === "text" || q.type === "note") return [{ free: true, s: String(v) }];
     var picked = Array.isArray(v) ? v : [v];
-    return (q.opts || [])
+    return allOpts(secId, q)
       .filter(function (o) { return picked.indexOf(o.v) >= 0 && o.say; })
       .map(function (o) { return { free: false, s: o.say }; });
   }
@@ -677,7 +767,7 @@ body:has(.bar.hidden){padding-bottom:28px}
       var done = st.qs.filter(function (q) { return isAnswered(st.id, q); }).length;
       return { done: done, total: st.qs.length };
     }
-    var items = ITEMS.filter(function (it) { return st.cats.indexOf(it.cat) >= 0; });
+    var items = itemsForCats(st.cats);
     var m = items.filter(function (it) { return get("marks", it.id); }).length;
     return { done: m, total: items.length };
   }
@@ -697,11 +787,18 @@ body:has(.bar.hidden){padding-bottom:28px}
 
   /* ---------------- shared bits ---------------- */
   function resolve(trig) {
-    var live = trig.items.map(function (id) { return BY[id]; })
+    // Custom items ride along with whichever triggers already cover
+    // their category, listed after the built-ins unless marked yes.
+    var cats = {};
+    trig.items.forEach(function (id) { var it = byId(id); if (it) cats[it.cat] = 1; });
+    var extra = customItems().filter(function (it) {
+      return cats[it.cat] && trig.items.indexOf(it.id) < 0;
+    });
+    var live = trig.items.map(byId).concat(extra)
       .filter(function (it) { return it && get("marks", it.id) !== "veto"; });
     var pins = [];
     for (var i = 0; i < trig.items.length && pins.length < (trig.pin || 0); i++) {
-      var it = BY[trig.items[i]];
+      var it = byId(trig.items[i]);
       if (it && get("marks", it.id) !== "veto") pins.push(it);
     }
     var rest = live.filter(function (x) { return pins.indexOf(x) < 0; });
@@ -725,6 +822,7 @@ body:has(.bar.hidden){padding-bottom:28px}
   }
 
   function itemCard(it, withMarks) {
+    it = eff(it);
     var m = get("marks", it.id);
     var dot = m === "yes" ? '<span class="dot"></span>' : m === "maybe" ? '<span class="dot m"></span>' : "";
     var h = '<article class="item' + (m === "veto" ? " vetoed" : "") + '">' +
@@ -732,7 +830,8 @@ body:has(.bar.hidden){padding-bottom:28px}
       '<div class="how">' + esc(it.how) + "</div>" +
       (it.got ? '<div class="got">' + esc(it.got) + "</div>" : "");
     if (withMarks) {
-      h += '<div class="marks" data-item="' + esc(it.id) + '">' +
+      h += '<button class="editpen" data-edit="' + esc(it.id) + '" title="Reword this">✎</button>' +
+        '<div class="marks" data-item="' + esc(it.id) + '">' +
         ["yes", "maybe", "veto"].map(function (x) {
           return '<button data-m="' + x + '" aria-pressed="' + (m === x) + '">' + x.toUpperCase() + "</button>";
         }).join("") + "</div>";
@@ -804,7 +903,7 @@ body:has(.bar.hidden){padding-bottom:28px}
     } else {
       var multi = q.type === "many";
       var picked = multi ? (Array.isArray(v) ? v : []) : [v];
-      h += '<div class="opts">' + q.opts.map(function (o) {
+      h += '<div class="opts">' + allOpts(secId, q).map(function (o) {
         var on = picked.indexOf(o.v) >= 0;
         var sk = key + ":" + o.v;
         // Only a chosen option that actually prints can be a top-3 priority.
@@ -812,12 +911,14 @@ body:has(.bar.hidden){padding-bottom:28px}
         return '<div class="optrow">' +
           '<button class="opt ' + (multi ? "check" : "radio") + '" data-opt="' + esc(o.v) +
           '" data-q="' + esc(key) + '" data-multi="' + multi + '" aria-pressed="' + on + '">' +
-          '<span class="bx">' + (on ? "✓" : "") + "</span><span>" + esc(o.label) + "</span></button>" +
+          '<span class="bx">' + (on ? "✓" : "") + "</span><span>" + esc(o.label) +
+          (o.custom ? '<i class="yours">yours</i>' : "") + "</span></button>" +
           (canStar ? '<button class="ostar" data-star="' + esc(sk) + '" aria-pressed="' +
             !!get("stars", sk) + '" title="One of our top 3">' +
             (get("stars", sk) ? "★" : "☆") + "</button>" : "") +
           "</div>";
-      }).join("") + "</div>";
+      }).join("") + "</div>" +
+      '<button class="addlink" data-optmgr="' + esc(key) + '">✎ Add or reword options</button>';
     }
     return h + "</div>";
   }
@@ -832,10 +933,11 @@ body:has(.bar.hidden){padding-bottom:28px}
       (st.blurb ? '<div class="blurb">' + esc(st.blurb) + "</div>" : "");
 
     if (st.kind === "triage") {
-      var items = ITEMS.filter(function (it) { return st.cats.indexOf(it.cat) >= 0; });
+      var items = itemsForCats(st.cats);
       h += '<div class="blurb">Mark each one. Vetoed items vanish from Room mode and both printouts; ' +
-        "yes items sort to the top.</div>" +
-        items.map(function (it) { return itemCard(it, true); }).join("");
+        "yes items sort to the top. The ✎ rewords one; the button below adds your own.</div>" +
+        items.map(function (it) { return itemCard(it, true); }).join("") +
+        '<button class="addlink" data-additem="' + esc(st.cats[0]) + '">＋ Add your own</button>';
       return h;
     }
 
@@ -865,32 +967,153 @@ body:has(.bar.hidden){padding-bottom:28px}
 
   /* ---------------- list (browse) mode ---------------- */
   function renderPrep() {
+    var all = ITEMS.concat(customItems());
     var counts = { yes: 0, maybe: 0, veto: 0 };
-    ITEMS.forEach(function (i) { var m = get("marks", i.id); if (m) counts[m]++; });
+    all.forEach(function (i) { var m = get("marks", i.id); if (m) counts[m]++; });
     var h = '<div class="prepnote">The whole comfort corpus, for editing a mark you already made. ' +
       "The guided pass through it lives in Plan mode.</div>" +
       vetoRead() +
       '<div class="tally"><span><b>' + counts.yes + "</b> yes</span><span><b>" +
       counts.maybe + "</b> maybe</span><span><b>" + counts.veto + "</b> veto</span><span><b>" +
-      (ITEMS.length - counts.yes - counts.maybe - counts.veto) + "</b> unmarked</span></div>";
+      (all.length - counts.yes - counts.maybe - counts.veto) + "</b> unmarked</span></div>";
 
     CATS.forEach(function (c) {
-      var items = ITEMS.filter(function (i) { return i.cat === c[0]; });
+      var items = itemsForCats([c[0]]);
       if (!items.length) return;
       var open = !!L.open[c[0]];
       var done = items.filter(function (i) { return get("marks", i.id); }).length;
       h += '<section class="cat"><button class="cathead" data-cat="' + esc(c[0]) + '" aria-expanded="' + open + '">' +
         '<span class="car">' + (open ? "▼" : "▶") + "</span><span>" + esc(c[1]) + "</span>" +
         '<span class="cnt">' + done + "/" + items.length + "</span></button>" +
-        (open ? items.map(function (i) { return itemCard(i, true); }).join("") : "") + "</section>";
+        (open ? items.map(function (i) { return itemCard(i, true); }).join("") +
+          '<button class="addlink" data-additem="' + esc(c[0]) + '">＋ Add your own</button>' : "") +
+        "</section>";
     });
     return h;
   }
 
+  /* ---------------- wave timer ----------------
+     Mindful Birthing, made concrete: time the waves themselves, learn
+     how long hers actually run, then translate that into breaths. She
+     never has to do all of labor — only this wave, and a wave she can
+     count in breaths is a wave with an end. Local to this phone, like
+     the pee timer: the phone in the room is the one doing the timing. */
+  var BREATH = 8000;   // one slow relaxed breath, ~8 seconds
+
+  function mmss(ms) {
+    var s = Math.max(0, Math.round(ms / 1000));
+    return Math.floor(s / 60) + ":" + ("0" + (s % 60)).slice(-2);
+  }
+  function breathsIn(ms) { return Math.max(1, Math.round(ms / BREATH)); }
+
+  function waveStats() {
+    var W = L.waves, n = W.length, i;
+    var d = 0, durN = Math.min(n, 6);
+    for (i = n - durN; i < n; i++) d += W[i].e - W[i].s;
+    var g = 0, gapN = 0;
+    for (i = Math.max(1, n - 6); i < n; i++) { g += W[i].s - W[i - 1].s; gapN++; }
+    var hourAgo = Date.now() - 3600000;
+    var recent = W.filter(function (w) { return w.s >= hourAgo; });
+    var rd = 0, rg = 0, rgN = 0;
+    recent.forEach(function (w) { rd += w.e - w.s; });
+    for (i = 1; i < recent.length; i++) { rg += recent[i].s - recent[i - 1].s; rgN++; }
+    return {
+      avgDur: durN ? d / durN : null,
+      avgGap: gapN ? g / gapN : null,
+      fiveOneOne: recent.length >= 10 && rgN > 0 &&
+        rg / rgN <= 5.5 * 60000 && rd / recent.length >= 50000
+    };
+  }
+
+  function renderWaves() {
+    var st = waveStats();
+    if (L.waveOn != null) {
+      return '<div class="wavehero">' +
+        '<div class="pacer"><i></i></div>' +
+        '<div class="pacecap">in as it grows &middot; out as it lets go</div>' +
+        '<div class="waveclock" id="waveClock">0:00</div>' +
+        '<div class="wavesub" id="waveBreaths">breath 1</div>' +
+        '<div class="wavehint" id="waveHint"></div></div>' +
+        '<button class="wavebig end" id="waveEnd">IT&rsquo;S EASING &mdash; TAP</button>' +
+        '<div class="blurb">Go quiet. Pressure on, breathe where she can see you. ' +
+        "The clock is for you — she gets the breaths, not the numbers.</div>";
+    }
+
+    var h = '<button class="wavebig" id="waveStart">A WAVE IS STARTING &mdash; TAP</button>';
+    if (!L.waves.length) {
+      return h + '<div class="blurb">Tap when a wave starts, tap again when it eases. ' +
+        "After a few, this screen knows how long hers actually run — and turns it into " +
+        "breaths: a 70-second wave is about 9 slow breaths.</div>" +
+        '<div class="hint">From Mindful Birthing: she never has to do all of labor, only this one wave — ' +
+        "and once you've timed a few, “this one” has a number. In early labor, time a " +
+        "20-minute stretch every couple of hours, not all day. Rehearsal: a minute of ice in her fist.</div>";
+    }
+
+    h += '<div class="wavecard"><div class="restclock" id="restClock"></div>' +
+      '<div class="dim">That one is over — completely. Nothing is happening right now. ' +
+      "Rest with her; don’t spend the break bracing for the next one.</div></div>";
+
+    if (st.avgDur) {
+      h += '<div class="wavecard"><b>Her waves right now</b>' +
+        "<p>About <b>" + Math.round(st.avgDur / 1000) + "s</b> long — roughly <b>" +
+        breathsIn(st.avgDur) + " slow breaths</b> and it’s over." +
+        (st.avgGap ? " Coming about <b>" + mmss(st.avgGap) + "</b> apart." : "") + "</p>" +
+        '<p class="dim">Say the math out loud between waves — “yours are about ' +
+        breathsIn(st.avgDur) + " breaths”. A wave she can count is a wave with an end.</p></div>";
+    }
+
+    h += st.fiveOneOne
+      ? '<div class="rule">This is 5-1-1 — about 5 minutes apart, a minute long, for an hour. Time to call.</div>'
+      : '<div class="hint">Call at 5-1-1: 5 min apart, 1 min long, for 1 hour — confirm the rule with her provider.</div>';
+
+    var rows = L.waves.slice(-8), out = "";
+    for (var i = rows.length - 1; i >= 0; i--) {
+      var w = rows[i];
+      var at = new Date(w.s);
+      var gap = i > 0 ? mmss(w.s - rows[i - 1].s) + " after the last" :
+        (L.waves.length > rows.length ? "" : "first one timed");
+      out += "<tr><td>" + ("0" + at.getHours()).slice(-2) + ":" + ("0" + at.getMinutes()).slice(-2) +
+        "</td><td>" + Math.round((w.e - w.s) / 1000) + "s &middot; ~" + breathsIn(w.e - w.s) +
+        " breaths</td><td>" + gap + "</td></tr>";
+    }
+    h += '<div class="wavecard"><b>Last waves</b><table class="wavelog">' + out + "</table></div>" +
+      '<div class="rowbtns"><button id="waveUndo">UNDO LAST</button>' +
+      '<button id="waveClear">CLEAR ALL</button></div>';
+    return h;
+  }
+
+  function tickWave() {
+    if (L.waveOn != null) {
+      var el = document.getElementById("waveClock");
+      if (!el) return;
+      var ms = Date.now() - L.waveOn;
+      el.textContent = mmss(ms);
+      document.getElementById("waveBreaths").textContent = "breath " + Math.max(1, Math.ceil(ms / BREATH));
+      var avg = waveStats().avgDur, hint;
+      if (ms > 180000) hint = "Over three minutes — if this got left running, tap below and UNDO.";
+      else if (!avg) hint = "Waves usually run about a minute — six to nine slow breaths.";
+      else if (ms < avg * 0.45) hint = "Building — hers have been about " + breathsIn(avg) + " breaths.";
+      else if (ms < avg * 0.8) hint = "Around the peak — it comes down from here.";
+      else if (ms < avg * 1.15) hint = "Coming down — nearly done.";
+      else hint = "Longer than her average — it still ends.";
+      document.getElementById("waveHint").textContent = hint;
+    } else {
+      var rc = document.getElementById("restClock");
+      if (!rc) return;
+      var last = L.waves[L.waves.length - 1];
+      if (last) rc.textContent = mmss(Date.now() - last.e) + " since it ended";
+    }
+  }
+
   /* ---------------- room mode ---------------- */
   function renderRoom() {
+    if (L.trig === "__waves") return renderWaves();
     if (!L.trig) {
-      return vetoRead() + '<div class="grid">' + TRIGGERS.map(function (t) {
+      return vetoRead() +
+        '<button class="wavetile" data-waves="1"><span class="ic">〰</span>' +
+        '<span class="tn">Time the waves</span>' +
+        '<span class="ts">how long, how far apart — and what that is in breaths</span></button>' +
+        '<div class="grid">' + TRIGGERS.map(function (t) {
         return '<button class="trig" data-trig="' + esc(t.id) + '">' +
           '<span class="ic">' + t.ic + '</span><span class="tn">' + esc(t.name) + "</span>" +
           (t.sub ? '<span class="ts">' + esc(t.sub) + "</span>" : "") + "</button>";
@@ -935,8 +1158,9 @@ body:has(.bar.hidden){padding-bottom:28px}
     h += '<div class="pveto"><b>SHE DOES NOT WANT</b>' +
       (v.length ? "<ul>" + v.map(function (x) { return "<li>" + esc(x) + "</li>"; }).join("") + "</ul>"
                 : "<div>[ fill in before you go ]</div>") + "</div>";
-    h += '<div class="prule">DURING a contraction: go quiet, apply pressure, breathe where she can see you.' +
-      "<span>BETWEEN contractions is the only time to offer anything new, ask anything, or hand her water.</span></div>";
+    h += '<div class="prule">DURING a wave: go quiet, apply pressure, breathe where she can see you. A wave is ~6–9 slow breaths, then it’s over — count them with her, one wave at a time.' +
+      "<span>BETWEEN waves is the only time to offer anything new, ask anything, or hand her water. " +
+      "Say “surge/wave”, “opening”, “pressure” — never “pain” or “how much longer”.</span></div>";
     h += '<div class="jobs"><b>MY JOB</b>' +
       "<p><b>On arrival:</b> " + JOBS.arrival.map(function (j) { return j[1].toLowerCase(); }).join(" · ") + "</p>" +
       "<p><b>All day:</b> " + JOBS.ongoing.map(function (j) { return j[1].toLowerCase(); }).join(" · ") + "</p>" +
@@ -951,7 +1175,7 @@ body:has(.bar.hidden){padding-bottom:28px}
         if (!list.length) return "";
         return '<div class="blk"><h3>' + esc(t.name.toUpperCase()) + "</h3>" +
           (t.rule ? '<div class="nt">' + esc(t.rule) + "</div>" : "") +
-          list.map(function (i) { return "<p><b>" + esc(i.name) + ".</b> " + esc(i.how) + "</p>"; }).join("") +
+          list.map(function (i) { i = eff(i); return "<p><b>" + esc(i.name) + ".</b> " + esc(i.how) + "</p>"; }).join("") +
           "</div>";
       }).join("") + "</div>";
     }
@@ -966,7 +1190,7 @@ body:has(.bar.hidden){padding-bottom:28px}
       (v.length ? "<ul>" + v.map(function (x) { return "<li>" + esc(x) + "</li>"; }).join("") + "</ul>"
                 : "<div>[ fill in before you go ]</div>") + "</div>" +
       cols((PRINT_PAGES[1] || []).concat(orphans)) +
-      '<div class="ft">During a contraction: quiet, pressure, breathe where she can see you.</div></div>';
+      '<div class="ft">One wave at a time — she never has to do all of labor, only this one, and it’s ~8 slow breaths long.</div></div>';
     document.getElementById("sheetprint").innerHTML = h;
   }
 
@@ -997,7 +1221,7 @@ body:has(.bar.hidden){padding-bottom:28px}
       var q = sec.qs.filter(function (x) { return x.id === parts[1]; })[0];
       if (!q) return null;
       if (opt) {
-        var o = (q.opts || []).filter(function (x) { return x.v === opt; })[0];
+        var o = allOpts(parts[0], q).filter(function (x) { return x.v === opt; })[0];
         return o && o.say ? o.say : null;
       }
       var lines = answerLines(parts[0], q);
@@ -1067,21 +1291,23 @@ body:has(.bar.hidden){padding-bottom:28px}
     });
 
     var brand = document.getElementById("brand");
-    var openTrig = L.mode === "room" && L.trig
+    var wavesOpen = L.mode === "room" && L.trig === "__waves";
+    var openTrig = L.mode === "room" && L.trig && !wavesOpen
       ? TRIGGERS.filter(function (x) { return x.id === L.trig; })[0] : null;
     var inStep = L.mode === "plan" && L.step != null;
     // The pressed mode button already names the mode -- the brand slot is
     // worth more as the trigger name / step counter than as a duplicate label.
-    brand.textContent = openTrig ? (openTrig.short || openTrig.name)
+    brand.textContent = wavesOpen ? "Waves"
+      : openTrig ? (openTrig.short || openTrig.name)
       : inStep ? (L.step + 1) + "/" + STEPS.length : "";
-    brand.classList.toggle("open", !!openTrig);
+    brand.classList.toggle("open", !!openTrig || wavesOpen);
 
     var body = L.mode === "room" ? renderRoom()
       : L.mode === "plan" ? renderPlan() : renderPrep();
     app.innerHTML = (L.authMsg ? authNotice() : "") + body;
 
     var running = L.peeStart != null;
-    btnBack.classList.toggle("hidden", !(openTrig || inStep));
+    btnBack.classList.toggle("hidden", !(openTrig || inStep || wavesOpen));
     btnNext.classList.toggle("hidden", !inStep);
     btnPee.classList.toggle("hidden", inStep && !running);
     document.getElementById("btnJob").classList.toggle("hidden", inStep);
@@ -1090,6 +1316,7 @@ body:has(.bar.hidden){padding-bottom:28px}
 
     buildPrint();
     tickPee();
+    tickWave();
     if (keepScroll) window.scrollTo(0, y);
     saveLoc();
   }
@@ -1151,6 +1378,33 @@ body:has(.bar.hidden){padding-bottom:28px}
     if ((el = e.target.closest("[data-step]"))) { goStep(+el.getAttribute("data-step")); return; }
     if (e.target.closest("#btnSteps")) { L.step = null; render(); window.scrollTo(0, 0); return; }
     if (e.target.closest("#btnPrint2")) { openPrintPicker(); return; }
+
+    if (e.target.closest("[data-waves]")) { L.trig = "__waves"; render(); window.scrollTo(0, 0); return; }
+    if (e.target.closest("#waveStart")) { L.waveOn = Date.now(); saveLoc(); render(true); return; }
+    if (e.target.closest("#waveEnd")) {
+      // Anything under 10s was a mis-tap, not a contraction.
+      if (Date.now() - L.waveOn >= 10000) {
+        L.waves.push({ s: L.waveOn, e: Date.now() });
+        if (L.waves.length > 60) L.waves = L.waves.slice(-60);
+      }
+      L.waveOn = null; saveLoc(); render(true); return;
+    }
+    if (e.target.closest("#waveUndo")) { L.waves.pop(); saveLoc(); render(true); return; }
+    if ((el = e.target.closest("#waveClear"))) {
+      if (el.getAttribute("data-armed")) { L.waves = []; saveLoc(); render(true); }
+      else { el.setAttribute("data-armed", "1"); el.textContent = "TAP AGAIN TO CLEAR"; }
+      return;
+    }
+
+    if ((el = e.target.closest("[data-edit]"))) { openItemEditor(el.getAttribute("data-edit"), null); return; }
+    if ((el = e.target.closest("[data-additem]"))) { openItemEditor(null, el.getAttribute("data-additem")); return; }
+    if ((el = e.target.closest("[data-optmgr]"))) {
+      var mk = el.getAttribute("data-optmgr").split(".");
+      var msec = SECT[mk[0]];
+      var mq = msec && msec.qs.filter(function (x) { return x.id === mk[1]; })[0];
+      if (mq) openOptMgr(mk[0], mq);
+      return;
+    }
 
     if ((el = e.target.closest("[data-trig]"))) { L.trig = el.getAttribute("data-trig"); render(); window.scrollTo(0, 0); return; }
     if ((el = e.target.closest("[data-cat]"))) {
@@ -1278,8 +1532,180 @@ body:has(.bar.hidden){padding-bottom:28px}
       "<span>Discard what's on this phone and take the shared plan as it stands.</span></button>");
   }
 
+  /* ---------------- add / reword editors ----------------
+     Everything here writes to the synced "custom" section, so an option
+     Britt adds on her phone shows up on Matt's, worded her way. */
+  var edit = null;   // what the editor modal is looking at right now
+
+  function openOptMgr(secId, q) {
+    var key = qkey(secId, q);
+    edit = { kind: "optmgr", secId: secId, q: q, key: key };
+    openModal("<h2>Options &mdash; " + esc(q.q) + "</h2>" +
+      "<p>Tap one to reword it, or add your own. The second line is exactly how it reads " +
+      "on the printed plan for the care team.</p>" +
+      allOpts(secId, q).map(function (o) {
+        var ov = !o.custom && get("custom", "ovo:" + key + ":" + o.v);
+        return '<button class="pickbtn" data-optedit="' + esc(o.v) + '">' + esc(o.label) +
+          (o.custom ? '<i class="yours">yours</i>' : ov ? '<i class="yours">reworded</i>' : "") +
+          "<span>" + esc(o.say || "(doesn't print)") + "</span></button>";
+      }).join("") +
+      '<div class="rowbtns"><button id="btnOptAdd">＋ ADD YOUR OWN</button>' +
+      '<button class="closebtn" id="modalClose">CLOSE</button></div>');
+  }
+
+  function openOptEditor(v) {
+    var key = edit.key, q = edit.q;
+    var cur = null, isCustom = false;
+    if (v) {
+      cur = customOpts(key).filter(function (o) { return o.v === v; })[0];
+      if (cur) isCustom = true;
+      else cur = allOpts(edit.secId, q).filter(function (o) { return o.v === v; })[0];
+    }
+    edit = { kind: "optedit", secId: edit.secId, q: q, key: key, v: v || null, isCustom: isCustom };
+    var ov = v && !isCustom ? get("custom", "ovo:" + key + ":" + v) : null;
+    openModal("<h2>" + (v ? "Reword option" : "Your own option") + "</h2>" +
+      '<div class="edlabel">What you see while deciding</div>' +
+      '<input class="enterinput" id="edLabel" value="' + esc(cur ? cur.label : "") + '" autocomplete="off">' +
+      '<div class="edlabel">How it reads on the printed plan &mdash; empty keeps it off the printout</div>' +
+      '<textarea class="entertext" id="edSay" placeholder="Please&hellip;">' +
+      esc(cur && cur.say ? cur.say : "") + "</textarea>" +
+      '<div id="edMsg"></div>' +
+      '<div class="rowbtns"><button id="edSave">SAVE</button>' +
+      (isCustom ? '<button id="edDelete">DELETE</button>' : ov ? '<button id="edReset">RESET</button>' : "") +
+      '<button class="closebtn" id="edBack">BACK</button></div>');
+  }
+
+  function saveOptEdit() {
+    var label = document.getElementById("edLabel").value.trim();
+    var say = document.getElementById("edSay").value.trim();
+    if (!label) {
+      document.getElementById("edMsg").innerHTML = '<div class="err">Give it a label first.</div>';
+      return;
+    }
+    var key = edit.key;
+    if (!edit.v) {
+      var arr = customOpts(key).slice();
+      arr.push({ v: "c" + Date.now().toString(36), label: label, say: say });
+      set("custom", "opts:" + key, arr);
+    } else if (edit.isCustom) {
+      set("custom", "opts:" + key, customOpts(key).map(function (o) {
+        return o.v === edit.v ? { v: o.v, label: label, say: say } : o;
+      }));
+    } else {
+      var orig = (edit.q.opts || []).filter(function (o) { return o.v === edit.v; })[0] || {};
+      if (label === orig.label && say === (orig.say || "")) {
+        set("custom", "ovo:" + key + ":" + edit.v, null);   // back to the original
+      } else {
+        set("custom", "ovo:" + key + ":" + edit.v, { label: label, say: say });
+      }
+    }
+    render(true);
+    openOptMgr(edit.secId, edit.q);
+  }
+
+  function openItemEditor(id, presetCat) {
+    var cur = null, isCustom = false;
+    if (id) {
+      if (BY[id]) cur = eff(BY[id]);
+      else { cur = byId(id); isCustom = !!cur; }
+      if (!cur) return;
+    }
+    edit = { kind: "item", id: id || null, isCustom: isCustom };
+    var cat = cur ? cur.cat : (presetCat || CATS[0][0]);
+    var ov = id && !isCustom ? get("custom", "ovi:" + id) : null;
+    openModal("<h2>" + (id ? "Reword comfort measure" : "Your own comfort measure") + "</h2>" +
+      '<div class="edlabel">Name</div>' +
+      '<input class="enterinput" id="edName" value="' + esc(cur ? cur.name : "") + '" autocomplete="off">' +
+      '<div class="edlabel">How to do it &mdash; specific enough to execute without thinking</div>' +
+      '<textarea class="entertext" id="edHow">' + esc(cur ? cur.how : "") + "</textarea>" +
+      '<div class="edlabel">The gotcha (optional)</div>' +
+      '<input class="enterinput" id="edGot" value="' + esc(cur && cur.got ? cur.got : "") + '" autocomplete="off">' +
+      '<div class="edlabel">Where it lives</div>' +
+      '<select class="enterinput" id="edCat"' + (id ? " disabled" : "") + ">" +
+      CATS.map(function (c) {
+        return '<option value="' + esc(c[0]) + '"' + (c[0] === cat ? " selected" : "") + ">" +
+          esc(c[1]) + "</option>";
+      }).join("") + "</select>" +
+      '<div class="hint">It shows up in List mode, the Plan steps, and any Room trigger that covers this section.</div>' +
+      '<div id="edMsg"></div>' +
+      '<div class="rowbtns"><button id="edSave">SAVE</button>' +
+      (isCustom ? '<button id="edDelete">DELETE</button>' : ov ? '<button id="edReset">RESET</button>' : "") +
+      '<button class="closebtn" id="modalClose">CANCEL</button></div>');
+  }
+
+  function saveItemEdit() {
+    var name = document.getElementById("edName").value.trim();
+    var how = document.getElementById("edHow").value.trim();
+    var got = document.getElementById("edGot").value.trim();
+    var cat = document.getElementById("edCat").value;
+    if (!name || !how) {
+      document.getElementById("edMsg").innerHTML = '<div class="err">It needs a name and a how.</div>';
+      return;
+    }
+    if (!edit.id) {
+      var arr = customItems().slice();
+      arr.push({ id: "ci" + Date.now().toString(36), cat: cat, name: name, how: how, got: got });
+      set("custom", "items", arr);
+    } else if (edit.isCustom) {
+      set("custom", "items", customItems().map(function (i) {
+        return i.id === edit.id ? { id: i.id, cat: i.cat, name: name, how: how, got: got } : i;
+      }));
+    } else {
+      var orig = BY[edit.id];
+      if (name === orig.name && how === orig.how && got === (orig.got || "")) {
+        set("custom", "ovi:" + edit.id, null);   // back to the original
+      } else {
+        set("custom", "ovi:" + edit.id, { name: name, how: how, got: got });
+      }
+    }
+    closeModal();
+    render(true);
+  }
+
   modal.addEventListener("click", function (e) {
     if (e.target === modal || e.target.closest("#modalClose")) { closeModal(); return; }
+
+    if (e.target.closest("#btnOptAdd")) { openOptEditor(null); return; }
+    var oe = e.target.closest("[data-optedit]");
+    if (oe) { openOptEditor(oe.getAttribute("data-optedit")); return; }
+    if (e.target.closest("#edBack")) {
+      if (edit && edit.kind === "optedit") openOptMgr(edit.secId, edit.q);
+      else closeModal();
+      return;
+    }
+    if (e.target.closest("#edSave")) {
+      if (edit && edit.kind === "optedit") saveOptEdit();
+      else if (edit && edit.kind === "item") saveItemEdit();
+      return;
+    }
+    if (e.target.closest("#edReset")) {
+      if (edit && edit.kind === "optedit") {
+        set("custom", "ovo:" + edit.key + ":" + edit.v, null);
+        render(true); openOptMgr(edit.secId, edit.q);
+      } else if (edit && edit.kind === "item") {
+        set("custom", "ovi:" + edit.id, null);
+        closeModal(); render(true);
+      }
+      return;
+    }
+    if (e.target.closest("#edDelete")) {
+      if (edit && edit.kind === "optedit") {
+        var key = edit.key, dv = edit.v;
+        set("custom", "opts:" + key, customOpts(key).filter(function (o) { return o.v !== dv; }));
+        var cur = get("plan", key);
+        if (Array.isArray(cur)) {
+          var at = cur.indexOf(dv);
+          if (at >= 0) { cur = cur.slice(); cur.splice(at, 1); set("plan", key, cur); }
+        } else if (cur === dv) set("plan", key, null);
+        dropStar(key + ":" + dv);
+        render(true); openOptMgr(edit.secId, edit.q);
+      } else if (edit && edit.kind === "item") {
+        set("custom", "items", customItems().filter(function (i) { return i.id !== edit.id; }));
+        set("marks", edit.id, null);
+        closeModal(); render(true);
+      }
+      return;
+    }
     var p = e.target.closest("[data-print]");
     if (p) { closeModal(); setTimeout(function () { doPrint(p.getAttribute("data-print")); }, 60); return; }
     if (e.target.closest("#btnBackup")) { openBackup(); return; }
@@ -1370,7 +1796,7 @@ body:has(.bar.hidden){padding-bottom:28px}
     if (imp) {
       var remote = pendingRemote || {};
       if (imp.getAttribute("data-import") === "theirs") {
-        D = { marks: {}, plan: {}, vetoes: {}, stars: {} };
+        D = { marks: {}, plan: {}, vetoes: {}, stars: {}, custom: {} };
       }
       mergeInto(remote);
       sync.decided = true;
@@ -1435,7 +1861,7 @@ body:has(.bar.hidden){padding-bottom:28px}
     setTimeout(function () { peeFlashUntil = 0; tickPee(); render(true); }, 1400);
   };
 
-  setInterval(function () { if (!document.hidden) tickPee(); }, 1000);
+  setInterval(function () { if (!document.hidden) { tickPee(); tickWave(); } }, 1000);
 
   /* ---------------- lifecycle ---------------- */
   window.addEventListener("beforeprint", buildPrint);
@@ -1443,7 +1869,7 @@ body:has(.bar.hidden){padding-bottom:28px}
   window.addEventListener("offline", function () { setSync("off", "Offline — saved on this phone"); });
   document.addEventListener("visibilitychange", function () {
     if (document.hidden) { if (sync.pending) push(); }
-    else { tickPee(); pull(); }
+    else { tickPee(); tickWave(); pull(); }
   });
   setInterval(function () { if (!document.hidden) pull(); }, 90000);
 
