@@ -270,6 +270,9 @@ body:has(.bar.hidden){padding-bottom:28px}
 .prog{height:3px;background:var(--line);border-radius:2px;overflow:hidden;margin:2px 0 12px}
 .prog i{display:block;height:100%;background:var(--gold)}
 .stepno{font-size:11.5px;letter-spacing:.16em;color:var(--faint);text-transform:uppercase;margin:14px 0 3px}
+.stephead{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.stephead .stepno{padding:4px 0}
+#btnJump{color:var(--gold)}
 .steptitle{font-size:25px;color:var(--gold);line-height:1.15;margin-bottom:4px}
 .blurb{font-size:15px;color:var(--dim);line-height:1.42;margin:6px 0 4px}
 
@@ -846,32 +849,40 @@ select.enterinput{appearance:none;-webkit-appearance:none}
     var pct = totalQ ? Math.round((doneQ / totalQ) * 100) : 0;
     var resume = L.step != null ? L.step : firstUnfinished();
 
-    var h = '<div class="prepnote">Work through this with Britt whenever you have twenty minutes. ' +
-      'It saves as you go and syncs to both phones. Two printouts come out the other end: ' +
-      'a one-page birth plan for the care team, and your comfort pocket sheet.</div>' +
+    var h = '<div class="prepnote">Work through this with Britt whenever you have twenty minutes — ' +
+      "in order, or by tapping any step below; nothing cares about the sequence. " +
+      "It saves as you go and syncs to both phones. The point of all of it is the two printouts: " +
+      "a one-page birth plan for the care team, and your comfort pocket sheet.</div>" +
       '<div class="prog"><i style="width:' + pct + '%"></i></div>' +
       '<div class="tally"><span><b>' + doneQ + "</b> of <b>" + totalQ + "</b> answered</span>" +
       "<span><b>" + starKeys().length + "</b>/3 starred</span></div>" +
       '<button class="bigbtn" data-step="' + resume + '">' +
       (doneQ ? "CONTINUE — " + esc(STEPS[resume].title) : "START") + "</button>";
 
-    function rows(from, to) {
-      var out = '<div class="steplist">';
-      for (var i = from; i < to; i++) {
-        var p = stepProgress(i);
-        var cls = p.done === 0 ? "" : p.done >= p.total ? " done" : " part";
-        out += '<button class="steprow' + cls + '" data-step="' + i + '">' +
-          '<span class="ring">' + (p.done >= p.total ? "✓" : p.done ? "•" : "") + "</span>" +
-          "<span>" + esc(STEPS[i].title) + "</span>" +
-          '<span class="cnt">' + p.done + "/" + p.total + "</span></button>";
-      }
-      return out + "</div>";
-    }
-
-    h += '<div class="chapter">Birth plan — for the care team</div>' + rows(0, PLAN_STEPS);
-    h += '<div class="chapter">Comfort measures — for me</div>' + rows(PLAN_STEPS, STEPS.length);
+    h += '<div class="chapter">Birth plan — for the care team</div>' + stepRows(0, PLAN_STEPS);
+    h += '<div class="chapter">Comfort measures — for me</div>' + stepRows(PLAN_STEPS, STEPS.length);
     h += '<button class="ghostbtn" id="btnPrint2">PRINT / EXPORT</button>';
     return h;
+  }
+
+  function stepRows(from, to) {
+    var out = '<div class="steplist">';
+    for (var i = from; i < to; i++) {
+      var p = stepProgress(i);
+      var cls = p.done === 0 ? "" : p.done >= p.total ? " done" : " part";
+      out += '<button class="steprow' + cls + '" data-step="' + i + '">' +
+        '<span class="ring">' + (p.done >= p.total ? "✓" : p.done ? "•" : "") + "</span>" +
+        "<span>" + esc(STEPS[i].title) + "</span>" +
+        '<span class="cnt">' + p.done + "/" + p.total + " &rsaquo;</span></button>";
+    }
+    return out + "</div>";
+  }
+
+  function openJumpModal() {
+    openModal("<h2>Jump to any step</h2>" +
+      '<div class="chapter">Birth plan — for the care team</div>' + stepRows(0, PLAN_STEPS) +
+      '<div class="chapter">Comfort measures — for me</div>' + stepRows(PLAN_STEPS, STEPS.length) +
+      '<div class="rowbtns"><button class="closebtn" id="modalClose">CLOSE</button></div>');
   }
 
   function firstUnfinished() {
@@ -926,8 +937,9 @@ select.enterinput{appearance:none;-webkit-appearance:none}
   function renderStep(i) {
     var st = STEPS[i];
     var pct = Math.round(((i + 1) / STEPS.length) * 100);
-    var h = '<button class="stepno" id="btnSteps">&#9664; ALL STEPS &middot; ' +
-      (i + 1) + " OF " + STEPS.length + "</button>" +
+    var h = '<div class="stephead"><button class="stepno" id="btnSteps">&#9664; ALL STEPS</button>' +
+      '<button class="stepno" id="btnJump">' + (i + 1) + " OF " + STEPS.length +
+      " &middot; JUMP &#9662;</button></div>" +
       '<div class="prog"><i style="width:' + pct + '%"></i></div>' +
       '<h2 class="steptitle">' + esc(st.title) + "</h2>" +
       (st.blurb ? '<div class="blurb">' + esc(st.blurb) + "</div>" : "");
@@ -1161,6 +1173,18 @@ select.enterinput{appearance:none;-webkit-appearance:none}
     h += '<div class="prule">DURING a wave: go quiet, apply pressure, breathe where she can see you. A wave is ~6–9 slow breaths, then it’s over — count them with her, one wave at a time.' +
       "<span>BETWEEN waves is the only time to offer anything new, ask anything, or hand her water. " +
       "Say “surge/wave”, “opening”, “pressure” — never “pain” or “how much longer”.</span></div>";
+
+    // Her real numbers, so the breathing math works on paper with the
+    // phone in the bag. Auto-filled from the Waves timer when this phone
+    // has timed any; blanks to pencil in otherwise.
+    var wst = waveStats();
+    h += '<div class="prule">HER WAVES: ' + (wst.avgDur
+      ? "about " + Math.round(wst.avgDur / 1000) + "s ≈ " + breathsIn(wst.avgDur) + " slow breaths" +
+        (wst.avgGap ? ", ~" + mmss(wst.avgGap) + " apart" : "") +
+        '<span>From the Waves timer — pencil in new numbers as they change. Count breaths with her, not the clock.</span>'
+      : "______ s  ≈  ______ slow breaths,  ______ apart" +
+        '<span>Time a few with the Waves timer (or a watch), write it in, then count breaths with her — not the clock.</span>') +
+      "</div>";
     h += '<div class="jobs"><b>MY JOB</b>' +
       "<p><b>On arrival:</b> " + JOBS.arrival.map(function (j) { return j[1].toLowerCase(); }).join(" · ") + "</p>" +
       "<p><b>All day:</b> " + JOBS.ongoing.map(function (j) { return j[1].toLowerCase(); }).join(" · ") + "</p>" +
@@ -1377,6 +1401,7 @@ select.enterinput{appearance:none;-webkit-appearance:none}
     if (e.target.closest("#noticeOk")) { delete L.authMsg; saveLoc(); render(true); return; }
     if ((el = e.target.closest("[data-step]"))) { goStep(+el.getAttribute("data-step")); return; }
     if (e.target.closest("#btnSteps")) { L.step = null; render(); window.scrollTo(0, 0); return; }
+    if (e.target.closest("#btnJump")) { openJumpModal(); return; }
     if (e.target.closest("#btnPrint2")) { openPrintPicker(); return; }
 
     if (e.target.closest("[data-waves]")) { L.trig = "__waves"; render(); window.scrollTo(0, 0); return; }
@@ -1664,6 +1689,9 @@ select.enterinput{appearance:none;-webkit-appearance:none}
 
   modal.addEventListener("click", function (e) {
     if (e.target === modal || e.target.closest("#modalClose")) { closeModal(); return; }
+
+    var jump = e.target.closest("[data-step]");
+    if (jump) { closeModal(); goStep(+jump.getAttribute("data-step")); return; }
 
     if (e.target.closest("#btnOptAdd")) { openOptEditor(null); return; }
     var oe = e.target.closest("[data-optedit]");
