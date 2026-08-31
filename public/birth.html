@@ -121,10 +121,6 @@ h1,h2,h3{margin:0;font-weight:700;letter-spacing:.01em}
 .prepnote{color:var(--dim);font-size:15px;margin:14px 2px;line-height:1.4}
 .tally{display:flex;gap:14px;font-size:13px;color:var(--dim);margin:0 2px 10px;letter-spacing:.04em}
 .tally b{color:var(--fg)}
-.cat{border-top:1px solid var(--line);margin-top:10px}
-.cathead{width:100%;display:flex;align-items:center;gap:10px;padding:17px 2px;font-size:17px;font-weight:700}
-.cathead .cnt{margin-left:auto;font-size:13px;color:var(--faint);font-weight:600}
-.cathead .car{color:var(--gold);font-size:13px;width:14px}
 .marks{display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px;margin-top:12px}
 .marks button{
   text-align:center;padding:13px 4px;border-radius:11px;border:1px solid var(--line2);
@@ -441,7 +437,6 @@ select.enterinput{appearance:none;-webkit-appearance:none}
     <div class="brand" id="brand">Labor support</div>
     <div class="modes" role="group" aria-label="Mode">
       <button id="mPlan" aria-pressed="true">PLAN</button>
-      <button id="mPrep" aria-pressed="false">LIST</button>
       <button id="mRoom" aria-pressed="false">ROOM</button>
     </div>
     <button class="iconbtn" id="btnPrint" title="Print">PRINT</button>
@@ -498,7 +493,7 @@ select.enterinput{appearance:none;-webkit-appearance:none}
   // Every field must be listed: the loader below copies the keys of this
   // object, so anything missing here silently fails to survive a reload.
   var L = {
-    mode: "plan", trig: null, step: null, open: {}, jobs: {}, peeStart: null,
+    mode: "plan", trig: null, step: null, jobs: {}, peeStart: null,
     waves: [],          // contraction log for this device: [{s,e}, ...]
     waveOn: null,       // start of the wave being timed right now, or null
     account: null,      // last known signed-in identity, so offline doesn't look signed out
@@ -522,6 +517,7 @@ select.enterinput{appearance:none;-webkit-appearance:none}
     }
     var l = readJSON(LOC_KEY);
     if (l && typeof l === "object") for (var k in L) if (l[k] != null) L[k] = l[k];
+    if (L.mode === "prep") L.mode = "plan";   // List mode retired; Plan covers it
 
     // one-time carry-over from the pre-sync version
     var old = readJSON(OLD_KEY);
@@ -977,33 +973,6 @@ select.enterinput{appearance:none;-webkit-appearance:none}
     return L.step == null ? renderWizardHome() : renderStep(L.step);
   }
 
-  /* ---------------- list (browse) mode ---------------- */
-  function renderPrep() {
-    var all = ITEMS.concat(customItems());
-    var counts = { yes: 0, maybe: 0, veto: 0 };
-    all.forEach(function (i) { var m = get("marks", i.id); if (m) counts[m]++; });
-    var h = '<div class="prepnote">The whole comfort corpus, for editing a mark you already made. ' +
-      "The guided pass through it lives in Plan mode.</div>" +
-      vetoRead() +
-      '<div class="tally"><span><b>' + counts.yes + "</b> yes</span><span><b>" +
-      counts.maybe + "</b> maybe</span><span><b>" + counts.veto + "</b> veto</span><span><b>" +
-      (all.length - counts.yes - counts.maybe - counts.veto) + "</b> unmarked</span></div>";
-
-    CATS.forEach(function (c) {
-      var items = itemsForCats([c[0]]);
-      if (!items.length) return;
-      var open = !!L.open[c[0]];
-      var done = items.filter(function (i) { return get("marks", i.id); }).length;
-      h += '<section class="cat"><button class="cathead" data-cat="' + esc(c[0]) + '" aria-expanded="' + open + '">' +
-        '<span class="car">' + (open ? "▼" : "▶") + "</span><span>" + esc(c[1]) + "</span>" +
-        '<span class="cnt">' + done + "/" + items.length + "</span></button>" +
-        (open ? items.map(function (i) { return itemCard(i, true); }).join("") +
-          '<button class="addlink" data-additem="' + esc(c[0]) + '">＋ Add your own</button>' : "") +
-        "</section>";
-    });
-    return h;
-  }
-
   /* ---------------- wave timer ----------------
      Mindful Birthing, made concrete: time the waves themselves, learn
      how long hers actually run, then translate that into breaths. She
@@ -1309,7 +1278,7 @@ select.enterinput{appearance:none;-webkit-appearance:none}
 
   function render(keepScroll) {
     var y = window.scrollY;
-    ["plan", "prep", "room"].forEach(function (m) {
+    ["plan", "room"].forEach(function (m) {
       document.getElementById("m" + m[0].toUpperCase() + m.slice(1))
         .setAttribute("aria-pressed", L.mode === m);
     });
@@ -1326,8 +1295,7 @@ select.enterinput{appearance:none;-webkit-appearance:none}
       : inStep ? (L.step + 1) + "/" + STEPS.length : "";
     brand.classList.toggle("open", !!openTrig || wavesOpen);
 
-    var body = L.mode === "room" ? renderRoom()
-      : L.mode === "plan" ? renderPlan() : renderPrep();
+    var body = L.mode === "room" ? renderRoom() : renderPlan();
     app.innerHTML = (L.authMsg ? authNotice() : "") + body;
 
     var running = L.peeStart != null;
@@ -1377,7 +1345,6 @@ select.enterinput{appearance:none;-webkit-appearance:none}
 
   /* ---------------- events ---------------- */
   document.getElementById("mPlan").onclick = function () { L.mode = "plan"; render(); window.scrollTo(0, 0); };
-  document.getElementById("mPrep").onclick = function () { L.mode = "prep"; render(); window.scrollTo(0, 0); };
   document.getElementById("mRoom").onclick = function () { L.mode = "room"; render(); window.scrollTo(0, 0); };
   document.getElementById("btnPrint").onclick = openPrintPicker;
 
@@ -1432,9 +1399,6 @@ select.enterinput{appearance:none;-webkit-appearance:none}
     }
 
     if ((el = e.target.closest("[data-trig]"))) { L.trig = el.getAttribute("data-trig"); render(); window.scrollTo(0, 0); return; }
-    if ((el = e.target.closest("[data-cat]"))) {
-      var c = el.getAttribute("data-cat"); L.open[c] = !L.open[c]; render(true); return;
-    }
     if ((el = e.target.closest("[data-m]"))) {
       var itemId = el.parentNode.getAttribute("data-item"), val = el.getAttribute("data-m");
       set("marks", itemId, get("marks", itemId) === val ? null : val);
@@ -1651,7 +1615,7 @@ select.enterinput{appearance:none;-webkit-appearance:none}
         return '<option value="' + esc(c[0]) + '"' + (c[0] === cat ? " selected" : "") + ">" +
           esc(c[1]) + "</option>";
       }).join("") + "</select>" +
-      '<div class="hint">It shows up in List mode, the Plan steps, and any Room trigger that covers this section.</div>' +
+      '<div class="hint">It shows up in that Plan step and in any Room trigger that covers this section.</div>' +
       '<div id="edMsg"></div>' +
       '<div class="rowbtns"><button id="edSave">SAVE</button>' +
       (isCustom ? '<button id="edDelete">DELETE</button>' : ov ? '<button id="edReset">RESET</button>' : "") +

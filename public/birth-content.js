@@ -7,7 +7,7 @@
      name   short imperative label
      how    ONE line, specific enough to execute without thinking
      got    optional gotcha / the thing that makes it fail
-     cat    which Prep-mode section it lives in (see CATS)
+     cat    which section it lives in (see CATS)
 
    TRIGGERS: what I tap in the room. Each lists item ids in priority
    order. Room mode shows the first 4 that survive (vetoes removed,
