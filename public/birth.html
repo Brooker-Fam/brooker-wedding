@@ -266,9 +266,13 @@ body:has(.bar.hidden){padding-bottom:28px}
 .prog{height:3px;background:var(--line);border-radius:2px;overflow:hidden;margin:2px 0 12px}
 .prog i{display:block;height:100%;background:var(--gold)}
 .stepno{font-size:11.5px;letter-spacing:.16em;color:var(--faint);text-transform:uppercase;margin:14px 0 3px}
-.stephead{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
-.stephead .stepno{padding:4px 0}
-#btnJump{color:var(--gold)}
+.stepchips{display:flex;gap:6px;overflow-x:auto;margin:8px -12px 10px;padding:2px 12px 6px;
+  -webkit-overflow-scrolling:touch;scrollbar-width:none}
+.stepchips::-webkit-scrollbar{display:none}
+.stepchips .chip{flex:0 0 auto;padding:9px 13px;border:1px solid var(--line2);border-radius:999px;
+  background:var(--card);color:var(--dim);font-size:13.5px;font-weight:600;white-space:nowrap}
+.stepchips .chip.done{color:var(--yes);border-color:#3a5232}
+.stepchips .chip.on{background:#241f10;border-color:var(--gold);color:var(--gold)}
 .steptitle{font-size:25px;color:var(--gold);line-height:1.15;margin-bottom:4px}
 .blurb{font-size:15px;color:var(--dim);line-height:1.42;margin:6px 0 4px}
 
@@ -874,11 +878,13 @@ select.enterinput{appearance:none;-webkit-appearance:none}
     return out + "</div>";
   }
 
-  function openJumpModal() {
-    openModal("<h2>Jump to any step</h2>" +
-      '<div class="chapter">Birth plan — for the care team</div>' + stepRows(0, PLAN_STEPS) +
-      '<div class="chapter">Comfort measures — for me</div>' + stepRows(PLAN_STEPS, STEPS.length) +
-      '<div class="rowbtns"><button class="closebtn" id="modalClose">CLOSE</button></div>');
+  function stepChips(current) {
+    return '<div class="stepchips" id="stepChips">' + STEPS.map(function (st, j) {
+      var p = stepProgress(j);
+      return '<button class="chip' + (j === current ? " on" : "") +
+        (p.done >= p.total ? " done" : "") + '" data-step="' + j + '">' +
+        (p.done >= p.total ? "✓ " : "") + esc(st.title) + "</button>";
+    }).join("") + "</div>";
   }
 
   function firstUnfinished() {
@@ -932,11 +938,9 @@ select.enterinput{appearance:none;-webkit-appearance:none}
 
   function renderStep(i) {
     var st = STEPS[i];
-    var pct = Math.round(((i + 1) / STEPS.length) * 100);
-    var h = '<div class="stephead"><button class="stepno" id="btnSteps">&#9664; ALL STEPS</button>' +
-      '<button class="stepno" id="btnJump">' + (i + 1) + " OF " + STEPS.length +
-      " &middot; JUMP &#9662;</button></div>" +
-      '<div class="prog"><i style="width:' + pct + '%"></i></div>' +
+    var h = '<button class="stepno" id="btnSteps">&#9664; ALL STEPS &middot; ' +
+      (i + 1) + " OF " + STEPS.length + "</button>" +
+      stepChips(i) +
       '<h2 class="steptitle">' + esc(st.title) + "</h2>" +
       (st.blurb ? '<div class="blurb">' + esc(st.blurb) + "</div>" : "");
 
@@ -1306,6 +1310,13 @@ select.enterinput{appearance:none;-webkit-appearance:none}
     if (inStep) btnNext.textContent = L.step >= STEPS.length - 1 ? "DONE ✓" : "NEXT ▶";
     document.querySelector(".bar").classList.remove("hidden");
 
+    // keep the current step's chip in view in the picker strip
+    var chips = document.getElementById("stepChips");
+    if (chips) {
+      var on = chips.querySelector(".on");
+      if (on) chips.scrollLeft = Math.max(0, on.offsetLeft - (chips.clientWidth - on.offsetWidth) / 2);
+    }
+
     buildPrint();
     tickPee();
     tickWave();
@@ -1368,7 +1379,6 @@ select.enterinput{appearance:none;-webkit-appearance:none}
     if (e.target.closest("#noticeOk")) { delete L.authMsg; saveLoc(); render(true); return; }
     if ((el = e.target.closest("[data-step]"))) { goStep(+el.getAttribute("data-step")); return; }
     if (e.target.closest("#btnSteps")) { L.step = null; render(); window.scrollTo(0, 0); return; }
-    if (e.target.closest("#btnJump")) { openJumpModal(); return; }
     if (e.target.closest("#btnPrint2")) { openPrintPicker(); return; }
 
     if (e.target.closest("[data-waves]")) { L.trig = "__waves"; render(); window.scrollTo(0, 0); return; }
@@ -1653,9 +1663,6 @@ select.enterinput{appearance:none;-webkit-appearance:none}
 
   modal.addEventListener("click", function (e) {
     if (e.target === modal || e.target.closest("#modalClose")) { closeModal(); return; }
-
-    var jump = e.target.closest("[data-step]");
-    if (jump) { closeModal(); goStep(+jump.getAttribute("data-step")); return; }
 
     if (e.target.closest("#btnOptAdd")) { openOptEditor(null); return; }
     var oe = e.target.closest("[data-optedit]");
