@@ -33,7 +33,7 @@ const evidence: Objection = {
       label: "Believing beyond the evidence is wrong, and faith does it",
       gist: "A belief should be only as firm as its evidence, and Christian faith is firmer than its evidence.",
       body: [
-        "{{clifford}} opened his 1877 essay with a shipowner who quiets his doubts about an old ship and collects the insurance when she sinks with everyone aboard. The man is guilty, Clifford says, because “he had no right to believe on such evidence as was before him”, and he would be guilty even if she had come home. {{hume}} had stated the principle in 1748: “A wise man, therefore, proportions his belief to the evidence.” The modern name for it is [[evidentialism|evidentialism]], the view that a belief is justified only as far as it fits your evidence (Earl Conee and {{feldman}}, 2004).",
+        "{{clifford}} opened his 1877 essay with a shipowner who quiets his doubts about an old ship and collects the insurance when she sinks with everyone aboard. The man is guilty, Clifford says, because “he had no right to believe on such evidence as was before him”, and he would be guilty even if she had come home. {{hume}} had stated the principle in 1748: “A wise man, therefore, proportions his belief to the evidence.” Philosophers now call this view [[evidentialism|evidentialism]].",
         "The New Testament asks for more than proportioned belief. Jesus blesses those “that have not seen, and yet have believed” (John 20:29), and John's Gospel warns that “he that believeth not is condemned already” (3:18). {{aquinas}} quotes Pope Gregory, “there is no merit in believing what is shown by reason”, and answers him, but his own definition says that to believe is to assent to divine truth “at the command of the will” (Summa II-II q.2 a.9). If the will has to command the assent, the evidence alone was not enough.",
       ],
       quote: {
@@ -41,7 +41,7 @@ const evidence: Objection = {
         who: "W. K. Clifford",
         cite: "“The Ethics of Belief” (1877), pt. I",
       },
-      thinkers: ["clifford", "hume", "feldman", "aquinas"],
+      thinkers: ["clifford", "hume", "aquinas"],
       cedes:
         "This would fall if someone with no stake in the outcome weighed the evidence for the Christian God and found it strong enough to carry the confidence the creeds ask for.",
       see: [
@@ -140,7 +140,7 @@ const evidence: Objection = {
                       label: "Answering objections means weighing evidence after all",
                       gist: "Even a belief held without argument can be overturned, and answering the objections that might overturn it means weighing evidence.",
                       body: [
-                        "Plantinga's conditions let evidence back in. A basic belief keeps its warrant only while it faces no unanswered [[defeater|defeaters]], reasons that would overturn it, and Plantinga devotes part of *Warranted Christian Belief* to possible ones, including historical criticism of the Bible, religious pluralism, and suffering and evil. A believer who has read the Gospels side by side and buried a child has met these defeaters and has to answer them.",
+                        "Plantinga's conditions let evidence back in. A basic belief keeps its warrant only while it faces no unanswered [[defeater|defeaters]], reasons that would overturn it, and in *Warranted Christian Belief* Plantinga takes up three: historical criticism of the Bible, religious pluralism, and suffering and evil. A believer who has read the Gospels side by side and buried a child has met these defeaters and has to answer them.",
                         "Whether she can answer them depends on her evidence, and deciding that doesn't require first assuming there is no God. Plantinga's fallback, that a basic belief may outweigh its defeaters, would serve the Pumpkin believer too. That leaves answering each defeater, as Plantinga does when he charges that biblical critics assume God never acts in history ([[methodological-naturalism|methodological naturalism]]), and that means weighing evidence about ((evi-b|the Gospels)), ((hid-argument|hiddenness)) and evil.",
                       ],
                       quote: {
@@ -169,7 +169,7 @@ const evidence: Objection = {
               label: "A God you feel comes from imagination, the only source of error",
               gist: "Spinoza held that reason can know God with certainty, but a God you sense comes from imagination, the only kind of knowing that produces error.",
               body: [
-                "Spinoza held, against Clifford, that God can be known with certainty: “The human mind has an adequate knowledge of the eternal and infinite essence of God” (Ethics II P47). By adequate he meant complete and true. But he denied that a felt sense of God can be trusted, which parts him from Plantinga. The first of his three kinds of knowledge (II P40 Schol. 2) is [[imaginatio|imagination]], built from images and hearsay, and it “is the only source of falsity” (II P41).",
+                "Spinoza held, against Clifford, that God can be known with certainty: “The human mind has an adequate knowledge of the eternal and infinite essence of God” (Ethics II P47). By adequate he meant complete and true. But he denied that a felt sense of God can be trusted, which parts him from Plantinga. The first of his three kinds of knowledge is [[imaginatio|imagination]], built from images and hearsay, and it “is the only source of falsity” (II P41).",
                 "Prophecy belongs to the first kind, and so does any sense of God that shows him as sight shows a tree. In the *Treatise*, cheerful prophets are shown victories and peace, and melancholy ones wars and massacres (ch. 2), which on his view is why the God people feel has moods and favourites. Intuition, his highest kind of knowledge, also works without argument, so what he distrusted was the images. The love of God he valued comes “not in so far as we imagine him as present … but in so far as we understand him to be eternal” (V P32 Cor.).",
               ],
               quote: {
@@ -242,7 +242,7 @@ const evidence: Objection = {
               label: "No argument compels, and the 'signs' are disputed miracles",
               gist: "After centuries of effort no argument for God convinces most careful thinkers, and the evidence for Christianity in particular, miracles and prophecy, is what is in dispute.",
               body: [
-                "Each part of that case is disputed. {{mackie}} weighed the arguments in *The Miracle of Theism* (1982) and found none tips the balance. {{oppy}} argues that no argument for God compels a reasonable non-believer. {{aquinas}} himself held that the Trinity can't be proved, so reason reaches at most a first cause, and {{spinoza}}'s God, which is Nature itself, is a first cause too.",
+                "Each part of that case is disputed. {{mackie}} weighed the arguments in *The Miracle of Theism* (1982) and found none tips the balance, and {{oppy}} argues that none compels a reasonable non-believer. {{aquinas}} himself held that the Trinity can't be proved, so reason reaches at most a first cause, and {{spinoza}}'s God, which is Nature itself, is a first cause too.",
                 "Everything specifically Christian depends on revelation, and the First Vatican Council rested revelation's credibility on “miracles and prophecies”. So the case comes down to miracle reports, argued in ((nat-a|Objection III)), and to Gospels that disagree, argued in ((evi-b|Part 2)). A cumulative case must also count the evidence against, such as evil, hiddenness and rival faiths, as Oppy argues. Clues that depend on each other, like a miracle story and the church that told it, can't be counted twice.",
               ],
               quote: {
@@ -295,7 +295,7 @@ const evidence: Objection = {
               label: "Religious experiences conflict, so none is a reliable guide",
               gist: "The same kind of experience vouches for Krishna, Allah, the Trinity and an impersonal Absolute, so it can't be a reliable guide to any one of them.",
               body: [
-                "Swinburne's rule works for perception because perceptions agree. A Hindu and a Christian looking at the same tree agree that it is a tree, but mystics meet Krishna, Allah, the Trinity, the Buddha-nature or a Godhead without attributes, and each tradition checks its experiences by its own standards. {{hume}} made the same point about miracles in 1748. He argued that each religion's wonders are offered to prove a system that rules out the others, so the reports cancel each other, since “in matters of religion, whatever is different is contrary” (Enquiry X). {{alston}} himself called religious diversity the hardest problem for his view. If you can predict a person's religious experience from her birthplace, the experience seems to be tracking the birthplace. {{feldman}} concludes that when equally informed and equally careful people disagree, neither has grounds to think she sees more clearly, so both should suspend judgment.",
+                "Swinburne's rule works for perception because perceptions agree. A Hindu and a Christian looking at the same tree agree that it is a tree, but mystics meet Krishna, Allah, the Trinity, the Buddha-nature or a Godhead without attributes, and each tradition checks its experiences by its own standards. {{hume}} made the same point about miracles in 1748. He argued that each religion's wonders are offered to prove a system that rules out the others, so the reports cancel each other, since “in matters of religion, whatever is different is contrary” (Enquiry X). {{alston}} himself called religious diversity the hardest problem for his view. {{feldman}} concludes that when equally informed and equally careful people disagree, neither has grounds to think she sees more clearly, so both should suspend judgment.",
               ],
               quote: {
                 text: "it never troubles him that mere accident has decided which of these numerous worlds is the object of his reliance, and that the same causes which make him a Churchman in London, would have made him a Buddhist or a Confucian in Pekin.",
@@ -356,7 +356,7 @@ const evidence: Objection = {
           label: "The religious question can't wait for the evidence to come in",
           gist: "When a momentous choice can't be avoided or settled by evidence, refusing to choose is itself a choice.",
           body: [
-            "{{james-william}} answered Clifford in an 1896 address to the philosophy clubs of Yale and Brown. We have two duties, he said, to believe truth and to shun error, and Clifford attends only to the second. He called an option [[genuine-option|genuine]] when it is live (both answers tempt you), forced (there is no third way) and momentous (the chance won't come again). When you face one, suspending judgment is itself a choice, and if the truth is there, agnosticism misses it as surely as disbelief does. {{pascal}}'s wager was a cruder version: “If you gain, you gain all; if you lose, you lose nothing.”",
+            "{{james-william}} answered Clifford in 1896. We have two duties, he said, to believe truth and to shun error, and Clifford attends only to the second. He called an option [[genuine-option|genuine]] when it is live (both answers tempt you), forced (there is no third way) and momentous (the chance won't come again). When you face one, suspending judgment is itself a choice, and if the truth is there, agnosticism misses it as surely as disbelief does. {{pascal}}'s wager was a cruder version: “If you gain, you gain all; if you lose, you lose nothing.”",
             "Some facts also depend on our going first. Whether you like me may depend on whether I meet you halfway, and if the universe is personal, it may respond to our advances in the same way. James concluded that “a rule of thinking which would absolutely prevent me from acknowledging certain kinds of truth if those kinds of truth were really there, would be an irrational rule” (§X).",
           ],
           quote: {
@@ -737,7 +737,7 @@ const evidence: Objection = {
                       gist: "If genre can explain away a moved date, it can explain away a miracle, as Licona tentatively did with Matthew's raised saints.",
                       body: [
                         "In 2010 {{licona}} himself suggested that Matthew's saints, who rise from their graves at the crucifixion, may be apocalyptic imagery, the symbolic language Jewish writers used for the end of the world. Critics who hold the Bible free of all error protested, and in 2011 he left his post with the North American Mission Board over it.",
-                        "Nothing in the genre says which stories are reports and which are imagery. Matthew tells of the raised saints in the same plain voice as the earthquake beside them (27:51) and the empty tomb a chapter later (28:6). A reader who calls one imagery must say why the others are reports, and genre can't answer, because it permits both readings. The answer has to come from a prior judgment about which miracles happened, the question the Gospels were supposed to settle.",
+                        "Nothing in the genre says which stories are reports and which are imagery. Matthew tells of the raised saints in the same plain voice as the earthquake beside them (27:51) and the empty tomb a chapter later (28:6). A reader who calls one imagery must say why the others are reports. The answer has to come from a prior judgment about which miracles happened, the question the Gospels were supposed to settle.",
                       ],
                       quote: {
                         text: "And the graves were opened; and many bodies of the saints which slept arose, And came out of the graves after his resurrection, and went into the holy city, and appeared unto many.",
@@ -791,7 +791,7 @@ const evidence: Objection = {
                   gist: "From the start the faith said it depends on something that happened to a buried body, so retreating to ethics alone swaps it for a different religion.",
                   body: [
                     "Moving the core to ethics gives away the faith {{paul|Paul}} preached. He wrote in the mid-50s: “if Christ be not risen, then is our preaching vain, and your faith is also vain” (1 Corinthians 15:14). The first Christians announced something that happened to a body, which “was buried” and “rose again the third day” (15:4). That makes the faith open to [[falsification|falsification]], as the philosopher {{flew}} demanded in 1950, since Paul named the fact that would refute it. Spinoza's friend {{oldenburg|Henry Oldenburg}} pressed this on him in February 1676.",
-                    "Spinoza, {{kant}} in 1793 and {{harnack}} in *What Is Christianity?* (1900) each kept the ethics and set the miracles aside, and each ended with a different religion, perhaps an admirable one. From the start the rising was what offended, as in Athens, where Paul's hearers listened until he reached the resurrection and then “some mocked” (Acts 17:32). The case for the event rests on ((evi-b-minimal|facts most scholars accept)) and never depended on harmonizing the Gospels.",
+                    "Spinoza, {{kant}} in *Religion within the Bounds of Mere Reason* (1793) and {{harnack}} in *What Is Christianity?* (1900) each kept the ethics and set the miracles aside, and each ended with a different religion, perhaps an admirable one. From the start the rising was what offended, as in Athens, where Paul's hearers listened until he reached the resurrection and then “some mocked” (Acts 17:32).",
                   ],
                   quote: {
                     text: "And on this article of the resurrection the whole Christian religion and its truth rest, and with its removal Christ's mission and heavenly doctrine collapse.",

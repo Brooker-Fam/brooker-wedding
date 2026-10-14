@@ -378,7 +378,7 @@ const hiddenness: Objection = {
                   },
                   thinkers: ["rea", "john-of-the-cross", "luther", "adams-marilyn-m", "lewis-cs"],
                   cedes:
-                    "This reply fails if felt abandonment ends every relationship it touches, or if no sufferer, even afterward, could find God in her worst hour.",
+                    "This reply would not survive if felt abandonment ended every relationship it touched, or if no sufferer, even afterward, could find God in her worst hour.",
                   see: [
                     { id: "hid-presence-not-belief", why: "A lament is addressed to someone, so it may already assume the belief the argument is about." },
                   ],
@@ -607,7 +607,7 @@ const hiddenness: Objection = {
                   },
                   thinkers: ["dumsday", "swinburne"],
                   cedes:
-                    "Dumsday is wrong if helping others come to God could be had as fully in a world where everyone already believed.",
+                    "If helping others come to God could be had as fully in a world where everyone already believed, Dumsday's good gives God no reason to hide.",
                   see: [
                     { id: "hid-messengers", why: "Part 2 finds the same good in the map of belief, where faith passes from person to person." },
                     { id: "mor-inclusivism", why: "Objection V asks what becomes of people the messengers never reach." },
