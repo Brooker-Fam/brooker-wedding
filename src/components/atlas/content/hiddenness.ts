@@ -920,7 +920,7 @@ const hiddenness: Objection = {
               label: "On Marsh's model, missionaries endanger those God spared",
               gist: "If God shields would-be refusers by keeping belief from them, every missionary who reaches them removes the shield and exposes them to the refusal God meant to prevent.",
               body: [
-                "If God places people who would refuse him where belief won't reach them, for their own protection, then a missionary who brings them belief removes that protection. Every new mission field would be a region of people God was guarding, and every sermon there would risk the refusal he arranged history to prevent. Jesus' command to teach all nations would then work against God's own arrangement.",
+                "On Marsh's model God places people who would refuse him where belief won't reach them, for their own protection, so a missionary who brings them belief removes that protection. Every new mission field would be a region of people God was guarding, and every sermon there would risk the refusal he arranged history to prevent. Jesus' command to teach all nations would then work against God's own arrangement.",
                 "Marsh could reply that God foresaw the missionaries too, and puts in their path only people ready to hear. Then his model is Craig's sorting of souls by birthplace again, with all of {{maitzen}}'s ((hid-molinism-clustering|clustering problems)). And nothing independent tells us who is being spared.",
               ],
               quote: {
@@ -943,8 +943,8 @@ const hiddenness: Objection = {
           label: "Every mind is built to sense a maker, whatever the map shows",
           gist: "Calvin held that everyone has a built-in sense of God, and children everywhere seem primed to see a maker, so the map shows how cultures name that sense.",
           body: [
-            "Maitzen's map counts creeds, and the sense of God lies underneath creeds. {{calvin}} held it 'beyond dispute' that the human mind has, 'by natural instinct, some sense of Deity', the [[sensus-divinitatis|sensus divinitatis]] ('sense of the divine'). {{plantinga}} built this into a model on which belief in God is [[properly-basic|properly basic]], reasonable without argument, like trusting your memory. On his model sin has damaged the faculty in ways people inherit, so unbelief need not be anyone's fault.",
-            "[[csr|Cognitive science of religion]], the study of how ordinary minds come to religious ideas, gives the old claim some support. {{barrett}} reports in *Born Believers* (2012) that young children everywhere see purpose in nature and credit a super-knowing maker, and the psychologist Deborah Kelemen asked whether children are 'intuitive theists'. {{evans}} calls such pointers natural signs, widely available and easy to resist. Culture, on this view, changes what people call them.",
+            "Maitzen's map counts creeds, and a sense of God may lie beneath them. {{calvin}} held it 'beyond dispute' that the human mind has, 'by natural instinct, some sense of Deity', the [[sensus-divinitatis|sensus divinitatis]] ('sense of the divine'). Echoing Cicero, he added that 'there is no nation so barbarous, no race so brutish, as not to be imbued with the conviction that there is a God' (*Institutes* I.3.1). {{plantinga}} built this into a model on which belief in God is [[properly-basic|properly basic]], reasonable without argument, like trusting your memory. On his model sin has damaged the faculty in ways people inherit, so a person's unbelief need not be his own fault.",
+            "[[csr|Cognitive science of religion]], the study of how ordinary minds come to religious ideas, gives the old claim some support. {{barrett}} reports in *Born Believers* (2012) that young children in many cultures see purpose in nature and credit a super-knowing maker, and the psychologist Deborah Kelemen asked whether children are 'intuitive theists'. {{evans}} calls such pointers natural signs, widely available and easy to resist. Culture, on this view, changes what people call them.",
           ],
           quote: {
             text: "…God himself, to prevent any man from pretending ignorance, has endued all men with some idea of his Godhead, the memory of which he constantly renews and occasionally enlarges…",
@@ -969,8 +969,8 @@ const hiddenness: Objection = {
               label: "The built-in sense finds spirits, so it's no pointer to God",
               gist: "Cognitive science finds a readiness to see agents and purposes everywhere, which produces ghosts and ancestors as easily as one God.",
               body: [
-                "The cognitive science doesn't give Calvin what he needs. It describes a hair-trigger for detecting agents, which Barrett calls the [[hadd|hypersensitive agency detection device]] (the reflex that turns a rustle in the grass into someone), and a bias toward seeing purpose everywhere. These produce spirits, ancestors and many gods as readily as a loving creator. {{hume}} noticed the habit in 1757: 'We find human faces in the moon, armies in the clouds.' The philosopher Helen De Cruz concluded in 2015 that the science shows a pull toward supernatural agents in general.",
-                "Widening 'theism' to cover any supernatural being, says {{maitzen}}, 'merely changes the subject'. If uptake of Evans's signs is what varies, it varies by birthplace, and resistance does not follow borders. Calvin's own sentence ends in accusation. The sense exists so that all 'may be condemned by their own conscience', and a faculty that mostly produced other gods is a strange tool for that.",
+                "Barrett's findings don't give Calvin what he needs. They describe a hair-trigger for detecting agents, which Barrett calls the [[hadd|hypersensitive agency detection device]] (the reflex that turns a rustle in the grass into someone), and a bias toward seeing purpose everywhere. These produce spirits, ancestors and many gods as readily as a loving creator. {{hume}} noticed the habit in 1757: 'We find human faces in the moon, armies in the clouds.' The philosopher Helen De Cruz concluded in 2015 that the science shows a pull toward supernatural agents in general.",
+                "Widening 'theism' to cover any supernatural being, says {{maitzen}}, 'merely changes the subject'. Evans might say everyone gets the signs and only the response varies, but the response varies by birthplace, and resistance to God shouldn't follow borders. Calvin himself said the sense was given so that all 'may be condemned by their own conscience' (*Institutes* I.3.1), and a faculty that mostly produced other gods would be a strange tool for that.",
               ],
               quote: {
                 text: "Granted, belief in the supernatural is more widespread and more evenly distributed than belief in God, but divine hiddenness is a problem for theism in particular, not for supernaturalism in general.",
@@ -981,7 +981,7 @@ const hiddenness: Objection = {
               cedes:
                 "I'd concede if the natural sense of the divine pointed, across cultures, toward one loving creator more than toward many spirits.",
               see: [
-                { id: "evi-a-pumpkin", why: "In Objection IV, a natural faculty that grounds belief grounds every tradition's belief." },
+                { id: "evi-a-pumpkin", why: "In Objection IV, the Objector argues that if a natural faculty justifies Christian belief, it justifies every tradition's belief." },
                 { id: "nat-b-minds", why: "Objection III asks whether evolved minds can be trusted on questions like this." },
                 { id: "mor-daybreak", why: "In Objection V, Nietzsche argues that explaining how a belief arose strips it of its evidence." },
               ],
@@ -1004,11 +1004,11 @@ const hiddenness: Objection = {
                 {
                   id: "hid-designed-faculty",
                   side: "theist",
-                  label: "A God-given seed can sprout as spirits and still lead to God",
+                  label: "A God-given sense can misfire and still lead people to God",
                   gist: "A natural faculty can be God's design even when it misfires, as sight survives its illusions, and a sense of the sacred that first finds spirits can grow toward God.",
                   body: [
-                    "That the sense overshoots doesn't show it isn't God's. Vision produces illusions and still sees, and a smoke alarm that goes off for burnt toast is still a smoke alarm. Kelly James Clark and {{barrett}} follow {{reid|Thomas Reid}}, who held that we trust perception and memory without first proving them reliable. Tracing a belief to its mechanism commits the [[genetic-fallacy|genetic fallacy]], judging a belief by where it came from, unless the mechanism is shown unreliable on that question. {{calvin}} said that 'a seed of religion is divinely sown in all', though 'scarcely one in a hundred is found who cherishes it in his heart'.",
-                    "On the testimony view God planted both the seed and the gardeners. {{rea}} argues that a relationship with God need not run through a standard concept of God, so people whose sense of the sacred found spirits and ancestors were not cut off from the one they were groping toward.",
+                    "A sense that overshoots can still be God's design, as a smoke alarm that goes off for burnt toast still warns of real fires. The philosopher Kelly James Clark and {{barrett}} follow the Scottish philosopher {{reid|Thomas Reid}}, who held that we trust perception and memory without first proving them reliable. Rejecting a belief because of the mechanism that produced it commits the [[genetic-fallacy|genetic fallacy]], judging a belief by where it came from, unless the mechanism is shown to be unreliable on that question. {{calvin}} said that 'a seed of religion is divinely sown in all', though 'scarcely one in a hundred is found who cherishes it in his heart' (*Institutes* I.4.1).",
+                    "If Baker-Hytch is right that God works through messengers, the people who teach others about God are part of the design too. {{rea}} argues that a relationship with God need not run through a standard concept of God, so people whose sense of the sacred found spirits and ancestors were not cut off from the one they were groping toward.",
                   ],
                   quote: {
                     text: "Whom therefore ye ignorantly worship, him declare I unto you.",
@@ -1031,8 +1031,8 @@ const hiddenness: Objection = {
               label: "Spinoza says every mind knows God, as the order of nature",
               gist: "Spinoza agrees with Calvin that everyone knows God, but what they know is the eternal order of things, and what people reject is only an image of a judge.",
               body: [
-                "Spinoza agrees with Calvin that every mind knows God, since to know anything through its causes is to see it following from God's nature (*Ethics* II P45–47). People miss this, he says, because 'they have associated the name God with images of things that they are in the habit of seeing', so they don't recognize what they already know.",
-                "But what everyone knows, on Spinoza's view, is the eternal order of things, with no maker in it watching for submission. That is why 'No one can hate God' (V P18). The idea of God in us is adequate, meaning true and complete, and understanding brings no pain. What the supposed resister turns away from is an [[imaginatio|image]], a judge built out of human hopes and fears, of the kind Spinoza takes apart in the Appendix to *Ethics* I. The map shows where that image was taught, and nothing about anyone suppressing God.",
+                "Spinoza agrees with Calvin that every mind knows God, since every idea of an actually existing thing, he argues, 'necessarily involves the eternal and infinite essence of God' (*Ethics* II P45). People miss this, he says, because 'they have associated the name God with images of things that they are in the habit of seeing' (II P47 Schol.), so they don't recognize what they already know.",
+                "But what everyone knows, on Spinoza's view, is the eternal order of things, with no maker in it watching for submission. Because the idea of God in us is adequate, meaning true and complete, it brings no pain, and so, Spinoza concludes, 'No one can hate God' (V P18). What the supposed resister turns away from is an [[imaginatio|image]], a judge built out of human hopes and fears, of the kind Spinoza takes apart in the Appendix to *Ethics* I. On his view the map shows only where that image was taught.",
               ],
               quote: {
                 text: "Hence we see, that the infinite essence and the eternity of God are known to all.",
@@ -1041,11 +1041,11 @@ const hiddenness: Objection = {
               },
               thinkers: ["spinoza"],
               cedes:
-                "Spinoza would be wrong if some mind could know anything at all without, in that knowing, knowing something of God.",
+                "A single piece of knowledge that involved no knowledge of God would refute Spinoza.",
               see: [
                 { id: "evi-a-imagination", why: "In Objection IV, Spinoza counts a God known by feeling as imagination." },
-                { id: "hid-spinoza-my-god", why: "Spinoza's other point here, that a God who hides from no one seeks no one." },
-                { id: "nat-b-parallel", why: "Objection III explains why, for Spinoza, every mind knows God. Thought and things are one order." },
+                { id: "hid-spinoza-my-god", why: "Spinoza's other point here, that a God who can't hide can't love anyone either." },
+                { id: "nat-b-parallel", why: "Objection III explains Spinoza's view that thought and things are one order, which is why every mind knows God." },
               ],
             },
           ],
@@ -1057,9 +1057,9 @@ const hiddenness: Objection = {
   spinoza: {
     title: "The God who cannot hide",
     body: [
-      "The hiddenness argument gets no grip on Spinoza's [[deus-sive-natura|God, or Nature]]. On his view God is the most knowable thing there is, since every mind that knows anything has an adequate idea of God's eternal essence (*Ethics* II P47). In the *Theological-Political Treatise* (1670) he denied that miracles could show God, and wrote that God's nature and existence 'can all be much better perceived from the fixed and immutable order of nature' (ch. 6). A God who could appear as an event could also fail to appear, and a God who is the order every event displays can't. {{schellenberg}} himself aims the argument only at a personal God, and leaves room for an ultimate reality that is not a person.",
-      "Like {{calvin}}, and against Schellenberg, Spinoza holds that no one lacks knowledge of God, and that the nonbeliever has only attached the name to the wrong images. Like Schellenberg, and against Calvin and {{moser}}, he holds that no one is suppressing a judge or refusing a Lord, because 'No one can hate God' (V P18), and God, being without passions, 'does not love or hate anyone' (V P17 Cor.). The freedom reply gets no help from him either, since 'In the mind there is no absolute or free will' (II P48).",
-      "Spinoza has a hiddenness problem of his own. If every mind holds the idea of God, why do almost none live by it? He asks this on the last page of the *Ethics* and answers that salvation is rare because it is hard (V P42 Schol.). The answer works for him because no one, on his view, is trying to be found. Without a God who wants us, an uneven map is a fact about people and evidence against nothing. Christians and Spinoza disagree about whether that answers the seeker's longing or tells the seeker, politely, that no one is there.",
+      "The hiddenness argument doesn't apply to Spinoza's [[deus-sive-natura|God, or Nature]]. On his view God is the most knowable thing there is, since every mind that knows anything has an adequate idea of God's eternal essence (*Ethics* II P47). In the *Theological-Political Treatise* (1670) he denied that miracles could show God, and wrote that God's nature and existence 'can all be much better perceived from the fixed and immutable order of nature' (ch. 6). On his view only a God who appeared in particular events could fail to appear, and the order of nature is present in every event. {{schellenberg}} himself aims the argument only at a personal God, and leaves room for an ultimate reality that is not a person.",
+      "Spinoza agrees with {{calvin}} that no one lacks knowledge of God, and thinks the nonbeliever has only attached the name to the wrong images. On resistance he sides with Schellenberg against Calvin and {{moser}}. No one, he holds, is suppressing a judge or refusing a Lord, because 'No one can hate God' (V P18), and God, being without passions, 'does not love or hate anyone' (V P17 Cor.). The freedom reply gets no help from him either, since 'In the mind there is no absolute or free will' (II P48).",
+      "On the last page of the *Ethics* Spinoza asks why almost everyone neglects salvation if it lies so close to hand, and answers that it is rare because it is hard (V P42 Schol.). The answer works for him because every mind already holds the idea of God and no one, on his view, is trying to be found. Christians reply that this leaves the seeker's longing with no one to answer it.",
     ],
     quote: {
       text: "How would it be possible, if salvation were ready to our hand, and could without great labour be found, that it should be by almost all men neglected? But all things excellent are as difficult as they are rare.",
