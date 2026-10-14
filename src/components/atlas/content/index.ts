@@ -18,7 +18,7 @@ const disputation: Disputation = {
   subtitle: "Five objections to the Christian God, and what his defenders say back.",
   intro: [
     "The Defender replies to each objection, and the two sides go back and forth for as many rounds as the published debate goes. Every objection and reply is a move, and you decide which moves hold.",
-    "Each move here has its claim, a one-sentence summary and any quotation. In the interactive version you also get each move's full argument, its sources and what would change that side's mind, and you can mark moves Holds or Fails to see where each objection stands. There is no overall score.",
+    "Here you get each move's claim and a short summary. The interactive version adds the full argument and sources for every move, and there you can mark moves Holds or Fails to see where each objection stands. There is no overall score.",
   ],
   objections: [coherence, hiddenness, nature, evidence, morals],
   thinkers,
