@@ -44,16 +44,26 @@ export function moveNoun(depth: number): string {
   return depth === 1 ? "argument" : "reply";
 }
 
-/** An address such as "I·1.2" spelled out: "Objection I, part 1, reply 2". */
+const ORDINALS = ["first", "second", "third", "fourth", "fifth", "sixth", "seventh", "eighth", "ninth", "tenth"];
+const nth = (k: number) => (ORDINALS[k - 1] ? `the ${ORDINALS[k - 1]} reply` : `reply ${k}`);
+
+/** An address spelled out. "I·1" → "Objection I, part 1"; "I·1.2" → "Objection I, part 1, the second reply";
+    "I·1.2.3" → "Objection I, part 1, round 3, the third reply to I·1.2". */
 export function spellAddress(ix: DisputationIndex, id: string): string {
   const info = ix.nodes.get(id);
   if (!info) return "";
   const o = ix.objections.get(info.objection);
   const steps = info.path.map((pid) => (ix.nodes.get(pid)?.order ?? 0) + 1);
+  const many = (o?.prongs.length ?? 1) > 1;
   const out = [`Objection ${o?.numeral ?? "?"}`];
-  if ((o?.prongs.length ?? 1) > 1) out.push(`part ${steps[0]}`);
-  else if (steps.length === 1) out.push("the opening argument");
-  for (const k of steps.slice(1)) out.push(`reply ${k}`);
+  if (many) out.push(`part ${steps[0]}`);
+  if (steps.length === 1) {
+    if (!many) out.push("the opening argument");
+  } else if (steps.length === 2) {
+    out.push(many ? nth(steps[1]) : `${nth(steps[1])} to its opening argument`);
+  } else {
+    out.push(`round ${steps.length}`, `${nth(steps[steps.length - 1])} to ${address(ix, info.path[info.path.length - 2])}`);
+  }
   return out.join(", ");
 }
 

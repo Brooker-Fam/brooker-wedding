@@ -1467,8 +1467,14 @@
   gap: 10px;
   margin-top: 26px;
 }
+/* a closing quotation on the end card, set like the epigraph under How it works */
+.atl .wk-done-epi {
+  margin-top: 26px;
+  padding: 12px 0 0;
+  border-top: 1px solid var(--line-soft);
+}
 .atl .wk-done-foot {
-  margin-top: 20px;
+  margin-top: 14px;
   font-size: 13.5px;
   line-height: 1.6;
   color: var(--faint);

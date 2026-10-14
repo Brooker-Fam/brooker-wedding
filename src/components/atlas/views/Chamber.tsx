@@ -126,26 +126,18 @@ function HereMark({ index, count }: { index: number; count: number }) {
 
 /* ---------------- Aquinas's own Objection 2 (Objection III only) ---------------- */
 
-function Echo({ objection, full }: { objection: string; full: boolean }) {
+function Echo({ full }: { full: boolean }) {
   const [open, setOpen] = useState(false);
   const shown = full || open;
   return (
     <section className="ch-echo" aria-labelledby="ch-echo-h">
       <div className="ch-echo-top">
         <h2 id="ch-echo-h" className="ch-echo-h">
-          Aquinas raised it first
+          Aquinas raised it against himself
         </h2>
         <p className="ch-echo-src">Summa Theologiae, Part I · 1265–68</p>
       </div>
-      {objection && (
-        <p className="ch-echo-lead s-skeptic">
-          <span className="ch-echo-k">
-            <span aria-hidden>▲</span> The Objector says
-          </span>
-          <span className="ch-echo-lead-t">{objection}</span>
-        </p>
-      )}
-      <p className="ch-echo-then">Around 1266 Aquinas made the same objection against his own view, and then answered it:</p>
+      <p className="ch-echo-then">Around 1266 he made the case for part 2 of this objection, that God explains nothing nature can’t, and then answered it:</p>
       {!shown && <p className="ch-echo-hook s-skeptic">“…it seems that everything we see in the world can be accounted for by other principles, supposing God did not exist.”</p>}
       {!full && (
         <button type="button" className="ch-echo-more" aria-expanded={shown} aria-controls="ch-echo-body" onClick={() => setOpen((v) => !v)}>
@@ -183,14 +175,16 @@ function Echo({ objection, full }: { objection: string; full: boolean }) {
             </p>
             <div className="ch-echo-note">
               <p>
-                Spinoza accepted where the reply ends up. Everything traces back to a first cause that exists by its own necessity, and he called God “the indwelling and
-                not the transient cause of all things”, meaning a cause that acts from inside nature, not on it from outside (<em>Ethics</em> I, Prop. 18).
+                Spinoza agreed with Aquinas that everything traces back to a first cause that exists by its own necessity. But he took that cause to be nature itself,
+                which brings him close to the objection: “the eternal and infinite Being, which we call God or Nature, acts by the same necessity as that whereby it
+                exists” (<em>Ethics</em> IV, Preface). He called God “the indwelling and not the transient cause of all things” (<em>Ethics</em> I, Prop. 18), meaning a
+                cause that acts from inside nature, not on it from outside.
               </p>
               <p>
-                He rejected the step that gets there. Aquinas says nature works “for a determinate end under the direction of a higher agent”, that is, toward a goal
-                someone set. Spinoza wrote that “nature has no particular goal in view, and that final causes are mere human figments” (<em>Ethics</em> I, Appendix). A
-                final cause is the purpose a thing exists or acts for. He also denied that the first cause chooses: “God does not act according to freedom of the will”
-                (<em>Ethics</em> I, Prop. 32, Cor. 1).
+                He rejected Aquinas’s first step, that nature works “for a determinate end under the direction of a higher agent”, toward a goal someone set. Spinoza
+                called final causes, the purposes things are supposed to exist for, “mere human figments”, and summed up the view he was attacking as “God made all
+                things for man, and man that he might worship him” (<em>Ethics</em> I, Appendix). He also denied that the first cause chooses: “God does not act
+                according to freedom of the will” (<em>Ethics</em> I, Prop. 32, Cor. 1).
               </p>
             </div>
           </>
@@ -273,7 +267,7 @@ function Lineage({ oid, lineage, onHistory }: { oid: ObjectionId; lineage: strin
       )}
       {first && lastT && people.length > 1 && (
         <span className="ch-lineage-span">
-          {shortName(first.name)} → {shortName(lastT.name)}
+          {shortName(first.name)} to {shortName(lastT.name)}
         </span>
       )}
       <button type="button" className="ch-lineage-go" onClick={onHistory}>
@@ -445,7 +439,7 @@ export default function Chamber({ o: oid, node }: { o: ObjectionId; node?: strin
       if (objAfter !== objBefore) {
         const what = objAfter === "in" ? "now stands" : objAfter === "out" ? "is now answered" : "is open again";
         toast({
-          text: `Objection ${o.numeral} ${what} after ${did}.${newTension ? " It also leaves a contradiction. Look for the Tension note." : ""}`,
+          text: `${cap(did)}, so Objection ${o.numeral} ${what}.${newTension ? " That leaves two moves that contradict each other." : ""}`,
           action: undo,
           tone: newTension ? "tension" : "plain",
           ttl: newTension ? 9000 : 7000,
@@ -454,7 +448,7 @@ export default function Chamber({ o: oid, node }: { o: ObjectionId; node?: strin
       }
       if (newTension) {
         toast({
-          text: "A point you said holds now has a reply that stands too. These two contradict each other.",
+          text: "You said a move holds, but a reply to it now stands, and a move with a standing reply is answered. These two contradict each other.",
           action: undo,
           tone: "tension",
           ttl: 7000,
@@ -464,7 +458,7 @@ export default function Chamber({ o: oid, node }: { o: ObjectionId; node?: strin
       const others = changed.size - 1;
       if (others > 0) {
         // A visible sign that the call moved other statuses too (the toast is also read out).
-        toast({ text: `${cap(did)}. ${others === 1 ? "One other move" : `${cap(numWord(others))} other moves`} changed status with it.`, action: undo, ttl: 6000 });
+        toast({ text: `${cap(did)}. ${others === 1 ? "That changed one other move’s status." : `That changed the status of ${numWord(others)} other moves.`}`, action: undo, ttl: 6000 });
         return;
       }
       const still = objAfter === "in" ? "still stands" : objAfter === "out" ? "is still answered" : "is still open";
@@ -525,7 +519,7 @@ export default function Chamber({ o: oid, node }: { o: ObjectionId; node?: strin
   const hasScholium = !!spin && (!!spin.title || spinBody.length > 0);
   const nMoves = ids.length;
   const nRounds = ids.reduce((m, id) => Math.max(m, ix.nodes.get(id)?.depth ?? 0), 0);
-  const mapMeta = `${nMoves} ${nMoves === 1 ? "move" : "moves"} · ${nRounds} ${nRounds === 1 ? "round" : "rounds"}`;
+  const mapMeta = `${nMoves} in ${nRounds} ${nRounds === 1 ? "round" : "rounds"}${nProngs > 1 ? ` · ${nProngs} parts` : ""}`;
 
   const ready = !!focusId;
   const chart = (variant: "panel" | "inline", bare = false) =>
@@ -621,8 +615,8 @@ export default function Chamber({ o: oid, node }: { o: ObjectionId; node?: strin
                   <span className={`ch-objpip st-${objLabel}`} aria-hidden />
                   <span className="ch-objword">{OBJ_STATUS_WORD[objLabel]}</span>
                   <span className="ch-objcount">
-                    {a && a.judged > 0 ? `${a.judged} of ${a.total} moves called` : `${a?.total ?? nMoves} moves · no calls yet`}
-                    {objTensions > 0 ? ` · ${objTensions} ${objTensions === 1 ? "tension" : "tensions"}` : ""}
+                    {a && a.judged > 0 ? `${a.judged} of ${a.total} moves marked Holds or Fails` : `${a?.total ?? nMoves} moves · none marked Holds or Fails yet`}
+                    {objTensions > 0 ? ` · ${objTensions} ${objTensions === 1 ? "contradiction" : "contradictions"}` : ""}
                   </span>
                   <WhyLine key={`${objLabel}:${a?.judged ?? 0}`} explanation={explainObjection(labels, o, toPlain, judgments)} onGo={(id) => focus(id, "link")} className="ch-objwhy" />
                 </div>
@@ -633,18 +627,19 @@ export default function Chamber({ o: oid, node }: { o: ObjectionId; node?: strin
 
               {nProngs > 0 && (
                 <p className="ch-stakes">
-                  {nProngs > 1 ? (
+                  {nProngs > 2 ? (
                     <>
-                      This objection has {numWord(nProngs)} parts. The Defender has to answer {nProngs === 2 ? "both" : `all ${numWord(nProngs)}`}, and the Objector needs only one
-                      of them to stand.
+                      If any one of its {numWord(nProngs)} parts stands, Objection {o.numeral} stands, so the Defender has to answer all {numWord(nProngs)}.
                     </>
+                  ) : nProngs === 2 ? (
+                    <>If either part stands, Objection {o.numeral} stands, so the Defender has to answer both.</>
                   ) : (
-                    <>This objection rests on one argument. If it stands, Objection {o.numeral} stands, so the Defender has to answer it.</>
+                    <>If its one argument stands, Objection {o.numeral} stands, so the Defender has to answer it.</>
                   )}
                 </p>
               )}
 
-              {oid === "nature" && <Echo objection={o.objection} full={wide} />}
+              {oid === "nature" && <Echo full={wide} />}
             </header>
 
             {!wide &&

@@ -1,5 +1,5 @@
 /* ==========================================================================
-   Overview (#/) — hero + plumb line, echo, who speaks, the Rose, resume line,
+   Overview (#/): hero + plumb line, echo, who's talking, the Rose, resume line,
    five posters, how it works. Scoped under .atl, prefixed .ov-
    ========================================================================== */
 
@@ -130,7 +130,7 @@
   text-wrap: pretty;
 }
 
-/* the echo — an epigraph, not a gate; a gentle fade the first time (CSS, no hidden SSR state) */
+/* the echo: an epigraph with a gentle fade the first time (CSS, no hidden SSR state) */
 .atl .ov-echo {
   margin: 40px 0 0;
   max-width: 34rem;
@@ -940,7 +940,7 @@
   }
 }
 
-/* ---------- ≥ 860px: hero in two columns — title stepped across both, the Rose under "Down" ---------- */
+/* ---------- ≥ 860px: hero in two columns, title stepped across both, the Rose under "Down" ---------- */
 @media (min-width: 860px) {
   .atl .ov-grid {
     grid-template-columns: var(--ov-cols);

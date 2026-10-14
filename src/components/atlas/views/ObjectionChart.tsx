@@ -153,7 +153,7 @@ export default function ObjectionChart({ o, focusId, path, onSelect, variant, ba
         <div className="ch-chart-head">
           <h2 className="ch-chart-h">All moves</h2>
           <p className="ch-chart-meta">
-            {counts.moves} moves · {counts.rounds} {counts.rounds === 1 ? "round" : "rounds"}
+            {counts.moves} in {counts.rounds} {counts.rounds === 1 ? "round" : "rounds"}
             {many ? ` · ${counts.parts} parts` : ""}
           </p>
         </div>
@@ -251,7 +251,7 @@ export default function ObjectionChart({ o, focusId, path, onSelect, variant, ba
               <span title={spellAddress(ix, shown)}>
                 {address(ix, shown)} · Round {shownInfo.depth} · {SIDE_WORD[shownInfo.node.side]}
               </span>
-              {shown === focusId && <span className="ch-readout-here">Reading</span>}
+              {shown === focusId && <span className="ch-readout-here">You’re here</span>}
             </p>
             <p className={`ch-readout-t ${lab(shown) === "out" ? "lab-out" : ""}`}>{toPlain(shownInfo.node.label)}</p>
             <p className="ch-readout-s">
@@ -260,7 +260,9 @@ export default function ObjectionChart({ o, focusId, path, onSelect, variant, ba
               ) : (
                 <span className={`ch-readout-st st-${lab(shown)}`}>{statusText(lab(shown))}</span>
               )}
-              {shown === pivot && <span className="ch-readout-pivot">⚑ Your key call. Holds or fails here settles Objection {o.numeral}.</span>}
+              {shown === pivot && (
+                <span className="ch-readout-pivot">⚑ Your key call. Marking this move Holds or Fails would settle Objection {o.numeral} one way or the other.</span>
+              )}
             </p>
             {preview && preview === shown && preview !== focusId && (
               <button type="button" className="btn small ch-readout-go" onClick={() => onSelect(preview)}>
@@ -302,14 +304,14 @@ export default function ObjectionChart({ o, focusId, path, onSelect, variant, ba
           <svg viewBox="0 0 14 14" aria-hidden>
             <path d="M2 12 C2 6 12 8 12 2" className="lg-tense" />
           </svg>
-          Tension
+          Contradiction
         </li>
         {pivot && (
           <li>
             <svg viewBox="0 0 14 14" aria-hidden>
               <path d="M4 13V2l7 3-7 3" className="lg-flag" />
             </svg>
-            Key call
+            Your key call
           </li>
         )}
       </ul>
@@ -321,16 +323,19 @@ export default function ObjectionChart({ o, focusId, path, onSelect, variant, ba
       <div className="ch-chart-note">
         <p>
           Each mark is one move. Round 1, at the top, is the Objector’s {many ? `case in ${numWord(counts.parts)} parts` : "case"}, and each round below replies to the one above it.
-          A move stands when every reply to it is answered, and it is answered as soon as one reply stands. Your own Holds or Fails on a move overrides its replies.
+          One standing reply is enough to answer a move. A move stands only when every reply to it is answered or marked Fails. The last move on each branch has no reply,
+          so it stays open until you mark it Holds or Fails. Your own Holds or Fails on any move overrides its replies.
         </p>
         <p>
           {many ? (
             <>
-              An address like {o.numeral}·1.2 means Objection {o.numeral}, part 1, reply 2.
+              An address like {o.numeral}·1.2 means Objection {o.numeral}, part 1, the second reply. Each extra number goes one round deeper, so {o.numeral}·1.2.3 is the third
+              reply to {o.numeral}·1.2.
             </>
           ) : (
             <>
-              An address like {o.numeral}·1.2 means Objection {o.numeral}, reply 2 to its opening argument.
+              An address like {o.numeral}·1.2 means Objection {o.numeral}, the second reply to its opening argument. Each extra number goes one round deeper, so{" "}
+              {o.numeral}·1.2.3 is the third reply to {o.numeral}·1.2.
             </>
           )}
         </p>

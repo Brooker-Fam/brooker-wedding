@@ -17,7 +17,7 @@ const fadeUp = {
 
 type DebateCard = {
   slug: string;
-  group: "Enduring questions" | "Live & contested";
+  group: "Old questions" | "Live & contested";
   field: string;
   title: string;
   hook: string;
@@ -28,16 +28,16 @@ type DebateCard = {
 const DEBATES: DebateCard[] = [
   {
     slug: "god",
-    group: "Enduring questions",
+    group: "Old questions",
     field: "Metaphysics",
     title: "Does a mind stand under the world?",
-    hook: "Contingency, fine-tuning, suffering — and whether God is a claim evidence can weigh.",
+    hook: "Contingency, fine-tuning and suffering, and whether evidence can settle the question of God at all.",
     poleA: "A mind underneath",
     poleB: "Brute & impersonal",
   },
   {
     slug: "morality",
-    group: "Enduring questions",
+    group: "Old questions",
     field: "Metaethics",
     title: "Is right and wrong discovered, or made up?",
     hook: "Real moral facts, or moral feelings? Disagreement, evolution, and the source of “ought.”",
@@ -49,7 +49,7 @@ const DEBATES: DebateCard[] = [
     group: "Live & contested",
     field: "Political economy · history",
     title: "Venezuela: ruined from within, or strangled from outside?",
-    hook: "The rise and fall of a petrostate — Chavismo, socialism, US sanctions, and the oil under it all.",
+    hook: "The rise and fall of a petrostate: Chavismo, socialism, US sanctions and oil.",
     poleA: "Ruined from within",
     poleB: "Strangled from outside",
   },
@@ -85,7 +85,7 @@ const DEBATES: DebateCard[] = [
     group: "Live & contested",
     field: "Energy · technology",
     title: "AI data centers: build, or rein in?",
-    hook: "The power and water bill behind the AI boom — grid strain, ratepayer costs, and the bubble question.",
+    hook: "What the AI boom costs in power and water: grid strain, higher bills for ratepayers, and whether it’s a bubble.",
     poleA: "Build it out",
     poleB: "Rein it in",
   },
@@ -94,7 +94,7 @@ const DEBATES: DebateCard[] = [
     group: "Live & contested",
     field: "Respiratory physiology · folk medicine",
     title: "Milk & mucus: does dairy thicken congestion?",
-    hook: "An 800-year-old belief meets the blinded challenge trials — mucus weighed, sensation felt, and the A1/BCM-7 mechanism that keeps the door ajar.",
+    hook: "An 800-year-old belief against blinded challenge trials that weighed the mucus and asked how it felt. The A1/BCM-7 mechanism keeps the question open.",
     poleA: "Milk thickens it",
     poleB: "It's a myth",
   },
@@ -103,8 +103,8 @@ const DEBATES: DebateCard[] = [
     group: "Live & contested",
     field: "Nutrition science",
     title: "Saturated fat: artery-clogger, or wrongly blamed?",
-    hook: "Sixty years of diet-heart advice — LDL vs ApoB, the trial re-analyses, and butter vs seed oils.",
-    poleA: "Harmful — limit it",
+    hook: "Sixty years of diet-heart advice: LDL vs ApoB, re-analyses of the old trials, and butter vs seed oils.",
+    poleA: "Harmful, limit it",
     poleB: "Largely benign",
   },
   {
@@ -112,13 +112,13 @@ const DEBATES: DebateCard[] = [
     group: "Live & contested",
     field: "Dermatology · public health",
     title: "Sunlight: a carcinogen to block, or a nutrient we're starved of?",
-    hook: "From prescribed cure to Group 1 carcinogen and partway back — vitamin D, nitric oxide, and whether avoidance is its own risk.",
-    poleA: "Shade it — the sun harms",
-    poleB: "Seek it — the sun heals",
+    hook: "Sunlight went from prescribed cure to Group 1 carcinogen and partway back. Vitamin D, nitric oxide, and whether avoiding the sun has its own risks.",
+    poleA: "Avoid it",
+    poleB: "Get more of it",
   },
 ];
 
-const GROUPS = ["Enduring questions", "Live & contested"] as const;
+const GROUPS = ["Old questions", "Live & contested"] as const;
 
 function AxisBar({ poleA, poleB }: { poleA: string; poleB: string }) {
   return (
@@ -213,8 +213,8 @@ function FeaturedDisputation() {
           All the Way Down
         </h3>
         <p className="mt-2 font-[family-name:var(--font-quicksand)] text-[14px] leading-relaxed text-[#ebe5d6]/70">
-          Five objections to the Christian God, each answered by classical theism and argued back and forth for up
-          to seven rounds. Mark each move Holds or Fails and see where you stand.
+          Christian thinkers from Augustine to Alvin Plantinga answer five objections to the Christian God. The two
+          sides go back and forth for up to seven rounds, and you decide which moves hold.
         </p>
         <figure className="mt-4 border-l-2 border-[#d8a652]/40 pl-3 text-left">
           <blockquote className="font-[family-name:var(--font-cormorant-garamond)] text-[17px] italic leading-snug text-[#ebe5d6]/85">
@@ -249,9 +249,8 @@ export default function DebatesIndexPage() {
             Thought Pages
           </h1>
           <p className="mx-auto mt-4 max-w-xl font-[family-name:var(--font-quicksand)] text-[15px] leading-relaxed text-forest/65 dark:text-cream/65">
-            Long reads on big, contested questions — each one mapped as a fair fight, with the best
-            case for <strong>both sides</strong> side by side, and the history behind it. Pick one and
-            find which question you actually disagree on.
+            Long reads on contested questions. Each one gives the history, then sets the strongest case
+            for each side next to the other, so you can find the question you disagree on.
           </p>
         </motion.div>
 
@@ -282,8 +281,8 @@ export default function DebatesIndexPage() {
           {...fadeUp}
           className="mx-auto mt-12 max-w-xl text-center font-[family-name:var(--font-quicksand)] text-[11px] leading-relaxed text-forest/40 dark:text-cream/40"
         >
-          Each opens as a standalone page. A “steelman” is the strongest version of an argument,
-          stated fairly, and presenting one isn’t the same as endorsing it.
+          Each opens as its own page. A “steelman” is an argument put as strongly as its defenders
+          would put it. Laying one out doesn’t mean endorsing it.
         </motion.p>
       </div>
     </main>

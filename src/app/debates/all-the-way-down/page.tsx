@@ -4,10 +4,10 @@ import Atlas from "@/components/atlas/Atlas";
 export const metadata: Metadata = {
   title: "All the Way Down · Five objections to the Christian God",
   description:
-    "Five objections to the Christian God, each answered by classical theism and argued back and forth for up to seven rounds, with quotations from 2,500 years of philosophy. Mark each move Holds or Fails and see where you stand.",
+    "Five objections to the Christian God and the Christian replies, argued back and forth for up to seven rounds, with quotations from 2,500 years of scripture and philosophy. Mark each move Holds or Fails and see where you stand.",
   openGraph: {
     title: "All the Way Down",
-    description: "Five objections to the Christian God, and what his best defenders say back. Mark each move Holds or Fails and see where you stand.",
+    description: "Five objections to the Christian God, and what his defenders say back. Mark each move Holds or Fails and see where you stand.",
     type: "article",
   },
 };

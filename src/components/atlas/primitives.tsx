@@ -91,7 +91,7 @@ export function JudgeControl({ id, side, compact = false }: { id: string; side: 
       </div>
       {!compact && !current && (
         <span className="judge-hint">
-          {computed === "undec" ? "Open. You haven't marked it." : computed === "in" ? "Stands, because every reply to it fails." : "Answered, because a reply to it stands."}
+          {computed === "undec" ? "Open. You haven't marked it." : computed === "in" ? "Stands, because every reply to it has failed or been answered." : "Answered, because a reply to it stands."}
         </span>
       )}
     </div>

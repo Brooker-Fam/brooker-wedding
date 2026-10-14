@@ -12,9 +12,9 @@ import { motion, useReducedMotion } from "framer-motion";
 import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore, type CSSProperties, type ReactNode } from "react";
 import { useAtlas } from "../context";
 import { determine } from "../determination";
-import { ROMAN, address } from "../helpers";
+import { ROMAN } from "../helpers";
 import { Glyph, RichText, ThinkerChip } from "../primitives";
-import { labelObjection } from "../semantics";
+import { labelObjection, type DisputationIndex } from "../semantics";
 import { useToast } from "../toast";
 import type { ArgNode, Judgment, Label, Objection, ObjectionId, Side } from "../types";
 import {
@@ -49,11 +49,18 @@ const joinAnd = (xs: string[]) => (xs.length <= 1 ? xs.join("") : `${xs.slice(0,
 /** "part 2" / "parts 2 and 3" (0-based indexes in). */
 const partList = (idx: number[]) => (idx.length === 1 ? `part ${idx[0] + 1}` : `parts ${joinAnd(idx.map((i) => String(i + 1)))}`);
 const isAre = (n: number) => (n === 1 ? "is" : "are");
+/** Where a move sits, in the reader's words: "Part 2 · Round 3". */
+function partRound(ix: DisputationIndex, id: string): string {
+  const info = ix.nodes.get(id);
+  if (!info) return "";
+  return `Part ${(ix.nodes.get(info.path[0])?.order ?? 0) + 1} · Round ${info.depth}`;
+}
 /** Why an inner move stands when nothing answers it. */
 const allFail = (replies: number) => (replies === 1 ? "its one reply fails" : "every reply to it fails");
 
+/** Status words, the same for moves and objections. */
 const STATUS: Record<Label, string> = { in: "Stands", out: "Answered", undec: "Open" };
-const OBJ_STATUS: Record<Label, string> = { in: "Stands", out: "Answered", undec: "Undecided" };
+const callWord = (j: Judgment) => (j === "holds" ? "Holds" : "Fails");
 const EASE = [0.22, 1, 0.36, 1] as const;
 /** Ignore a second action this soon after the last one (key repeat, double taps). */
 const ACTION_LOCK_MS = 350;
@@ -386,7 +393,7 @@ export default function Walk({ o }: { o: ObjectionId }) {
     acts.push({
       key: "test",
       label: <>Show the other {k === 1 ? "reply" : num(k)}</>,
-      short: k === 1 ? "Other reply" : "Other replies",
+      short: k === 1 ? "See the other" : "See the others",
       kbd: "T",
       tone: "line",
       run: () => dispatch({ type: "test", id: prompt.id }),
@@ -401,7 +408,7 @@ export default function Walk({ o }: { o: ObjectionId }) {
           {next} <span className="wk-arrow" aria-hidden>→</span>
         </>
       ),
-      short: end ? (end.final ? "Where you stand" : `On to part ${end.index + 2}`) : "Continue",
+      short: end ? (end.final ? "See results" : `On to part ${end.index + 2}`) : "Continue",
       kbd: "C",
       tone: "solid",
       run: () => dispatch({ type: "ack", key: keys }),
@@ -477,7 +484,13 @@ export default function Walk({ o }: { o: ObjectionId }) {
     const entry = commit(EMPTY_SESSION, ids.map((id) => ({ id, j: null })));
     setOpenSecs([]);
     toast({
-      text: ids.length ? <>Cleared your {ids.length === 1 ? "call" : `${ids.length} calls`} on Objection {numeral} and went back to the start.</> : <>Went back to the start.</>,
+      text: ids.length ? (
+        <>
+          Cleared your {ids.length === 1 ? "call" : `${ids.length} calls`} on Objection {numeral}. You’re back at the start.
+        </>
+      ) : (
+        <>You’re back at the start.</>
+      ),
       action: { label: "Undo", run: () => undo(entry) },
     });
   };
@@ -676,7 +689,7 @@ function WalkHeader({
           1
         </span>
         <span>
-          <b>It fails</b> means you reject the move outright.
+          <b>It fails</b> rejects the move without hearing the replies to it.
         </span>
       </li>
       <li>
@@ -684,7 +697,7 @@ function WalkHeader({
           2
         </span>
         <span>
-          <b>Show the reply</b> lets the other side answer. The move stands only if every reply fails.
+          <b>Show the reply</b> takes you through its replies one at a time. The move is answered if any reply stands, and it stands if every reply fails.
         </span>
       </li>
       <li>
@@ -884,7 +897,7 @@ function Strip({
     );
   const stamp =
     res.r === "judged" ? (
-      <span className="your-call">Your call · {res.j}</span>
+      <span className="your-call">Your call: {callWord(res.j)}</span>
     ) : res.auto ? null : (
       <span className="wk-stamp heard">
         <span className="wk-sq" aria-hidden />
@@ -927,7 +940,7 @@ function Strip({
         </div>
         {showFork && (
           <p className="wk-fork">
-            {Num(item.replies)} replies. If {item.replies === 2 ? "either" : "any"} one of them stands, this move is answered.
+            {item.replies === 2 ? "If either of its two replies stands" : `If any one of its ${num(item.replies)} replies stands`}, this move is answered.
           </p>
         )}
         {open && (
@@ -958,18 +971,18 @@ function Strip({
   );
 }
 
-/** One result sentence, e.g. So “X” is answered, because its reply “Y” stands. */
+/** One result sentence, e.g. “X” is answered, because its reply “Y” stands. */
 function ResolveSentence({ item }: { item: ResolveItem }) {
   const labelText = useLabelText();
   const k = item.untested.length;
   return item.label === "out" && item.by ? (
     <>
-      So <q className="serif">{labelText(item.id)}</q> is answered, because its reply <q className="serif">{labelText(item.by)}</q> stands.
+      <q className="serif">{labelText(item.id)}</q> is answered, because its reply <q className="serif">{labelText(item.by)}</q> stands.
       {k > 0 && (k === 1 ? " You skipped the other reply." : ` You skipped the other ${num(k)}.`)}
     </>
   ) : (
     <>
-      So <q className="serif">{labelText(item.id)}</q> stands, because {allFail(item.replies)}.
+      <q className="serif">{labelText(item.id)}</q> stands, because {allFail(item.replies)}.
     </>
   );
 }
@@ -997,7 +1010,8 @@ function ResolveRow({ items, fresh, delay }: { items: ResolveItem[]; fresh: bool
           <span className="wk-res-k mono">{top.label === "out" ? "Answered" : "Stands"}</span>
           {chain ? (
             <>
-              That decides {num(items.length)} moves in a row, ending with <q className="serif">{labelText(top.id)}</q>, which {top.label === "out" ? "is answered" : "stands"}.
+              {Num(items.length)} moves back up this line of replies are settled. The last of them, <q className="serif">{labelText(top.id)}</q>,{" "}
+              {top.label === "out" ? "is answered" : "stands"}.
             </>
           ) : (
             <ResolveSentence item={top} />
@@ -1155,7 +1169,7 @@ function LitMove({ prompt: p, bar }: { prompt: Extract<WalkPrompt, { kind: "ask"
       )}
       <div className="wk-ask">
         {p.leaf && <p className="wk-ask-k mono">Nobody replies to this</p>}
-        <p className="wk-ask-q serif">{p.leaf ? "Does it hold?" : `Reject it now, or see the ${p.replies > 1 ? "replies" : "reply"} first?`}</p>
+        <p className="wk-ask-q serif">{p.leaf ? "Does it hold?" : `Reject it now, or see if it survives the ${p.replies > 1 ? "replies" : "reply"}?`}</p>
         {bar}
       </div>
       <p className="wk-links">
@@ -1182,14 +1196,20 @@ function EndLinks({ obj }: { obj: Objection }) {
   );
 }
 
-/** The rule (the Defender must answer every part, the Objector needs one) and what is left, for an unsettled end of a part. */
+/** What is left after an unsettled end of a part. The rule (one standing part is enough for the
+    Objector) is told once, at the end of part 1, since the walk always starts there. */
 function remainingText(end: ProngEnd, total: number): string {
   const rest = Array.from({ length: total - end.index - 1 }, (_, k) => end.index + 1 + k);
   const decided = end.ahead.map((a) => a.index);
   const open = rest.filter((i) => !decided.includes(i));
-  const rule = "The Defender has to answer every part of this objection. The Objector needs only one part to stand.";
-  if (decided.length === 0) return `${rule} ${Num(open.length)} more ${open.length === 1 ? "part" : "parts"} to go.`;
-  return `${rule} What you marked earlier already decides ${partList(decided)}, and ${partList(open)} ${isAre(open.length)} still to come.`;
+  const left =
+    decided.length > 0
+      ? `Your earlier calls already decide ${partList(decided)}, and ${partList(open)} ${isAre(open.length)} still to come.`
+      : open.length === 1
+        ? `${cap(partList(open))} is next.`
+        : `${cap(partList(open))} are still to come.`;
+  const rule = end.index === 0 ? " The Objector needs only one part to stand, so the objection is answered only if every part is." : "";
+  return left + rule;
 }
 
 function ResolvedCard({ prompt: p, obj, bar }: { prompt: Extract<WalkPrompt, { kind: "resolved" }>; obj: Objection; bar: ReactNode }) {
@@ -1209,15 +1229,14 @@ function ResolvedCard({ prompt: p, obj, bar }: { prompt: Extract<WalkPrompt, { k
         Answered, because the reply <q>{labelText(p.by)}</q> stands.
       </h3>
       <p className="wk-v-sub">
-        One reply that stands is enough to answer a move, so {k === 1 ? "the other reply" : `the other ${num(k)}`} can’t change this result. You can still read{" "}
-        {k === 1 ? "it" : "them"} if you like.
+        One standing reply is enough, so {k === 1 ? "the other reply" : `the other ${num(k)}`} can’t change this. You can still read {k === 1 ? "it" : "them"}.
       </p>
       {end && (
         <p className="wk-v-sub">
           {!end.final
             ? remainingText(end, obj.prongs.length)
             : end.ahead.length > 0
-              ? `What you marked earlier already decides ${partList(end.ahead.map((a) => a.index))}.`
+              ? `Your earlier calls already decide ${partList(end.ahead.map((a) => a.index))}.`
               : "That was the last part of this objection."}
         </p>
       )}
@@ -1240,9 +1259,9 @@ function ProngEndCard({ prompt: p, obj, sections, bar }: { prompt: Extract<WalkP
 
   let sub: string;
   if (!by) sub = remainingText(p, total);
-  else if (by.kind === "this") sub = `So Objection ${obj.numeral} stands, because the Objector needs only one part to stand.${worth}`;
-  else if (by.kind === "earlier") sub = `Objection ${obj.numeral} still stands, because part ${by.index + 1} stood and the Objector needs only one part.${worth}`;
-  else sub = `Objection ${obj.numeral} stands anyway. What you marked earlier leaves part ${by.index + 1} standing, and the Objector needs only one part.${worth}`;
+  else if (by.kind === "this") sub = `Objection ${obj.numeral} now stands, since one standing part is enough.${worth}`;
+  else if (by.kind === "earlier") sub = `Objection ${obj.numeral} still stands, because part ${by.index + 1} stood.${worth}`;
+  else sub = `Objection ${obj.numeral} stands anyway, because your earlier calls leave part ${by.index + 1} standing.${worth}`;
 
   return (
     <article className={`wk-verdict wk-pend st-${p.label}`} aria-labelledby="wk-pend-h">
@@ -1313,7 +1332,7 @@ function DoneCard({
       </h3>
       <p className={`wk-done-status st-${label}`}>
         <span className="dot" aria-hidden />
-        {OBJ_STATUS[label]} · {callsHere} of {det.total} moves marked
+        {callsHere} of {det.total} moves marked
       </p>
 
       {chips.length > 0 && (
@@ -1325,7 +1344,7 @@ function DoneCard({
               return (
                 <button key={id} type="button" className={`chip wk-nodechip s-${n?.side ?? "skeptic"}`} onClick={() => openNode(id)}>
                   {n && <Glyph side={n.side} label={labelOf(id)} size={11} />}
-                  <span className="mono wk-nodechip-addr">{address(ix, id)}</span>
+                  <span className="mono wk-nodechip-addr">{partRound(ix, id)}</span>
                   <span>{labelText(id)}</span>
                 </button>
               );
@@ -1369,7 +1388,7 @@ function DoneCard({
                 </span>
                 <span className={`wk-st st-${l}`}>{STATUS[l]}</span>
                 {reason && <span className="wk-dp-reason"> · {reason}</span>}
-                {earlier && <span className="wk-dp-reason"> · decided before you started</span>}
+                {earlier && <span className="wk-dp-reason"> · decided by your earlier calls</span>}
               </span>
             </li>
           );
@@ -1399,8 +1418,12 @@ function DoneCard({
         </button>
       </div>
 
+      <figure className="wk-epi wk-done-epi">
+        <blockquote className="serif">“Iron sharpeneth iron; so a man sharpeneth the countenance of his friend.”</blockquote>
+        <figcaption className="mono">Proverbs 27:17, King James Version</figcaption>
+      </figure>
+
       <div className="wk-done-foot">
-        <p>This result comes from your calls and nothing else.</p>
         {confirm ? (
           <p className="wk-confirm" role="group" aria-label="Start over">
             <span>

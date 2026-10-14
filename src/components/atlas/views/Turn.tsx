@@ -141,28 +141,23 @@ export default function Turn({ id, focused, next, tensed = false }: TurnProps) {
         <Glyph side={side} label={l} size={15} className="ch-label-glyph" />
         <span className={l === "out" ? "lab-out" : "lab-in"}>{toPlain(n.label)}</span>
       </h3>
-      <p className="ch-side-line">
-        <span className="side-tok">
-          <span className="glyph" aria-hidden>
-            {side === "skeptic" ? "▲" : side === "theist" ? "●" : "◆"}
-          </span>
-          {SIDE_WORD[side]}
-        </span>
-        {info.parent && parentInfo && (
+      {/* The cue above already names the speaker; this line says what the move replies to. */}
+      {info.parent && parentInfo && (
+        <p className="ch-side-line">
           <span className="ch-answers">
-            replying to{" "}
+            replying to {SIDE_POSS[parentInfo.node.side]} {moveNoun(parentInfo.depth)},{" "}
             <button
               type="button"
               className="ch-answers-link"
               title={spellAddress(ix, info.parent)}
-              aria-label={`replying to ${address(ix, info.parent)}, ${SIDE_POSS[parentInfo.node.side]} ${moveNoun(parentInfo.depth)}: ${toPlain(parentInfo.node.label)}`}
+              aria-label={`${address(ix, info.parent)}: ${toPlain(parentInfo.node.label)}`}
               onClick={() => api.focus(info.parent!, "thread")}
             >
               {address(ix, info.parent)}
             </button>
           </span>
-        )}
-      </p>
+        </p>
+      )}
 
       {n.gist && (
         <div className="ch-plain">
@@ -287,7 +282,7 @@ export default function Turn({ id, focused, next, tensed = false }: TurnProps) {
           <CallButtons id={id} side={side} call={call} />
           {next && (
             <button type="button" className="btn ch-hear" onClick={() => api.focus(next, "thread")}>
-              Read the reply <span aria-hidden>↓</span>
+              {info.childIds.length > 1 ? "Read the replies" : "Read the reply"} <span aria-hidden>↓</span>
             </button>
           )}
         </div>
@@ -298,7 +293,8 @@ export default function Turn({ id, focused, next, tensed = false }: TurnProps) {
         {offPathTensions.map((t) => (
           <div key={t.reply} className="tension-note ch-tension-inline" role="note">
             <p>
-              You said this holds, and {q(toPlain(ix.nodes.get(t.reply)?.node.label ?? t.reply))}, a reply to it, also stands. These two contradict each other.
+              You said this holds, but {q(toPlain(ix.nodes.get(t.reply)?.node.label ?? t.reply))}, a reply to it, stands, and a move with a standing reply is answered. These two
+              contradict each other.
             </p>
             <div className="ch-tension-acts">
               <button type="button" className="btn small" onClick={() => api.decide(id, null)}>

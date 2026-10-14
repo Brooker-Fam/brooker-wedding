@@ -5,7 +5,7 @@
    Objector moves sit left, Defender moves right, Spinoza in the middle,
    and a thin connector zig-zags between them. Wherever the branch could have
    gone another way, a fork shows the other replies and what each side needs.
-   After the last move, an empty chair waits in the opposite seat. */
+   After the last move, an empty seat ("No reply yet") waits opposite it. */
 
 import { useId, type KeyboardEvent } from "react";
 import { useAtlas } from "../context";
@@ -62,11 +62,12 @@ function forkTitle(counts: Record<Side, number>, n: number): string {
   return `${cap(numWord(n))} replies, ${parts.slice(0, -1).join(", ")} and ${parts[parts.length - 1]}`;
 }
 
-/** The rule at this fork: the move above stands only if every reply fails, and one standing reply answers it. */
+/** The rule at this fork: the move above stands only if every reply is out, and one standing reply answers it. */
 function forkStakes(parent: NodeInfo, n: number): string {
-  const all = n === 2 ? "both replies fail" : `all ${numWord(n)} replies fail`;
+  const above = `${moveNoun(parent.depth)} above`;
+  const all = n === 2 ? "both of these are" : `all ${numWord(n)} of these are`;
   const any = n === 2 ? "If either one stands" : "If any one of them stands";
-  return `${cap(SIDE_POSS[parent.node.side])} ${moveNoun(parent.depth)} above stands only if ${all}. ${any}, it is answered.`;
+  return `${cap(SIDE_POSS[parent.node.side])} ${above} stands only if ${all} answered or marked Fails. ${any}, the ${above} is answered.`;
 }
 
 function Fork({ parentId, current }: { parentId: string; current: string }) {
@@ -125,21 +126,38 @@ function Fork({ parentId, current }: { parentId: string; current: string }) {
   );
 }
 
-function TensionNote({ node, reply }: { node: string; reply: string }) {
+type Line = { text: string; who: string; cite: string };
+
+/* Lines for the contradiction note. (Aristotle's law of non-contradiction stays with
+   Where you stand, which explains it.) Checked word for word against the KJV. */
+const CONTRADICTION_QUOTES: Line[] = [
+  { text: "How long halt ye between two opinions?", who: "1 Kings 18:21", cite: "King James Version" },
+  { text: "And if a house be divided against itself, that house cannot stand.", who: "Mark 3:25", cite: "King James Version" },
+];
+
+function hashOf(id: string): number {
+  let h = 0;
+  for (let i = 0; i < id.length; i++) h = (h * 31 + id.charCodeAt(i)) >>> 0;
+  return h;
+}
+
+function TensionNote({ node, reply, line }: { node: string; reply: string; line: Line }) {
   const { judgments } = useAtlas();
   const api = useChamber();
   const both = judgments[reply] === "holds";
   return (
     <div className="tension-note ch-tension" role="note">
-      <span className="ch-tension-k">Tension</span>
+      <span className="ch-tension-k">Contradiction</span>
       <p>
         {both
-          ? "You said both of these hold, but the lower one replies to the upper one. These two contradict each other."
-          : "You said the point above holds, and your other calls make the reply below it stand. These two contradict each other."}
+          ? "You said both moves hold, but the one below replies to the one above, and a move with a standing reply is answered. These two contradict each other."
+          : "You said the move above holds, but your other calls make the reply below it stand, and a move with a standing reply is answered. These two contradict each other."}
       </p>
       <figure className="ch-tension-q">
-        <blockquote>“the same attribute cannot at the same time belong and not belong to the same subject and in the same respect”</blockquote>
-        <figcaption>Aristotle, Metaphysics IV.3, tr. W. D. Ross</figcaption>
+        <blockquote>“{line.text}”</blockquote>
+        <figcaption>
+          {line.who}, <cite>{line.cite}</cite>
+        </figcaption>
       </figure>
       <div className="ch-tension-acts">
         <button type="button" className="btn small" onClick={() => api.decide(node, null)}>
@@ -159,20 +177,43 @@ function TensionNote({ node, reply }: { node: string; reply: string }) {
   );
 }
 
-/* Lines for the empty chair, one per leaf (picked by id, so it never changes under the reader).
-   Each checked word for word against a public-domain text. */
-const CHAIR_QUOTES: { text: string; who: string; cite: string }[] = [
+/* Lines for the empty seat after the last move, one per leaf (picked by id, so it never
+   changes under the reader). None is used anywhere else on the site. Each checked word for
+   word against a public-domain text: the KJV (Gutenberg #10), Mill's On Liberty (#34901)
+   and Veitch's Descartes (#59). */
+const CHAIR_QUOTES: Line[] = [
   { text: "He that is first in his own cause seemeth just; but his neighbour cometh and searcheth him.", who: "Proverbs 18:17", cite: "King James Version" },
-  { text: "He who knows only his own side of the case, knows little of that.", who: "John Stuart Mill", cite: "On Liberty, ch. 2 (1859)" },
   { text: "Prove all things; hold fast that which is good.", who: "1 Thessalonians 5:21", cite: "King James Version" },
-  { text: "A wise man, therefore, proportions his belief to the evidence.", who: "David Hume", cite: "An Enquiry Concerning Human Understanding, sec. 10 (1748)" },
-  { text: "Come now, and let us reason together, saith the LORD", who: "Isaiah 1:18", cite: "King James Version" },
+  { text: "He that answereth a matter before he heareth it, it is folly and shame unto him.", who: "Proverbs 18:13", cite: "King James Version" },
+  { text: "Surely I would speak to the Almighty, and I desire to reason with God.", who: "Job 13:3", cite: "King James Version" },
+  {
+    text: "He must be able to hear them from persons who actually believe them; who defend them in earnest, and do their very utmost for them.",
+    who: "John Stuart Mill",
+    cite: "On Liberty, ch. 2 (1859)",
+  },
+  {
+    text: "The fatal tendency of mankind to leave off thinking about a thing when it is no longer doubtful, is the cause of half their errors.",
+    who: "John Stuart Mill",
+    cite: "On Liberty, ch. 2 (1859)",
+  },
+  {
+    text: "the only way in which a human being can make some approach to knowing the whole of a subject, is by hearing what can be said about it by persons of every variety of opinion",
+    who: "John Stuart Mill",
+    cite: "On Liberty, ch. 2 (1859)",
+  },
+  { text: "never to accept anything for true which I did not clearly know to be such", who: "René Descartes", cite: "Discourse on the Method, part 2 (1637), tr. John Veitch" },
 ];
 
-function chairQuote(id: string) {
-  let h = 0;
-  for (let i = 0; i < id.length; i++) h = (h * 31 + id.charCodeAt(i)) >>> 0;
-  return CHAIR_QUOTES[h % CHAIR_QUOTES.length];
+/* Only after an Objector's move, when it is the Defender's turn: the verse is addressed to believers. */
+const DEFENDER_CHAIR_QUOTE: Line = {
+  text: "be ready always to give an answer to every man that asketh you a reason of the hope that is in you with meekness and fear",
+  who: "1 Peter 3:15",
+  cite: "King James Version",
+};
+
+function chairQuote(id: string, defenderTurn: boolean): Line {
+  const pool = defenderTurn ? [...CHAIR_QUOTES, DEFENDER_CHAIR_QUOTE] : CHAIR_QUOTES;
+  return pool[hashOf(id) % pool.length];
 }
 
 function EmptyChair({ leaf, seat }: { leaf: string; seat: Seat }) {
@@ -183,23 +224,15 @@ function EmptyChair({ leaf, seat }: { leaf: string; seat: Seat }) {
   const sources = (info.node.sources ?? []).filter((s) => s.title);
   const focused = api.focusId === leaf;
   const of = `${SIDE_POSS[info.node.side]} ${moveNoun(info.depth)} above`;
-  const line = chairQuote(leaf);
+  const line = chairQuote(leaf, info.node.side === "skeptic");
   return (
     <div className={`ch-chair seat-${seat}`} role="note" aria-label="No reply yet" data-subject={leaf}>
       <span className="ch-chair-k">
         <span className="ch-chair-sq" aria-hidden />
-        The empty chair
+        No reply yet
       </span>
       <p className="ch-chair-t">
-        {judgments[leaf] ? (
-          <>
-            Nobody here has replied to this. <em>You said it {judgments[leaf]}.</em>
-          </>
-        ) : (
-          <>
-            Nobody here has replied to this yet. <em>Does it hold?</em>
-          </>
-        )}
+        <em>{judgments[leaf] ? `You said it ${judgments[leaf]}.` : "Does it hold?"}</em>
       </p>
       <figure className="ch-chair-q">
         <blockquote>“{line.text}”</blockquote>
@@ -213,9 +246,10 @@ function EmptyChair({ leaf, seat }: { leaf: string; seat: Seat }) {
           <span className="ch-chair-of">on {of}</span>
         </div>
       )}
-      {sources.length > 0 && (
+      {/* When the last move is open, its own Sources list is right above. */}
+      {!focused && sources.length > 0 && (
         <div className="ch-chair-read">
-          <span className="ch-chair-read-k">Further reading</span>
+          <span className="ch-chair-read-k">Where to read more</span>
           <ul className="ch-chair-srcs">
             {sources.map((s, i) => (
               <li key={i} className="ch-chair-src">
@@ -298,6 +332,17 @@ export default function Thread() {
   };
 
   if (path.length === 0) return null;
+  // One line per contradiction note, picked by the move it sits under; two notes on one
+  // screen never show the same line.
+  const noteLines = new Map<string, Line>();
+  let lastLine = -1;
+  for (let i = 1; i < path.length; i++) {
+    if (!tenseKey(path[i - 1], path[i])) continue;
+    let k = hashOf(path[i - 1]) % CONTRADICTION_QUOTES.length;
+    if (k === lastLine) k = (k + 1) % CONTRADICTION_QUOTES.length;
+    lastLine = k;
+    noteLines.set(path[i], CONTRADICTION_QUOTES[k]);
+  }
   const last = path[path.length - 1];
   const lastInfo = ix.nodes.get(last)!;
   const chairSeat: Seat = lastInfo.node.side === "skeptic" ? "right" : lastInfo.node.side === "theist" ? "left" : (lastInfo.depth + 1) % 2 === 1 ? "left" : "right";
@@ -322,7 +367,7 @@ export default function Thread() {
             <li key={id} className={`ch-step seat-${seat}`}>
               {prevInfo && <Connector from={prevSeat} to={between ? "center" : seat} side={info.node.side} tense={tense} short={between} />}
               {fork && <Fork parentId={prev!} current={id} />}
-              {tense && <TensionNote node={prev!} reply={id} />}
+              {tense && <TensionNote node={prev!} reply={id} line={noteLines.get(id) ?? CONTRADICTION_QUOTES[0]} />}
               {between && <Connector from="center" to={seat} side={info.node.side} tense={tense} short />}
               <Turn id={id} focused={id === focusId} next={path[i + 1]} tensed={tense || nextTense} />
             </li>

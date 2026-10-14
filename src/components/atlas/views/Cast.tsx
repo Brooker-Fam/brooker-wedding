@@ -16,7 +16,7 @@ import { useAtlas } from "../context";
 import { initials } from "../peek";
 import { Glyph } from "../primitives";
 import { formatRoute } from "../router";
-import type { ArgNode, Quote, Side, Thinker } from "../types";
+import type { ObjectionId, Quote, Side, Thinker } from "../types";
 import { ERAS, FootprintBlock, LibEmpty, LibHead, LibQuote, LibTabs, eraOf, fold, scrollBehavior, spokenBy, useMedia, yearText } from "./Outline";
 
 type TSide = Side | "neutral";
@@ -304,19 +304,31 @@ function ThinkerFile({ t, onClose }: { t: Thinker; onClose?: () => void }) {
   // Their own signature line if the registry has one; otherwise a quotation of theirs that a move already carries,
   // so the file opens on their words. Moves on their own side come first: a move on the other side may quote them
   // stating the view they go on to reject (Boethius's prisoner, before Philosophy answers him). Then up to two more
-  // of their quotations from moves on their side.
+  // short quotations from moves on their side, from other objections where there are any.
   const { quote, more } = useMemo(() => {
-    const nodes = refs.map((id) => ix.nodes.get(id)?.node).filter((n): n is ArgNode & { quote: Quote } => !!n?.quote?.text && spokenBy(n.quote.who, t.name));
-    const pick = (qs: Quote[]) => qs.find((q) => q.text.length <= 260) ?? qs[0];
-    const ours = nodes.filter((n) => n.side === t.side).map((n) => n.quote);
-    const lead: Quote | undefined = t.quote?.text ? t.quote : (pick(ours) ?? pick(nodes.map((n) => n.quote)));
+    type Said = { q: Quote; o: ObjectionId };
+    const said: Said[] = [];
+    const ours: Said[] = [];
+    for (const id of refs) {
+      const info = ix.nodes.get(id);
+      const q = info?.node.quote;
+      if (!info || !q?.text || !spokenBy(q.who, t.name)) continue;
+      said.push({ q, o: info.objection });
+      if (info.node.side === t.side) ours.push({ q, o: info.objection });
+    }
+    const pick = (xs: Said[]) => xs.find((x) => x.q.text.length <= 260) ?? xs[0];
+    const first = t.quote?.text ? undefined : (pick(ours) ?? pick(said));
+    const lead = t.quote?.text ? t.quote : first?.q;
     const seen = new Set(lead ? [fold(lead.text)] : []);
+    const used = new Set(first ? [first.o] : []);
     const extra: Quote[] = [];
-    for (const q of ours) {
-      if (extra.length === 2) break;
-      if (q.text.length > 260 || seen.has(fold(q.text))) continue;
-      seen.add(fold(q.text));
-      extra.push(q);
+    while (extra.length < 2) {
+      const fresh = ours.filter((x) => x.q.text.length <= 260 && !seen.has(fold(x.q.text)));
+      const next = fresh.find((x) => !used.has(x.o)) ?? fresh[0];
+      if (!next) break;
+      extra.push(next.q);
+      seen.add(fold(next.q.text));
+      used.add(next.o);
     }
     return { quote: lead, more: extra };
   }, [t, refs, ix]);

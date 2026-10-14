@@ -15,10 +15,10 @@ import { moments } from "./timeline";
 const disputation: Disputation = {
   slug: "all-the-way-down",
   title: "All the Way Down",
-  subtitle: "Five objections to the Christian God, and what his best defenders say back.",
+  subtitle: "Five objections to the Christian God, and what his defenders say back.",
   intro: [
-    "Each objection gets a reply from classical theism, the older Christian picture of God as the source of everything that exists. The Objector then answers the reply and the Defender answers back, for as many rounds as the published debate goes (up to seven). Mark each move Holds or Fails, and the map shows where that leaves each objection.",
-    "You can read it at any depth. The map on the overview shows all five objections at once. Open one to follow every move with its sources and quotations, and to see what would change each side's mind. Every status is worked out from your own calls, and there is no overall score.",
+    "The Defender replies to each objection, and the two sides go back and forth for as many rounds as the published debate goes. Every objection and reply is a move, and you decide which moves hold.",
+    "Each move here has its claim, a one-sentence summary and any quotation. In the interactive version you also get each move's full argument, its sources and what would change that side's mind, and you can mark moves Holds or Fails to see where each objection stands. There is no overall score.",
   ],
   objections: [coherence, hiddenness, nature, evidence, morals],
   thinkers,

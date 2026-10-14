@@ -17,14 +17,6 @@ export function roundLabel(depth: number): string {
   return roundName(depth);
 }
 
-/** Move cues: the Summa's own English formulas for rounds 1 and 2, plain speech after. */
-export function summaCue(depth: number, side: "skeptic" | "theist" | "spinoza"): string {
-  if (side === "spinoza") return "Spinoza cuts in";
-  if (depth === 1) return "It seems that";
-  if (depth === 2) return "On the contrary";
-  return side === "theist" ? "The Defender replies" : "The Objector replies";
-}
-
 /** A node's address: objection numeral, then 1-based sibling positions. e.g. "I·2.1.3" */
 export function address(ix: DisputationIndex, id: string): string {
   const info = ix.nodes.get(id);

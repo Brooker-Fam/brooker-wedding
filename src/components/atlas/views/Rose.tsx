@@ -4,7 +4,7 @@
    drawn as a sunburst of panes.
    Center = the question. Five sectors = the five objections. Each ring outward
    is one more round; a pane sits just outside the claim it answers, and its
-   width follows how much argument grows beneath it — so depth and bushiness
+   width follows how much argument grows beneath it, so depth and bushiness
    read at a glance, with no edges to untangle.
    Pane color carries side (ochre objector, verdigris theist, lilac + hatch
    Spinoza); glyph shape repeats it (▲ ● ◆) so color is never the only cue.
@@ -203,8 +203,8 @@ function Readout({ hover, focus, onEnter }: { hover: HoverStore; focus: Objectio
           </>
         ) : (
           <span className="rose-readout-hint">
-            <span className="rose-hint-fine">Point at a move · each ring outward is one more round</span>
-            <span className="rose-hint-coarse">Tap an objection · each ring outward is one more round</span>
+            <span className="rose-hint-fine">Point at a move to read it</span>
+            <span className="rose-hint-coarse">Tap a slice to preview it, tap again to open</span>
           </span>
         )}
       </div>
@@ -284,7 +284,7 @@ export interface RoseProps {
   verdicts?: boolean;
   /** Run the one-time build-in (panes appear ring by ring). */
   build?: boolean;
-  /** Mini mode: no labels, caption or interaction — a "you are here" emblem. */
+  /** Mini mode: no labels, caption or interaction. A "you are here" emblem. */
   mini?: boolean;
   className?: string;
   caption?: boolean;
@@ -577,7 +577,7 @@ export default function Rose({ onEnter, onNode, footprint, current, verdicts = t
         )}
 
         {/* sector legend: both variants are drawn and CSS picks one (a container query before
-            the Rose is measured, then the measured class) — so the first paint never swaps text.
+            the Rose is measured, then the measured class), so the first paint never swaps text.
             Full: a ring legend that follows the rim (always inside the viewBox). Narrow: numerals. */}
         {!mini &&
           geo.sectors.map((s) => {

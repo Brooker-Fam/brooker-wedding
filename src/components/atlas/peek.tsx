@@ -21,14 +21,16 @@ export function usePeek() {
   return useContext(PeekCtx);
 }
 
-/* Where a person turns up in the argument. This is about who cites them, which is
-   not always what they believe: several Christians are cited by the Objector. */
-const SIDE_WORD: Record<string, string> = {
-  skeptic: "Cited by the Objector",
-  theist: "Cited by the Defender",
-  spinoza: "On Spinoza’s side",
-  neutral: "Background",
-};
+/* Who cites a person, worked out from the moves that name them. A thinker's own
+   `side` (kept for the card's color) is not a record of this: Aquinas is cited by
+   both sides, and several Christians are cited only by the Objector. */
+function citedBy(sides: Set<string | undefined>): string {
+  if (sides.has("skeptic") && sides.has("theist")) return "Cited by both sides";
+  if (sides.has("skeptic")) return "Cited by the Objector";
+  if (sides.has("theist")) return "Cited by the Defender";
+  if (sides.has("spinoza")) return "Cited where Spinoza speaks";
+  return "";
+}
 
 const SHEET_MAX = 640;
 
@@ -115,8 +117,8 @@ function PeekCard({ target, onClose }: { target: PeekTarget; onClose: () => void
     const quote = th?.quote?.text?.trim() ? th.quote : undefined;
     // "Spinoza" on a quote from Baruch Spinoza adds nothing; name the speaker only when it's someone else.
     const quoteWho = quote?.who && th && !samePerson(quote.who, th.name) ? quote.who : "";
-    // Spinoza needs no "on Spinoza's side".
-    const sideWord = th?.side && !(th.side === "spinoza" && th.id === "spinoza") ? SIDE_WORD[th.side] : "";
+    // Spinoza speaks for himself, so his card needs no "cited by".
+    const sideWord = th?.id === "spinoza" ? "" : citedBy(new Set(refs.map((id) => ix.nodes.get(id)?.node.side)));
     return (
       <>
         <div className={`peek-who s-${th?.side ?? "neutral"}`}>
@@ -147,11 +149,11 @@ function PeekCard({ target, onClose }: { target: PeekTarget; onClose: () => void
         )}
         <div className="peek-actions">
           <button className="btn small" onClick={() => { onClose(); go({ view: "cast", thinker: target.id }); }}>
-            See profile
+            Open in People
           </button>
           {refs.length > 0 && (
             <button className="btn small ghost" onClick={() => { onClose(); openNode(refs[0]); }}>
-              In {refs.length} {refs.length === 1 ? "move" : "moves"} <span aria-hidden>→</span>
+              Named in {refs.length} {refs.length === 1 ? "move" : "moves"} <span aria-hidden>→</span>
             </button>
           )}
         </div>

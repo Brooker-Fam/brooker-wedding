@@ -4,7 +4,7 @@
    wordmark, Map · Library · Where you stand with five status pips), view
    transitions keyed by route, scroll + focus memory per history entry, and a
    shared footer. It also keeps the "where did the reader last work?" record
-   (see recent.ts) that the overview's "Previously…" line reads. */
+   (see recent.ts) that the overview's "Last time" line reads. */
 
 import "./shell.css";
 import { AnimatePresence, motion, MotionConfig, useReducedMotion } from "framer-motion";
@@ -40,7 +40,7 @@ const PIP_WORD: Record<Label, string> = { in: "stands", out: "answered", undec: 
 /* Visible names follow the reader's vocabulary (People, Glossary); the routes keep their old names. */
 const LIBRARY = [
   { view: "timeline", label: "Timeline", note: "Who said what, and when" },
-  { view: "cast", label: "People", note: "Everyone quoted, and where" },
+  { view: "cast", label: "People", note: "Everyone cited, with the moves they appear in" },
   { view: "lexicon", label: "Glossary", note: "Technical terms in plain words" },
   { view: "outline", label: "Outline", note: "Every move as plain text" },
 ] as const;
@@ -329,7 +329,7 @@ function MobileSheet({ id, onClose, menuBtn }: { id: string; onClose: (refocus: 
         transition={{ duration: 0.24, ease: [0.22, 1, 0.36, 1] }}
       >
         <nav aria-label="Disputation">
-          <ul className="sh-slist">{item({ view: "home" }, "Map", "All five objections on one chart", <Emblem current={currentObjection(route)} size={20} />)}</ul>
+          <ul className="sh-slist">{item({ view: "home" }, "Map", "All five objections at once", <Emblem current={currentObjection(route)} size={20} />)}</ul>
           <p className="sh-sgroup">Library</p>
           <ul className="sh-slist">{LIBRARY.map((it) => item({ view: it.view } as Route, it.label, it.note, <LibIcon view={it.view} />))}</ul>
           <p className="sh-sgroup">You</p>
@@ -337,7 +337,7 @@ function MobileSheet({ id, onClose, menuBtn }: { id: string; onClose: (refocus: 
             {item(
               { view: "ledger" },
               "Where you stand",
-              "Worked out from your calls",
+              "Your marks, objection by objection",
               <YouMark size={13} />,
               <span title={title}>
                 <Pips current={currentObjection(route)} />
@@ -475,14 +475,14 @@ function Footer() {
             </li>
           </ul>
           <p className="sh-method">
-            Each side is given in its strongest form, which some call a <em>steelman</em>. Stating an argument at its best isn’t the same as agreeing with it. Neither
-            side wins by speaking last, and until you mark moves Holds or Fails, everything stays open.
+            Each side is put as strongly as its own defenders would put it (a <em>steelman</em>). As Mill wrote in <cite>On Liberty</cite> (1859), “He who knows
+            only his own side of the case, knows little of that.”
           </p>
         </div>
         <nav className="sh-foot-links" aria-label="Elsewhere">
           <Link href="/debates">All Thought Pages</Link>
           <Link href="/">brooker.family</Link>
-          <a href="#/outline">Read as outline</a>
+          <a href="#/outline">Read the outline</a>
         </nav>
       </div>
     </footer>
@@ -494,7 +494,7 @@ function Footer() {
 /* ------------------------------------------------------------------ */
 
 /* Each history entry remembers its scroll position and the control that left it, so Back
-   from an objection returns to the same spot on the map with focus on the same "Open" link.
+   from an objection returns to the same spot on the map with focus on the same "Read it" link.
    History *state* is never written (Next's app router reloads on Back/Forward to an entry
    whose state it didn't create). Entries are keyed by the Navigation API's stable key where
    it exists; elsewhere (iOS Safari, Firefox) by the hash. */

@@ -1,5 +1,5 @@
 /* ==========================================================================
-   Shell — top bar, mobile menu sheet, view frame, shared footer.
+   Shell: top bar, mobile menu sheet, view frame, shared footer.
    All selectors scoped under .atl and prefixed .sh- (the html rules below only
    apply while a disputation is on the page).
    ========================================================================== */

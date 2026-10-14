@@ -141,12 +141,13 @@ function Echo({ reveal }: { reveal: boolean }) {
       </blockquote>
       <figcaption>
         <span className="ov-echo-stamp">
-          <span className="ov-nw">Thomas Aquinas</span> · <cite className="ov-nw">Summa Theologiae</cite> <span className="ov-nw">I, q.2, a.3, obj. 2</span> ·{" "}
+          <span className="ov-nw">Thomas Aquinas</span> · <cite className="ov-nw">Summa Theologiae</cite>, <span className="ov-nw">Part I, Question 2, Article 3</span> ·{" "}
           <span className="ov-nw">1265–74</span>
         </span>
         <span className="ov-echo-line">
-          Medieval teachers argued by disputation, opening each question with the case against their own answer. Aquinas wrote this objection against
-          himself in the <cite>Summa</cite>, then replied that whatever nature does “must needs be traced back to God, as to its first cause.”
+          In a medieval disputation, the teacher opened each question with the arguments against his own answer. Aquinas wrote this objection against
+          himself in the <cite>Summa</cite>. He replied, “Since nature works for a determinate end under the direction of a higher agent, whatever is done
+          by nature must needs be traced back to God, as to its first cause.”
         </span>
       </figcaption>
     </figure>
@@ -185,7 +186,10 @@ function Personae() {
             <span className="ov-pname">The Objector</span>
           </dt>
           <dd>
-            <span className="ov-pdesc">Gives five reasons to doubt the God of Christianity, drawing on Hume and the critics who came after him.</span>
+            <span className="ov-pdesc">
+              Gives five reasons not to believe in the God of Christianity. He draws on Plato’s <cite>Euthyphro</cite>, Hume, Nietzsche and J. L.
+              Schellenberg, among others.
+            </span>
             <PersonaQuote text="A wise man, therefore, proportions his belief to the evidence." cite="Hume, Enquiry Concerning Human Understanding, sect. X (1748)" />
           </dd>
         </div>
@@ -196,11 +200,12 @@ function Personae() {
           </dt>
           <dd>
             <span className="ov-pdesc">
-              Answers from classical theism, the view of God held by Augustine and Aquinas and defended today by David Bentley Hart.
+              Answers for Christianity, often from classical theism, the tradition of Augustine and Aquinas that David Bentley Hart defends today. He also
+              draws on modern Christian thinkers such as the philosopher Alvin Plantinga and the New Testament scholar N. T. Wright.
             </span>
             <PersonaQuote
-              text="[God] is not one more object in the inventory of things that are, or any sort of discrete object at all."
-              cite="Hart, The Experience of God (2013)"
+              text="[God] is not one more object in the inventory of things that are."
+              cite="Hart, “God, Gods, and Fairies,” First Things (June 2013)"
             />
           </dd>
         </div>
@@ -214,9 +219,9 @@ function Personae() {
           <dd>
             <span className="ov-pdesc">
               The Dutch philosopher speaks up now and then. For him God and Nature are one thing, which acts from necessity and chooses nothing. He agrees
-              with the Objector that miracles don’t happen, and with the Defender that everything has a reason.
+              with the Objector that nothing ever breaks the laws of nature, and with the Defender that everything has a reason.
             </span>
-            <PersonaQuote text="Whatsoever is, is in God, and without God nothing can be, or be conceived." cite="Spinoza, Ethics I, Prop. 15 (1677)" />
+            <PersonaQuote text="Whatsoever is, is in God, and without God nothing can be, or be conceived." cite="Spinoza, Ethics, Part I, Proposition 15 (1677)" />
           </dd>
         </div>
         <div className="ov-persona you">
@@ -225,7 +230,10 @@ function Personae() {
             <span className="ov-pname">You</span>
           </dt>
           <dd>
-            <span className="ov-pdesc">You mark each move Holds or Fails. Until you start, everything stays open.</span>
+            <span className="ov-pdesc">
+              You mark moves Holds or Fails. The five small symbols at the top of the page show where that leaves each objection.
+            </span>
+            <PersonaQuote text="Prove all things; hold fast that which is good." cite="1 Thessalonians 5:21 (KJV)" />
           </dd>
         </div>
       </dl>
@@ -252,7 +260,7 @@ function HubCaption() {
         </span>
         At the center
       </span>
-      <span className="ov-hubt">Does the Christian God survive the best case against him?</span>
+      <span className="ov-hubt">Does the Christian God survive these five objections?</span>
     </p>
   );
 }
@@ -269,7 +277,7 @@ function RoseKey() {
         How to read the map
       </h2>
       <p className="ov-key-lede">
-        Each slice of the circle is one objection. Each block in a slice is one move, and each ring outward is one more round of replies.
+        The circle has one slice per objection. Each block is a move, and the further out it sits, the later the round.
       </p>
       <ul className="ov-key-list">
         <li>
@@ -301,7 +309,7 @@ function RoseKey() {
           </span>
         </li>
       </ul>
-      <p className="ov-key-note">The color shows who is talking. The fill shows the status, which changes as you mark moves.</p>
+      <p className="ov-key-note">Gold blocks are the Objector’s and green blocks are the Defender’s. A block’s fill changes with its status as you mark moves.</p>
     </section>
   );
 }
@@ -340,7 +348,7 @@ function Resume() {
       run: () => (n ? openNode(n) : go({ view: "objection", o: firstOpen.id })),
     };
   } else {
-    action = { label: "Where you stand", run: () => go({ view: "ledger" }) };
+    action = { label: "See where you stand", run: () => go({ view: "ledger" }) };
   }
 
   const status = lastLabel === "in" ? "So far it stands." : lastLabel === "out" ? "So far it’s answered." : "It’s still open.";
@@ -349,7 +357,7 @@ function Resume() {
     <section className="ov-resume ov-wrap" aria-label="Where you left off">
       <p className="ov-resume-k">Last time</p>
       <p className="ov-resume-t">
-        You were last in{" "}
+        You were reading{" "}
         <a href={`#/o/${last.id}`} className="ov-resume-o">
           Objection {last.numeral}
           {last.short ? ` · ${last.short}` : ""}
@@ -400,7 +408,8 @@ function Poster({ o }: { o: Objection }) {
             {objection && (
               <p className="ov-say s-skeptic">
                 <span className="ov-cue">
-                  <Glyph side="skeptic" size={11} /> It seems that
+                  <Glyph side="skeptic" size={11} /> The Objector argues
+                  <span className="sr-only">: </span>
                 </span>
                 <span className="ov-saytext">{toPlain(objection)}</span>
               </p>
@@ -408,7 +417,8 @@ function Poster({ o }: { o: Objection }) {
             {counter && (
               <p className="ov-say s-theist">
                 <span className="ov-cue">
-                  <Glyph side="theist" size={11} /> On the contrary
+                  <Glyph side="theist" size={11} /> The Defender replies
+                  <span className="sr-only">: </span>
                 </span>
                 <span className="ov-saytext">{toPlain(counter)}</span>
               </p>
@@ -427,8 +437,8 @@ function Poster({ o }: { o: Objection }) {
           </p>
           <div className="ov-pbtns">
             <a className="btn ov-enter" href={`#/o/${o.id}`}>
-              Open <span aria-hidden>→</span>
-              <span className="sr-only"> Objection {o.numeral}</span>
+              Read it <span aria-hidden>→</span>
+              <span className="sr-only"> (Objection {o.numeral})</span>
             </a>
             <a className="btn ghost ov-argue" href={`#/walk/${o.id}`}>
               Step through it <span aria-hidden>▸</span>
@@ -457,8 +467,8 @@ function HowItWorks() {
           </svg>
           <h3>Each side answers the other</h3>
           <p>
-            The Defender replies to the objection, the Objector replies to that, and so on for up to seven rounds. Some moves draw several replies, and some
-            objections come in parts.
+            Round 1 is the objection, round 2 is the Defender’s reply, round 3 is the Objector’s answer to that, and so on up to round 7. A move can draw
+            several replies. An objection can also come in parts, separate charges argued one by one, and it stands if any one of its parts stands.
           </p>
         </li>
         <li>
@@ -471,8 +481,8 @@ function HowItWorks() {
           </svg>
           <h3>You decide what holds</h3>
           <p>
-            Mark any move Holds or Fails. A move you haven’t marked is answered once any reply to it stands, and stands once all its replies fail. Every
-            status you see is worked out from your calls this way.
+            Mark any move Holds or Fails. A move you haven’t marked counts as answered if any reply to it stands. It stands if every reply to it has failed
+            or been answered, and otherwise it stays open. Every status you see comes from your marks this way.
           </p>
         </li>
         <li>
@@ -481,7 +491,7 @@ function HowItWorks() {
             <circle cx="24" cy="16" r="13.5" className="openring" />
           </svg>
           <h3>Unanswered moves stay open</h3>
-          <p>Some threads end with the Objector and some with the Defender. Whoever speaks last, the final move stays open until you mark it.</p>
+          <p>An exchange can end with either side. Its last move has no reply, so it stays open until you mark it.</p>
         </li>
       </ol>
     </section>
@@ -552,8 +562,8 @@ export default function Overview() {
           <h2 id="ov-five-h" className="eyebrow ov-sect-k">
             The {countWord} objection{count === 1 ? "" : "s"}
           </h2>
-          <p className="ov-five-t">Each card gives one objection and the Defender’s reply.</p>
-          <p className="ov-five-n">Open one to read every round, or step through it and mark each move as you go.</p>
+          <p className="ov-five-t">Open one to read every round, or step through it a move at a time.</p>
+          <p className="ov-five-n">Each card gives the objection and the Defender’s answer in brief.</p>
         </header>
         <ol className="ov-posters">
           {d.objections.map((o) => (

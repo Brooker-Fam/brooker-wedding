@@ -8,7 +8,7 @@ import OutlineList from "@/components/atlas/views/OutlineList";
 export const metadata: Metadata = {
   title: "All the Way Down · Outline",
   description:
-    "Every objection and reply in All the Way Down as one plain outline, from the five objections to the Christian God through every round of the argument.",
+    "Every objection and reply in All the Way Down, round by round, as one plain outline.",
 };
 
 const MAP = "/debates/all-the-way-down";

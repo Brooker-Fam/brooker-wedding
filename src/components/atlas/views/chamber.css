@@ -1,6 +1,6 @@
 /* ==========================================================================
-   Chamber — one objection as an article: header, prongs, the thread (turns,
-   forks, the empty chair), the objection chart, scholium and reading.
+   One objection's page: header, parts, the thread (moves, forks, the empty
+   seat after the last move), the objection chart, Spinoza's note and reading.
    Everything scoped under .atl and prefixed .ch-
    ========================================================================== */
 
@@ -156,7 +156,7 @@
 }
 
 /* ==========================================================================
-   Header — the article
+   Header
    ========================================================================== */
 .atl .ch-head-top {
   display: grid;
@@ -280,7 +280,7 @@
   text-wrap: pretty;
 }
 
-/* the exchange: It seems that / On the contrary */
+/* the exchange: the Objector's line, then the Defender's */
 .atl .ch-exchange {
   margin: 30px 0 0;
   border-top: 1px solid var(--line-soft);
@@ -530,25 +530,8 @@
   text-transform: uppercase;
   color: var(--faint);
 }
-.atl .ch-echo-lead {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  margin: 0;
-  padding-left: 14px;
-  border-left: 2px solid var(--side);
-}
-.atl .ch-echo-lead .ch-echo-k {
-  margin: 0;
-}
-.atl .ch-echo-lead-t {
-  font-family: var(--serif);
-  font-size: 18px;
-  line-height: 1.45;
-  color: var(--bone);
-}
 .atl .ch-echo-then {
-  margin: 16px 0 12px;
+  margin: 0 0 12px;
   font-family: var(--serif);
   font-style: italic;
   font-size: 15px;
@@ -1044,7 +1027,7 @@
   white-space: nowrap;
 }
 
-/* status: glyph + word (+ the reader's stamp) — never color alone */
+/* status: glyph + word (+ the reader's stamp), so color is never the only cue */
 .atl .ch-status {
   display: inline-flex;
   flex-wrap: wrap;

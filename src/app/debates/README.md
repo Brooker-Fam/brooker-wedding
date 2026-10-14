@@ -1,14 +1,14 @@
-# Thought Pages — Brooker house notes
+# Thought Pages: Brooker house notes
 
 > The index renders as **"Thought Pages"** (`/debates` route kept for stable URLs and
 > the old `/vaccine-debate` redirect). The individual pages are still built as
 > self-contained "field maps" in the editorial dark house style.
 
 Self-contained HTML "field maps" of contested questions. Each one takes a debate,
-lays out its lineage, catalogs the live positions, then stages the real
-disagreements as **steelmanned cruxes** (the strongest case for *both* sides) and
-reveals the one or two questions underneath. The point is never to pick a winner —
-it's to help a reader find *which question they actually disagree on*.
+lays out its lineage, catalogs the live positions, then sets the strongest case for
+each side next to the other on a few key disputes (**steelmanned cruxes**), and ends
+with the one or two questions the disagreement comes down to. The aim is to help a
+reader find *which question they disagree on*, without picking a winner.
 
 Built from the personal `debate-map` skill
 (`MattBro/dotfiles-personal/skills/debate-map`). This file records how that skill
@@ -40,8 +40,8 @@ empire), with the petrostate "resource curse" as the lilac hinge.
 other Thought Pages are one long read. The name comes from the medieval
 *disputatio*: Aquinas opens each article of the *Summa* with objections to his
 own view and then answers them. This one takes five objections to the Christian
-God, gives each the reply from classical theism, and lets the two sides answer
-each other for as many rounds as the published debate goes. It has about 170
+God, gives each a Christian reply (often from classical theism), and lets the two
+sides answer each other for as many rounds as the published debate goes. It has about 170
 moves, up to seven rounds deep.
 
 | Thing | Path |
@@ -65,9 +65,10 @@ old names; only the visible labels changed.
 **How statuses work.** Readers mark moves *Holds* or *Fails*. Statuses then
 follow up each tree by three-valued grounded semantics (`semantics.ts`). A move
 the reader hasn't marked is answered if any reply to it stands, stands if every
-reply to it fails, and stays open if it has no replies. So a move nobody has
-answered is *open*, whoever spoke last, and the page never hands down a default
-verdict. There is no overall score. Calls live in `localStorage` only.
+reply to it is answered or marked Fails, and otherwise stays open (as it does when
+nobody has replied). So a move nobody has answered is *open*, whoever spoke last.
+No move wins by default. An objection in parts stands if any part stands. There is
+no overall score. Calls live in `localStorage` only.
 
 **Voice.** Plain words, every term explained where it appears, people as the
 subjects of sentences, and the sources' own words wherever they can be checked.
@@ -92,20 +93,20 @@ currently typed for this disputation (`ObjectionId` in `types.ts` and the list i
 ## What's customized for the Brooker site
 
 The skill ships a neutral, standalone artifact. For this site we keep the
-editorial dark house style **exactly** (the look is the point) and add only a
+editorial dark house style **unchanged** (the look is the point) and add only a
 light "site tie" so a map doesn't feel orphaned:
 
-1. **Top back-link** — `<a class="site-tie" href="/debates">All thought pages · brooker</a>`
+1. **Top back-link.** `<a class="site-tie" href="/debates">All thought pages · brooker</a>`
    as the first child of `<header>`.
-2. **Footer links** — a `.foot-links` block linking back to `/debates` and `/`.
+2. **Footer links.** A `.foot-links` block linking back to `/debates` and `/`.
 3. **CSS** for both (`.site-tie`, `.foot-links`) added to the shared `<style>`.
 4. **The index** (`/debates`) is the only surface rendered in the wedding theme
    (Cormorant + Quicksand, enchanted background). Each card shows the map's
    two-pole axis as the verdigris→ochre gradient bar, tying the index to the maps.
 
-Everything else — fonts (Fraunces / IBM Plex), the `--found`/`--made`/`--pivot`
-color axis, the lineage / positions / cruxes / payoff / shelf structure — is
-untouched from the skill. Maps are intentionally *not* in the wedding nav; they're
+Everything else is untouched from the skill: the fonts (Fraunces / IBM Plex), the
+`--found`/`--made`/`--pivot` color axis, and the lineage / positions / cruxes /
+payoff / shelf structure. Maps are intentionally *not* in the wedding nav; they're
 reachable from `/debates`.
 
 ## Adding a new map
@@ -136,16 +137,16 @@ to fold them back into the dotfiles skill:
   under each crux ("a realist concedes if…", "a hawk concedes if…"). It sharpens
   steelman parity and stops a crux from reading as a frozen standoff. Highest-value
   add. Held off here only to keep all four maps consistent with the current
-  template — worth doing across the board in one pass.
+  template. Worth doing across the board in one pass.
 - **Don't encode position by color alone.** Pole is shown by hue (verdigris /
   ochre / lilac), which a colorblind reader can miss. A tiny text token in each
   `.pos` (e.g. a mono "▲ pole A") would make it legible without color.
 - **Loosen "exactly four" cruxes to "three to five (four default)."** Some debates
   have three real cruxes and padding to four weakens them; others have five.
 - **A one-line "stakes" in the dek for live topics.** Useful for vaccines / Iran
-  where the disagreement has real-world costs; pointless for timeless ones.
+  where the disagreement has real-world costs; pointless for the old philosophical ones.
 - **Steelman parity check.** Worth a final blind pass (or a second model) asking
-  "which side does this favor?" — if it can tell, the parity isn't there yet.
+  "which side does this favor?" If it can tell, the parity isn't there yet.
 - **Google Fonts is an external dependency.** Fine online; for true offline
   portability, a system-font fallback stack would help.
 
