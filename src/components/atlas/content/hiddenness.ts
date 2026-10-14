@@ -1103,7 +1103,7 @@ const hiddenness: Objection = {
       title: "The Hiddenness of God",
       by: "Michael C. Rea",
       year: "2018",
-      note: "Rea's Gifford Lectures. He argues that God's love needn't look like a parent's, and that God is more present than we notice.",
+      note: "Rea's Gifford Lectures, arguing that God's love needn't look like a parent's and that God is more present than we notice.",
     },
     {
       title: "The Elusive God: Reorienting Religious Epistemology",
@@ -1123,7 +1123,7 @@ const hiddenness: Objection = {
       by: "Blaise Pascal",
       year: "1670",
       url: "https://www.gutenberg.org/ebooks/18269",
-      note: "Trotter's translation. Pascal argues that a true religion must say God is hidden, and explain why.",
+      note: "In Trotter's translation, Pascal argues that a true religion must say God is hidden, and explain why.",
     },
     {
       title: "Hiddenness of God (Stanford Encyclopedia of Philosophy)",
