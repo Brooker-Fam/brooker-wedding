@@ -159,6 +159,71 @@ function Card({ d, index }: { d: DebateCard; index: number }) {
   );
 }
 
+
+/* The interactive disputation — a different kind of Thought Page: a multi-layer
+   argument map rather than one long read. Lives at /debates/all-the-way-down. */
+function RoseMark() {
+  // Five sectors, rings alternating ochre/verdigris — a miniature of the map.
+  const petals = [0, 1, 2, 3, 4];
+  return (
+    <svg viewBox="-60 -60 120 120" className="h-28 w-28 shrink-0 sm:h-36 sm:w-36" aria-hidden>
+      <circle r="56" fill="none" stroke="currentColor" strokeOpacity="0.12" />
+      <circle r="40" fill="none" stroke="currentColor" strokeOpacity="0.1" />
+      <circle r="24" fill="none" stroke="currentColor" strokeOpacity="0.1" />
+      {petals.map((i) => {
+        const a = (i / 5) * Math.PI * 2;
+        const pts = [10, 24, 40, 54].map((r, k) => {
+          const off = (k % 2 ? 0.18 : -0.12) * (i % 2 ? 1 : -1);
+          return { x: Math.sin(a + off) * r, y: -Math.cos(a + off) * r, k };
+        });
+        return (
+          <g key={i}>
+            <path
+              d={`M0,0 ${pts.map((p) => `L${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(" ")}`}
+              fill="none"
+              stroke="currentColor"
+              strokeOpacity="0.28"
+            />
+            {pts.map((p) => (
+              <circle key={p.k} cx={p.x} cy={p.y} r={p.k === 0 ? 3.2 : 2.6} fill={p.k % 2 ? "#5E9C8A" : "#C49A3C"} />
+            ))}
+          </g>
+        );
+      })}
+      <circle r="5" fill="#9C8FB8" />
+    </svg>
+  );
+}
+
+function FeaturedDisputation() {
+  return (
+    <motion.a
+      href="/debates/all-the-way-down"
+      {...fadeUp}
+      className="group mt-12 flex flex-col items-center gap-6 rounded-3xl border border-soft-gold/30 bg-[#171922] p-6 text-[#ebe5d6] shadow-[0_24px_60px_-34px_rgba(23,25,34,0.9)] transition-all hover:-translate-y-0.5 hover:border-soft-gold/60 sm:flex-row sm:p-8"
+    >
+      <div className="text-[#ebe5d6]">
+        <RoseMark />
+      </div>
+      <div className="flex-1 text-center sm:text-left">
+        <p className="font-[family-name:var(--font-quicksand)] text-[10px] font-semibold uppercase tracking-[0.24em] text-[#d8a652]">
+          New · an interactive disputation
+        </p>
+        <h3 className="mt-2 font-[family-name:var(--font-cormorant-garamond)] text-3xl font-bold leading-tight sm:text-4xl">
+          All the Way Down
+        </h3>
+        <p className="mt-2 font-[family-name:var(--font-quicksand)] text-[14px] leading-relaxed text-[#ebe5d6]/70">
+          Five objections to God, the strongest replies, and the replies to those — a living argument
+          map you can drill into, judge move by move, and trace through 2,500 years of philosophy.
+        </p>
+        <p className="mt-4 font-[family-name:var(--font-quicksand)] text-[11px] font-semibold uppercase tracking-[0.2em] text-[#6dbaa4] transition-colors group-hover:text-[#8fd0bc]">
+          Enter the disputation →
+        </p>
+      </div>
+    </motion.a>
+  );
+}
+
 export default function DebatesIndexPage() {
   return (
     <main className="enchanted-bg min-h-screen px-4 pt-28 pb-20 sm:px-6">
@@ -180,6 +245,8 @@ export default function DebatesIndexPage() {
             find which question you actually disagree on.
           </p>
         </motion.div>
+
+        <FeaturedDisputation />
 
         {/* Grouped sections */}
         {GROUPS.map((group) => {

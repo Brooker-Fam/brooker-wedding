@@ -133,6 +133,10 @@ Guest uploads live in **Vercel Blob** (files) + Neon (`photos` table, metadata).
 
 **Export:** `/photos` → "Take the memories home" panel (`src/components/photos/ExportPanel.tsx`): client-side zip via `fflate` (streams to disk on Chromium; also the Apple Photos path), and per-guest **Google Photos album export** (`photoslibrary.appendonly` scope, token in an httpOnly cookie only, batched relay via `/api/photos/google-export`). Reuses `GOOGLE_CLIENT_ID/SECRET`; requires Photos Library API enabled + redirect URI `{BASE_URL}/api/photos/google-export/callback`. See `docs/photos-ops.md`.
 
+## Thought Pages (`/debates`)
+
+Long-read debate "field maps" are self-contained HTML in `public/debates/*.html`; the index is `src/app/debates/page.tsx`. `/debates/all-the-way-down` is an interactive **Disputation** (multi-layer argument map: Rose overview → objection chambers → moves, plus a guided walk, the reader's ledger, timeline, cast, lexicon). Engine: `src/components/atlas/` (content-agnostic); content: `src/components/atlas/content/`. See `src/app/debates/README.md` for the content rules and how to add another.
+
 ## Analytics
 
 **Env var:** `NEXT_PUBLIC_POSTHOG_KEY` (PostHog project API key)

@@ -23,6 +23,8 @@ is adapted for **brooker.family** and how to add a new map.
 | Reference implementation / template | `public/debates/god.html` |
 | Old `/vaccine-debate` URL | redirects to `/debates/vaccines.html` |
 
+Interactive: `all-the-way-down` (a Disputation — see below).
+
 Current maps: `god`, `morality`, `vaccines`, `covid-vaccines`, `us-iran`,
 `ai-data-centers`, `saturated-fat`, `sun-exposure`, `venezuela`, `milk-mucus`.
 
@@ -30,6 +32,50 @@ Current maps: `god`, `morality`, `vaccines`, `covid-vaccines`, `us-iran`,
 carries the boom-and-bust narrative, and the two-pole axis runs *ruined from
 within* (socialism / misrule) ↔ *strangled from outside* (sanctions / oil shock /
 empire), with the petrostate "resource curse" as the lilac hinge.
+
+## Disputations — the interactive page type
+
+`/debates/all-the-way-down` is a different kind of Thought Page: a **Disputation**,
+a multi-layer interactive argument map rather than one long read. It takes the
+medieval *disputatio* form (Aquinas's *Summa* opens each article with objections
+against his own view, then answers them) and runs it as many rounds as the real
+literature goes. The first one maps five objections to the God of Christian
+theism (from a Spinozist), the strongest classical replies, and the replies to
+those: ~170 moves, up to seven rounds deep.
+
+| Thing | Path |
+|-------|------|
+| Route (fonts, metadata, nav hidden) | `src/app/debates/all-the-way-down/` |
+| No-JS / search-engine outline | `src/app/debates/all-the-way-down/outline/page.tsx` |
+| Engine (content-agnostic) | `src/components/atlas/` |
+| Content for this disputation | `src/components/atlas/content/` |
+
+**Layers.** Overview (the Rose: a sunburst of the whole disputation, one ring per
+round) → Chamber per objection (a script thread with forks and stakes lines, plus
+a chart of the whole tree) → each move (steelman in its own voice, quote, sources,
+"I'd concede if…"). Cross-cutting: *Argue it through* (a guided walk),
+*Your Determination* (the reader's ledger), and the Library (Timeline, Cast,
+Lexicon, Outline). Every view and move is deep-linkable via the hash
+(`#/o/<objection>/<node>`, `#/cast/<thinker>` …).
+
+**The verdict mechanic.** Readers call moves *Holds* / *Fails*; statuses propagate
+up each attack tree with three-valued grounded semantics (`semantics.ts`). An
+unjudged leaf is *open*, not a winner — the last word is not the winning word — so
+the page never hands down a default verdict. There is deliberately no overall
+score. Calls live in `localStorage` only.
+
+**Content rules** (see `types.ts`): children *attack* their parent, so a parent's
+label must state the claim as attacked (if a reply concedes a fact but denies its
+significance, the label states the significance); alternatives are sibling
+attacks; sides alternate down a branch; neither side gets the last word by
+default; quotes only when verified. Inline markup: `*italic*`, `[[term|text]]`,
+`{{thinker|text}}`, `((node-id|text))`.
+
+**Adding another disputation.** Write a new `Disputation` object (objections,
+thinkers, terms, moments) in its own content folder, give it a route like this
+one that renders `<Atlas d={…} />`, and add a card to the index. Objection ids are
+currently typed for this disputation (`ObjectionId` in `types.ts` and the list in
+`router.ts`) — widen those first.
 
 ## What's customized for the Brooker site
 

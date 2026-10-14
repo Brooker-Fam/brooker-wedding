@@ -1,0 +1,629 @@
+/* ==========================================================================
+   Shell — top bar, mobile menu sheet, view frame, shared footer.
+   All selectors scoped under .atl and prefixed .sh- (the html rules below only
+   apply while a disputation is on the page).
+   ========================================================================== */
+
+/* The bar is 52px tall in all (51px + its 1px hairline), plus the top safe area.
+   Doubled class so this wins over atlas.css's default whatever the chunk order. */
+.atl.atl {
+  --bar-h: 52px;
+  --bar-total: calc(var(--bar-h) + env(safe-area-inset-top));
+}
+
+/* The page around .atl is the wedding site's: make its chrome ink too (overscroll bands,
+   root scrollbar), stop its smooth scrolling from leaking into instant scrolls, and keep
+   the scrollbar's gutter when the menu locks scrolling. */
+html:has(.atl),
+html:has(.atl) body {
+  background: #171922;
+  color-scheme: dark;
+}
+html:has(.atl) {
+  scroll-behavior: auto;
+  scrollbar-gutter: stable;
+}
+
+/* Deep links: hidden until the client has switched to the linked view (see Shell). */
+html[data-atl-deep] .atl .sh-main,
+html[data-atl-deep] .atl .sh-foot {
+  visibility: hidden;
+  animation: sh-unveil 0s linear 4s forwards;
+}
+@keyframes sh-unveil {
+  to {
+    visibility: visible;
+  }
+}
+
+/* ---------- top bar ---------- */
+.atl .sh-bar {
+  position: sticky;
+  top: 0;
+  z-index: 80;
+  padding-top: env(safe-area-inset-top);
+  background: rgba(23, 25, 34, 0.82);
+  -webkit-backdrop-filter: blur(14px) saturate(1.25);
+  backdrop-filter: blur(14px) saturate(1.25);
+  border-bottom: 1px solid var(--line-soft);
+}
+.atl .sh-bar-in {
+  height: calc(var(--bar-h) - 1px);
+  max-width: calc(var(--maxw) + 2 * var(--gutter));
+  margin: 0 auto;
+  padding: 0 max(var(--gutter), env(safe-area-inset-right)) 0 max(var(--gutter), env(safe-area-inset-left));
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.atl .sh-skip {
+  position: absolute;
+  left: 12px;
+  top: calc(env(safe-area-inset-top) + 8px);
+  z-index: 2;
+  padding: 8px 14px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--ink-3);
+  color: var(--bone);
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transform: translateY(-160%);
+  opacity: 0;
+  pointer-events: none;
+}
+.atl .sh-skip:focus-visible {
+  transform: none;
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* brand: emblem + wordmark */
+.atl .sh-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+  min-width: 0;
+  padding-right: 6px;
+  text-decoration: none;
+  color: var(--bone);
+  flex: 0 1 auto;
+  border-radius: 8px;
+}
+.atl .sh-mark {
+  width: 28px;
+  height: 28px;
+  flex: none;
+  display: block;
+  transition: transform 0.5s var(--ease);
+}
+.atl .sh-brand:hover .sh-mark {
+  transform: rotate(-12deg);
+}
+.atl .sh-word {
+  font-family: var(--serif);
+  font-style: italic;
+  font-weight: 420;
+  font-size: 17px;
+  letter-spacing: -0.005em;
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* desktop navigation */
+.atl .sh-nav {
+  display: none;
+  align-items: center;
+  gap: 4px;
+}
+.atl .sh-link {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 40px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  font-family: var(--sans);
+  font-size: 14px;
+  font-weight: 450;
+  color: var(--mute);
+  text-decoration: none;
+  cursor: pointer;
+  white-space: nowrap;
+  transition:
+    color 0.2s,
+    background 0.2s;
+}
+.atl .sh-link:hover {
+  color: var(--bone);
+  background: #ffffff08;
+}
+.atl .sh-link:active {
+  background: #ffffff0e;
+}
+.atl .sh-link.on {
+  color: var(--bone);
+}
+.atl .sh-link.on::after {
+  content: "";
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  bottom: -5px;
+  height: 1px;
+  background: var(--bone);
+  opacity: 0.7;
+}
+.atl .sh-chev {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: transform 0.25s var(--ease);
+}
+.atl .sh-chev.up {
+  transform: rotate(180deg);
+}
+.atl .sh-sep {
+  width: 1px;
+  height: 18px;
+  margin: 0 8px;
+  background: var(--line);
+}
+.atl .sh-out {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 40px;
+  padding: 0 4px 0 6px;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--mute);
+  text-decoration: none;
+  white-space: nowrap;
+  transition: color 0.2s;
+}
+.atl .sh-out:hover {
+  color: var(--bone);
+}
+
+/* status pips (shared mark: marks.tsx StatusPip, also used by the overview's posters) */
+.atl .st-pip {
+  display: block;
+  flex: none;
+  overflow: visible;
+}
+.atl .st-pip path,
+.atl .st-pip circle {
+  fill: none;
+  stroke: var(--faint);
+  stroke-width: 1.2;
+}
+.atl .st-pip.p-in path {
+  fill: var(--skeptic);
+  stroke: var(--skeptic);
+  stroke-linejoin: round;
+}
+.atl .st-pip.p-out circle {
+  fill: var(--theist);
+  stroke: var(--theist);
+}
+.atl .sh-pips {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+}
+.atl .sh-pip {
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+  width: 12px;
+  height: 14px;
+}
+.atl .sh-pip.cur::after {
+  content: "";
+  position: absolute;
+  left: 2px;
+  right: 2px;
+  bottom: -3px;
+  height: 1.5px;
+  border-radius: 2px;
+  background: var(--bone);
+}
+
+/* the reader's mark (■), drawn like primitives' Glyph (doubled class: library.css styles
+   `.glyph-svg rect` with the side colour, which the reader doesn't have) */
+.atl .you-mark {
+  --side: var(--bone-2);
+}
+.atl .glyph-svg.you-mark rect {
+  fill: color-mix(in srgb, var(--bone-2) 35%, transparent);
+  stroke: var(--bone-2);
+  stroke-width: 1.4;
+  vector-effect: non-scaling-stroke;
+}
+
+/* Library dropdown */
+.atl .sh-lib {
+  position: relative;
+}
+.atl .sh-libmenu {
+  position: absolute;
+  top: calc(100% + 12px);
+  left: 50%;
+  translate: -50% 0;
+  width: 300px;
+  padding: 6px;
+  border-radius: var(--radius);
+  border: 1px solid var(--line);
+  background: linear-gradient(180deg, #232735, #1c1f2b);
+  box-shadow:
+    0 24px 60px -24px #000000cc,
+    0 0 0 1px #ffffff05 inset;
+}
+.atl .sh-libmenu ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.atl .sh-libmenu a {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  color: var(--bone);
+  text-decoration: none;
+  transition: background 0.15s;
+}
+.atl .sh-libmenu a:hover,
+.atl .sh-libmenu a:focus-visible {
+  background: #ffffff0a;
+}
+.atl .sh-libmenu a:focus-visible {
+  outline-offset: -2px;
+}
+/* the current page: a bone bar at the left edge (as in the phone menu) */
+.atl .sh-libmenu a.on {
+  background: #ffffff06;
+}
+.atl .sh-libmenu a.on::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 50%;
+  width: 2px;
+  height: 22px;
+  margin-top: -11px;
+  border-radius: 0 2px 2px 0;
+  background: var(--bone);
+}
+.atl .sh-libtxt,
+.atl .sh-stxt {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+.atl .sh-libt {
+  font-family: var(--serif);
+  font-size: 17px;
+  line-height: 1.2;
+}
+.atl .sh-libn {
+  font-size: 12.5px;
+  color: var(--mute);
+  line-height: 1.35;
+}
+.atl .sh-icon {
+  flex: none;
+  fill: none;
+  stroke: var(--mute);
+  stroke-width: 1.3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* phone controls */
+.atl .sh-mob {
+  display: flex;
+  align-items: center;
+  flex: none;
+  gap: 2px;
+  margin-right: -10px;
+}
+@media (max-width: 359px) {
+  .atl .sh-bar-in {
+    gap: 8px;
+  }
+  .atl .sh-brand {
+    gap: 8px;
+  }
+  .atl .sh-word {
+    font-size: 15px;
+  }
+  .atl .sh-pipbtn {
+    padding: 0 4px;
+  }
+  .atl .sh-pips {
+    gap: 1px;
+  }
+}
+.atl .sh-pipbtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0 10px;
+  border-radius: 999px;
+  text-decoration: none;
+  transition: background 0.2s;
+}
+.atl .sh-pipbtn:hover,
+.atl .sh-pipbtn.on {
+  background: #ffffff08;
+}
+.atl .sh-menubtn {
+  display: inline-grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--bone);
+  cursor: pointer;
+}
+.atl .sh-menubtn:active {
+  background: #ffffff0e;
+}
+.atl .sh-burger {
+  position: relative;
+  display: block;
+  width: 18px;
+  height: 8px;
+}
+.atl .sh-burger span {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 1.5px;
+  border-radius: 2px;
+  background: currentColor;
+  transition:
+    transform 0.3s var(--ease),
+    top 0.3s var(--ease);
+}
+.atl .sh-burger span:first-child {
+  top: 0;
+}
+.atl .sh-burger span:last-child {
+  top: 6.5px;
+}
+.atl .sh-menubtn.open .sh-burger span:first-child {
+  top: 3.25px;
+  transform: rotate(45deg);
+}
+.atl .sh-menubtn.open .sh-burger span:last-child {
+  top: 3.25px;
+  transform: rotate(-45deg);
+}
+
+/* mobile sheet */
+.atl .sh-scrim {
+  position: fixed;
+  inset: var(--bar-total) 0 0 0;
+  z-index: 78;
+  background: #0b0c11b3;
+}
+.atl .sh-sheet {
+  position: fixed;
+  top: var(--bar-total);
+  left: 0;
+  right: 0;
+  z-index: 79;
+  max-height: calc(100dvh - var(--bar-total));
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 8px max(var(--gutter), env(safe-area-inset-right)) calc(20px + env(safe-area-inset-bottom)) max(var(--gutter), env(safe-area-inset-left));
+  background: linear-gradient(180deg, #1c1f2b, #181b25);
+  border-bottom: 1px solid var(--line);
+  box-shadow: 0 30px 60px -30px #000;
+}
+.atl .sh-slist {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.atl .sh-sitem {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  min-height: 60px;
+  padding: 10px 4px;
+  border-bottom: 1px solid var(--line-soft);
+  color: var(--bone);
+  text-decoration: none;
+}
+.atl .sh-sicon {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+}
+.atl .sh-sitem .sh-stxt {
+  flex: 1;
+}
+.atl .sh-sitem:active {
+  background: #ffffff06;
+}
+.atl .sh-st {
+  font-family: var(--serif);
+  font-size: 21px;
+  line-height: 1.15;
+}
+.atl .sh-sn {
+  font-size: 13px;
+  line-height: 1.35;
+  color: var(--mute);
+}
+.atl .sh-sitem.on::before {
+  content: "";
+  position: absolute;
+  left: calc(-1 * max(var(--gutter), env(safe-area-inset-left)));
+  top: 50%;
+  width: 3px;
+  height: 22px;
+  margin-top: -11px;
+  border-radius: 0 3px 3px 0;
+  background: var(--bone);
+}
+.atl .sh-sgroup {
+  margin: 22px 0 2px;
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--faint);
+}
+.atl .sh-sout {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 22px;
+  margin-top: 14px;
+}
+.atl .sh-sout a {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  font-family: var(--mono);
+  font-size: 11.5px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--mute);
+  text-decoration: none;
+}
+
+@media (min-width: 960px) {
+  .atl .sh-nav {
+    display: flex;
+  }
+  .atl .sh-mob,
+  .atl .sh-sheet,
+  .atl .sh-scrim {
+    display: none;
+  }
+}
+
+/* ---------- view frame ---------- */
+.atl .sh-main {
+  display: block;
+  min-height: calc(100vh - var(--bar-h) - 160px);
+}
+.atl .sh-main h1[tabindex="-1"]:focus,
+.atl .sh-main[tabindex="-1"]:focus {
+  outline: none;
+}
+
+/* ---------- footer ---------- */
+.atl .sh-foot {
+  margin-top: clamp(72px, 10vw, 128px);
+  border-top: 1px solid var(--line-soft);
+  padding: 36px 0 calc(40px + env(safe-area-inset-bottom));
+}
+.atl .sh-foot-in {
+  max-width: calc(var(--maxw) + 2 * var(--gutter));
+  margin: 0 auto;
+  padding: 0 var(--gutter);
+  display: grid;
+  gap: 24px;
+}
+.atl .sh-foot-note {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  max-width: 600px;
+}
+.atl .sh-foot-k {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 18px;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  line-height: 1.3;
+}
+.atl .sh-foot-k li {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: var(--side, var(--bone-2));
+}
+.atl .sh-foot-k .glyph-svg path,
+.atl .sh-foot-k .glyph-svg circle {
+  fill: color-mix(in srgb, var(--side) 35%, transparent);
+}
+.atl .sh-method {
+  margin: 0;
+  font-family: var(--serif);
+  font-size: 17px;
+  line-height: 1.55;
+  color: var(--bone-2);
+  text-wrap: pretty;
+}
+.atl .sh-method em {
+  font-style: italic;
+}
+.atl .sh-foot-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 22px;
+}
+.atl .sh-foot-links a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  font-family: var(--mono);
+  font-size: 11.5px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--mute);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+.atl .sh-foot-links a:hover {
+  color: var(--bone);
+}
+@media (min-width: 860px) {
+  .atl .sh-foot-in {
+    grid-template-columns: 1fr auto;
+    align-items: end;
+    gap: 48px;
+  }
+  .atl .sh-foot-links {
+    justify-content: flex-end;
+  }
+}

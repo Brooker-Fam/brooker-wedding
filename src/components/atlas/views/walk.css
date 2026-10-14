@@ -1,0 +1,1717 @@
+/* ==========================================================================
+   Argue it through — the walk (#/walk/<objection>)
+   A single centered column: header, a transcript of "said" strips on a rail
+   of round numerals, and one lit move in the speaker's light. Everything is
+   scoped under .atl and prefixed wk-. Labels never go below 10.5px (11px on
+   phones).
+   ========================================================================== */
+
+.atl .wk-root {
+  position: relative;
+  max-width: calc(680px + 2 * var(--gutter));
+  margin: 0 auto;
+  padding: 20px var(--gutter) 96px;
+}
+/* the site-wide call stamp, a touch larger here (it sits on small strips) */
+.atl .wk-root .your-call {
+  font-size: 10.5px;
+}
+
+/* ---------- header ---------- */
+.atl .wk-head {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-areas:
+    "exit exit"
+    "id prog"
+    "title title"
+    "q q"
+    "how how";
+  column-gap: 20px;
+}
+.atl .wk-exit {
+  grid-area: exit;
+  justify-self: start;
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  min-height: 44px;
+  padding: 0 2px;
+  border: 0;
+  background: none;
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--mute);
+  cursor: pointer;
+  transition: color 0.2s var(--ease);
+}
+.atl .wk-exit:hover {
+  color: var(--bone);
+}
+.atl .wk-exit span {
+  font-size: 14px;
+  letter-spacing: 0;
+  transition: transform 0.25s var(--ease);
+}
+.atl .wk-exit:hover span {
+  transform: translateX(-3px);
+}
+
+.atl .wk-head-grid {
+  grid-area: id;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: end;
+  gap: 0 18px;
+  margin-top: 14px;
+}
+.atl .wk-num {
+  font-size: clamp(72px, 12vw, 104px);
+  font-weight: 250;
+  font-variation-settings: "opsz" 144;
+  line-height: 0.74;
+  letter-spacing: -0.02em;
+  color: var(--skeptic);
+}
+.atl .wk-head-k {
+  padding-bottom: 2px;
+}
+.atl .wk-kicker {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0 0 6px;
+  font-size: 11.5px;
+  font-weight: 500;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--bone);
+}
+.atl .wk-kicker::before {
+  content: "";
+  width: 22px;
+  height: 1px;
+  background: var(--skeptic);
+}
+.atl .wk-sub {
+  margin: 0;
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--faint);
+}
+.atl .wk-title {
+  grid-area: title;
+  margin: 12px 0 8px;
+  font-size: clamp(2.05rem, 5.4vw, 3.15rem);
+  font-weight: 400;
+  line-height: 1.04;
+  letter-spacing: -0.018em;
+  color: var(--bone);
+  text-wrap: balance;
+}
+.atl .wk-title:focus {
+  outline: none;
+}
+.atl .wk-question {
+  grid-area: q;
+  margin: 0;
+  max-width: 34em;
+  font-size: clamp(1.05rem, 2.3vw, 1.22rem);
+  font-style: italic;
+  line-height: 1.45;
+  color: var(--mute);
+}
+
+/* how the walk works: a three-rule strip on a fresh walk, a one-line disclosure after */
+.atl .wk-how {
+  grid-area: how;
+  margin-top: 18px;
+}
+.atl .wk-how.is-open {
+  border-top: 1px solid var(--line-soft);
+  border-bottom: 1px solid var(--line-soft);
+}
+.atl details.wk-how > summary {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  list-style: none;
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--faint);
+  cursor: pointer;
+  transition: color 0.2s var(--ease);
+}
+.atl details.wk-how > summary::-webkit-details-marker {
+  display: none;
+}
+.atl details.wk-how > summary:hover {
+  color: var(--bone-2);
+}
+.atl details.wk-how > summary span {
+  display: inline-block;
+  transition: transform 0.25s var(--ease);
+}
+.atl details.wk-how[open] > summary span {
+  transform: rotate(180deg);
+}
+.atl details.wk-how[open] .wk-rules {
+  border-top: 1px solid var(--line-soft);
+  border-bottom: 1px solid var(--line-soft);
+}
+.atl .wk-rules {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px 22px;
+  margin: 0;
+  padding: 11px 0;
+  list-style: none;
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--mute);
+}
+.atl .wk-rules li {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+.atl .wk-rules b {
+  font-weight: 500;
+  color: var(--bone);
+}
+.atl .wk-rule-n {
+  flex: none;
+  display: inline-grid;
+  place-items: center;
+  width: 19px;
+  height: 19px;
+  margin-top: 1px;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  font-size: 10.5px;
+  color: var(--faint);
+}
+
+/* progress by objection (not a percentage), beside the numeral on wide screens */
+.atl .wk-progress {
+  grid-area: prog;
+  align-self: end;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+}
+.atl .wk-progress-nav {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+}
+.atl .wk-progress-t {
+  margin: 0;
+  font-size: 10.5px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  text-align: right;
+  color: var(--mute);
+}
+.atl .wk-pips {
+  display: flex;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.atl .wk-pip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-width: 48px;
+  min-height: 36px;
+  padding: 0 11px;
+  border: 1px solid var(--line-soft);
+  border-radius: 999px;
+  background: transparent;
+  font-size: 11px;
+  color: var(--mute);
+  cursor: pointer;
+  transition:
+    border-color 0.2s var(--ease),
+    background 0.2s var(--ease),
+    color 0.2s var(--ease);
+}
+.atl button.wk-pip:hover {
+  border-color: var(--mute);
+  color: var(--bone);
+}
+.atl .wk-pip.cur {
+  border-color: var(--side);
+  background: color-mix(in srgb, var(--side) 10%, transparent);
+  color: var(--bone);
+}
+.atl .wk-pip.later {
+  border-style: dashed;
+  color: var(--faint);
+  cursor: default;
+}
+.atl .wk-resume {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 0 16px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: #ffffff06;
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--bone);
+  cursor: pointer;
+  transition:
+    border-color 0.2s var(--ease),
+    background 0.2s var(--ease);
+}
+.atl .wk-resume:hover {
+  border-color: var(--mute);
+  background: #ffffff0d;
+}
+
+/* ---------- body & sections ---------- */
+.atl .wk-body {
+  margin-top: 22px;
+}
+.atl .wk-sec {
+  scroll-margin-top: 84px;
+}
+.atl .wk-sec + .wk-sec {
+  margin-top: 26px;
+}
+.atl .wk-sec-head {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin: 0;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--faint);
+}
+.atl .wk-sec-head::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, var(--line), transparent);
+}
+
+.atl .wk-sec-past {
+  margin: 0;
+  font: inherit;
+}
+.atl .wk-sec-btn {
+  display: grid;
+  grid-template-columns: 104px minmax(0, 1fr) auto;
+  grid-template-areas:
+    "n label st"
+    "n label toggle";
+  align-items: center;
+  gap: 4px 16px;
+  width: 100%;
+  min-height: 56px;
+  padding: 12px 16px;
+  border: 1px solid var(--line-soft);
+  border-radius: 12px;
+  background: #ffffff04;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    border-color 0.2s var(--ease),
+    background 0.2s var(--ease);
+}
+.atl .wk-sec-btn:hover {
+  border-color: var(--line);
+  background: #ffffff08;
+}
+.atl .wk-sec-n {
+  grid-area: n;
+  font-size: 10.5px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--faint);
+  white-space: nowrap;
+}
+.atl .wk-sec-label {
+  grid-area: label;
+  display: flex;
+  align-items: baseline;
+  gap: 9px;
+  min-width: 0;
+  font-size: 16.5px;
+  line-height: 1.3;
+  color: var(--bone-2);
+}
+.atl .wk-sec-label .glyph-svg {
+  position: relative;
+  top: 1px;
+}
+.atl .wk-sec-st,
+.atl .wk-sec-toggle {
+  justify-self: end;
+  font-size: 10.5px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.atl .wk-sec-st {
+  grid-area: st;
+  align-self: end;
+}
+.atl .wk-sec-toggle {
+  grid-area: toggle;
+  align-self: start;
+  color: var(--faint);
+  transition: color 0.2s var(--ease);
+}
+.atl .wk-sec-btn:hover .wk-sec-toggle {
+  color: var(--bone-2);
+}
+
+/* ---------- the transcript ---------- */
+.atl .wk-thread {
+  position: relative;
+  margin: 14px 0 0;
+  padding: 0;
+  list-style: none;
+}
+/* the spine: runs down the rail of round numerals */
+.atl .wk-thread::before {
+  content: "";
+  position: absolute;
+  left: 14px;
+  top: 18px;
+  bottom: 4px;
+  width: 1px;
+  background: linear-gradient(180deg, var(--line), var(--line-soft));
+}
+
+.atl .wk-strip,
+.atl .wk-res {
+  position: relative;
+  display: grid;
+  grid-template-columns: 28px minmax(0, 1fr);
+  gap: 0 10px;
+  --indent: 14px;
+}
+.atl .wk-rail {
+  position: relative;
+  z-index: 1;
+  justify-self: center;
+  align-self: start;
+  min-width: 22px;
+  margin-top: 12px;
+  padding: 3px 0;
+  border-radius: 4px;
+  background: var(--ink);
+  font-size: 10.5px;
+  line-height: 1;
+  letter-spacing: 0.04em;
+  text-align: center;
+  color: var(--faint);
+}
+.atl .wk-strip-main {
+  position: relative;
+  min-width: 0;
+  padding: 0 0 9px calc(var(--d, 0) * var(--indent));
+}
+/* leader from the spine to the speaker's glyph; longer the deeper the round */
+.atl .wk-strip-main::before {
+  content: "";
+  position: absolute;
+  top: 18px;
+  left: -24px;
+  width: calc(var(--d, 0) * var(--indent) + 20px);
+  height: 1px;
+  background: var(--line-soft);
+}
+
+.atl .wk-said {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  width: 100%;
+  min-height: 38px;
+  padding: 2px 4px 0 0;
+  border: 0;
+  background: none;
+  text-align: left;
+  cursor: pointer;
+}
+.atl .wk-said-glyph {
+  position: relative;
+  z-index: 1;
+}
+.atl .wk-said-label {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-size: 16.5px;
+  line-height: 1.35;
+  color: var(--bone-2);
+  transition: color 0.5s var(--ease);
+}
+.atl .wk-said-label.lab-in {
+  color: var(--bone);
+}
+.atl .wk-said-label.lab-out {
+  color: #8a8794;
+}
+.atl .wk-said:hover .wk-said-label,
+.atl .wk-said:focus-visible .wk-said-label {
+  color: var(--bone);
+}
+.atl .wk-strip .glyph-svg path,
+.atl .wk-strip .glyph-svg circle {
+  transition:
+    fill 0.5s var(--ease),
+    stroke 0.5s var(--ease);
+}
+/* the ripple: for a moment after a step, status changes travel up the branch, deepest first */
+.atl .wk-rippling .wk-said-label,
+.atl .wk-rippling .wk-strip .glyph-svg path,
+.atl .wk-rippling .wk-strip .glyph-svg circle {
+  transition-delay: calc(var(--rd, 0) * 80ms);
+}
+.atl .wk-said:hover .wk-said-label,
+.atl .wk-said:focus-visible .wk-said-label,
+.atl .wk-said:hover .glyph-svg path,
+.atl .wk-said:hover .glyph-svg circle {
+  transition-delay: 0s;
+}
+.atl .wk-chev {
+  flex: none;
+  font-size: 11px;
+  color: var(--faint);
+  opacity: 0;
+  transition:
+    transform 0.25s var(--ease),
+    opacity 0.2s;
+}
+.atl .wk-said:hover .wk-chev,
+.atl .wk-said:focus-visible .wk-chev,
+.atl .wk-strip.is-open .wk-chev {
+  opacity: 1;
+}
+.atl .wk-strip.is-open .wk-chev {
+  transform: rotate(180deg);
+}
+
+/* who spoke · how you answered · what it is now */
+.atl .wk-stamp-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 12px;
+  padding-left: 21px;
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+.atl .wk-who {
+  color: var(--side);
+}
+.atl .wk-grp {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+}
+.atl .wk-sep {
+  color: var(--faint);
+}
+.atl .wk-stamp {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: var(--mute);
+}
+/* ■ = you, the one who rules. Hollow when you only listened. */
+.atl .wk-sq {
+  width: 7px;
+  height: 7px;
+  background: var(--bone);
+}
+.atl .wk-stamp.heard .wk-sq {
+  background: transparent;
+  box-shadow: inset 0 0 0 1px var(--mute);
+}
+.atl .wk-st {
+  font-family: var(--mono);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--faint);
+}
+.atl .wk-st.st-in {
+  color: var(--bone);
+}
+
+.atl .wk-fork {
+  margin: 7px 0 1px 21px;
+  font-size: 12.5px;
+  font-style: italic;
+  line-height: 1.45;
+  color: var(--faint);
+}
+
+.atl .wk-said-more {
+  margin: 10px 0 4px 21px;
+  padding: 12px 14px;
+  border-left: 2px solid var(--side);
+  border-radius: 0 10px 10px 0;
+  background: #ffffff05;
+}
+.atl .wk-said-gist {
+  margin: 0 0 10px;
+  font-size: 14.5px;
+  line-height: 1.55;
+  color: var(--bone-2);
+}
+.atl .wk-said-acts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+/* results: what followed from a call (a chain up one branch is told once) */
+.atl .wk-res {
+  padding: 2px 0 12px;
+}
+.atl .wk-res .wk-rail {
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 18px;
+  margin-top: 2px;
+  padding: 0;
+}
+.atl .wk-res-mark {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  border: 1.5px dashed var(--faint);
+}
+.atl .wk-res.st-in .wk-res-mark {
+  border: 0;
+  background: var(--bone);
+  box-shadow:
+    0 0 0 3px #ebe5d61f,
+    0 0 10px #ebe5d655;
+}
+.atl .wk-res-main {
+  min-width: 0;
+  padding-left: calc(var(--d, 0) * var(--indent));
+}
+.atl .wk-res-text {
+  margin: 0;
+  font-size: 13.5px;
+  line-height: 1.55;
+  color: var(--mute);
+}
+.atl .wk-res-text q,
+.atl .wk-res-steps q {
+  font-style: italic;
+  color: var(--bone-2);
+}
+.atl .wk-res-k {
+  display: inline-block;
+  margin-right: 9px;
+  padding: 1px 6px 0;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  font-size: 10.5px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--faint);
+  vertical-align: 1px;
+}
+.atl .wk-res.st-in .wk-res-k {
+  color: var(--bone);
+  border-color: #ebe5d655;
+}
+.atl .wk-res.wk-fresh .wk-res-text {
+  color: var(--bone-2);
+}
+.atl .wk-res-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 36px;
+  padding: 0;
+  border: 0;
+  background: none;
+  font-size: 10.5px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--faint);
+  cursor: pointer;
+  transition: color 0.2s var(--ease);
+}
+.atl .wk-res-toggle:hover {
+  color: var(--bone-2);
+}
+.atl .wk-res-steps {
+  margin: 2px 0 2px;
+  padding: 0 0 0 14px;
+  border-left: 1px dashed var(--line);
+  list-style: none;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--mute);
+}
+.atl .wk-res-steps li + li {
+  margin-top: 6px;
+}
+
+/* ---------- the stage: one lit move ---------- */
+.atl .wk-stage {
+  position: relative;
+  isolation: isolate;
+  margin-top: 18px;
+  scroll-margin-top: 84px;
+}
+.atl .wk-thread + .wk-stage {
+  margin-top: 12px;
+}
+
+.atl .wk-lit,
+.atl .wk-verdict,
+.atl .wk-done {
+  position: relative;
+  border-radius: 16px;
+  padding: 24px 28px 22px;
+}
+/* the spotlight: a soft pool of the speaker's light behind the card */
+.atl .wk-lit::before,
+.atl .wk-verdict::before,
+.atl .wk-done::before {
+  content: "";
+  position: absolute;
+  inset: -90px -140px -70px;
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(closest-side, var(--side-glow, #ebe5d614), transparent);
+}
+.atl .wk-lit {
+  border: 1px solid color-mix(in srgb, var(--side) 30%, var(--line-soft));
+  background: linear-gradient(180deg, #222636f0, #1b1e29f5 60%);
+  box-shadow:
+    0 40px 90px -50px #000,
+    inset 0 1px 0 #ffffff0a;
+}
+.atl .wk-lit::after {
+  content: "";
+  position: absolute;
+  top: -1px;
+  left: 26px;
+  right: 26px;
+  height: 2px;
+  border-radius: 2px;
+  background: linear-gradient(90deg, transparent, var(--side), transparent);
+  opacity: 0.85;
+}
+.atl .wk-lit.s-spinoza {
+  border-radius: 6px;
+}
+.atl .wk-hatch {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 9px;
+  border-radius: 6px 6px 0 0;
+  background: repeating-linear-gradient(45deg, var(--spinoza) 0 1px, transparent 1px 6px);
+  opacity: 0.4;
+  pointer-events: none;
+}
+
+.atl .wk-lit-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 16px;
+}
+.atl .wk-cue {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--side);
+}
+.atl .wk-meta {
+  font-size: 10.5px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--faint);
+}
+
+.atl .wk-ctx {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 16px 0 0;
+  padding: 2px 0 2px 13px;
+  border-left: 1px solid var(--line);
+}
+.atl .wk-ctx-k {
+  font-size: 10.5px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--faint);
+}
+.atl .wk-ctx-q {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  font-size: 15px;
+  font-style: italic;
+  line-height: 1.4;
+  color: var(--mute);
+}
+.atl .wk-ctx-q .glyph-svg {
+  position: relative;
+  top: 1px;
+}
+
+.atl .wk-label {
+  margin: 14px 0 10px;
+  font-size: clamp(1.7rem, 4.2vw, 2.3rem);
+  font-weight: 400;
+  line-height: 1.13;
+  letter-spacing: -0.012em;
+  color: var(--bone);
+  text-wrap: balance;
+}
+/* the card heading takes focus after each step: no box, a slim bar in the speaker's colour */
+.atl [data-wk-head] {
+  position: relative;
+  scroll-margin-top: 90px;
+}
+.atl [data-wk-head]:focus {
+  outline: none;
+}
+.atl [data-wk-head]:focus-visible::before {
+  content: "";
+  position: absolute;
+  left: -14px;
+  top: 0.12em;
+  bottom: 0.12em;
+  width: 2px;
+  border-radius: 2px;
+  background: var(--side, var(--bone));
+}
+.atl .wk-gist {
+  margin: 0 0 4px;
+  max-width: 60ch;
+  font-size: 17px;
+  line-height: 1.6;
+  color: var(--bone-2);
+}
+
+.atl .wk-more {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 0;
+  border: 0;
+  background: none;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--side);
+  cursor: pointer;
+  transition: color 0.2s var(--ease);
+}
+.atl .wk-more:hover {
+  color: var(--bone);
+}
+.atl .wk-more-chev {
+  display: inline-block;
+  transition: transform 0.25s var(--ease);
+}
+.atl .wk-more-chev.up {
+  transform: rotate(180deg);
+}
+.atl .wk-case {
+  padding: 4px 0 2px;
+}
+.atl .wk-case > p {
+  margin: 0 0 13px;
+  font-size: 16px;
+  line-height: 1.68;
+  color: var(--bone-2);
+}
+.atl .wk-quote {
+  margin: 20px 0;
+  padding: 4px 0 4px 18px;
+  border-left: 4px double var(--side);
+}
+.atl .wk-quote blockquote {
+  margin: 0;
+  font-size: 18.5px;
+  font-style: italic;
+  line-height: 1.5;
+  color: var(--bone);
+}
+.atl .wk-quote figcaption {
+  margin-top: 9px;
+  font-size: 10.5px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--faint);
+}
+.atl .wk-case-sec {
+  margin: 18px 0 0;
+}
+.atl .wk-case-sec .wk-k {
+  margin-bottom: 9px;
+}
+.atl .wk-thinkers {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.atl .wk-sources {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 15px;
+  line-height: 1.4;
+  color: var(--bone-2);
+}
+.atl .wk-sources li + li {
+  margin-top: 10px;
+}
+.atl .wk-sources a {
+  text-decoration: underline;
+  text-decoration-color: var(--line);
+  text-underline-offset: 3px;
+}
+.atl .wk-sources a:hover {
+  text-decoration-color: var(--bone-2);
+}
+.atl .wk-src-by {
+  display: block;
+  margin-top: 2px;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  color: var(--faint);
+}
+
+.atl .wk-cedes {
+  margin: 16px 0 0;
+  padding: 13px 16px 14px;
+  border: 1px dashed color-mix(in srgb, var(--side) 34%, var(--line));
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--side) 5%, transparent);
+}
+.atl .wk-k {
+  margin: 0 0 7px;
+  font-family: var(--mono);
+  font-size: 10.5px;
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--faint);
+}
+.atl .wk-cedes-t {
+  margin: 0;
+  font-size: 16.5px;
+  font-style: italic;
+  line-height: 1.5;
+  color: var(--bone-2);
+}
+
+.atl .wk-ask {
+  margin-top: 18px;
+  padding-top: 15px;
+  border-top: 1px solid var(--line-soft);
+}
+.atl .wk-ask-k {
+  margin: 0 0 2px;
+  font-size: 10.5px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--side);
+}
+.atl .wk-ask-q {
+  margin: 0 0 13px;
+  font-size: 22px;
+  font-style: italic;
+  line-height: 1.3;
+  color: var(--bone);
+}
+
+/* quiet in-app links under a card */
+.atl .wk-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 22px;
+  margin: 10px 0 -8px;
+}
+.atl .wk-qlink {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 40px;
+  padding: 0;
+  border: 0;
+  background: none;
+  font-size: 10.5px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--faint);
+  cursor: pointer;
+  transition: color 0.2s var(--ease);
+}
+.atl .wk-qlink:hover {
+  color: var(--bone);
+}
+.atl .wk-qlink span {
+  letter-spacing: 0;
+  transition: transform 0.25s var(--ease);
+}
+.atl .wk-qlink:hover span {
+  transform: translateX(3px);
+}
+
+/* ---------- buttons ---------- */
+.atl .wk-bar-btns {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+.atl .wk-bar-btns.n1 {
+  grid-template-columns: minmax(0, 1fr);
+}
+.atl .wk-bar-inline .wk-bar-btns.n1 {
+  grid-template-columns: minmax(0, 340px);
+}
+.atl .wk-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  min-height: 50px;
+  padding: 6px 14px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: #ffffff05;
+  font-family: var(--mono);
+  font-size: 12px;
+  line-height: 1.25;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  text-align: center;
+  color: var(--bone);
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    background 0.2s var(--ease),
+    border-color 0.2s var(--ease),
+    color 0.2s var(--ease),
+    transform 0.15s var(--ease);
+}
+.atl .wk-btn:hover {
+  background: #ffffff0d;
+  border-color: var(--mute);
+}
+.atl .wk-btn:active {
+  transform: translateY(1px);
+}
+.atl .wk-btn.solid {
+  border-color: var(--bone);
+  background: var(--bone);
+  color: var(--ink);
+}
+.atl .wk-btn.solid:hover {
+  background: #fff8e8;
+}
+.atl .wk-kbd {
+  display: inline-grid;
+  place-items: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 5px;
+  border: 1px solid currentColor;
+  border-radius: 5px;
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: 0;
+  opacity: 0.5;
+}
+@media (hover: none), (pointer: coarse) {
+  .atl .wk-kbd {
+    display: none;
+  }
+}
+
+.atl .wk-undo-row {
+  margin: 14px 4px 0;
+}
+.atl .wk-undo {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 40px;
+  padding: 0;
+  border: 0;
+  background: none;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--mute);
+  cursor: pointer;
+  transition: color 0.2s var(--ease);
+}
+.atl .wk-undo:hover {
+  color: var(--bone);
+}
+.atl .wk-undo .wk-kbd {
+  margin-left: 4px;
+}
+.atl .wk-undo-svg {
+  flex: none;
+}
+
+/* the dock: on phones the action bar sticks to the bottom of the screen while the walk is
+   in view. It is the walk's last child (after the lit card, before the footer in reading
+   order) and stays hidden until the reader has reached the lit move. */
+.atl .wk-bar-pin {
+  position: sticky;
+  bottom: 0;
+  z-index: 45;
+  margin: 24px calc((100% - 100vw) / 2) 0;
+  padding: 9px max(16px, env(safe-area-inset-right)) calc(12px + env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
+  border-top: 1px solid var(--line-soft);
+  background: linear-gradient(180deg, #191b25eb, #14161ef8);
+  -webkit-backdrop-filter: blur(14px) saturate(1.1);
+  backdrop-filter: blur(14px) saturate(1.1);
+  box-shadow: 0 -24px 40px -26px #000;
+  transform: translateY(calc(100% + 24px));
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    transform 0.38s var(--ease),
+    opacity 0.25s var(--ease),
+    visibility 0s linear 0.38s;
+}
+.atl .wk-bar-pin.is-on,
+.atl .wk-bar-pin:focus-within {
+  transform: none;
+  opacity: 1;
+  visibility: visible;
+  transition:
+    transform 0.38s var(--ease),
+    opacity 0.25s var(--ease);
+}
+.atl .wk-root:has(.wk-bar-pin) {
+  padding-bottom: 0;
+}
+.atl .wk-root:has(.wk-bar-pin) .wk-body {
+  padding-bottom: 8px;
+}
+.atl .wk-dock-ctx {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 2px 8px;
+  font-size: 12.5px;
+  line-height: 1.4;
+  color: var(--mute);
+  white-space: nowrap;
+  overflow: hidden;
+}
+.atl .wk-dock-ctx .glyph-svg {
+  flex: none;
+}
+.atl .wk-dock-who {
+  flex: none;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--side, var(--mute));
+}
+.atl .wk-dock-ctx-t {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.atl .wk-bar-pin .wk-dock-ctx,
+.atl .wk-bar-pin .wk-bar-btns {
+  max-width: 680px;
+  margin-inline: auto;
+}
+.atl .wk-bar-pin .wk-btn {
+  min-height: 48px;
+  padding: 5px 12px;
+  font-size: 11.5px;
+}
+.atl .wk-bar-pin .wk-arrow {
+  display: none;
+}
+.atl .wk-bar-pin .n1.with-undo {
+  grid-template-columns: minmax(0, 1fr) 48px;
+}
+.atl .wk-bar-pin .n2.with-undo {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 48px;
+}
+.atl .wk-undo-ic {
+  width: 48px;
+  padding: 0;
+  border-radius: 50%;
+  border-color: var(--line-soft);
+  background: transparent;
+  color: var(--mute);
+}
+.atl .wk-undo-ic:hover {
+  color: var(--bone);
+}
+/* keep toasts (and their Undo) clear of the docked bar */
+.atl:has(.wk-bar-pin.is-on) .toast-dock {
+  bottom: calc(108px + env(safe-area-inset-bottom));
+}
+/* short landscape phones: buttons only */
+@media (max-height: 520px) {
+  .atl .wk-bar-pin .wk-dock-ctx {
+    display: none;
+  }
+  .atl:has(.wk-bar-pin.is-on) .toast-dock {
+    bottom: calc(80px + env(safe-area-inset-bottom));
+  }
+}
+
+/* ---------- verdict cards (a reply stood · a line is settled) ---------- */
+.atl .wk-verdict {
+  --side-glow: #ebe5d612;
+  border: 1px solid var(--line);
+  background: linear-gradient(180deg, #212431f2, #1a1d27f6 70%);
+  box-shadow: 0 40px 90px -50px #000;
+}
+.atl .wk-verdict::after,
+.atl .wk-done::after {
+  content: "";
+  position: absolute;
+  left: 22px;
+  right: 22px;
+  top: 9px;
+  height: 3px;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line-soft);
+  pointer-events: none;
+}
+.atl .wk-verdict > :first-child,
+.atl .wk-done > :first-child {
+  margin-top: 8px;
+}
+.atl .wk-pend.st-in {
+  --side-glow: #ebe5d61c;
+}
+.atl .wk-v-node {
+  margin: 12px 0 0;
+  font-size: 17px;
+  line-height: 1.4;
+}
+.atl .wk-verdict > .wk-v-node:first-child {
+  margin-top: 10px;
+}
+.atl .wk-v-node .glyph-svg {
+  display: inline-block;
+  margin-right: 9px;
+  vertical-align: -1px;
+}
+.atl .wk-v-who {
+  margin-right: 10px;
+  font-size: 10.5px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--side);
+}
+.atl .wk-v-line {
+  margin: 10px 0;
+  font-size: clamp(1.4rem, 3.4vw, 1.8rem);
+  font-weight: 400;
+  line-height: 1.25;
+  color: var(--bone);
+  text-wrap: pretty;
+}
+.atl .wk-v-line q,
+.atl .wk-done-line q {
+  font-style: italic;
+}
+.atl .wk-v-sub {
+  margin: 0 0 14px;
+  max-width: 58ch;
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--mute);
+}
+.atl .wk-verdict .wk-bar-inline {
+  margin-top: 18px;
+}
+
+/* ---------- the determination (end of the walk) ---------- */
+.atl .wk-done {
+  --side-glow: #ebe5d616;
+  padding: 30px 30px 24px;
+  border: 1px solid var(--line);
+  background: linear-gradient(180deg, #242838f2, #1b1e29f7 70%);
+  box-shadow: 0 40px 90px -50px #000;
+}
+.atl .wk-done.st-in {
+  --side-glow: #d8a65218;
+}
+.atl .wk-done.st-out {
+  --side-glow: #6dbaa418;
+}
+.atl .wk-done-ia {
+  margin: 16px 0 4px;
+  font-size: 19px;
+  font-style: italic;
+  color: var(--mute);
+}
+.atl .wk-done-ia .wk-sq {
+  display: inline-block;
+  margin-right: 10px;
+  vertical-align: 3px;
+}
+.atl .wk-done-line {
+  margin: 0 0 16px;
+  font-size: clamp(1.5rem, 4vw, 2.05rem);
+  font-weight: 400;
+  line-height: 1.22;
+  letter-spacing: -0.01em;
+  color: var(--bone);
+  text-wrap: pretty;
+}
+.atl .wk-done-head {
+  color: var(--bone);
+}
+.atl .wk-done-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--mute);
+}
+.atl .wk-done-status .dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  border: 1.5px solid var(--faint);
+}
+.atl .wk-done-status.st-in {
+  color: var(--bone);
+}
+.atl .wk-done-status.st-in .dot {
+  border-color: var(--bone);
+  background: var(--bone);
+  box-shadow:
+    0 0 0 3px #ebe5d622,
+    0 0 12px #ebe5d655;
+}
+.atl .wk-done-status.st-out .dot {
+  border-style: dashed;
+}
+.atl .wk-done-more {
+  margin-top: 20px;
+}
+.atl .wk-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.atl .wk-nodechip {
+  min-height: 40px;
+  padding: 5px 13px 5px 10px;
+  text-align: left;
+  line-height: 1.3;
+}
+.atl .wk-nodechip-addr {
+  font-size: 10.5px;
+  color: var(--faint);
+}
+.atl .wk-more-chip {
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--mute);
+}
+.atl .wk-done-prongs {
+  margin: 24px 0 0;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid var(--line-soft);
+}
+.atl .wk-done-prongs li {
+  display: grid;
+  grid-template-columns: 104px minmax(0, 1fr);
+  grid-template-areas:
+    "n label"
+    ". why";
+  gap: 3px 14px;
+  padding: 13px 0;
+  border-bottom: 1px solid var(--line-soft);
+}
+.atl .wk-dp-n {
+  grid-area: n;
+  padding-top: 4px;
+  font-size: 10.5px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--faint);
+}
+.atl .wk-dp-label {
+  grid-area: label;
+  display: flex;
+  align-items: baseline;
+  gap: 9px;
+  font-size: 17px;
+  line-height: 1.35;
+  color: var(--bone);
+}
+.atl .wk-dp-label .glyph-svg {
+  position: relative;
+  top: 1px;
+}
+.atl .wk-dp-why {
+  grid-area: why;
+  padding-left: 21px;
+  font-size: 13.5px;
+  line-height: 1.5;
+  color: var(--mute);
+}
+.atl .wk-dp-who,
+.atl .wk-dp-why .wk-st {
+  font-size: 10.5px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+.atl .wk-dp-who {
+  color: var(--side);
+}
+.atl .wk-dp-sep {
+  margin: 0 7px;
+  color: var(--faint);
+}
+.atl .wk-done-unheard {
+  margin: 16px 0 0;
+  font-size: 14.5px;
+  line-height: 1.55;
+  color: var(--mute);
+}
+.atl .wk-link {
+  padding: 0;
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  background: none;
+  font: inherit;
+  color: var(--bone);
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+.atl .wk-link:hover {
+  border-bottom-color: var(--bone);
+}
+.atl .wk-done-acts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 26px;
+}
+.atl .wk-done-foot {
+  margin-top: 20px;
+  font-size: 13.5px;
+  line-height: 1.6;
+  color: var(--faint);
+}
+.atl .wk-done-foot p {
+  margin: 0;
+}
+.atl .wk-foot-acts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 24px;
+  margin-top: 6px !important;
+}
+.atl .wk-confirm {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 10px;
+  margin-top: 10px !important;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  color: var(--bone-2);
+}
+.atl .wk-confirm > span {
+  flex: 1 1 220px;
+}
+.atl .wk-confirm-yes {
+  border-color: #e07a5f88;
+}
+.atl .wk-confirm-yes:hover {
+  border-color: var(--tension);
+}
+
+.atl .wk-empty {
+  margin-top: 36px;
+  padding: 28px;
+  border: 1px dashed var(--line);
+  border-radius: 14px;
+  text-align: center;
+}
+.atl .wk-empty p {
+  margin: 0 0 16px;
+  font-size: 19px;
+  font-style: italic;
+  color: var(--mute);
+}
+
+/* ---------- wide screens: more room for the light ---------- */
+@media (min-width: 1100px) {
+  .atl .wk-lit::before,
+  .atl .wk-verdict::before,
+  .atl .wk-done::before {
+    inset: -120px -240px -90px;
+  }
+}
+
+/* ---------- phones ---------- */
+@media (max-width: 760px) {
+  .atl .wk-root {
+    padding-top: 10px;
+    padding-bottom: 48px;
+  }
+  .atl .wk-root .your-call,
+  .atl .wk-stamp-row,
+  .atl .wk-rail,
+  .atl .wk-k,
+  .atl .wk-ctx-k,
+  .atl .wk-res-k,
+  .atl .wk-sec-n,
+  .atl .wk-sec-st,
+  .atl .wk-sec-toggle,
+  .atl .wk-dp-n,
+  .atl .wk-dp-who,
+  .atl .wk-dp-why .wk-st,
+  .atl .wk-nodechip-addr,
+  .atl .wk-v-who,
+  .atl .wk-meta,
+  .atl .wk-ask-k,
+  .atl .wk-qlink,
+  .atl .wk-res-toggle,
+  .atl .wk-rule-n,
+  .atl .wk-progress-t,
+  .atl .wk-quote figcaption {
+    font-size: 11px;
+  }
+  .atl .wk-head {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+      "exit"
+      "id"
+      "title"
+      "q"
+      "how"
+      "prog";
+  }
+  .atl .wk-head-grid {
+    margin-top: 10px;
+    gap: 0 14px;
+  }
+  .atl .wk-num {
+    font-size: 64px;
+  }
+  .atl .wk-title {
+    margin-top: 12px;
+  }
+  .atl .wk-how {
+    margin-top: 14px;
+  }
+  .atl .wk-rules {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 7px;
+    padding: 11px 0;
+    font-size: 13.5px;
+  }
+  .atl .wk-progress {
+    align-items: stretch;
+    margin-top: 12px;
+  }
+  .atl .wk-progress-nav {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .atl .wk-progress-t {
+    text-align: left;
+  }
+  .atl .wk-resume {
+    align-self: flex-start;
+  }
+  .atl .wk-pip {
+    min-height: 44px;
+    min-width: 44px;
+    padding: 0 10px;
+  }
+  .atl .wk-body {
+    margin-top: 20px;
+  }
+
+  .atl .wk-sec-btn {
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas:
+      "n st"
+      "label label"
+      "toggle toggle";
+    gap: 6px 12px;
+    padding: 12px 14px;
+  }
+  .atl .wk-sec-st {
+    align-self: center;
+  }
+  .atl .wk-sec-toggle {
+    justify-self: start;
+    padding-left: 21px;
+  }
+  .atl .wk-sec-label {
+    font-size: 16px;
+  }
+
+  .atl .wk-strip,
+  .atl .wk-res {
+    grid-template-columns: 24px minmax(0, 1fr);
+    gap: 0 8px;
+    --indent: 9px;
+  }
+  .atl .wk-thread::before {
+    left: 12px;
+  }
+  .atl .wk-strip-main::before {
+    left: -20px;
+    width: calc(var(--d, 0) * var(--indent) + 16px);
+  }
+  .atl .wk-rail {
+    min-width: 20px;
+  }
+  .atl .wk-said {
+    align-items: flex-start;
+    min-height: 44px;
+    padding-top: 9px;
+  }
+  .atl .wk-said-glyph {
+    margin-top: 5px;
+  }
+  .atl .wk-said-label {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    white-space: normal;
+    font-size: 16px;
+  }
+  .atl .wk-chev {
+    opacity: 0.7;
+    margin-top: 5px;
+  }
+  .atl .wk-strip-main {
+    padding-bottom: 8px;
+  }
+
+  .atl .wk-lit,
+  .atl .wk-verdict {
+    padding: 20px 18px 18px;
+    border-radius: 14px;
+  }
+  .atl .wk-lit.s-spinoza {
+    border-radius: 6px;
+  }
+  .atl .wk-lit::after {
+    left: 18px;
+    right: 18px;
+  }
+  .atl .wk-lit::before,
+  .atl .wk-verdict::before,
+  .atl .wk-done::before {
+    inset: -60px -40px -40px;
+  }
+  .atl [data-wk-head]:focus-visible::before {
+    left: -10px;
+  }
+  .atl .wk-cue {
+    letter-spacing: 0.12em;
+  }
+  .atl .wk-meta {
+    letter-spacing: 0.1em;
+  }
+  .atl .wk-label {
+    font-size: 1.62rem;
+    margin-top: 12px;
+  }
+  .atl .wk-gist {
+    font-size: 16.5px;
+  }
+  .atl .wk-ask {
+    margin-top: 16px;
+    padding-top: 13px;
+  }
+  .atl .wk-ask-q {
+    margin-bottom: 0;
+    font-size: 20px;
+  }
+
+  .atl .wk-done {
+    padding: 26px 18px 20px;
+    border-radius: 14px;
+  }
+  .atl .wk-done-prongs li {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+      "n"
+      "label"
+      "why";
+  }
+  .atl .wk-done-acts {
+    flex-direction: column;
+  }
+  .atl .wk-done-acts .btn {
+    width: 100%;
+    min-height: 48px;
+  }
+  .atl .wk-undo {
+    min-height: 44px;
+  }
+}

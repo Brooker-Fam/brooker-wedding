@@ -96,6 +96,8 @@ export default function Navigation() {
   const isCalendar = pathname?.startsWith("/calendar");
   const isSapphire = pathname?.startsWith("/sapphire");
   const isBackpacking = pathname?.startsWith("/backpacking-2026");
+  // The disputation is an immersive, full-bleed experience with its own chrome.
+  const isDisputation = pathname?.startsWith("/debates/all-the-way-down");
 
   useEffect(() => {
     setIsOpen(false);
@@ -112,7 +114,7 @@ export default function Navigation() {
     };
   }, [isOpen]);
 
-  if (isCalendar || isSapphire || isBackpacking) return null;
+  if (isCalendar || isSapphire || isBackpacking || isDisputation) return null;
 
   return (
     <>

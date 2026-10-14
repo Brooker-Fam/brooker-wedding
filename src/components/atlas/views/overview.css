@@ -1,0 +1,1011 @@
+/* ==========================================================================
+   Overview (#/) — hero + plumb line, echo, who speaks, the Rose, resume line,
+   five posters, how it works. Scoped under .atl, prefixed .ov-
+   ========================================================================== */
+
+.atl .ov {
+  --ov-cols: minmax(0, 0.94fr) minmax(0, 1.06fr);
+  --ov-gap: clamp(40px, 5vw, 72px);
+  --plumb-gap: 40px;
+}
+.atl .ov-wrap {
+  max-width: calc(var(--maxw) + 2 * var(--gutter));
+  margin: 0 auto;
+  padding: 0 var(--gutter);
+}
+.atl .ov-sect-k {
+  margin: 0 0 16px;
+}
+.atl .ov-gloss {
+  letter-spacing: 0.01em;
+  text-transform: none;
+  font-style: italic;
+  font-family: var(--serif);
+  font-size: 13px;
+  font-weight: 400;
+}
+
+/* ---------- hero ---------- */
+.atl .ov-hero {
+  padding-top: clamp(28px, 4.5vw, 48px);
+}
+.atl .ov-kicker {
+  margin: 0 0 clamp(12px, 1.6vw, 16px);
+  font-family: var(--mono);
+  font-size: 10.5px;
+  font-weight: 500;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--faint);
+}
+.atl .ov-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+}
+.atl .ov-title {
+  margin: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  font-family: var(--serif);
+  font-optical-sizing: auto;
+  font-weight: 330;
+  font-size: clamp(3rem, 11vw, 7rem);
+  line-height: 0.92;
+  letter-spacing: -0.03em;
+  color: var(--bone);
+}
+.atl .ov-l1 {
+  display: block;
+  white-space: nowrap;
+}
+.atl .ov-l2 {
+  position: relative;
+  display: block;
+  justify-self: start;
+  margin-left: 2.86em;
+  white-space: nowrap;
+}
+.atl .ov-l2 em {
+  font-style: italic;
+  font-weight: 300;
+  letter-spacing: -0.02em;
+}
+
+/* the plumb line: dashes alternating ochre / verdigris, drawn in once.
+   One column: a short flourish under "Down". Two columns: it drops to the Rose's rim. */
+.atl .ov-plumb {
+  position: absolute;
+  left: 50%;
+  top: calc(100% + 0.06em);
+  width: 1.5px;
+  height: 24px;
+  margin-left: -0.75px;
+  background: repeating-linear-gradient(to bottom, var(--skeptic) 0 7px, transparent 7px 11px, var(--theist) 11px 18px, transparent 18px 22px);
+}
+.atl .ov-bob {
+  position: absolute;
+  left: 50%;
+  bottom: -9px;
+  width: 9px;
+  height: 9px;
+  margin-left: -4.5px;
+  border: 1.5px solid var(--bone-2);
+  border-radius: 50% 50% 50% 0;
+  transform: rotate(-45deg);
+  background: var(--ink);
+  display: none;
+}
+.atl .ov-plumb.draw {
+  animation: ov-plumb-draw 1.25s var(--ease) 0.3s both;
+}
+@keyframes ov-plumb-draw {
+  from {
+    clip-path: inset(0 -6px 100% -6px);
+  }
+  to {
+    clip-path: inset(0 -6px -12px -6px);
+  }
+}
+
+.atl .ov-left {
+  padding-top: 44px;
+  min-width: 0;
+}
+.atl .ov-right {
+  min-width: 0;
+  padding-top: clamp(40px, 8vw, 56px);
+}
+
+/* dek */
+.atl .ov-dek {
+  max-width: 36rem;
+}
+.atl .ov-sub {
+  margin: 0 0 14px;
+  font-family: var(--serif);
+  font-size: clamp(1.3rem, 2.4vw, 1.6rem);
+  font-weight: 400;
+  line-height: 1.28;
+  letter-spacing: -0.01em;
+  color: var(--bone);
+  text-wrap: balance;
+}
+.atl .ov-intro {
+  margin: 0;
+  font-size: 16.5px;
+  line-height: 1.65;
+  color: var(--bone-2);
+  text-wrap: pretty;
+}
+
+/* the echo — an epigraph, not a gate; a gentle fade the first time (CSS, no hidden SSR state) */
+.atl .ov-echo {
+  margin: 40px 0 0;
+  max-width: 34rem;
+}
+.atl .ov-echo.reveal {
+  animation: ov-echo-in 1s var(--ease) 0.2s backwards;
+}
+@keyframes ov-echo-in {
+  from {
+    opacity: 0;
+    translate: 0 8px;
+  }
+  to {
+    opacity: 1;
+    translate: 0 0;
+  }
+}
+.atl .ov-echo-q {
+  margin: 0;
+  padding: 2px 0 2px 20px;
+  border-left: 1.5px solid var(--skeptic);
+}
+.atl .ov-echo-q p {
+  margin: 0;
+  font-family: var(--serif);
+  font-style: italic;
+  font-weight: 380;
+  font-size: clamp(1.18rem, 2.1vw, 1.36rem);
+  line-height: 1.42;
+  color: var(--skeptic);
+  text-wrap: pretty;
+}
+.atl .ov-echo figcaption {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px 0 2px 20px;
+  border-left: 1.5px solid var(--theist);
+}
+.atl .ov-echo-stamp {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: var(--faint);
+  line-height: 1.6;
+}
+.atl .ov-echo-stamp cite {
+  font-style: normal;
+}
+.atl .ov-nw {
+  white-space: nowrap;
+}
+.atl .ov-echo-line {
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--bone);
+}
+
+/* who speaks: also the glyph key */
+.atl .ov-cast {
+  margin-top: 44px;
+  max-width: 36rem;
+}
+.atl .ov-cast-list {
+  margin: 0;
+}
+.atl .ov-persona {
+  display: grid;
+  grid-template-columns: 28px minmax(0, 1fr);
+  column-gap: 14px;
+  row-gap: 2px;
+  align-items: center;
+  padding: 12px 0;
+  border-top: 1px solid var(--line-soft);
+}
+.atl .ov-persona:last-child {
+  border-bottom: 1px solid var(--line-soft);
+}
+.atl .ov-persona dt {
+  display: contents;
+}
+.atl .ov-persona dd {
+  grid-column: 2;
+  margin: 0;
+  font-size: 14.5px;
+  line-height: 1.5;
+  color: var(--mute);
+}
+.atl .ov-pname {
+  font-family: var(--serif);
+  font-size: 18px;
+  font-weight: 450;
+  line-height: 1.25;
+  color: var(--bone);
+}
+.atl .ov-life {
+  margin-left: 4px;
+  font-family: var(--mono);
+  font-size: 10.5px;
+  font-weight: 400;
+  letter-spacing: 0.08em;
+  color: var(--faint);
+}
+.atl .ov-tile {
+  grid-row: 1 / span 2;
+  align-self: start;
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  margin-top: 1px;
+  border-radius: 7px;
+  border: 1px solid color-mix(in srgb, var(--side, var(--bone)) 45%, transparent);
+  background: color-mix(in srgb, var(--side, var(--bone)) 12%, transparent);
+}
+.atl .ov-tile .glyph-svg path,
+.atl .ov-tile .glyph-svg circle,
+.atl .ov-cue .glyph-svg path,
+.atl .ov-cue .glyph-svg circle,
+.atl .ov-key-sp .glyph-svg path {
+  fill: color-mix(in srgb, var(--side) 35%, transparent);
+}
+.atl .ov-tile.s-spinoza {
+  background:
+    repeating-linear-gradient(45deg, #a195bd38 0 1px, transparent 1px 4.5px),
+    color-mix(in srgb, var(--spinoza) 8%, transparent);
+}
+.atl .ov-tile.you {
+  --side: var(--bone-2);
+}
+.atl .ov-tile.you .glyph-svg.you-mark rect {
+  fill: var(--bone-2);
+}
+
+/* the Rose + its legend */
+.atl .ov-rose svg {
+  max-width: 640px;
+}
+/* The readout follows the viewport inside the figure, so hovering or focusing a sector
+   always shows its label and "Enter" even when the Rose runs past the fold. Its box has a
+   fixed height and the card grows upward, so the page below never shifts. */
+.atl .ov-rose .rose-readout {
+  position: sticky;
+  bottom: max(12px, env(safe-area-inset-bottom));
+  z-index: 2;
+  height: 72px;
+  min-height: 0;
+  justify-content: flex-end;
+  pointer-events: none;
+}
+.atl .ov-rose .rose-readout-in {
+  pointer-events: auto;
+  padding: 10px 16px;
+  border-radius: 12px;
+  border: 1px solid var(--line-soft);
+  background: #171922e6;
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  box-shadow: 0 14px 32px -18px #000;
+}
+.atl .ov-defs {
+  position: absolute;
+  width: 0;
+  height: 0;
+}
+.atl .ov-hubcap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  max-width: 30rem;
+  margin: 16px auto 0;
+  text-align: center;
+}
+.atl .ov-hubk {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--faint);
+}
+.atl .ov-hubq {
+  display: inline-grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 1px solid #3c4053;
+  background: var(--ink-2);
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 12px;
+  letter-spacing: 0;
+  color: var(--bone);
+}
+.atl .ov-hubt {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 16.5px;
+  line-height: 1.45;
+  color: var(--bone-2);
+  text-wrap: balance;
+}
+
+/* reading the Rose */
+.atl .ov-key {
+  margin-top: 36px;
+  min-width: 0;
+}
+.atl .ov-key-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px 18px;
+  font-size: 13px;
+  line-height: 1.35;
+  color: var(--mute);
+}
+.atl .ov-key-list li {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  min-width: 0;
+}
+.atl .ov-key-list b {
+  margin-right: 5px;
+  font-family: var(--mono);
+  font-weight: 500;
+  font-size: 10.5px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--bone-2);
+}
+.atl .ov-key-sp {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.atl .ov-key-note {
+  margin: 14px 0 0;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--faint);
+}
+.atl .ov-swatch {
+  flex: none;
+  overflow: visible;
+}
+.atl .ov-ringicon {
+  fill: none;
+  stroke: #6b6f82;
+  stroke-width: 1;
+}
+
+/* ---------- previously… ---------- */
+.atl .ov-resume {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 20px;
+  margin-top: clamp(48px, 7vw, 80px);
+  padding-top: 18px;
+  padding-bottom: 18px;
+}
+.atl .ov-resume > * {
+  margin: 0;
+}
+.atl .ov-resume::before,
+.atl .ov-resume::after {
+  content: "";
+  position: absolute;
+  left: var(--gutter);
+  right: var(--gutter);
+  height: 1px;
+  background: var(--line-soft);
+}
+.atl .ov-resume::before {
+  top: 0;
+}
+.atl .ov-resume::after {
+  bottom: 0;
+}
+.atl .ov-resume-k {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--faint);
+}
+.atl .ov-resume-t {
+  flex: 1 1 22rem;
+  font-family: var(--serif);
+  font-size: 18px;
+  line-height: 1.4;
+  color: var(--bone);
+}
+.atl .ov-resume-o {
+  color: var(--bone);
+  text-decoration: underline;
+  text-decoration-color: var(--line);
+  text-underline-offset: 4px;
+  text-decoration-thickness: 1px;
+}
+.atl .ov-resume-o:hover {
+  text-decoration-color: var(--bone);
+}
+.atl .ov-resume-s {
+  color: var(--mute);
+}
+.atl .ov-resume .ov-resume-b {
+  flex: none;
+}
+
+/* ---------- the five posters ---------- */
+.atl .ov-five {
+  margin-top: clamp(72px, 10vw, 128px);
+}
+.atl .ov-five-head {
+  max-width: 44rem;
+  margin-bottom: clamp(24px, 4vw, 40px);
+}
+.atl .ov-five-t {
+  margin: 0 0 12px;
+  font-family: var(--serif);
+  font-size: clamp(1.65rem, 3vw, 2.2rem);
+  font-weight: 380;
+  line-height: 1.15;
+  letter-spacing: -0.015em;
+  color: var(--bone);
+  text-wrap: balance;
+}
+.atl .ov-five-n {
+  margin: 0;
+  font-size: 15.5px;
+  line-height: 1.6;
+  color: var(--mute);
+}
+.atl .ov-posters {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 16px;
+}
+
+/* Phone (the default): the numeral sits inline with the kicker, the fan floats beside the
+   title, and both sides of the exchange are clamped alike (the chamber has the full text). */
+.atl .ov-poster article {
+  position: relative;
+  display: flow-root;
+  padding: 18px 16px 16px;
+  border-radius: var(--radius);
+  border: 1px solid var(--line-soft);
+  background: linear-gradient(180deg, #1e2230b8, #1b1e29a6);
+  transition:
+    border-color 0.25s var(--ease),
+    background 0.25s var(--ease);
+}
+.atl .ov-poster article:hover {
+  border-color: var(--line);
+}
+.atl .ov-pnum {
+  float: left;
+  height: 34px;
+  margin-right: 10px;
+  font-family: var(--serif);
+  font-optical-sizing: auto;
+  font-weight: 220;
+  font-size: 42px;
+  line-height: 34px;
+  letter-spacing: -0.02em;
+  color: var(--faint);
+  transition: color 0.25s;
+}
+.atl .ov-poster article:hover .ov-pnum {
+  color: var(--bone-2);
+}
+.atl .ov-fan {
+  float: right;
+  width: 100px;
+  height: auto;
+  margin: 2px -4px 2px 12px;
+  cursor: pointer;
+  overflow: visible;
+}
+.atl .ov-fan-ring {
+  fill: none;
+  stroke: #262a36;
+  stroke-width: 0.8;
+}
+.atl .ov-fan-hub {
+  fill: var(--ink-2);
+  stroke: #3c4053;
+  stroke-width: 0.8;
+}
+.atl .ov-fan .rose-glass {
+  stroke-width: 0.7;
+}
+.atl .ov-fan .rose-pane.st-undec .rose-glass {
+  fill-opacity: 0.26;
+  stroke-opacity: 0.55;
+}
+.atl .ov-pk {
+  margin: 0;
+  font-family: var(--mono);
+  font-size: 10.5px;
+  line-height: 34px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--faint);
+}
+/* on phones the big numeral already says "I": the kicker keeps only the short name visible */
+.atl .ov-pk.has-short .ov-pk-o,
+.atl .ov-pk.has-short .ov-pk-sep {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+}
+.atl .ov-ptitle {
+  margin: 6px 0 0;
+  font-family: var(--serif);
+  font-weight: 420;
+  font-size: clamp(1.4rem, 2.6vw, 1.85rem);
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+  text-wrap: pretty;
+}
+.atl .ov-ptitle a {
+  color: var(--bone);
+  text-decoration: none;
+  background-image: linear-gradient(var(--bone), var(--bone));
+  background-origin: content-box;
+  background-size: 0 1px;
+  background-repeat: no-repeat;
+  background-position: 0 100%;
+  transition: background-size 0.35s var(--ease);
+}
+.atl .ov-ptitle a:hover {
+  background-size: 100% 1px;
+}
+@media (pointer: coarse) {
+  /* a taller hit area without moving the lines */
+  .atl .ov-ptitle a {
+    padding-block: 8px;
+  }
+}
+.atl .ov-pq {
+  margin: 8px 0 0;
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 16px;
+  line-height: 1.45;
+  color: var(--mute);
+  max-width: 44rem;
+}
+.atl .ov-exchange {
+  clear: both;
+  display: grid;
+  gap: 14px;
+  padding-top: 16px;
+}
+.atl .ov-say {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.atl .ov-cue {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--mono);
+  font-size: 10.5px;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--side);
+}
+.atl .ov-saytext {
+  font-size: 15.5px;
+  line-height: 1.55;
+  color: var(--bone-2);
+  text-wrap: pretty;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 5;
+  line-clamp: 5;
+  overflow: hidden;
+}
+.atl .ov-pfoot {
+  clear: both;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px 18px;
+  margin-top: 18px;
+  padding-top: 14px;
+  border-top: 1px solid var(--line-soft);
+}
+.atl .ov-meta {
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px 12px;
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--faint);
+}
+.atl .ov-meta span + span::before {
+  content: "·";
+  margin-right: 12px;
+  color: var(--line);
+}
+.atl .ov-status {
+  margin: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--mute);
+}
+.atl .ov-status.st-in,
+.atl .ov-status.st-out {
+  color: var(--bone);
+}
+.atl .ov-pbtns {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  width: 100%;
+}
+.atl .ov-pbtns .btn {
+  flex: 1 1 auto;
+  min-height: 48px;
+  padding: 0 14px;
+  white-space: nowrap;
+}
+.atl .ov-enter {
+  border-color: #6b6f82;
+}
+.atl .ov-enter:hover {
+  background: var(--bone);
+  border-color: var(--bone);
+  color: var(--ink);
+}
+.atl .ov-argue {
+  color: var(--mute);
+}
+.atl .ov-argue.btn.ghost:hover {
+  color: var(--bone);
+  background: #ffffff0a;
+}
+
+/* ---------- how it works ---------- */
+.atl .ov-how {
+  margin-top: clamp(72px, 10vw, 120px);
+}
+.atl .ov-steps {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0;
+}
+.atl .ov-steps li {
+  display: grid;
+  grid-template-columns: 52px minmax(0, 1fr);
+  column-gap: 16px;
+  padding: 18px 0;
+  border-top: 1px solid var(--line-soft);
+}
+.atl .ov-stepicon {
+  grid-row: 1 / span 2;
+  width: 48px;
+  height: 32px;
+  overflow: visible;
+}
+.atl .ov-steps h3 {
+  margin: 0 0 4px;
+  font-family: var(--serif);
+  font-weight: 420;
+  font-size: 20px;
+  line-height: 1.25;
+  color: var(--bone);
+}
+.atl .ov-steps p {
+  margin: 0;
+  font-size: 14.5px;
+  line-height: 1.55;
+  color: var(--mute);
+}
+.atl .ov-stepicon path,
+.atl .ov-stepicon circle,
+.atl .ov-stepicon rect {
+  fill: none;
+  stroke-width: 1.3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.atl .ov-stepicon .sk {
+  stroke: var(--skeptic);
+  fill: #d8a65233;
+}
+.atl .ov-stepicon .th {
+  stroke: var(--theist);
+  fill: #6dbaa433;
+}
+.atl .ov-stepicon .arc {
+  stroke: var(--faint);
+}
+.atl .ov-stepicon .pill {
+  stroke: var(--line);
+}
+.atl .ov-stepicon .pillon {
+  stroke: var(--bone-2);
+  fill: var(--bone-2);
+}
+.atl .ov-stepicon .tick {
+  stroke: var(--ink);
+  stroke-width: 1.6;
+}
+.atl .ov-stepicon .cross {
+  stroke: var(--faint);
+}
+.atl .ov-stepicon .open {
+  stroke: var(--mute);
+}
+.atl .ov-stepicon .openring {
+  stroke: var(--faint);
+  stroke-dasharray: 1.5 3;
+}
+
+@media (pointer: coarse) {
+  .atl .ov-resume-b {
+    min-height: 44px;
+  }
+}
+
+/* ---------- ≥ 640px: roomier personae; posters as cards with the numeral and fan on top ---------- */
+@media (min-width: 640px) {
+  .atl .ov-kicker {
+    font-size: 11px;
+    letter-spacing: 0.22em;
+  }
+  .atl .ov-persona {
+    grid-template-columns: 28px 150px minmax(0, 1fr);
+    align-items: baseline;
+  }
+  .atl .ov-tile {
+    grid-row: auto;
+    align-self: center;
+    margin-top: 0;
+  }
+  .atl .ov-persona dd {
+    grid-column: 3;
+  }
+
+  .atl .ov-poster article {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas:
+      "num fan"
+      "head head"
+      "ex ex"
+      "foot foot";
+    column-gap: 16px;
+    padding: 24px 26px 22px;
+  }
+  .atl .ov-pnum {
+    grid-area: num;
+    float: none;
+    height: auto;
+    margin: 0;
+    align-self: end;
+    font-size: 64px;
+    line-height: 0.8;
+  }
+  .atl .ov-fan {
+    grid-area: fan;
+    float: none;
+    width: 168px;
+    margin: 0;
+    align-self: end;
+    justify-self: end;
+  }
+  .atl .ov-phead {
+    grid-area: head;
+    margin-top: 18px;
+  }
+  .atl .ov-pk {
+    margin: 0 0 6px;
+    line-height: 1.5;
+  }
+  .atl .ov-pk.has-short .ov-pk-o,
+  .atl .ov-pk.has-short .ov-pk-sep {
+    position: static;
+    width: auto;
+    height: auto;
+    margin: 0;
+    overflow: visible;
+    clip: auto;
+  }
+  .atl .ov-ptitle {
+    margin: 0;
+    text-wrap: balance;
+  }
+  .atl .ov-exchange {
+    grid-area: ex;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 28px;
+    padding-top: 0;
+    margin-top: 18px;
+  }
+  .atl .ov-saytext {
+    display: block;
+    -webkit-line-clamp: none;
+    line-clamp: none;
+    overflow: visible;
+  }
+  .atl .ov-say + .ov-say {
+    position: relative;
+  }
+  .atl .ov-say + .ov-say::before {
+    content: "";
+    position: absolute;
+    left: -14px;
+    top: 2px;
+    bottom: 2px;
+    width: 1px;
+    background: var(--line-soft);
+  }
+  .atl .ov-pfoot {
+    grid-area: foot;
+    margin-top: 20px;
+    padding-top: 16px;
+  }
+  .atl .ov-pbtns {
+    width: auto;
+    margin-left: auto;
+  }
+  .atl .ov-pbtns .btn {
+    flex: none;
+  }
+
+  .atl .ov-steps {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 28px;
+  }
+  .atl .ov-steps li {
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: 12px;
+    padding-top: 22px;
+  }
+  .atl .ov-stepicon {
+    grid-row: auto;
+  }
+}
+
+/* ---------- ≥ 860px: hero in two columns — title stepped across both, the Rose under "Down" ---------- */
+@media (min-width: 860px) {
+  .atl .ov-grid {
+    grid-template-columns: var(--ov-cols);
+    column-gap: var(--ov-gap);
+    grid-template-areas:
+      "title title"
+      "left right"
+      "key right";
+    grid-template-rows: auto auto 1fr;
+  }
+  .atl .ov-key {
+    grid-area: key;
+    align-self: start;
+    max-width: 36rem;
+    margin-top: 40px;
+  }
+  .atl .ov-title {
+    grid-area: title;
+    grid-template-columns: var(--ov-cols);
+    column-gap: var(--ov-gap);
+  }
+  .atl .ov-l1 {
+    grid-column: 1 / -1;
+  }
+  .atl .ov-l2 {
+    grid-column: 2;
+    justify-self: center;
+    margin-left: 0;
+  }
+  .atl .ov-plumb {
+    top: calc(100% - 0.02em);
+    height: calc(var(--plumb-gap) + 0.02em - 12px);
+  }
+  .atl .ov-bob {
+    display: block;
+  }
+  /* the dek starts below "Down", so the title reads as one stepped, two-line unit */
+  .atl .ov-left {
+    grid-area: left;
+    padding-top: 22px;
+  }
+  .atl .ov-right {
+    grid-area: right;
+    padding-top: var(--plumb-gap);
+  }
+}
+@media (min-width: 860px) and (max-width: 1199.98px) {
+  /* the left column is narrow here: name above description */
+  .atl .ov-persona {
+    grid-template-columns: 28px minmax(0, 1fr);
+    align-items: center;
+  }
+  .atl .ov-tile {
+    grid-row: 1 / span 2;
+    align-self: start;
+    margin-top: 1px;
+  }
+  .atl .ov-persona dd {
+    grid-column: 2;
+  }
+}
+
+/* ---------- ≥ 1000px: posters as wide rows ---------- */
+@media (min-width: 1000px) {
+  .atl .ov-poster article {
+    grid-template-columns: 112px minmax(0, 1fr) 200px;
+    grid-template-areas:
+      "num head fan"
+      "num ex ex"
+      "num foot foot";
+    column-gap: 28px;
+    padding: 30px 32px 24px 28px;
+  }
+  .atl .ov-pnum {
+    align-self: start;
+    font-size: 104px;
+    line-height: 0.82;
+    margin-top: 2px;
+  }
+  .atl .ov-phead {
+    margin-top: 0;
+  }
+  .atl .ov-fan {
+    width: 188px;
+    align-self: start;
+  }
+  .atl .ov-exchange {
+    margin-top: 22px;
+    gap: 40px;
+  }
+  .atl .ov-say + .ov-say::before {
+    left: -20px;
+  }
+}

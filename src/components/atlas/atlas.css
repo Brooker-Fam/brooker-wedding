@@ -1,0 +1,1004 @@
+/* ==========================================================================
+   Disputation — design system (scoped under .atl)
+   House style of the Thought Pages field maps: ink ground, Fraunces + IBM Plex,
+   ochre = the objector, verdigris = the theist reply, lilac = Spinoza.
+   ========================================================================== */
+
+.atl {
+  --ink: #171922;
+  --ink-2: #1b1e29;
+  --ink-3: #20242f;
+  --ink-deep: #12141b;
+  --card: #1e2230;
+  --card-2: #232734;
+  --line: #34384a;
+  --line-soft: #2a2e3b;
+  --bone: #ebe5d6;
+  --bone-2: #ddd6c5;
+  --mute: #a6a394;
+  --faint: #8a8794;
+
+  --skeptic: #d8a652;
+  --skeptic-deep: #7d5f29;
+  --skeptic-glow: #d8a65230;
+  --theist: #6dbaa4;
+  --theist-deep: #2f6657;
+  --theist-glow: #6dbaa430;
+  --spinoza: #a195bd;
+  --spinoza-deep: #554b6e;
+  --spinoza-glow: #a195bd30;
+  --tension: #e07a5f;
+
+  --serif: var(--atl-serif), "Fraunces", Georgia, "Times New Roman", serif;
+  --sans: var(--atl-sans), "IBM Plex Sans", system-ui, -apple-system, sans-serif;
+  --mono: var(--atl-mono), "IBM Plex Mono", ui-monospace, Menlo, monospace;
+
+  --gutter: clamp(16px, 4vw, 32px);
+  --maxw: 1180px;
+  --radius: 14px;
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --bar-h: 52px;
+  --bar-total: calc(var(--bar-h) + env(safe-area-inset-top));
+
+  position: relative;
+  min-height: 100vh;
+  min-height: 100dvh;
+  background: var(--ink);
+  color: var(--bone);
+  font-family: var(--sans);
+  font-size: 16px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  overflow-x: clip;
+  isolation: isolate;
+}
+
+.atl *,
+.atl *::before,
+.atl *::after {
+  box-sizing: border-box;
+}
+
+/* ink ground: two soft pools of light + a faint paper grain */
+.atl::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(1000px 640px at 84% -10%, #252a3a66, transparent 70%),
+    radial-gradient(760px 520px at 4% 22%, #1f2331aa, transparent 70%),
+    radial-gradient(900px 700px at 50% 110%, #1a1d28, transparent 70%);
+}
+.atl::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  opacity: 0.05;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+}
+
+.atl a {
+  color: inherit;
+}
+.atl button {
+  font: inherit;
+  color: inherit;
+}
+.atl :focus-visible {
+  outline: 2px solid var(--bone);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+.atl ::selection {
+  background: #d8a65255;
+  color: var(--bone);
+}
+
+/* ---------- type ---------- */
+.atl .serif {
+  font-family: var(--serif);
+  font-optical-sizing: auto;
+}
+.atl .mono {
+  font-family: var(--mono);
+}
+.atl .eyebrow {
+  font-family: var(--mono);
+  font-size: 11.5px;
+  font-weight: 500;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--faint);
+}
+.atl .eyebrow.rule {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.atl .eyebrow.rule::before {
+  content: "";
+  width: 28px;
+  height: 1px;
+  background: var(--line);
+}
+.atl .display {
+  font-family: var(--serif);
+  font-weight: 400;
+  font-optical-sizing: auto;
+  letter-spacing: -0.015em;
+  line-height: 1.02;
+}
+.atl .display em,
+.atl .serif em {
+  font-style: italic;
+}
+.atl .mutetext {
+  color: var(--mute);
+}
+.atl .faint {
+  color: var(--faint);
+}
+
+/* ---------- side colors ---------- */
+/* Any element with a side class gets --side / --side-deep / --side-glow */
+.atl .s-skeptic {
+  --side: var(--skeptic);
+  --side-deep: var(--skeptic-deep);
+  --side-glow: var(--skeptic-glow);
+}
+.atl .s-theist {
+  --side: var(--theist);
+  --side-deep: var(--theist-deep);
+  --side-glow: var(--theist-glow);
+}
+.atl .s-spinoza {
+  --side: var(--spinoza);
+  --side-deep: var(--spinoza-deep);
+  --side-glow: var(--spinoza-glow);
+}
+.atl .s-neutral {
+  --side: #a6a394;
+  --side-deep: #4a4e60;
+  --side-glow: #a6a39426;
+}
+
+/* the side token: glyph + word, never color alone */
+.atl .side-tok {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--mono);
+  font-size: 10.5px;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--side, var(--mute));
+  white-space: nowrap;
+}
+.atl .side-tok .glyph {
+  font-size: 9px;
+  letter-spacing: 0;
+}
+
+/* ---------- controls ---------- */
+.atl .btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 0 18px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: #ffffff06;
+  font-family: var(--mono);
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--bone);
+  text-decoration: none;
+  cursor: pointer;
+  transition:
+    background 0.2s var(--ease),
+    border-color 0.2s var(--ease),
+    color 0.2s var(--ease),
+    transform 0.2s var(--ease);
+}
+.atl .btn:hover {
+  background: #ffffff0f;
+  border-color: var(--mute);
+}
+.atl .btn:active {
+  transform: translateY(1px);
+}
+.atl .btn.solid {
+  background: var(--bone);
+  color: var(--ink);
+  border-color: var(--bone);
+}
+.atl .btn.solid:hover {
+  background: #fff8e8;
+}
+.atl .btn.ghost {
+  border-color: transparent;
+  background: transparent;
+}
+.atl .btn.small {
+  min-height: 36px;
+  padding: 0 14px;
+  font-size: 11px;
+}
+
+.atl .chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 30px;
+  padding: 3px 11px 3px 4px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: #ffffff05;
+  font-size: 13px;
+  color: var(--bone-2);
+  cursor: pointer;
+  text-decoration: none;
+  transition:
+    border-color 0.2s,
+    background 0.2s;
+}
+.atl .chip:hover {
+  border-color: var(--mute);
+  background: #ffffff0c;
+}
+.atl .monogram {
+  display: inline-grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 1px solid var(--side, var(--line));
+  background: radial-gradient(circle at 35% 30%, #ffffff12, transparent 70%), var(--ink-2);
+  font-family: var(--serif);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--side, var(--bone));
+  flex: none;
+}
+
+/* inline references inside rich text */
+.atl .ref-term {
+  border: 0;
+  background: none;
+  padding: 0;
+  color: inherit;
+  cursor: pointer;
+  display: inline;
+  text-decoration: underline dotted;
+  text-decoration-color: var(--faint);
+  text-underline-offset: 3px;
+  text-decoration-thickness: 1px;
+}
+.atl .ref-term:hover {
+  text-decoration-color: var(--bone);
+}
+.atl .ref-thinker {
+  border: 0;
+  background: none;
+  padding: 0;
+  color: inherit;
+  cursor: pointer;
+  display: inline;
+  font-weight: 500;
+  border-bottom: 1px solid var(--line);
+}
+.atl .ref-thinker:hover {
+  border-bottom-color: var(--bone);
+}
+.atl .ref-node {
+  border: 0;
+  background: none;
+  padding: 0;
+  cursor: pointer;
+  display: inline;
+  color: var(--side, var(--bone));
+  border-bottom: 1px solid currentColor;
+}
+
+/* scrollbars */
+.atl ::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+.atl ::-webkit-scrollbar-thumb {
+  background: #34384a;
+  border-radius: 10px;
+  border: 2px solid var(--ink);
+}
+.atl ::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.atl .sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .atl *,
+  .atl *::before,
+  .atl *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ---------- status badge ---------- */
+.atl .status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--mute);
+  white-space: nowrap;
+}
+.atl .status-badge .dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  border: 1.5px solid var(--faint);
+}
+.atl .status-badge.st-in {
+  color: var(--bone);
+}
+.atl .status-badge.st-in .dot {
+  background: var(--bone);
+  border-color: var(--bone);
+  box-shadow: 0 0 0 3px #ebe5d622, 0 0 12px #ebe5d655;
+}
+.atl .status-badge.st-out .dot {
+  border-style: dashed;
+  background: transparent;
+}
+.atl .status-badge.st-out {
+  color: var(--faint);
+}
+
+/* ---------- judge control ---------- */
+.atl .judge {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 14px;
+}
+.atl .judge-q {
+  font-size: 10.5px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--faint);
+}
+.atl .judge-btns {
+  display: inline-flex;
+  padding: 3px;
+  gap: 2px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: var(--ink-deep);
+}
+.atl .judge-btn {
+  position: relative;
+  min-width: 78px;
+  min-height: 38px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  font-family: var(--mono);
+  font-size: 11.5px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--mute);
+  cursor: pointer;
+  transition: color 0.2s;
+}
+.atl .judge-btn:hover {
+  color: var(--bone);
+}
+.atl .judge-btn .judge-label {
+  position: relative;
+  z-index: 1;
+}
+.atl .judge-pill {
+  position: absolute;
+  inset: 0;
+  border-radius: 999px;
+  z-index: 0;
+}
+.atl .judge-btn.j-holds.on {
+  color: var(--ink);
+}
+.atl .judge-btn.j-holds .judge-pill {
+  background: var(--side);
+  box-shadow: 0 0 18px var(--side-glow);
+}
+.atl .judge-btn.j-fails.on {
+  color: var(--bone);
+}
+.atl .judge-btn.j-fails .judge-pill {
+  background: #3a3e50;
+}
+.atl .judge.compact .judge-btn {
+  min-width: 0;
+  min-height: 32px;
+  padding: 0 11px;
+  font-size: 10.5px;
+}
+.atl .judge-hint {
+  font-size: 12.5px;
+  color: var(--faint);
+}
+
+/* ---------- peek (term / thinker cards) ---------- */
+.atl .peek {
+  position: fixed;
+  z-index: 90;
+  width: 340px;
+  max-width: calc(100vw - 24px);
+  padding: 18px 18px 16px;
+  border-radius: 14px;
+  border: 1px solid var(--line);
+  background: linear-gradient(180deg, #232735, #1c1f2b);
+  box-shadow: 0 24px 60px -20px #000000cc, 0 0 0 1px #ffffff06 inset;
+  color: var(--bone);
+}
+.atl .peek.peek-sheet {
+  left: 0;
+  right: 0;
+  bottom: 0;
+  top: auto;
+  width: auto;
+  max-width: none;
+  border-radius: 18px 18px 0 0;
+  padding: 10px 20px calc(22px + env(safe-area-inset-bottom));
+  max-height: 70vh;
+  overflow-y: auto;
+}
+.atl .sheet-grip {
+  width: 40px;
+  height: 4px;
+  border-radius: 4px;
+  background: var(--line);
+  margin: 2px auto 12px;
+}
+.atl .peek-close {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 36px;
+  height: 36px;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--faint);
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+}
+.atl .peek-close:hover {
+  color: var(--bone);
+  background: #ffffff0c;
+}
+.atl .peek-title {
+  margin: 4px 0 6px;
+  font-size: 1.32rem;
+  font-weight: 500;
+  line-height: 1.15;
+  padding-right: 28px;
+}
+.atl .peek-who {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 8px;
+}
+.atl .peek-who .peek-title {
+  margin: 0;
+}
+.atl .monogram.big {
+  width: 44px;
+  height: 44px;
+  font-size: 16px;
+}
+.atl .peek-meta {
+  margin: 2px 0 0;
+  font-size: 11.5px;
+  color: var(--faint);
+  letter-spacing: 0.04em;
+}
+.atl .peek-trad {
+  margin: 0 0 6px;
+  font-size: 12.5px;
+  color: var(--mute);
+  font-style: italic;
+}
+.atl .peek-text {
+  margin: 0 0 8px;
+  font-size: 14.5px;
+  line-height: 1.55;
+  color: var(--bone-2);
+}
+.atl .peek-work {
+  margin: 0 0 6px;
+  font-size: 11.5px;
+  color: var(--mute);
+}
+.atl .peek-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+.atl .chip-life {
+  font-size: 10.5px;
+  color: var(--faint);
+}
+
+/* ==========================================================================
+   Rose (sunburst)
+   ========================================================================== */
+.atl .rose {
+  margin: 0;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+/* the legend variant (full ring legend / numerals) follows the Rose's width */
+.atl .rose:not(.rose-mini) {
+  container-type: inline-size;
+}
+.atl .rose svg {
+  width: 100%;
+  max-width: 720px;
+  height: auto;
+  overflow: visible;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+.atl .rose-mini svg {
+  max-width: none;
+}
+/* at emblem size, glass needs more body to read */
+.atl .rose-mini .rose-glass {
+  fill-opacity: 0.5;
+  stroke-opacity: 0.35;
+}
+.atl .rose-mini .rose-pane.st-in .rose-glass {
+  fill-opacity: 1;
+}
+.atl .rose-mini .rose-pane.st-out .rose-glass {
+  fill-opacity: 0.1;
+}
+.atl .rose-ring {
+  fill: none;
+  stroke: #262a36;
+  stroke-width: 1;
+}
+.atl .rose-ring.outer {
+  stroke: #34384a;
+  stroke-dasharray: 2 5;
+}
+.atl .rose-sector {
+  fill: transparent;
+  cursor: pointer;
+  outline: none;
+}
+.atl .rose-sector:focus-visible {
+  stroke: var(--bone);
+  stroke-width: 2.5;
+  vector-effect: non-scaling-stroke;
+  stroke-dasharray: 4 4;
+}
+
+/* panes take the pointer only with a fine pointer; on touch, taps go to the sectors beneath */
+.atl .rose-panes {
+  pointer-events: none;
+}
+.atl .rose-panes.live .rose-pane {
+  pointer-events: auto;
+  cursor: pointer;
+}
+@media (pointer: coarse) {
+  .atl .rose-panes.live .rose-pane {
+    pointer-events: none;
+  }
+}
+.atl .rose-sec,
+.atl .rose-pane {
+  transition: opacity 0.35s var(--ease);
+}
+.atl .rose-sec.dim,
+.atl .rose-pane.dim,
+.atl .rose-objring.dim {
+  opacity: 0.3;
+}
+/* one-time build-in, ring by ring (CSS, so it runs from the server HTML, before hydration);
+   `backwards` so the end state never overrides .dim afterwards */
+.atl .rose.build .rose-pane {
+  animation: rose-in 0.45s ease-out backwards;
+  animation-delay: calc(0.25s + var(--d, 1) * 0.13s);
+}
+@keyframes rose-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .atl .rose.build .rose-pane {
+    animation: none;
+  }
+}
+.atl .rose-glass {
+  fill: var(--side);
+  fill-opacity: 0.16;
+  stroke: var(--side);
+  stroke-opacity: 0.42;
+  stroke-width: 0.8;
+  transition:
+    fill-opacity 0.45s var(--ease),
+    stroke-opacity 0.3s;
+}
+.atl .rose-pane.st-in .rose-glass {
+  fill-opacity: 0.86;
+  stroke-opacity: 1;
+}
+/* answered: clear glass, stippled, with an outline that still clears 3:1 on ink */
+.atl .rose-pane.st-out .rose-glass {
+  fill-opacity: 0.03;
+  stroke: #6b6f82;
+  stroke-opacity: 1;
+}
+.atl .rose-panes.live .rose-pane:hover .rose-glass {
+  fill-opacity: 0.5;
+  stroke-opacity: 1;
+  transition-duration: 0.12s;
+}
+.atl .rose-panes.live .rose-pane.st-in:hover .rose-glass {
+  fill-opacity: 1;
+}
+.atl .rose-pane.foot .rose-glass {
+  stroke: var(--bone);
+  stroke-opacity: 1;
+  stroke-width: 1.6;
+}
+.atl .rose-glyph {
+  fill: none;
+  stroke: var(--side);
+  stroke-width: 1.1;
+}
+.atl .rose-pane.st-in .rose-glyph {
+  fill: var(--ink);
+  stroke: var(--ink);
+}
+.atl .rose-pane.st-out .rose-glyph {
+  stroke: #8a8794;
+}
+.atl .rose-mine {
+  fill: var(--bone);
+}
+.atl .rose-pane.st-in .rose-mine {
+  fill: var(--ink);
+}
+.atl .rose-objring path {
+  fill: #d8a65222;
+  stroke: #d8a65288;
+  stroke-width: 0.8;
+}
+.atl .rose-objring.st-in path {
+  fill: var(--skeptic);
+}
+.atl .rose-objring.st-out path {
+  fill: #6dbaa430;
+  stroke: #6dbaa4aa;
+}
+.atl .rose-objring text {
+  font-family: var(--serif);
+  font-size: 9.5px;
+  font-weight: 600;
+  fill: var(--bone);
+}
+.atl .rose-objring.st-in text {
+  fill: var(--ink);
+}
+.atl .rose-link {
+  fill: none;
+  stroke: var(--spinoza);
+  stroke-opacity: 0.14;
+  stroke-width: 0.8;
+  transition: stroke-opacity 0.2s;
+}
+.atl .rose.previewing .rose-link {
+  stroke-opacity: 0.06;
+}
+.atl .rose-link.lit,
+.atl .rose.previewing .rose-link.lit {
+  stroke-opacity: 0.9;
+  stroke-width: 1.3;
+}
+.atl .rose-hub {
+  fill: var(--ink-2);
+  stroke: #3c4053;
+}
+.atl .rose-q {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 32px;
+  fill: var(--bone);
+}
+.atl .rose-label {
+  font-family: var(--mono);
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  fill: var(--mute);
+  transition: fill 0.2s;
+}
+.atl .rose-label.num {
+  font-family: var(--serif);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: none;
+}
+.atl .rose-label.on {
+  fill: var(--bone);
+}
+/* Which legend shows: before measuring, the container's width decides (0.62 × 676 ≈ 419px);
+   once measured, the Rose's own class does (it also knows about max-width caps).
+   On narrow Roses the inner-ring numerals would be ~7px: the outer numerals carry them. */
+@container (max-width: 418.98px) {
+  .atl .rose:not(.measured) .rose-label.full,
+  .atl .rose:not(.measured) .rose-objtext {
+    display: none;
+  }
+}
+@container (min-width: 419px) {
+  .atl .rose:not(.measured) .rose-label.num {
+    display: none;
+  }
+}
+.atl .rose.measured.narrow .rose-label.full,
+.atl .rose.measured.narrow .rose-objtext,
+.atl .rose.measured:not(.narrow) .rose-label.num {
+  display: none;
+}
+
+.atl .rose-readout {
+  min-height: 70px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  text-align: center;
+  max-width: 34rem;
+  padding: 0 var(--gutter);
+}
+.atl .rose-readout-in {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+.atl .rose-readout-k {
+  font-size: 10.5px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--side, var(--faint));
+}
+.atl .rose-readout-t {
+  font-size: 1.12rem;
+  line-height: 1.3;
+  color: var(--bone);
+}
+.atl .rose-readout-hint {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--faint);
+}
+.atl .rose-hint-coarse {
+  display: none;
+}
+@media (pointer: coarse) {
+  .atl .rose-hint-fine {
+    display: none;
+  }
+  .atl .rose-hint-coarse {
+    display: inline;
+  }
+  .atl .rose-readout .btn {
+    min-height: 44px;
+  }
+}
+@media (prefers-contrast: more) {
+  .atl .rose-glass {
+    stroke-width: 2;
+    stroke-opacity: 1;
+  }
+}
+
+/* the emblem (top bar, menus): five wedges and a hub, status by fill */
+.atl .rose-emblem {
+  display: block;
+  overflow: visible;
+}
+.atl .rose-emblem .em-w {
+  fill: #ebe5d614;
+  stroke: var(--mute);
+  stroke-width: 1;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+  transition:
+    fill 0.3s var(--ease),
+    stroke 0.3s var(--ease),
+    opacity 0.3s var(--ease);
+}
+.atl .rose-emblem .em-w.st-in {
+  fill: var(--skeptic);
+  stroke: var(--skeptic);
+}
+.atl .rose-emblem .em-w.st-out {
+  fill: var(--theist);
+  stroke: var(--theist);
+}
+.atl .rose-emblem .em-w.cur {
+  stroke: var(--bone);
+  stroke-width: 1.3;
+}
+.atl .rose-emblem .em-w.cur.st-undec {
+  fill: #ebe5d659;
+}
+.atl .rose-emblem .em-w.dim {
+  opacity: 0.5;
+}
+.atl .rose-emblem .em-hub {
+  fill: var(--ink-2);
+  stroke: var(--mute);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+
+/* ---------- toast ---------- */
+.atl .toast-dock {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: calc(16px + env(safe-area-inset-bottom));
+  z-index: 95;
+  display: flex;
+  justify-content: center;
+  pointer-events: none;
+  padding: 0 12px;
+}
+.atl .toast {
+  pointer-events: auto;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  max-width: 560px;
+  padding: 12px 14px 12px 18px;
+  border-radius: 14px;
+  border: 1px solid var(--line);
+  background: #222634f2;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 18px 50px -18px #000;
+  font-size: 14px;
+  line-height: 1.45;
+  color: var(--bone-2);
+}
+.atl .toast.tension {
+  border-color: #e07a5f88;
+}
+.atl .toast-act {
+  flex: none;
+  min-height: 36px;
+  padding: 0 12px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: transparent;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--bone);
+  cursor: pointer;
+}
+.atl .toast-act:hover {
+  border-color: var(--mute);
+}
+
+/* ---------- global status visuals (shared by every view) ----------
+   Never dim text to show defeat: "answered" keeps a readable label (#8a8794,
+   5:1 on ink) with a dotted under-mark; the voice stays, it is only answered. */
+.atl .glyph-svg {
+  flex: none;
+  overflow: visible;
+}
+.atl .glyph-svg path,
+.atl .glyph-svg circle,
+.atl .glyph-svg rect {
+  fill: none;
+  stroke: var(--side);
+  stroke-width: 1.4;
+  vector-effect: non-scaling-stroke;
+}
+.atl .glyph-svg.gl-in path,
+.atl .glyph-svg.gl-in circle,
+.atl .glyph-svg.gl-in rect {
+  fill: var(--side);
+}
+.atl .glyph-svg.gl-out path,
+.atl .glyph-svg.gl-out circle,
+.atl .glyph-svg.gl-out rect {
+  stroke: #8a8794;
+  stroke-dasharray: 2 1.6;
+}
+.atl .lab-out {
+  color: #8a8794;
+  text-decoration: underline dotted #8a879499;
+  text-underline-offset: 4px;
+  text-decoration-thickness: 1.5px;
+}
+.atl .lab-in {
+  color: var(--bone);
+}
+.atl .your-call {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 1px 7px;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  font-family: var(--mono);
+  font-size: 9.5px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--bone-2);
+  white-space: nowrap;
+}
+.atl .tension-note {
+  border-left: 2px solid var(--tension);
+  padding: 8px 12px;
+  background: #e07a5f12;
+  color: var(--bone-2);
+  font-size: 14px;
+  border-radius: 0 8px 8px 0;
+}
+
+/* The wedding site's enchanted background must not show around or below the
+   disputation (overscroll, short views). */
+body:has(.atl) {
+  background: #171922;
+}

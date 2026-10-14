@@ -1,0 +1,161 @@
+"use client";
+
+/* "Peek": small floating cards for inline lexicon terms and thinkers.
+   Anchored to the clicked element on wide screens; a bottom sheet on phones.
+   One peek at a time; Escape, outside click, or scrolling the page closes it. */
+
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { createContext, useCallback, useContext, useEffect, useLayoutEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { useAtlas } from "./context";
+import { Rich } from "./markup";
+
+type PeekTarget = { kind: "term" | "thinker"; id: string; rect: DOMRect };
+
+const PeekCtx = createContext<(t: PeekTarget | null) => void>(() => {});
+
+export function usePeek() {
+  return useContext(PeekCtx);
+}
+
+const SIDE_WORD: Record<string, string> = { skeptic: "Objector", theist: "Theist", spinoza: "Spinozist", neutral: "Context" };
+
+export function PeekProvider({ children }: { children: ReactNode }) {
+  const [target, setTarget] = useState<PeekTarget | null>(null);
+  const open = useCallback((t: PeekTarget | null) => setTarget(t), []);
+
+  useEffect(() => {
+    if (!target) return;
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && setTarget(null);
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [target]);
+
+  return (
+    <PeekCtx.Provider value={open}>
+      {children}
+      <AnimatePresence>{target && <PeekCard key={`${target.kind}:${target.id}`} target={target} onClose={() => setTarget(null)} />}</AnimatePresence>
+    </PeekCtx.Provider>
+  );
+}
+
+function PeekCard({ target, onClose }: { target: PeekTarget; onClose: () => void }) {
+  const { ix, go, thinkerName, termName, openNode } = useAtlas();
+  const ref = useRef<HTMLDivElement>(null);
+  const reduce = useReducedMotion();
+  const [pos, setPos] = useState<{ left: number; top: number; sheet: boolean } | null>(null);
+
+  useLayoutEffect(() => {
+    const vw = window.innerWidth;
+    const vh = window.innerHeight;
+    if (vw < 640) return setPos({ left: 0, top: 0, sheet: true });
+    const w = 340;
+    const h = ref.current?.offsetHeight ?? 220;
+    const r = target.rect;
+    let left = Math.min(Math.max(12, r.left + r.width / 2 - w / 2), vw - w - 12);
+    let top = r.bottom + 10;
+    if (top + h > vh - 12) top = Math.max(12, r.top - h - 10);
+    if (!Number.isFinite(left)) left = 12;
+    setPos({ left, top, sheet: false });
+  }, [target]);
+
+  useEffect(() => {
+    const onDown = (e: PointerEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) onClose();
+    };
+    const onScroll = () => onClose();
+    const t = setTimeout(() => {
+      window.addEventListener("pointerdown", onDown);
+      window.addEventListener("scroll", onScroll, { passive: true, capture: true });
+    }, 0);
+    return () => {
+      clearTimeout(t);
+      window.removeEventListener("pointerdown", onDown);
+      window.removeEventListener("scroll", onScroll, { capture: true });
+    };
+  }, [onClose]);
+
+  const body = useMemo(() => {
+    if (target.kind === "term") {
+      const t = ix.terms.get(target.id);
+      const uses = ix.termRefs.get(target.id) ?? [];
+      return (
+        <>
+          <p className="eyebrow">Lexicon</p>
+          <h4 className="peek-title serif">{t?.term ?? termName(target.id)}</h4>
+          <p className="peek-text">{t ? <Rich text={t.def} r={{ thinkerName, termName }} /> : "Definition coming soon."}</p>
+          <div className="peek-actions">
+            <button className="btn small" onClick={() => { onClose(); go({ view: "lexicon", term: target.id }); }}>
+              Lexicon entry
+            </button>
+            {uses.length > 0 && (
+              <button className="btn small ghost" onClick={() => { onClose(); openNode(uses[0]); }}>
+                Used in {uses.length} {uses.length === 1 ? "move" : "moves"} →
+              </button>
+            )}
+          </div>
+        </>
+      );
+    }
+    const th = ix.thinkers.get(target.id);
+    const refs = ix.thinkerRefs.get(target.id) ?? [];
+    return (
+      <>
+        <div className={`peek-who s-${th?.side ?? "neutral"}`}>
+          <span className="monogram big">{initials(th?.name ?? target.id)}</span>
+          <div>
+            <h4 className="peek-title serif">{th?.name ?? thinkerName(target.id)}</h4>
+            <p className="peek-meta mono">
+              {th?.life}
+              {th?.side ? ` · ${SIDE_WORD[th.side]}` : ""}
+            </p>
+          </div>
+        </div>
+        {th?.tradition && <p className="peek-trad">{th.tradition}</p>}
+        {th?.line && <p className="peek-text">{th.line}</p>}
+        {th?.work && <p className="peek-work mono">{th.work}</p>}
+        <div className="peek-actions">
+          <button className="btn small" onClick={() => { onClose(); go({ view: "cast", thinker: target.id }); }}>
+            In the cast
+          </button>
+          {refs.length > 0 && (
+            <button className="btn small ghost" onClick={() => { onClose(); openNode(refs[0]); }}>
+              {refs.length} {refs.length === 1 ? "appearance" : "appearances"} →
+            </button>
+          )}
+        </div>
+      </>
+    );
+  }, [target, ix, go, onClose, openNode, thinkerName, termName]);
+
+  const sheet = pos?.sheet;
+  return (
+    <motion.div
+      ref={ref}
+      role="dialog"
+      aria-label={target.kind === "term" ? "Definition" : "Thinker"}
+      className={`peek ${sheet ? "peek-sheet" : ""}`}
+      style={pos && !sheet ? { left: pos.left, top: pos.top } : undefined}
+      initial={reduce ? { opacity: 0 } : sheet ? { y: "100%" } : { opacity: 0, y: 6, scale: 0.98 }}
+      animate={reduce ? { opacity: 1 } : sheet ? { y: 0 } : { opacity: 1, y: 0, scale: 1 }}
+      exit={reduce ? { opacity: 0 } : sheet ? { y: "100%" } : { opacity: 0, y: 4, scale: 0.98 }}
+      transition={{ type: "spring", stiffness: 420, damping: 34 }}
+    >
+      {sheet && <div className="sheet-grip" aria-hidden />}
+      <button className="peek-close" onClick={onClose} aria-label="Close">
+        ×
+      </button>
+      {body}
+    </motion.div>
+  );
+}
+
+export function initials(name: string) {
+  const parts = name
+    .replace(/\(.*?\)/g, "")
+    .replace(/^(St\.|Saint)\s+/i, "")
+    .split(/\s+/)
+    .filter((p) => p && /^[A-ZÀ-Ý]/.test(p) && !/^(of|de|van|von|al-|the)$/i.test(p));
+  if (parts.length === 0) return name.slice(0, 2).toUpperCase();
+  if (parts.length === 1) return parts[0].slice(0, 2);
+  return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+}

@@ -1,0 +1,1397 @@
+/* ==========================================================================
+   Your Determination (#/ledger) — scoped under .atl, prefixed .ld-
+   A ruled register of five independent rulings. Stands = ochre, answered =
+   verdigris, undecided = faint and dashed; the two settled states carry equal
+   visual weight so neither side looks louder. Text is never dimmed to show
+   defeat.
+   ========================================================================== */
+
+.atl .ld {
+  --st: var(--faint);
+  --st-tint: transparent;
+  max-width: var(--maxw);
+  margin: 0 auto;
+  padding: clamp(28px, 6vw, 64px) var(--gutter) clamp(32px, 6vw, 72px);
+}
+
+.atl .ld .st-in {
+  --st: var(--skeptic);
+  --st-tint: #d8a6521c;
+}
+.atl .ld .st-out {
+  --st: var(--theist);
+  --st-tint: #6dbaa41c;
+}
+.atl .ld .st-undec {
+  --st: var(--faint);
+  --st-tint: transparent;
+}
+
+.atl .ld-nw {
+  white-space: nowrap;
+}
+
+/* the reader's mark: ■ You, the Master */
+.atl .ld-you {
+  display: inline-block;
+  flex: none;
+  width: 8px;
+  height: 8px;
+  background: var(--bone);
+  border-radius: 1px;
+}
+
+/* ---------- header (+ the empty state, + the Rose) ---------- */
+.atl .ld-top {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 20px;
+  align-items: center;
+}
+.atl .ld-kicker {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  color: var(--bone-2);
+}
+.atl .ld-title {
+  margin: 16px 0 20px;
+  font-size: clamp(2.9rem, 11.5vw, 5.4rem);
+  font-weight: 340;
+  line-height: 0.95;
+  letter-spacing: -0.025em;
+  outline: none;
+}
+.atl .ld-title em {
+  display: inline-block;
+  font-weight: 300;
+  padding-right: 0.06em;
+}
+.atl .ld-intro {
+  margin: 0;
+  max-width: 34rem;
+  font-size: clamp(1.02rem, 2.6vw, 1.14rem);
+  line-height: 1.62;
+  color: var(--bone-2);
+}
+.atl .ld-intro em {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 1.06em;
+  color: var(--bone);
+}
+.atl .ld-calls {
+  margin: 22px 0 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--faint);
+}
+.atl .ld-calls::before {
+  content: "";
+  width: 28px;
+  height: 1px;
+  background: var(--line);
+}
+.atl .ld-flag {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+  margin-top: 14px;
+  padding: 0 16px 0 12px;
+  border-radius: 999px;
+  border: 1px solid #e07a5f66;
+  background: #e07a5f10;
+  font-size: 13.5px;
+  color: var(--bone-2);
+  cursor: pointer;
+  text-align: left;
+  transition:
+    background 0.2s var(--ease),
+    border-color 0.2s var(--ease);
+}
+.atl .ld-flag:hover {
+  background: #e07a5f1e;
+  border-color: var(--tension);
+}
+.atl .ld-flag:active {
+  transform: translateY(1px);
+}
+.atl .ld-flag-mark {
+  width: 9px;
+  height: 14px;
+  border: 1.5px solid var(--tension);
+  border-right: 0;
+  border-radius: 3px 0 0 3px;
+  flex: none;
+}
+
+.atl .ld-head-rose {
+  width: 100%;
+  max-width: 520px;
+  justify-self: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.atl .ld-head-rose .rose {
+  gap: 2px;
+}
+.atl .ld-head-rose .rose-readout {
+  min-height: 64px;
+  text-wrap: balance;
+}
+.atl .ld-head-rose .rose-readout-hint {
+  text-wrap: balance;
+}
+/* Objection-level status on the inner ring, as everywhere else for objections (the top bar's
+   pips, the seals): ochre filled = stands, verdigris filled = answered, dashed hollow = undecided. */
+.atl .ld-head-rose .rose-objring.st-undec path {
+  fill: transparent;
+  stroke: var(--faint);
+  stroke-dasharray: 2 2;
+}
+.atl .ld-head-rose .rose-objring.st-out path {
+  fill: var(--theist);
+  stroke: var(--theist);
+}
+.atl .ld-head-rose .rose-objring.st-out text {
+  fill: var(--ink);
+}
+
+/* the key: moves (colored by side, lit by status) · objections (colored by status) */
+.atl .ld-key {
+  display: grid;
+  gap: 10px;
+  justify-items: center;
+  margin-top: 4px;
+}
+.atl .ld-key-defs {
+  position: absolute;
+  width: 0;
+  height: 0;
+}
+.atl .ld-key-row {
+  display: grid;
+  gap: 6px;
+  justify-items: center;
+}
+.atl .ld-key-h {
+  margin: 0;
+  font-size: 10.5px;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--mute);
+}
+.atl .ld-key-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px 16px;
+  font-size: 10.5px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--faint);
+}
+.atl .ld-key-list li {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+.atl .ld-sw {
+  flex: none;
+  overflow: visible;
+}
+.atl .ld-sw-mine {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--bone);
+  flex: none;
+}
+
+@media (min-width: 960px) {
+  .atl .ld-top {
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+    column-gap: 48px;
+    row-gap: 8px;
+  }
+  .atl .ld-head {
+    grid-column: 1;
+    grid-row: 1;
+  }
+  .atl .ld-head-rose {
+    grid-column: 2;
+    grid-row: 1;
+    justify-self: end;
+  }
+}
+@media (max-width: 719px) {
+  /* on a phone the Rose is a glance, not a destination: keep the rulings close */
+  .atl .ld-head-rose {
+    max-width: min(300px, 80vw);
+  }
+  .atl .ld-head-rose .rose-readout {
+    min-height: 0;
+    padding: 0;
+  }
+  .atl .ld-top.is-empty .ld-head-rose {
+    margin-top: 12px;
+  }
+  .atl .ld-top .ld-empty {
+    margin-top: 8px;
+  }
+  .atl .ld-crux-go {
+    letter-spacing: 0.1em;
+  }
+}
+
+/* ---------- section heads ---------- */
+.atl .ld-sec-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 6px 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--line);
+}
+.atl .ld-h2 {
+  margin: 0;
+  font-size: clamp(1.55rem, 4.2vw, 2.15rem);
+  font-weight: 400;
+  line-height: 1.12;
+  letter-spacing: -0.012em;
+}
+.atl .ld-sec-note {
+  margin: 0;
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 1rem;
+  color: var(--mute);
+}
+
+/* ---------- the rulings (a ruled register) ---------- */
+.atl .ld-rulings {
+  margin-top: clamp(44px, 7vw, 72px);
+}
+.atl .ld-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.atl .ld-row {
+  border-bottom: 1px solid var(--line-soft);
+}
+.atl .ld-art {
+  display: grid;
+  grid-template-columns: 62px minmax(0, 1fr);
+  column-gap: 16px;
+  padding: 26px 0 30px;
+  align-items: start;
+}
+/* phone: seal + title, then your ruling, then the exchange it rules on */
+.atl .ld-art-seal {
+  grid-column: 1;
+  grid-row: 1 / span 2;
+  align-self: start;
+}
+.atl .ld-art-eyebrow {
+  grid-column: 2;
+  grid-row: 1;
+  margin: 4px 0 0;
+  font-size: 10.5px;
+  letter-spacing: 0.2em;
+}
+.atl .ld-art-title {
+  grid-column: 2;
+  grid-row: 2;
+  margin: 6px 0 0;
+  font-size: 1.42rem;
+  font-weight: 400;
+  line-height: 1.16;
+  letter-spacing: -0.008em;
+  text-wrap: balance;
+}
+.atl .ld-art-ruling {
+  grid-column: 1 / -1;
+  grid-row: 3;
+}
+.atl .ld-ex {
+  grid-column: 1 / -1;
+  grid-row: 4;
+}
+.atl .ld-ex-toggle {
+  grid-column: 1 / -1;
+  grid-row: 5;
+}
+
+/* seal */
+.atl .ld-seal {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+.atl .ld-seal-outer {
+  fill: none;
+  stroke: var(--st);
+  stroke-width: 1;
+  stroke-opacity: 0.7;
+  transition: stroke 0.4s var(--ease);
+}
+.atl .ld-seal-disc {
+  fill: var(--st-tint);
+  stroke: var(--st);
+  stroke-width: 1.1;
+  transition:
+    fill 0.4s var(--ease),
+    stroke 0.4s var(--ease);
+}
+.atl .ld-seal.st-undec .ld-seal-outer {
+  stroke-dasharray: 1.5 3.2;
+  stroke-opacity: 1;
+}
+.atl .ld-seal.st-undec .ld-seal-disc {
+  stroke-dasharray: 2.4 2.6;
+  stroke-width: 1;
+}
+.atl .ld-seal-num {
+  font-family: var(--serif);
+  font-weight: 330;
+  letter-spacing: 0.02em;
+  fill: var(--st);
+  transition: fill 0.4s var(--ease);
+}
+.atl .ld-seal.st-undec .ld-seal-num {
+  fill: var(--mute);
+}
+.atl .ld-seal-ringtext text {
+  font-family: var(--mono);
+  font-weight: 500;
+  fill: var(--st);
+}
+.atl .ld-seal.st-undec .ld-seal-ringtext text {
+  fill: var(--faint);
+}
+@media (max-width: 1099px) {
+  .atl .ld-seal-ringtext {
+    display: none;
+  }
+}
+.atl .ld-shift-seal .ld-seal-ringtext {
+  display: none;
+}
+
+/* the exchange: It seems that / On the contrary */
+.atl .ld-ex {
+  margin: 20px 0 0;
+  display: grid;
+  gap: 12px;
+}
+.atl .ld-ex-row dt {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 3px;
+  font-size: 10.5px;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--side);
+}
+.atl .ld-ex-row dd {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.58;
+  color: var(--bone-2);
+}
+@media (max-width: 1099px) {
+  .atl .ld-ex:not(.open) dd {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
+    overflow: hidden;
+  }
+}
+@media (max-width: 719px) {
+  .atl .ld-ex:not(.open) dd {
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+  }
+}
+.atl .ld-ex-toggle {
+  justify-self: start;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  margin-top: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  font-size: 10.5px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--mute);
+  cursor: pointer;
+}
+.atl .ld-ex-toggle:hover {
+  color: var(--bone);
+}
+.atl .ld-caret {
+  width: 6px;
+  height: 6px;
+  border-right: 1.5px solid currentColor;
+  border-bottom: 1.5px solid currentColor;
+  transform: translateY(-2px) rotate(45deg);
+  transition: transform 0.25s var(--ease);
+}
+.atl .ld-caret.up {
+  transform: translateY(1px) rotate(-135deg);
+}
+
+/* the ruling */
+.atl .ld-art-ruling {
+  margin-top: 18px;
+  min-width: 0;
+}
+.atl .ld-art.is-blank .ld-art-ruling {
+  margin-top: 16px;
+}
+.atl .ld-resp {
+  position: relative;
+  padding: 18px 18px 18px;
+  border-radius: var(--radius);
+  border: 1px solid var(--line-soft);
+  background:
+    radial-gradient(130% 120% at 0% 0%, var(--st-tint), transparent 62%),
+    var(--ink-2);
+  transition: background 0.4s var(--ease);
+}
+.atl .ld-resp::before {
+  content: "";
+  position: absolute;
+  left: 18px;
+  right: 18px;
+  top: -1px;
+  height: 1px;
+  background: linear-gradient(90deg, var(--st), transparent 70%);
+  opacity: 0.8;
+}
+.atl .ld-art.st-undec .ld-resp::before {
+  background: repeating-linear-gradient(90deg, var(--faint) 0 3px, transparent 3px 7px);
+  opacity: 0.6;
+  right: 50%;
+}
+.atl .ld-resp-cue {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin: 0;
+  font-size: 10.5px;
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--bone-2);
+}
+.atl .ld-resp-cue .ld-you {
+  width: 7px;
+  height: 7px;
+}
+.atl .ld-sentence {
+  margin: 12px 0 0;
+  font-size: 1.1rem;
+  line-height: 1.5;
+  color: var(--bone-2);
+  text-wrap: pretty;
+}
+.atl .ld-head-line {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 4px;
+  font-size: 1.5rem;
+  font-weight: 420;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+  color: var(--st);
+  transition: color 0.4s var(--ease);
+}
+.atl .ld-art.st-undec .ld-head-line {
+  color: var(--bone);
+}
+.atl .ld-head-glyph {
+  flex: none;
+}
+.atl .ld-hollow {
+  flex: none;
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 1.5px dashed var(--faint);
+}
+.atl .ld-hollow-sm {
+  width: 11px;
+  height: 11px;
+  border-width: 1.2px;
+}
+
+/* a question nobody has ruled on yet: one quiet line */
+.atl .ld-resp.ld-resp-blank {
+  padding: 12px 16px;
+  border-style: dashed;
+  border-color: var(--line);
+  background: transparent;
+}
+.atl .ld-resp-blank::before {
+  display: none;
+}
+.atl .ld-blank-line {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 10px;
+  margin: 0;
+  line-height: 1.4;
+}
+.atl .ld-blank-word {
+  font-size: 1.14rem;
+  font-weight: 420;
+  color: var(--bone);
+}
+.atl .ld-blank-note {
+  margin-left: -6px;
+  font-size: 14.5px;
+  color: var(--mute);
+}
+
+/* the ruling rests on a call in tension */
+.atl .ld .ld-tnote {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  min-height: 44px;
+  margin: 14px 0 0;
+  border: 0;
+  border-left: 2px solid var(--tension);
+  text-align: left;
+  line-height: 1.4;
+  cursor: pointer;
+  transition: background 0.2s var(--ease);
+}
+.atl .ld .ld-tnote:hover {
+  background: #e07a5f22;
+}
+.atl .ld .ld-tnote:active {
+  transform: translateY(1px);
+}
+.atl .ld-tnote-mark {
+  flex: none;
+  width: 7px;
+  height: 12px;
+  border: 1.5px solid var(--tension);
+  border-right: 0;
+  border-radius: 3px 0 0 3px;
+}
+.atl .ld-tnote-go {
+  white-space: nowrap;
+  color: var(--bone);
+}
+.atl .ld-tnote-go u {
+  text-decoration-color: #e07a5f99;
+  text-underline-offset: 3px;
+}
+
+/* a move named in a sentence */
+.atl .ld-ref {
+  font-style: italic;
+  color: var(--bone);
+  text-decoration: none;
+  border-radius: 3px;
+}
+.atl .ld-ref-glyph {
+  display: inline-block;
+  margin: 0 5px 0 1px;
+  vertical-align: -1px;
+}
+.atl .ld-ref-text {
+  text-decoration: underline;
+  text-decoration-color: color-mix(in srgb, var(--side) 55%, transparent);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 4px;
+  transition: text-decoration-color 0.2s;
+}
+.atl .ld-ref:hover .ld-ref-text {
+  text-decoration-color: var(--side);
+}
+
+/* chips */
+.atl .ld-chiprow {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid var(--line-soft);
+}
+.atl .ld-chiprow + .ld-chiprow {
+  margin-top: 12px;
+  padding-top: 0;
+  border-top: 0;
+}
+.atl .ld-chiprow-k {
+  font-size: 10.5px;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--faint);
+}
+.atl .ld-chips {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.atl .ld-chips li {
+  max-width: 100%;
+}
+.atl .ld-chip {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  max-width: 100%;
+  min-height: 44px;
+  padding: 8px 13px 9px 11px;
+  border-radius: 10px;
+  border: 1px solid var(--line);
+  background: #ffffff05;
+  font-size: 13.5px;
+  line-height: 1.35;
+  color: var(--bone-2);
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+  transition:
+    border-color 0.2s var(--ease),
+    background 0.2s var(--ease);
+}
+.atl .ld-chip-top {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  min-width: 0;
+}
+.atl .ld-chip:hover {
+  border-color: color-mix(in srgb, var(--side) 60%, var(--line));
+  background: #ffffff0b;
+}
+.atl .ld-chip:active {
+  transform: translateY(1px);
+}
+.atl .ld-chip-addr {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 10.5px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--faint);
+}
+.atl .ld-chip-side {
+  color: var(--side);
+}
+.atl .ld-chip-lab {
+  min-width: 0;
+}
+/* the shared "Your call" stamp, at this page's smallest readable size */
+.atl .ld .your-call {
+  font-size: 10.5px;
+}
+.atl .ld-chip-call {
+  flex: none;
+  margin-left: auto;
+}
+.atl .ld-more {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 0;
+  border: 0;
+  background: none;
+  font-size: 10.5px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--mute);
+  cursor: pointer;
+}
+.atl .ld-more:hover {
+  color: var(--bone);
+}
+
+/* actions */
+.atl .ld-art-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+.atl .ld-resp-cue .ld-count {
+  margin-left: auto;
+  padding-left: 12px;
+  font-weight: 400;
+  font-size: 10.5px;
+  letter-spacing: 0.14em;
+  color: var(--faint);
+  white-space: nowrap;
+}
+@media (max-width: 719px) {
+  .atl .ld-art-actions .btn {
+    flex: 1 1 auto;
+    min-height: 44px;
+    padding: 0 12px;
+    letter-spacing: 0.1em;
+    white-space: nowrap;
+  }
+  .atl .ld-chips li {
+    width: 100%;
+  }
+}
+
+/* tablet: seal column + one content column (title, ruling, exchange) */
+@media (min-width: 720px) {
+  .atl .ld-art {
+    grid-template-columns: 88px minmax(0, 1fr);
+    column-gap: 28px;
+    padding: 34px 0 38px;
+  }
+  .atl .ld-art-seal {
+    grid-row: 1 / span 5;
+  }
+  .atl .ld-art-title {
+    font-size: 1.62rem;
+  }
+  .atl .ld-art-ruling,
+  .atl .ld-ex,
+  .atl .ld-ex-toggle {
+    grid-column: 2;
+  }
+  .atl .ld-resp {
+    padding: 22px 24px 22px;
+  }
+  .atl .ld-resp.ld-resp-blank {
+    padding: 13px 20px;
+  }
+  .atl .ld-resp::before {
+    left: 24px;
+    right: 24px;
+  }
+  .atl .ld-sentence {
+    font-size: 1.16rem;
+  }
+}
+
+/* desktop: seal · the case · your ruling. The last row is flexible so the ruling column's
+   height never pries the case's rows apart. */
+@media (min-width: 1100px) {
+  .atl .ld-art {
+    grid-template-columns: 118px minmax(0, 0.95fr) minmax(0, 1.05fr);
+    grid-template-rows: auto auto auto 1fr;
+    column-gap: 40px;
+    padding: 40px 0 44px;
+  }
+  .atl .ld-art-seal {
+    grid-row: 1 / -1;
+  }
+  .atl .ld-art-eyebrow {
+    margin-top: 2px;
+  }
+  .atl .ld-art-title {
+    font-size: 1.72rem;
+  }
+  .atl .ld-ex {
+    grid-column: 2;
+    grid-row: 3;
+  }
+  .atl .ld-ex-toggle {
+    grid-column: 2;
+    grid-row: 4;
+  }
+  .atl .ld-art-ruling,
+  .atl .ld-art.is-blank .ld-art-ruling {
+    grid-column: 3;
+    grid-row: 1 / -1;
+    margin-top: 0;
+  }
+  .atl .ld-head-line {
+    font-size: 1.62rem;
+  }
+}
+
+/* ---------- the crux ---------- */
+.atl .ld-crux {
+  position: relative;
+  margin-top: clamp(48px, 8vw, 80px);
+  padding: 28px 20px 26px 58px;
+  border-radius: 18px;
+  border: 1px solid var(--line-soft);
+  background:
+    radial-gradient(80% 110% at 0% 0%, var(--side-glow), transparent 60%),
+    linear-gradient(180deg, #1f2331, #1a1d28);
+  overflow: hidden;
+}
+.atl .ld-crux-k {
+  margin: 0;
+  color: var(--bone-2);
+  outline: none;
+}
+.atl .ld-crux-lede {
+  margin: 10px 0 10px;
+  text-wrap: balance;
+  font-size: clamp(1.12rem, 3vw, 1.32rem);
+  font-weight: 400;
+  font-style: italic;
+  line-height: 1.3;
+  color: var(--mute);
+}
+.atl .ld-crux-row {
+  position: relative;
+}
+.atl .ld-crux-bob {
+  position: absolute;
+  left: -40px;
+  top: 0.32em;
+  width: 24px;
+  height: 24px;
+  display: grid;
+  place-items: center;
+  font-size: clamp(1.55rem, 4.6vw, 2.5rem);
+}
+.atl .ld-crux-bob::before {
+  /* the plumb line: from the card's top edge down to this move (static; the card clips it) */
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 4px);
+  width: 1px;
+  height: 640px;
+  background: repeating-linear-gradient(to top, var(--skeptic) 0 5px, transparent 5px 9px, var(--theist) 9px 14px, transparent 14px 18px);
+}
+.atl .ld-crux-label {
+  display: block;
+  margin: 0;
+  text-decoration: none;
+  font-family: var(--serif);
+  font-size: clamp(1.55rem, 4.6vw, 2.5rem);
+  font-weight: 380;
+  line-height: 1.14;
+  letter-spacing: -0.015em;
+  color: var(--bone);
+  text-align: left;
+  text-wrap: balance;
+  cursor: pointer;
+}
+.atl .ld-crux-label:hover {
+  text-decoration: underline;
+  text-decoration-color: var(--side);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 6px;
+}
+.atl .ld-crux-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 10px;
+  margin: 14px 0 0;
+  font-size: 10.5px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--mute);
+}
+.atl .ld-crux-side {
+  color: var(--side);
+}
+.atl .ld-crux-stamp {
+  margin-left: 4px;
+}
+.atl .ld-crux-said {
+  margin: 18px 0 0;
+  max-width: 40rem;
+  font-size: 1.04rem;
+  line-height: 1.7;
+  color: var(--bone-2);
+}
+.atl .ld-crux-said strong {
+  font-weight: 500;
+  color: var(--bone);
+}
+.atl .ld-crux .ld-tnote {
+  max-width: 40rem;
+}
+.atl .ld-crux-cedes {
+  display: grid;
+  gap: 4px;
+  max-width: 40rem;
+  margin: 16px 0 0;
+  padding-left: 14px;
+  border-left: 1px solid var(--line);
+  font-size: 14.5px;
+  line-height: 1.55;
+  font-style: italic;
+  color: var(--mute);
+}
+.atl .ld-crux-cedes .mono {
+  font-style: normal;
+  font-size: 10.5px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--mute);
+}
+.atl .ld-crux-go {
+  margin-top: 22px;
+  border-color: color-mix(in srgb, var(--side) 55%, var(--line));
+}
+.atl .ld-crux-go:hover {
+  border-color: var(--side);
+  background: color-mix(in srgb, var(--side) 10%, transparent);
+}
+
+/* the shift: the objection's seal now, and if this one call flipped. On a phone the sentence
+   above already says it, and two seals and an arrow do not fit beside each other. */
+.atl .ld-crux-shift {
+  display: none;
+}
+@media (min-width: 720px) {
+  .atl .ld-crux {
+    padding: 44px 48px 40px 96px;
+  }
+  .atl .ld-crux-bob {
+    left: -54px;
+  }
+  .atl .ld-crux-shift {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin-top: 26px;
+    padding-top: 20px;
+    border-top: 1px solid var(--line-soft);
+  }
+}
+.atl .ld-shift-seal {
+  margin: 0;
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  width: 112px;
+  flex: none;
+}
+.atl .ld-shift-seal .ld-seal {
+  width: 64px;
+}
+.atl .ld-shift-seal figcaption {
+  display: grid;
+  gap: 2px;
+  text-align: center;
+  font-size: 10.5px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--bone-2);
+}
+.atl .ld-shift-seal figcaption span {
+  font-size: 10.5px;
+  color: var(--mute);
+}
+.atl .ld-shift-arrow {
+  flex: 1 1 auto;
+  max-width: 150px;
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  padding-top: 20px;
+  font-size: 10.5px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--mute);
+  white-space: nowrap;
+}
+.atl .ld-shift-line {
+  position: relative;
+  width: 100%;
+  height: 1px;
+  background: repeating-linear-gradient(90deg, var(--mute) 0 3px, transparent 3px 7px);
+}
+.atl .ld-shift-line::after {
+  content: "";
+  position: absolute;
+  right: -1px;
+  top: -3px;
+  width: 7px;
+  height: 7px;
+  border-top: 1px solid var(--mute);
+  border-right: 1px solid var(--mute);
+  transform: rotate(45deg);
+}
+@media (min-width: 960px) {
+  .atl .ld-crux {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    column-gap: 48px;
+  }
+  .atl .ld-crux-shift {
+    margin-top: 0;
+    padding: 0 0 0 44px;
+    border-top: 0;
+    border-left: 1px solid var(--line-soft);
+    min-height: 180px;
+    align-items: center;
+  }
+  .atl .ld-shift-seal .ld-seal {
+    width: 96px;
+  }
+  .atl .ld-shift-arrow {
+    width: 128px;
+    padding-top: 0;
+    margin-top: -26px;
+  }
+}
+
+/* ---------- tensions ---------- */
+.atl .ld-tensions {
+  margin-top: clamp(48px, 8vw, 80px);
+  scroll-margin-top: 80px;
+}
+.atl .ld-t-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.atl .ld-tension {
+  padding: 22px 0 26px;
+  border-bottom: 1px solid var(--line-soft);
+}
+.atl .ld-t-say {
+  margin: 0 0 14px;
+  max-width: 40rem;
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 1.1rem;
+  line-height: 1.45;
+  color: var(--bone-2);
+}
+.atl .ld-t-pair {
+  position: relative;
+  display: grid;
+  gap: 18px;
+  max-width: 860px;
+  padding-left: 24px;
+}
+.atl .ld-t-pair::before {
+  /* the bracket joining the two calls */
+  content: "";
+  position: absolute;
+  left: 4px;
+  top: 34px;
+  bottom: 96px;
+  width: 10px;
+  border: 2px solid var(--tension);
+  border-right: 0;
+  border-radius: 7px 0 0 7px;
+}
+.atl .ld-t-col {
+  display: grid;
+  gap: 10px;
+  justify-items: start;
+  align-content: start;
+  min-width: 0;
+}
+.atl .ld-t-move {
+  display: grid;
+  gap: 6px;
+  width: 100%;
+  padding: 14px 16px 14px;
+  border-radius: 12px;
+  border: 1px solid var(--line-soft);
+  background: var(--ink-2);
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+  transition: border-color 0.2s var(--ease);
+}
+.atl .ld-t-move:hover {
+  border-color: var(--line);
+}
+.atl .ld-t-role {
+  font-size: 10.5px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--faint);
+}
+.atl .ld-t-lab {
+  display: flex;
+  align-items: baseline;
+  gap: 9px;
+  font-size: 1.14rem;
+  line-height: 1.3;
+  color: var(--bone);
+}
+.atl .ld-t-lab .glyph-svg {
+  transform: translateY(1px);
+}
+.atl .ld-t-addr {
+  font-size: 10.5px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--side);
+}
+@media (max-width: 719px) {
+  .atl .ld-t-col .btn,
+  .atl .ld-confirm .btn {
+    min-height: 44px;
+  }
+}
+@media (min-width: 900px) {
+  .atl .ld-t-pair {
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    padding-left: 0;
+    padding-top: 18px;
+  }
+  .atl .ld-t-pair::before {
+    left: 25%;
+    right: 25%;
+    top: 0;
+    bottom: auto;
+    width: auto;
+    height: 10px;
+    border: 2px solid var(--tension);
+    border-bottom: 0;
+    border-radius: 7px 7px 0 0;
+  }
+  .atl .ld-t-col {
+    grid-row: span 2;
+    grid-template-rows: subgrid;
+    row-gap: 10px;
+  }
+}
+
+/* ---------- take it with you ---------- */
+.atl .ld-take {
+  margin-top: clamp(48px, 8vw, 80px);
+  padding: 26px 20px 8px;
+  border-radius: 18px;
+  border: 1px solid var(--line-soft);
+  background: var(--ink-2);
+}
+.atl .ld-take-main {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+.atl .ld-take-dek {
+  margin: 8px 0 0;
+  max-width: 36rem;
+  font-size: 15px;
+  color: var(--mute);
+}
+.atl .ld-take-dek em {
+  font-family: var(--serif);
+  color: var(--bone-2);
+}
+.atl .ld-take-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.atl .ld-preview-btn {
+  gap: 10px;
+}
+.atl .ld-pre {
+  margin: 20px 0 0;
+  padding: 18px 18px;
+  max-height: 440px;
+  overflow: auto;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font-family: var(--mono);
+  font-size: 12.5px;
+  line-height: 1.72;
+  color: var(--bone-2);
+  background: var(--ink-deep);
+  border: 1px solid var(--line-soft);
+  border-radius: 12px;
+}
+.atl .ld-reset {
+  margin-top: 20px;
+  padding: 6px 0 12px;
+  border-top: 1px dashed var(--line);
+}
+.atl .ld-reset-btn {
+  min-height: 44px;
+  padding: 0;
+  border: 0;
+  background: none;
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--faint);
+  text-decoration: underline dotted;
+  text-underline-offset: 4px;
+  cursor: pointer;
+}
+.atl .ld-reset-btn:hover {
+  color: var(--bone-2);
+}
+.atl .ld-confirm {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 16px;
+  padding: 10px 0 4px;
+}
+.atl .ld-confirm-q {
+  font-size: 14.5px;
+  color: var(--bone-2);
+}
+.atl .ld-confirm-btns {
+  display: inline-flex;
+  gap: 8px;
+}
+.atl .ld-danger {
+  border-color: #e07a5f88;
+  color: #f2b4a3;
+}
+.atl .ld-danger:hover {
+  border-color: var(--tension);
+  background: #e07a5f1a;
+}
+@media (min-width: 720px) {
+  .atl .ld-take {
+    padding: 34px 36px 10px;
+  }
+  .atl .ld-take-main {
+    flex-direction: row;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 24px;
+  }
+  .atl .ld-take-actions {
+    flex: none;
+  }
+}
+
+/* ---------- empty state: the empty chair ---------- */
+.atl .ld-empty {
+  margin-top: clamp(36px, 6vw, 56px);
+  padding: 24px 20px 26px;
+  border-radius: 18px;
+  border: 1px dashed #4a4e60;
+  background: #ffffff03;
+}
+.atl .ld-empty-k {
+  margin: 0;
+}
+.atl .ld-empty-h {
+  margin: 8px 0 18px;
+  font-size: clamp(1.8rem, 5vw, 2.5rem);
+  font-weight: 380;
+  font-style: italic;
+  line-height: 1.1;
+}
+.atl .ld-empty-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.atl .ld-steps {
+  list-style: none;
+  margin: 26px 0 0;
+  padding: 22px 0 0;
+  border-top: 1px solid var(--line-soft);
+  display: grid;
+  gap: 16px;
+}
+.atl .ld-steps li {
+  display: grid;
+  grid-template-columns: 30px minmax(0, 1fr);
+  gap: 10px;
+}
+.atl .ld-step-n {
+  font-size: 1.25rem;
+  font-style: italic;
+  line-height: 1.3;
+  color: var(--faint);
+}
+.atl .ld-steps p {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--mute);
+}
+.atl .ld-steps strong {
+  display: block;
+  margin-bottom: 2px;
+  font-family: var(--serif);
+  font-size: 1.12rem;
+  font-weight: 450;
+  line-height: 1.3;
+  color: var(--bone);
+}
+.atl .ld-steps em {
+  color: var(--bone-2);
+}
+.atl .ld-g {
+  white-space: nowrap;
+  color: var(--side);
+}
+@media (max-width: 519px) {
+  .atl .ld-empty-actions .btn {
+    flex: 1 1 100%;
+  }
+}
+@media (min-width: 720px) {
+  .atl .ld-empty {
+    padding: 32px 36px 32px;
+  }
+}
+/* desktop: the empty chair sits under the title, beside the Rose */
+@media (min-width: 960px) {
+  .atl .ld-top.is-empty {
+    align-items: start;
+  }
+  .atl .ld-top.is-empty .ld-head {
+    align-self: end;
+  }
+  .atl .ld-top.is-empty .ld-empty {
+    grid-column: 1;
+    grid-row: 2;
+    margin-top: 28px;
+  }
+  .atl .ld-top.is-empty .ld-head-rose {
+    grid-row: 1 / span 2;
+    align-self: center;
+  }
+}
+
+/* headings that receive programmatic focus (not interactive) */
+.atl .ld [tabindex="-1"]:focus {
+  outline: none;
+}
