@@ -5,7 +5,8 @@ import type { Objection } from "../types";
    checked word for word against a public-domain text: the KJV (Gutenberg #10);
    Elwes's Spinoza (Ethics, Gutenberg #3800; Theologico-Political Treatise,
    Gutenberg #990; Letter 73 via sacred-texts); Trotter's Pascal (Gutenberg #18269,
-   Brunschvicg numbering); Kennedy's Nietzsche (Gutenberg #39955); Abbott's Kant
+   Brunschvicg numbering; the Gutenberg text numbers 552–585 one lower, so Brunschvicg
+   585 appears there as 584); Kennedy's Nietzsche (Gutenberg #39955); Abbott's Kant
    (Gutenberg #5683); Pusey's Augustine (Gutenberg #3296); Deane's Anselm (CCEL);
    Beveridge's Calvin (CCEL); the English Dominican Summa (New Advent); Hume's
    Natural History of Religion (davidhume.org); the Book of Mormon (Gutenberg #17);
@@ -23,7 +24,7 @@ const hiddenness: Objection = {
     "A God who wanted a relationship with each of us wouldn't leave a sincere, open seeker unsure that he exists (J. L. Schellenberg's hiddenness argument).",
   counter:
     "Michael Rea argues that God's love needn't look like a parent's, and that God can be present without being felt. Paul Moser argues that God offers the evidence to people willing to be changed by it, and holds it back from people who only want to inspect it.",
-  dek: "The problem of evil asks why a good God allows suffering. This objection, its close cousin, asks why so many honest people, some searching hard and some never told, find no one there. J. L. Schellenberg points to seekers who come up empty, and Stephen Maitzen to a world map on which belief follows birthplace. Christian philosophers reply that God's love need not look like a parent's, that he can be present without being felt, and that he shows himself to people willing to be changed.",
+  dek: "J. L. Schellenberg, a Canadian philosopher, has asked since 1993 why so many honest people, some searching hard and some never told, find no one there. His question is a cousin of the problem of evil, which asks why a good God allows suffering. In 2006 Stephen Maitzen added a world map on which belief follows birthplace. Three centuries earlier, Pascal had made God's hiding part of his case for Christianity: 'every religion which does not affirm that God is hidden, is not true' (*Pensées* 585).",
   question: "Would a perfectly loving God leave anyone who isn't running from him unsure he is there?",
 
   prongs: [
@@ -31,12 +32,12 @@ const hiddenness: Objection = {
     {
       id: "hid-argument",
       side: "skeptic",
-      label: "Open seekers left in the dark rule out a perfectly loving God",
+      label: "Honest seekers who find no God rule out a perfectly loving one",
       gist: "A perfectly loving God would make sure everyone not turning away from him believed he exists, and some honest people don't, so there is no such God.",
       body: [
         "{{schellenberg}}, a Canadian philosopher, published this argument in 1993. It starts from [[perfect-being-theology|what believers say a perfect God must be like]] and runs in four steps:",
-        "(1) A perfectly loving God would always be open to a conscious, two-way relationship with each of us. (2) You can't relate to someone you don't believe exists, so such a God would make sure everyone able to have the relationship believed in him, unless they were resisting him. (3) But some people lack belief without resisting God, which Schellenberg calls [[nonresistant-nonbelief|nonresistant nonbelief]]. His examples are former believers who prayed to keep their faith, lifelong seekers, converts to Buddhism, and people who never heard of a personal God. (4) So there is no perfectly loving God.",
-        "{{nietzsche}} had made the same complaint in 1881, and {{mckim}} framed it as an argument in 1990.",
+        "(1) A perfectly loving God would always be open to a conscious, two-way relationship with each of us. (2) You can't relate to someone you don't believe exists, so such a God would make sure everyone able to have the relationship believed in him, unless they were resisting him. (3) But some people lack belief without resisting God, which Schellenberg calls [[nonresistant-nonbelief|nonresistant nonbelief]]. His examples are former believers who prayed to keep their faith, lifelong seekers, converts to religions with no personal God, such as Buddhism, and people who never heard of one. (4) So there is no perfectly loving God.",
+        "{{nietzsche}} had made the same complaint in 1881, and the philosopher {{mckim}} framed it as an argument in 1990.",
       ],
       quote: {
         text: "An omniscient and omnipotent God who does not even take care that His intentions shall be understood by His creatures—could He be a God of goodness?",
@@ -68,8 +69,8 @@ const hiddenness: Objection = {
           label: "God's love needn't look like a parent's, so he may stay hidden",
           gist: "Premise one assumes God loves like an ideal parent, but a God far beyond us can love perfectly in his own way, which we can't predict.",
           body: [
-            "{{rea}} answers premise one in his 2017 Gifford Lectures. The premise, he argues, pictures God's love as a parent's or a friend's, scaled up and always reaching out. That picture keeps God personal by giving up his transcendence, the old teaching that God is beyond every category that fits created things. Such a God can be described only by [[analogy-of-being|analogy]], so our words apply to him in a stretched sense and can't tell us what his love must do in our case.",
-            "Rea also draws on Susan Wolf's 1982 essay 'Moral Saints', which argues that a life organized wholly around other people's welfare is less admirable than it sounds. A God whose every act revolved around us would, Rea thinks, be less like God. God's love is perfect, but it takes its shape from his own goodness and purposes.",
+            "{{rea}} answers premise one in his 2017 Gifford Lectures. The premise, he argues, pictures God's love as a parent's, scaled up and always reaching out. That picture keeps God personal by giving up his transcendence, the old teaching that God is beyond every category that fits created things. Such a God can be described only by [[analogy-of-being|analogy]], so our words apply to him in a stretched sense and can't tell us what his love must do in our case.",
+            "Rea also draws on the philosopher Susan Wolf's 1982 essay 'Moral Saints', which argues that a life organized wholly around other people's welfare is less admirable than it sounds. Rea thinks a God whose every act revolved around us would be less admirable for the same reason. On his view God's perfect love takes its shape from God's own goodness and purposes.",
           ],
           quote: {
             text: "Hence, since to love anything is nothing else than to will good to that thing, it is manifest that God loves everything that exists. Yet not as we love.",
@@ -79,7 +80,7 @@ const hiddenness: Objection = {
           thinkers: ["rea", "aquinas"],
           cedes: "Rea is wrong if any love worth calling perfect must always seek the beloved's awareness of it.",
           see: [
-            { id: "coh-a-analogy", why: "Objection I defends analogy, a way of saying true things about God without making him one of us." },
+            { id: "coh-a-analogy", why: "In Objection I, the Defender explains analogy, a way of saying true things about God without making him one of us." },
             { id: "mor-not-agent", why: "In Objection V, Brian Davies argues the same about God's goodness, which is unlike a human judge's." },
           ],
           sources: [
@@ -97,8 +98,8 @@ const hiddenness: Objection = {
               label: "A love that won't let you know it's there is a lesser love",
               gist: "We can easily picture a greater love than one that leaves a willing beloved forever unsure, so Rea's reply makes God's love smaller.",
               body: [
-                "Rea's reply misses, because premise one never needed the parent picture. It needs only what believers already say, that God's love can't be surpassed. Of two lovers, one who leaves a willing beloved forever unsure he exists and one who makes himself known, almost anyone would call the first love the lesser.",
-                "The Bible also says God 'will have all men to be saved, and to come unto the knowledge of the truth' (1 Timothy 2:4), and Theodore Drange built his 1998 argument from nonbelief on verses like it. Rea's appeal to God's own purposes makes things worse, since a love shaped by the lover's interests falls short of the self-giving love Christians see on the cross. Stretched further, God's love would resemble ours only as the Dog Star resembles the dog that barks, sharing a name and no [[univocity|common meaning]], which is ((coh-a-dogstar|Spinoza's point)) about God's mind.",
+                "{{schellenberg}} replies that premise one never needed the parent picture. It needs only what believers already say, that God's love can't be surpassed. Of two lovers, one who leaves a willing beloved forever unsure he exists and one who makes himself known, almost anyone would call the first love the lesser.",
+                "The Bible also says God 'will have all men to be saved, and to come unto the knowledge of the truth' (1 Timothy 2:4), and the philosopher Theodore Drange built his 1998 argument from nonbelief on verses like it. Rea's appeal to God's own purposes makes things worse, since a love shaped by the lover's interests falls short of the self-giving love Christians see on the cross. If *love* is stretched further still, God's love would resemble ours only as the Dog Star resembles the dog that barks, sharing a name and no [[univocity|common meaning]], which is ((coh-a-dogstar|Spinoza's point)) about God's mind.",
               ],
               quote: {
                 text: "If ye then, being evil, know how to give good gifts unto your children, how much more shall your Father which is in heaven give good things to them that ask him?",
@@ -110,7 +111,7 @@ const hiddenness: Objection = {
                 "I'd drop this if a love that leaves a willing beloved unaware of it turned out to be no less a love than one that makes itself known.",
               see: [
                 { id: "coh-a-dogstar", why: "In Objection I, Spinoza argues that a divine mind unlike ours shares only a name with ours." },
-                { id: "hid-pursues", why: "The prodigal son's father appears again there, running out to meet his son." },
+                { id: "hid-pursues", why: "There the father in the parable of the prodigal son runs out to meet his son, a picture of love that goes after the beloved." },
                 { id: "coh-a-univocal", why: "Duns Scotus argued that a word used of God must share a core meaning with ours, or no argument can rest on it (Objection I)." },
               ],
               sources: [
@@ -123,8 +124,8 @@ const hiddenness: Objection = {
                   label: "We can't see far enough to judge what perfect love would do",
                   gist: "A hiding love looks lesser to us, but that is weak evidence that it is lesser, because we can't see all the goods an infinite mind can see.",
                   body: [
-                    "The two-lovers comparison works only if we can see everything that depends on the choice, and we probably can't. This is [[skeptical-theism|skeptical theism]], the view that our failure to see God's reasons is poor evidence that he has none. Unlike Rea's reply, this one lets *love* keep its ordinary meaning. A four-year-old can't see why a good parent says 'not yet', and the distance between us and God is greater than that. God's answer to Job began with a question: 'Where wast thou when I laid the foundations of the earth?' (Job 38:4).",
-                    "Justin McBrayer and Philip Swenson pointed out in 2012 that the hiddenness argument rests on an unstated premise, that if God had a reason to allow nonresistant nonbelief, we would probably see it. Nothing supports that premise. {{bergmann}} makes the general case that the goods we know of are probably not a representative sample of the goods there are.",
+                    "Schellenberg's two-lovers comparison works only if we can see everything that depends on the choice, and we probably can't. This is [[skeptical-theism|skeptical theism]], the view that our failure to see God's reasons is poor evidence that he has none. Unlike Rea's reply, this one lets *love* keep its ordinary meaning. A four-year-old can't see why a good parent makes her wait, and the distance between us and God is greater than that. When God finally answered Job, he asked him question after question, among them 'Where wast thou when I laid the foundations of the earth?' (Job 38:4).",
+                    "The philosophers Justin McBrayer and Philip Swenson argued in 2012 that the hiddenness argument rests on an unstated premise, that if God had a reason to allow nonresistant nonbelief, we would probably see it, and that nothing supports that premise. {{bergmann}} argues more generally that we have no good reason to think the goods we know of are a representative sample of the goods there are.",
                   ],
                   quote: {
                     text: "For as the heavens are higher than the earth, so are my ways higher than your ways, and my thoughts than your thoughts.",
