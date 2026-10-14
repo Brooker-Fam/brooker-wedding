@@ -180,7 +180,7 @@ export const moments: Moment[] = [
     year: 177,
     when: "c. 177",
     title: "Celsus mocks a kingdom for the unfortunate",
-    text: "Celsus sneers that Christians invite into God's kingdom the very people every respectable mystery cult turned away. Origen preserves the attack and answers it. The historian Tom Holland reads it as an early sign of how strange Christian care for the weak looked to the ancient world.",
+    text: "Celsus sneers that Christians invite into God's kingdom the very people every respectable mystery cult turned away. Origen preserves the attack and answers it. Tom Holland's Dominion (2019) argues that this Christian concern for the weak, which pagan critics like Celsus mocked, later became the West's moral common sense.",
     thinker: "celsus",
     node: "mor-holland",
     strands: ["morals"],
@@ -309,11 +309,11 @@ export const moments: Moment[] = [
     quote: {
       text: "Lord, if thou art not here, where shall I seek thee, being absent? But if thou art everywhere, why do I not see thee present?",
       who: "Anselm of Canterbury",
-      cite: "Proslogion 1",
+      cite: "Proslogion 1, trans. S. N. Deane",
       url: "https://ccel.org/ccel/anselm/basic_works/basic_works.iii.ii.html",
     },
     sources: [
-      { title: "Proslogion", by: "Anselm of Canterbury", url: "https://ccel.org/ccel/anselm/basic_works/basic_works.iii.ii.html" },
+      { title: "Proslogion", by: "Anselm of Canterbury, trans. S. N. Deane", url: "https://ccel.org/ccel/anselm/basic_works/basic_works.iii.ii.html" },
       { title: "Anselm of Canterbury", by: SEP, url: "https://plato.stanford.edu/entries/anselm/" },
     ],
   },
@@ -365,7 +365,7 @@ export const moments: Moment[] = [
     year: 1266,
     when: "1265–68",
     title: "Aquinas states the objection against himself",
-    text: "Before giving his five ways of showing that God exists, Aquinas sets out the two strongest objections. The second is that nature explains natural things and human will explains human acts, so God is not needed. He replies that nature works toward ends set by a higher agent, and the human will can change and fail, so both lead back to a first cause.",
+    text: "Before giving his five ways of showing that God exists, Aquinas sets out two objections. The second is that nature explains natural things and human will explains human acts, so God is not needed. He replies that nature works toward ends set by a higher agent, and the human will can change and fail, so both lead back to a first cause.",
     thinker: "aquinas",
     node: "nat-b",
     strands: ["nature", "coherence"],
@@ -586,7 +586,7 @@ export const moments: Moment[] = [
       url: "https://archive.org/details/chiefworksofbene02spin",
     },
     sources: [
-      { title: "The Chief Works of Benedict de Spinoza, vol. 2 (letters 75, 78 and 79)", by: "Benedict de Spinoza, trans. R. H. M. Elwes", year: "1883", url: "https://archive.org/details/chiefworksofbene02spin" },
+      { title: "The Chief Works of Benedict de Spinoza, vol. 2 (letters 75, 78 and 79)", by: "Benedict de Spinoza, trans. R. H. M. Elwes", year: "1891", note: "Revised edition, George Bell and Sons.", url: "https://archive.org/details/chiefworksofbene02spin" },
     ],
   },
   {
@@ -735,13 +735,13 @@ export const moments: Moment[] = [
     strands: ["morals"],
     side: "theist",
     quote: {
-      text: "The God that holds you over the pit of hell, much in the same way as one holds a spider, or some loathsome insect over the fire, abhors you, and is dreadfully provoked …",
+      text: "The God that holds you over the pit of hell, much as one holds a spider, or some loathsome insect over the fire, abhors you, and is dreadfully provoked …",
       who: "Jonathan Edwards",
       cite: "Sinners in the Hands of an Angry God (1741)",
-      url: "https://en.wikisource.org/wiki/Sinners_in_the_Hands_of_an_Angry_God",
+      url: "https://www.ccel.org/ccel/edwards/sermons.sinners.html",
     },
     sources: [
-      { title: "Sinners in the Hands of an Angry God", by: "Jonathan Edwards", year: "1741", url: "https://en.wikisource.org/wiki/Sinners_in_the_Hands_of_an_Angry_God" },
+      { title: "Sinners in the Hands of an Angry God", by: "Jonathan Edwards", year: "1741", url: "https://www.ccel.org/ccel/edwards/sermons.sinners.html" },
       { title: "Jonathan Edwards", by: SEP, url: "https://plato.stanford.edu/entries/edwards/" },
     ],
   },
@@ -837,7 +837,7 @@ export const moments: Moment[] = [
     strands: ["evidence"],
     side: "skeptic",
     sources: [
-      { title: "Der Fragmentenstreit", by: "University of Southern California (Scalar project)", url: "https://scalar.usc.edu/works/fragmentenstreit/index" },
+      { title: "Der Fragmentenstreit", by: "Jonathan Blake Fine (USC Scalar project)", url: "https://scalar.usc.edu/works/fragmentenstreit/index" },
       { title: "On the Proof of the Spirit and of Power", by: "G. E. Lessing", year: "1777" },
     ],
   },
@@ -1119,7 +1119,7 @@ export const moments: Moment[] = [
     year: 1961,
     when: "1961",
     title: "Lewis and the bolted door",
-    text: "Writing after the death of his wife, Joy Davidman, C. S. Lewis says that turning to God in desperate need felt like finding a door slammed and bolted, and then silence. He published these notes under a pen name as A Grief Observed. They give hiddenness at its worst, in a believer's voice.",
+    text: "Writing after the death of his wife, Joy Davidman, C. S. Lewis says that turning to God in desperate need felt like finding a door slammed and bolted, and then silence. He published these notes under a pen name as A Grief Observed. Lewis was writing as a Christian, and the book records his faith recovering.",
     thinker: "lewis-cs",
     node: "hid-horror",
     strands: ["hiddenness"],
@@ -1377,7 +1377,7 @@ export const moments: Moment[] = [
     side: "skeptic",
     sources: [
       { title: "The Wisdom to Doubt: A Justification of Religious Skepticism", by: "J. L. Schellenberg", year: "2007", note: "Cornell University Press." },
-      { title: "Review of The Wisdom to Doubt", by: NDPR, url: "https://ndpr.nd.edu/news/the-wisdom-to-doubt-a-justification-of-religious-skepticism/" },
+      { title: "Review of The Wisdom to Doubt", by: NDPR, url: "https://ndpr.nd.edu/reviews/the-wisdom-to-doubt-a-justification-of-religious-skepticism/" },
     ],
   },
   {
@@ -1392,7 +1392,7 @@ export const moments: Moment[] = [
     side: "theist",
     sources: [
       { title: "The Elusive God: Reorienting Religious Epistemology", by: "Paul K. Moser", year: "2008", url: "https://doi.org/10.1017/CBO9780511499012" },
-      { title: "Review of The Elusive God", by: NDPR, url: "https://ndpr.nd.edu/news/the-elusive-god-reorienting-religious-epistemology/" },
+      { title: "Review of The Elusive God", by: NDPR, url: "https://ndpr.nd.edu/reviews/the-elusive-god-reorienting-religious-epistemology/" },
     ],
   },
   {
