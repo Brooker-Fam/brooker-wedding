@@ -255,7 +255,8 @@ const evidence: Objection = {
             "This fails if the arguments for God and the signs of revelation, taken together, give Christianity no more support than its rivals get.",
           sources: [
             { title: "Dei Filius (Dogmatic Constitution on the Catholic Faith)", by: "First Vatican Council", year: "1870", url: "https://www.papalencyclicals.net/councils/ecum20.htm", note: "Ch. 3, on faith, names miracles and prophecies as outward signs of revelation." },
-            { title: "Summa Theologiae II-II qq.1–2", by: "Thomas Aquinas", url: "https://www.newadvent.org/summa/3002.htm", note: "English Dominican translation. Q.1 a.4 on the signs that show what ought to be believed, and q.2 a.10 on looking for reasons." },
+            { title: "Summa Theologiae II-II q.1", by: "Thomas Aquinas", url: "https://www.newadvent.org/summa/3001.htm#article4", note: "English Dominican translation. Article 4 is on the signs that show what ought to be believed." },
+            { title: "Summa Theologiae II-II q.2", by: "Thomas Aquinas", url: "https://www.newadvent.org/summa/3002.htm#article10", note: "English Dominican translation. Article 10 is on looking for reasons for what one believes." },
             { title: "The Analogy of Religion", by: "Joseph Butler", year: "1736", url: "https://www.gutenberg.org/ebooks/53346", note: "The line on probability is in the Introduction." },
             { title: "An Essay in Aid of a Grammar of Assent", by: "John Henry Newman", year: "1870", url: "https://www.newmanreader.org/works/grammar/chapter8-2.html", note: "Ch. 8, sect. 2, on reaching certainty from many probabilities that point the same way." },
           ],

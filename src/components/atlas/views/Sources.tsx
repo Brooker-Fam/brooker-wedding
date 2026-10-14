@@ -4,8 +4,10 @@
 
    Every work cited anywhere (by a move, an objection's reading list, a
    person's file or a moment on the timeline), listed once. Entries are keyed
-   by author and title, so "Pensées" cited from four moves is one entry with
-   four chips. Where moves cite different places in one work ("Summa
+   by author and title (an encyclopedia article or a review by publisher and
+   title), so "Pensées" cited from four moves is one entry with four chips.
+   One text cited under two titles or bylines is folded into one entry when
+   the citations share a link or one title contains the other. Where moves cite different places in one work ("Summa
    Theologiae I q.2 a.3", "… I q.105 a.6"), the work is one entry and each
    place gets its own row, with its own link and the moves that cite it.
 
@@ -97,7 +99,7 @@ interface Part {
   /** The place, as shown: "Sect. X, “Of Miracles”". */
   loc: string;
   locKey: string;
-  /** The title as cited, for a work cited at this one place only. */
+  /** The title as most citations give it, for a work cited at this one place only. */
   full: string;
   url?: string;
   /** Who this place's citations credit, when it isn't what the work's byline says: "trans. Vernon J. Bourke". */
@@ -519,7 +521,7 @@ function buildWorks(d: Disputation, ix: DisputationIndex): { works: Work[]; cita
       return {
         loc: capFirst(commonest(p.locs, "long")),
         locKey: p.locKey,
-        full: longest(p.fulls),
+        full: commonest(p.fulls, "long"),
         url: p.url,
         credit: differs,
         about: reading ?? (notes.length === 1 ? notes[0] : undefined),
