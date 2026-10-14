@@ -393,7 +393,7 @@ export default function Walk({ o }: { o: ObjectionId }) {
     acts.push({
       key: "test",
       label: <>Show the other {k === 1 ? "reply" : num(k)}</>,
-      short: k === 1 ? "See the other" : "See the others",
+      short: k === 1 ? "Show the other" : "Show the others",
       kbd: "T",
       tone: "line",
       run: () => dispatch({ type: "test", id: prompt.id }),
