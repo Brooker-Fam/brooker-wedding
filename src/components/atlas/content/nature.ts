@@ -88,7 +88,7 @@ const nature: Objection = {
               gist: "Hume doesn't assume the reports are false. He weighs them, and the chance that witnesses erred or lied always beats the chance that nature's order failed.",
               body: [
                 "The circle charge misreads {{hume}}, who weighs the reports and assumes nothing about them in advance. His test asks which would be the greater wonder, that this testimony is false or that the event happened. Mistakes, wishful thinking and fraud turn up every day, while a dead man rising has never been seen under conditions anyone could check. For Hume, choosing the likelier explanation is what rational belief is: “A wise man, therefore, proportions his belief to the evidence.”",
-                "{{fogelin}} reads the essay as one argument, in which Part 1 sets the bar and Part 2 shows that no actual report clears it. {{mackie}} also treats it as a weighing of probabilities. Historians since F. H. Bradley (1874) add that critical history has to presume nature is regular. That rule, explaining events by natural causes whatever one's private beliefs, is called [[methodological-naturalism|methodological naturalism]], and believing historians follow it too.",
+                "{{fogelin}} reads the essay as one argument, in which Part 1 sets the bar and Part 2 shows that no actual report clears it. {{mackie}} reads it the same way. Historians since the philosopher F. H. Bradley (1874) add that critical history has to presume nature is regular. That rule, explaining events by natural causes whatever one's private beliefs, is called [[methodological-naturalism|methodological naturalism]], and believing historians follow it too.",
               ],
               quote: {
                 text: "Thus, suppose, all authors, in all languages, agree, that, from the first of January 1600, there was a total darkness over the whole earth for eight days … it is evident, that our present philosophers, instead of doubting the fact, ought to receive it as certain, and ought to search for the causes whence it might be derived.",
@@ -244,7 +244,7 @@ const nature: Objection = {
               label: "A God who never competes with nature can't step into it",
               gist: "If nature's laws are God's own decrees, a miracle would set God against himself, and a God who works through every cause has no gap to step into.",
               body: [
-                "Lewis pictures God feeding events into nature. {{spinoza}} called this the common error of imagining two powers, God's and nature's, taking turns. For him nature's universal laws are “decrees of God following from the necessity and perfection of the Divine nature.” An event against them would be God acting against himself, and Spinoza saw no difference between going *against* the laws and going *beyond* them. Belief in such an event, he warned, “would throw doubt upon everything, and lead to Atheism.”",
+                "Lewis pictures God feeding events into nature, and {{spinoza}} had already called that picture the common error of imagining two powers, God's and nature's, taking turns. For him nature's universal laws are “decrees of God following from the necessity and perfection of the Divine nature.” An event against them would be God acting against himself, and Spinoza saw no difference between going *against* the laws and going *beyond* them. Belief in such an event, he warned, “would throw doubt upon everything, and lead to Atheism.”",
                 "The reply to Objection I, drawn from {{tanner}} and {{hart}}, says God grounds every cause without competing with any. If so, God cannot also be one more cause that now and then does what a creature would have done, and that is the role the feeding-in picture gives him. A [[non-competition|non-competing]] God works through nature and never steps in. An intervening God is ((coh-a|one cause among others)) after all.",
               ],
               quote: {
@@ -270,7 +270,7 @@ const nature: Objection = {
                   label: "A freely chosen order leaves its Maker free to exceed it",
                   gist: "God chose nature's order freely, so going beyond it contradicts nothing, and when he heals without medicine he pushes no natural cause aside.",
                   body: [
-                    "Spinoza's dilemma has two horns, and {{aquinas}} answered both. God chose this order and could have chosen another, so acting beyond it breaks no decree, because the decree included the exception. Spinoza's move from decree to absurdity works only if God's will is as necessary as geometry, and that is the point argued over in ((coh-a-collapse|Objection I)).",
+                    "{{aquinas}} had answered both horns of Spinoza's dilemma four centuries earlier. God chose this order and could have chosen another, so acting beyond it breaks no decree, because the decree included the exception. Spinoza's move from decree to absurdity works only if God's will is as necessary as geometry, and that is the point argued over in ((coh-a-collapse|Objection I)).",
                     "Aquinas also denied that a miracle is competition. Every creature, he says (*Summa* III q.11 a.1), has an [[obediential-potency|obediential power]], an openness to being raised by God beyond anything a natural agent could do to it. When God heals without medicine, no creature's power is pushed aside. One is left unused. On this view a miracle is like a scene an author adds to his story, with no actor shoved off the stage.",
                   ],
                   quote: {
@@ -333,7 +333,7 @@ const nature: Objection = {
           gist: "Science explains each moment of the world by the one before, but never why there is a world at all, and only something that has to exist can answer that.",
           body: [
             "Ockham's razor only chooses between explanations of the same thing. Physics explains how one state of the world leads to the next, and it cannot say why there is a world with laws to describe. {{leibniz}} called this the first question. Every star, law and quantum field might never have existed, which makes them contingent, and the reason for the whole series of contingent things, Leibniz argued, cannot lie inside the series.",
-            "Aquinas's reply to the objection says that “all things that are changeable and capable of defect must be traced back to an immovable and self-necessary first principle.” This is the [[contingency-argument|contingency argument]], restated in modern form by {{pruss}}. It differs from the [[kalam|kalam argument]] that the universe had a beginning, which Aquinas held reason cannot prove. Lawrence Krauss's *A Universe from Nothing* (2012) is no rival either, since a quantum vacuum governed by laws is something, as the philosopher of physics David Albert said in reviewing it.",
+            "Aquinas's reply to the objection says that “all things that are changeable and capable of defect must be traced back to an immovable and self-necessary first principle.” This is the [[contingency-argument|contingency argument]], restated today by {{pruss}}. It differs from the [[kalam|kalam argument]] that the universe had a beginning, which Aquinas held reason cannot prove. The physicist Lawrence Krauss's *A Universe from Nothing* (2012) is no rival either, since a quantum vacuum governed by laws is something, as the philosopher of physics David Albert said in reviewing it.",
           ],
           quote: {
             text: "This principle being laid down, the first question we are entitled to put will be — Why does something exist rather than nothing? For ‘nothing’ is simpler and easier than ‘something.’",
@@ -390,7 +390,7 @@ const nature: Objection = {
                   },
                   thinkers: ["aquinas", "pruss", "oconnor-timothy", "van-inwagen"],
                   cedes:
-                    "If reasons that leave a choice open turned out to explain nothing about why it went the way it did, this would fail.",
+                    "If reasons that leave a choice open turned out to explain nothing about why it went the way it did, the free-choice answer would collapse.",
                   see: [
                     { id: "coh-a-extrinsic", why: "Objection I's model, one necessary act of God whose effects could have been otherwise." },
                     { id: "coh-c-natlaw", why: "The same answer, that reasons fit a choice without forcing it, given for God's commands in Objection I." },
@@ -406,8 +406,8 @@ const nature: Objection = {
                       label: "A reason that fits either choice is a brute fact in disguise",
                       gist: "If the same reasons would have explained God making a different world or none, nothing explains why this one exists, and the unexplained fact is back.",
                       body: [
-                        "Reasons that would have served equally well for the opposite choice can't explain why the choice went this way. Asked why this world exists and not another or none, the free-choice view ends with “God chose to.” That is a [[brute-fact|brute fact]], a fact with no explanation, dressed up as one. In the job example your character settles your choice, and nothing settles God's. {{spinoza}} demanded reasons without exception (*Ethics* I P11), and {{della-rocca}} makes the same [[contrastive-explanation|contrastive]] demand, asking why this and not the alternatives.",
-                        "{{leibniz}} said God chooses the best because reasons incline him without forcing him, and {{rowe}} argued that this fails. If there is a best world, a perfectly good God cannot fail to make it, and creation is necessary after all. If every world has a better one, God's goodness settles nothing and the brute fact returns.",
+                        "Reasons that would have served equally well for the opposite choice can't explain why it went this way. Asked why this world exists and not another or none, the free-choice view ends with “God chose to.” That is a [[brute-fact|brute fact]], a fact with no explanation, dressed up as one. In the job example your character settles your choice, and nothing settles God's. {{spinoza}} demanded reasons without exception (*Ethics* I P11), and {{della-rocca}} makes the same [[contrastive-explanation|contrastive]] demand, asking why this and not the alternatives.",
+                        "{{leibniz}} said God chooses the best, and that reasons incline him to it without forcing him. {{rowe}} argued that this fails. If there is a best world, a perfectly good God cannot fail to make it, and creation is necessary after all. If every world has a better one, God's goodness settles nothing and the brute fact returns.",
                       ],
                       quote: {
                         text: "And that of sufficient reason, in virtue of which we hold that there can be no fact real or existing, no statement true, unless there be a sufficient reason, why it should be so and not otherwise, although these reasons usually cannot be known by us.",
@@ -572,7 +572,7 @@ const nature: Objection = {
               label: "Fine-tuning yields no odds that favor a designer",
               gist: "No one can give odds for a constant whose range has no limit, we could only ever observe a livable universe, and a God could use any physics.",
               body: [
-                "The impressive odds have nothing to divide by. If a constant could take any value without limit, there is no way to spread probability evenly over that range, and every finite window gets probability zero. {{mcgrew-timothy|Timothy}} and Lydia McGrew, both Christians, made this point with Eric Vestrup in 2001. {{sober}} adds a [[anthropic-principle|selection effect]] that needs no multiverse, since we could not have observed a hostile universe and so learn little from observing a friendly one. When Fred Adams and Victor Stenger varied several constants together, much of the tuning loosened.",
+                "The impressive odds have nothing to divide by. If a constant could take any value without limit, there is no way to spread probability evenly over it, and every finite window gets probability zero. {{mcgrew-timothy|Timothy}} and Lydia McGrew, both Christians, made this point with Eric Vestrup in 2001. {{sober}} adds a [[anthropic-principle|selection effect]] that needs no multiverse, since we could not have observed a hostile universe, so a friendly one tells us little. When the physicists Fred Adams and Victor Stenger varied several constants at once, much of the tuning loosened.",
                 "{{carroll}} told William Lane Craig in a 2014 debate that belief in God predicts no particular physics. Life needs friendly physics only if nature works alone, since a God could keep creatures alive under any laws, and a hypothesis that fits any physics is confirmed by none in particular.",
               ],
               quote: {
@@ -605,7 +605,7 @@ const nature: Objection = {
                   },
                   thinkers: ["swinburne", "collins", "leslie", "aquinas"],
                   cedes:
-                    "If a good God turned out to have no more reason to make law-bound creatures with bodies than anything else, this would fall.",
+                    "If a good God turned out to have no more reason to make law-bound creatures with bodies than anything else, Swinburne would have no prediction left.",
                   sources: [
                     { title: "The Existence of God", by: "Richard Swinburne", year: "2004 (2nd ed.)" },
                     { title: "Universes", by: "John Leslie", year: "1989" },
@@ -655,7 +655,7 @@ const nature: Objection = {
               },
               thinkers: ["hume", "dawkins"],
               cedes:
-                "If a mind able to design a universe needed less explaining than the universe it designs, this objection would fail.",
+                "If a mind able to design a universe needed less explaining than the universe it designs, Philo's question would lose its force.",
               see: [{ id: "nat-b-brute", why: "Where the chain might stop instead, at a universe with no further explanation." }],
               sources: [{ title: "Dialogues Concerning Natural Religion, pts. IV–V", by: "David Hume", year: "1779", url: "https://www.gutenberg.org/ebooks/4583" }],
               children: [
@@ -675,7 +675,7 @@ const nature: Objection = {
                   },
                   thinkers: ["plantinga", "dawkins", "swinburne", "aquinas"],
                   cedes:
-                    "If an unlimited mind turned out to need more explaining than the finite universe it was invoked to explain, this would fall.",
+                    "If an unlimited mind turned out to need more explaining than the finite universe it was invoked to explain, the reply would lose its second half.",
                   see: [{ id: "coh-a-collapse", why: "The trouble divine simplicity runs into, argued in Objection I." }],
                   sources: [
                     { title: "The Dawkins Confusion: Naturalism ad absurdum", by: "Alvin Plantinga, Books & Culture", year: "2007", url: "https://www.booksandculture.com/articles/2007/marapr/1.21.html" },
@@ -688,7 +688,7 @@ const nature: Objection = {
                       label: "An unlimited mind isn't simple, and toolmakers are no analogy",
                       gist: "A mind that knows every truth holds at least as much as the world it explains, and we infer toolmakers only because we already know toolmakers exist.",
                       body: [
-                        "Against {{swinburne}}, Jeremy Gwiazda (2009) argued that the case for infinite values being simpler than finite ones does not hold up. A mind that knows every truth and chooses among all possible universes holds at least as much information as the world it explains, which was {{dawkins}}'s point, argued more carefully by Herman Philipse (2012) and {{oppy}}. The reply also mixes rival views, since Swinburne's God is a person whose thoughts follow one another in time, while the God of [[divine-simplicity|divine simplicity]] has no parts and faces ((coh-a-collapse|the charge in Objection I)) that nothing could have been otherwise.",
+                        "Against {{swinburne}}, the philosopher Jeremy Gwiazda (2009) argued that the case for infinite values being simpler than finite ones does not hold up. A mind that knows every truth and chooses among all possible universes holds at least as much information as the world it explains, which was {{dawkins}}'s point, argued more carefully by the Dutch philosopher Herman Philipse (2012) and {{oppy}}. The reply also mixes rival views, since Swinburne's God is a person whose thoughts follow one another in time, while the God of [[divine-simplicity|divine simplicity]] has no parts and faces ((coh-a-collapse|the charge in Objection I)) that nothing could have been otherwise.",
                         "Flints and primes work as evidence because we already know that toolmakers and radio engineers exist and what they want. {{sober}} points out that we have no such knowledge of a mind without a body.",
                       ],
                       quote: {
@@ -791,7 +791,7 @@ const nature: Objection = {
           gist: "Selection rewards behavior that keeps creatures alive, true beliefs or not, so someone who thinks nature is all there is can't fully trust her own evolved reason.",
           body: [
             "Unguided nature may not explain the reliability of the minds doing the explaining. {{plantinga}}'s [[eaan|evolutionary argument against naturalism]], the view that nature is all there is, holds that selection cares what a creature does and not whether its beliefs are true. Given naturalism plus evolution, he argues, the chance that our faculties are reliable is low, or impossible even to estimate. Either way the naturalist has a [[defeater|defeater]], a reason to doubt every belief her faculties produce, naturalism included. If God made minds to know the world, the problem does not arise.",
-            "{{darwin}} felt the doubt himself, though he aimed it at his own sense that the universe is not the result of chance. {{lewis-cs}} made an earlier version, revised after Elizabeth Anscombe's critique in 1948. Whether Spinoza's Nature, which already includes thought, escapes the argument is ((nat-b-parallel|Spinoza's question)).",
+            "{{darwin}} felt the doubt himself, though he aimed it at his own sense that the universe is not the result of chance. {{lewis-cs}} made an earlier version, revised after the philosopher Elizabeth Anscombe's critique in 1948. Whether Spinoza's Nature, which includes thought, escapes the argument is ((nat-b-parallel|Spinoza's question)).",
           ],
           quote: {
             text: "But then with me the horrid doubt always arises whether the convictions of man's mind, which has been developed from the mind of the lower animals, are of any value or at all trustworthy. Would any one trust in the convictions of a monkey's mind, if there are any convictions in such a mind?",
@@ -800,7 +800,7 @@ const nature: Objection = {
           },
           thinkers: ["plantinga", "darwin", "lewis-cs"],
           cedes:
-            "If evolution were shown to favor true belief as such, about cosmology and logic as much as about food and predators, the argument would fail.",
+            "If evolution were shown to favor true belief as such, about cosmology and logic as much as about food and predators, Plantinga's argument would collapse.",
           see: [
             { id: "hid-designed-faculty", why: "The same reasoning in reverse, where a natural origin need not make a faculty unreliable." },
             { id: "evi-a-function", why: "Plantinga's account of knowledge as true belief from faculties working as designed, applied to belief in God." },
@@ -816,7 +816,7 @@ const nature: Objection = {
               label: "Selection favors minds that track the truth",
               gist: "Creatures that misjudge food, cliffs and predators die young, and getting the world right is the easiest general way to act well, so evolution should favor reliable minds.",
               body: [
-                "Selection sees truth through what true beliefs make possible. A gazelle that takes the lion for a bush leaves few grandchildren. Plantinga's own example is a hominid who wants to be eaten by a tiger but runs from each one because he thinks it unlikely to eat him. William Ramsey argued in 2002 that such a creature needs a matching false desire for every false belief, rigged case by case, which is far harder to evolve than getting things right.",
+                "Selection sees what true beliefs let a creature do. A gazelle that takes the lion for a bush leaves few grandchildren. Plantinga's example is a hominid who wants to be eaten by a tiger but runs from each one because he thinks it unlikely to eat him. The philosopher William Ramsey argued in 2002 that such a creature needs a matching false desire for every false belief, rigged case by case, which is far harder to evolve than getting things right.",
                 "{{fitelson}} and {{sober}} add that Plantinga's low probability has no support, and that a believer can't vindicate reason without begging the question either. Evolution also predicts the pattern we find, minds that handle medium-sized objects and other people well and go wrong about probability and the very large and small, which is why we invented science to check ourselves.",
               ],
               quote: {
@@ -886,7 +886,7 @@ const nature: Objection = {
                           label: "Selection leaves meaning loose, and basic trust can be defeated",
                           gist: "Selection can't tell a belief about flies from one about small dark moving things, and even basic trust gives way once you learn your faculties may be unreliable.",
                           body: [
-                            "Selection fixes content only as finely as it sees, and it sees coarsely. A frog's tongue-snap was selected because it caught flies, but every fly it caught was also a small dark moving thing, so its history can't say which it is about. {{fodor}} made this point in 1990, and with Massimo Piattelli-Palmarini in 2010. {{plantinga}} concluded in 2011 that where content is undetermined, so is truth, most of all for beliefs about logic, mathematics and naturalism.",
+                            "Selection fixes content only as finely as it sees, and it sees coarsely. A frog's tongue-snap was selected because it caught flies, but every fly it caught was also a small dark moving thing, so nothing in its history settles which it means. {{fodor}} made this point in 1990, and with Massimo Piattelli-Palmarini in 2010. {{plantinga}} concluded in 2011 that where content is undetermined, so is truth, most of all for beliefs about logic, mathematics and naturalism.",
                             "Plantinga answered Bergmann in 2002 that a [[properly-basic|properly basic]] belief is innocent until proven guilty and can still be proven guilty. If you learn you took a drug that makes most users' reasoning unreliable, your trust in it is defeated, basic or not. A naturalist who accepts evolution has learned much the same and cannot argue the [[defeater|defeater]] away without using those faculties.",
                           ],
                           thinkers: ["fodor", "plantinga", "bergmann"],

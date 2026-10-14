@@ -149,8 +149,14 @@ export default function Ledger() {
             the calls that leave its reply standing.
           </p>
           <ul className="ld-t-list">
-            {tensions.map((t) => (
-              <TensionPair key={`${t.node}>${t.reply}`} node={t.node} reply={t.reply} />
+            {tensions.map((t, i) => (
+              // Name the objection once, over the first pair that sits in it.
+              <TensionPair
+                key={`${t.node}>${t.reply}`}
+                node={t.node}
+                reply={t.reply}
+                named={i === 0 || ix.nodes.get(tensions[i - 1].node)?.objection !== ix.nodes.get(t.node)?.objection}
+              />
             ))}
           </ul>
         </section>
@@ -509,7 +515,7 @@ function CruxCard({ crux, tense }: { crux: Crux; tense: boolean }) {
 
 /* ---------------- contradictions (tensions in the code) ---------------- */
 
-function TensionPair({ node, reply }: { node: string; reply: string }) {
+function TensionPair({ node, reply, named }: { node: string; reply: string; named: boolean }) {
   const { ix, judgments, judge, labels, toPlain } = useAtlas();
   const toast = useToast();
   const replyInfo = ix.nodes.get(reply);
@@ -545,7 +551,7 @@ function TensionPair({ node, reply }: { node: string; reply: string }) {
 
   return (
     <li className="ld-tension">
-      {numeral && <p className="ld-t-say mono">In Objection {numeral}</p>}
+      {named && numeral && <p className="ld-t-say mono">In Objection {numeral}</p>}
       <div className="ld-t-pair">
         <div className="ld-t-col">
           <TensionMove id={node} role="You said this holds" />
