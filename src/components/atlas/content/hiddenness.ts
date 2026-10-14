@@ -153,8 +153,8 @@ const hiddenness: Objection = {
                       label: "Unseen reasons can't defeat an argument from what love is",
                       gist: "Unseen reasons may weaken arguments from piles of evil, but this argument starts from what perfect love is, and the goods in question would be human goods.",
                       body: [
-                        "Skeptical theism answers arguments that go from what we see to what is probably true, such as 'I see no reason for this evil, so there probably is none.' {{schellenberg}} reasons from what perfect love is. If openness to relationship is part of perfect love, he says, appealing to unknown reasons is a 'logical foul'. His argument is deductive, meaning the conclusion follows with certainty if the premises are true. So if we can see that the premises are true, no hidden good can block the conclusion.",
-                        "The goods on offer would also have to be goods for us, goods of human relationship and growth, which are what we understand best. The skeptical move also spreads, because if we can't judge what perfect love would do about our unbelief, we can't judge what it would do about its promises either, including 'I will never leave thee, nor forsake thee' (Hebrews 13:5).",
+                        "Skeptical theism answers arguments that go from what we see to what is probably true, such as *I see no reason for this evil, so there probably is none*. {{schellenberg}} reasons instead from what perfect love is. His argument is deductive, meaning the conclusion follows with certainty if the premises are true. So if we can see that the premises are true, no hidden good can block the conclusion.",
+                        "Schellenberg adds that any good God had in mind here would be a good for us, a good of human relationship or growth, and those are the goods we understand best. And if we can't judge what perfect love would do about our unbelief, we can't be sure God will keep his promises either, including 'I will never leave thee, nor forsake thee' (Hebrews 13:5).",
                       ],
                       quote: {
                         text: "He that loveth not knoweth not God; for God is love.",
@@ -180,11 +180,11 @@ const hiddenness: Objection = {
         {
           id: "hid-rea-presence",
           side: "theist",
-          label: "God meets us unrecognized, so no one is left with nothing",
+          label: "People can meet God without knowing it is God",
           gist: "Feeling God near and God being near are different, and people can meet God in Scripture, worship and ordinary life without knowing it is him.",
           body: [
             "{{rea}} doubts premise two, which says no one can relate to God without first believing he exists. Feeling God near and God's being near are different things, he argues. Ordinary experiences of thunder, of beauty, or of a text read aloud in church can be experiences of God whether or not they come labeled. In 2009 he argued that Scripture and liturgy, the set forms of public worship, carry God's presence to anyone who takes part.",
-            "{{stump}} and Matthew Benton add that knowing a person may not require believing the person exists. A stranger can steady you long before you learn his name. Philosophers call this contact [[de-re-belief|*de re*]] ('about the thing'), and it can come before belief *de dicto* ('about the description') that the one you are in touch with is God. The psalmist asked, 'whither shall I flee from thy presence?' (Psalm 139:7).",
+            "{{stump}} and the philosopher Matthew Benton add that knowing a person may not require believing the person exists. A stranger can steady you long before you learn his name. Philosophers call a belief about a particular person, held without knowing who he is, [[de-re-belief|*de re*]], Latin for 'about the thing'. Stump and Benton think you can be in touch with God in this way before you believe that it is God you are in touch with. The psalmist asked, 'whither shall I flee from thy presence?' (Psalm 139:7).",
           ],
           quote: {
             text: "Surely the LORD is in this place; and I knew it not.",
@@ -192,7 +192,7 @@ const hiddenness: Objection = {
             cite: "Genesis 28:16 (KJV)",
           },
           thinkers: ["rea", "stump"],
-          cedes: "This fails if a relationship with God requires believing, from its first moment, that it is God you are dealing with.",
+          cedes: "If relating to God requires believing, from the first moment, that it is God you are dealing with, Rea's reply doesn't work.",
           see: [{ id: "evi-a-experience", why: "Objection IV asks whether religious experience counts as evidence, and how common it is." }],
           sources: [
             {
@@ -219,10 +219,10 @@ const hiddenness: Objection = {
               id: "hid-presence-not-belief",
               side: "skeptic",
               label: "You can't relate to someone you don't believe is there",
-              gist: "The argument asks for a two-way relationship you know you're in, and an encounter you don't recognize as anyone isn't that.",
+              gist: "Schellenberg's argument is about a two-way relationship you know you're in, and an encounter you don't recognize as anyone isn't that.",
               body: [
-                "Rea's unrecognized presence may be real, but it isn't the relationship the argument asks for. {{schellenberg}} means a *conscious* relationship, one you know you are in and can answer from your side. His premises ask only for belief, with no particular felt experience, because believing someone is there is the least such a relationship needs. Rea himself treats hiddenness as a family of problems, and this reply mainly addresses the believer's sense that God is absent.",
-                "The stranger example supports Schellenberg. You know the stranger who steadies you is someone, even without his name, while to a nonbeliever liturgy is words and thunder is weather. Jacob already believed in the God of his fathers when he woke at Bethel. The Bible itself says that 'he that cometh to God must believe that he is' (Hebrews 11:6). And someone raised where no liturgy is ever read never meets it at all.",
+                "{{schellenberg}} can grant that God might be present unrecognized, because his argument is about a *conscious* relationship, one you know you are in and can answer from your side. His premises require only belief, with no particular felt experience, because believing someone is there is the least such a relationship needs. Rea himself treats hiddenness as a family of problems, and his reply mainly addresses the believer's sense that God is absent.",
+                "The stranger example supports Schellenberg, since you know the stranger who steadies you is someone, even without his name, while a nonbeliever who hears thunder thinks only of the weather. Jacob already believed in the God of his fathers when he woke at Bethel. The Bible itself says that 'he that cometh to God must believe that he is' (Hebrews 11:6). And someone raised where no liturgy is ever read never meets it at all.",
               ],
               quote: {
                 text: "But if thou art everywhere, why do I not see thee present?",
@@ -239,8 +239,8 @@ const hiddenness: Objection = {
                   label: "Trust without belief is enough to begin a relationship with God",
                   gist: "You can trust God, hope in him and act on that hope while unsure he exists, so a relationship can begin before belief is settled.",
                   body: [
-                    "The claim that relating to God requires believing in him doesn't fit faith as people live it. {{howard-snyder}} argues that [[nondoxastic-faith|faith that God exists doesn't require believing]] that he does. It can rest on hope and trust, the way a sailor in a storm steers for a shore she can't yet see. Ted Poston and Trent Dougherty add that belief comes in degrees, so someone for whom God is a live maybe can still turn toward him. The New Testament's own definition puts hope first: 'faith is the substance of things hoped for, the evidence of things not seen' (Hebrews 11:1).",
-                    "In Mark's Gospel a father who can't settle his doubts prays anyway, and Jesus heals his son. Even {{schellenberg}}, in *The Will to Imagine* (2009), recommends a faith without belief, aimed at an ultimate reality he leaves undescribed, as the right response to religious doubt.",
+                    "Schellenberg's claim that relating to God requires believing in him doesn't fit faith as people live it. {{howard-snyder}} argues that [[nondoxastic-faith|faith that God exists doesn't require believing]] that he does, just as you can have faith that a friend will pull through surgery without quite believing she will. Such faith rests on hope and trust. The philosophers Ted Poston and Trent Dougherty add that belief comes in degrees, so someone for whom God is a live maybe can still turn toward him. The New Testament's own definition puts hope first: 'faith is the substance of things hoped for, the evidence of things not seen' (Hebrews 11:1).",
+                    "In Mark's Gospel a father who can't settle his doubts prays anyway, and Jesus heals his son. Even {{schellenberg}}, in *The Will to Imagine* (2009), recommends a faith without belief, aimed at an ultimate reality he describes only in the most general terms, as the right response to religious doubt.",
                   ],
                   quote: {
                     text: "Lord, I believe; help thou mine unbelief.",
@@ -249,7 +249,7 @@ const hiddenness: Objection = {
                   },
                   thinkers: ["howard-snyder", "schellenberg"],
                   cedes:
-                    "A person who hopes in God and lives by that hope, yet stands in no relationship with him at all, would sink this reply.",
+                    "If someone could hope in God and live by that hope with no relationship to him at all, this reply would fall.",
                   see: [
                     { id: "evi-a-trust", why: "Objection IV describes faith that begins as trust acted on, since no one can believe at will." },
                     { id: "evi-a-james", why: "William James on questions that cannot wait for the evidence." },
@@ -272,10 +272,10 @@ const hiddenness: Objection = {
                     {
                       id: "hid-conscious-relationship",
                       side: "skeptic",
-                      label: "Perfect love wouldn't settle for a one-sided bond with a maybe",
+                      label: "Perfect love would want both sides aware from the start",
                       gist: "Hope can reach toward a God who might be there, but no one can knowingly be comforted or answered by someone they don't believe exists.",
                       body: [
-                        "Faith without belief covers the human side of the relationship and leaves God's side silent. {{schellenberg}} replied in 2007, in an article whose title borrows Paul's 'through a glass, darkly', that the relationship perfect love seeks is conscious and two-way. You can't knowingly receive comfort or forgiveness from someone you don't believe is giving it, and a child who hopes someone is in the next room is not yet being held. Hope counts for something, but it is the hope of someone writing letters that may be going nowhere. A perfectly loving God who could give more would not settle for a relationship one side can't know it is in. The reply also helps only people who already have the idea of God to hope toward, and many people never had it.",
+                        "{{schellenberg}} replied in 2007, in an article whose title borrows Paul's 'through a glass, darkly', that the relationship perfect love seeks is conscious and two-way, and that faith without belief supplies only the human side of it. You can't knowingly receive comfort or forgiveness from someone you don't believe is giving it, and a child who hopes someone is in the next room is not yet being held. A perfectly loving God who could give more would not settle, even at the beginning, for a relationship one side can't know it is in. Howard-Snyder's reply also helps only people who already have the idea of God to hope toward, and many people never had it.",
                       ],
                       quote: {
                         text: "Oh that I knew where I might find him! that I might come even to his seat!",
@@ -300,16 +300,16 @@ const hiddenness: Objection = {
                         {
                           id: "hid-seeking-is-finding",
                           side: "theist",
-                          label: "A love begun unseen can be finished face to face",
+                          label: "The relationship can start unnoticed and become two-way later",
                           gist: "Perfect love wants a relationship both sides know about, though not necessarily from the first day, and a seeker's longing may already be God's work.",
                           body: [
-                            "Schellenberg assumes the relationship must be conscious from the start, since premise one says God would be open *always*, as if every delay were a refusal. A relationship meant to last forever could begin below awareness and be named later. {{augustine}} wrote that 'our heart is restless, until it repose in Thee', and on his view the restlessness is already God's doing, the pull of the one it seeks.",
-                            "{{aquinas}} says knowledge that God exists 'in a general and confused way is implanted in us by nature', the way you can know someone is approaching without knowing it is Peter, though this 'is not to know absolutely that God exists'. The longing aims at God even while it misnames him. T. J. Mawson asked in 2012 what deadline God has set for belief, and suggested death, or the end of all things. Paul expected the rest to come later: 'For now we see through a glass, darkly; but then face to face' (1 Corinthians 13:12).",
+                            "Schellenberg assumes the relationship must be conscious from the start, since premise one says God would be open *always*, as if every delay were a refusal. A relationship meant to last forever could begin below awareness and be named later. {{augustine}} wrote that 'our heart is restless, until it repose in Thee' (*Confessions* I.1, tr. E. B. Pusey), and on his view the restlessness is already God's doing, the pull of the one it seeks.",
+                            "{{aquinas}} says knowledge that God exists 'in a general and confused way is implanted in us by nature', though this 'is not to know absolutely that God exists; just as to know that someone is approaching is not the same as to know that Peter is approaching, even though it is Peter who is approaching' (*Summa Theologiae* I q.2 a.1, reply 1). His reason is that everyone naturally desires happiness, which is finally found in God, though many people think it lies in riches or pleasure. The Oxford philosopher T. J. Mawson asked in 2012 what deadline God has set for belief, and suggested death, or the end of all things. Paul expected the rest to come later: 'For now we see through a glass, darkly; but then face to face' (1 Corinthians 13:12).",
                           ],
                           quote: {
                             text: "Console thyself, thou wouldst not seek Me, if thou hadst not found Me.",
                             who: "Blaise Pascal",
-                            cite: "Pensées 553, 'The Mystery of Jesus' (pub. 1670; tr. W. F. Trotter)",
+                            cite: "Pensées 553, 'The Mystery of Jesus' (Brunschvicg numbering; tr. W. F. Trotter)",
                           },
                           thinkers: ["augustine", "pascal", "aquinas"],
                           cedes:
@@ -338,8 +338,8 @@ const hiddenness: Objection = {
               label: "God's silence when people suffer most refutes Rea's reply",
               gist: "If God allows horrors for reasons beyond us, love would at least let the sufferer know he is there, yet a child dying alone in pain gets no such sign.",
               body: [
-                "Rea's reply is weakest where it matters most. {{rowe}} pointed out that if God allows horrible suffering for reasons beyond our grasp, a loving God would at least be consciously present to the sufferer and assure her of his love. {{schellenberg}} argued in 2010 that hiddenness in the middle of horror makes a stronger case than either the problem of evil or the problem of hiddenness alone. His example is a child dying in pain, alone, with no sense of anyone there.",
-                "Christians have said this too, among them {{lewis-cs}}, the best-known Christian apologist of his century. After his wife died he wrote in *A Grief Observed* (1961) that if you go to God 'when your need is desperate, when all other help is vain', you find 'A door slammed in your face, and a sound of bolting and double bolting on the inside. After that, silence.'",
+                "{{rowe}}, an atheist philosopher best known for his argument from evil, argued that if God allows horrible suffering for reasons beyond our grasp, a loving God would at least be consciously present to the sufferer and assure her of his love, which Rea's unrecognized presence doesn't do. {{schellenberg}} argued in 2010 that hiddenness in the middle of horror makes a stronger case than either the problem of evil or the problem of hiddenness alone. His example is a child dying in pain, alone, with no sense of anyone there.",
+                "Christians have said this too, among them {{lewis-cs}}, the author of *Mere Christianity*. After his wife died he wrote in *A Grief Observed* (1961) that if you go to God 'when your need is desperate, when all other help is vain', you find 'A door slammed in your face, and a sound of bolting and double bolting on the inside. After that, silence.'",
               ],
               quote: {
                 text: "O my God, I cry in the day time, but thou hearest not; and in the night season, and am not silent.",
