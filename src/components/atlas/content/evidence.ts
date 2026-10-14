@@ -6,9 +6,9 @@ import type { Objection } from "../types";
    checked against the cited public-domain texts (Elwes's Spinoza, Cunningham,
    Menzies, Salmond, Crombie, Tanner, Whiston's Josephus, Beveridge's Calvin,
    Trotter's Pascal, the KJV, the English Dominican Summa on New Advent,
-   Hume's Enquiry and Natural History, Reid's Inquiry, Paley, Butler, Clifford,
-   James), the Vatican's English text of Dei Verbum, or, for Plantinga and the
-   Martin passage he quotes, Warranted Christian Belief on CCEL. */
+   Hume's Enquiry, Reid's Inquiry, Paley, Butler, Clifford, James), the
+   Vatican's English text of Dei Verbum, or, for Plantinga and the Martin
+   passage he quotes, Warranted Christian Belief on CCEL. */
 
 const evidence: Objection = {
   id: "evidence",
@@ -20,7 +20,7 @@ const evidence: Objection = {
   counter:
     "Alvin Plantinga argues that belief in God can be rational without proof, the way belief in other minds is. The contradictions refute strict inerrancy, the claim that the Bible contains no errors at all, and the creeds never required that. The case for the resurrection rests on facts most critical scholars accept. Jesus was crucified, his followers sincerely believed they saw him alive afterwards, and Paul and Jesus's brother James, who had not followed him, came to believe.",
   dek:
-    "Christianity asks for firm, life-shaping belief on evidence most people would call thin, and the evidence it leans on hardest, four Gospels written decades after the events, disagree on details. Christian philosophers have answered in two ways that sit awkwardly together. Plantinga and others say belief in God needs no proof, any more than trust in your memory does. Habermas, Licona and Wright say the history, read carefully, makes a strong case.",
+    "Christianity asks for firm, life-shaping belief on evidence many people would call thin, and the evidence it leans on hardest, four Gospels written decades after the events, disagree on details. Christian philosophers have answered in two ways that sit awkwardly together. Plantinga and others say belief in God needs no proof, any more than trust in your memory does. Habermas, Licona and Wright say the history, read carefully, makes a strong case.",
   question: "Can Christian belief be rational without proof, when its main witnesses disagree?",
 
   prongs: [
@@ -31,8 +31,8 @@ const evidence: Objection = {
       label: "Believing beyond the evidence is wrong, and faith does it",
       gist: "A belief should be only as firm as its evidence, and Christianity asks for firm trust on evidence that wouldn't convince us of anything else this important.",
       body: [
-        "{{clifford}} opened his 1877 essay with a shipowner who quiets his doubts about an old ship, sends her to sea, and collects the insurance when she sinks with everyone aboard. The man is guilty, Clifford says, because “he had no right to believe on such evidence as was before him”, and he would be just as guilty if the ship had come home safe. {{hume}} had stated the principle calmly in 1748: “A wise man, therefore, proportions his belief to the evidence.” Philosophers now call this [[evidentialism|evidentialism]], the view that a belief is justified only as far as it fits your evidence (Earl Conee and {{feldman}}, 2004).",
-        "Christianity asks for more than that, and attaches a penalty. Jesus blesses those “that have not seen, and yet have believed” (John 20:29), and John's Gospel warns that “he that believeth not is condemned already” (3:18). {{aquinas}} quotes Pope Gregory, “there is no merit in believing what is shown by reason”, in order to answer him. Yet his own definition says that to believe is to assent to divine truth “at the command of the will” (Summa II-II q.2 a.9). If the will has to command the assent, the evidence alone was not enough to produce it.",
+        "{{clifford}} opened his 1877 essay with a shipowner who quiets his doubts about an old ship and collects the insurance when she sinks with everyone aboard. The man is guilty, Clifford says, because “he had no right to believe on such evidence as was before him”, and he would be guilty even if she had come home. {{hume}} had stated the principle in 1748: “A wise man, therefore, proportions his belief to the evidence.” The modern name for it is [[evidentialism|evidentialism]], the view that a belief is justified only as far as it fits your evidence (Earl Conee and {{feldman}}, 2004).",
+        "Christianity asks for more than that, and attaches a penalty. Jesus blesses those “that have not seen, and yet have believed” (John 20:29), and John's Gospel warns that “he that believeth not is condemned already” (3:18). {{aquinas}} quotes Pope Gregory, “there is no merit in believing what is shown by reason”, and answers him, but his own definition says that to believe is to assent to divine truth “at the command of the will” (Summa II-II q.2 a.9). If the will has to command the assent, the evidence alone was not enough.",
       ],
       quote: {
         text: "To sum up: it is wrong always, everywhere, and for anyone, to believe anything upon insufficient evidence.",
@@ -58,8 +58,8 @@ const evidence: Objection = {
           label: "Belief in God can be rational without proof, like other minds",
           gist: "Nobody can prove that other people have minds or that memory works, yet believing both is rational, and belief in God can be rational in the same way.",
           body: [
-            "Clifford's rule says a rational belief must rest on evidence, yet much of what we reasonably believe doesn't. Nobody has proved that other people have inner lives, or that their memory of breakfast is roughly right, and believing both is reasonable. {{plantinga}} argued in 1983 that the rule also fails its own test. It comes from [[classical-foundationalism|classical foundationalism]], the picture on which every rational belief is either self-evident or proved from beliefs that are, and that picture is neither self-evident nor proved. {{reid}} had put a similar question to the skeptics of 1764.",
-            "In *Warranted Christian Belief* (2000) Plantinga calls a belief [[properly-basic|properly basic]] when it is reasonable to hold without argument because it comes straight from a faculty working properly in the right setting, as memory and perception do. {{calvin}} taught that God gave everyone a natural [[sensus-divinitatis|sense of the divine]]. Plantinga's [[aquinas-calvin-model|extended model]] adds the inner witness of the Holy Spirit, so that the gospel itself can be known in the same direct way. He claims only that belief in God *can* be rational without proof.",
+            "Clifford's rule says a rational belief must rest on evidence, yet much of what we reasonably believe doesn't. Nobody has proved that other people have inner lives or that memory is reliable. {{plantinga}} argued in 1983 that the rule also fails its own test. It comes from [[classical-foundationalism|classical foundationalism]], the picture on which every rational belief is either self-evident or proved from beliefs that are, and that picture is neither self-evident nor proved. {{reid}} said much the same to the skeptics of 1764.",
+            "In 2000 Plantinga called a belief [[properly-basic|properly basic]] when it is reasonable to hold without argument because it comes straight from a faculty working properly, as memory does. {{calvin}} taught that God gave everyone a natural [[sensus-divinitatis|sense of the divine]], and Plantinga's [[aquinas-calvin-model|extended model]] adds the inner witness of the Holy Spirit, so that the gospel too can be known directly. He claims only that belief in God *can* be rational without proof.",
           ],
           quote: {
             text: "Why, Sir, should I believe the faculty of reason more than that of perception; they came both out of the same shop, and were made by the same artist; and if he puts one piece of false ware into my hands, what should hinder him from putting another?",
@@ -86,8 +86,8 @@ const evidence: Objection = {
               label: "Then any creed can call itself basic, Great Pumpkin included",
               gist: "If Christians may believe in God without evidence, any group can excuse its own beliefs the same way, and belief in God, unlike belief in other minds, isn't universal.",
               body: [
-                "If belief in God can be basic, why not belief in the Great Pumpkin, who in Plantinga's words “returns every Halloween to the most sincere pumpkin patch”? Plantinga raised the worry himself and answered it easily, since allowing some beliefs without argument doesn't allow all of them. {{martin-michael}}, an American atheist philosopher, pressed a harder version. Any community, voodoo followers included, could run Plantinga's model and call its own beliefs basic by its own standards, and from the inside every sense of the divine feels as if it is working properly.",
-                "The comparison with other minds also breaks down. Everyone believes in other minds without trying, and the belief is confirmed every hour when people do what we expected. Belief in God is missing in many careful people and predicts nothing comparable. [[csr|The cognitive science of religion]] suggests why people sense gods anyway. On one theory, human minds evolved to detect agents everywhere, because mistaking the wind for a predator does little harm and missing a real predator can be fatal (Stewart Guthrie, Pascal Boyer).",
+                "If belief in God can be basic, why not belief in the Great Pumpkin, who in Plantinga's words “returns every Halloween to the most sincere pumpkin patch”? Plantinga raised the worry himself and dismissed it, since allowing some beliefs without argument doesn't allow all. {{martin-michael}}, an American atheist philosopher, pressed a harder version. Any community, voodoo followers included, could run Plantinga's model and call its own beliefs basic, and from the inside every sense of the divine seems to work properly.",
+                "The comparison with other minds also breaks down. Everyone believes in other minds without trying, and the belief is confirmed hourly when people do what we expect. Belief in God is missing in many careful people. [[csr|The cognitive science of religion]] suggests why people sense gods anyway. Human minds may have evolved to detect agents everywhere, because mistaking the wind for a predator does little harm and missing a predator can kill you (Stewart Guthrie, Pascal Boyer).",
               ],
               quote: {
                 text: "Plantinga’s proposal would generate many different communities that could legitimately claim that their basic beliefs are rational.",
@@ -96,7 +96,7 @@ const evidence: Objection = {
               },
               thinkers: ["martin-michael", "plantinga"],
               cedes:
-                "If the sense of the divine led people in every culture to the same God, the way perception and belief in other minds agree across cultures, this would fail.",
+                "If the sense of the divine led people in every culture to the same God, the way perception and belief in other minds agree across cultures, I'd drop this.",
               see: [
                 { id: "hid-csr-both-ways", why: "Objection II aims the same agent-detection argument at divine hiddenness." },
                 { id: "evi-b-natural", why: "The same problem in history. Sincere witnesses show that people believed, which leaves open whether they were right." },
@@ -112,8 +112,8 @@ const evidence: Objection = {
                   label: "Whether belief in God is rational depends on whether God exists",
                   gist: "Believing without argument is allowed only when a faculty works as designed and nothing refutes the belief, so whether belief in God is reasonable depends on whether God exists.",
                   body: [
-                    "The Great Pumpkin objection mixes two questions. One is whether the Pumpkin believer is doing her honest best by her own lights, and Plantinga grants that she may be. The other is whether her belief has [[warrant|warrant]], the property that turns a true belief into knowledge. Warrant needs faculties working properly, in the setting they were made for, and aimed at truth. The Pumpkin belief also meets a [[defeater|defeater]], a reason that overturns it, which anyone can check by visiting a pumpkin patch on November 1st. A reliable faculty need not be universal either. Perfect pitch is rare, and on the Christian story sin has damaged the sense of God.",
-                    "Cognitive science doesn't settle the matter. On classical theism God works through natural processes, called [[primary-secondary-causation|secondary causes]], so a believer expects a natural mechanism behind the sense of God. To show that it misleads, the critic has to assume there is no God. Plantinga concludes that the question whether a belief is rational depends on the question whether it is true ([[de-jure-de-facto|the *de jure* and *de facto* questions]], in his terms).",
+                    "The Pumpkin objection mixes two questions. One is whether the Pumpkin believer is doing her honest best, and Plantinga grants that she may be. The other is whether her belief has [[warrant|warrant]], the property that turns a true belief into knowledge, which needs faculties working properly in the setting they were made for. The Pumpkin belief also meets a [[defeater|defeater]], a reason that overturns it, in the empty patch on November 1st. Nor must a reliable faculty be universal. Perfect pitch is rare, and on the Christian story sin has damaged this one.",
+                    "Cognitive science doesn't settle it. If God works through [[primary-secondary-causation|secondary causes]], meaning ordinary natural processes, as classical theism holds, a believer expects a natural mechanism behind the sense of God. A critic who calls it misleading has already assumed there is no God. Plantinga concludes that the [[de-jure-de-facto|de jure question]], whether belief in God is rational, depends on the de facto question, whether it is true.",
                   ],
                   quote: {
                     text: "a successful atheological objection will have to be to the truth of theism, not to its rationality, justification, intellectual respectability, rational justification, or whatever.",
@@ -122,7 +122,7 @@ const evidence: Objection = {
                   },
                   thinkers: ["plantinga"],
                   cedes:
-                    "This would fail if someone could show the sense of God to be unreliable without first assuming that there is no God.",
+                    "It fails if someone can show the sense of God to be unreliable without first assuming that there is no God.",
                   see: [
                     { id: "coh-a-concur", why: "How God works through natural causes without competing with them, from the reply to Objection I." },
                     { id: "nat-b-minds", why: "The reverse worry. If our faculties came from unguided evolution, why trust any of them?" },
@@ -138,8 +138,8 @@ const evidence: Objection = {
                       label: "Answering objections means weighing evidence after all",
                       gist: "Even a belief held without argument can be overturned, and a believer who knows about Gospel contradictions, other religions and evil has to answer them by weighing evidence.",
                       body: [
-                        "Plantinga's own conditions let evidence back in. A basic belief keeps its warrant only while it has no unanswered [[defeater|defeaters]], and he grants that basic beliefs can be overturned. He gives the last part of *Warranted Christian Belief* to possible defeaters, among them historical criticism of the Bible, religious pluralism, and suffering and evil. A believer who has read the Gospels side by side, met devout Hindus and buried a child is in a different position from someone who never heard an objection.",
-                        "Whether she can answer them depends on her evidence, and that can be judged without first proving there is no God. Plantinga's fallback, that a basic belief may carry enough warrant to outweigh its defeaters, would serve the Pumpkin believer just as well. That leaves rebuttal, as when he argues that biblical critics assume their conclusion by adopting [[methodological-naturalism|methodological naturalism]], the rule of working as if God never acts in history. Rebuttal is the weighing of evidence, and it sends the argument back to ((evi-b|the Gospels)), ((hid-argument|hiddenness)) and evil.",
+                        "Plantinga's conditions let evidence back in. A basic belief keeps its warrant only while it faces no unanswered [[defeater|defeaters]], reasons that would overturn it, and the last part of *Warranted Christian Belief* takes up possible ones, among them historical criticism of the Bible, religious pluralism, and suffering and evil. A believer who has read the Gospels side by side, met devout Hindus and buried a child is in a different position from someone who never heard an objection.",
+                        "Whether she can answer them depends on her evidence, which can be judged without first proving there is no God. Plantinga's fallback, that a basic belief may carry enough warrant to outweigh its defeaters, would serve the Pumpkin believer as well. That leaves rebuttal, such as his charge that biblical critics assume [[methodological-naturalism|methodological naturalism]], the rule of working as if God never acts in history. Rebuttal is the weighing of evidence, and it sends the argument back to ((evi-b|the Gospels)), ((hid-argument|hiddenness)) and evil.",
                       ],
                       quote: {
                         text: "No simplicity of mind, no obscurity of station, can escape the universal duty of questioning all that we believe.",
@@ -148,7 +148,7 @@ const evidence: Objection = {
                       },
                       thinkers: ["plantinga", "clifford"],
                       cedes:
-                        "If a believer who knows these objections could stay rational without ever weighing an argument about them, this would fail.",
+                        "A believer who knew these objections and stayed rational without ever weighing an argument about them would refute it.",
                       see: [
                         { id: "evi-b-core", why: "Historical criticism of the Bible as a defeater, the subject of Plantinga's own chapter on it." },
                         { id: "nat-b-content", why: "In Objection III Plantinga turns the same reasoning about defeaters against naturalism." },
@@ -167,8 +167,8 @@ const evidence: Objection = {
               label: "A felt God is a product of imagination, the source of error",
               gist: "Spinoza thought God can be known with certainty, but a God sensed the way we see a tree comes from imagination, the one kind of knowing that produces error.",
               body: [
-                "Spinoza disagreed with Clifford and with Plantinga about a sense of God that works like perception. He thought God could be known with certainty: “The human mind has an adequate knowledge of the eternal and infinite essence of God” (Ethics II P47). An adequate idea, in his vocabulary, is a complete and true one. He divided knowledge into three kinds (II P40 Schol. 2). The first is [[imaginatio|imagination]], built from sense images and hearsay. The second is reason, and the third is intuition, a direct grasp of how things follow from God. Knowledge of the first kind, he wrote, “is the only source of falsity” (II P41).",
-                "A sense of the divine that shows God the way sight shows a tree belongs to the first kind, and so did prophecy. In the *Treatise* he notes that cheerful prophets were shown victories and peace, and melancholy ones wars and massacres (ch. 2). That is why the God people feel has moods, plans and favourites. Directness is no fault, since intuition is direct too. The trouble is the images. The love of God Spinoza valued comes “not in so far as we imagine him as present, but in so far as we understand him to be eternal” (V P32 Cor.).",
+                "Spinoza sided with neither Clifford nor Plantinga. Against Clifford, he held that God can be known with certainty: “The human mind has an adequate knowledge of the eternal and infinite essence of God” (Ethics II P47), an adequate idea being a complete and true one. Against Plantinga, he denied that a felt sense of God is knowledge. He divided knowledge into three kinds (II P40 Schol. 2). The first is [[imaginatio|imagination]], built from sense images and hearsay, and it “is the only source of falsity” (II P41). The other two, reason and intuition, are always true.",
+                "A sense of the divine that shows God the way sight shows a tree belongs to the first kind, and so did prophecy. In the *Treatise* he notes that cheerful prophets were shown victories and peace, and melancholy ones wars and massacres (ch. 2), which is why the God people feel has moods, plans and favourites. Directness is no fault, since intuition is direct too, so the fault lies in the images. The love of God Spinoza valued comes “not in so far as we imagine him as present, but in so far as we understand him to be eternal” (V P32 Cor.).",
               ],
               quote: {
                 text: "Therefore the power of prophecy implies not a peculiarly perfect mind, but a peculiarly vivid imagination",
@@ -177,7 +177,7 @@ const evidence: Objection = {
               },
               thinkers: ["spinoza"],
               cedes:
-                "If a felt sense of God showed the same God, with the same attributes, to every culture that has it, Spinoza would be wrong.",
+                "Spinoza is wrong if a felt sense of God shows the same God, with the same attributes, to every culture that has it.",
               see: [{ id: "coh-a-dogstar", why: "Why Spinoza thought 'intellect' and 'will' said of God share only a name with ours, as the constellation called the Dog shares a name with the animal that barks." }],
               sources: [
                 { title: "Ethics", by: "Benedict de Spinoza", year: "1677", url: "https://www.gutenberg.org/ebooks/3800", note: "Elwes translation." },
@@ -190,8 +190,8 @@ const evidence: Objection = {
                   label: "Calling the felt God imagination assumes Spinoza's God",
                   gist: "Spinoza's own highest knowledge of God needs no argument either, so what he objects to is that people feel the wrong God, which assumes the point in dispute.",
                   body: [
-                    "Spinoza's verdict on the felt God assumes what it should prove. His own highest kind of knowledge, [[scientia-intuitiva|intuitive knowledge]], moves from an adequate idea of God's attributes to the essence of things without inference (Ethics II P40 Schol. 2). So he has no objection to knowing God without argument. He objects to the God people feel, who has purposes and loves. That is a claim about which God is real, and how the belief was formed can't settle it. This is ((evi-a-function|Plantinga's point)) again.",
-                    "A vision coloured by the prophet's temperament need not be false, either. {{calvin}}'s doctrine of [[accommodation|accommodation]] says that God “lisps with us as nurses are wont to do with little children” (Institutes I.13.1). {{aquinas}} held that prophets may see in images, and that a man is a prophet only if “his mind be enlightened for the purpose of judgment” (Summa II-II q.173 a.2). The *Treatise* itself tells each believer to “adapt these dogmas to his own way of thinking” (ch. 14). A God seen in pictures can still be a true likeness.",
+                    "Spinoza's verdict assumes what it should prove. His own highest kind of knowledge, [[scientia-intuitiva|intuitive knowledge]], moves from an adequate idea of God's attributes to the essence of things without inference (Ethics II P40 Schol. 2), so he has no objection to knowing God without argument. He objects to the God people feel, who has purposes and loves. That is a claim about which God is real, and how a belief was formed can't settle it, which is ((evi-a-function|Plantinga's point)) again.",
+                    "A vision coloured by the prophet's temperament need not be false. {{calvin}}'s doctrine of [[accommodation|accommodation]] holds that God, speaking of himself, “lisps with us as nurses are wont to do with little children” (Institutes I.13.1). {{aquinas}} held that prophets may see in images, and that a man is a prophet only if “his mind be enlightened for the purpose of judgment” (Summa II-II q.173 a.2). Even the *Treatise* tells each believer to “adapt these dogmas to his own way of thinking” (ch. 14).",
                   ],
                   quote: {
                     text: "each man's faith must be judged pious or impious only in respect of its producing obedience or obstinacy, and not in respect of its truth",
@@ -217,8 +217,8 @@ const evidence: Objection = {
           label: "Christian faith was never meant to be blind",
           gist: "The main Christian tradition rejected believing without reasons and offers arguments for God, signs that the revelation is credible, and a case built from many clues.",
           body: [
-            "The objection treats Christianity as [[fideism|fideism]], the view that faith needs no reasons, and the main tradition condemned that view. {{aquinas}} answers Gregory directly. When a willing believer “loves the truth he believes” and looks for reasons to support it, the reasoning is “a sign of greater merit” (Summa II-II q.2 a.10). Nor does the will command blindly. The believer “would not believe unless, on the evidence of signs, or of something similar, he saw that they ought to be believed” (q.1 a.4). The [[preambles-of-faith|preambles of faith]], such as that God exists and is one, can be proved by reason.",
-            "In England the case was argued from evidence. {{locke}} made reason the judge of what counts as revelation, {{butler}} wrote that “probability is the very guide of life”, and {{paley}} argued like a barrister. {{newman}}, by then a Catholic, explained why such a case can be enough. People reach certainty from many probabilities that point the same way, which is a [[cumulative-case|cumulative case]], and {{swinburne}} builds one for God today. Even John says why he wrote: “that ye might believe” (20:31).",
+            "The objection treats Christianity as [[fideism|fideism]], the view that faith needs no reasons, and the main tradition condemned that view. {{aquinas}} answers Gregory directly. When a willing believer “loves the truth he believes” and looks for reasons, the reasoning is “a sign of greater merit” (Summa II-II q.2 a.10). Nor is assent blind, since a believer “would not believe unless, on the evidence of signs, or of something similar, he saw that they ought to be believed” (q.1 a.4). The [[preambles-of-faith|preambles of faith]], such as that God exists and is one, can be proved by reason. John's Gospel even states its purpose: “that ye might believe” (20:31).",
+            "In England the case was argued from evidence. {{locke}} made reason the judge of what counts as revelation, {{butler}} wrote that “probability is the very guide of life”, and {{paley}} argued like a barrister. {{newman}}, by then a Catholic, explained why such a case can be enough, since people reach certainty from many probabilities that point the same way. That is a [[cumulative-case|cumulative case]], and {{swinburne}} builds one for God today.",
           ],
           quote: {
             text: "Nevertheless, in order that the submission of our faith should be in accordance with reason, it was God's will that there should be linked to the internal assistance of the holy Spirit external indications of his revelation, that is to say divine acts, and first and foremost miracles and prophecies…",
@@ -227,7 +227,7 @@ const evidence: Objection = {
           },
           thinkers: ["aquinas", "locke", "butler", "paley", "newman", "swinburne"],
           cedes:
-            "If the arguments for God and the signs of revelation, taken together, gave Christianity no more support than its rivals get, this would fail.",
+            "This fails if the arguments for God and the signs of revelation, taken together, give Christianity no more support than its rivals get.",
           sources: [
             { title: "Dei Filius (Dogmatic Constitution on the Catholic Faith)", by: "First Vatican Council", year: "1870", url: "https://www.papalencyclicals.net/councils/ecum20.htm" },
             { title: "Summa Theologiae II-II qq.1–2", by: "Thomas Aquinas", url: "https://www.newadvent.org/summa/3002.htm", note: "English Dominican translation." },
@@ -240,8 +240,8 @@ const evidence: Objection = {
               label: "No argument compels, and the 'signs' are disputed miracles",
               gist: "After centuries of effort no argument for God convinces most careful thinkers, and the evidence for Christianity in particular, miracles and prophecy, is what is in dispute.",
               body: [
-                "The tradition says it has evidence, but every step is contested. {{mackie}} went through the arguments for God one by one in *The Miracle of Theism* (1982) and concluded that none tips the balance. {{oppy}} argues that no argument for God is one a reasonable non-believer has to accept. {{aquinas}} himself held that the Trinity can't be proved, so reason reaches at most a first cause, and {{spinoza}}'s God, which is Nature itself, is a first cause too.",
-                "Everything specifically Christian depends on revelation, and the Council rests revelation's credibility on “miracles and prophecies”. The case therefore comes down to testimony about miracles, the subject of ((nat-a|Objection III)), and to four Gospels that disagree, the subject of ((evi-b|this objection's second part)). A cumulative case also has to count what tells against it. Paul Draper and Oppy add evil, hiddenness and the spread of rival faiths, and clues that depend on each other, such as a miracle story and the church that told it, can't be counted twice.",
+                "Every step of that evidence is contested. {{mackie}} went through the arguments for God in *The Miracle of Theism* (1982) and found that none tips the balance. {{oppy}} argues that no argument for God is one a reasonable non-believer has to accept. {{aquinas}} himself held that the Trinity can't be proved, so reason reaches at most a first cause, and {{spinoza}}'s God, which is Nature itself, is a first cause too.",
+                "Everything specifically Christian rests on revelation, and the Council rests revelation on “miracles and prophecies”. That sends the case to miracle reports, the subject of ((nat-a|Objection III)), and to Gospels that disagree, the subject of ((evi-b|this objection's second part)). A cumulative case must also count what tells against it, and Paul Draper and Oppy add evil, hiddenness and the spread of rival faiths. Clues that depend on each other, like a miracle story and the church that told it, can't be counted twice.",
               ],
               quote: {
                 text: "It is impossible to attain to the knowledge of the Trinity by natural reason.",
@@ -266,8 +266,8 @@ const evidence: Objection = {
           label: "Religious experience is evidence too, and plenty of it",
           gist: "If seeming to see a tree is evidence that a tree is there, then seeming to be aware of God is evidence of God, unless something specific counts against it.",
           body: [
-            "The objection counts only arguments as evidence, but experience counts too, and the most common religious evidence is people's sense of being aware of God, in prayer, in conversion, or at moments they can't explain away. {{swinburne}}'s [[principle-of-credulity|principle of credulity]] states a rule we use everywhere else. If it seems to you that something is present, it probably is, unless you have a special reason for doubt, for instance that you were drugged or that the thing was almost certainly absent. Dropping that rule only when the experience is of God would be special pleading.",
-            "{{alston}} went further in *Perceiving God* (1991). Christian mystical practice, he argued, is an established way of forming beliefs, with its own checks and its own lore about which experiences to trust, and sense perception is another. Neither can be shown reliable without relying on itself. If it is reasonable to keep trusting your eyes without a proof that doesn't use them, it is reasonable for the mystic to keep trusting her practice. {{james-william}} added in 1902 that such experiences give outsiders no duty to accept them.",
+            "The objection counts only arguments as evidence, but experience is evidence too, and the commonest religious evidence is people's sense of being aware of God. {{swinburne}}'s [[principle-of-credulity|principle of credulity]] states a rule we use everywhere else. If it seems to you that something is present, it probably is, unless you have a special reason for doubt, for instance that you were drugged or that the thing was almost certainly absent. Dropping the rule only for experiences of God would be special pleading.",
+            "{{alston}} argued in *Perceiving God* (1991) that Christian mystical practice is an established way of forming beliefs, with its own checks, as sense perception is. Neither can be shown reliable without relying on itself, so if it is reasonable to keep trusting your eyes, it is reasonable for the mystic to keep trusting her practice. {{james-william}} added in 1902 that such experiences give outsiders no duty to accept them.",
           ],
           quote: {
             text: "Mystical states, when well developed, usually are, and have the right to be, absolutely authoritative over the individuals to whom they come.",
@@ -276,7 +276,7 @@ const evidence: Objection = {
           },
           thinkers: ["swinburne", "alston", "james-william"],
           cedes:
-            "If religious experience had no checks at all, or if something known to make such reports unreliable explained every one of them, this would fail.",
+            "Religious experience with no checks at all, or a known cause of unreliable reports that explained every case, would sink this.",
           see: [
             { id: "hid-rea-presence", why: "Objection II suggests that experiences of God may come unlabelled and go unrecognized." },
           ],
@@ -292,8 +292,7 @@ const evidence: Objection = {
               label: "Religious experiences contradict one another",
               gist: "The same kind of experience vouches for Krishna, Allah, the Trinity and an impersonal Absolute, so it can't be a reliable guide to any one of them.",
               body: [
-                "Swinburne's rule works for perception because perceptions agree. A Hindu and a Christian looking at the same tree agree that it is a tree. Mystics meet Krishna, Allah, the Trinity, the Buddha-nature or a Godhead without attributes, and each tradition checks its experiences by its own standards. {{hume}} saw what follows for miracles. Each religion's wonders are offered to prove a system that rules out the others, so the reports cancel each other, since “in matters of religion, whatever is different is contrary” (Enquiry X).",
-                "{{alston}} himself said religious diversity was the hardest problem his view faced. If you can predict a person's religious experience from her birthplace, the experience seems to be tracking the birthplace. {{feldman}} concludes that when two people are equally informed and equally careful and still disagree, neither has grounds to think she is the one seeing clearly, so both should suspend judgment.",
+                "Swinburne's rule works for perception because perceptions agree. A Hindu and a Christian looking at the same tree agree that it is a tree, but mystics meet Krishna, Allah, the Trinity, the Buddha-nature or a Godhead without attributes, and each tradition checks its experiences by its own standards. {{hume}} saw what this means for miracles. Each religion's wonders are offered to prove a system that rules out the others, so the reports cancel each other, since “in matters of religion, whatever is different is contrary” (Enquiry X). {{alston}} himself called religious diversity the hardest problem for his view. If you can predict a person's religious experience from her birthplace, the experience seems to be tracking the birthplace. {{feldman}} concludes that when equally informed and equally careful people disagree, neither has grounds to think she sees more clearly, so both should suspend judgment.",
               ],
               quote: {
                 text: "it never troubles him that mere accident has decided which of these numerous worlds is the object of his reliance, and that the same causes which make him a Churchman in London, would have made him a Buddhist or a Confucian in Pekin.",
@@ -302,7 +301,7 @@ const evidence: Objection = {
               },
               thinkers: ["hume", "alston", "feldman", "mill"],
               cedes:
-                "If the mystical traditions, checked against one another, came together on one God the way observers agree on one tree, this would fall.",
+                "Mystical traditions that, checked against one another, came together on one God the way observers agree on one tree would answer it.",
               see: [
                 { id: "evi-a-pumpkin", why: "The same worry about believing without argument, since every tradition can claim that right." },
                 { id: "hid-demographics", why: "Objection II reads the same fact, that belief follows borders, as an argument about hiddenness." },
@@ -319,8 +318,8 @@ const evidence: Objection = {
                   label: "The argument from disagreement counts against every view",
                   gist: "Upbringing shapes every outlook, the skeptic's too, and careful people also disagree about whether nature is all there is, so this rule would forbid almost every view.",
                   body: [
-                    "The diversity argument proves too much once it is applied evenly. {{plantinga}} grants that had he been born in Madagascar he might not be a Christian, and adds that had the pluralist been born there, she might not be a pluralist. If upbringing discredits a belief about religion, it discredits hers too. {{alston}} faced rival mystical practices in *Perceiving God* (ch. 7) and concluded that, with no neutral way to show a rival more reliable, it is rational to stay with the practice that has proved itself in your own life.",
-                    "Peer disagreement fares no better. {{van-inwagen}} rejects views that David Lewis, his equal in ability and information, held on the same evidence, and no one calls either man irrational. Naturalism, the view that nature is all there is, faces careful peers who think it false, as every serious philosophy does. [[conciliationism|Conciliationism]], the view that disagreement among equals requires suspending judgment, is itself disputed by careful philosophers, so by its own rule it should be suspended. Adam Elga, one of its leading defenders, admits the problem.",
+                    "The diversity argument proves too much when applied evenly. {{plantinga}} grants that had he been born in Madagascar he might not be a Christian, but had the pluralist been born there, she might not be a pluralist. If upbringing discredits a belief about religion, it discredits hers. {{alston}} concluded in *Perceiving God* (ch. 7) that, with no neutral way to show a rival practice more reliable, it is rational to stay with the one that has proved itself in your own life.",
+                    "{{van-inwagen}} rejects views that David Lewis, his equal in ability and information, held on the same evidence, and no one calls either man irrational. Naturalism, the view that nature is all there is, has careful critics too. [[conciliationism|Conciliationism]], the view that disagreement among equals requires suspending judgment, is itself disputed by careful philosophers, so by its own rule it should be suspended, a problem its defender Adam Elga admits.",
                   ],
                   quote: {
                     text: "If he continues in that belief, therefore, he will be in the same condition as the person he criticizes; but if he doesn’t continue in this belief, he no longer has an objection.",
@@ -329,7 +328,7 @@ const evidence: Objection = {
                   },
                   thinkers: ["plantinga", "alston", "van-inwagen"],
                   cedes:
-                    "If the only rational response to disagreement among equals were to suspend judgment about everything, my naturalist neighbour's views included, I'd give this up.",
+                    "I'd give this up if the only rational response to disagreement among equals were to suspend judgment about everything, my naturalist neighbour's views included.",
                   see: [
                     { id: "hid-demographics", why: "Objection II turns the birthplace point into an argument against God himself." },
                   ],
@@ -354,8 +353,8 @@ const evidence: Objection = {
           label: "Some questions can't wait for the evidence to come in",
           gist: "When a choice can't be avoided, matters enormously and can't be settled by evidence, holding back is a bet, and some truths appear only to those who meet them halfway.",
           body: [
-            "{{james-william}} answered Clifford directly in 1896, in an address to the philosophy clubs of Yale and Brown. Clifford treats avoiding error as our only duty, James said, but we have two, to believe truth and to shun error. A [[genuine-option|genuine option]], in his terms, is live because both answers tempt you, forced because there is no third way, and momentous because the chance won't come again. Faced with one, suspending judgment is a choice like any other. If the truth is there, agnosticism misses it as surely as disbelief does. {{pascal}}'s wager made a cruder version of the point: “If you gain, you gain all; if you lose, you lose nothing.”",
-            "Some facts also depend on our going first. James's example is a person wondering “Do you like me or not?” Whether you do may depend on whether I meet you halfway. If the universe is personal, as religion says, it may respond to our advances, and a rule that demands proof first could shut us out. James concluded that “a rule of thinking which would absolutely prevent me from acknowledging certain kinds of truth if those kinds of truth were really there, would be an irrational rule” (§X).",
+            "{{james-william}} answered Clifford in 1896, in an address to the philosophy clubs of Yale and Brown. We have two duties, he said, to believe truth and to shun error, and Clifford attends only to the second. A [[genuine-option|genuine option]] is live because both answers tempt you, forced because there is no third way, and momentous because the chance won't come again. Faced with one, suspending judgment is itself a choice, and if the truth is there, agnosticism misses it as surely as disbelief does. {{pascal}}'s wager was a cruder version of the point: “If you gain, you gain all; if you lose, you lose nothing.”",
+            "Some facts also depend on our going first. Whether you like me may depend on whether I meet you halfway, and if the universe is personal, it may respond to our advances in the same way. A rule that demands proof first could shut us out, and James concluded that “a rule of thinking which would absolutely prevent me from acknowledging certain kinds of truth if those kinds of truth were really there, would be an irrational rule” (§X).",
           ],
           quote: {
             text: "Our passional nature not only lawfully may, but must, decide an option between propositions, whenever it is a genuine option that cannot by its nature be decided on intellectual grounds",
@@ -364,7 +363,7 @@ const evidence: Objection = {
           },
           thinkers: ["james-william", "pascal"],
           cedes:
-            "If evidence could settle the religious question after all, or if agnosticism lost nothing should God be real, James's case would fail.",
+            "James's case fails if evidence can settle the religious question after all, or if agnosticism loses nothing should God be real.",
           see: [{ id: "hid-moser", why: "Paul Moser's version of the same point, that God offers evidence to people willing to be changed by it." }],
           sources: [
             { title: "The Will to Believe", by: "William James", year: "1896", url: "https://www.gutenberg.org/ebooks/26659" },
@@ -377,8 +376,8 @@ const evidence: Objection = {
               label: "The option isn't forced, and wanting doesn't make believing",
               gist: "Agnosticism loses nothing unless God shuts out honest doubters, which possibilities feel real depends on how you were raised, and no one can believe on demand.",
               body: [
-                "James's case needs the option to be forced, and it isn't. Agnosticism loses the prize only if the prize goes to those who believed before the evidence came in, and {{schellenberg}} argues ((hid-argument|in Objection II)) that a loving God wouldn't shut out an honest seeker. The all-or-nothing stakes come from the creed being tested. James's other condition, that an option feel live, is no neutral test either, because what feels live is mostly what you were raised on. A method that lets that decide would license every creed at once. {{diderot}} made this point against {{pascal}} in 1746, saying that an imam could offer the same wager.",
-                "{{williams-bernard}} argued in 1970 against [[doxastic-voluntarism|doxastic voluntarism]], the idea that we can choose our beliefs at will. You can't adopt a belief by deciding to while understanding that belief aims at truth, and James granted as much for ordinary facts. The friendship example also misleads, because a friend is already there to meet you halfway. Whether God is there is the question in dispute.",
+                "James's case needs the option to be forced, and it isn't. Agnosticism loses the prize only if God rewards those who believed before the evidence came, and {{schellenberg}} argues ((hid-argument|in Objection II)) that a loving God wouldn't shut out an honest seeker. The all-or-nothing stakes come from the creed under test. James's other test, whether an option feels live, isn't neutral either, since what feels live is mostly what you were raised on. {{diderot}} told {{pascal}} as much in 1746, when he wrote that an imam could offer the same wager.",
+                "{{williams-bernard}} argued in 1970 against [[doxastic-voluntarism|doxastic voluntarism]], the idea that we can choose our beliefs at will. A belief you knew you had adopted for comfort could hardly count as aiming at truth, and James granted as much for ordinary facts. A friend, moreover, is already there to meet you halfway. Whether God is there is the question in dispute.",
               ],
               quote: {
                 text: "Can we, by just willing it, believe that Abraham Lincoln's existence is a myth, and that the portraits of him in McClure's Magazine are all of some one else?",
@@ -387,7 +386,7 @@ const evidence: Objection = {
               },
               thinkers: ["schellenberg", "diderot", "pascal", "williams-bernard"],
               cedes:
-                "If faith could be taken up honestly, without fooling yourself, and if rival creeds weren't equally available by the same method, this objection would fail.",
+                "If faith could be taken up honestly, without fooling yourself, and rival creeds weren't equally available by the same method, the objection would collapse.",
               see: [
                 { id: "mor-inclusivism", why: "Objection V asks whether an honest agnostic loses anything at all." },
                 { id: "hid-willing-found-nothing", why: "Objection II's version, that no seeker can submit to a Lord she doesn't yet believe in." },
@@ -399,8 +398,7 @@ const evidence: Objection = {
                   label: "Faith can start as acting on trust, without willing belief",
                   gist: "No one is asked to switch a belief on, since faith can begin as trust acted on under uncertainty, which is how most serious commitments start.",
                   body: [
-                    "Williams is right that belief can't be switched on, and the tradition never asked for that. {{pascal}} advised the doubter to copy believers and let the practice change him. {{alston}} distinguished belief from *acceptance*, which means acting and thinking on a claim without feeling sure of it. Hebrews says the seeker “must believe that he is” (11:6), yet it illustrates faith with Abraham, who “went out, not knowing whither he went” (11:8). Paul's “believe in thine heart” (Romans 10:9) uses the verb of [[pistis|pistis]], the Greek word for a trust that acts.",
-                    "Most serious commitments start this way. You marry without proof that the marriage will last, and you join a cause before you see it win. Agnosticism is also a practice that shapes the person who keeps it. Upbringing explains where anyone starts, the skeptic included, and says nothing about who is right. A commitment tested for years against doubt and rival options is no longer an accident of birth, and acting on one in good faith, while still listening, isn't self-deception.",
+                    "Williams is right that belief can't be switched on, and the tradition never asked for that. {{pascal}} advised the doubter to copy believers and let the practice change him, and {{alston}} distinguished belief from *acceptance*, which means acting on a claim without feeling sure of it. Hebrews says the seeker “must believe that he is” (11:6), yet it illustrates faith with Abraham, who “went out, not knowing whither he went” (11:8). When Paul writes “believe in thine heart” (Romans 10:9), his verb comes from [[pistis|pistis]], the Greek word for trust that acts. Most serious commitments start this way, as when people marry without proof that the marriage will last. Upbringing explains where anyone starts, the skeptic included, and a commitment tested for years against doubt and rival options, acted on in good faith, isn't self-deception.",
                   ],
                   quote: {
                     text: "Follow the way by which they began; by acting as if they believed, taking the holy water, having masses said, etc. Even this will naturally make you believe, and deaden your acuteness.",
@@ -409,7 +407,7 @@ const evidence: Objection = {
                   },
                   thinkers: ["pascal", "alston"],
                   cedes:
-                    "If acting on trust under uncertainty were always self-deception, or if the creeds plainly required full belief before anyone could enter, I'd give this up.",
+                    "This holds unless acting on trust under uncertainty is always self-deception, or the creeds plainly require full belief before anyone can enter.",
                   see: [
                     { id: "hid-faith-without-belief", why: "Objection II uses the same distinction against hiddenness, since faith doesn't have to be full belief." },
                     { id: "mor-allegiance", why: "Objection V develops the idea of faith as loyalty to a person." },
@@ -432,12 +430,12 @@ const evidence: Objection = {
       label: "Gospels that contradict each other can't carry the case",
       gist: "The four accounts disagree on checkable details, such as who found the tomb, how Judas died and what day Jesus died, and the disagreements cluster around the central events.",
       body: [
-        "The Easter stories disagree when read side by side. Mark names three women at the tomb, Matthew two, Luke a larger group and John only Mary Magdalene. Matthew says Judas “went and hanged himself” and the priests bought a field with his silver (27:5–7), while Acts has Judas buy the field himself and die “falling headlong” (1:18). Matthew makes Joseph's father Jacob, and Luke makes him Heli. Mark presents the Last Supper as a Passover meal, but John has Jesus die as the Passover lambs were killed. Luke ties the birth to the census of Quirinius, which Josephus dates to 6 CE, about ten years after the death of Herod, under whom Matthew sets it.",
-        "None of this is new. {{reimarus}}, whose work {{lessing}} published after his death, called the Easter accounts irreconcilable. {{strauss}} read the Gospels as myth in 1835, and {{ehrman}} set out the list for general readers in 2009. These are the documents that are supposed to show a man rose from the dead.",
+        "Mark names three women at the Easter tomb, Matthew two, Luke a larger group and John only Mary Magdalene. In Matthew, Judas “went and hanged himself” and the priests bought a field (27:5–7), while in Acts he buys the field himself and dies “falling headlong” (1:18). Matthew makes Joseph's father Jacob, and Luke makes him Heli. Mark presents the Last Supper as a Passover meal, while John has Jesus die as the Passover lambs were killed. Luke ties the birth to the census of Quirinius, which Josephus dates to 6 CE, about ten years after the death of Herod, under whom Matthew sets it.",
+        "{{reimarus}}, published after his death by {{lessing}}, called the Easter accounts irreconcilable. {{strauss}} read the Gospels as myth in 1835, and {{ehrman}} set out the list for general readers in 2009. These are the documents that are supposed to show that a man rose from the dead.",
       ],
       thinkers: ["reimarus", "lessing", "strauss", "ehrman"],
       cedes:
-        "If the core claims could be established from sources that don't depend on the Gospels agreeing in detail, this would fall.",
+        "Sources for the core claims that don't depend on the Gospels agreeing in detail would answer this.",
       sources: [{ title: "Jesus, Interrupted", by: "Bart D. Ehrman", year: "2009" }],
       children: [
         {
@@ -446,8 +444,8 @@ const evidence: Objection = {
           label: "The resurrection case rests on facts most critics grant",
           gist: "Most critical scholars accept the crucifixion, the disciples' belief that they saw Jesus alive, and the conversions of Paul and James, and a resurrection explains them best.",
           body: [
-            "The case for the resurrection doesn't need the Gospels to agree. {{habermas|Gary Habermas}} and {{licona|Mike Licona}} argue only from [[minimal-facts|facts most specialists accept]]. Jesus was crucified under Pilate, as the Roman historian Tacitus confirms. His followers sincerely believed he appeared to them, and Paul passes on a creed he says he “received”, which most scholars date within a few years of the crucifixion. Paul went from persecuting Christians to preaching. James, whose family thought Jesus was out of his mind (Mark 3:21), saw him and led the church in Jerusalem.",
-            "The next step is to ask [[inference-to-best-explanation|which explanation covers all four facts best]]. Licona (2010) scores the rivals on criteria taken from the historian C. Behan McCullagh. A stolen body or a wrong tomb produces no appearances. A Jesus who survived the cross would have been a battered invalid, hardly a conqueror of death. Grief visions might fit Peter, but they fit poorly with Paul the persecutor or James the skeptic. Even {{ludemann}}, who left the Christian faith, judged it historically certain that Peter and the disciples had experiences in which Jesus appeared to them as the risen Christ. He called them visions.",
+            "The case doesn't need the Gospels to agree. {{habermas|Gary Habermas}} and {{licona|Mike Licona}} argue only from [[minimal-facts|facts most specialists accept]]. Jesus was crucified under Pilate, as the Roman historian Tacitus confirms. His followers sincerely believed he appeared to them, and Paul passes on a creed he “received”, which most scholars date within a few years of the cross. Paul went from persecutor to apostle, and James, whose family thought Jesus out of his mind (Mark 3:21), saw him and led the church in Jerusalem.",
+            "They then ask [[inference-to-best-explanation|which explanation covers all four facts best]]. A stolen body or a wrong tomb produces no appearances, and a Jesus who survived the cross would have been a battered invalid, hardly a conqueror of death. Grief visions might fit Peter but fit poorly with Paul the persecutor or James the skeptic. Even {{ludemann}}, who left the faith, judged it historically certain that the disciples had experiences in which Jesus appeared to them as the risen Christ, though he called them visions.",
           ],
           quote: {
             text: "For I delivered unto you first of all that which I also received, how that Christ died for our sins according to the scriptures; And that he was buried, and that he rose again the third day according to the scriptures: And that he was seen of Cephas, then of the twelve",
@@ -456,13 +454,13 @@ const evidence: Objection = {
           },
           thinkers: ["habermas", "licona", "ludemann"],
           cedes:
-            "If most critical scholars came to doubt the appearance experiences themselves, or if one natural explanation covered all four facts without strain, the case would fail.",
+            "The case fails if most critical scholars come to doubt the appearance experiences themselves, or if one natural explanation covers all four facts without strain.",
           see: [
             { id: "nat-a-earman", why: "Objection III explains why independent witnesses can outweigh even a very low starting probability." },
           ],
           sources: [
             { title: "The Case for the Resurrection of Jesus", by: "Gary R. Habermas & Michael R. Licona", year: "2004" },
-            { title: "The Resurrection of Jesus: A New Historiographical Approach", by: "Michael R. Licona", year: "2010" },
+            { title: "The Resurrection of Jesus: A New Historiographical Approach", by: "Michael R. Licona", year: "2010", note: "Scores the rival explanations on criteria adapted from the historian C. Behan McCullagh." },
           ],
           children: [
             {
@@ -471,8 +469,8 @@ const evidence: Objection = {
               label: "Grief visions, dissonance and legend explain those facts",
               gist: "Grieving people often see their dead, groups can share such experiences, failed prophecies can deepen conviction, and legend does the rest, so the facts need no miracle.",
               body: [
-                "Each minimal fact has a natural explanation. Visions of the dead are common among the bereaved. They are vivid, sometimes felt by touch, and occasionally shared. {{allison}}, a New Testament scholar and a Christian, has collected many such reports and found that they resemble the Easter appearances closely, though he doesn't think the parallels settle the question. {{festinger}}'s *When Prophecy Fails* (1956) followed a flying-saucer group whose predicted flood never came, and instead of giving up its members preached harder. Festinger called the strain *cognitive dissonance*, the discomfort of beliefs that clash with events, and a crucified Messiah would have caused plenty of it. {{ludemann}} explains Peter's vision by grief and guilt, and Paul's by inner conflict.",
-                "The evidence about James is thin. 1 Corinthians 15:7 says only that Jesus appeared to him, and the story of a skeptic turned believer is pieced together from Mark and John. Sincere conviction, even to the point of death, shows that people believed, and people sincerely believe false things. The three witnesses to the golden plates of the Book of Mormon (1829) stood by their testimony for decades, some of them after breaking with Joseph Smith.",
+                "Each minimal fact has a natural explanation. Bereaved people often see their dead, sometimes feel their touch, and occasionally see them together. {{allison}}, a Christian New Testament scholar, has collected such reports and finds that they resemble the Easter appearances, though he doesn't think the parallels settle the question. {{festinger}}'s *When Prophecy Fails* (1956) followed a flying-saucer group whose predicted flood never came, and its members then preached harder. He called the strain *cognitive dissonance*, the discomfort of beliefs that clash with events, and a crucified Messiah would cause plenty of it.",
+                "{{ludemann}} explains Peter's vision by grief and guilt, and Paul's by inner conflict. As for James, 1 Corinthians 15:7 says only that Jesus appeared to him, and the story of a skeptic turned believer is pieced together from Mark and John. Sincere conviction, even unto death, shows that people believed. The three witnesses to the Book of Mormon's golden plates (1829) stood by their testimony for decades, some after breaking with Joseph Smith.",
               ],
               quote: {
                 text: "we declare with words of soberness, that an angel of God came down from heaven, and he brought and laid before our eyes, that we beheld and saw the plates, and the engravings thereon",
@@ -481,7 +479,7 @@ const evidence: Objection = {
               },
               thinkers: ["allison", "festinger", "ludemann"],
               cedes:
-                "If the reports included features that no recorded bereavement or group experience has ever produced, this would fail.",
+                "Features in the reports that no recorded bereavement or group experience has ever produced would defeat this.",
               see: [
                 { id: "evi-a-diversity", why: "Rival revelations with sincere witnesses, the same problem raised by religious experience." },
                 { id: "nat-a-practice", why: "Hume's case in Objection III, that miracle reports grow as they are retold and fail when checked." },
@@ -497,8 +495,8 @@ const evidence: Objection = {
                   label: "Only a real event explains the change in Jewish hope",
                   gist: "Ancient people knew visions of the dead and never called them resurrection, so only an empty tomb plus sightings explains why Jews suddenly said one man had already been raised.",
                   body: [
-                    "The grief-vision theory misses what the first Christians said. Ancient Jews and pagans knew about visions of the dead and had words for them, such as a ghost, an angel, or a soul taken up to God. *Resurrection* meant new bodily life for all the righteous at the end of the age. {{wright-nt}} argues that the first Christians changed that hope at once. They said one man had been raised ahead of everyone else, in a transformed body. Appearances without an empty tomb would have meant *we saw his ghost*, and an empty tomb without appearances would have meant *the body was stolen*. Only both together lead to *risen*.",
-                    "Cognitive dissonance doesn't explain it either. Followers of other would-be messiahs who were killed, such as Judas the Galilean, Simon bar Giora and Bar Kokhba, gave up or found a new leader, and none said their man had risen. Grief visions are usually private, yet Paul names “above five hundred brethren at once” (1 Corinthians 15:6). Paul also called himself “blameless” under the Law (Philippians 3:6), and {{stendahl}} argued in 1963 that the picture of a guilt-ridden Paul comes from later Western Christianity.",
+                    "The grief-vision theory misses what the first Christians said. Ancient Jews and pagans had words for visions of the dead, such as a ghost, an angel or a soul taken up to God. *Resurrection* meant new bodily life for all the righteous at the end of the age, and {{wright-nt}} argues that the first Christians changed that hope at once by saying one man had already been raised, in a transformed body. Appearances alone would have meant *we saw his ghost*, and an empty tomb alone *the body was stolen*. Only both together lead to *risen*.",
+                    "Dissonance doesn't explain it either. When other would-be messiahs were killed, such as Judas the Galilean, Simon bar Giora and Bar Kokhba, their followers gave up or found a new leader. Grief visions are usually private, yet Paul names “above five hundred brethren at once” (1 Corinthians 15:6). He also called himself “blameless” under the Law (Philippians 3:6), and {{stendahl}} argued in 1963 that the guilt-ridden Paul comes from later Western Christianity.",
                   ],
                   thinkers: ["wright-nt", "stendahl"],
                   cedes:
@@ -514,8 +512,8 @@ const evidence: Objection = {
                       label: "Others were said to be raised, and the empty tomb is shaky",
                       gist: "Herod's court thought John the Baptist had risen, ancient stories had heroes taken up bodily, and the empty tomb, which Wright's case needs, rests on weak evidence.",
                       body: [
-                        "Wright's claim that nothing else explains the new hope is too quick. In Mark, Herod and others say that Jesus is John the Baptist risen from the dead (6:14–16), which is one man raised before the end, in the Gospels themselves. Jewish tradition had Enoch and Elijah taken up bodily, and Greek and Roman stories had heroes such as Romulus vanish and be honoured as gods. Richard C. Miller, a scholar of early Christianity, argues that early readers would have heard the Gospel endings as stories of this kind, which scholars call translation fables.",
-                        "The empty tomb is the weakest link, and Wright needs it to turn visions into resurrection. Paul never mentions it. Rome usually left the crucified for the birds or a common pit, and {{crossan}} doubts that Jesus was ever laid in a known tomb. {{ehrman}} argues that a decent burial by Joseph of Arimathea would have been a rare exception. Without a known tomb, followers who had seen visions and knew such stories needed nothing more to reach for the word *risen*.",
+                        "Wright moves too fast. In Mark, Herod and others say that Jesus is John the Baptist risen from the dead (6:14–16), which is one man raised before the end, in the Gospels themselves. Jewish tradition had Enoch and Elijah taken up bodily, and Greek and Roman stories had heroes such as Romulus vanish and be honoured as gods. Richard C. Miller, a scholar of early Christianity, argues that early readers would have heard the Gospel endings as stories of this kind, called translation fables.",
+                        "The empty tomb, which Wright needs to turn visions into resurrection, is the weakest link. Paul never mentions it, and Rome usually left the crucified to the birds or a common pit. {{crossan}} doubts that Jesus was laid in a known tomb, and {{ehrman}} argues that an honourable burial by Joseph of Arimathea would have been a rare exception. Without a known tomb, followers who had seen visions needed nothing more to say *risen*.",
                       ],
                       quote: {
                         text: "But when Herod heard thereof, he said, It is John, whom I beheaded: he is risen from the dead.",
@@ -524,7 +522,7 @@ const evidence: Objection = {
                       },
                       thinkers: ["crossan", "ehrman"],
                       cedes:
-                        "If the burial and the empty tomb turned out to be as early and as widely reported as the appearances, this would fall.",
+                        "I'd withdraw this if the burial and the empty tomb turned out to be as early and as widely reported as the appearances.",
                       sources: [
                         { title: "Resurrection and Reception in Early Christianity", by: "Richard C. Miller", year: "2015" },
                         { title: "How Jesus Became God", by: "Bart D. Ehrman", year: "2014" },
@@ -537,9 +535,9 @@ const evidence: Objection = {
                           label: "No parallel is a resurrection, and the burial is early",
                           gist: "Herod's guess meant a prophet's spirit returning, Enoch and Elijah never died, and the burial appears in the earliest creed and fits Jewish law, so the tomb was probably empty.",
                           body: [
-                            "The parallels prove less than they seem to. {{wright-nt}} reads Herod's guess as talk of John's spirit at work in another man, and no one went to check John's grave. Enoch and Elijah never died, so they were never raised. A translation fable ends with a hero gone to the sky, while the Gospels end with a crucified man seen by many and touched by his friends.",
-                            "The burial is early too. “He was buried” stands in the creed Paul received (1 Corinthians 15:4). Jewish law required burial before nightfall (Deuteronomy 21:23), and Josephus says Jews applied it even to the crucified. The archaeologist Jodi Magness finds the Gospel burial consistent with the evidence, and the nailed heel bone of a man named Yehohanan, found in a family bone box, shows that a crucified man could be buried properly.",
-                            "Women are the first witnesses at the tomb, and the pagan critic {{celsus}} sneered that the story rested on “a half-frantic woman” (Origen, *Against Celsus* II.55). An inventor would hardly have chosen such witnesses, which scholars call the [[criterion-of-embarrassment|criterion of embarrassment]]. {{allison}}, who weighs every doubt, judges that the tomb was probably empty.",
+                            "The parallels prove less than they seem. {{wright-nt}} reads Herod's guess as talk of John's spirit at work in another man. Enoch and Elijah never died, so they were never raised. A translation fable ends with a hero gone to the sky, and the Gospels end with a crucified man seen and touched by his friends.",
+                            "“He was buried” stands in the creed Paul received (1 Corinthians 15:4). Jewish law required burial before nightfall (Deuteronomy 21:23), and Josephus says Jews applied it even to the crucified. The heel bone of a crucified man named Yehohanan, still pierced by its nail and found in a family bone box, shows that such a man could be buried properly, and the archaeologist Jodi Magness finds the Gospel account consistent with the evidence.",
+                            "Women are the first witnesses at the tomb, and the pagan critic {{celsus}} sneered at a story resting on “a half-frantic woman” (Origen, *Against Celsus* II.55). An inventor would hardly have chosen such witnesses, a test scholars call the [[criterion-of-embarrassment|criterion of embarrassment]]. {{allison}}, who weighs every doubt, judges the tomb probably empty.",
                           ],
                           quote: {
                             text: "the Jews used to take so much care of the burial of men, that they took down those that were condemned and crucified, and buried them before the going down of the sun.",
@@ -548,7 +546,7 @@ const evidence: Objection = {
                           },
                           thinkers: ["wright-nt", "celsus", "allison"],
                           cedes:
-                            "If the burial clause turned out to be a late addition to the creed, or if Jesus's body were shown to have stayed in a known grave, I'd concede.",
+                            "Evidence that the burial clause was a late addition to the creed, or that Jesus's body stayed in a known grave, would overturn it.",
                           see: [{ id: "evi-b-body", why: "Why the burial matters, read from the earliest creed." }],
                           sources: [
                             { title: "Ossuaries and the Burials of Jesus and James", by: "Jodi Magness", year: "2005", note: "Journal of Biblical Literature 124." },
@@ -564,8 +562,7 @@ const evidence: Objection = {
                       label: "Miracle reports usually fail, so a natural story is likelier",
                       gist: "Every religion counts most of history's miracle reports as false, so a historian should always prefer a natural explanation, even a strained one.",
                       body: [
-                        "Even if every one of Wright's rivals failed, his conclusion wouldn't follow. Every religion counts most of history's miracle reports, the ones from other religions, as false. {{hume}} gave reasons in 1748, among them the love of wonder, the zeal of believers, and the way miracle stories “abound among ignorant and barbarous nations” and thin out wherever people check. Against that record stands the most uniform experience we have, that the dead stay dead.",
-                        "That ranks the explanations before anyone opens the sources. {{ehrman}} argues that historians weigh explanations by probability, and a miracle is by definition the least probable explanation of anything. A stolen body, a mistaken tomb and grief visions are all unlikely, but they are the kind of unlikely thing that happens. Whether the starting probability of a miracle, its [[prior-probability|prior]], can be raised at all is the subject of ((nat-a|Objection III)).",
+                        "Even if every one of Wright's rivals failed, his conclusion wouldn't follow. Every religion counts most of history's miracle reports, the other religions' ones, as false. {{hume}} gave reasons in 1748, among them the love of wonder, the zeal of believers, and the way miracle stories “abound among ignorant and barbarous nations” and thin out wherever people check. Against that record stands the most uniform experience we have, that the dead stay dead. {{ehrman}} argues that historians weigh explanations by probability, and a miracle is by definition the least probable explanation of anything. A stolen body, a mistaken tomb and grief visions are unlikely, but they are the kind of unlikely thing that happens. Whether a miracle's starting probability, its [[prior-probability|prior]], can be raised at all is the subject of ((nat-a|Objection III)).",
                       ],
                       quote: {
                         text: "But it is a miracle, that a dead man should come to life; because that has never been observed in any age or country.",
@@ -574,7 +571,7 @@ const evidence: Objection = {
                       },
                       thinkers: ["hume", "ehrman"],
                       cedes:
-                        "If a resurrection weren't improbable to begin with, that is, if there were already good reason to think a God exists who would raise Jesus, this would fail.",
+                        "This holds unless there is already good reason to think a God exists who would raise Jesus, which would make a resurrection far less improbable.",
                       see: [
                         { id: "nat-a-odds", why: "Hume's argument treated as a weighing of odds, argued in full in Objection III." },
                         { id: "nat-a-practice", why: "Why miracle reports tend to fail when they are checked." },
@@ -589,8 +586,7 @@ const evidence: Objection = {
                           label: "The odds of a resurrection depend on whether there's a God",
                           gist: "A resurrection is wildly improbable as a random event, but much less so as the act of a God who exists and has reason to vindicate Jesus.",
                           body: [
-                            "Hume's appeal to the track record treats the [[prior-probability|prior]], the probability of an event before the particular evidence is weighed, as a fixed number written into nature. The odds that a corpse revives by chance are negligible. The odds that an existing God raises the one man whose life and claims called for vindication are a separate question. {{swinburne}}'s *The Resurrection of God Incarnate* (2003) combines natural theology (arguments for God from reason and nature), the expectation of an incarnation and the historical evidence in one calculation, and puts the resurrection at about 97 percent. Timothy and Lydia McGrew argue that the testimony of the women, the disciples and Paul together could overcome even a very low prior.",
-                            "Even {{earman}}, no apologist, argued that Hume's case fails when it is read as probability, because independent witnesses can add up until they outweigh a tiny prior. The fact that the dead stay dead doesn't end the inquiry. The prior depends on whether there is a God, which ties this objection to all the others.",
+                            "Hume's appeal to the track record treats the [[prior-probability|prior]], the probability of an event before the particular evidence is weighed, as a fixed number written into nature. The odds that a corpse revives by chance are negligible, but the odds that an existing God raises the one man whose life called for vindication are a separate question. {{swinburne}}'s *The Resurrection of God Incarnate* (2003) combines natural theology (arguments for God from reason and nature), the expectation of an incarnation and the historical evidence, and puts the resurrection at about 97 percent. Timothy and Lydia McGrew argue that the testimony of the women, the disciples and Paul together could overcome even a very low prior. Even {{earman}}, no apologist, argued that Hume's case fails when read as probability, because independent witnesses can add up until they outweigh a tiny prior. The prior depends on whether there is a God, which ties this objection to the others.",
                           ],
                           quote: {
                             text: "In a word, once believe that there is a God, and miracles are not incredible.",
@@ -599,7 +595,7 @@ const evidence: Objection = {
                           },
                           thinkers: ["swinburne", "earman", "paley"],
                           cedes:
-                            "If the probability that God exists, judged on the rest of the evidence, were itself negligible, I'd concede.",
+                            "If the probability that God exists, judged on the rest of the evidence, is itself negligible, I'd concede.",
                           see: [
                             { id: "nat-a-earman", why: "Earman's case against Hume, argued in Objection III." },
                             { id: "coh-a-collapse", why: "A God with reasons to vindicate Jesus has to choose freely, and Spinoza held that God acts from necessity." },
@@ -615,8 +611,8 @@ const evidence: Objection = {
                               label: "The odds are soft guesses, and the history can't stand alone",
                               gist: "Every number in these sums is a guess, and the history persuades only someone who already finds God likely, so it can't found a case for God on its own.",
                               body: [
-                                "Swinburne's arithmetic is careful, but its inputs are soft. How likely is it, if God exists, that God becomes incarnate, or raises the incarnate one, or that the women's story would be invented? Each number is a judgment call, and small changes swing the result by orders of magnitude. The McGrews rate the combined testimony at a factor of about 10⁴⁴, and Swinburne's 97 percent rests on guesses of the same kind. Such figures measure how confident the person doing the sums already was.",
-                                "Swinburne argues for his prior from natural theology, so the main work is done there, in ((nat-b|Objection III)), and that case also has to survive evil and ((hid-argument|hiddenness)). For an agnostic who isn't already persuaded, the resurrection becomes credible only once a God likely to raise Jesus is in place. {{lessing}} saw a wider gap in 1777. The accidental truths of history, he argued, can never prove the necessary truths of reason, and he called the gap [[lessings-ditch|the ugly broad ditch]] he could not cross, however often he tried to leap it.",
+                                "Swinburne's arithmetic is careful, but its inputs are soft. How likely is it, if God exists, that he becomes incarnate, or raises the incarnate one, or that the women's story would be invented? Each number is a judgment call, and small changes swing the result by orders of magnitude. The McGrews rate the combined testimony at a factor of about 10⁴⁴, and such figures mostly measure how confident the person doing the sums already was.",
+                                "Swinburne argues for his prior from natural theology, so the main work is done there, in ((nat-b|Objection III)), where it must also survive evil and ((hid-argument|hiddenness)). For an unpersuaded agnostic, the resurrection becomes credible only after a God likely to raise Jesus is in place. {{lessing}} saw a wider gap in 1777, between the accidental truths of history and the necessary truths of reason, and called it [[lessings-ditch|the ugly broad ditch]] he could not cross however often he tried to leap.",
                               ],
                               quote: {
                                 text: "a miracle can never be proved, so as to be the foundation of a system of religion.",
@@ -625,7 +621,7 @@ const evidence: Objection = {
                               },
                               thinkers: ["swinburne", "lessing", "hume"],
                               cedes:
-                                "If the resurrection stayed highly probable on starting assumptions a fair-minded agnostic would accept before weighing the history, this would fail.",
+                                "A resurrection that stayed highly probable on starting assumptions a fair-minded agnostic would accept before weighing the history would answer this.",
                               see: [
                                 { id: "evi-a-james", why: "James offers another way across Lessing's ditch, since some questions can't wait for proof." },
                                 { id: "nat-b-odds", why: "The same worry about soft numbers, aimed at fine-tuning in Objection III." },
@@ -656,8 +652,8 @@ const evidence: Objection = {
           label: "The errors refute only a flawless Bible, which no creed requires",
           gist: "The discrepancies refute the idea that every detail is free of error, and no ancient creed asks Christians to believe that.",
           body: [
-            "Grant the discrepancies. They refute a doctrine the creeds never defined, and honest witnesses usually differ on details. Four witnesses to a car crash who agree on everything have probably compared notes. The Nicene Creed in its final form of 381 confesses that Christ rose according to the Scriptures and that the Spirit spoke through the prophets, and it says nothing about every detail being free of error. The strict doctrine of [[inerrancy|inerrancy]], as American evangelicals set it out in the Chicago Statement of 1978, belongs to no creed the whole church shares. The Second Vatican Council placed Scripture's freedom from error in “that truth which God wanted put into sacred writings for the sake of salvation” (Dei Verbum §11).",
-            "Christians noticed the discrepancies long before modern scholars did. {{origen}} granted in the 230s that the Gospels conflict if read as plain chronicle, and judged that the evangelists sometimes put spiritual truth ahead of literal accuracy. Protestants from {{barth}} to {{lewis-cs}} have treated Scripture as true testimony given in fallible human words.",
+            "The discrepancies refute a doctrine the creeds never defined, and honest witnesses usually differ on details anyway. The Nicene Creed in its final form of 381 confesses that Christ rose according to the Scriptures and that the Spirit spoke through the prophets, and says nothing about every detail being free of error. Strict [[inerrancy|inerrancy]], the claim that the Bible contains no error of any kind, was set out by American evangelicals in the Chicago Statement of 1978 and belongs to no creed the whole church shares. The Second Vatican Council placed Scripture's freedom from error in “that truth which God wanted put into sacred writings for the sake of salvation” (Dei Verbum §11).",
+            "Christians noticed the discrepancies long before modern scholars. {{origen}} granted in the 230s that the Gospels conflict if read as plain chronicle, and Protestants from {{barth}} to {{lewis-cs}} have treated Scripture as true testimony in fallible human words.",
           ],
           quote: {
             text: "The spiritual truth was often preserved, as one might say, in the material falsehood.",
@@ -666,7 +662,7 @@ const evidence: Objection = {
           },
           thinkers: ["origen", "barth", "lewis-cs"],
           cedes:
-            "If the faith's central claims, the death, burial and rising, turned out to depend on the details that conflict, this would fail.",
+            "This fails if the death, burial and rising turn out to depend on the details that conflict.",
           see: [
             { id: "mor-development", why: "Objection V makes the same move from the letter to the core in order to revise the doctrine of hell." },
           ],
@@ -679,10 +675,10 @@ const evidence: Objection = {
               id: "evi-b-core",
               side: "skeptic",
               label: "Once errors are conceded, why trust the miraculous core?",
-              gist: "If the Gospels err on checkable details and reshape history to make theological points, nothing principled exempts the miracles at their centre, and the church long held the authors free of error.",
+              gist: "If the Gospels err on checkable details and reshape history to make theological points, nothing principled exempts the miracles, and the church long held the authors free of error.",
               body: [
-                "The concession is larger than it sounds, because the church did hold the evangelists free of error. {{augustine}} told Jerome so in plain words, and {{leo-xiii|Leo XIII}}'s *Providentissimus Deus* (1893) called it absolutely wrong to admit that a sacred writer had erred. Some of the errors also look like deliberate theology. John has Jesus die as the Passover lambs were being slaughtered, in the Gospel whose first chapter hails him as “the Lamb of God” (1:29). {{ehrman}} argues that John moved the day, and {{licona}}, who defends the Gospels by appeal to their genre, has allowed that John probably did.",
-                "The four Gospels aren't four independent witnesses either. Most scholars hold that Matthew and Luke copied Mark ([[markan-priority|Markan priority]]), so where they differ from him they are editing, and the growth can be seen. The earliest manuscripts of Mark end at 16:8 with an empty tomb and no appearance. Matthew and Luke add appearances, and John has Thomas touch the wounds. A tradition loose enough to move a crucifixion for symbolism can't guarantee that its most theologically loaded events were left untouched.",
+                "The concession is larger than it sounds, because the church did hold the evangelists free of error. {{augustine}} told Jerome so plainly, and {{leo-xiii|Leo XIII}} in *Providentissimus Deus* (1893) called it absolutely wrong to admit that a sacred writer had erred. Some errors also look like deliberate theology. John has Jesus die as the Passover lambs were slaughtered, in the Gospel whose first chapter calls him “the Lamb of God” (1:29). {{ehrman}} argues that John moved the day, and {{licona}}, who defends the Gospels by appeal to their genre, has allowed that John probably did.",
+                "Nor are there four independent witnesses. Most scholars hold that Matthew and Luke copied Mark ([[markan-priority|Markan priority]]), so where they differ from him they are editing. The earliest manuscripts of Mark end at 16:8 with an empty tomb and no appearance, Matthew and Luke add appearances, and John has Thomas touch the wounds. A tradition loose enough to move a crucifixion for symbolism can't guarantee that its most loaded events were left alone.",
               ],
               quote: {
                 text: "I have learned to yield this respect and honour only to the canonical books of Scripture: of these alone do I most firmly believe that the authors were completely free from error.",
@@ -691,7 +687,7 @@ const evidence: Objection = {
               },
               thinkers: ["augustine", "leo-xiii", "ehrman", "licona"],
               cedes:
-                "If the miracle accounts proved to be among the best-attested and least-developed parts of the tradition, I'd withdraw this.",
+                "I'd withdraw this if the miracle accounts proved to be among the best-attested and least-developed parts of the tradition.",
               see: [
                 { id: "mor-flew", why: "Objection V's version, in which each softening of hell is a death by a thousand qualifications." },
               ],
@@ -706,8 +702,8 @@ const evidence: Objection = {
                   label: "Ancient biographers moved scenes around but kept the events",
                   gist: "The Gospels are ancient biographies, a genre that rearranged freely while keeping the main events, and their Easter core is promised in Mark and listed by Paul years earlier.",
                   body: [
-                    "The charge of error judges ancient biography by the standard of a court transcript. {{burridge|Richard Burridge}} showed in 1992 that the Gospels belong to the Greco-Roman [[bios|bios]], or life. {{licona}} compared Plutarch, who tells the same events differently in different *Lives*, moving scenes, merging events and compressing weeks into days, much as the evangelists do. If John set the death at a symbolic hour, he used that kind of licence, and no historian concludes from such differences that Plutarch invented Caesar's assassination. {{augustine}} had already allowed the evangelists to differ in order and wording without falsehood.",
-                    "The growth also shrinks on a closer reading. Mark's Jesus promises to meet his disciples in Galilee (14:28), and at the empty tomb the young man in white repeats it: “there shall ye see him” (16:7). Paul listed the appearances a decade or two before Mark wrote, from a creed older still (1 Corinthians 15:5–8). Paul, Mark and John each report the core independently, which historians call [[multiple-attestation|multiple attestation]], and the reports are early.",
+                    "The charge of error holds ancient biography to the standard of a court transcript. {{burridge|Richard Burridge}} showed in 1992 that the Gospels belong to the Greco-Roman [[bios|bios]], or life. {{licona}} compared Plutarch, who tells the same events differently in different *Lives*, moving scenes, merging events and compressing time, as the evangelists do. If John set the death at a symbolic hour, he used that licence, and no historian concludes that Plutarch invented Caesar's assassination. {{augustine}} had already allowed the evangelists to differ in order without falsehood.",
+                    "The growth shrinks on a closer reading. Mark's Jesus promises to meet his disciples in Galilee (14:28), and at the tomb the young man in white repeats it: “there shall ye see him” (16:7). Paul listed the appearances a decade or two before Mark wrote, from an older creed (1 Corinthians 15:5–8). Paul, Mark and John each report the core independently, which historians call [[multiple-attestation|multiple attestation]].",
                   ],
                   quote: {
                     text: "what difference does it make whether he inserts the matter in its proper order, or brings in at a particular point what was previously omitted, or mentions at an earlier stage what really happened at a later, provided only that he contradicts neither himself nor a second writer in the narrative of the same facts or of others?",
@@ -716,7 +712,7 @@ const evidence: Objection = {
                   },
                   thinkers: ["burridge", "licona", "augustine"],
                   cedes:
-                    "If the Gospels' changes went beyond anything the genre allowed, and invented events where biographers only rearranged them, this would fail.",
+                    "Changes that went beyond anything the genre allowed, inventing events where biographers only rearranged them, would sink this.",
                   sources: [
                     { title: "What Are the Gospels? A Comparison with Graeco-Roman Biography", by: "Richard A. Burridge", year: "1992" },
                     { title: "Why Are There Differences in the Gospels?", by: "Michael R. Licona", year: "2017" },
@@ -729,8 +725,8 @@ const evidence: Objection = {
                       label: "Genre licence lets defenders demote miracles too",
                       gist: "If genre can explain away a moved date, it can explain away a miracle, as Licona tentatively did with Matthew's raised saints.",
                       body: [
-                        "The genre argument works in both directions. In *The Resurrection of Jesus* (2010) {{licona}} suggested that Matthew's saints, who rise from their graves at the crucifixion and appear to many in Jerusalem, may be apocalyptic imagery, the symbolic language Jewish writers used for the end of the world, and may not be a report at all. Inerrantist critics protested, seeing where the reasoning led, and in 2011 he left his post with the North American Mission Board over the dispute.",
-                        "If the conventions of ancient biography and Jewish apocalyptic writing let one miracle story become a symbol, nothing in the genre tells us which stories are reports and which are imagery. Matthew tells of the raised saints in the same narrative voice, and in the same chapter, as the earthquake and the empty tomb. A reader who demotes one has to say why the others stand. Genre can't answer that, because it permits both readings, so the answer has to come from a prior judgment about which miracles happened. That is the question the Gospels were supposed to settle.",
+                        "The genre argument works in both directions. In 2010 {{licona}} suggested that Matthew's saints, who rise from their graves at the crucifixion and appear to many in Jerusalem, may be apocalyptic imagery, the symbolic language Jewish writers used for the end of the world. Inerrantist critics protested, and in 2011 he left his post with the North American Mission Board over the dispute.",
+                        "Nothing in the genre says which stories are reports and which are imagery. Matthew tells of the raised saints in the same voice, and the same chapter, as the earthquake and the empty tomb. A reader who demotes one has to say why the others stand, and genre can't answer, because it permits both readings. The answer has to come from a prior judgment about which miracles happened, which is the question the Gospels were supposed to settle.",
                       ],
                       quote: {
                         text: "And the graves were opened; and many bodies of the saints which slept arose, And came out of the graves after his resurrection, and went into the holy city, and appeared unto many.",
@@ -739,7 +735,7 @@ const evidence: Objection = {
                       },
                       thinkers: ["licona"],
                       cedes:
-                        "If the genre itself, without a prior verdict on miracles, marked which wonder stories are reports and which are imagery, this would fail.",
+                        "If the genre itself, without a prior verdict on miracles, marked which wonder stories are reports and which are imagery, the objection would fail.",
                       see: [
                         { id: "evi-b-spinoza", why: "Spinoza's approach to the wonder stories, which he read as fitted to their hearers and kept for what they teach." },
                       ],
@@ -757,8 +753,8 @@ const evidence: Objection = {
               label: "Scripture's authority is its ethics, so the miracles can go",
               gist: "Spinoza held that Scripture's authority rests on its teaching of justice and charity and never on accurate history, so the miracle stories can go without loss.",
               body: [
-                "The concession about errors goes further than its defenders think. Spinoza's *Theological-Political Treatise* (1670) reads Scripture through its own history, language and authors, by a method he calls “almost the same” as the method of interpreting nature (ch. 7). He finds its authority in its moral teaching, which is to obey God by practising justice and charity toward your neighbour (chs. 5, 13–14). If the narratives contain errors, nothing that made Scripture authoritative is lost.",
-                "The miracles can go too, because they were never the point. Scripture tells its wonders in a way that suits the opinions of ordinary people, who take whatever they can't explain for the hand of God (ch. 6). Its purpose, he told Oldenburg, “is not to teach philosophy, nor to render men wise, but to make them obedient” (Ep. 78). The stories did their work by moving people toward justice and charity, and that work survives reading them as stories. What remains is the ethics, and no contradiction between Matthew and John can reach it.",
+                "The concession about errors goes further than its defenders think. Spinoza's *Theological-Political Treatise* (1670) reads Scripture through its own history, language and authors, by a method he calls “almost the same” as interpreting nature (ch. 7). It finds Scripture's authority in its moral teaching, to obey God by practising justice and charity toward your neighbour (chs. 5, 13–14), so errors in the narratives take away nothing that made it authoritative.",
+                "The miracles can go too. Scripture tells its wonders to suit ordinary people, who take whatever they can't explain for the hand of God (ch. 6). Its purpose, he told Oldenburg, “is not to teach philosophy, nor to render men wise, but to make them obedient” (Ep. 78). The stories moved people toward justice and charity, and that work survives reading them as stories. No contradiction between Matthew and John can reach the ethics that remain.",
               ],
               quote: {
                 text: "the truth of narratives, be they what they may, has nothing to do with the Divine law",
@@ -767,7 +763,7 @@ const evidence: Objection = {
               },
               thinkers: ["spinoza"],
               cedes:
-                "If the Gospels' ethical teaching couldn't be stated, understood or lived apart from the miracle stories, Spinoza would be wrong.",
+                "Spinoza is wrong if the Gospels' ethics can't be stated, understood or lived apart from the miracle stories.",
               see: [
                 { id: "nat-a-power", why: "Why Spinoza held that nothing can happen against nature, since its laws are God's own decrees." },
                 { id: "mor-allegiance", why: "A Christian version of the same move, with faith understood as loyalty to Christ." },
@@ -783,8 +779,8 @@ const evidence: Objection = {
                   label: "Christianity stands or falls with a bodily rising",
                   gist: "From the start the faith said it depends on something that happened to a buried body, so retreating to timeless ethics swaps it for a different religion.",
                   body: [
-                    "Moving the core to ethics gives away the faith {{paul|Paul}} preached. He settled the matter in the mid-50s: “if Christ be not risen, then is our preaching vain, and your faith is also vain” (1 Corinthians 15:14). The first Christians announced that something had happened, and that it happened to a body. He “was buried”, and he “rose again the third day” (15:4). That makes the faith open to [[falsification|falsification]] in the way {{flew}} demanded, since Paul had named the fact that would refute it. {{oldenburg|Henry Oldenburg}}, secretary of the Royal Society and Spinoza's friend, pressed this on him in February 1676.",
-                    "The moral-core strategy has been tried often, by Spinoza, by {{kant}} in *Religion within the Bounds of Mere Reason* (1793), and by {{harnack}}'s liberal Protestantism, and each time it produced a different religion, perhaps an admirable one. When Paul preached in Athens, his hearers listened until he reached the resurrection, and then “some mocked” (Acts 17:32). The case for the event never depended on harmonizing the Gospels. It rests on ((evi-b-minimal|facts most critics grant)).",
+                    "Moving the core to ethics gives away the faith {{paul|Paul}} preached. He settled the matter in the mid-50s: “if Christ be not risen, then is our preaching vain, and your faith is also vain” (1 Corinthians 15:14). The first Christians announced that something had happened to a body, which “was buried” and “rose again the third day” (15:4). That makes the faith open to [[falsification|falsification]], as {{flew}} demanded, since Paul named the fact that would refute it. {{oldenburg|Henry Oldenburg}}, secretary of the Royal Society and Spinoza's friend, pressed this on him in February 1676.",
+                    "The moral-core strategy has been tried by Spinoza, by {{kant}} in *Religion within the Bounds of Mere Reason* (1793) and by {{harnack}}'s liberal Protestantism, and each time it produced a different religion, perhaps an admirable one. When Paul preached in Athens, his hearers listened until he reached the resurrection, and then “some mocked” (Acts 17:32). The case for the event rests on ((evi-b-minimal|facts most critics grant)) and never depended on harmonizing the Gospels.",
                   ],
                   quote: {
                     text: "And on this article of the resurrection the whole Christian religion and its truth rest, and with its removal Christ's mission and heavenly doctrine collapse.",
@@ -793,7 +789,7 @@ const evidence: Objection = {
                   },
                   thinkers: ["paul", "flew", "oldenburg", "kant", "harnack"],
                   cedes:
-                    "If the earliest Christian preaching could be shown to have centred on a teaching, with the death and rising added later, I'd concede.",
+                    "I'd concede if the earliest preaching could be shown to have centred on a teaching, with the death and rising added later.",
                   see: [{ id: "mor-body", why: "Objection V reads the bodily resurrection as God's verdict in favour of life." }],
                   children: [
                     {
@@ -802,8 +798,7 @@ const evidence: Objection = {
                       label: "The rising was a real revelation, and no corpse left a tomb",
                       gist: "Spinoza read the resurrection as a revelation, fitted to the disciples' understanding, that Christ's life had won eternity, and denied that a corpse left a tomb.",
                       body: [
-                        "Spinoza accepted a rising of a kind and asked what kind it was. He didn't call the disciples liars. Biblical apparitions, he wrote, were adapted to the understanding and opinions of the people who received them, and the resurrection was a revelation to the faithful that Christ, by his life and death, had attained eternity (Ep. 75). In his next letter he summed it up: “I accept Christ's passion, death, and burial literally, as you do, but His resurrection I understand allegorically” (Ep. 78).",
-                        "This reading takes the Easter experiences more seriously than the hallucination theory does, since on Spinoza's view they showed something true. It also escapes ((evi-b-wright|Wright's argument)) that only an empty tomb plus appearances could produce the word *risen*, because a revelation that Christ lives eternally can be called a rising without a body leaving a grave. It keeps what Oldenburg insisted on, a real disclosure at a real time, and declines only the miracle. For Spinoza revelation is vivid imagination at work, and it never breaks the order of nature.",
+                        "Spinoza granted a rising of a kind and asked what kind it was. He didn't call the disciples liars. Biblical apparitions, he wrote, were adapted to the understanding and opinions of those who received them, and the resurrection was a revelation to the faithful that Christ, by his life and death, had attained eternity (Ep. 75). In his next letter he put it in one line: “I accept Christ's passion, death, and burial literally, as you do, but His resurrection I understand allegorically” (Ep. 78). This reading takes the Easter experiences more seriously than the hallucination theory does, since on it they showed something true. It escapes ((evi-b-wright|Wright's argument)) that only an empty tomb plus appearances could produce the word *risen*, because a revelation that Christ lives eternally can be called a rising without any grave being emptied. For Spinoza revelation is vivid imagination at work, and it never breaks the order of nature.",
                       ],
                       quote: {
                         text: "I therefore conclude, that the resurrection of Christ from the dead was in reality spiritual, and that to the faithful alone, according to their understanding, it was revealed that Christ was endowed with eternity, and had risen from the dead",
@@ -812,7 +807,7 @@ const evidence: Objection = {
                       },
                       thinkers: ["spinoza"],
                       cedes:
-                        "If the earliest witnesses, Paul included, plainly meant a physical body that had left a tomb, Spinoza's reading would fail.",
+                        "Spinoza's reading fails if the earliest witnesses, Paul included, plainly meant a physical body that had left a tomb.",
                       see: [
                         { id: "nat-a-power", why: "Why Spinoza reads it this way. Nature's laws are God's decrees, and God does not break them." },
                       ],
@@ -832,8 +827,8 @@ const evidence: Objection = {
                           label: "The first witnesses insisted on a body and an empty tomb",
                           gist: "The earliest creed names a burial, Paul's 'spiritual body' is still a body, and Luke and John take pains to show the risen Jesus was no ghost.",
                           body: [
-                            "The spiritual reading fails on the earliest texts. The creed Paul hands on runs in order, died, was buried, was raised, appeared (1 Corinthians 15:3–5), and the burial matters only if the grave is part of the point. Paul's “spiritual body” ([[soma-pneumatikon|*soma pneumatikon*]], 15:44) is, on {{wright-nt}}'s reading, a body animated by the Spirit, and Paul doesn't mean a body made of spirit. Luke and John rule out a ghost, with flesh and bones, a meal of fish, and Thomas invited to touch the wounds.",
-                            "Spinoza himself conceded that “we cannot deny that they themselves believed Christ's body to have risen from the dead” (Ep. 78), and said only that they might have been deceived. On his own theory the Easter visions were [[imaginatio|imagination]], ((evi-a-imagination|the kind of knowing that produces error)), and the *Treatise* says we must not go to the prophets for knowledge “either of natural or of spiritual phenomena” (ch. 2). Oldenburg pressed the inconsistency. If the passion, death and burial are literal, by what right is the rising, told just as soberly, made into allegory? Spinoza, he wrote, relied “on no proof at all”.",
+                            "The spiritual reading fails on the earliest texts. The creed Paul hands on runs died, buried, raised, appeared (1 Corinthians 15:3–5), and the burial matters only if the grave is part of the point. Paul's “spiritual body” (15:44), in Greek [[soma-pneumatikon|soma pneumatikon]], is on {{wright-nt}}'s reading a body animated by the Spirit. Luke and John rule out a ghost, with flesh and bones, a meal of fish, and Thomas invited to touch.",
+                            "Spinoza himself conceded that “we cannot deny that they themselves believed Christ's body to have risen from the dead” (Ep. 78), saying only that they might have been deceived. On his own theory the visions were [[imaginatio|imagination]], ((evi-a-imagination|the kind of knowing that produces error)), and the *Treatise* says we must not go to the prophets for knowledge “either of natural or of spiritual phenomena” (ch. 2). Oldenburg asked by what right the rising, told as soberly as the passion, death and burial, is made into allegory, and said Spinoza relied “on no proof at all”.",
                           ],
                           quote: {
                             text: "Behold my hands and my feet, that it is I myself: handle me, and see; for a spirit hath not flesh and bones, as ye see me have.",
@@ -842,7 +837,7 @@ const evidence: Objection = {
                           },
                           thinkers: ["wright-nt", "spinoza", "oldenburg"],
                           cedes:
-                            "If Paul, the earliest witness, could be shown to have meant something other than a body by 'body', I'd concede.",
+                            "Proof that Paul, the earliest witness, meant something other than a body by 'body' would change my mind.",
                           children: [
                             {
                               id: "evi-b-flesh",
@@ -850,8 +845,8 @@ const evidence: Objection = {
                               label: "Paul, the earliest witness, describes a heavenly body",
                               gist: "Paul, the earliest witness, counts his own vision as an appearance, never mentions an empty tomb, and says flesh and blood cannot inherit God's kingdom.",
                               body: [
-                                "The texts that insist on flesh are the later ones. Paul lists his own encounter, which Acts itself calls a “heavenly vision” (26:19), as the same kind of appearance as Peter's (1 Corinthians 15:8). He never mentions an empty tomb, and he says that “flesh and blood cannot inherit the kingdom of God” (15:50). {{jeremias|Joachim Jeremias}}, a German New Testament scholar, read that as an idiom for mortal human beings, but Paul also insists, “thou sowest not that body that shall be” (15:37). Dale Martin, a New Testament scholar at Yale, reads the *soma pneumatikon* as a body made of *pneuma*, a fine heavenly substance.",
-                                "Spinoza relied on 2 Corinthians 5:16, though if its “after the flesh” means only *by worldly standards*, chapter 15 has to carry the case by itself. Oldenburg said Spinoza relied on no proof, but the proof is in the *Treatise*. A death is an ordinary event, while a corpse rising would break the order of nature, which for Spinoza is God's own decree (ch. 6). Two reports told in the same sober voice can still differ, one recording what happened and the other what the witnesses believed.",
+                                "The texts that insist on flesh are the later ones. Paul counts his own encounter, which Acts calls a “heavenly vision” (26:19), as an appearance like Peter's (1 Corinthians 15:8), never mentions an empty tomb, and says “flesh and blood cannot inherit the kingdom of God” (15:50). {{jeremias|Joachim Jeremias}}, a German New Testament scholar, read that as an idiom for mortal human beings, but Paul also says “thou sowest not that body that shall be” (15:37). Dale Martin of Yale reads Paul's *soma pneumatikon*, his spiritual body, as a body made of *pneuma*, a fine heavenly substance.",
+                                "Spinoza leaned on 2 Corinthians 5:16, though if its “after the flesh” means only *by worldly standards*, chapter 15 carries the case alone. As for Oldenburg's charge, the proof is in the *Treatise*. A death is ordinary, while a corpse rising would break the order of nature, which for Spinoza is God's own decree (ch. 6). Two reports told in the same sober voice can differ, one recording what happened and the other what the witnesses believed.",
                               ],
                               quote: {
                                 text: "But Paul, to whom Christ afterwards appeared, rejoices, that he knew Christ not after the flesh, but after the spirit.",
@@ -860,7 +855,7 @@ const evidence: Objection = {
                               },
                               thinkers: ["spinoza", "jeremias"],
                               cedes:
-                                "If Paul's letters, read on their own terms, plainly assumed an emptied grave, this reading would fail.",
+                                "Letters of Paul that, read on their own terms, plainly assumed an emptied grave would sink this reading.",
                             },
                           ],
                         },
@@ -879,7 +874,7 @@ const evidence: Objection = {
   spinoza: {
     title: "God can be proved, and faith is about obedience",
     body: [
-      "On the Gospels Spinoza sides with the skeptic. His *Theological-Political Treatise* (1670) reads Scripture the way he reads nature, through its own history. On God and evidence he is no evidentialist, because he doesn't think belief in God has to wait on outside evidence. He held that [[deus-sive-natura|God, or Nature]], can be proved (Ethics I P11), and that a true idea needs no outside support: “as light displays both itself and darkness, so is truth a standard both of itself and of falsity” (II P43 Schol.). So against Clifford he agrees with Plantinga. The two differ over which ideas of God are adequate, that is, complete and true.",
+      "On the Gospels Spinoza sides with the skeptic. His *Theological-Political Treatise* (1670) reads Scripture the way he reads nature, through its own history. On God and evidence he is no evidentialist, because he doesn't think belief in God has to wait on outside evidence. He held that [[deus-sive-natura|God, or Nature]], can be proved (Ethics I P11), and that a true idea needs no outside support: “as light displays both itself and darkness, so is truth a standard both of itself and of falsity” (II P43 Schol.). Against Clifford, then, he agrees with Plantinga. The two differ over which ideas of God are adequate, that is, complete and true.",
       "He divided the work between philosophy and faith (TTP chs. 14–15). Philosophy looks for truth. Faith looks for obedience and needs only a handful of pious dogmas, judged by how much justice and charity they produce, which is why he could grant every contradiction in the Gospels and lose nothing. He gave no weight to a felt sense of the divine, which he counted as [[imaginatio|imagination]]. What the intellect understands, it loves, and that love is part of the love with which God loves himself (V P36).",
       "His God acts from the necessity of his own nature and has no will (I P32 Coroll. 1), so he raises no one from the dead. The Christ Spinoza admired, who “communed with God mind to mind” (TTP ch. 1), can be the wisest of teachers but can't be a risen Lord. Ordinary believers, meanwhile, are asked to trust a just and merciful Judge, which the *Ethics* says God is not. Spinoza's answer is that each dogma has a true reading, since God's decrees are the laws of nature. ((evi-a-owngod|His Christian critics ask)) whether that is translation or a noble lie, Plato's name for a useful falsehood told to the public.",
     ],

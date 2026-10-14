@@ -23,7 +23,7 @@ const coherence: Objection = {
   counter:
     "Classical theism (Aquinas, David Bentley Hart) says the objection attacks a God who is one cause among others. Their God is the source of every cause and competes with none of them. Spinoza said much the same, though his God is not a person. God's nature is goodness itself, so Euthyphro's two options don't arise. And to prove the idea of God incoherent, the objector must show that every account of God fails. Three accounts of foreknowledge each claim to be consistent: God sees all of time at once, God knows what each of us would freely do (Molinism), or the future is still open (open theism).",
   dek:
-    "The Objector's main target is a God who *chooses*, one who could have made a different world or none at all. Spinoza's God also causes everything and knows everything, so the first two parts mostly divide believers among themselves. The Objector wins if every account of God fails at least one of the three parts. The Defender needs just one account that gets through all of them.",
+    "The Objector's main target is a God who *chooses*, one who could have made a different world or none at all. Spinoza's God also causes everything and knows everything, so the first two parts mostly divide believers among themselves. Because the charge is incoherence, one account of God that gets through all three parts would be enough to answer it.",
   question:
     "Can a God who causes everything, knows every free choice and is goodness itself still be someone who chooses?",
 
@@ -72,7 +72,7 @@ const coherence: Objection = {
           },
           thinkers: ["aquinas", "farrer", "tanner", "hart"],
           cedes:
-            "If a cause working on a different level from fire could be shown to compete with it anyway, or a source of all being couldn't act freely, this reply would fail.",
+            "This holds unless a cause working on a different level from fire can be shown to compete with it anyway, or a source of all being can't act freely.",
           see: [
             { id: "hid-hart-light", why: "Hart's God as the light we see by, the same idea applied to hiddenness in Objection II." },
             { id: "coh-b-classical", why: "The same idea, extended from fire's burning to your choosing." },
@@ -175,7 +175,7 @@ const coherence: Objection = {
                   },
                   thinkers: ["aquinas", "maimonides"],
                   cedes:
-                    "If talk of God's wisdom, looked at closely, always turned out to mean either what it means for us or nothing at all, the reply would fail.",
+                    "A careful look showing that talk of God's wisdom always means either what it means for us or nothing at all would sink this.",
                   see: [
                     { id: "hid-hart-personal", why: "Hart's version in Objection II, where the source of being is infinite mind and love." },
                     { id: "hid-rea-love", why: "Rea's answer to hiddenness in Objection II leans on the same analogy, since divine love needn't look like a parent's." },
@@ -314,7 +314,7 @@ const coherence: Objection = {
           },
           thinkers: ["boethius", "aquinas", "stump", "kretzmann"],
           cedes:
-            "If knowledge from outside time turned out to be fixed and out of our reach in the same way past knowledge is, this answer would fail.",
+            "Showing that knowledge from outside time is fixed and out of our reach in the same way past knowledge is would undo this answer.",
           see: [
             { id: "coh-b-classical", why: "Aquinas's full answer adds that God knows by causing as well as by seeing." },
           ],
@@ -361,7 +361,7 @@ const coherence: Objection = {
                   },
                   thinkers: ["stump", "kretzmann", "plantinga", "ockham", "kenny", "augustine"],
                   cedes:
-                    "If a fact could depend on my choice and still be beyond my power in the way the past is, this would fail.",
+                    "I'd drop this if a fact could depend on my choice and still be beyond my power in the way the past is.",
                   see: [
                     { id: "coh-b-molina", why: "Molina's followers use Ockham's answer for God's beliefs about the future." },
                   ],
@@ -439,7 +439,7 @@ const coherence: Objection = {
                   },
                   thinkers: ["craig", "plantinga", "flint", "merricks"],
                   cedes:
-                    "If someone found a principled rule that ruled out truths about free choices and still allowed truths about the future and the past, this reply would fail.",
+                    "A principled rule that ruled out truths about free choices while allowing truths about the future and the past would defeat this.",
                   sources: [
                     { title: "Middle Knowledge, Truth-Makers, and the ‘Grounding Objection’", by: "William Lane Craig", year: "2001" },
                   ],
@@ -460,7 +460,7 @@ const coherence: Objection = {
                       },
                       thinkers: ["craig", "adams-robert-m", "hasker"],
                       cedes:
-                        "If something real, then or ever, made it true what a never-created person would freely have done, and the choice still stayed up to him, this would fail.",
+                        "It would be answered if something real, then or ever, made it true what a never-created person would freely have done, while the choice still stayed up to him.",
                       see: [
                         { id: "coh-b-open", why: "Where the comparison leads if neither kind of claim has anything to make it true." },
                       ],
@@ -481,7 +481,7 @@ const coherence: Objection = {
           label: "An open future is a consistent way out, and one is enough",
           gist: "If future free choices aren't there yet to be known, an all-knowing God misses nothing, and one consistent account of God is enough to answer the charge.",
           body: [
-            "Pike's argument assumes there is already a fact about what you will freely do, and open theists deny it. {{aristotle}} wondered whether ‘there will be a sea battle tomorrow’ is true today. {{todd}} argues (2021) that all such [[future-contingents|future contingents]], claims about free or chancy future events, are false, so a God who knows every truth still knows all there is. {{swinburne}}, {{hasker|Hasker}} and {{boyd}} defend versions of the idea. The authors of *The Openness of God* (1994) built [[open-theism|open theism]] on the biblical God who tests people, changes course and tells Abraham ‘now I know’.",
+            "Pike's argument assumes there is already a fact about what you will freely do, and open theists deny it. {{aristotle}} wondered whether ‘there will be a sea battle tomorrow’ is true today. {{todd}} argues (2021) that all such [[future-contingents|future contingents]], claims about free or chancy future events, are false, so a God who knows every truth still knows all there is. {{swinburne}}, {{hasker|Hasker}} and {{boyd}} defend versions of the idea. The authors of *The Openness of God* (1994) built [[open-theism|open theism]] on the biblical God who changes course and tells Abraham ‘now I know’.",
             "This God passes the other two parts as well. He gives free agents power without settling how they use it, so nothing is caused twice, and his nature is the standard of goodness, as {{adams-robert-m|Adams}} argues ((coh-c-terminus|in Part 3)), with no need for simplicity.",
           ],
           quote: {
@@ -491,7 +491,7 @@ const coherence: Objection = {
           },
           thinkers: ["aristotle", "todd", "swinburne", "hasker", "boyd", "adams-robert-m"],
           cedes:
-            "If future free choices could be known for certain in advance, or an open God failed one of the other two parts, this would fail.",
+            "It stands unless future free choices can be known for certain in advance, or an open God fails one of the other two parts.",
           sources: [
             { title: "The Open Future: Why Future Contingents Are All False", by: "Patrick Todd", year: "2021" },
             { title: "God of the Possible", by: "Gregory A. Boyd", year: "2000" },
@@ -503,7 +503,7 @@ const coherence: Objection = {
               label: "Each answer saves a different God, and none passes all three",
               gist: "The open God acts in time, so each answered prayer is an intervention, and his ‘now’ needs a cosmic present that physics denies.",
               body: [
-                "The open-theism reply changes the subject, since Objection I is answered only if one God gets through all three parts. The classical answer to Part 1 was Aquinas's, that God is no being among beings and so never competes with fire. The open God lives in time, learns as we choose and answers as we pray, so each answer is a [[special-divine-action|special act]], one more push in a world that physics finds causally closed ((nat-a-closure|Objection III)).",
+                "The open-theism reply changes the subject, since Objection I is answered only if one God gets through all three parts. The classical answer to Part 1 was Aquinas's, that God is no being among beings and so never competes with fire. The open God lives in time and answers as we pray, so each answer is a [[special-divine-action|special act]], one more push in a world that physics finds causally closed ((nat-a-closure|Objection III)).",
                 "Living in time also needs a single cosmic ‘now’, which special relativity denies. {{craig|Craig}}, who holds that God has been in time since creation, revives a preferred state of rest that few physicists accept. Followers of Aquinas also reject Molinism, saying a God informed by truths he doesn't make is taught by his creatures, and Craig rejects strong simplicity.",
               ],
               quote: {
@@ -554,8 +554,8 @@ const coherence: Objection = {
                       label: "If God causes every choice, he causes the sins he punishes",
                       gist: "If God causes every choice, he causes Judas's betrayal too, and judging Judas looks like an author punishing a character for what the author wrote.",
                       body: [
-                        "If God knows our choices because he causes them, our freedom looks like that of a designed man. {{mele}} imagines a goddess who designs a zygote so that the man it becomes will later do what she planned. {{pereboom}} lines up a series of such cases ending in ordinary causes and asks where freedom appears. Most readers judge that man unfree, and someone whose every choice God causes seems no freer.",
-                        "On {{banez|Báñez}}'s account of sin, a creature falls only when God withholds the grace that would have kept it standing, so God's decree decides who falls. Jesuits pressed this charge during the dispute over grace, and {{maritain}}, a follower of Aquinas, revised the doctrine in 1963 to avoid it. {{mackie}} had already asked in 1955 why such a God didn't make people who always choose well.",
+                        "If God knows our choices because he causes them, our freedom looks like that of a designed man. {{mele}} imagines a goddess who designs a zygote so that the man it becomes will later do what she planned. {{pereboom}} lines up similar cases ending in ordinary causes and asks where freedom appears. Most readers judge that man unfree, and a man whose every choice God causes seems no freer.",
+                        "On {{banez|Báñez}}'s account of sin, a creature falls only when God withholds the grace that would have kept it standing, so God's decree decides who falls. Jesuits pressed this charge during the dispute over grace, and {{maritain}}, a follower of Aquinas, revised the doctrine in 1963 to avoid it. {{mackie}} had already asked in 1955 why, if that counts as freedom, God didn't make people who always freely choose the good.",
                       ],
                       quote: {
                         text: "if God has made men such that in their free choices they sometimes prefer what is good and sometimes what is evil, why could he not have made men such that they always freely choose the good?",
@@ -592,7 +592,7 @@ const coherence: Objection = {
                           },
                           thinkers: ["grant", "mccann", "aquinas", "maritain", "mackie", "hart", "augustine"],
                           cedes:
-                            "If a defect needed a cause the way a deed does, or the source of a will had to compete with it as a manipulator does, this would fail.",
+                            "A defect that needed a cause the way a deed does, or a source of the will that had to compete with it as a manipulator does, would sink this.",
                           see: [
                             { id: "mor-universalism", why: "Hart's view of freedom, which is not the two-way kind, supports his belief in Objection V that everyone is saved." },
                           ],
@@ -667,7 +667,7 @@ const coherence: Objection = {
               label: "Losing freedom is harmless only to a God who judges no one",
               gist: "Spinoza can shrug off lost freedom because his God judges no one, but the Christian God judges the living and the dead.",
               body: [
-                "Spinoza's answer works for Spinoza because his God has no passions and loves or hates no one (Ethics V P17 Cor.). When {{oldenburg}} pressed him in 1676, he said plainly that God can't be angry, and that when Scripture calls God a judge who passes sentence, it is speaking in human terms ((mor-no-desert|Objection V)). Classical theism can't say that. Its God tests hearts, forgives and condemns. Paul, who first heard this objection, answered it with the potter and the clay and still kept ‘the judgment seat of Christ’ (2 Corinthians 5:10). A judge who settled every crime he sentences is the author punishing his characters from ((coh-b-needslib|the reply to Aquinas)).",
+                "Spinoza's answer works for Spinoza because his God has no passions and loves or hates no one (Ethics V P17 Cor.). When {{oldenburg}} pressed him in 1676, he said plainly that God can't be angry, and that when Scripture calls God a judge who passes sentence, it is speaking in human terms ((mor-no-desert|Objection V)). Classical theism can't say that. Its God tests hearts and condemns sinners. Paul, who first heard this objection, answered it with the potter and the clay and still kept ‘the judgment seat of Christ’ (2 Corinthians 5:10). A judge who settled every crime he sentences is the author punishing his characters from ((coh-b-needslib|the reply to Aquinas)).",
               ],
               quote: {
                 text: "Thou wilt say then unto me, Why doth he yet find fault? For who hath resisted his will?",
@@ -676,7 +676,7 @@ const coherence: Objection = {
               },
               thinkers: ["spinoza", "oldenburg"],
               cedes:
-                "If a God who settles every choice could still justly condemn the chooser, or the Christian God judged no one, this would fail.",
+                "I'd concede if a God who settles every choice could still justly condemn the chooser, or if the Christian God judged no one.",
               see: [
                 { id: "mor-spinoza-few", why: "The answer in Objection V, that blame survives determinism, and that on Spinoza's own view the excusable still perish." },
               ],
@@ -702,8 +702,8 @@ const coherence: Objection = {
       label: "Either God's commands are arbitrary or goodness stands above God",
       gist: "If cruelty is wrong only because God forbids it, he could have made it right, and if he forbids it because it's wrong, goodness doesn't depend on him.",
       body: [
-        "At the porch of the King Archon, on his way to answer the charges that would cost him his life, Socrates questions Euthyphro, a man prosecuting his own father for murder and sure the gods approve. The [[euthyphro-dilemma|Euthyphro dilemma]] comes from that conversation. For one God, the first option says right is whatever he commands, so had he commanded cruelty, cruelty would have been right. {{ockham}}, on the standard reading, accepted this and held that by his absolute power God could command even hatred of himself.",
-        "Others recoiled. {{leibniz}} asked, ‘why praise him for what he has done, if he would be equally praiseworthy in doing the contrary?’ (*Discourse on Metaphysics* §2). {{cudworth}} argued that it makes justice a mere name, since not even omnipotence can make a thing what it is by will alone. If instead God commands kindness because it is good, goodness is a standard God consults, and morality no longer depends on him.",
+        "At the porch of the King Archon, on his way to face the charges that would cost him his life, Socrates questions Euthyphro, a man prosecuting his own father for murder and sure the gods approve. The [[euthyphro-dilemma|Euthyphro dilemma]] comes from that conversation. Applied to a single God, the first option says right is whatever he commands, so had he commanded cruelty, cruelty would have been right. {{ockham}}, on the standard reading, accepted this and held that by his absolute power God could command even hatred of himself.",
+        "Others recoiled. {{leibniz}} asked, ‘why praise him for what he has done, if he would be equally praiseworthy in doing the contrary?’ (*Discourse on Metaphysics* §2). {{cudworth}} argued that it makes justice a mere name, since not even omnipotence can make a thing what it is by will alone. If God commands kindness because it is good, goodness is a standard God consults, and morality no longer depends on him.",
       ],
       quote: {
         text: "The point which I should first wish to understand is whether the pious or holy is beloved by the gods because it is holy, or holy because it is beloved of the gods.",
@@ -739,7 +739,7 @@ const coherence: Objection = {
           },
           thinkers: ["aquinas", "davies", "hart", "murphy"],
           cedes:
-            "If calling God ‘goodness itself’ turned out to hide a standard he meets, or to be a name for whatever he happens to be, this would fail.",
+            "This fails if calling God ‘goodness itself’ turns out to hide a standard he meets, or to be a name for whatever he happens to be.",
           see: [
             { id: "mor-not-agent", why: "The same classical claim, that God is not one moral agent among others, applied to hell and evil in Objection V." },
           ],
@@ -764,7 +764,7 @@ const coherence: Objection = {
               },
               thinkers: ["morriston", "mill", "kant"],
               cedes:
-                "If ‘God is good’ could tell us something without measuring God against a standard that comes first, in what we know or in fact, this would fail.",
+                "It would be answered if ‘God is good’ could tell us something without measuring God against a standard that comes first, in what we know or in fact.",
               see: [
                 { id: "mor-mansel", why: "Mill's ‘to hell I will go’, aimed at the doctrine of hell in Objection V." },
               ],
@@ -779,7 +779,7 @@ const coherence: Objection = {
                   label: "God is the standard of goodness and isn't measured by it",
                   gist: "Every theory of ethics stops at something good that isn't good by a further standard, and for believers that stopping point is God.",
                   body: [
-                    "Every ethics faces the regress this objection finds. {{plato}}'s Form of the Good makes other things good without being good by sharing in anything further, and in the *Republic* Socrates says ‘the good is not essence, but far exceeds essence in dignity and power’. A godless realist's basic moral facts are just true. {{alston}} proposed that for a believer the stopping point is a particular, God. As the standard metre bar once fixed what a metre is, God fixes what goodness is, so asking whether God meets the standard misunderstands what a standard is.",
+                    "Every ethics faces the regress this objection finds, because explanation has to stop somewhere. {{plato}}'s Form of the Good makes other things good without being good by sharing in anything further, and in the *Republic* Socrates says ‘the good is not essence, but far exceeds essence in dignity and power’. A godless realist's basic moral facts are just true. {{alston}} proposed that for a believer the stopping point is a particular, God. As the standard metre bar once fixed what a metre is, God fixes what goodness is, so asking whether God meets the standard misunderstands what a standard is.",
                     "‘God is good’ isn't empty either. {{adams-robert-m}} points out that people called lakes and rain ‘water’ long before anyone knew it was H₂O, and our examples of goodness fix what ‘good’ is about in the same way. Then ‘what if God's nature were cruel?’ has an impossible premise, like asking what water would be if it weren't H₂O.",
                   ],
                   quote: {
@@ -814,7 +814,7 @@ const coherence: Objection = {
                       },
                       thinkers: ["wielenberg", "horgan", "timmons", "morriston", "russell"],
                       cedes:
-                        "If moral facts with no further explanation couldn't account for why morality binds us, or how creatures like us come to know them, this would fail.",
+                        "Showing that unexplained moral facts can't account for why morality binds us, or how creatures like us come to know them, would sink this.",
                       see: [
                         { id: "coh-c-spinoza", why: "Spinoza rejects moral facts that hold apart from us, so he and Wielenberg can't both be right." },
                       ],
@@ -866,7 +866,7 @@ const coherence: Objection = {
                               },
                               thinkers: ["evans", "adams-robert-m", "cudworth", "wielenberg", "street", "mackie"],
                               cedes:
-                                "If the duty to heed God needed no grounding of its own while every godless duty still did, this would fail.",
+                                "This holds unless the duty to heed God needs no grounding of its own while every godless duty still does.",
                               see: [
                                 { id: "mor-convicts", why: "Wielenberg again in Objection V, defending equal human worth with nothing to ground it." },
                               ],
@@ -945,7 +945,7 @@ const coherence: Objection = {
     body: [
       "Spinoza grants more of the classical reply than either side expects. His God is the [[immanent-cause|immanent cause]] of everything, the cause things exist in, and competes with nothing (Ethics I P18). He denies [[libertarian-freedom|libertarian freedom]], the power to do otherwise (II P48). So on his view a God who causes and knows every act takes nothing from the only freedom there is, acting from your own nature (I Def. 7). For him the first two parts are disputes among believers.",
       "Spinoza's God thinks ((coh-a-dogstar|with a mind ours is part of)), and he loves, but only with the [[amor-dei-intellectualis|intellectual love]] by which he loves himself. Your own understanding love of God is part of that love (V P36). So, in his words, ‘strictly speaking, God does not love or hate anyone’ (V P17 Cor.). Ordinary love is joy at an outside cause, and God has no outside. Where ((coh-a-analogy|Aquinas)) sees a likeness across a gap, Spinoza sees one love, looked at from the part and from the whole.",
-      "Spinoza denies that God could have done otherwise, and each believer's answer in this objection needs him to be wrong. The answers are ((coh-a-extrinsic|one act with many possible worlds)), knowing by causing without causing sin, and commands fixed in their essentials but free in their details. Spinoza says no because everything has a reason ([[psr|the principle of sufficient reason]]). He accepts the consequence, which philosophers call [[necessitarianism|necessitarianism]], that this world, horrors included, is the only one there could have been, brought into being ‘in the highest perfection’ (I P33 Schol. 2). And ‘good’, for him, measures what helps beings like us flourish (IV Pref.).",
+      "Spinoza denies that God could have done otherwise, and each believer's answer in this objection needs him to be wrong. The answers are ((coh-a-extrinsic|one act with many possible worlds)), knowing by causing without causing sin, and commands fixed in their essentials but free in their details. He holds that everything has a reason ([[psr|the principle of sufficient reason]]), which leaves no room for a choice that could have gone otherwise. He accepts the consequence, which philosophers call [[necessitarianism|necessitarianism]], that this world, horrors included, is the only one there could have been, brought into being ‘in the highest perfection’ (I P33 Schol. 2). And ‘good’, for him, measures what helps beings like us flourish (IV Pref.).",
     ],
     quote: {
       text: "Hence it follows that God, in so far as he loves himself, loves man, and, consequently, that the love of God towards men, and the intellectual love of the mind towards God are identical.",

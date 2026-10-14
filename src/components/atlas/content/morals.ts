@@ -59,7 +59,7 @@ const morals: Objection = {
           gist: "Aquinas held that hell punishes a will that turned from God and stays turned, so the punishment lasts as long as the turning does.",
           body: [
             "The complaint about an infinite sentence for a finite crime assumes the crime is over. {{aquinas}} denied that. On his account sin creates a debt of punishment by disturbing the right order between a person and God, and the debt lasts while the disturbance lasts (*Summa Theologiae* I-II q.87 a.3). A will that has turned away from God, its final good, and stays turned away is still committing the offense.",
-            "No court matches a sentence to the length of the deed, since 'adultery or murder is committed in a moment'. Someone who makes sin his final aim 'has the will to sin, everlastingly', and death settles that choice. The pain matches the sin in severity, and only its length is endless. Aquinas added that God takes no delight in punishment for its own sake, and that endless punishment still warns the living.",
+            "No court matches a sentence to the length of the deed. 'Adultery or murder is committed in a moment', Aquinas notes, and neither is punished for a moment. Someone who makes sin his final aim 'has the will to sin, everlastingly', and death settles that choice. The pain matches the sin in severity, and only its length is endless. Aquinas added that God takes no delight in punishment for its own sake, and that endless punishment still warns the living.",
           ],
           quote: {
             text: "Wherefore so long as the disturbance of the order remains the debt of punishment must needs remain also.",
@@ -83,7 +83,7 @@ const morals: Objection = {
               gist: "Aquinas says the will is fixed at death and only God could heal it, so the damned stay because God declines to, even though they want out.",
               body: [
                 "Aquinas's answer needs the refusal to belong to the damned person, and his own account makes that hard to keep. In the *Summa Contra Gentiles* (IV.92–95) he holds that the will is fixed in its last choice at death and can never turn again. So 'as long as the will refuses' means forever. His damned also repent, though only 'indirectly, inasmuch as they will suffer from the punishment inflicted on them for sin' (*Summa Theologiae* Suppl. q.98 a.2). They want out and are kept in.",
-                "Aquinas also says who could change this. In the passage quoted here, the ruined will is beyond repair only when 'considered in itself', and God has the power to repair it. If the damned stay damned, it is because God could heal them and doesn't. On this picture a refusal made at the last moment of a life is made permanent by someone else, and then punished for being permanent.",
+                "Aquinas also says who could change this. The ruined will, he writes, is irreparable only when 'considered in itself', and God has the power to repair it. If the damned stay damned, it is because God could heal them and doesn't. On this picture a refusal made at the last moment of a life is made permanent by someone else, and then punished for being permanent.",
               ],
               quote: {
                 text: "Consequently if a sin destroys the principle of the order whereby man's will is subject to God, the disorder will be such as to be considered in itself, irreparable, although it is possible to repair it by the power of God.",
@@ -105,7 +105,7 @@ const morals: Objection = {
               gist: "Spinoza denied that anyone could have chosen otherwise, so people who turn from God may be unhappy, but they cannot deserve punishment from an angry God.",
               body: [
                 "Aquinas's reply assumes a will that could have turned the other way, and Spinoza denied there is such a will. 'Men are mistaken in thinking themselves free', he wrote, because 'their opinion is made up of consciousness of their own actions, and ignorance of the causes by which they are conditioned' (*Ethics* II P35 Schol.). The will 'cannot be called a free cause, but only a necessary cause' (I P32). Without a free, uncaused refusal, nobody in hell earned being there.",
-                "He told {{oldenburg|Henry Oldenburg}}, secretary of the Royal Society in London, the same thing in 1676. God cannot be angry, and people who sin from weakness are excusable, though excusable people can still be unhappy. When Scripture calls God a judge who passes sentence, it is 'speaking humanly', Spinoza wrote, because its aim is 'to make them obedient'. On his view a weak nature brings its own loss, the way a weak body does, and nobody adds a sentence to it.",
+                "He told {{oldenburg|Henry Oldenburg}}, secretary of the Royal Society in London, the same thing in 1676. God cannot be angry, and people who sin from weakness are excusable, though excusable people can still be unhappy. When Scripture calls God a judge who passes sentence, it is 'speaking humanly', Spinoza wrote, because its purpose is to make people obedient. On his view a weak nature brings its own loss, the way a weak body does, and nobody adds a sentence to it.",
               ],
               quote: {
                 text: "I fully admit that God cannot be angry, and that all things are done in accordance with His will; but I deny that all men ought, therefore, to be blessed—men may be excusable, and, nevertheless, be without blessedness and afflicted in many ways.",
@@ -231,7 +231,7 @@ const morals: Objection = {
           label: "The lost are finally destroyed and do not suffer forever",
           gist: "The Bible's words for the fate of the lost are death and destruction, so on this view they finally cease to exist instead of suffering forever.",
           body: [
-            "Endless torment assumes the soul cannot die. That idea owes more to Plato than to the Bible, where God 'only hath immortality' (1 Timothy 6:16) and gives life as a gift. The Bible's words for the fate of the lost are words of destruction. Whoever believes 'should not perish' (John 3:16), 'the wages of sin is death' (Romans 6:23), and God can destroy soul and body alike (Matthew 10:28).",
+            "Endless torment assumes the soul cannot die. That idea owes more to Plato than to the Bible, where God 'only hath immortality' (1 Timothy 6:16) and gives life as a gift. The Bible's words for the fate of the lost are words of destruction. John's Gospel says whoever believes 'should not perish' (3:16), Paul says 'the wages of sin is death' (Romans 6:23), and Jesus says God can destroy soul and body alike (Matthew 10:28).",
             "This view is called [[annihilationism|annihilationism]], or conditional immortality, and it holds that the lost are finally destroyed. {{fudge}} argued for it at length in *The Fire That Consumes* (1982), and {{stott}}, a leading evangelical, tentatively endorsed it in 1988. The fire consumes what it burns, and the punishment is everlasting because its result is permanent, 'everlasting destruction' (2 Thessalonians 1:9). On this reading judgment and loss are real, but nobody is kept alive in order to suffer.",
           ],
           quote: {
@@ -431,7 +431,7 @@ const morals: Objection = {
                       label: "On Objection II's replies, a doubter who heard isn't innocent",
                       gist: "Either the doubter who heard and declined is to blame, as some replies in Objection II say, or he is blameless, which grants the hiddenness argument a key premise.",
                       body: [
-                        "Inclusivism covers the villager who never heard. Does it cover the objector, who heard the gospel, weighed it and said no? Objection II's replies say it does not. If {{moser}} is right, an unconvinced seeker is resisting God somewhere, and if {{calvin}} is right, every mind senses God and suppresses it. Either way the doubter who heard is to blame, and *Lumen Gentium* 14 shuts out whoever knows and refuses.",
+                        "Inclusivism covers the villager who never heard. Does it cover the objector, who heard the gospel, weighed it and said no? Two replies in Objection II say no. If {{moser}} is right, an unconvinced seeker is resisting God somewhere, and if {{calvin}} is right, every mind senses God and suppresses it. Either way the doubter who heard is to blame, and *Lumen Gentium* 14 shuts out whoever knows and refuses.",
                         "Other replies there spare him, but grant something in return. {{rea}} accepts honest unbelief and answers {{schellenberg}} on other grounds. {{plantinga}}'s sense of God ((hid-sensus|blames no one)) for a faculty damaged by inherited sin, and {{stump}}'s divided will ((hid-hidden-resistance|carries no blame)). Each concedes that [[nonresistant-nonbelief|some nonbelief is blameless]], the third premise of Schellenberg's hiddenness argument. The Defender must choose between a guilty doubter here and an innocent one there.",
                       ],
                       quote: {
@@ -485,7 +485,7 @@ const morals: Objection = {
               gist: "If 'good' said of God doesn't mean what it means of people, calling God good says nothing, and a mercy that allows endless torment isn't recognizable as mercy.",
               body: [
                 "When the theologian Henry Mansel argued in 1858 that God's goodness may differ in kind from ours, {{mill}} replied that a word used of God must mean what it means of people, or calling God good is empty praise. Analogy doesn't escape the problem. If what 'good' signifies belongs to God properly, then mercy in God must be recognizable as mercy, and endless torment is not.",
-                "Even {{hart}}, who defends Aquinas's picture of God, presses the point. Analogy is not equivocation, he argues (equivocation means using one word in two unrelated senses), and a 'goodness' that permits eternal torment has stopped being analogous to anything we call good. Dropping duties doesn't help either. The charge was never about a broken contract. It is that endless torment is not what goodness, in any sense we can recognize, would do.",
+                "Even {{hart}}, who defends Aquinas's picture of God, makes the same point. Analogy is not equivocation, he argues (equivocation means using one word in two unrelated senses), and a 'goodness' that permits eternal torment has stopped being analogous to anything we call good. Dropping duties doesn't help either. The charge was never about a broken contract. It is that endless torment is not what goodness, in any sense we can recognize, would do.",
               ],
               quote: {
                 text: "I will call no being good, who is not what I mean when I apply that epithet to my fellow-creatures; and if such a being can sentence me to hell for not so calling him, to hell I will go.",
@@ -573,7 +573,7 @@ const morals: Objection = {
                   label: "Original sin names a real flaw anyone can observe",
                   gist: "Original sin names a bent anyone can see, our drift toward selfishness and cruelty, so the condemnation the gospel lifts is one our own consciences already pronounce.",
                   body: [
-                    "A protection racket needs the danger to be invented, and this danger is real. {{chesterton}} called [[original-sin|original sin]] the one Christian doctrine that can be proved, and the twentieth century supplied the evidence on a large scale. At its core the doctrine describes a condition, more than a guilt charged to infants. People are turned in on themselves and cannot will their way out, as Paul says: 'For the good that I would I do not: but the evil which I would not, that I do' (Romans 7:19).",
+                    "A protection racket needs the danger to be invented, and this danger is real. {{chesterton}} called [[original-sin|original sin]] the one Christian doctrine that can be proved, and the twentieth century supplied the evidence on a large scale. The doctrine mainly describes a condition, more than a guilt charged to infants. People are turned in on themselves and cannot will their way out, as Paul says: 'For the good that I would I do not: but the evil which I would not, that I do' (Romans 7:19).",
                     "Augustine's verdict on infants is one Western reading. The Eastern churches generally reject inherited guilt and speak of 'ancestral sin', meaning inherited mortality and disordered desire, with no debt in a newborn's name. Without Augustine's reading, what remains is a diagnosis most honest people recognize in themselves, the gap between the good they see and the good they do. The gospel names that gap and offers a way across it.",
                   ],
                   quote: {
@@ -645,7 +645,7 @@ const morals: Objection = {
               gist: "Kant argued that guilt is the most personal of debts, so punishing an innocent man instead of the guilty leaves the guilt untouched and adds a second injustice.",
               body: [
                 "'No condemnation' depends on a transfer, in which Christ bears the penalty and the guilty go free. {{kant}} saw the problem in 1793. Anyone can pay a money debt, and the creditor doesn't care who settles it. Guilt for wrongdoing is different, Kant argued, because only the person who did wrong can bear it, however willing an innocent person may be to take it on (*Religion within the Boundaries of Mere Reason*, 6:72). Ezekiel said much the same: 'The son shall not bear the iniquity of the father' (Ezekiel 18:20).",
-                "The Italian theologian Faustus Socinus pressed the point in 1594. If a debt is forgiven, nothing is owed, and if it is paid, it was not forgiven. A judge who punishes an innocent volunteer and releases the guilty has failed at justice twice. [[penal-substitution|Penal substitution]], the view that Christ took the punishment we deserved, asks us to call that love.",
+                "The Italian theologian Faustus Socinus made the same argument in 1594. If a debt is forgiven, nothing is owed, and if it is paid, it was not forgiven. A judge who punishes an innocent volunteer and releases the guilty has failed at justice twice. [[penal-substitution|Penal substitution]], the view that Christ took the punishment we deserved, asks us to call that love.",
               ],
               quote: {
                 text: "… the obligation thence arising is not transferable like a money debt (where it is indifferent to the creditor whether his debtor or some one else discharge the bond) … but is, on the contrary, the most exclusively personal that can be conceived, viz. a debt of sins …",
@@ -687,7 +687,7 @@ const morals: Objection = {
                       gist: "If what we owe is repentance, a God who receives it has all a forgiver can ask, so why require an offering when Jesus tells us to forgive freely?",
                       body: [
                         "This moves the problem without removing it. If a wrongdoer owes repentance, a God who receives it has everything a forgiver can ask. Why must he also require an offering, and one only his own Son can make, before he forgives? Socinus's point survives, since whatever is paid was not freely forgiven. Jesus tells Peter to forgive without limit (Matthew 18:22), and the father in the parable runs to the prodigal and 'fell on his neck, and kissed him' before the son has finished his speech (Luke 15:20–22).",
-                        "Philip Quinn, a philosopher, pressed this in 1994 in a volume honouring Swinburne. A victim who would forgive only after a third party handed over a perfect gift would seem less gracious. And a God who demands the offering and supplies it is still a creditor who must be paid, only paid by himself, which is {{nietzsche}}'s 'stroke of genius' again.",
+                        "Philip Quinn, a philosopher, argued this in 1994 in a volume honouring Swinburne. A victim who would forgive only after a third party handed over a perfect gift would seem less gracious. And a God who demands the offering and supplies it is still a creditor who must be paid, only paid by himself, which is {{nietzsche}}'s 'stroke of genius' again.",
                       ],
                       quote: {
                         text: "I say not unto thee, Until seven times: but, Until seventy times seven.",
@@ -720,7 +720,7 @@ const morals: Objection = {
       label: "Christianity says No to life, and that counts against it",
       gist: "Nietzsche charged that Christianity moves value to another world, calls pride, sex and strength sins, and so makes God the enemy of the life he supposedly made.",
       body: [
-        "{{nietzsche}}'s charge is about where the faith points. In *The Antichrist* (1888) the Christian God declares war on life. In *Twilight of the Idols* (1889) he says the church fights the passions by cutting them out instead of refining them, and that 'to attack the passions at their roots, means attacking life itself at its source'. Its [[ascetic-ideal|ascetic ideal]], holiness through self-denial, is in his view a will to nothingness. His own test is [[amor-fati|amor fati]], Latin for 'love of fate', which means wishing 'nothing to be different, either in front of him or behind him, or for all eternity' (*Ecce Homo*).",
+        "{{nietzsche}}'s charge is about where the faith points. In *The Antichrist* (1888) he says the Christian God declared war on life. In *Twilight of the Idols* (1889) he says the church fights the passions by cutting them out instead of refining them, and that 'to attack the passions at their roots, means attacking life itself at its source'. Its [[ascetic-ideal|ascetic ideal]], holiness through self-denial, is in his view a will to nothingness. His own test is [[amor-fati|amor fati]], Latin for 'love of fate', which means wishing 'nothing to be different, either in front of him or behind him, or for all eternity' (*Ecce Homo*).",
         "The church's practice gives him evidence. {{hume}} moved celibacy, fasting, penance and 'the whole train of monkish virtues' into 'the catalogue of vices'. The Council of Trent in 1563 ranked virginity above marriage. And in the *Summa*'s Supplement, compiled from {{aquinas}}'s early writings after his death, the blessed see the sufferings of the damned 'in order that the happiness of the saints may be more delightful to them' (Suppl. q.94 a.1).",
       ],
       quote: {
@@ -818,8 +818,8 @@ const morals: Objection = {
               gist: "If the objector's care for the weak is Christian, the objection becomes criticism from inside, and secular countries that kept the care suggest it can outlive the faith.",
               body: [
                 "Granting the inheritance makes the objection stronger. Nietzsche's charge can be kept without his contempt, since the No to life lies in the ascetic ideal and the deferred heaven, as ((mor-holland-spinoza|Spinoza)) shows. If care for the victim is the faith's deepest value, hell for honest doubters and guilt used as control fail its own test.",
-                "Equal worth may not need God either. {{rawls}} grounds it in a 'range property', a capacity everyone above a threshold has equally (*A Theory of Justice*, 1971). For those below it, Eva Kittay finds dignity in relations of care (1999), and {{wielenberg}} holds that basic moral facts need no foundation. Judging a value by its origin is the [[genetic-fallacy|genetic fallacy]], in either direction.",
-                "Secular Denmark and Sweden have widened their care for the weak (Zuckerman, 2008). Robert H. Nelson calls that secular Lutheranism, which makes 'it can't outlive the faith' untestable.",
+                "Equal worth may not need God either. {{rawls}} grounds it in a 'range property', a capacity everyone above a threshold has equally (1971). Below it, Eva Kittay finds dignity in relations of care (1999), and {{wielenberg}} holds that basic moral facts need no foundation. Judging a value by its origin is the [[genetic-fallacy|genetic fallacy]], in either direction.",
+                "Secular Denmark and Sweden have widened their care for the weak (Zuckerman, 2008). Robert H. Nelson calls that secular Lutheranism, but then no record could test the claim.",
               ],
               quote: {
                 text: "… in thus wise did Christianity go to ruin as a dogma, through its own morality; in thus wise must Christianity go again to ruin to-day as a morality—we are standing on the threshold of this event.",
@@ -833,6 +833,7 @@ const morals: Objection = {
                 { id: "coh-c-brute", why: "Wielenberg's case, in Objection I, that moral facts need no foundation." },
               ],
               sources: [
+                { title: "A Theory of Justice", by: "John Rawls", year: "1971", note: "Section 77, on the basis of equality." },
                 { title: "Society without God", by: "Phil Zuckerman", year: "2008" },
                 { title: "Love's Labor: Essays on Women, Equality, and Dependency", by: "Eva Feder Kittay", year: "1999" },
                 { title: "Lutheranism and the Nordic Spirit of Social Democracy", by: "Robert H. Nelson", year: "2017", note: "The view this move answers, that Nordic welfare is secularized Lutheranism." },
@@ -864,7 +865,7 @@ const morals: Objection = {
                   gist: "Spinoza bases help on usefulness and blessedness on ability, so infants and the impaired have no claim of their own, while Christianity grounds their claim in God's love.",
                   body: [
                     "On a different foundation the ethic takes a different shape. Spinoza grounds help in shared usefulness, since 'to man there is nothing more useful than man' (IV P18 Schol.), and good is 'that which we certainly know to be useful to us' (IV Def. 1). A claim grounded that way depends on what the person reasoning finds useful. Beasts, 'whose nature is different from our own', fall outside it (IV P37 Schol. 1). Augustine and Aquinas said much the same about animals. The principle at work is that concern follows likeness.",
-                    "Blessedness follows ability too. It grows with a body 'capable of the greatest number of activities' (V P39), while an infant's mind is 'scarcely conscious of itself, or of God', and the man who cannot govern his desires 'necessarily perishes' (Letter 78). The Christian claim is that the helpless matter because God loves them. That is why Jesus tells his host to invite 'the poor, the maimed, the lame, the blind', because 'they cannot recompense thee' (Luke 14:13–14).",
+                    "Blessedness follows ability too. It grows with a body 'capable of the greatest number of activities' (V P39), while an infant's mind is 'scarcely conscious of itself, or of God', and the man who cannot govern his desires 'necessarily perishes' (Letter 78). The Christian claim is that the helpless matter because God loves them, and Jesus tells his host to invite 'the poor, the maimed, the lame, the blind', because 'they cannot recompense thee' (Luke 14:13–14).",
                   ],
                   quote: {
                     text: "Pity, in a man who lives under the guidance of reason, is in itself bad and useless.",
@@ -917,9 +918,9 @@ const morals: Objection = {
               },
               thinkers: ["nietzsche"],
               cedes:
-                "The argument fails if belief in God comes from a process that tracks truth, and from more than fear and resentment.",
+                "The argument fails if belief in God comes from a process that tracks truth, and fear and resentment are not the whole story.",
               see: [
-                { id: "mor-convicts", why: "The same question about origins, asked the other way round, about a value's Christian roots." },
+                { id: "mor-convicts", why: "The same question about origins, asked in reverse, about a value's Christian roots." },
                 { id: "hid-designed-faculty", why: "Objection II argues that a faculty can be natural, God-given and still misfire." },
               ],
               children: [
@@ -965,7 +966,7 @@ const morals: Objection = {
     title: "Spinoza keeps love and drops the judge",
     body: [
       "Spinoza's God is no judge, because, as he puts it, 'Strictly speaking, God does not love or hate anyone' (*Ethics* V P17 Cor.), and so there is no anger to appease. Reward and punishment survive inside the person. He wrote that 'the highest reward of the Divine law is the law itself, namely, to know God and to love Him', and that its penalty is 'the absence of these things, and being in bondage to the flesh' (*Theological-Political Treatise* ch. 4). On this view heaven is understanding and hell is bondage, and both happen now. That is closer to ((mor-chosen-hell|Aquinas's hell)) than either side admits, since in both the penalty is the disorder itself and lasts as long as the disorder does. Spinoza drops the free refusal and the endless pain.",
-      "He even grants religious fear a use. Repentance is no virtue (IV P54), yet since few people live by reason, humility, repentance, hope and fear do more good than harm, so it is no wonder that the prophets, 'who consulted the good, not of a few, but of all', commended them (IV P54 Schol.). On his view fear helps those who cannot yet live by reason, and does harm only when someone takes it for the goal.",
+      "He even grants religious fear a use. Repentance is no virtue (IV P54), but few people live by reason, so humility, repentance, hope and fear do more good than harm, and it is no wonder that the prophets, 'who consulted the good, not of a few, but of all', commended them (IV P54 Schol.). On his view fear helps those who cannot yet live by reason, and does harm only when someone takes it for the goal.",
       "He parts from {{nietzsche}}, who hailed him in 1881 as a forerunner, over love. 'God, in so far as he loves himself, loves man' (V P36 Cor.), in the [[amor-dei-intellectualis|intellectual love]] that comes from understanding God, where our love of God and God's love of us are one. Spinoza's complaint against Christianity is that it gives true love false reasons, putting fear where understanding should be. The Defender answers that understanding comes to few, and the least of these cannot wait for it. Spinoza could reply that the majority Christian picture is harder on the weak, with a narrow gate that 'few there be that find' (Matthew 7:14), Augustine's *massa damnata* (the 'condemned mass' of humanity), and unbaptized infants punished, however mildly (*Enchiridion* 93). His 'perishing' is no torment, and his commonwealth exists 'to free every man from fear' (*Theological-Political Treatise* ch. 20).",
     ],
     quote: {
