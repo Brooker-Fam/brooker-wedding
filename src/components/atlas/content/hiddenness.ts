@@ -99,7 +99,7 @@ const hiddenness: Objection = {
               gist: "We can easily picture a greater love than one that leaves a willing beloved forever unsure, so Rea's reply makes God's love smaller.",
               body: [
                 "{{schellenberg}} replies that premise one never needed the parent picture. It needs only what believers already say, that God's love can't be surpassed. Of two lovers, one who leaves a willing beloved forever unsure he exists and one who makes himself known, almost anyone would call the first love the lesser.",
-                "The Bible also says God 'will have all men to be saved, and to come unto the knowledge of the truth' (1 Timothy 2:4), and the philosopher Theodore Drange built his 1998 argument from nonbelief on verses like it. Rea's appeal to God's own purposes makes things worse, since a love shaped by the lover's interests falls short of the self-giving love Christians see on the cross. If *love* is stretched further still, God's love would resemble ours only as the Dog Star resembles the dog that barks, sharing a name and no [[univocity|common meaning]], which is ((coh-a-dogstar|Spinoza's point)) about God's mind.",
+                "The Bible also says God 'will have all men to be saved, and to come unto the knowledge of the truth' (1 Timothy 2:4). Rea's appeal to God's own purposes makes things worse, since a love shaped by the lover's interests falls short of the self-giving love Christians see on the cross. If *love* is stretched further still, God's love would resemble ours only as the Dog Star resembles the dog that barks, sharing a name and no [[univocity|common meaning]], which is ((coh-a-dogstar|Spinoza's point)) about God's mind.",
               ],
               quote: {
                 text: "If ye then, being evil, know how to give good gifts unto your children, how much more shall your Father which is in heaven give good things to them that ask him?",
@@ -115,7 +115,12 @@ const hiddenness: Objection = {
                 { id: "coh-a-univocal", why: "Duns Scotus argued that a word used of God must share a core meaning with ours, or no argument can rest on it (Objection I)." },
               ],
               sources: [
-                { title: "Nonbelief and Evil: Two Arguments for the Nonexistence of God", by: "Theodore M. Drange", year: "1998" },
+                {
+                  title: "Nonbelief and Evil: Two Arguments for the Nonexistence of God",
+                  by: "Theodore M. Drange",
+                  year: "1998",
+                  note: "An argument from nonbelief built on verses like 1 Timothy 2:4.",
+                },
               ],
               children: [
                 {
@@ -239,7 +244,7 @@ const hiddenness: Objection = {
                   label: "Trust without belief is enough to begin a relationship with God",
                   gist: "You can trust God, hope in him and act on that hope while unsure he exists, so a relationship can begin before belief is settled.",
                   body: [
-                    "Schellenberg's claim that relating to God requires believing in him doesn't fit faith as people live it. {{howard-snyder}} argues that [[nondoxastic-faith|faith that God exists doesn't require believing]] that he does, just as you can have faith that a friend will pull through surgery without quite believing she will. Such faith rests on hope and trust. The philosophers Ted Poston and Trent Dougherty add that belief comes in degrees, so someone who is unsure about God can still turn toward him. The New Testament's own definition puts hope first: 'faith is the substance of things hoped for, the evidence of things not seen' (Hebrews 11:1).",
+                    "Schellenberg's claim that relating to God requires believing in him doesn't fit faith as people live it. {{howard-snyder}} argues that [[nondoxastic-faith|faith that God exists doesn't require believing]] that he does, just as you can have faith that a friend will pull through surgery without quite believing she will. Such faith rests on hope and trust. The New Testament's own definition puts hope first: 'faith is the substance of things hoped for, the evidence of things not seen' (Hebrews 11:1).",
                     "In Mark's Gospel a father who can't settle his doubts prays anyway, and Jesus heals his son. Even {{schellenberg}}, in *The Will to Imagine* (2009), recommends a faith without belief, aimed at an ultimate reality he describes only in general terms, as the right response to religious doubt.",
                   ],
                   quote: {
@@ -265,7 +270,7 @@ const hiddenness: Objection = {
                       title: "Divine Hiddenness and the Nature of Belief",
                       by: "Ted Poston and Trent Dougherty",
                       year: "2007",
-                      note: "Religious Studies 43.",
+                      note: "Religious Studies 43. Belief comes in degrees, so someone unsure about God can still turn toward him.",
                     },
                   ],
                   children: [
@@ -465,7 +470,7 @@ const hiddenness: Objection = {
                   label: "A seeker's divided will can explain God's silence",
                   gist: "Wanting evidence differs from being ready to be ruled by love, and a person's will can be divided without her knowing it, so sincere reports can't settle who is open.",
                   body: [
-                    "{{moser}} separates openness to proof from openness to God as Lord, and a seeker's report of the first can't settle the second. A person can sincerely want the first while shrinking from the second, and can say *if you are there, I am yours* with a divided will. Schellenberg himself counts self-deception as resistance, and people who deceive themselves don't know they are doing it.",
+                    "{{moser}} separates openness to proof from openness to God as Lord, and a seeker's report of the first can't settle the second. A person can sincerely want the first while shrinking from the second, and can say *if you are there, I am yours* with a divided will. Schellenberg himself counts self-deception as resistance, and people who deceive themselves don't know it.",
                     "{{aquinas}}, quoting Aristotle, defined love as 'to wish good to someone' (*Summa Theologiae* I-II q.26 a.4), and on {{stump}}'s reading love also seeks union. Union needs a beloved who is whole inside, so a divided person can't receive full presence even when asking, through no one's fault, as no friend can fully know you while you hide from yourself.",
                     "{{howard-snyder}} adds that belief given too soon, to someone who would answer with rejection or the wrong motives, could make the person harder to win.",
                   ],
@@ -497,8 +502,7 @@ const hiddenness: Objection = {
                       label: "A loving God would go after even those who resist him",
                       gist: "Even if some unbelief hid resistance, a loving parent helps a child out of a mess it partly made, and hidden resistance wouldn't follow national borders.",
                       body: [
-                        "Even if some unbelief hides a divided will, a perfectly loving God would still go after it. {{maitzen}} writes: 'A loving parent can often be expected to help his or her child out of a miserable predicament, even if the child is in some sense to blame for being in the predicament.' The prodigal son's father didn't wait for a purer motive. And as {{schellenberg}} notes, God already relates to immature, double-minded believers, so readiness can't be a condition of belief.",
-                        "Maitzen adds that whatever hidden fault is supposed to block belief, such as pride or a lack of humility, presumably doesn't cluster by country, yet unbelief follows national borders. And a resistance hidden even from the resister can't be checked, since no seeker's report could ever count against it.",
+                        "Even if some unbelief hides a divided will, a perfectly loving God would still go after it. {{maitzen}} writes: 'A loving parent can often be expected to help his or her child out of a miserable predicament, even if the child is in some sense to blame for being in the predicament.' The prodigal son's father didn't wait for a purer motive. And as {{schellenberg}} notes, God already relates to immature, double-minded believers, so readiness can't be a condition of belief. Maitzen adds that whatever hidden fault is supposed to block belief, such as pride or a lack of humility, presumably doesn't cluster by country, yet unbelief follows national borders. And a resistance hidden even from the resister can't be checked, since no seeker's report could ever count against it.",
                       ],
                       quote: {
                         text: "But when he was yet a great way off, his father saw him, and had compassion, and ran, and fell on his neck, and kissed him.",
@@ -890,8 +894,7 @@ const hiddenness: Objection = {
           label: "God may spare would-be refusers by placing them out of reach",
           gist: "A loving God who foresaw that some people would reject him if they believed now might keep belief from them, leaving them innocent for a later chance.",
           body: [
-            "{{marsh|Jason Marsh}} proposed a gentler model, also built on middle knowledge, in a 2008 reply to {{maitzen}}. He supposes that some people would freely reject God in this life if they came to believe. A loving God might spare them that refusal by placing them where belief won't reach them, keeping them innocent until a later time, beyond this life, when they could love him freely. On this view a refusal made too early, with too little understanding, is a harm, and a good parent shields a child from such harms. An uneven map is then what a loving God who knew each of us would bring about.",
-            "Unlike Craig's model, Marsh's damns no one. The unreached are protected, which fits the hope, discussed in ((mor-inclusivism|Objection V)), that Christ reaches those who never knew his name.",
+            "{{marsh|Jason Marsh}} proposed a gentler model, also built on middle knowledge, in a 2008 reply to {{maitzen}}. He supposes that some people would freely reject God in this life if they came to believe. A loving God might spare them that refusal by placing them where belief won't reach them, keeping them innocent until a later time, beyond this life, when they could love him freely. On this view a refusal made too early, with too little understanding, is a harm, and a good parent shields a child from such harms. An uneven map is then what a loving God who knew each of us would bring about. Unlike Craig's model, Marsh's damns no one. The unreached are protected, which fits the hope, discussed in ((mor-inclusivism|Objection V)), that Christ reaches those who never knew his name.",
           ],
           quote: {
             text: "If I had not come and spoken unto them, they had not had sin: but now they have no cloak for their sin.",
@@ -969,7 +972,7 @@ const hiddenness: Objection = {
               label: "The built-in sense finds spirits, so it's no pointer to God",
               gist: "Cognitive science finds a readiness to see agents and purposes everywhere, which produces ghosts and ancestors as easily as one God.",
               body: [
-                "Barrett's findings don't give Calvin what he needs. They describe a hair-trigger for detecting agents, which Barrett calls the [[hadd|hypersensitive agency detection device]] (the reflex that turns a rustle in the grass into someone), and a bias toward seeing purpose everywhere. These produce spirits, ancestors and many gods as readily as a loving creator. {{hume}} noticed the habit in 1757: 'We find human faces in the moon, armies in the clouds.' The philosopher Helen De Cruz concluded in 2015 that the science shows a pull toward supernatural agents generally.",
+                "Barrett's findings don't give Calvin what he needs. They describe a hair-trigger for detecting agents, which Barrett calls the [[hadd|hypersensitive agency detection device]] (the reflex that turns a rustle in the grass into someone), and a bias toward seeing purpose everywhere. These produce spirits, ancestors and many gods as readily as a loving creator. {{hume}} noticed the habit in 1757: 'We find human faces in the moon, armies in the clouds.'",
                 "Widening 'theism' to cover any supernatural being, says {{maitzen}}, 'merely changes the subject'. Evans might say everyone gets the signs and only the response varies, but the response varies by birthplace, and resistance shouldn't follow borders. Calvin himself said the sense was given so that all 'may be condemned by their own conscience' (*Institutes* I.3.1), and a faculty that mostly produced other gods would be a strange tool for that.",
               ],
               quote: {
@@ -990,7 +993,7 @@ const hiddenness: Objection = {
                   title: "Divine Hiddenness and the Cognitive Science of Religion",
                   by: "Helen De Cruz",
                   year: "2015",
-                  note: "In Green & Stump (eds.), Hidden Divinity and Religious Belief, 53–68.",
+                  note: "In Green & Stump (eds.), Hidden Divinity and Religious Belief, 53–68. Concludes that the science shows a pull toward supernatural agents generally.",
                 },
                 {
                   title: "The Natural History of Religion",
@@ -1007,7 +1010,7 @@ const hiddenness: Objection = {
                   label: "A God-given sense can misfire and still lead people to God",
                   gist: "A natural faculty can be God's design even when it misfires, as sight survives its illusions, and a sense of the sacred that first finds spirits can grow toward God.",
                   body: [
-                    "A sense that overshoots can still be God's design, as a smoke alarm that goes off for burnt toast still warns of real fires. {{barrett}} and the philosopher Kelly James Clark follow the eighteenth-century Scot {{reid|Thomas Reid}}, who held that we trust perception and memory without first proving them reliable. Rejecting a belief because of the mechanism that produced it commits the [[genetic-fallacy|genetic fallacy]], judging a belief by where it came from, unless the mechanism is shown to be unreliable. {{calvin}} said that 'a seed of religion is divinely sown in all', though 'scarcely one in a hundred is found who cherishes it in his heart' (*Institutes* I.4.1).",
+                    "A sense that overshoots can still be God's design, as a smoke alarm that goes off for burnt toast still warns of real fires. {{barrett}} and the philosopher Kelly James Clark follow the eighteenth-century Scot {{reid|Thomas Reid}}, who held that we trust perception and memory without first proving them reliable. Rejecting a belief because of the mechanism that produced it commits the [[genetic-fallacy|genetic fallacy]], judging a belief by its origin, unless the mechanism is shown to be unreliable. {{calvin}} said that 'a seed of religion is divinely sown in all', though 'scarcely one in a hundred is found who cherishes it in his heart' (*Institutes* I.4.1).",
                     "On Baker-Hytch's view the people who pass on knowledge of God are part of the design too. {{rea}} argues that a relationship with God need not run through a standard concept of God, so people whose sense of the sacred found spirits and ancestors were not cut off from the one they were groping toward.",
                   ],
                   quote: {
