@@ -377,7 +377,7 @@ function ThinkerFile({ t, onClose }: { t: Thinker; onClose?: () => void }) {
 
       <div className="ca-file-sec">
         {refs.length > 0 ? (
-          <FootprintBlock ids={refs} title={`Named in ${refs.length} ${refs.length === 1 ? "move" : "moves"}`} caption="Shown in color on the map" limit={16} />
+          <FootprintBlock ids={refs} title={`Named in ${refs.length} ${refs.length === 1 ? "move" : "moves"}`} caption="Highlighted on the map" limit={16} />
         ) : (
           <>
             <p className="mono lib-k">Not named in any move</p>

@@ -200,7 +200,7 @@ function Entry({ t, on, q, onPick }: { t: Term; on: boolean; q: string; onPick: 
         <p className="lx-unused mono">Not used in any move yet</p>
       ) : on ? (
         <div className="lx-open">
-          <FootprintBlock ids={uses} title={`Used in ${n} ${n === 1 ? "move" : "moves"}`} caption="Shown in color on the map" />
+          <FootprintBlock ids={uses} title={`Used in ${n} ${n === 1 ? "move" : "moves"}`} caption="Highlighted on the map" />
         </div>
       ) : (
         <div className="lx-used">
