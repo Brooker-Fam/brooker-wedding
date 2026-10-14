@@ -1,8 +1,8 @@
 /* Small marks shared by the Shell and the overview (styles live in shell.css,
    which is always loaded):
-   - StatusPip: an objection's status on the reader's calls — ▲ ochre filled =
-     stands, ● verdigris filled = answered, hollow = undecided.
-   - YouMark: ■, the reader (the Master who rules), drawn like primitives' Glyph. */
+   - StatusPip: an objection's status, worked out from the reader's calls.
+     ▲ ochre filled = stands, ● verdigris filled = answered, hollow = open.
+   - YouMark: ■, the reader, who marks moves Holds or Fails; drawn like primitives' Glyph. */
 
 import type { Label } from "../types";
 

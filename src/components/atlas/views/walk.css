@@ -1,5 +1,5 @@
 /* ==========================================================================
-   Argue it through — the walk (#/walk/<objection>)
+   Step through it, the guided walk (#/walk/<objection>)
    A single centered column: header, a transcript of "said" strips on a rail
    of round numerals, and one lit move in the speaker's light. Everything is
    scoped under .atl and prefixed wk-. Labels never go below 10.5px (11px on
@@ -196,7 +196,35 @@
   color: var(--faint);
 }
 
-/* progress by objection (not a percentage), beside the numeral on wide screens */
+/* an epigraph under the rules: one short quotation, set small */
+.atl .wk-epi {
+  margin: 0;
+  padding: 2px 0 13px;
+}
+.atl details.wk-how[open] .wk-epi {
+  border-bottom: 1px solid var(--line-soft);
+}
+.atl details.wk-how[open] .wk-rules {
+  border-bottom: 0;
+}
+.atl .wk-epi blockquote {
+  margin: 0;
+  max-width: 40em;
+  font-size: 15px;
+  font-style: italic;
+  line-height: 1.5;
+  color: var(--mute);
+  text-wrap: pretty;
+}
+.atl .wk-epi figcaption {
+  margin-top: 6px;
+  font-size: 10.5px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--faint);
+}
+
+/* progress by part (a count of parts, no percentage), beside the numeral on wide screens */
 .atl .wk-progress {
   grid-area: prog;
   align-self: end;
@@ -1277,7 +1305,7 @@
   margin-top: 18px;
 }
 
-/* ---------- the determination (end of the walk) ---------- */
+/* ---------- where you stand (the end card of the walk) ---------- */
 .atl .wk-done {
   --side-glow: #ebe5d616;
   padding: 30px 30px 24px;
@@ -1290,17 +1318,6 @@
 }
 .atl .wk-done.st-out {
   --side-glow: #6dbaa418;
-}
-.atl .wk-done-ia {
-  margin: 16px 0 4px;
-  font-size: 19px;
-  font-style: italic;
-  color: var(--mute);
-}
-.atl .wk-done-ia .wk-sq {
-  display: inline-block;
-  margin-right: 10px;
-  vertical-align: 3px;
 }
 .atl .wk-done-line {
   margin: 0 0 16px;
@@ -1535,7 +1552,8 @@
   .atl .wk-res-toggle,
   .atl .wk-rule-n,
   .atl .wk-progress-t,
-  .atl .wk-quote figcaption {
+  .atl .wk-quote figcaption,
+  .atl .wk-epi figcaption {
     font-size: 11px;
   }
   .atl .wk-head {

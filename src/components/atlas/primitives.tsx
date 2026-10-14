@@ -1,7 +1,7 @@
 "use client";
 
-/* Small shared pieces: side tokens, the reader's judge control, status badges,
-   thinker chips, and RichText (markup wired to peeks and node jumps). */
+/* Small shared pieces: side tokens, the reader's Holds / Fails control, status
+   badges, person chips, and RichText (markup wired to peeks and node jumps). */
 
 import { motion } from "framer-motion";
 import type { KeyboardEvent, MouseEvent, ReactNode } from "react";
@@ -12,11 +12,11 @@ import type { Judgment, Label, Side } from "./types";
 
 export const SIDE_META: Record<Side, { word: string; glyph: string; voice: string }> = {
   skeptic: { word: "Objector", glyph: "▲", voice: "the objection" },
-  theist: { word: "Respondent", glyph: "●", voice: "the reply" },
-  spinoza: { word: "Spinoza", glyph: "◆", voice: "Spinoza's angle" },
+  theist: { word: "Defender", glyph: "●", voice: "the reply" },
+  spinoza: { word: "Spinoza", glyph: "◆", voice: "Spinoza's view" },
 };
 
-/** Inline SVG glyph for a side: ▲ objector, ● theist, ◆ Spinoza. Fill follows status. */
+/** Inline SVG glyph for a side: ▲ Objector, ● Defender, ◆ Spinoza. Fill follows status. */
 export function Glyph({ side, label = "undec", size = 12, className = "" }: { side: Side; label?: Label; size?: number; className?: string }) {
   const h = size / 2;
   const shape =
@@ -47,13 +47,14 @@ export function SideTok({ side, children, className = "" }: { side: Side; childr
 }
 
 export const LABEL_META: Record<Label, { word: string; long: string }> = {
-  in: { word: "Stands", long: "stands, on your calls" },
-  out: { word: "Answered", long: "is answered, on your calls" },
+  in: { word: "Stands", long: "stands" },
+  out: { word: "Answered", long: "is answered" },
   undec: { word: "Open", long: "is still open" },
 };
 
 export function StatusBadge({ label, objectionLevel = false }: { label: Label; objectionLevel?: boolean }) {
-  const word = objectionLevel ? { in: "Stands", out: "Answered", undec: "Undecided" }[label] : LABEL_META[label].word;
+  // One set of status words for moves and objections alike.
+  const word = objectionLevel ? { in: "Stands", out: "Answered", undec: "Open" }[label] : LABEL_META[label].word;
   return (
     <span className={`status-badge st-${label}`}>
       <span className="dot" aria-hidden />
@@ -90,7 +91,7 @@ export function JudgeControl({ id, side, compact = false }: { id: string; side: 
       </div>
       {!compact && !current && (
         <span className="judge-hint">
-          {computed === "undec" ? "Unjudged — open" : computed === "in" ? "Stands — every reply to it fails, on your calls" : "Answered — a reply to it stands, on your calls"}
+          {computed === "undec" ? "Open. You haven't marked it." : computed === "in" ? "Stands, because every reply to it fails." : "Answered, because a reply to it stands."}
         </span>
       )}
     </div>

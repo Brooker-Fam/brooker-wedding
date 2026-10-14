@@ -16,14 +16,6 @@
 .atl .ov-sect-k {
   margin: 0 0 16px;
 }
-.atl .ov-gloss {
-  letter-spacing: 0.01em;
-  text-transform: none;
-  font-style: italic;
-  font-family: var(--serif);
-  font-size: 13px;
-  font-weight: 400;
-}
 
 /* ---------- hero ---------- */
 .atl .ov-hero {
@@ -197,6 +189,9 @@
   line-height: 1.55;
   color: var(--bone);
 }
+.atl .ov-echo-line cite {
+  font-style: italic;
+}
 
 /* who speaks: also the glyph key */
 .atl .ov-cast {
@@ -227,6 +222,30 @@
   font-size: 14.5px;
   line-height: 1.5;
   color: var(--mute);
+}
+.atl .ov-pdesc {
+  display: block;
+}
+/* each voice in its own words */
+.atl .ov-pquote {
+  display: block;
+  margin-top: 6px;
+}
+.atl .ov-pquote q {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 15px;
+  line-height: 1.45;
+  color: var(--bone-2);
+}
+.atl .ov-pquote-c {
+  display: block;
+  margin-top: 3px;
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--faint);
 }
 .atl .ov-pname {
   font-family: var(--serif);
@@ -382,6 +401,12 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
+}
+.atl .ov-key-lede {
+  margin: 0 0 14px;
+  font-size: 13.5px;
+  line-height: 1.5;
+  color: var(--mute);
 }
 .atl .ov-key-note {
   margin: 14px 0 0;

@@ -1,7 +1,7 @@
 "use client";
 
 /* The frame around every view of a Disputation: a slim sticky top bar (emblem,
-   wordmark, Map · Library · Your Determination with five status pips), view
+   wordmark, Map · Library · Where you stand with five status pips), view
    transitions keyed by route, scroll + focus memory per history entry, and a
    shared footer. It also keeps the "where did the reader last work?" record
    (see recent.ts) that the overview's "Previously…" line reads. */
@@ -35,13 +35,14 @@ import { RoseEmblem, sectorLayout } from "./Rose";
 /* Shared bits                                                          */
 /* ------------------------------------------------------------------ */
 
-const PIP_WORD: Record<Label, string> = { in: "stands", out: "answered", undec: "undecided" };
+const PIP_WORD: Record<Label, string> = { in: "stands", out: "answered", undec: "open" };
 
+/* Visible names follow the reader's vocabulary (People, Glossary); the routes keep their old names. */
 const LIBRARY = [
-  { view: "timeline", label: "Timeline", note: "2,400 years, five strands" },
-  { view: "cast", label: "Cast", note: "The thinkers, and where they speak" },
-  { view: "lexicon", label: "Lexicon", note: "Terms of art, in plain words" },
-  { view: "outline", label: "Outline", note: "The whole disputation as text" },
+  { view: "timeline", label: "Timeline", note: "Who said what, and when" },
+  { view: "cast", label: "People", note: "Everyone quoted, and where" },
+  { view: "lexicon", label: "Glossary", note: "Technical terms in plain words" },
+  { view: "outline", label: "Outline", note: "Every move as plain text" },
 ] as const;
 
 type LibView = (typeof LIBRARY)[number]["view"];
@@ -90,7 +91,7 @@ function LibIcon({ view }: { view: LibView }) {
   }
 }
 
-/** Five tiny status pips, I–V: ▲ ochre = stands, ● verdigris = answered, hollow = undecided. */
+/** Five tiny status pips, I–V: ▲ ochre = stands, ● verdigris = answered, hollow = open. */
 function Pips({ current }: { current?: ObjectionId }) {
   const { d, labels } = useAtlas();
   return (
@@ -328,15 +329,15 @@ function MobileSheet({ id, onClose, menuBtn }: { id: string; onClose: (refocus: 
         transition={{ duration: 0.24, ease: [0.22, 1, 0.36, 1] }}
       >
         <nav aria-label="Disputation">
-          <ul className="sh-slist">{item({ view: "home" }, "Map", "The whole disputation at a glance", <Emblem current={currentObjection(route)} size={20} />)}</ul>
+          <ul className="sh-slist">{item({ view: "home" }, "Map", "All five objections on one chart", <Emblem current={currentObjection(route)} size={20} />)}</ul>
           <p className="sh-sgroup">Library</p>
           <ul className="sh-slist">{LIBRARY.map((it) => item({ view: it.view } as Route, it.label, it.note, <LibIcon view={it.view} />))}</ul>
           <p className="sh-sgroup">You</p>
           <ul className="sh-slist">
             {item(
               { view: "ledger" },
-              "Your Determination",
-              "Only what follows from your calls",
+              "Where you stand",
+              "Each objection, worked out from your calls",
               <YouMark size={13} />,
               <span title={title}>
                 <Pips current={currentObjection(route)} />
@@ -414,7 +415,7 @@ function TopBar({ onSkip }: { onSkip: () => void }) {
               aria-current={route.view === "ledger" ? "page" : undefined}
               title={title}
             >
-              Your Determination
+              Where you stand
               <Pips current={cur} />
             </a>
             <span className="sh-sep" aria-hidden />
@@ -425,7 +426,7 @@ function TopBar({ onSkip }: { onSkip: () => void }) {
 
           <div className="sh-mob">
             <a href="#/ledger" className={`sh-pipbtn${route.view === "ledger" ? " on" : ""}`} title={title}>
-              <span className="sr-only">Your Determination. </span>
+              <span className="sr-only">Where you stand. </span>
               <Pips current={cur} />
             </a>
             <button
@@ -459,12 +460,12 @@ function Footer() {
     <footer className="sh-foot">
       <div className="sh-foot-in">
         <div className="sh-foot-note">
-          <ul className="sh-foot-k" aria-label="Who speaks">
+          <ul className="sh-foot-k" aria-label="Who’s talking">
             <li className="s-skeptic">
               <Glyph side="skeptic" size={11} /> Objector
             </li>
             <li className="s-theist">
-              <Glyph side="theist" size={11} /> Respondent
+              <Glyph side="theist" size={11} /> Defender
             </li>
             <li className="s-spinoza">
               <Glyph side="spinoza" size={11} /> Spinoza
@@ -474,8 +475,8 @@ function Footer() {
             </li>
           </ul>
           <p className="sh-method">
-            A <em>steelman</em> is the strongest version of an argument — presenting one is not endorsing it. Neither side gets the last word by default;
-            nothing stands until you rule.
+            Each side is given in its strongest form, which some call a <em>steelman</em>. Stating an argument at its best isn’t the same as agreeing with it. Neither
+            side wins by speaking last, and until you mark moves Holds or Fails, everything stays open.
           </p>
         </div>
         <nav className="sh-foot-links" aria-label="Elsewhere">
@@ -493,7 +494,7 @@ function Footer() {
 /* ------------------------------------------------------------------ */
 
 /* Each history entry remembers its scroll position and the control that left it, so Back
-   from a chamber returns to the same spot on the map with focus on the same "Enter" link.
+   from an objection returns to the same spot on the map with focus on the same "Open" link.
    History *state* is never written (Next's app router reloads on Back/Forward to an entry
    whose state it didn't create). Entries are keyed by the Navigation API's stable key where
    it exists; elsewhere (iOS Safari, Firefox) by the hash. */

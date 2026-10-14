@@ -664,10 +664,10 @@ function WalkHeader({
   const decided = prompt.kind === "done" ? prompt.decided : [];
 
   let progress: string;
-  if (!done) progress = `Objection ${at + 1} of ${total}`;
-  else if (unheard.length > 0) progress = `Stopped after objection ${sections.length} of ${total}`;
-  else if (decided.length > 0) progress = `Done · ${partList(decided)} settled earlier`;
-  else progress = total === 2 ? "Both objections argued through" : `All ${num(total)} objections argued through`;
+  if (!done) progress = `Part ${at + 1} of ${total}`;
+  else if (unheard.length > 0) progress = `Stopped after part ${sections.length} of ${total}`;
+  else if (decided.length > 0) progress = `Done · ${partList(decided)} decided earlier`;
+  else progress = total === 2 ? "Both parts done" : `All ${num(total)} parts done`;
 
   const rules = (
     <ol className="wk-rules">
@@ -676,7 +676,7 @@ function WalkHeader({
           1
         </span>
         <span>
-          <b>It fails</b> sets a move aside.
+          <b>It fails</b> means you reject the move outright.
         </span>
       </li>
       <li>
@@ -684,7 +684,7 @@ function WalkHeader({
           2
         </span>
         <span>
-          <b>Hear the reply</b>, and the move must outlast every answer.
+          <b>Show the reply</b> lets the other side answer. The move stands only if every reply fails.
         </span>
       </li>
       <li>
@@ -692,23 +692,31 @@ function WalkHeader({
           3
         </span>
         <span>
-          At the <b>last word</b>, you rule.
+          When nobody replies to a move, you mark it <b>Holds</b> or <b>Fails</b>.
         </span>
       </li>
     </ol>
+  );
+  const epigraph = (
+    <figure className="wk-epi">
+      <blockquote className="serif">
+        “Read not to contradict and confute; nor to believe and take for granted; nor to find talk and discourse; but to weigh and consider.”
+      </blockquote>
+      <figcaption className="mono">Francis Bacon · “Of Studies,” Essays (1625)</figcaption>
+    </figure>
   );
 
   return (
     <header className="wk-head">
       <button type="button" className="wk-exit mono" onClick={() => go({ view: "objection", o: obj.id })}>
-        <span aria-hidden>←</span> Back to the chamber
+        <span aria-hidden>←</span> Back to Objection {obj.numeral}
       </button>
       <div className="wk-head-grid">
         <span className="wk-num serif" aria-hidden>
           {obj.numeral}
         </span>
         <div className="wk-head-k">
-          <p className="wk-kicker mono">Argue it through</p>
+          <p className="wk-kicker mono">Step through it</p>
           <p className="wk-sub mono">
             Objection {obj.numeral} of {ROMAN[d.objections.length - 1] ?? d.objections.length}
             {obj.short ? ` · ${obj.short}` : ""}
@@ -716,35 +724,37 @@ function WalkHeader({
         </div>
       </div>
       <h1 className="wk-title serif" tabIndex={-1}>
-        <span className="sr-only">Argue it through, objection {obj.numeral}: </span>
+        <span className="sr-only">Step through Objection {obj.numeral}. </span>
         {toPlain(obj.title || obj.short || `Objection ${obj.numeral}`)}
       </h1>
       {obj.question && <p className="wk-question serif">{toPlain(obj.question)}</p>}
 
       {intro ? (
-        <div className="wk-how is-open" role="group" aria-label="How the walk works">
+        <div className="wk-how is-open" role="group" aria-label="How it works">
           {rules}
+          {epigraph}
         </div>
       ) : (
         <details className="wk-how">
           <summary className="mono">
-            How this works <span aria-hidden>▾</span>
+            How it works <span aria-hidden>▾</span>
           </summary>
           {rules}
+          {epigraph}
         </details>
       )}
 
       {(total > 1 || resume) && (
         <div className="wk-progress">
           {total > 1 && (
-            <nav className="wk-progress-nav" aria-label="Objections in this article">
+            <nav className="wk-progress-nav" aria-label="Parts of this objection">
               <p className="wk-progress-t mono">{progress}</p>
               <ol className="wk-pips">
                 {obj.prongs.map((p, i) => {
                   const reached = i < sections.length;
                   const l = labelOf(p.id);
                   const cur = !done && i === at;
-                  const text = `Objection ${i + 1}: ${toPlain(p.label)} — ${reached || l !== "undec" ? STATUS[l].toLowerCase() : "not yet reached"}`;
+                  const text = `Part ${i + 1}: ${toPlain(p.label)}. ${reached || l !== "undec" ? STATUS[l] : "Not reached yet"}.`;
                   return (
                     <li key={p.id}>
                       {reached ? (
@@ -800,17 +810,17 @@ function SectionHead({
   const id = `wk-sh-${sec.prong}`;
   const moves = sec.items.filter((i) => i.kind === "move").length;
   if (current) {
-    // The first objection's heading is for screen readers: the header already says where we are.
+    // The first part's heading is for screen readers: the header already says where we are.
     if (sec.index === 0)
       return (
         <h2 id={id} className="sr-only">
-          {total > 1 ? `Objection 1 of ${total}` : "The exchange"}
+          {total > 1 ? `Part 1 of ${total}` : "The moves"}
         </h2>
       );
     return (
       <h2 id={id} className="wk-sec-head mono">
         <span>
-          Objection {sec.index + 1} of {total}
+          Part {sec.index + 1} of {total}
         </span>
       </h2>
     );
@@ -819,14 +829,14 @@ function SectionHead({
   return (
     <h2 id={id} className="wk-sec-past">
       <button type="button" className="wk-sec-btn" aria-expanded={!collapsed} onClick={onToggle}>
-        <span className="wk-sec-n mono">Objection {sec.index + 1}</span>
+        <span className="wk-sec-n mono">Part {sec.index + 1}</span>
         <span className="wk-sec-label">
           {prong && <Glyph side={prong.side} label={l} size={12} />}
           <span className={`serif ${l === "out" ? "lab-out" : ""}`}>{toPlain(prong?.label || "Untitled move")}</span>
         </span>
         <span className={`wk-sec-st wk-st mono st-${l}`}>{STATUS[l]}</span>
         <span className="wk-sec-toggle mono">
-          {collapsed ? `Show the exchange · ${moves} ${moves === 1 ? "move" : "moves"}` : "Hide the exchange"} <span aria-hidden>{collapsed ? "▾" : "▴"}</span>
+          {collapsed ? (moves === 1 ? "Show the move" : `Show the ${moves} moves`) : moves === 1 ? "Hide the move" : "Hide the moves"} <span aria-hidden>{collapsed ? "▾" : "▴"}</span>
         </span>
       </button>
     </h2>
@@ -878,7 +888,7 @@ function Strip({
     ) : res.auto ? null : (
       <span className="wk-stamp heard">
         <span className="wk-sq" aria-hidden />
-        You heard the {item.replies > 1 ? "replies" : "reply"}
+        You read the {item.replies > 1 ? "replies" : "reply"}
       </span>
     );
   const showFork = res.r === "heard" && item.replies > 1;
@@ -891,7 +901,7 @@ function Strip({
       transition={{ duration: 0.36, delay, ease: EASE }}
     >
       <span className="wk-rail mono" aria-hidden>
-        {ROMAN[item.depth - 1] ?? item.depth}
+        {item.depth}
       </span>
       <div className="wk-strip-main">
         <button type="button" className="wk-said" aria-expanded={open} onClick={onToggle}>
@@ -917,7 +927,7 @@ function Strip({
         </div>
         {showFork && (
           <p className="wk-fork">
-            {Num(item.replies)} answers. This move must outlast all {num(item.replies)}; any one that stands answers it.
+            {Num(item.replies)} replies. If {item.replies === 2 ? "either" : "any"} one of them stands, this move is answered.
           </p>
         )}
         {open && (
@@ -930,7 +940,7 @@ function Strip({
             <div className="wk-said-acts">
               {res.r === "judged" ? (
                 <button type="button" className="btn small" onClick={onRethink}>
-                  Rethink this call
+                  Clear this call
                 </button>
               ) : (
                 <button type="button" className="btn small" onClick={onFailInstead}>
@@ -938,7 +948,7 @@ function Strip({
                 </button>
               )}
               <button type="button" className="btn small ghost" onClick={() => openNode(item.id)}>
-                Open in the chamber <span aria-hidden>→</span>
+                Open this move <span aria-hidden>→</span>
               </button>
             </div>
           </div>
@@ -948,18 +958,18 @@ function Strip({
   );
 }
 
-/** One result sentence: "So “X” is answered, on your calls — “Y” stands." */
+/** One result sentence, e.g. So “X” is answered, because its reply “Y” stands. */
 function ResolveSentence({ item }: { item: ResolveItem }) {
   const labelText = useLabelText();
   const k = item.untested.length;
   return item.label === "out" && item.by ? (
     <>
-      So <q className="serif">{labelText(item.id)}</q> is answered, on your calls — <q className="serif">{labelText(item.by)}</q> stands.
-      {k > 0 && ` ${Num(k)} other ${k === 1 ? "reply" : "replies"} went unheard.`}
+      So <q className="serif">{labelText(item.id)}</q> is answered, because its reply <q className="serif">{labelText(item.by)}</q> stands.
+      {k > 0 && (k === 1 ? " You skipped the other reply." : ` You skipped the other ${num(k)}.`)}
     </>
   ) : (
     <>
-      So <q className="serif">{labelText(item.id)}</q> stands, on your calls — {allFail(item.replies)}.
+      So <q className="serif">{labelText(item.id)}</q> stands, because {allFail(item.replies)}.
     </>
   );
 }
@@ -987,8 +997,7 @@ function ResolveRow({ items, fresh, delay }: { items: ResolveItem[]; fresh: bool
           <span className="wk-res-k mono">{top.label === "out" ? "Answered" : "Stands"}</span>
           {chain ? (
             <>
-              That settles {num(items.length)} moves up this branch <span aria-hidden>→</span>
-              <span className="sr-only">:</span> <q className="serif">{labelText(top.id)}</q> {top.label === "out" ? "is answered" : "stands"}, on your calls.
+              That decides {num(items.length)} moves in a row, ending with <q className="serif">{labelText(top.id)}</q>, which {top.label === "out" ? "is answered" : "stands"}.
             </>
           ) : (
             <ResolveSentence item={top} />
@@ -1016,7 +1025,7 @@ function ResolveRow({ items, fresh, delay }: { items: ResolveItem[]; fresh: bool
 }
 
 /* ====================================================================== */
-/* The lit move and the verdict cards                                      */
+/* The lit move and the result cards                                       */
 
 /** Glyph + side word + label: a move named on a card. */
 function NodeLine({ id, label, className = "" }: { id: string; label: Label; className?: string }) {
@@ -1055,7 +1064,7 @@ function LitMove({ prompt: p, bar }: { prompt: Extract<WalkPrompt, { kind: "ask"
           {cue(p.depth, n.side)}
         </span>
         <span className="wk-meta mono">
-          Round {ROMAN[p.depth - 1] ?? p.depth}
+          Round {p.depth}
           {p.parent && p.count > 1 ? ` · Reply ${p.index + 1} of ${p.count}` : ""}
         </span>
       </header>
@@ -1078,7 +1087,7 @@ function LitMove({ prompt: p, bar }: { prompt: Extract<WalkPrompt, { kind: "ask"
       )}
       {hasCase && (
         <button type="button" className="wk-more" aria-expanded={open} onClick={() => setOpen((v) => !v)}>
-          {open ? "Close the full case" : "Read the full case"}{" "}
+          {open ? "Hide the full argument" : "Read the full argument"}{" "}
           <span className={`wk-more-chev ${open ? "up" : ""}`} aria-hidden>
             ▾
           </span>
@@ -1102,7 +1111,7 @@ function LitMove({ prompt: p, bar }: { prompt: Extract<WalkPrompt, { kind: "ask"
           )}
           {thinkers.length > 0 && (
             <div className="wk-case-sec">
-              <p className="wk-k mono">Thinkers</p>
+              <p className="wk-k mono">People</p>
               <div className="wk-thinkers">
                 {thinkers.map((t) => (
                   <ThinkerChip key={t} id={t} />
@@ -1140,78 +1149,76 @@ function LitMove({ prompt: p, bar }: { prompt: Extract<WalkPrompt, { kind: "ask"
       )}
       {n.cedes && (
         <div className="wk-cedes">
-          <p className="wk-k mono">What would move this side</p>
+          <p className="wk-k mono">What would change this side’s mind</p>
           <p className="wk-cedes-t serif">{toPlain(cedesText(n.cedes))}</p>
         </div>
       )}
       <div className="wk-ask">
-        {p.leaf && <p className="wk-ask-k mono">Last word on this branch</p>}
-        <p className="wk-ask-q serif">{p.leaf ? "Does it hold?" : "How does this strike you?"}</p>
+        {p.leaf && <p className="wk-ask-k mono">Nobody replies to this</p>}
+        <p className="wk-ask-q serif">{p.leaf ? "Does it hold?" : `Reject it now, or see the ${p.replies > 1 ? "replies" : "reply"} first?`}</p>
         {bar}
       </div>
       <p className="wk-links">
         <button type="button" className="wk-qlink mono" onClick={() => openNode(p.id)}>
-          Open this move in the chamber <span aria-hidden>→</span>
+          Open this move <span aria-hidden>→</span>
         </button>
       </p>
     </article>
   );
 }
 
-/** Links under an end card: the chamber and the reader's determination. */
+/** Links under an end card: the whole objection, and the reader's summary page. */
 function EndLinks({ obj }: { obj: Objection }) {
   const { go } = useAtlas();
   return (
     <p className="wk-links">
       <button type="button" className="wk-qlink mono" onClick={() => go({ view: "objection", o: obj.id })}>
-        Open the chamber <span aria-hidden>→</span>
+        See all moves <span aria-hidden>→</span>
       </button>
       <button type="button" className="wk-qlink mono" onClick={() => go({ view: "ledger" })}>
-        Your Determination <span aria-hidden>→</span>
+        Where you stand <span aria-hidden>→</span>
       </button>
     </p>
   );
 }
 
-/** "The Respondent must answer every objection…; One more to go." for an unsettled end of a line. */
+/** The rule (the Defender must answer every part, the Objector needs one) and what is left, for an unsettled end of a part. */
 function remainingText(end: ProngEnd, total: number): string {
   const rest = Array.from({ length: total - end.index - 1 }, (_, k) => end.index + 1 + k);
   const decided = end.ahead.map((a) => a.index);
   const open = rest.filter((i) => !decided.includes(i));
-  const stakes = "The Respondent must answer every objection in this article; the Objector needs only one of them to stand.";
-  if (decided.length === 0) return `${stakes} ${Num(open.length)} more to go.`;
-  return `${stakes} ${cap(partList(decided))} ${isAre(decided.length)} already settled by your earlier call${decided.length > 1 ? "s" : ""}; ${partList(open)} ${isAre(open.length)} still to hear.`;
+  const rule = "The Defender has to answer every part of this objection. The Objector needs only one part to stand.";
+  if (decided.length === 0) return `${rule} ${Num(open.length)} more ${open.length === 1 ? "part" : "parts"} to go.`;
+  return `${rule} What you marked earlier already decides ${partList(decided)}, and ${partList(open)} ${isAre(open.length)} still to come.`;
 }
 
 function ResolvedCard({ prompt: p, obj, bar }: { prompt: Extract<WalkPrompt, { kind: "resolved" }>; obj: Objection; bar: ReactNode }) {
-  const { ix } = useAtlas();
   const labelText = useLabelText();
-  const by = ix.nodes.get(p.by)?.node;
   const k = p.untested.length;
-  // At a line's root, this card is also the end of the line (unless the objection already stands).
+  // At a part's root, this card is also the end of the part (unless the objection already stands).
   const end = p.end && !p.end.settled ? p.end : null;
   return (
     <article className={`wk-verdict ${end ? "wk-pend st-out" : ""}`} aria-labelledby="wk-verdict-h">
       {end && (
         <p className="wk-k mono">
-          Objection {end.index + 1} of {obj.prongs.length} · settled
+          Part {end.index + 1} of {obj.prongs.length} · answered
         </p>
       )}
       <NodeLine id={p.id} label="out" />
       <h3 id="wk-verdict-h" className="wk-v-line serif" tabIndex={-1} data-wk-head="">
-        Answered, on your calls — <q>{labelText(p.by)}</q> stands.
+        Answered, because the reply <q>{labelText(p.by)}</q> stands.
       </h3>
       <p className="wk-v-sub">
-        {by ? `${WHO[by.side]} needed one answer to stand, and has it.` : "One answer standing is enough."} {Num(k)} other{" "}
-        {k === 1 ? "reply hasn't been heard. It can’t change this result, but you may want to see it." : "replies haven't been heard. They can’t change this result, but you may want to see them."}
+        One reply that stands is enough to answer a move, so {k === 1 ? "the other reply" : `the other ${num(k)}`} can’t change this result. You can still read{" "}
+        {k === 1 ? "it" : "them"} if you like.
       </p>
       {end && (
         <p className="wk-v-sub">
           {!end.final
             ? remainingText(end, obj.prongs.length)
             : end.ahead.length > 0
-              ? `${cap(partList(end.ahead.map((a) => a.index)))} ${isAre(end.ahead.length)} already settled by your earlier call${end.ahead.length > 1 ? "s" : ""}.`
-              : "That was the last objection in this article."}
+              ? `What you marked earlier already decides ${partList(end.ahead.map((a) => a.index))}.`
+              : "That was the last part of this objection."}
         </p>
       )}
       {bar}
@@ -1228,36 +1235,34 @@ function ProngEndCard({ prompt: p, obj, sections, bar }: { prompt: Extract<WalkP
   const total = obj.prongs.length;
   const rest = Array.from({ length: total - p.index - 1 }, (_, k) => p.index + 1 + k);
   const open = rest.filter((i) => !p.ahead.some((a) => a.index === i));
-  const worth = open.length > 0 ? ` ${cap(partList(open))} ${isAre(open.length)} still worth hearing.` : "";
+  const worth = open.length > 0 ? ` You can stop here or go on to ${partList(open)}.` : "";
   const by = standsBy(p, sections);
 
   let sub: string;
   if (!by) sub = remainingText(p, total);
-  else if (by.kind === "this") sub = `That is enough for Objection ${obj.numeral} to stand on your calls: the Objector needs only one of them to stand.${worth}`;
-  else if (by.kind === "earlier")
-    sub = `Objection ${obj.numeral} still stands on your calls: objection ${by.index + 1} stood, and the Objector needs only one of them to stand.${worth}`;
-  else
-    sub = `Objection ${obj.numeral} stands on your calls all the same: objection ${by.index + 1} already stands by your earlier call, and the Objector needs only one of them to stand.${worth}`;
+  else if (by.kind === "this") sub = `So Objection ${obj.numeral} stands, because the Objector needs only one part to stand.${worth}`;
+  else if (by.kind === "earlier") sub = `Objection ${obj.numeral} still stands, because part ${by.index + 1} stood and the Objector needs only one part.${worth}`;
+  else sub = `Objection ${obj.numeral} stands anyway. What you marked earlier leaves part ${by.index + 1} standing, and the Objector needs only one part.${worth}`;
 
   return (
     <article className={`wk-verdict wk-pend st-${p.label}`} aria-labelledby="wk-pend-h">
       <p className="wk-k mono">
-        Objection {p.index + 1} of {total} · settled
+        Part {p.index + 1} of {total} · {STATUS[p.label].toLowerCase()}
       </p>
       <NodeLine id={p.prong} label={p.label} />
       <h3 id="wk-pend-h" className="wk-v-line serif" tabIndex={-1} data-wk-head="">
         {p.label === "in" ? (
           why.kind === "judged" ? (
-            <>Stands — you said it holds.</>
+            <>Stands. You said it holds.</>
           ) : (
-            <>Stands, on your calls — {allFail(why.kind === "all-fail" ? why.replies : 2)}.</>
+            <>Stands, because {allFail(why.kind === "all-fail" ? why.replies : 2)}.</>
           )
         ) : why.kind === "reply" ? (
           <>
-            Answered, on your calls — <q>{labelText(why.by)}</q> stands.
+            Answered, because the reply <q>{labelText(why.by)}</q> stands.
           </>
         ) : (
-          <>Answered — you said it fails.</>
+          <>Answered. You said it fails.</>
         )}
       </h3>
       <p className="wk-v-sub">{sub}</p>
@@ -1300,10 +1305,7 @@ function DoneCard({
 
   return (
     <article className={`wk-done st-${label}`} aria-labelledby="wk-done-h">
-      <h2 className="wk-k mono">Your determination · Objection {obj.numeral}</h2>
-      <p className="wk-done-ia serif">
-        <span className="wk-sq" aria-hidden />I answer that —
-      </p>
+      <h2 className="wk-k mono">Where you stand · Objection {obj.numeral}</h2>
       <h3 id="wk-done-h" className="wk-done-line serif" tabIndex={-1} data-wk-head="">
         <span className="wk-done-head">{det.parts.head}</span> {det.parts.pre}
         {focusText && <q>{focusText}</q>}
@@ -1311,12 +1313,12 @@ function DoneCard({
       </h3>
       <p className={`wk-done-status st-${label}`}>
         <span className="dot" aria-hidden />
-        {OBJ_STATUS[label]}, on your calls
+        {OBJ_STATUS[label]} · {callsHere} of {det.total} moves marked
       </p>
 
       {chips.length > 0 && (
         <div className="wk-done-more">
-          <p className="wk-k mono">{label === "undec" ? "Also decisive" : "It also rests on"}</p>
+          <p className="wk-k mono">{label === "undec" ? "These could also settle it" : "It also rests on"}</p>
           <div className="wk-chips">
             {shown.map((id) => {
               const n = ix.nodes.get(id)?.node;
@@ -1330,14 +1332,14 @@ function DoneCard({
             })}
             {chips.length > CHIP_CAP && (
               <button type="button" className="chip wk-nodechip wk-more-chip mono" aria-expanded={allChips} onClick={() => setAllChips((v) => !v)}>
-                {allChips ? "Fewer" : `+${chips.length - CHIP_CAP} more`}
+                {allChips ? "Show fewer" : `+${chips.length - CHIP_CAP} more`}
               </button>
             )}
           </div>
         </div>
       )}
 
-      <ol className="wk-done-prongs" aria-label="Objections in this article">
+      <ol className="wk-done-prongs" aria-label="Parts of this objection">
         {obj.prongs.map((p, i) => {
           const l = labelOf(p.id);
           const why = prongReason(p, judgments, labelOf);
@@ -1345,7 +1347,7 @@ function DoneCard({
           const earlier = decided.includes(i);
           const reason =
             skipped && l === "undec"
-              ? "not heard"
+              ? "skipped"
               : why.kind === "judged"
                 ? `you said it ${why.j}`
                 : why.kind === "all-fail"
@@ -1355,7 +1357,7 @@ function DoneCard({
                     : "";
           return (
             <li key={p.id} className={`s-${p.side}`}>
-              <span className="wk-dp-n mono">Objection {i + 1}</span>
+              <span className="wk-dp-n mono">Part {i + 1}</span>
               <span className="wk-dp-label">
                 <Glyph side={p.side} label={l} size={12} />
                 <span className={`serif ${l === "out" ? "lab-out" : ""}`}>{labelText(p.id)}</span>
@@ -1367,7 +1369,7 @@ function DoneCard({
                 </span>
                 <span className={`wk-st st-${l}`}>{STATUS[l]}</span>
                 {reason && <span className="wk-dp-reason"> · {reason}</span>}
-                {earlier && <span className="wk-dp-reason"> · settled before this walk</span>}
+                {earlier && <span className="wk-dp-reason"> · decided before you started</span>}
               </span>
             </li>
           );
@@ -1376,10 +1378,9 @@ function DoneCard({
 
       {unheard.length > 0 && (
         <p className="wk-done-unheard">
-          You stopped once it stood.{" "}
-          {unheard.length === 1 ? `Objection ${unheard[0] + 1} wasn't heard.` : `${cap(partList(unheard))} weren't heard.`}{" "}
+          You stopped once Objection {obj.numeral} stood, so you skipped {partList(unheard)}.{" "}
           <button type="button" className="wk-link" onClick={onHearRest}>
-            Hear {unheard.length === 1 ? "it" : "them"} anyway →
+            Go through {unheard.length === 1 ? "it" : "them"} anyway →
           </button>
         </p>
       )}
@@ -1387,19 +1388,19 @@ function DoneCard({
       <div className="wk-done-acts">
         {next && next.id !== obj.id && (
           <button type="button" className="btn solid" onClick={() => go({ view: "walk", o: next.id })}>
-            Walk objection {next.numeral} <span className="wk-arrow" aria-hidden>→</span>
+            Step through Objection {next.numeral} <span className="wk-arrow" aria-hidden>→</span>
           </button>
         )}
         <button type="button" className="btn" onClick={() => go({ view: "objection", o: obj.id })}>
-          Open the chamber
+          See all moves
         </button>
         <button type="button" className="btn" onClick={() => go({ view: "ledger" })}>
-          Your Determination
+          Where you stand
         </button>
       </div>
 
       <div className="wk-done-foot">
-        <p>Nothing here is the page&rsquo;s verdict — only what follows from your calls.</p>
+        <p>This result comes from your calls and nothing else.</p>
         {confirm ? (
           <p className="wk-confirm" role="group" aria-label="Start over">
             <span>

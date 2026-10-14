@@ -1,7 +1,7 @@
 /* ==========================================================================
-   Your Determination (#/ledger) — scoped under .atl, prefixed .ld-
-   A ruled register of five independent rulings. Stands = ochre, answered =
-   verdigris, undecided = faint and dashed; the two settled states carry equal
+   Where you stand (#/ledger), scoped under .atl and prefixed .ld-
+   A ruled register of five independent results. Stands = ochre, answered =
+   verdigris, undecided = faint and dashed. The two settled states carry equal
    visual weight so neither side looks louder. Text is never dimmed to show
    defeat.
    ========================================================================== */
@@ -80,6 +80,45 @@
   font-style: italic;
   font-size: 1.06em;
   color: var(--bone);
+}
+/* an epigraph: one short quotation with its source, set quietly under the text it goes with */
+.atl .ld-epi {
+  max-width: 34rem;
+  margin: 18px 0 0;
+  padding-left: 14px;
+  border-left: 1px solid var(--line);
+}
+.atl .ld-epi blockquote {
+  margin: 0;
+  font-size: 1rem;
+  font-style: italic;
+  line-height: 1.55;
+  color: var(--mute);
+  text-wrap: pretty;
+}
+.atl .ld-epi figcaption {
+  display: grid;
+  gap: 3px;
+  margin-top: 7px;
+}
+.atl .ld-epi figcaption .mono {
+  font-size: 10.5px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--faint);
+}
+.atl .ld-epi-note {
+  font-size: 13.5px;
+  line-height: 1.45;
+  color: var(--faint);
+}
+.atl .ld-crux-epi {
+  max-width: 40rem;
+  margin-top: 20px;
+  border-left-color: color-mix(in srgb, var(--side) 45%, var(--line));
+}
+.atl .ld-empty-epi {
+  margin: 0 0 20px;
 }
 .atl .ld-calls {
   margin: 22px 0 0;
@@ -237,7 +276,7 @@
   }
 }
 @media (max-width: 719px) {
-  /* on a phone the Rose is a glance, not a destination: keep the rulings close */
+  /* on a phone the map is for a quick look, so keep the results close */
   .atl .ld-head-rose {
     max-width: min(300px, 80vw);
   }
@@ -573,7 +612,7 @@
   color: var(--bone);
 }
 .atl .ld-blank-note {
-  margin-left: -6px;
+  margin-left: -4px;
   font-size: 14.5px;
   color: var(--mute);
 }
@@ -846,7 +885,7 @@
   }
 }
 
-/* ---------- the crux ---------- */
+/* ---------- your key call (the crux in the code) ---------- */
 .atl .ld-crux {
   position: relative;
   margin-top: clamp(48px, 8vw, 80px);
@@ -1074,10 +1113,24 @@
   }
 }
 
-/* ---------- tensions ---------- */
+/* ---------- contradictions (tensions in the code) ---------- */
 .atl .ld-tensions {
   margin-top: clamp(48px, 8vw, 80px);
   scroll-margin-top: 80px;
+}
+.atl .ld-t-why {
+  max-width: 44rem;
+  margin: 12px 0 6px;
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--bone-2);
+}
+.atl .ld-t-cite {
+  font-size: 10.5px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--faint);
+  white-space: nowrap;
 }
 .atl .ld-t-list {
   list-style: none;
@@ -1298,7 +1351,7 @@
   }
 }
 
-/* ---------- empty state: the empty chair ---------- */
+/* ---------- empty state ---------- */
 .atl .ld-empty {
   margin-top: clamp(36px, 6vw, 56px);
   padding: 24px 20px 26px;

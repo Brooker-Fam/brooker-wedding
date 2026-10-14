@@ -9,7 +9,7 @@
 
 import type { ReactNode } from "react";
 import { Rich } from "../markup";
-import type { ArgNode, Disputation, Judgment, Label, Objection, ObjectionId, Side } from "../types";
+import type { ArgNode, Disputation, Judgment, Label, Objection, ObjectionId, Quote, Side } from "../types";
 
 export const OUTLINE_SIDE_WORD: Record<Side, string> = { skeptic: "Objector", theist: "Defender", spinoza: "Spinoza" };
 const NODE_WORD: Record<Label, string> = { in: "Stands", out: "Answered", undec: "Open" };
@@ -29,10 +29,29 @@ export interface OutlineListProps {
   objectionHref?: (o: ObjectionId) => string;
   /** Show each move's plain-terms gist (default true). */
   gists?: boolean;
+  /** Show each move's quotation, where it has one (default true). */
+  quotes?: boolean;
   /** Prefix for element ids (sections get `${idPrefix}${objection.id}`). */
   idPrefix?: string;
   /** Rendered at the end of each objection's section (e.g. a way back to the contents). */
   sectionEnd?: (o: Objection) => ReactNode;
+}
+
+/** A quotation in the house style (same classes as the Library's LibQuote, which this file can't import). */
+function OutlineQuote({ q }: { q: Quote }) {
+  return (
+    <figure className="lib-quote ol-quote">
+      <blockquote>
+        <p>{q.text}</p>
+      </blockquote>
+      {(q.who || q.cite) && (
+        <figcaption>
+          {q.who && <span className="lib-quote-who">{q.who}</span>}
+          {q.cite && <span className="lib-quote-cite">{q.cite}</span>}
+        </figcaption>
+      )}
+    </figure>
+  );
 }
 
 /** Static glyph (same classes as primitives' Glyph, so atlas.css styles it). */
@@ -59,7 +78,7 @@ function depthOf(n: ArgNode): number {
   return 1 + (k.length ? Math.max(...k.map(depthOf)) : 0);
 }
 
-export default function OutlineList({ d, labelOf, objectionLabelOf, judgments, nodeHref, objectionHref, gists = true, idPrefix = "ol-", sectionEnd }: OutlineListProps) {
+export default function OutlineList({ d, labelOf, objectionLabelOf, judgments, nodeHref, objectionHref, gists = true, quotes = true, idPrefix = "ol-", sectionEnd }: OutlineListProps) {
   const thinkerName = (id: string) => d.thinkers.find((t) => t.id === id)?.name;
   const termName = (id: string) => d.terms.find((t) => t.id === id)?.term;
   const nodeName = (id: string) => {
@@ -77,7 +96,7 @@ export default function OutlineList({ d, labelOf, objectionLabelOf, judgments, n
   return (
     <div className={`ol ${gists ? "" : "ol-compact"}`}>
       {d.objections.map((o) => (
-        <ObjectionBlock key={o.id} o={o} {...{ labelOf, objectionLabelOf, judgments, nodeHref, objectionHref, gists, idPrefix, rich, sectionEnd }} />
+        <ObjectionBlock key={o.id} o={o} {...{ labelOf, objectionLabelOf, judgments, nodeHref, objectionHref, gists, quotes, idPrefix, rich, sectionEnd }} />
       ))}
     </div>
   );
@@ -93,6 +112,7 @@ function ObjectionBlock({
   nodeHref,
   objectionHref,
   gists,
+  quotes,
   idPrefix,
   rich,
   sectionEnd,
@@ -150,7 +170,7 @@ function ObjectionBlock({
 
       <ol className="ol-tree" aria-label={`Objection ${o.numeral}, every move`}>
         {o.prongs.map((p, i) => (
-          <NodeItem key={p.id} n={p} o={o} trail={[i + 1]} depth={1} {...{ labelOf, judgments, nodeHref, gists, rich }} />
+          <NodeItem key={p.id} n={p} o={o} trail={[i + 1]} depth={1} {...{ labelOf, judgments, nodeHref, gists, quotes, rich }} />
         ))}
       </ol>
 
@@ -161,6 +181,11 @@ function ObjectionBlock({
           </span>
           <span className="serif ol-scholium-t">{o.spinoza.title}</span>
         </p>
+      )}
+      {quotes && o.spinoza?.quote?.text && (
+        <div className="s-spinoza ol-scholium-q">
+          <OutlineQuote q={o.spinoza.quote} />
+        </div>
       )}
       {sectionEnd && <div className="ol-end">{sectionEnd(o)}</div>}
     </section>
@@ -176,6 +201,7 @@ function NodeItem({
   judgments,
   nodeHref,
   gists,
+  quotes,
   rich,
 }: {
   n: ArgNode;
@@ -186,6 +212,7 @@ function NodeItem({
   judgments?: Record<string, Judgment>;
   nodeHref?: (id: string, o: ObjectionId) => string;
   gists?: boolean;
+  quotes?: boolean;
   rich: Rich3;
 }) {
   const label = labelOf?.(n.id);
@@ -224,11 +251,12 @@ function NodeItem({
             <Rich text={n.gist} r={rich} />
           </p>
         )}
+        {quotes && n.quote?.text && <OutlineQuote q={n.quote} />}
       </div>
       {kids.length > 0 && (
         <ol className="ol-kids">
           {kids.map((c, i) => (
-            <NodeItem key={c.id} n={c} o={o} trail={[...trail, i + 1]} depth={depth + 1} {...{ labelOf, judgments, nodeHref, gists, rich }} />
+            <NodeItem key={c.id} n={c} o={o} trail={[...trail, i + 1]} depth={depth + 1} {...{ labelOf, judgments, nodeHref, gists, quotes, rich }} />
           ))}
         </ol>
       )}

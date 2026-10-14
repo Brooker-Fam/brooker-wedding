@@ -3080,6 +3080,24 @@
   font-size: clamp(1.18rem, 1.6vw, 1.32rem);
   line-height: 1.45;
 }
+/* the Outline: a move's quotation sits under its summary, smaller than in the files */
+.atl .ol-quote {
+  max-width: 42rem;
+  margin: 10px 0 2px;
+  padding-left: 14px;
+}
+.atl .ol-quote blockquote p {
+  font-size: 15.5px;
+  line-height: 1.5;
+  color: var(--bone-2);
+}
+.atl .ol-quote figcaption {
+  margin-top: 5px;
+  font-size: 10px;
+}
+.atl .ol-scholium-q .ol-quote {
+  margin: 4px 0 10px;
+}
 .atl .tl-quote-row blockquote p {
   font-size: 1.04rem;
 }

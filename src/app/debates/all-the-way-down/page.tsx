@@ -2,12 +2,12 @@ import type { Metadata } from "next";
 import Atlas from "@/components/atlas/Atlas";
 
 export const metadata: Metadata = {
-  title: "All the Way Down — five objections to God, argued all the way down",
+  title: "All the Way Down · Five objections to the Christian God",
   description:
-    "An interactive disputation: five objections to the God of Christian theism, the strongest classical replies, and the replies to those — mapped as a living argument tree you can explore, judge, and trace through 2,500 years of philosophy.",
+    "Five objections to the Christian God, each answered by classical theism and argued back and forth for up to seven rounds, with quotations from 2,500 years of philosophy. Mark each move Holds or Fails and see where you stand.",
   openGraph: {
     title: "All the Way Down",
-    description: "Five objections to God, the strongest replies, and the replies to those — an interactive disputation.",
+    description: "Five objections to the Christian God, and what his best defenders say back. Mark each move Holds or Fails and see where you stand.",
     type: "article",
   },
 };
@@ -24,8 +24,8 @@ export default function AllTheWayDownPage() {
         <div className="atl ol-noscript">
           <div className="lib lib-outline">
             <p className="lib-notice ol-ns-note">
-              The interactive map — where you can rule on each move and watch the argument respond — needs JavaScript.{" "}
-              <a href="/debates/all-the-way-down/outline">Read the whole disputation as a plain outline →</a>
+              The interactive map, where you mark each move Holds or Fails, needs JavaScript.{" "}
+              <a href="/debates/all-the-way-down/outline">Read every move as a plain outline →</a>
             </p>
           </div>
         </div>

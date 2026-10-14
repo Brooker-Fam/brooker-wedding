@@ -1,16 +1,16 @@
 "use client";
 
-/* The chamber: one objection, read as an article of the Summa.
-   Header (numeral, the question, the exchange, lineage, status) → the prongs
+/* One objection's page.
+   Header (numeral, the question, the exchange, history, status) → the parts
    → the thread (a branch of the argument as a script, every move expandable
-   in place, every move judgeable) → where Spinoza stands → further reading.
-   On wide screens the whole objection sits beside the thread as a chart. */
+   in place, every move open to a call) → where Spinoza stands → further reading.
+   On wide screens every move of the objection sits beside the thread as a chart. */
 
 import "./chamber.css";
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { useAtlas } from "../context";
 import { explainObjection } from "../explain";
-import { address, ROMAN } from "../helpers";
+import { address } from "../helpers";
 import { initials, usePeek } from "../peek";
 import { Glyph, RichText } from "../primitives";
 import { findTensions, labelObjection, type DisputationIndex, type Tension } from "../semantics";
@@ -21,9 +21,10 @@ import {
   OBJ_STATUS_WORD,
   STATUS_WORD,
   WhyLine,
-  callWord,
   numWord,
   q,
+  spellAddress,
+  statusText,
   topInset,
   turnEl,
   type ChamberApi,
@@ -37,8 +38,8 @@ const INSTANT = "instant" as ScrollBehavior;
 const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 const reducedMotion = () => window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-/* A cross-objection jump leaves a one-hop "back" chip in the destination chamber.
-   The chamber remounts per objection, so the hand-off goes through sessionStorage. */
+/* A cross-objection jump leaves a one-hop "back" chip on the destination page.
+   The page remounts per objection, so the hand-off goes through sessionStorage. */
 const BACK_KEY = "atl:chamber-back:v1";
 function writeBack(to: ObjectionId, from: string) {
   try {
@@ -123,7 +124,7 @@ function HereMark({ index, count }: { index: number; count: number }) {
   );
 }
 
-/* ---------------- Aquinas's own objection 2 (Chamber III only) ---------------- */
+/* ---------------- Aquinas's own Objection 2 (Objection III only) ---------------- */
 
 function Echo({ objection, full }: { objection: string; full: boolean }) {
   const [open, setOpen] = useState(false);
@@ -132,23 +133,23 @@ function Echo({ objection, full }: { objection: string; full: boolean }) {
     <section className="ch-echo" aria-labelledby="ch-echo-h">
       <div className="ch-echo-top">
         <h2 id="ch-echo-h" className="ch-echo-h">
-          The echo
+          Aquinas raised it first
         </h2>
-        <p className="ch-echo-src">Thomas Aquinas · 1265–74</p>
+        <p className="ch-echo-src">Summa Theologiae, Part I · 1265–68</p>
       </div>
       {objection && (
         <p className="ch-echo-lead s-skeptic">
           <span className="ch-echo-k">
-            <span aria-hidden>▲</span> The Objector, here
+            <span aria-hidden>▲</span> The Objector says
           </span>
           <span className="ch-echo-lead-t">{objection}</span>
         </p>
       )}
-      <p className="ch-echo-then">…and Aquinas, seven and a half centuries earlier, against himself:</p>
+      <p className="ch-echo-then">Around 1266 Aquinas made the same objection against his own view, and then answered it:</p>
       {!shown && <p className="ch-echo-hook s-skeptic">“…it seems that everything we see in the world can be accounted for by other principles, supposing God did not exist.”</p>}
       {!full && (
         <button type="button" className="ch-echo-more" aria-expanded={shown} aria-controls="ch-echo-body" onClick={() => setOpen((v) => !v)}>
-          {shown ? "Hide his objection and reply" : "Read his Objection 2 and his reply"} <span aria-hidden>{shown ? "▴" : "▾"}</span>
+          {shown ? "Hide Aquinas" : "Read Aquinas"} <span aria-hidden>{shown ? "▴" : "▾"}</span>
         </button>
       )}
       <div id="ch-echo-body" className="ch-echo-body" hidden={!shown}>
@@ -177,10 +178,21 @@ function Echo({ objection, full }: { objection: string; full: boolean }) {
                 </blockquote>
               </div>
             </div>
-            <p className="ch-echo-cite">Summa Theologiae I, q.2, a.3, obj. 2 and ad 2 · Dominican Fathers translation</p>
-            <p className="ch-echo-note">
-              The Spinozist accepts the ‘self-necessary first principle’. What he denies is that it chooses or loves. That is the whole disputation in miniature.
+            <p className="ch-echo-cite">
+              Summa Theologiae, Part I, question 2, article 3, Objection 2 and his reply · tr. Fathers of the English Dominican Province, 1920
             </p>
+            <div className="ch-echo-note">
+              <p>
+                Spinoza accepted where the reply ends up. Everything traces back to a first cause that exists by its own necessity, and he called God “the indwelling and
+                not the transient cause of all things”, meaning a cause that acts from inside nature, not on it from outside (<em>Ethics</em> I, Prop. 18).
+              </p>
+              <p>
+                He rejected the step that gets there. Aquinas says nature works “for a determinate end under the direction of a higher agent”, that is, toward a goal
+                someone set. Spinoza wrote that “nature has no particular goal in view, and that final causes are mere human figments” (<em>Ethics</em> I, Appendix). A
+                final cause is the purpose a thing exists or acts for. He also denied that the first cause chooses: “God does not act according to freedom of the will”
+                (<em>Ethics</em> I, Prop. 32, Cor. 1).
+              </p>
+            </div>
           </>
         )}
       </div>
@@ -231,9 +243,9 @@ function Lineage({ oid, lineage, onHistory }: { oid: ObjectionId; lineage: strin
   const lastT = ix.thinkers.get(people[people.length - 1]);
   return (
     <div className="ch-lineage">
-      {shown.length > 0 && <span className="ch-lineage-k">Lineage</span>}
+      {shown.length > 0 && <span className="ch-lineage-k">Who argued it</span>}
       {shown.length > 0 && (
-        <ul className="ch-roundels" aria-label="Thinkers in this objection's history">
+        <ul className="ch-roundels" aria-label="People who argued over this objection, oldest first">
           {shown.map((t) => {
             const th = ix.thinkers.get(t)!;
             return (
@@ -256,7 +268,7 @@ function Lineage({ oid, lineage, onHistory }: { oid: ObjectionId; lineage: strin
               </li>
             );
           })}
-          {more > 0 && <li className="ch-roundel-more">+{more}</li>}
+          {more > 0 && <li className="ch-roundel-more">and {more} more</li>}
         </ul>
       )}
       {first && lastT && people.length > 1 && (
@@ -265,14 +277,14 @@ function Lineage({ oid, lineage, onHistory }: { oid: ObjectionId; lineage: strin
         </span>
       )}
       <button type="button" className="ch-lineage-go" onClick={onHistory}>
-        <span className="ch-u">Through history</span>
+        <span className="ch-u">See the timeline</span>
         <span aria-hidden>→</span>
       </button>
     </div>
   );
 }
 
-/* ---------------- the chamber ---------------- */
+/* ---------------- the page ---------------- */
 
 export default function Chamber({ o: oid, node }: { o: ObjectionId; node?: string }) {
   const { ix, d, go, judgments, judge, labels, tensions, analysis, toPlain, openNode } = useAtlas();
@@ -283,7 +295,7 @@ export default function Chamber({ o: oid, node }: { o: ObjectionId; node?: strin
   const wide = useMedia("(min-width: 1100px)");
   const narrow = useMedia("(max-width: 639px)");
 
-  // A move id that isn't in this objection: go to its real address (or the chamber's own), without a history entry.
+  // A move id that isn't in this objection: go to its real address (or this objection's top), without a history entry.
   useEffect(() => {
     if (!node || valid) return;
     const info = ix.nodes.get(node);
@@ -425,18 +437,24 @@ export default function Chamber({ o: oid, node }: { o: ObjectionId; node?: strin
           }, 0);
         },
       };
-      if (objAfter !== objBefore) {
-        const what = objAfter === "in" ? "now stands" : objAfter === "out" ? "is now answered" : "is undecided again";
-        const why = j ? `because you said ${name} ${j}` : `because you withdrew your call on ${name}`;
-        toast({ text: `Objection ${o.numeral} ${what} — ${why}.`, action: undo, ttl: 7000 });
-        return;
-      }
       const here = (t: Tension) => ix.nodes.get(t.node)?.objection === o.id;
       const tensBefore = tensions.filter(here).length;
       const tensAfter = findTensions(ix, nextJ, { node: after, objection: new Map() }).filter(here).length;
-      if (tensAfter > tensBefore) {
+      const newTension = tensAfter > tensBefore;
+      const did = j ? `you said ${name} ${j}` : `you cleared your call on ${name}`;
+      if (objAfter !== objBefore) {
+        const what = objAfter === "in" ? "now stands" : objAfter === "out" ? "is now answered" : "is open again";
         toast({
-          text: "That leaves a tension: a claim and a reply to it both hold on your calls. One of them has to give.",
+          text: `Objection ${o.numeral} ${what} after ${did}.${newTension ? " It also leaves a contradiction. Look for the Tension note." : ""}`,
+          action: undo,
+          tone: newTension ? "tension" : "plain",
+          ttl: newTension ? 9000 : 7000,
+        });
+        return;
+      }
+      if (newTension) {
+        toast({
+          text: "A point you said holds now has a reply that stands too. These two contradict each other.",
           action: undo,
           tone: "tension",
           ttl: 7000,
@@ -444,13 +462,14 @@ export default function Chamber({ o: oid, node }: { o: ObjectionId; node?: strin
         return;
       }
       const others = changed.size - 1;
-      const moved = others > 0 ? ` ${others === 1 ? "One other move" : `${cap(numWord(others))} other moves`} changed with it.` : "";
-      const still = ` Objection ${o.numeral} is still ${OBJ_STATUS_WORD[objAfter].toLowerCase()}.`;
-      say(
-        j
-          ? `Your call on ${name}: ${j}.${moved}${still}`
-          : `Call on ${name} withdrawn; on your calls it is ${STATUS_WORD[after.get(id) ?? "undec"].toLowerCase()}.${moved}${still}`,
-      );
+      if (others > 0) {
+        // A visible sign that the call moved other statuses too (the toast is also read out).
+        toast({ text: `${cap(did)}. ${others === 1 ? "One other move" : `${cap(numWord(others))} other moves`} changed status with it.`, action: undo, ttl: 6000 });
+        return;
+      }
+      const still = objAfter === "in" ? "still stands" : objAfter === "out" ? "is still answered" : "is still open";
+      const now = (l: Label) => (l === "in" ? "now stands" : l === "out" ? "is now answered" : "is now open");
+      say(j ? `You said ${name} ${j}. Objection ${o.numeral} ${still}.` : `You cleared your call on ${name}. It ${now(after.get(id) ?? "undec")}. Objection ${o.numeral} ${still}.`);
     },
     [o, ix, judgments, labels, tensions, judge, toPlain, toast, say],
   );
@@ -481,7 +500,12 @@ export default function Chamber({ o: oid, node }: { o: ObjectionId; node?: strin
   if (!o) {
     return (
       <div className="ch">
-        <p className="ch-missing">This objection isn’t in the disputation.</p>
+        <p className="ch-missing">
+          There’s no objection at this link.{" "}
+          <button type="button" className="ch-missing-go" onClick={() => go({ view: "home" })}>
+            <span className="ch-u">Back to the map</span>
+          </button>
+        </p>
       </div>
     );
   }
@@ -516,25 +540,25 @@ export default function Chamber({ o: oid, node }: { o: ObjectionId; node?: strin
               <div className="ch-backbar">
                 <button type="button" className={`ch-back s-${backInfo.node.side}`} onClick={() => openNode(back)}>
                   <span aria-hidden>↩</span>
-                  <span className="ch-back-k">Back to {address(ix, back)}</span>
+                  <span className="ch-back-k" title={spellAddress(ix, back)}>
+                    Back to {address(ix, back)}
+                  </span>
                   <span className="ch-back-l">{toPlain(backInfo.node.label)}</span>
                 </button>
-                <button type="button" className="ch-back-x" aria-label="Dismiss the back link" onClick={() => setBack(null)}>
+                <button type="button" className="ch-back-x" aria-label="Hide the back link" onClick={() => setBack(null)}>
                   ×
                 </button>
               </div>
             )}
 
-            {/* ---------- the article header ---------- */}
+            {/* ---------- the header ---------- */}
             <header className="ch-head">
               <div className="ch-head-top">
                 <span className="ch-numeral" aria-hidden>
                   {o.numeral}
                 </span>
                 <p className="ch-eyebrow">
-                  <span>
-                    Objection {o.numeral} of {ROMAN[d.objections.length - 1] ?? d.objections.length}
-                  </span>
+                  <span>Objection {o.numeral}</span>
                   {o.short && (
                     <>
                       <span className="ch-eyebrow-sep" aria-hidden>
@@ -568,7 +592,7 @@ export default function Chamber({ o: oid, node }: { o: ObjectionId; node?: strin
                   {o.objection && (
                     <p className="ch-ex s-skeptic">
                       <span className="ch-ex-k">
-                        <Glyph side="skeptic" size={11} /> It seems that
+                        <Glyph side="skeptic" size={11} /> The Objector says
                       </span>
                       <span className="ch-ex-t">{o.objection}</span>
                     </p>
@@ -576,7 +600,7 @@ export default function Chamber({ o: oid, node }: { o: ObjectionId; node?: strin
                   {o.counter && (
                     <p className="ch-ex s-theist">
                       <span className="ch-ex-k">
-                        <Glyph side="theist" size={11} /> On the contrary
+                        <Glyph side="theist" size={11} /> The Defender answers
                       </span>
                       <span className="ch-ex-t">{o.counter}</span>
                     </p>
@@ -600,19 +624,22 @@ export default function Chamber({ o: oid, node }: { o: ObjectionId; node?: strin
                     {a && a.judged > 0 ? `${a.judged} of ${a.total} moves called` : `${a?.total ?? nMoves} moves · no calls yet`}
                     {objTensions > 0 ? ` · ${objTensions} ${objTensions === 1 ? "tension" : "tensions"}` : ""}
                   </span>
-                  <WhyLine key={`${objLabel}:${a?.judged ?? 0}`} explanation={explainObjection(labels, o, toPlain)} onGo={(id) => focus(id, "link")} className="ch-objwhy" />
+                  <WhyLine key={`${objLabel}:${a?.judged ?? 0}`} explanation={explainObjection(labels, o, toPlain, judgments)} onGo={(id) => focus(id, "link")} className="ch-objwhy" />
                 </div>
                 <button type="button" className="btn ch-argue" onClick={() => go({ view: "walk", o: oid })}>
-                  Argue it through <span aria-hidden>▶</span>
+                  Step through it <span aria-hidden>▶</span>
                 </button>
               </div>
 
               {nProngs > 0 && (
                 <p className="ch-stakes">
                   {nProngs > 1 ? (
-                    <>The Respondent must answer {nProngs === 2 ? "both" : `all ${numWord(nProngs)}`} objections. The Objector needs only one to stand.</>
+                    <>
+                      This objection has {numWord(nProngs)} parts. The Defender has to answer {nProngs === 2 ? "both" : `all ${numWord(nProngs)}`}, and the Objector needs only one
+                      of them to stand.
+                    </>
                   ) : (
-                    <>One objection carries the article: if it stands, Objection {o.numeral} stands. The Respondent must answer it.</>
+                    <>This objection rests on one argument. If it stands, Objection {o.numeral} stands, so the Defender has to answer it.</>
                   )}
                 </p>
               )}
@@ -625,7 +652,7 @@ export default function Chamber({ o: oid, node }: { o: ObjectionId; node?: strin
               (narrow ? (
                 <section className="ch-map-inline ch-map-disc" aria-labelledby="ch-map-btn">
                   <button type="button" id="ch-map-btn" className="ch-map-toggle" aria-expanded={mapOpen} aria-controls="ch-map-body" onClick={() => setMapOpen((v) => !v)}>
-                    <span className="ch-map-toggle-k">Map of this objection</span>
+                    <span className="ch-map-toggle-k">All moves</span>
                     <span className="ch-map-toggle-m">{mapMeta}</span>
                     <span className="ch-map-toggle-chev" aria-hidden>
                       ▸
@@ -636,15 +663,15 @@ export default function Chamber({ o: oid, node }: { o: ObjectionId; node?: strin
                   </div>
                 </section>
               ) : (
-                <section className="ch-map-inline" aria-label="Map of this objection">
+                <section className="ch-map-inline" aria-label="All moves in this objection">
                   {chart("inline")}
                 </section>
               ))}
 
-            {/* ---------- prong chips ---------- */}
+            {/* ---------- part chips ---------- */}
             {nProngs > 1 && (
-              <nav className="ch-prongs" aria-label="The objections in this article">
-                <p className="ch-prongs-k">{cap(numWord(nProngs))} objections · follow one</p>
+              <nav className="ch-prongs" aria-label="Parts of this objection">
+                <p className="ch-prongs-k">{cap(numWord(nProngs))} parts · pick one to follow</p>
                 <ol>
                   {o.prongs.map((p, i) => {
                     const l = labels.node.get(p.id) ?? "undec";
@@ -658,13 +685,15 @@ export default function Chamber({ o: oid, node }: { o: ObjectionId; node?: strin
                           aria-current={on ? "true" : undefined}
                           onClick={() => focus(p.id, "link")}
                         >
-                          <span className="ch-prong-k">Objection {i + 1}</span>
+                          <span className="ch-prong-k">
+                            Part {i + 1} of {nProngs}
+                          </span>
                           <span className="ch-prong-l">
                             <Glyph side={p.side} label={l} size={11} />
                             <span className={l === "out" ? "lab-out" : ""}>{toPlain(p.label)}</span>
                           </span>
                           <span className={`ch-prong-st st-${l}`}>
-                            {call ? <span className="your-call">Your call · {callWord(call)}</span> : STATUS_WORD[l]}
+                            {call ? <span className="your-call">{statusText(l, call)}</span> : STATUS_WORD[l]}
                           </span>
                         </button>
                       </li>
@@ -674,18 +703,17 @@ export default function Chamber({ o: oid, node }: { o: ObjectionId; node?: strin
               </nav>
             )}
 
-            {ready ? <Thread /> : <p className="ch-missing">The moves of this objection are still being written.</p>}
+            {ready ? <Thread /> : <p className="ch-missing">I haven’t written this one yet.</p>}
             <p className="sr-only" role="status" aria-live="polite">
               {said.text ? `${said.text}${said.n % 2 ? " " : ""}` : ""}
             </p>
 
-            {/* ---------- scholium ---------- */}
+            {/* ---------- where Spinoza stands ---------- */}
             {hasScholium && (
               <section className="ch-scholium s-spinoza" aria-labelledby="ch-schol-h">
                 <span className="ch-scholium-hatch" aria-hidden />
                 <p className="ch-scholium-k">
-                  <span aria-hidden>◆</span> Scholium
-                  {/spinoza stands/i.test(spin.title ?? "") ? "" : " · Where Spinoza stands"}
+                  <span aria-hidden>◆</span> {/spinoza stands/i.test(spin.title ?? "") ? "Spinoza" : "Where Spinoza stands"}
                 </p>
                 <h2 className="ch-scholium-h" id="ch-schol-h">
                   {spin.title ? toPlain(spin.title) : "Where Spinoza stands"}
@@ -711,11 +739,11 @@ export default function Chamber({ o: oid, node }: { o: ObjectionId; node?: strin
               </section>
             )}
 
-            {/* ---------- go deeper ---------- */}
+            {/* ---------- further reading ---------- */}
             {o.reading && o.reading.length > 0 && (
               <section className="ch-reading" aria-labelledby="ch-read-h">
                 <h2 className="ch-reading-h" id="ch-read-h">
-                  Go deeper
+                  Further reading
                 </h2>
                 <ol className="ch-reading-list">
                   {o.reading.map((s, i) => (
@@ -772,16 +800,16 @@ export default function Chamber({ o: oid, node }: { o: ObjectionId; node?: strin
               ) : (
                 <button type="button" className="ch-pn-link next" onClick={() => go({ view: "ledger" })}>
                   <span className="ch-pn-k">
-                    Your Determination <span aria-hidden>→</span>
+                    Where you stand <span aria-hidden>→</span>
                   </span>
-                  <span className="ch-pn-t">What follows from your calls</span>
+                  <span className="ch-pn-t">Your calls on all {numWord(d.objections.length)} objections</span>
                 </button>
               )}
             </nav>
           </div>
 
           {wide && ready && (
-            <aside className="ch-side" aria-label="Map of this objection">
+            <aside className="ch-side" aria-label="All moves in this objection">
               <div className="ch-panel">{chart("panel")}</div>
             </aside>
           )}

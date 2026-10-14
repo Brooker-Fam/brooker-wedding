@@ -1,6 +1,7 @@
 "use client";
 
-/* The Rose: the whole disputation on one chart, drawn as a sunburst of panes.
+/* The Rose (called "the map" on screen): all five objections on one chart,
+   drawn as a sunburst of panes.
    Center = the question. Five sectors = the five objections. Each ring outward
    is one more round; a pane sits just outside the claim it answers, and its
    width follows how much argument grows beneath it — so depth and bushiness
@@ -18,7 +19,6 @@
 
 import { memo, useEffect, useId, useMemo, useRef, useState, useSyncExternalStore, type CSSProperties, type KeyboardEvent } from "react";
 import { useAtlas } from "../context";
-import { ROMAN } from "../helpers";
 import type { ArgNode, Disputation, Label, ObjectionId, Side } from "../types";
 
 const R_OUT = 300;
@@ -35,7 +35,7 @@ const NARROW_SCALE = 0.62;
     (full legends at desktop scale ≈ .87, numerals at phone scale ≈ .55). */
 const FS_DEFAULT = { legend: 12, num: 22, hub: 12 };
 
-const SIDE_WORD: Record<Side, string> = { skeptic: "Objector", theist: "Respondent", spinoza: "Spinoza" };
+const SIDE_WORD: Record<Side, string> = { skeptic: "Objector", theist: "Defender", spinoza: "Spinoza" };
 const clamp = (v: number, lo: number, hi: number) => Math.min(hi, Math.max(lo, v));
 
 const r2 = (v: number) => Math.round(v * 100) / 100;
@@ -188,8 +188,8 @@ function Readout({ hover, focus, onEnter }: { hover: HoverStore; focus: Objectio
         {hovered ? (
           <>
             <span className={`rose-readout-k mono s-${hovered.node.side}`}>
-              {ix.objections.get(hovered.objection)?.numeral} · Round {ROMAN[hovered.depth - 1] ?? hovered.depth} · {SIDE_WORD[hovered.node.side]}
-              {judgments[hovered.node.id] ? ` · your call: ${judgments[hovered.node.id]}` : ""}
+              {ix.objections.get(hovered.objection)?.numeral} · Round {hovered.depth} · {SIDE_WORD[hovered.node.side]}
+              {judgments[hovered.node.id] ? ` · you said it ${judgments[hovered.node.id]}` : ""}
             </span>
             <span className="rose-readout-t serif">{toPlain(hovered.node.label)}</span>
           </>
@@ -198,13 +198,13 @@ function Readout({ hover, focus, onEnter }: { hover: HoverStore; focus: Objectio
             <span className="rose-readout-k mono s-skeptic">{fo.short?.trim() ? `${fo.numeral} · ${fo.short}` : `Objection ${fo.numeral}`}</span>
             <span className="rose-readout-t serif">{toPlain(fo.title || fo.short || `Objection ${fo.numeral}`)}</span>
             <button type="button" className="btn small" onClick={() => onEnter(fo.id)}>
-              Enter objection {fo.numeral} <span aria-hidden>→</span>
+              Open Objection {fo.numeral} <span aria-hidden>→</span>
             </button>
           </>
         ) : (
           <span className="rose-readout-hint">
-            <span className="rose-hint-fine">Hover the panes · each ring outward is one more round</span>
-            <span className="rose-hint-coarse">Tap a sector · each ring outward is one more round</span>
+            <span className="rose-hint-fine">Point at a move · each ring outward is one more round</span>
+            <span className="rose-hint-coarse">Tap an objection · each ring outward is one more round</span>
           </span>
         )}
       </div>
@@ -388,7 +388,7 @@ export default function Rose({ onEnter, onNode, footprint, current, verdicts = t
   const active = current ?? focus;
 
   // Mouse: hover previews a sector and a click enters. Touch/pen: the first tap previews
-  // (the readout offers "Enter"), a second tap on the same sector enters. Focus that comes
+  // (the readout offers "Open"), a second tap on the same sector enters. Focus that comes
   // from a pointer press must not count as the first tap.
   const pressed = useRef<{ type: string; at: number } | null>(null);
   const tapSector = (o: ObjectionId, at: number) => {
@@ -442,7 +442,7 @@ export default function Rose({ onEnter, onNode, footprint, current, verdicts = t
         ref={svgRef}
         viewBox={vb}
         role={mini ? "img" : "group"}
-        aria-label={mini ? "Map of the disputation" : "Map of the whole disputation: five objections; each ring outward is one more round of replies"}
+        aria-label={mini ? "Map of the five objections" : "Map of all five objections. Each ring outward is one more round of replies."}
         onPointerOver={(e) => {
           if (mini || e.pointerType !== "mouse") return;
           const el = paneAt(e.target);
@@ -497,7 +497,7 @@ export default function Rose({ onEnter, onNode, footprint, current, verdicts = t
                 className={`rose-sector${focus === s.o ? " on" : ""}`}
                 role="button"
                 tabIndex={0}
-                aria-label={`Objection ${o.numeral}: ${toPlain(o.title || o.short || "")}. ${ol === "in" ? "Stands, on your calls." : ol === "out" ? "Answered, on your calls." : "Undecided."} Press Enter to open.`}
+                aria-label={`Objection ${o.numeral}: ${toPlain(o.title || o.short || "")}. ${ol === "in" ? "Stands." : ol === "out" ? "Answered." : "Still open."} Press Enter to open it.`}
                 onPointerDown={(e) => {
                   pressed.current = { type: e.pointerType, at: e.timeStamp };
                 }}

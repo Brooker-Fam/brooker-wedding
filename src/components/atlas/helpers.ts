@@ -7,22 +7,22 @@ import type { Judgment, Label, ObjectionId } from "./types";
 
 export const ROMAN = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X"];
 
-/** Plain round names (the panel rejected legal pleading names as jargon). */
+/** Plain round names. Rounds count in ordinary numbers ("Round 3"); Roman
+    numerals belong to the five objections. */
 export function roundName(depth: number): string {
-  return `Round ${ROMAN[depth - 1] ?? depth}`;
+  return `Round ${depth}`;
 }
 
 export function roundLabel(depth: number): string {
   return roundName(depth);
 }
 
-/** Turn cues: the Summa's own formulas for rounds 1–2, plain speech after.
-    ("I answer that" — respondeo — is reserved for the reader's own ruling.) */
+/** Move cues: the Summa's own English formulas for rounds 1 and 2, plain speech after. */
 export function summaCue(depth: number, side: "skeptic" | "theist" | "spinoza"): string {
   if (side === "spinoza") return "Spinoza cuts in";
   if (depth === 1) return "It seems that";
   if (depth === 2) return "On the contrary";
-  return side === "theist" ? "The Respondent replies" : "The Objector rejoins";
+  return side === "theist" ? "The Defender replies" : "The Objector replies";
 }
 
 /** A node's address: objection numeral, then 1-based sibling positions. e.g. "I·2.1.3" */
@@ -68,7 +68,7 @@ export function consequence(ix: DisputationIndex, id: string, j: Judgments): Con
 
 export const OBJECTION_WORD: Record<Label, string> = { in: "stands", out: "is answered", undec: "stays open" };
 
-/** Short stats for an objection: total moves and max rounds. */
+/** Short stats for an objection: total moves, most rounds, and how many parts. */
 export function objectionStats(ix: DisputationIndex, o: ObjectionId) {
   const ids = ix.byObjection.get(o) ?? [];
   const depth = Math.max(0, ...ids.map((id) => ix.nodes.get(id)!.depth));

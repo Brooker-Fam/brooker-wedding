@@ -1,7 +1,7 @@
 "use client";
 
-/* One quiet toast at a time, bottom-center, with an optional action (Undo).
-   Used to explain verdict changes: "Objection I is now answered — because …". */
+/* One toast at a time, bottom-center, with an optional action (Undo).
+   Used to say what a call changed, e.g. "Objection I is now answered, because you said … fails." */
 
 import { AnimatePresence, motion } from "framer-motion";
 import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from "react";

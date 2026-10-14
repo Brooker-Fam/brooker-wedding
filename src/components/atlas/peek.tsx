@@ -151,7 +151,7 @@ function PeekCard({ target, onClose }: { target: PeekTarget; onClose: () => void
           </button>
           {refs.length > 0 && (
             <button className="btn small ghost" onClick={() => { onClose(); openNode(refs[0]); }}>
-              Named in {refs.length} {refs.length === 1 ? "move" : "moves"} <span aria-hidden>→</span>
+              In {refs.length} {refs.length === 1 ? "move" : "moves"} <span aria-hidden>→</span>
             </button>
           )}
         </div>

@@ -71,6 +71,16 @@
   font-style: italic;
   font-size: 18px;
 }
+.atl .ch-missing-go {
+  min-height: 44px;
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  font-style: normal;
+  color: var(--bone-2);
+  cursor: pointer;
+}
 
 /* ---------- one-hop "back" chip ---------- */
 .atl .ch-backbar {
@@ -369,15 +379,13 @@
   outline-offset: 1px;
 }
 .atl .ch-roundel-more {
-  display: grid;
-  place-items: center;
-  width: 34px;
-  height: 34px;
-  border-radius: 50%;
-  border: 1px dashed var(--line);
-  background: var(--ink);
-  font-family: var(--mono);
-  font-size: 10.5px;
+  /* plain text, not a roundel: it isn't a control */
+  display: flex;
+  align-items: center;
+  margin-left: 6px;
+  white-space: nowrap;
+  font-family: var(--sans);
+  font-size: 12.5px;
   color: var(--faint);
 }
 .atl .ch-lineage-span {
@@ -621,6 +629,13 @@
   font-size: 15px;
   line-height: 1.55;
   color: var(--bone);
+}
+.atl .ch-echo-note p {
+  max-width: 68ch;
+  margin: 0;
+}
+.atl .ch-echo-note p + p {
+  margin-top: 10px;
 }
 
 /* ---------- inline map (phone / tablet) ---------- */
@@ -1745,6 +1760,23 @@
   gap: 8px;
   margin-top: 10px;
 }
+/* Aristotle's law of non-contradiction, under the warning */
+.atl .ch-tension-q {
+  margin: 8px 0 0;
+}
+.atl .ch-tension-q blockquote {
+  margin: 0;
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 14.5px;
+  line-height: 1.45;
+  color: var(--mute);
+}
+.atl .ch-tension-q figcaption {
+  margin-top: 2px;
+  font-size: 12px;
+  color: var(--faint);
+}
 
 /* ---------- the empty chair ---------- */
 .atl .ch-chair {
@@ -1778,6 +1810,29 @@
 }
 .atl .ch-chair-t em {
   color: var(--bone);
+}
+/* a line from the sources about hearing the other side */
+.atl .ch-chair-q {
+  max-width: 56ch;
+  margin: 10px 0 0;
+  padding-left: 12px;
+  border-left: 2px solid var(--line);
+}
+.atl .ch-chair-q blockquote {
+  margin: 0;
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 15.5px;
+  line-height: 1.45;
+  color: var(--mute);
+}
+.atl .ch-chair-q figcaption {
+  margin-top: 3px;
+  font-size: 12px;
+  color: var(--faint);
+}
+.atl .ch-chair-q cite {
+  font-style: italic;
 }
 .atl .ch-chair-call {
   display: flex;
@@ -2152,18 +2207,34 @@
 .atl .ch-legend-sides span {
   color: var(--side);
 }
+/* one plain explanation of how to read the chart */
+.atl .ch-chart-note {
+  margin: 10px 0 0;
+  padding-top: 10px;
+  border-top: 1px solid var(--line-soft);
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--mute);
+}
+.atl .ch-chart-note p {
+  margin: 0;
+}
+.atl .ch-chart-note p + p {
+  margin-top: 6px;
+}
 
 /* tablets: the overview map sits beside its readout and legend */
 @media (min-width: 640px) and (max-width: 1099px) {
   .atl .ch-chart.v-inline {
     display: grid;
     grid-template-columns: minmax(0, 1.5fr) minmax(200px, 1fr);
-    grid-template-rows: auto auto auto 1fr;
+    grid-template-rows: auto auto auto auto 1fr;
     grid-template-areas:
       "head head"
       "fig readout"
       "fig legend"
-      "fig sides";
+      "fig sides"
+      "fig note";
     column-gap: 24px;
   }
   .atl .ch-chart.v-inline .ch-chart-head {
@@ -2184,6 +2255,10 @@
   }
   .atl .ch-chart.v-inline .ch-legend-sides {
     grid-area: sides;
+    align-self: start;
+  }
+  .atl .ch-chart.v-inline .ch-chart-note {
+    grid-area: note;
     align-self: start;
   }
 }
@@ -2535,11 +2610,13 @@
   .atl .ch-roundels li {
     margin-left: 0;
   }
-  .atl .ch-roundel,
-  .atl .ch-roundel-more {
+  .atl .ch-roundel {
     width: 44px;
     height: 44px;
     background: transparent;
+  }
+  .atl .ch-roundel-more {
+    height: 44px;
   }
   .atl .ch-roundel .monogram {
     width: 34px;

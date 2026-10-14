@@ -22,7 +22,7 @@ import { ERAS, FootprintBlock, LibEmpty, LibHead, LibQuote, LibTabs, eraOf, fold
 type TSide = Side | "neutral";
 type SideFilter = "all" | TSide;
 
-/** A thinker's side is the role their work plays in these arguments, not a claim about what they believed. */
+/** A thinker's side is the role their work plays in these arguments. It says nothing about what they believed. */
 const LEAN: Record<TSide, string> = {
   skeptic: "Used by the Objector",
   theist: "Used by the Defender",
@@ -376,7 +376,7 @@ function CastIntro({ onPick }: { onPick: (id: string) => void }) {
   );
   return (
     <div className="ca-intro">
-      <p className="ca-intro-hint">Choose a name to see their dates, their key work and every move that names them.</p>
+      <p className="ca-intro-hint">Choose a name to read about them and see every move that names them.</p>
       <p className="mono lib-k">What the marks mean</p>
       <ul className="ca-legend">
         {FILTERS.map((s) => (

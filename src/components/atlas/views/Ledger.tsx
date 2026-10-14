@@ -1,21 +1,19 @@
 "use client";
 
-/* Your Determination (#/ledger): what follows from the reader's calls, and
-   nothing more. In a medieval disputation the master closed the question
-   with a *determinatio*; here the reader is the master.
-
-   Five independent rulings (never a total), each laid out like a tiny
-   article of the Summa — the reader's ruling first, then "It seems that"
-   (the objection) and "On the contrary" (the counter) — plus the call the
-   whole determination most rests on (the crux), any tensions among the
-   reader's calls, and a plain-text copy in the disputation's own form. */
+/* Where you stand (#/ledger): what follows from the reader's calls, and
+   nothing more. One result per objection (never a total), each showing the
+   reader's result first, then the objection and its best reply. Below them
+   come the key call (the call the results most rest on), any contradictions
+   among the reader's calls, and a plain-text copy. Code names: a "ruling" is
+   one objection's result, the "crux" is the key call, a "tension" is a
+   contradiction. */
 
 import "./ledger.css";
 import { motion, useReducedMotion } from "framer-motion";
 import { useCallback, useEffect, useId, useMemo, useRef, useState, type KeyboardEvent } from "react";
 import { useAtlas } from "../context";
 import { IF_WRONG, OBJECTION_STATUS, determinationText, determine, findCrux, type Crux, type Determination } from "../determination";
-import { ROMAN, address } from "../helpers";
+import { address } from "../helpers";
 import { Glyph, RichText } from "../primitives";
 import { formatRoute } from "../router";
 import { labelObjection, type Judgments, type Tension } from "../semantics";
@@ -23,8 +21,8 @@ import { useToast } from "../toast";
 import type { Judgment, Label, Objection, ObjectionId, Side } from "../types";
 import Rose from "./Rose";
 
-/** The cast, as the overview's dramatis personae names them. */
-const SIDE_WORD: Record<Side, string> = { skeptic: "The Objector", theist: "The Respondent", spinoza: "Spinoza" };
+/** The three voices, as the overview names them. */
+const SIDE_WORD: Record<Side, string> = { skeptic: "The Objector", theist: "The Defender", spinoza: "Spinoza" };
 const MOVE_STATUS: Record<Label, string> = { in: "stands", out: "answered", undec: "open" };
 const LABEL_CLASS: Record<Label, string> = { in: "st-in", out: "st-out", undec: "st-undec" };
 const COUNT_WORD = ["No", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine", "Ten"];
@@ -58,15 +56,25 @@ export default function Ledger() {
         <header className="ld-head">
           <p className="eyebrow ld-kicker">
             <span className="ld-you" aria-hidden />
-            You, the Master
+            Your results
           </p>
           <h1 className="ld-title display" tabIndex={-1}>
-            Your <em>Determination</em>
+            Where you <em>stand</em>
           </h1>
           <p className="ld-intro">
-            In a medieval disputation the master gave the <em>determinatio</em> — the ruling. Here, that’s you. Nothing below is the page’s verdict; it is only
-            what follows from your calls.
+            Everything below is worked out from the moves you marked Holds or Fails, and it changes when you change a call. An objection stands if any one
+            of its parts survives every reply. It is answered once every part has a reply that stands.
           </p>
+          <figure className="ld-epi">
+            <blockquote className="serif">
+              “For the force of reason in disputation is to be sought after rather than authority, since the authority of the teacher is often a disadvantage
+              to those who are willing to learn; as they refuse to use their own judgment…”
+            </blockquote>
+            <figcaption>
+              <span className="mono">Cicero · On the Nature of the Gods I.5 (45 BC), tr. C. D. Yonge</span>
+              <span className="ld-epi-note">He is explaining why he won’t say which side of the debate he takes.</span>
+            </figcaption>
+          </figure>
           {!empty && (
             <p className="ld-calls mono">
               {calls.length} {calls.length === 1 ? "call" : "calls"} so far
@@ -75,7 +83,7 @@ export default function Ledger() {
           {tensions.length > 0 && (
             <button type="button" className="ld-flag" onClick={() => goToTensions(!reduce)}>
               <span className="ld-flag-mark" aria-hidden />
-              {tensions.length === 1 ? "Two of your calls pull against each other" : `${tensions.length} pairs of your calls pull against each other`}
+              {tensions.length === 1 ? "Two of your calls contradict each other" : `${tensions.length} pairs of your calls contradict each other`}
               <span aria-hidden> ↓</span>
             </button>
           )}
@@ -92,9 +100,9 @@ export default function Ledger() {
       <section className="ld-rulings" aria-labelledby="ld-rulings-h">
         <div className="ld-sec-head">
           <h2 id="ld-rulings-h" className="ld-h2 serif" tabIndex={-1}>
-            {empty ? `${COUNT_WORD[n] ?? n} question${n === 1 ? "" : "s"} awaiting your ruling` : "Objection by objection"}
+            {empty ? `${COUNT_WORD[n] ?? n} objection${n === 1 ? "" : "s"}, none decided yet` : "Objection by objection"}
           </h2>
-          <p className="ld-sec-note">Each stands or falls on its own. There is no total.</p>
+          <p className="ld-sec-note">Each objection is judged on its own. There’s no overall score.</p>
         </div>
         <ol className="ld-list">
           {d.objections.map((o, i) => (
@@ -111,10 +119,16 @@ export default function Ledger() {
         <section className="ld-tensions" aria-labelledby="ld-tensions-h">
           <div className="ld-sec-head">
             <h2 id="ld-tensions-h" className="ld-h2 serif" tabIndex={-1}>
-              Tensions
+              Contradictions
             </h2>
-            <p className="ld-sec-note">The page never resolves these. Only you can.</p>
+            <p className="ld-sec-note">You’ll have to settle these yourself.</p>
           </div>
+          <p className="ld-t-why">
+            A move can’t hold if a reply to it stands. Aristotle called the rule behind this the most certain of all principles: “the same attribute cannot at
+            the same time belong and not belong to the same subject and in the same respect”{" "}
+            <span className="ld-t-cite mono">(Metaphysics IV.3, 1005b, tr. W. D. Ross)</span>. Each pair below breaks it, so one of the two calls needs to
+            change.
+          </p>
           <ul className="ld-t-list">
             {tensions.map((t) => (
               <TensionPair key={`${t.node}>${t.reply}`} node={t.node} reply={t.reply} />
@@ -128,7 +142,7 @@ export default function Ledger() {
   );
 }
 
-/* ---------------- one objection's ruling ---------------- */
+/* ---------------- one objection's result ---------------- */
 
 function Ruling({ o, det, count, tense }: { o: Objection; det: Determination; count: number; tense: boolean }) {
   const { toPlain } = useAtlas();
@@ -141,10 +155,11 @@ function Ruling({ o, det, count, tense }: { o: Objection; det: Determination; co
   return (
     <article className={`ld-art ${LABEL_CLASS[det.label]} ${blank ? "is-blank" : ""}`} aria-labelledby={titleId}>
       <div className="ld-art-seal">
-        <Seal numeral={o.numeral} label={det.label} />
+        <Seal numeral={o.numeral} label={det.label} short={o.short} />
       </div>
       <p className="eyebrow ld-art-eyebrow">
-        Objection {o.numeral} of {count}
+        Objection {o.numeral}
+        <span className="sr-only"> of {count}</span>
         {o.short && <span className="ld-nw"> · {o.short}</span>}
       </p>
       <h3 id={titleId} className="ld-art-title serif">
@@ -156,19 +171,19 @@ function Ruling({ o, det, count, tense }: { o: Objection; det: Determination; co
           <div className="ld-resp ld-resp-blank">
             <p className="ld-blank-line">
               <span className="ld-hollow" aria-hidden />
-              <span className="sr-only">Your ruling: </span>
-              <span className="ld-blank-word serif">{status}</span>
-              <span className="ld-blank-note"> — awaiting your ruling</span>
+              <span className="sr-only">Your result: </span>
+              <span className="ld-blank-word serif">{status}.</span>
+              <span className="ld-blank-note"> {det.parts.pre}</span>
             </p>
           </div>
         ) : (
           <div className="ld-resp">
             <p className="ld-resp-cue mono">
               <span className="ld-you" aria-hidden />
-              Your ruling
-              <span className="sr-only">: {status}, on your calls.</span>
+              Your result
+              <span className="sr-only">: {status}.</span>
               <span className="ld-count">
-                {det.called} of {det.total} called
+                {det.called} of {det.total} moves marked
               </span>
             </p>
             <p className="ld-sentence serif">
@@ -184,17 +199,17 @@ function Ruling({ o, det, count, tense }: { o: Objection; det: Determination; co
             </p>
             {tense && <TensionNote />}
 
-            {det.also.length > 0 && <ChipRow label="Also resting on" ids={det.also} cap={4} />}
-            {det.decisive.length > 0 && <ChipRow label="Blank but decisive" ids={det.decisive} />}
+            {det.also.length > 0 && <ChipRow label="It also rests on" ids={det.also} cap={4} />}
+            {det.decisive.length > 0 && <ChipRow label="These could also settle it" ids={det.decisive} />}
           </div>
         )}
 
         <div className="ld-art-actions">
           <a className="btn small" href={formatRoute({ view: "objection", o: o.id })}>
-            Open chamber<span className="sr-only"> — Objection {o.numeral}</span>
+            See all moves<span className="sr-only"> in Objection {o.numeral}</span>
           </a>
           <a className="btn small ld-argue" href={formatRoute({ view: "walk", o: o.id })}>
-            Argue it through<span className="sr-only"> — Objection {o.numeral}</span> <span aria-hidden>▶</span>
+            Step through it<span className="sr-only"> (Objection {o.numeral})</span> <span aria-hidden>▶</span>
           </a>
         </div>
       </div>
@@ -204,7 +219,7 @@ function Ruling({ o, det, count, tense }: { o: Objection; det: Determination; co
   );
 }
 
-/** "It seems that" / "On the contrary": clamped below desktop, with a toggle only when it overflows. */
+/** The objection and its best reply: clamped below desktop, with a toggle only when it overflows. */
 function Exchange({ o }: { o: Objection }) {
   const ref = useRef<HTMLDListElement>(null);
   const dlId = useId();
@@ -235,7 +250,7 @@ function Exchange({ o }: { o: Objection }) {
           <div className="ld-ex-row s-skeptic">
             <dt className="mono">
               <Glyph side="skeptic" size={10} />
-              It seems that
+              The objection
             </dt>
             <dd>
               <RichText text={o.objection} />
@@ -246,7 +261,7 @@ function Exchange({ o }: { o: Objection }) {
           <div className="ld-ex-row s-theist">
             <dt className="mono">
               <Glyph side="theist" size={10} />
-              On the contrary
+              The reply
             </dt>
             <dd>
               <RichText text={o.counter} />
@@ -256,8 +271,8 @@ function Exchange({ o }: { o: Objection }) {
       </dl>
       {(overflow || open) && (
         <button type="button" className="ld-ex-toggle mono" aria-expanded={open} aria-controls={dlId} onClick={() => setOpen((v) => !v)}>
-          {open ? "Shorter" : "The full exchange"}
-          <span className="sr-only"> — Objection {o.numeral}</span>
+          {open ? "Show less" : "Show more"}
+          <span className="sr-only"> (Objection {o.numeral})</span>
           <span aria-hidden className={`ld-caret ${open ? "up" : ""}`} />
         </button>
       )}
@@ -265,10 +280,10 @@ function Exchange({ o }: { o: Objection }) {
   );
 }
 
-/** The seal: the objection's numeral ringed by its status, on your calls. */
-function Seal({ numeral, label }: { numeral: string; label: Label }) {
+/** The badge: the objection's numeral, ringed by its status and short name. */
+function Seal({ numeral, label, short }: { numeral: string; label: Label; short?: string }) {
   const pathId = useId();
-  const ring = `Objection ${numeral} · ${OBJECTION_STATUS[label]} · on your calls · `.toUpperCase();
+  const ring = `Objection ${numeral} · ${OBJECTION_STATUS[label]} · ${short ? `${short} · ` : ""}`.toUpperCase();
   const r = 39.5;
   const fs = numeral.length >= 4 ? 17 : numeral.length === 3 ? 21 : numeral.length === 2 ? 26 : 31;
   // As large as the ring allows (Plex Mono advances 0.6em): ≥ 10.5px at the desktop seal size.
@@ -321,14 +336,14 @@ function ChipRow({ label, ids, cap }: { label: string; ids: string[]; cap?: numb
   );
 }
 
-/** A move named inside a sentence: glyph + “label”, opens it in its chamber. */
+/** A move named inside a sentence: glyph + “label”, linking to the move. */
 function MoveRef({ id }: { id: string }) {
   const { ix, labelOf, toPlain } = useAtlas();
   const info = ix.nodes.get(id);
   if (!info) return null;
   const side = info.node.side;
   return (
-    <a className={`ld-ref s-${side}`} href={nodeHref(info.objection, id)} title={`${SIDE_WORD[side]} · ${address(ix, id)} — open in the chamber`}>
+    <a className={`ld-ref s-${side}`} href={nodeHref(info.objection, id)} title={`${SIDE_WORD[side]} · ${address(ix, id)}`}>
       <Glyph side={side} label={labelOf(id)} size={13} className="ld-ref-glyph" />
       <span className="ld-ref-text">“{toPlain(info.node.label)}”</span>
     </a>
@@ -359,22 +374,22 @@ function MoveChip({ id }: { id: string }) {
           {call && <span className="your-call ld-chip-call">Your call · {call}</span>}
         </span>
         <span className={`ld-chip-lab ${l === "out" ? "lab-out" : ""}`}>{toPlain(info.node.label)}</span>
-        {!call && <span className="sr-only"> — {MOVE_STATUS[l]}</span>}
+        {!call && <span className="sr-only"> ({MOVE_STATUS[l]})</span>}
       </a>
     </li>
   );
 }
 
-/** A status that rests on a call in tension says so, and leads to it. */
+/** A status that rests on a contradicted call says so, and leads to the contradiction. */
 function TensionNote() {
   const reduce = useReducedMotion();
   return (
     <button type="button" className="tension-note ld-tnote" onClick={() => goToTensions(!reduce)}>
       <span className="ld-tnote-mark" aria-hidden />
       <span>
-        One of your other calls pulls against this.{" "}
+        This rests on a call that contradicts another of yours.{" "}
         <span className="ld-tnote-go">
-          <u>See Tensions</u>
+          <u>See both</u>
           <span aria-hidden> ↓</span>
         </span>
       </span>
@@ -382,27 +397,28 @@ function TensionNote() {
   );
 }
 
-/* ---------------- the crux ---------------- */
+/* ---------------- your key call ---------------- */
 
 function CruxCard({ crux, tense }: { crux: Crux; tense: boolean }) {
   const { ix, labelOf, toPlain } = useAtlas();
   const info = ix.nodes.get(crux.id);
   if (!info) return null;
   const side = info.node.side;
+  const short = ix.objections.get(crux.o)?.short;
   const firstReply = info.childIds[0];
-  // Holds: face its strongest reply. Fails: reread the move's own steelman — its best case.
+  // Holds: read its strongest reply. Fails: reread the move itself, which states its side's best case.
   const target = crux.call === "holds" ? (firstReply ?? crux.id) : crux.id;
-  const cta = crux.call === "fails" ? "Reread its best case" : firstReply ? "Face the best case against it" : "Reread it — no one here answers it";
+  const cta = crux.call === "holds" && firstReply ? "Read the best reply" : "Reread the move";
   const objName = `Objection ${crux.numeral}`;
   const others = crux.company - 1;
-  const lede = others <= 0 ? `All of ${objName} rests on this one call:` : `${objName} rests on this call — and on ${others === 1 ? "one other" : `${others} others`}:`;
+  const lede = others <= 0 ? `${objName} rests on this one call.` : `${objName} rests on this call and ${others === 1 ? "one other" : `${others} others`}.`;
   const shifts = crux.ifWrong !== crux.now;
 
   return (
     <section className={`ld-crux s-${side}`} aria-labelledby="ld-crux-h">
       <div className="ld-crux-body">
         <h2 id="ld-crux-h" className="eyebrow ld-crux-k" tabIndex={-1}>
-          Your crux
+          Your key call
         </h2>
         <p className="ld-crux-lede serif">{lede}</p>
         <div className="ld-crux-row">
@@ -420,22 +436,28 @@ function CruxCard({ crux, tense }: { crux: Crux; tense: boolean }) {
             {address(ix, crux.id)}
           </span>
           <span>
-            <span aria-hidden>· </span>Round {ROMAN[info.depth - 1] ?? info.depth}
+            <span aria-hidden>· </span>Round {info.depth}
           </span>
           <span className="your-call ld-crux-stamp">Your call · {crux.call}</span>
         </p>
         {shifts && (
           <p className="ld-crux-said">
-            If you’re wrong, {objName} <strong>{IF_WRONG[crux.ifWrong]}</strong>.
+            If you flipped this call, {objName} <strong>{IF_WRONG[crux.ifWrong]}</strong>.
           </p>
         )}
         {tense && <TensionNote />}
         {info.node.cedes && (
           <p className="ld-crux-cedes">
-            <span className="mono">What would move this side</span>
+            <span className="mono">What would change this side’s mind</span>
             <RichText text={info.node.cedes} />
           </p>
         )}
+        <figure className="ld-epi ld-crux-epi">
+          <blockquote className="serif">“He who knows only his own side of the case, knows little of that.”</blockquote>
+          <figcaption>
+            <span className="mono">John Stuart Mill · On Liberty, ch. 2 (1859)</span>
+          </figcaption>
+        </figure>
         <a className="btn ld-crux-go" href={nodeHref(info.objection, target)}>
           {cta} <span aria-hidden>→</span>
         </a>
@@ -443,21 +465,21 @@ function CruxCard({ crux, tense }: { crux: Crux; tense: boolean }) {
       {shifts && (
         <div className="ld-crux-shift" aria-hidden>
           <figure className="ld-shift-seal">
-            <Seal numeral={crux.numeral} label={crux.now} />
+            <Seal numeral={crux.numeral} label={crux.now} short={short} />
             <figcaption className="mono">
-              <span>On your calls</span>
+              <span>Now</span>
               {OBJECTION_STATUS[crux.now]}
             </figcaption>
           </figure>
           <span className="ld-shift-arrow mono">
             <span className="ld-shift-line" />
-            if you’re wrong
+            flip the call
           </span>
           <figure className="ld-shift-seal">
-            <Seal numeral={crux.numeral} label={crux.ifWrong} />
+            <Seal numeral={crux.numeral} label={crux.ifWrong} short={short} />
             <figcaption className="mono">
-              <span>Flip this call</span>
-              {crux.ifWrong === "undec" ? "Reopens" : OBJECTION_STATUS[crux.ifWrong]}
+              <span>Flipped</span>
+              {OBJECTION_STATUS[crux.ifWrong]}
             </figcaption>
           </figure>
         </div>
@@ -466,7 +488,7 @@ function CruxCard({ crux, tense }: { crux: Crux; tense: boolean }) {
   );
 }
 
-/* ---------------- tensions ---------------- */
+/* ---------------- contradictions (tensions in the code) ---------------- */
 
 function TensionPair({ node, reply }: { node: string; reply: string }) {
   const { ix, judgments, judge, labels, toPlain } = useAtlas();
@@ -503,24 +525,26 @@ function TensionPair({ node, reply }: { node: string; reply: string }) {
   return (
     <li className="ld-tension">
       <p className="ld-t-say">
-        {replyJudged ? "You’ve said both of these hold. One of them has to give." : "You said the first holds — and by your other calls, this reply to it stands too. One of them has to give."}
+        {replyJudged
+          ? "You said both of these hold, but the second is a reply to the first. These two contradict each other."
+          : "You said the first holds, and your other calls leave this reply to it standing. These two contradict each other."}
       </p>
       <div className="ld-t-pair">
         <div className="ld-t-col">
           <TensionMove id={node} role="You said this holds" />
           <button type="button" className="btn small" onClick={() => rethink(node)}>
-            Rethink this
+            Clear this call
           </button>
         </div>
         <div className="ld-t-col">
-          <TensionMove id={reply} role={replyJudged ? "And that this reply to it holds" : "And this reply to it stands, on your calls"} />
+          <TensionMove id={reply} role={replyJudged ? "You also said this reply holds" : "Your other calls leave this reply standing"} />
           {replyJudged ? (
             <button type="button" className="btn small" onClick={() => rethink(reply)}>
-              Rethink that
+              Clear that call
             </button>
           ) : (
             <a className="btn small" href={nodeHref(replyInfo.objection, reply)}>
-              Revisit that <span aria-hidden>→</span>
+              Go to the reply <span aria-hidden>→</span>
             </a>
           )}
         </div>
@@ -550,7 +574,7 @@ function TensionMove({ id, role }: { id: string; role: string }) {
 
 /* ---------------- focus ---------------- */
 
-/** Scroll to the tensions and put focus on their heading (so the next Tab continues there). */
+/** Scroll to the contradictions and put focus on their heading (so the next Tab continues there). */
 function goToTensions(smooth: boolean) {
   const h = document.getElementById("ld-tensions-h");
   if (!h) return;
@@ -656,10 +680,10 @@ function TakeAway() {
 
   const copy = async () => {
     const ok = await copyText(build());
-    if (ok) toast({ text: "Copied — your determination, objection by objection, as plain text." });
+    if (ok) toast({ text: "Copied your results as plain text." });
     else {
       setPreview(true);
-      toast({ text: "Couldn’t reach the clipboard. The text is below — select it and copy." });
+      toast({ text: "Couldn’t copy automatically. The text is below and selected, so you can copy it by hand." });
       requestAnimationFrame(() => {
         const el = preRef.current;
         if (!el) return;
@@ -718,8 +742,7 @@ function TakeAway() {
             Take it with you
           </h2>
           <p className="ld-take-dek">
-            Your determination as plain text, in the disputation’s own form — <em>It seems that</em>, <em>On the contrary</em>, and then, in your own voice,{" "}
-            <em>I answer that</em>.
+            Copy your results as plain text to keep or send. Each objection comes with its best reply and where you stand on it.
           </p>
         </div>
         <div className="ld-take-actions">
@@ -733,7 +756,7 @@ function TakeAway() {
         </div>
       </div>
       {preview && (
-        <pre id={previewId} ref={preRef} className="ld-pre" tabIndex={0} aria-label="Your determination as plain text">
+        <pre id={previewId} ref={preRef} className="ld-pre" tabIndex={0} aria-label="Your results as plain text">
           {text}
         </pre>
       )}
@@ -769,18 +792,27 @@ function TakeAway() {
 function EmptyState({ first }: { first?: Objection }) {
   return (
     <section className="ld-empty" aria-labelledby="ld-empty-h">
-      <p className="eyebrow ld-empty-k">Nothing ruled yet</p>
+      <p className="eyebrow ld-empty-k">No calls yet</p>
       <h2 id="ld-empty-h" className="ld-empty-h serif" tabIndex={-1}>
-        The floor is yours.
+        Mark a few moves and your results show up here.
       </h2>
+      <figure className="ld-epi ld-empty-epi">
+        <blockquote className="serif">
+          “I would ask you to be thinking of the truth and not of Socrates: agree with me, if I seem to you to be speaking the truth; or if not, withstand me
+          might and main…”
+        </blockquote>
+        <figcaption>
+          <span className="mono">Socrates, in Plato’s Phaedo 91c, tr. Benjamin Jowett</span>
+        </figcaption>
+      </figure>
       <div className="ld-empty-actions">
         {first && (
           <a className="btn solid" href={formatRoute({ view: "walk", o: first.id })}>
-            Argue through Objection {first.numeral} <span aria-hidden>▶</span>
+            Step through Objection {first.numeral} <span aria-hidden>▶</span>
           </a>
         )}
         <a className="btn" href={formatRoute({ view: "home" })}>
-          Explore the map
+          Open the map
         </a>
       </div>
       <ol className="ld-steps">
@@ -789,8 +821,8 @@ function EmptyState({ first }: { first?: Objection }) {
             i
           </span>
           <p>
-            <strong>Every claim has a reply.</strong> Each objection opens into rounds of moves — <span className="ld-g s-skeptic">▲ the Objector</span>,{" "}
-            <span className="ld-g s-theist">● the Respondent</span>, and <span className="ld-g s-spinoza">◆ Spinoza</span> from the side.
+            <strong>Every objection has replies.</strong> Each one opens into rounds of moves by <span className="ld-g s-skeptic">▲ the Objector</span> and{" "}
+            <span className="ld-g s-theist">● the Defender</span>. <span className="ld-g s-spinoza">◆ Spinoza</span> cuts in now and then.
           </p>
         </li>
         <li>
@@ -798,8 +830,8 @@ function EmptyState({ first }: { first?: Objection }) {
             ii
           </span>
           <p>
-            <strong>You rule what holds.</strong> Every move has two buttons, <em>Holds</em> and <em>Fails</em>. Call the ones you have a view on; the page works
-            out what follows.
+            <strong>You decide what holds.</strong> Every move has two buttons, <em>Holds</em> and <em>Fails</em>. Mark the ones you have a view on, and the
+            status of everything else is worked out from them.
           </p>
         </li>
         <li>
@@ -807,7 +839,7 @@ function EmptyState({ first }: { first?: Objection }) {
             iii
           </span>
           <p>
-            <strong>The last word isn’t the winning word.</strong> An unanswered move stays open until you call it. Your determination writes itself here as you go.
+            <strong>Nobody wins by default.</strong> A move that nobody has answered stays open until you mark it. Your results fill in here as you go.
           </p>
         </li>
       </ol>
@@ -815,17 +847,17 @@ function EmptyState({ first }: { first?: Objection }) {
   );
 }
 
-/* ---------------- rose key ---------------- */
+/* ---------------- map key ---------------- */
 
 const r2 = (v: number) => Math.round(v * 100) / 100;
-/** An annular pane like the Rose's, centred below the swatch. */
+/** A ring segment like the map's, centred below the swatch. */
 function swatchPane(cx: number, a0: number, a1: number): string {
   const [cy, r0, r1] = [40, 27, 38];
   const p = (a: number, r: number) => `${r2(cx + Math.sin(a) * r)},${r2(cy - Math.cos(a) * r)}`;
   return `M${p(a0, r1)}A${r1},${r1} 0 0 1 ${p(a1, r1)}L${p(a1, r0)}A${r0},${r0} 0 0 0 ${p(a0, r0)}Z`;
 }
 
-/** Two panes (one per side, since a move's color is its side) drawn with the Rose's own classes. */
+/** Two segments (one per side, since a move's color is its side) drawn with the map's own classes. */
 function PaneSwatch({ label, sides, defs }: { label: Label; sides: Side[]; defs: string }) {
   const w = sides.length === 1 ? 18 : 30;
   const panes = sides.length === 1 ? [swatchPane(9, -0.2, 0.2)] : [swatchPane(15, -0.36, -0.02), swatchPane(15, 0.02, 0.36)];
@@ -843,8 +875,8 @@ function PaneSwatch({ label, sides, defs }: { label: Label; sides: Side[]; defs:
   );
 }
 
-/** How to read the Rose here: moves are colored by side and lit by status; objections (the
-    inner ring and the seals below) are colored by status. */
+/** How to read the map here: moves are colored by side and lit by status; objections (the
+    centre of the map and the badges below) are colored by status. */
 function RoseKey() {
   const defs = "ldk" + useId().replace(/[^a-zA-Z0-9_-]/g, "");
   const both: Side[] = ["skeptic", "theist"];
@@ -865,7 +897,7 @@ function RoseKey() {
         </defs>
       </svg>
       <div className="ld-key-row">
-        <p className="ld-key-h mono">Moves · panes</p>
+        <p className="ld-key-h mono">Moves</p>
         <ul className="ld-key-list mono">
           <li>
             <PaneSwatch label="undec" sides={both} defs={defs} />
@@ -886,13 +918,13 @@ function RoseKey() {
           <li>
             <PaneSwatch label="undec" sides={["spinoza"]} defs={defs} />
             <span>
-              <span aria-hidden>◆ </span>Hatch = Spinoza
+              <span aria-hidden>◆ </span>Hatched: Spinoza
             </span>
           </li>
         </ul>
       </div>
       <div className="ld-key-row">
-        <p className="ld-key-h mono">Objections · inner ring &amp; seals</p>
+        <p className="ld-key-h mono">Objections (centre)</p>
         <ul className="ld-key-list mono">
           <li>
             <Glyph side="skeptic" label="in" size={11} />

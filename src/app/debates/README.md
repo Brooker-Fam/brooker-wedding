@@ -33,15 +33,16 @@ carries the boom-and-bust narrative, and the two-pole axis runs *ruined from
 within* (socialism / misrule) ↔ *strangled from outside* (sanctions / oil shock /
 empire), with the petrostate "resource curse" as the lilac hinge.
 
-## Disputations — the interactive page type
+## Disputations: the interactive page type
 
-`/debates/all-the-way-down` is a different kind of Thought Page: a **Disputation**,
-a multi-layer interactive argument map rather than one long read. It takes the
-medieval *disputatio* form (Aquinas's *Summa* opens each article with objections
-against his own view, then answers them) and runs it as many rounds as the real
-literature goes. The first one maps five objections to the God of Christian
-theism (from a Spinozist), the strongest classical replies, and the replies to
-those: ~170 moves, up to seven rounds deep.
+`/debates/all-the-way-down` is a different kind of Thought Page. It is a
+**Disputation**, an argument map in layers that you read and mark, where the
+other Thought Pages are one long read. The name comes from the medieval
+*disputatio*: Aquinas opens each article of the *Summa* with objections to his
+own view and then answers them. This one takes five objections to the Christian
+God, gives each the reply from classical theism, and lets the two sides answer
+each other for as many rounds as the published debate goes. It has about 170
+moves, up to seven rounds deep.
 
 | Thing | Path |
 |-------|------|
@@ -50,32 +51,43 @@ those: ~170 moves, up to seven rounds deep.
 | Engine (content-agnostic) | `src/components/atlas/` |
 | Content for this disputation | `src/components/atlas/content/` |
 
-**Layers.** Overview (the Rose: a sunburst of the whole disputation, one ring per
-round) → Chamber per objection (a script thread with forks and stakes lines, plus
-a chart of the whole tree) → each move (steelman in its own voice, quote, sources,
-"I'd concede if…"). Cross-cutting: *Argue it through* (a guided walk),
-*Your Determination* (the reader's ledger), and the Library (Timeline, Cast,
-Lexicon, Outline). Every view and move is deep-linkable via the hash
-(`#/o/<objection>/<node>`, `#/cast/<thinker>` …).
+**Layers.** The overview has the map, a sunburst of all five objections with
+one ring per round (the code calls it the Rose). Each objection has its own page
+(the code calls it the chamber): a thread of moves with forks, plus a chart of
+the whole tree. Each move gives one side's case in its own voice, with a
+quotation where there is a verified one, sources, and what would change that
+side's mind. Around these sit *Step through it* (a guided walk, `#/walk/…`),
+*Where you stand* (the reader's summary, `#/ledger`) and the Library: Timeline,
+People (`#/cast`), Glossary (`#/lexicon`) and Outline. Every view and move has
+its own link (`#/o/<objection>/<node>`, `#/cast/<thinker>` …). Routes keep their
+old names; only the visible labels changed.
 
-**The verdict mechanic.** Readers call moves *Holds* / *Fails*; statuses propagate
-up each attack tree with three-valued grounded semantics (`semantics.ts`). An
-unjudged leaf is *open*, not a winner — the last word is not the winning word — so
-the page never hands down a default verdict. There is deliberately no overall
-score. Calls live in `localStorage` only.
+**How statuses work.** Readers mark moves *Holds* or *Fails*. Statuses then
+follow up each tree by three-valued grounded semantics (`semantics.ts`). A move
+the reader hasn't marked is answered if any reply to it stands, stands if every
+reply to it fails, and stays open if it has no replies. So a move nobody has
+answered is *open*, whoever spoke last, and the page never hands down a default
+verdict. There is no overall score. Calls live in `localStorage` only.
 
-**Content rules** (see `types.ts`): children *attack* their parent, so a parent's
-label must state the claim as attacked (if a reply concedes a fact but denies its
-significance, the label states the significance); alternatives are sibling
-attacks; sides alternate down a branch; neither side gets the last word by
-default; quotes only when verified. Inline markup: `*italic*`, `[[term|text]]`,
-`{{thinker|text}}`, `((node-id|text))`.
+**Voice.** Plain words, every term explained where it appears, people as the
+subjects of sentences, and the sources' own words wherever they can be checked.
+The visible vocabulary is small: objection, part, move, round, the Objector, the
+Defender, Spinoza, Holds / Fails, and Open / Stands / Answered.
+
+**Content rules** (see `types.ts`). Children *attack* their parent, so a
+parent's label must state the claim as attacked (if a reply concedes a fact but
+denies its significance, the label states the significance). Alternatives are
+sibling attacks. Sides alternate down a branch, and neither side gets the last
+word by default. Quotes go in only when the wording has been checked against the
+text. Inline markup: `*italic*`, `[[term|text]]`, `{{thinker|text}}`,
+`((node-id|text))`. Thinkers and timeline moments can carry an optional `quote`
+(checked like any other); the card that opens from a person's name shows theirs.
 
 **Adding another disputation.** Write a new `Disputation` object (objections,
 thinkers, terms, moments) in its own content folder, give it a route like this
 one that renders `<Atlas d={…} />`, and add a card to the index. Objection ids are
 currently typed for this disputation (`ObjectionId` in `types.ts` and the list in
-`router.ts`) — widen those first.
+`router.ts`), so widen those first.
 
 ## What's customized for the Brooker site
 

@@ -306,7 +306,7 @@ export function LibQuote({ q, hideWho = false, className = "" }: { q?: Quote; hi
 
 const noop = () => {};
 
-/** A mini Rose with some moves lit — "where this appears" at a glance. Decorative: the chips beside it carry the facts. */
+/** A mini map (the Rose) with some moves lit, to show where something appears. Decorative, because the chips beside it carry the facts. */
 export function FootRose({ ids, size = 132, caption }: { ids: string[]; size?: number; caption?: ReactNode }) {
   const fp = useMemo(() => new Set(ids), [ids]);
   return (
@@ -379,6 +379,7 @@ const OBJ_STATUS: Record<"in" | "out" | "undec", string> = { in: "Stands", out: 
 export default function Outline() {
   const { d, ix, labelOf, labels, judgments } = useAtlas();
   const [gists, setGists] = useState(true);
+  const [quotes, setQuotes] = useState(true);
   const moves = ix.nodes.size;
   const called = Object.keys(judgments).filter((id) => ix.nodes.has(id)).length;
   const barRef = useRef<HTMLDivElement>(null);
@@ -440,6 +441,10 @@ export default function Outline() {
             <span className="lib-toggle-box" aria-hidden />
             Plain summaries
           </button>
+          <button type="button" className="lib-toggle mono" aria-pressed={quotes} onClick={() => setQuotes((x) => !x)}>
+            <span className="lib-toggle-box" aria-hidden />
+            Quotations
+          </button>
         </div>
       </div>
 
@@ -451,6 +456,7 @@ export default function Outline() {
         nodeHref={(id, o) => formatRoute({ view: "objection", o, node: id })}
         objectionHref={(o) => formatRoute({ view: "objection", o })}
         gists={gists}
+        quotes={quotes}
         sectionEnd={() => (
           <button type="button" className="ol-top mono" onClick={toTop}>
             <span aria-hidden>↑</span> All objections

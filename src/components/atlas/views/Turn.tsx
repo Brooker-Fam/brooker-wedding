@@ -1,20 +1,20 @@
 "use client";
 
-/* One move in the chamber's thread, read as a turn in a script.
+/* One move in the thread, read as a line in a script.
    Collapsed: cue, address, glyph + claim, the gist, and its status.
    Focused (expanded in place): the plain-terms line, the side's full case,
-   its source quote, people, terms and cross-links, then the decision block —
-   what would move this side, Holds / Fails / Hear the reply, and a Why? that
-   explains the computed status in a sentence. */
+   its source quote, people, glossary terms and cross-links, then the decision
+   block (what would change this side's mind, Holds / Fails / Read the reply,
+   and a Why? that explains the computed status in a sentence). */
 
 import { useId, useMemo, type ReactNode } from "react";
 import { useAtlas } from "../context";
 import { explainNode } from "../explain";
-import { address, ROMAN } from "../helpers";
+import { address } from "../helpers";
 import { parseMarkup } from "../markup";
 import { usePeek } from "../peek";
 import { Glyph, RichText, ThinkerChip } from "../primitives";
-import { CallButtons, MoveChip, SIDE_POSS, SIDE_WORD, TurnStatus, WhyLine, cueFor, moveNoun, q, rippleStyle, seatOf, useChamber } from "./chamberShared";
+import { CallButtons, MoveChip, SIDE_POSS, SIDE_WORD, TurnStatus, WhyLine, cueFor, moveNoun, q, rippleStyle, seatOf, spellAddress, useChamber } from "./chamberShared";
 
 const KEYS = "ArrowUp ArrowDown ArrowLeft ArrowRight h f";
 
@@ -43,7 +43,7 @@ function Section({ title, children }: { title: string; children: ReactNode }) {
 export interface TurnProps {
   id: string;
   focused: boolean;
-  /** The next move on the branch path, if any (for "Hear the reply"). */
+  /** The next move on the branch path, if any (for "Read the reply"). */
   next?: string;
   /** Part of a tension pair adjacent on the path. */
   tensed?: boolean;
@@ -82,11 +82,12 @@ export default function Turn({ id, focused, next, tensed = false }: TurnProps) {
   const call = judgments[id];
   const cue = cueFor(info.depth, side);
   const addr = address(ix, id);
+  const addrLong = spellAddress(ix, id);
   const rippled = api.ripple?.changed.has(id);
   const style = rippleStyle(api.ripple, info.depth);
   const cls = `ch-turn s-${side} seat-${seat} st-${l} ${focused ? "is-focus" : "is-folded"} ${call ? "has-call" : ""} ${tensed ? "is-tensed" : ""}`;
-  // Rounds 1–2 open with the Summa's formulas, which don't name the speaker: name them beside the address.
-  const sideInCue = /Objector|Respondent|Spinoza/.test(cue);
+  // If a cue ever stops naming the speaker, name them beside the address.
+  const sideInCue = /Objector|Defender|Spinoza/.test(cue);
 
   if (!focused) {
     return (
@@ -94,7 +95,7 @@ export default function Turn({ id, focused, next, tensed = false }: TurnProps) {
         {rippled && <span key={api.ripple!.key} className="ch-ripple" aria-hidden />}
         <div className="ch-cue">
           <span className="ch-cue-k">{cue}</span>
-          <span className="ch-addr">
+          <span className="ch-addr" title={addrLong}>
             {addr}
             {!sideInCue && <span className="ch-addr-side"> · {SIDE_WORD[side]}</span>}
           </span>
@@ -115,11 +116,13 @@ export default function Turn({ id, focused, next, tensed = false }: TurnProps) {
   }
 
   const explanation = explainNode(ix, labels, judgments, id, toPlain);
-  const backlinks = uniqueBy(ix.backlinks.get(id) ?? [], (b) => b.from).filter((b) => b.from !== id);
   const see = uniqueBy(
     (n.see ?? []).filter((s) => ix.nodes.has(s.id) && s.id !== id),
     (s) => s.id,
   );
+  // A move this one already links to under "See also" isn't listed again under "Linked from".
+  const seeIds = new Set(see.map((s) => s.id));
+  const backlinks = uniqueBy(ix.backlinks.get(id) ?? [], (b) => b.from).filter((b) => b.from !== id && !seeIds.has(b.from));
   const offPathTensions = tensions.filter((t) => t.node === id && t.reply !== next);
   const body = n.body.filter((p) => p.trim());
   const parentInfo = info.parent ? ix.nodes.get(info.parent) : undefined;
@@ -129,8 +132,8 @@ export default function Turn({ id, focused, next, tensed = false }: TurnProps) {
       {rippled && <span key={api.ripple!.key} className="ch-ripple" aria-hidden />}
       <div className="ch-cue">
         <span className="ch-cue-k">{cue}</span>
-        <span className="ch-addr">
-          <span className="ch-round">Round {ROMAN[info.depth - 1] ?? info.depth} · </span>
+        <span className="ch-addr" title={addrLong}>
+          <span className="ch-round">Round {info.depth} · </span>
           {addr}
         </span>
       </div>
@@ -147,11 +150,12 @@ export default function Turn({ id, focused, next, tensed = false }: TurnProps) {
         </span>
         {info.parent && parentInfo && (
           <span className="ch-answers">
-            answering{" "}
+            replying to{" "}
             <button
               type="button"
               className="ch-answers-link"
-              aria-label={`answering ${address(ix, info.parent)}, ${SIDE_POSS[parentInfo.node.side]} ${moveNoun(parentInfo.depth, parentInfo.node.side)}: ${toPlain(parentInfo.node.label)}`}
+              title={spellAddress(ix, info.parent)}
+              aria-label={`replying to ${address(ix, info.parent)}, ${SIDE_POSS[parentInfo.node.side]} ${moveNoun(parentInfo.depth)}: ${toPlain(parentInfo.node.label)}`}
               onClick={() => api.focus(info.parent!, "thread")}
             >
               {address(ix, info.parent)}
@@ -196,7 +200,7 @@ export default function Turn({ id, focused, next, tensed = false }: TurnProps) {
       {(people.length > 0 || terms.length > 0) && (
         <div className="ch-refs">
           {people.length > 0 && (
-            <Section title="Voices">
+            <Section title="People">
               <div className="ch-chips">
                 {people.map((t) => (
                   <ThinkerChip key={t} id={t} />
@@ -205,7 +209,7 @@ export default function Turn({ id, focused, next, tensed = false }: TurnProps) {
             </Section>
           )}
           {terms.length > 0 && (
-            <Section title="Terms">
+            <Section title="Glossary">
               <div className="ch-chips">
                 {terms.map((t) => (
                   <button key={t.id} type="button" className="chip ch-term" onClick={(e) => peek({ kind: "term", id: t.id, rect: e.currentTarget.getBoundingClientRect() })}>
@@ -233,7 +237,7 @@ export default function Turn({ id, focused, next, tensed = false }: TurnProps) {
             </Section>
           )}
           {backlinks.length > 0 && (
-            <Section title="Cited by">
+            <Section title="Linked from">
               <ul className="ch-xrefs">
                 {backlinks.map((b) => (
                   <MoveChip key={b.from} id={b.from} why={b.why} onGo={api.jump} />
@@ -273,7 +277,7 @@ export default function Turn({ id, focused, next, tensed = false }: TurnProps) {
       <div className="ch-decide">
         {n.cedes && (
           <div className="ch-cedes">
-            <span className="ch-cedes-k mono">What would move this side</span>
+            <span className="ch-cedes-k mono">What would change this side’s mind</span>
             <p className="ch-cedes-t">
               <RichText text={n.cedes} onNode={api.jump} />
             </p>
@@ -283,29 +287,30 @@ export default function Turn({ id, focused, next, tensed = false }: TurnProps) {
           <CallButtons id={id} side={side} call={call} />
           {next && (
             <button type="button" className="btn ch-hear" onClick={() => api.focus(next, "thread")}>
-              Hear the reply <span aria-hidden>↓</span>
+              Read the reply <span aria-hidden>↓</span>
             </button>
           )}
         </div>
         <div className="ch-decide-status">
-          {/* "on your calls" only once there are calls to be on, or the status isn't simply open */}
-          <TurnStatus id={id} side={side} label={l} call={call} note={l !== "undec" || api.calls > 0} />
+          <TurnStatus id={id} side={side} label={l} call={call} />
           <WhyLine key={`${id}:${l}:${call ?? ""}`} explanation={explanation} onGo={(x) => api.focus(x, "link")} />
         </div>
         {offPathTensions.map((t) => (
           <div key={t.reply} className="tension-note ch-tension-inline" role="note">
-            <p>You’ve said this holds, and {q(toPlain(ix.nodes.get(t.reply)?.node.label ?? t.reply))} — a reply to it — also stands on your calls. One of them has to give.</p>
+            <p>
+              You said this holds, and {q(toPlain(ix.nodes.get(t.reply)?.node.label ?? t.reply))}, a reply to it, also stands. These two contradict each other.
+            </p>
             <div className="ch-tension-acts">
               <button type="button" className="btn small" onClick={() => api.decide(id, null)}>
-                Rethink this
+                Clear this call
               </button>
               {judgments[t.reply] ? (
                 <button type="button" className="btn small" onClick={() => api.decide(t.reply, null)}>
-                  Rethink that
+                  Clear that call
                 </button>
               ) : (
                 <button type="button" className="btn small" onClick={() => api.focus(t.reply, "link")}>
-                  See that reply
+                  Go to that reply
                 </button>
               )}
             </div>

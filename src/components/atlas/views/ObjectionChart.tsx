@@ -1,18 +1,18 @@
 "use client";
 
-/* The objection chart: the whole objection as one top-down tree, scaled to
-   fit its panel (no pan, no zoom). Rounds run down in faint alternating bands;
-   each move is a glyph (▲ ● ◆) whose fill shows its status on the reader's
-   calls; edges take the color of the side that attacks. The branch being read
-   is lit, the focused move is ringed, and — while the objection is undecided —
-   a small flag marks a move where one call would settle it either way. */
+/* The objection chart: every move of one objection as a top-down tree, scaled
+   to fit its panel (no pan, no zoom). Rounds run down in faint alternating
+   bands. Each move is a glyph (▲ ● ◆) whose fill shows its status, and edges
+   take the color of the side that replies. The branch being read is lit, the
+   focused move is ringed, and while the objection is open a small flag marks
+   a move where either call would settle it. */
 
 import { useEffect, useMemo, useRef, useState, type KeyboardEvent } from "react";
 import { useAtlas } from "../context";
-import { address, ROMAN } from "../helpers";
+import { address } from "../helpers";
 import { tidyEdge, tidyLayout } from "../layout";
 import type { Label, Objection, Side } from "../types";
-import { callWord, rippleStyle, SIDE_WORD, STATUS_WORD, useChamber } from "./chamberShared";
+import { numWord, rippleStyle, SIDE_WORD, spellAddress, statusText, useChamber } from "./chamberShared";
 
 const W = 400;
 
@@ -144,16 +144,17 @@ export default function ObjectionChart({ o, focusId, path, onSelect, variant, ba
   };
 
   const lab = (id: string): Label => labelOf(id);
-  const counts = { moves: geo.order.length, rounds: geo.depth, prongs: o.prongs.length };
+  const counts = { moves: geo.order.length, rounds: geo.depth, parts: o.prongs.length };
+  const many = counts.parts > 1;
 
   return (
     <div className={`ch-chart v-${variant}`}>
       {!bare && (
         <div className="ch-chart-head">
-          <h2 className="ch-chart-h">Map of this objection</h2>
+          <h2 className="ch-chart-h">All moves</h2>
           <p className="ch-chart-meta">
-            {counts.moves} moves · {counts.rounds} {counts.rounds === 1 ? "round" : "rounds"} deep
-            {counts.prongs > 1 ? ` · ${counts.prongs} objections` : ""}
+            {counts.moves} moves · {counts.rounds} {counts.rounds === 1 ? "round" : "rounds"}
+            {many ? ` · ${counts.parts} parts` : ""}
           </p>
         </div>
       )}
@@ -163,7 +164,7 @@ export default function ObjectionChart({ o, focusId, path, onSelect, variant, ba
           viewBox={`0 0 ${W} ${geo.H}`}
           preserveAspectRatio="xMidYMin meet"
           role="group"
-          aria-label={`Tree of objection ${o.numeral}: ${counts.moves} moves. Use the arrow keys to move between them and Enter to read one.`}
+          aria-label={`All ${counts.moves} moves in Objection ${o.numeral}. The arrow keys move between them and Enter opens one.`}
           onMouseLeave={() => setHover(null)}
           onFocus={() => setWithin(true)}
           onBlur={(e) => {
@@ -176,17 +177,17 @@ export default function ObjectionChart({ o, focusId, path, onSelect, variant, ba
             </pattern>
           </defs>
 
-          {/* round bands + numerals */}
+          {/* round bands + round numbers */}
           {Array.from({ length: geo.depth }, (_, k) => (
             <g key={`band-${k}`} className={`ch-band ${k % 2 === 0 ? "b-obj" : "b-rep"}`}>
               <rect x={0} y={r1(k * geo.rowH)} width={W} height={geo.rowH} />
               <text x={14} y={r1(geo.padY + k * geo.rowH + 3.4)} textAnchor="middle">
-                {ROMAN[k] ?? k + 1}
+                {k + 1}
               </text>
             </g>
           ))}
 
-          {/* edges, colored by the attacking side */}
+          {/* edges, colored by the side that replies */}
           <g className="ch-edges">
             {geo.order.map((id) => {
               const p = geo.pts.get(id)!;
@@ -219,7 +220,7 @@ export default function ObjectionChart({ o, focusId, path, onSelect, variant, ba
                   style={rippleStyle(ripple, p.depth)}
                   role="button"
                   tabIndex={id === active ? 0 : -1}
-                  aria-label={`${address(ix, id)}, round ${ROMAN[p.depth - 1] ?? p.depth}, ${SIDE_WORD[p.side]}: ${label}. ${STATUS_WORD[l]}${mine ? `, your call: ${judgments[id]}` : ""}.${isFocus ? " You are reading this." : ""}`}
+                  aria-label={`${address(ix, id)}, round ${p.depth}, ${SIDE_WORD[p.side]}: ${label}. ${statusText(l, judgments[id])}.${isFocus ? " You are reading this." : ""}`}
                   aria-current={isFocus ? "true" : undefined}
                   onMouseEnter={coarse ? undefined : () => setHover(id)}
                   onFocus={() => setCursor(id)}
@@ -247,16 +248,19 @@ export default function ObjectionChart({ o, focusId, path, onSelect, variant, ba
         {shownInfo && (
           <>
             <p className="ch-readout-k">
-              <span>
-                {address(ix, shown)} · Round {ROMAN[shownInfo.depth - 1] ?? shownInfo.depth} · {SIDE_WORD[shownInfo.node.side]}
+              <span title={spellAddress(ix, shown)}>
+                {address(ix, shown)} · Round {shownInfo.depth} · {SIDE_WORD[shownInfo.node.side]}
               </span>
               {shown === focusId && <span className="ch-readout-here">Reading</span>}
             </p>
             <p className={`ch-readout-t ${lab(shown) === "out" ? "lab-out" : ""}`}>{toPlain(shownInfo.node.label)}</p>
             <p className="ch-readout-s">
-              <span className={`ch-readout-st st-${lab(shown)}`}>{STATUS_WORD[lab(shown)]}</span>
-              {judgments[shown] && <span className="your-call">Your call · {callWord(judgments[shown])}</span>}
-              {shown === pivot && <span className="ch-readout-pivot">⚑ A call here would settle it either way</span>}
+              {judgments[shown] ? (
+                <span className="your-call">{statusText(lab(shown), judgments[shown])}</span>
+              ) : (
+                <span className={`ch-readout-st st-${lab(shown)}`}>{statusText(lab(shown))}</span>
+              )}
+              {shown === pivot && <span className="ch-readout-pivot">⚑ Your key call. Holds or fails here settles Objection {o.numeral}.</span>}
             </p>
             {preview && preview === shown && preview !== focusId && (
               <button type="button" className="btn small ch-readout-go" onClick={() => onSelect(preview)}>
@@ -305,15 +309,32 @@ export default function ObjectionChart({ o, focusId, path, onSelect, variant, ba
             <svg viewBox="0 0 14 14" aria-hidden>
               <path d="M4 13V2l7 3-7 3" className="lg-flag" />
             </svg>
-            Would settle it
+            Key call
           </li>
         )}
       </ul>
       <p className="ch-legend-sides" aria-hidden>
         <span className="s-skeptic">▲ Objector</span>
-        <span className="s-theist">● Respondent</span>
+        <span className="s-theist">● Defender</span>
         <span className="s-spinoza">◆ Spinoza</span>
       </p>
+      <div className="ch-chart-note">
+        <p>
+          Each mark is one move. Round 1, at the top, is the Objector’s {many ? `case in ${numWord(counts.parts)} parts` : "case"}, and each round below replies to the one above it.
+          A move stands when every reply to it is answered, and it is answered as soon as one reply stands.
+        </p>
+        <p>
+          {many ? (
+            <>
+              An address like {o.numeral}·1.2 means Objection {o.numeral}, part 1, reply 2.
+            </>
+          ) : (
+            <>
+              An address like {o.numeral}·1.2 means Objection {o.numeral}, reply 2 to its opening argument.
+            </>
+          )}
+        </p>
+      </div>
     </div>
   );
 }

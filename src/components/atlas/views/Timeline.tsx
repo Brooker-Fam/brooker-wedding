@@ -401,7 +401,7 @@ export default function Timeline({ moment }: { moment?: string }) {
           <section className="tl-chron" aria-labelledby="tl-chron-h">
             <div className="tl-chron-head">
               <h2 id="tl-chron-h" className="lib-h2 serif">
-                Every moment, in order
+                All moments
               </h2>
               <p className="tl-chron-note">
                 {filter === "all" ? (
@@ -429,7 +429,7 @@ export default function Timeline({ moment }: { moment?: string }) {
               )}
             </div>
             {shown.length === 0 ? (
-              <p className="lib-none">No moments for this one yet.</p>
+              <p className="lib-none">No moments for this objection yet.</p>
             ) : (
               <Chronicle listRef={listRef} lanes={lanes} items={shown} lanesOf={lanesOf} selected={selected?.id} select={select} wide={wide} onShow={showOnChart} />
             )}
@@ -603,7 +603,7 @@ function Chart({
       const l = lanes[laneIdx.get(k)!];
       return `${l.numeral} ${l.name}`;
     });
-    return names.length ? `${names.length === 1 ? "Objection" : "Objections"} ${names.join(", ")}` : "Background, no single objection";
+    return names.length ? `${names.length === 1 ? "Objection" : "Objections"} ${names.join(", ")}` : "Not tied to one objection";
   };
   const optLabel = (m: Moment) => `${m.when}: ${m.title}. ${MSIDE_WORD[m.side] ?? "Background"}${isSpinoza(m) && m.side !== "spinoza" ? ", on Spinoza's line" : ""}. ${strandText(m)}.`;
 
@@ -695,7 +695,7 @@ function Chart({
         {/* lane labels, which are also the filter */}
         <div className="tl-lab-col" role="group" aria-label="Show one objection">
           <button type="button" className="tl-all mono" aria-pressed={filter === "all"} onClick={() => setFilter("all")} style={{ top: 4 }}>
-            Show all
+            All
           </button>
           {lanes.map((l, i) => {
             const g = geo.rows[i];
@@ -856,7 +856,7 @@ function Chart({
             )}
           </div>
 
-          {/* cluster badges (pointer only — keyboard steps through their moments directly) */}
+          {/* cluster badges (pointer only; the keyboard steps through their moments directly) */}
           {geo.clusters.map((c) => {
             const ms = c.ids.map((id) => byId.get(id)!);
             const sides = [...new Set(ms.map((m) => spCls(m)))];

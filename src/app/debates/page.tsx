@@ -160,10 +160,10 @@ function Card({ d, index }: { d: DebateCard; index: number }) {
 }
 
 
-/* The interactive disputation — a different kind of Thought Page: a multi-layer
-   argument map rather than one long read. Lives at /debates/all-the-way-down. */
+/* The interactive disputation, a different kind of Thought Page: an argument map
+   in layers instead of one long read. Lives at /debates/all-the-way-down. */
 function RoseMark() {
-  // Five sectors, rings alternating ochre/verdigris — a miniature of the map.
+  // Five sectors, rings alternating ochre/verdigris: a miniature of the map.
   const petals = [0, 1, 2, 3, 4];
   return (
     <svg viewBox="-60 -60 120 120" className="h-28 w-28 shrink-0 sm:h-36 sm:w-36" aria-hidden>
@@ -207,17 +207,26 @@ function FeaturedDisputation() {
       </div>
       <div className="flex-1 text-center sm:text-left">
         <p className="font-[family-name:var(--font-quicksand)] text-[10px] font-semibold uppercase tracking-[0.24em] text-[#d8a652]">
-          New · an interactive disputation
+          New · interactive
         </p>
         <h3 className="mt-2 font-[family-name:var(--font-cormorant-garamond)] text-3xl font-bold leading-tight sm:text-4xl">
           All the Way Down
         </h3>
         <p className="mt-2 font-[family-name:var(--font-quicksand)] text-[14px] leading-relaxed text-[#ebe5d6]/70">
-          Five objections to God, the strongest replies, and the replies to those — a living argument
-          map you can drill into, judge move by move, and trace through 2,500 years of philosophy.
+          Five objections to the Christian God, each answered by classical theism and argued back and forth for up
+          to seven rounds. Mark each move Holds or Fails and see where you stand.
         </p>
+        <figure className="mt-4 border-l-2 border-[#d8a652]/40 pl-3 text-left">
+          <blockquote className="font-[family-name:var(--font-cormorant-garamond)] text-[17px] italic leading-snug text-[#ebe5d6]/85">
+            “Reason, to be sure, doesn’t go all the way down for believers, but it doesn’t for most sensitive,
+            civilised non-religious types either.”
+          </blockquote>
+          <figcaption className="mt-1 font-[family-name:var(--font-quicksand)] text-[11px] tracking-wide text-[#ebe5d6]/50">
+            Terry Eagleton, <cite>London Review of Books</cite>, 19 October 2006
+          </figcaption>
+        </figure>
         <p className="mt-4 font-[family-name:var(--font-quicksand)] text-[11px] font-semibold uppercase tracking-[0.2em] text-[#6dbaa4] transition-colors group-hover:text-[#8fd0bc]">
-          Enter the disputation →
+          Start reading →
         </p>
       </div>
     </motion.a>

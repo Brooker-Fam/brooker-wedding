@@ -159,6 +159,22 @@ function TensionNote({ node, reply }: { node: string; reply: string }) {
   );
 }
 
+/* Lines for the empty chair, one per leaf (picked by id, so it never changes under the reader).
+   Each checked word for word against a public-domain text. */
+const CHAIR_QUOTES: { text: string; who: string; cite: string }[] = [
+  { text: "He that is first in his own cause seemeth just; but his neighbour cometh and searcheth him.", who: "Proverbs 18:17", cite: "King James Version" },
+  { text: "He who knows only his own side of the case, knows little of that.", who: "John Stuart Mill", cite: "On Liberty, ch. 2 (1859)" },
+  { text: "Prove all things; hold fast that which is good.", who: "1 Thessalonians 5:21", cite: "King James Version" },
+  { text: "A wise man, therefore, proportions his belief to the evidence.", who: "David Hume", cite: "An Enquiry Concerning Human Understanding, sec. 10 (1748)" },
+  { text: "Come now, and let us reason together, saith the LORD", who: "Isaiah 1:18", cite: "King James Version" },
+];
+
+function chairQuote(id: string) {
+  let h = 0;
+  for (let i = 0; i < id.length; i++) h = (h * 31 + id.charCodeAt(i)) >>> 0;
+  return CHAIR_QUOTES[h % CHAIR_QUOTES.length];
+}
+
 function EmptyChair({ leaf, seat }: { leaf: string; seat: Seat }) {
   const { ix, judgments } = useAtlas();
   const api = useChamber();
@@ -166,7 +182,8 @@ function EmptyChair({ leaf, seat }: { leaf: string; seat: Seat }) {
   if (!info) return null;
   const sources = (info.node.sources ?? []).filter((s) => s.title);
   const focused = api.focusId === leaf;
-  const of = `${SIDE_POSS[info.node.side]} ${moveNoun(info.depth, info.node.side)} above`;
+  const of = `${SIDE_POSS[info.node.side]} ${moveNoun(info.depth)} above`;
+  const line = chairQuote(leaf);
   return (
     <div className={`ch-chair seat-${seat}`} role="note" aria-label="No reply yet" data-subject={leaf}>
       <span className="ch-chair-k">
@@ -176,14 +193,20 @@ function EmptyChair({ leaf, seat }: { leaf: string; seat: Seat }) {
       <p className="ch-chair-t">
         {judgments[leaf] ? (
           <>
-            No one has answered this here. <em>You have ruled</em>: it {judgments[leaf]}.
+            Nobody here has replied to this. <em>You said it {judgments[leaf]}.</em>
           </>
         ) : (
           <>
-            No one has answered this here. <em>The floor is yours</em> — does it hold?
+            Nobody here has replied to this yet. <em>Does it hold?</em>
           </>
         )}
       </p>
+      <figure className="ch-chair-q">
+        <blockquote>“{line.text}”</blockquote>
+        <figcaption>
+          {line.who}, <cite>{line.cite}</cite>
+        </figcaption>
+      </figure>
       {!focused && (
         <div className="ch-chair-call">
           <CallButtons id={leaf} side={info.node.side} call={judgments[leaf]} compact />
@@ -192,7 +215,7 @@ function EmptyChair({ leaf, seat }: { leaf: string; seat: Seat }) {
       )}
       {sources.length > 0 && (
         <div className="ch-chair-read">
-          <span className="ch-chair-read-k">Read further</span>
+          <span className="ch-chair-read-k">Further reading</span>
           <ul className="ch-chair-srcs">
             {sources.map((s, i) => (
               <li key={i} className="ch-chair-src">
@@ -204,7 +227,7 @@ function EmptyChair({ leaf, seat }: { leaf: string; seat: Seat }) {
                 ) : (
                   <cite>{s.title}</cite>
                 )}
-                {s.by && <span className="ch-chair-by"> — {s.by}</span>}
+                {s.by && <span className="ch-chair-by"> · {s.by}</span>}
               </li>
             ))}
           </ul>
@@ -282,7 +305,7 @@ export default function Thread() {
   return (
     <section className="ch-thread" aria-labelledby="ch-thread-h" aria-describedby={keysId} onKeyDown={onKey}>
       <h2 id="ch-thread-h" className="sr-only">
-        The thread
+        The argument, move by move
       </h2>
       <ol className="ch-ol">
         {path.map((id, i) => {
@@ -311,13 +334,13 @@ export default function Thread() {
         </li>
       </ol>
       <p id={keysId} className="sr-only">
-        Keyboard: on a move, the Down arrow goes to its reply and the Up arrow to the move it answers; Left and Right switch between alternative replies; H says the move holds and F
-        that it fails (press again to withdraw).
+        Keyboard shortcuts. On a move, the Down arrow goes to its reply and the Up arrow to the move it replies to. Left and Right switch between replies to the same move. H says
+        the move holds and F says it fails. Press the same key again to clear your call.
       </p>
       <p className="ch-keys" aria-hidden>
         <kbd>↑</kbd>
-        <kbd>↓</kbd> move along the thread · <kbd>←</kbd>
-        <kbd>→</kbd> alternatives · <kbd>H</kbd> holds · <kbd>F</kbd> fails
+        <kbd>↓</kbd> previous or next move · <kbd>←</kbd>
+        <kbd>→</kbd> other replies · <kbd>H</kbd> holds · <kbd>F</kbd> fails
       </p>
     </section>
   );
