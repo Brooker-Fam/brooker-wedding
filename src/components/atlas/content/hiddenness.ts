@@ -565,10 +565,10 @@ const hiddenness: Objection = {
               id: "hid-devils-believe",
               side: "skeptic",
               label: "Every good that hiddenness protects is open to believers too",
-              gist: "The argument asks only for belief, and belief leaves people free, since devils believe and rebel and no one calls devout believers puppets.",
+              gist: "Schellenberg wants only belief, which leaves people free, since devils believe and still rebel and no one calls devout believers puppets.",
               body: [
-                "The coercion reply confuses believing someone exists with being cornered by them. {{schellenberg}} asks only for belief, and Christian tradition itself holds that you can know God exists and still defy him. Thomas saw the wounds and Paul was thrown to the road, and neither lost his freedom. {{maitzen}} notes that churches praise believers for whom God is as certain as anything they know, and no one pities their lost freedom.",
-                "{{kant}} worried about certainty as strong as sight, far beyond the modest belief Schellenberg asks for. In ((coh-b-teleo|Objection I)), defenders of God call wills that can't fall, like the saints', 'the freest of all'. Schellenberg's general answer, the [[accommodation-strategy|accommodation strategy]], is that every good these defenses name can be had inside belief. If relationship with God is the greatest good, no good that requires its absence could outweigh it.",
+                "The coercion reply confuses believing someone exists with being cornered by them. {{schellenberg}}'s argument needs only belief, and Christian tradition itself holds that you can know God exists and still defy him. Thomas saw the wounds and Paul fell to the ground on the road to Damascus, and neither lost his freedom. {{maitzen}} asks what becomes of the freedom of the many believers who say God's existence is as certain for them as anything they believe.",
+                "{{kant}} worried about certainty as strong as sight, far beyond the modest belief Schellenberg's argument needs. In ((coh-b-teleo|Objection I)), the Defender follows Hart in calling wills that can't fall, like the saints', the freest of all. Schellenberg's general answer, the [[accommodation-strategy|accommodation strategy]], is that every good these defenses name can be had inside belief. Since Christians count relationship with God as the greatest good, he argues, no good that requires its absence could outweigh it.",
               ],
               quote: {
                 text: "Thou believest that there is one God; thou doest well: the devils also believe, and tremble.",
@@ -581,7 +581,7 @@ const hiddenness: Objection = {
               see: [
                 { id: "hid-testimony-accommodation", why: "Part 2 uses the same strategy against the map of belief." },
                 { id: "mor-allegiance", why: "In Objection V the Defender cites the same verse to show that bare belief saves no one." },
-                { id: "coh-b-teleo", why: "In Objection I the Defender calls wills that never fall 'the freest of all'." },
+                { id: "coh-b-teleo", why: "Objection I on whether a will that can't fall is free." },
               ],
               sources: [
                 {
@@ -596,9 +596,9 @@ const hiddenness: Objection = {
                   id: "hid-responsibility",
                   side: "theist",
                   label: "Sharing God's work needs people who don't yet believe",
-                  gist: "If God gave everyone belief directly, no one could join him in bringing others to know him, and that partnership needs people who don't know him yet.",
+                  gist: "If God gave everyone belief directly, no one could help bring another person to know him, which Dumsday counts among the greatest goods.",
                   body: [
-                    "Schellenberg's accommodation reply assumes every good survives if God puts the basic belief in place himself. {{dumsday}} argued in 2010 that one doesn't. Among the greatest goods open to us, he says, is working with God, as friends, to bring others to know him. That good needs people who don't yet believe and whose coming to believe depends partly on us. Paul called himself and his helpers 'labourers together with God' (1 Corinthians 3:9). {{swinburne}} adds the goods of finding God out for oneself and of helping one another search, and both would vanish if the answer came installed. Parents could do their children's homework, and love sometimes means they don't. On this view the unbelief is temporary, and the people no messenger reaches are still within God's reach.",
+                    "Schellenberg's accommodation reply assumes every good survives if God puts the basic belief in place himself. {{dumsday}} argued in 2010 that one doesn't. Among the greatest goods open to us, he says, is working with God, as friends, to bring others to know him. That good needs people who don't yet believe and whose coming to believe depends partly on us. Paul called himself and his helpers 'labourers together with God' (1 Corinthians 3:9). {{swinburne}} adds the goods of finding God out for oneself and of helping one another search, and both would vanish if God simply supplied the answer, as they would for a child whose parents did all her homework. On this view the unbelief is temporary, and God can still save people no messenger ever meets.",
                   ],
                   quote: {
                     text: "How then shall they call on him in whom they have not believed? and how shall they believe in him of whom they have not heard? and how shall they hear without a preacher?",
@@ -631,11 +631,11 @@ const hiddenness: Objection = {
         {
           id: "hid-hart-light",
           side: "theist",
-          label: "The loving God is the light we see by, so nothing is missing",
-          gist: "The argument pictures God as one more being who could show up or not, but God is the source of all being and present in every thought.",
+          label: "God isn't one more being who could show up or stay away",
+          gist: "The argument pictures God as one more being who could show up or not, but Hart says God is the source of all being and present in every thought.",
           body: [
-            "Schellenberg's argument imagines God as a great someone who could step into view and has, for some reason, declined. Classical theism, the tradition of Augustine and Aquinas, rejects that picture. {{hart}} insists that God is no being among beings. He is being itself, the ground of every existence and every act of knowing, and looking for him among things is like looking for the light among the objects it lets you see. ((coh-a-concur|Objection I's counter)) says the same about causes.",
-            "On this view God is hidden only the way the obvious is hidden, by being everywhere, and what the seeker lacks is attention. {{aquinas}} wrote that 'God is in all things; not, indeed, as part of their essence, nor as an accident, but as an agent is present to that upon which it works', and that he is in them 'innermostly' (*Summa Theologiae* I q.8 a.1). {{augustine}} found him the same way: 'Thou wert within, and I abroad, and there I searched for Thee' (*Confessions* X.27, tr. E. B. Pusey).",
+            "Schellenberg's argument imagines God as a great someone who could step into view and has, for some reason, declined. Classical theism, the tradition of Augustine and Aquinas, rejects that picture. {{hart}} insists that God is no being among beings. He is being itself, the ground of every existence and every act of knowing, and looking for him among things is like looking for the light among the objects it lets you see. In ((coh-a-concur|Objection I)), the Defender says the same about causes.",
+            "On this view God is hard to notice because he is present in everything, and a seeker needs attention more than new evidence. {{aquinas}} wrote that 'God is in all things; not, indeed, as part of their essence, nor as an accident, but as an agent is present to that upon which it works', and that he is in them 'innermostly' (*Summa Theologiae* I q.8 a.1). {{augustine}} found him the same way: 'Thou wert within, and I abroad, and there I searched for Thee' (*Confessions* X.27, tr. E. B. Pusey).",
           ],
           quote: {
             text: "For in him we live, and move, and have our being.",
@@ -656,8 +656,7 @@ const hiddenness: Objection = {
               label: "A God who is no object can still put a belief in a mind",
               gist: "The argument never asked to see God among objects, only to believe he exists, and a God who causes every thought can cause that one.",
               body: [
-                "Hart's point explains why God doesn't turn up in a telescope. It doesn't explain why honest people lack the belief, and belief is all {{schellenberg}} asked for. A God who is not one more thing can still cause a thought in a mind, and on the classical view he causes every thought there is. The argument also starts from love, which Hart says God is.",
-                "Hart's own tradition says God can be known. {{aquinas}} holds that God's existence can be proved from his effects, and he explains why God revealed it anyway. The truth that reason can reach, he says, 'would only be known by a few, and that after a long time, and with the admixture of many errors' (*Summa Theologiae* I q.1 a.1). Revelation was meant as the remedy, but it travels by ((hid-demographics|birthplace and century)), so it reaches people as unevenly as the problem does.",
+                "Hart's point explains why God doesn't turn up in a telescope, but {{schellenberg}}'s argument is about why honest people lack the belief. A God who is not one more thing can still cause a thought in a mind, and on the classical view he causes every thought there is. {{aquinas}}, in Hart's own tradition, holds that God's existence can be proved, and explains why God revealed it anyway: without revelation the truth 'would only be known by a few, and that after a long time, and with the admixture of many errors' (*Summa Theologiae* I q.1 a.1). Revelation was his remedy, but it has reached people according to their ((hid-demographics|birthplace and century)). And Hart himself says God is love, so he can't set aside Schellenberg's first premise, which is about love.",
               ],
               quote: {
                 text: "Now because we do not know the essence of God, the proposition is not self-evident to us; but needs to be demonstrated by things that are more known to us, though less known in their nature—namely, by effects.",
@@ -675,11 +674,11 @@ const hiddenness: Objection = {
             {
               id: "hid-spinoza-my-god",
               side: "spinoza",
-              label: "Spinoza says a God who hides from no one also seeks no one",
-              gist: "A God who grounds everything is the most knowable thing there is, but such a God has no feelings and chooses nothing, so he seeks no one.",
+              label: "Spinoza says a God who can't hide also can't love anyone",
+              gist: "Spinoza agrees that a God who grounds everything is the most knowable thing there is, but such a God has no feelings and chooses nothing, so he loves no one.",
               body: [
-                "Spinoza would accept nearly every word of Hart's and draw the opposite conclusion. A God in whom we live and move is no object, and for that reason he isn't hidden at all. Spinoza wrote that 'The human mind has an adequate knowledge of the eternal and infinite essence of God' (*Ethics* II P47), where *adequate* means true and complete. He even claimed Paul's sentence, telling Oldenburg in 1675, 'I say that all things are in God and move in God, thus agreeing with Paul' (Letter 73).",
-                "If God is the ground of being in Spinoza's full sense, the lover drops out. Spinoza's God 'is without passions' and, 'Strictly speaking, God does not love or hate anyone' (V P17 and Cor.). He 'does not act according to freedom of the will' (I P32 Cor. 1). Spinoza does speak of an [[amor-dei-intellectualis|intellectual love]] in which 'the love of God towards men, and the intellectual love of the mind towards God are identical' (V P36 Cor.), but that love chooses no one and waits for no reply. On Spinoza's view, Hart escapes the argument only by describing a God who couldn't want a relationship at all.",
+                "Spinoza would agree with Hart that a God in whom we live and move is no object and isn't hidden at all, and would conclude that such a God can't love anyone. Spinoza wrote that 'The human mind has an adequate knowledge of the eternal and infinite essence of God' (*Ethics* II P47), where *adequate* means true and complete. He even claimed Paul's sentence, telling Henry Oldenburg, secretary of the Royal Society, in 1675, 'I say that all things are in God and move in God, thus agreeing with Paul' (Letter 73).",
+                "If God is the ground of being in Spinoza's sense, the one substance from whose nature everything follows by necessity, he can't also be a lover. Spinoza's God 'is without passions' and, 'Strictly speaking, God does not love or hate anyone' (V P17 and Cor.). He 'does not act according to freedom of the will' (I P32 Cor. 1). Spinoza does speak of an [[amor-dei-intellectualis|intellectual love]] in which 'the love of God towards men, and the intellectual love of the mind towards God are identical' (V P36 Cor.), but that love chooses no one and waits for no reply. On Spinoza's view, Hart escapes the argument only by describing a God who couldn't want a relationship at all.",
               ],
               quote: {
                 text: "He, who loves God, cannot endeavour that God should love him in return.",
@@ -698,11 +697,11 @@ const hiddenness: Objection = {
                 {
                   id: "hid-hart-personal",
                   side: "theist",
-                  label: "God's love is no passion, yet in Christ it came seeking us",
+                  label: "A God without passions can still love and seek each person",
                   gist: "God's love isn't a reaction to us, which makes it pure gift, and in Jesus that love came looking for the lost.",
                   body: [
-                    "Classical theists agree with Spinoza that the ground of being has no passions. {{hart}} defends divine [[impassibility|impassibility]], the teaching that nothing we do adds to God's joy or wounds it. A love that isn't a reaction, Hart argues, is love with nothing to gain, the source of every reaching out. {{aquinas}} holds that God wills his own goodness necessarily but wills creatures freely, since 'no perfection can accrue to Him from them' (*Summa Theologiae* I q.19 a.3), a distinction ((coh-a-extrinsic|Objection I)) defends.",
-                    "The Gospels deny that God seeks no one: 'the Son of man is come to seek and to save that which was lost' (Luke 19:10). {{kierkegaard}} told a parable about a king who loves a humble maiden and wants her love without her awe. A disguise would be a deceit, so Kierkegaard concluded that God would have to become a servant in fact, and that the servant form in Jesus was his true form. Jesus told Philip, 'he that hath seen me hath seen the Father' (John 14:9).",
+                    "{{aquinas}} and his followers agree with Spinoza that the ground of being has no passions. {{hart}} defends divine [[impassibility|impassibility]], the teaching that nothing we do adds to God's joy or wounds it. He argues that a love that doesn't react to us has nothing to gain from us, so it is pure gift. Aquinas holds that God wills his own goodness necessarily but wills creatures freely, since 'no perfection can accrue to Him from them' (*Summa Theologiae* I q.19 a.3).",
+                    "The Gospels say God does seek people: 'the Son of man is come to seek and to save that which was lost' (Luke 19:10). {{kierkegaard}} told a parable about a king who loves a humble maiden and wants her love without her awe. A disguise would be a deceit, so Kierkegaard concluded that God would have to become a servant in fact, and that the servant form in Jesus was his true form. Jesus told Philip, 'he that hath seen me hath seen the Father' (John 14:9).",
                   ],
                   quote: {
                     text: "No man hath seen God at any time, the only begotten Son, which is in the bosom of the Father, he hath declared him.",
@@ -713,9 +712,9 @@ const hiddenness: Objection = {
                   cedes:
                     "Hart would be wrong if love required passion, being moved by the beloved, so that a God beyond change couldn't also know and seek each person.",
                   see: [
-                    { id: "coh-a-extrinsic", why: "Objection I answers the worry that a necessary God makes everything necessary. God's act is necessary and its effects are not." },
+                    { id: "coh-a-extrinsic", why: "In Objection I, the Defender answers the worry that a necessary God makes everything necessary, by arguing that God's act is necessary and its effects are not." },
                     { id: "hid-demographics", why: "Part 2 asks whether one incarnation, in one time and place, reaches everyone." },
-                    { id: "nat-b-contrast", why: "In Objection III, Spinoza's reply to free creation is that a reason fitting either choice explains neither." },
+                    { id: "nat-b-contrast", why: "In Objection III, Spinoza argues against free creation that a reason which would fit either choice can't explain why God made one of them." },
                   ],
                   sources: [
                     {
@@ -746,8 +745,8 @@ const hiddenness: Objection = {
       label: "A God open to every heart wouldn't let belief follow birthplace",
       gist: "If God were open to every heart, belief wouldn't depend on where and when you were born, but it clusters by culture and was absent for most of history.",
       body: [
-        "{{maitzen}} looked at where believers live. Saudi Arabia is at least 95 percent theistic, meaning its people believe in one personal God, while Thailand, 95 percent Buddhist, is at most 5 percent theistic. No one supposes Thais resist God more than Saudis do. Culture and politics predict the pattern easily, and a God open to every heart makes it a puzzle.",
-        "Over time the pattern is starker. For most of our species' history no one had the idea of a single personal creator to accept or resist, and {{schellenberg}} treats these people as the clearest cases. {{nietzsche}} had asked about a God who 'for thousands of years, has permitted innumerable doubts and scruples to continue unchecked'. {{marsh}} argued in 2013 that such [[natural-nonbelief|natural nonbelief]], unbelief from never having met the idea, is what unguided evolution predicts. Psychologists also find that belief spreads mainly by imitation, from parents and neighbors.",
+        "{{maitzen}} looked at where believers live. Saudi Arabia is at least 95 percent theistic, meaning its people believe in one personal God, while Thailand, 95 percent Buddhist, is at most 5 percent theistic. No one supposes Thais resist God more than Saudis do. Maitzen argues that culture and politics explain the pattern easily, while a God open to every heart would leave it a puzzle.",
+        "For most of our species' history probably no one had the idea of a single personal creator to accept or resist, and {{schellenberg}} treats these people as the clearest cases. {{nietzsche}} had asked in *Daybreak* (1881, §91) about a God who 'for thousands of years, has permitted innumerable doubts and scruples to continue unchecked'. {{marsh}} argued in 2013 that such [[natural-nonbelief|natural nonbelief]], unbelief from never having met the idea, is what unguided evolution predicts.",
       ],
       quote: {
         text: "…the patchiness of theistic belief has everything to do with the notoriously haphazard play of human culture and politics and nothing to do with God: the messy, uneven data have messy, uneven causes.",
