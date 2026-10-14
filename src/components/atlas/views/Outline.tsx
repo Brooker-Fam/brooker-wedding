@@ -285,6 +285,19 @@ export function GlyphKey({ sides = ["skeptic", "theist", "spinoza"], context = f
   );
 }
 
+/** Does a quotation's speaker (e.g. "Spinoza", "Plato (Socrates speaking)", "Augustine") name this person?
+    Speakers given with a comma ("Philo, in David Hume's Dialogues") are characters or reports, so they never match. */
+export function spokenBy(who: string | undefined, name: string): boolean {
+  if (!who) return false;
+  const w = fold(who).trim();
+  const n = fold(name).trim();
+  // "Spinoza" for Baruch Spinoza, "Augustine" for Augustine of Hippo (but not "Paul" for Paul K. Moser)
+  if (w === n || n.endsWith(` ${w}`) || n.startsWith(`${w} of `) || n.startsWith(`${w} the `) || w.endsWith(` ${n}`)) return true;
+  if (/,|&|\band\b/.test(w)) return false;
+  const last = n.split(" ").pop() ?? n;
+  return w.split(/[\s()]+/).includes(last);
+}
+
 /** A quotation in the page's house style: serif italic, with the speaker and citation in mono. */
 export function LibQuote({ q, hideWho = false, className = "" }: { q?: Quote; hideWho?: boolean; className?: string }) {
   if (!q || !q.text) return null;

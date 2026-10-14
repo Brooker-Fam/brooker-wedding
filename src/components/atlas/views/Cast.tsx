@@ -16,8 +16,8 @@ import { useAtlas } from "../context";
 import { initials } from "../peek";
 import { Glyph } from "../primitives";
 import { formatRoute } from "../router";
-import type { Side, Thinker } from "../types";
-import { ERAS, FootprintBlock, LibEmpty, LibHead, LibQuote, LibTabs, eraOf, fold, scrollBehavior, useMedia, yearText } from "./Outline";
+import type { Quote, Side, Thinker } from "../types";
+import { ERAS, FootprintBlock, LibEmpty, LibHead, LibQuote, LibTabs, eraOf, fold, scrollBehavior, spokenBy, useMedia, yearText } from "./Outline";
 
 type TSide = Side | "neutral";
 type SideFilter = "all" | TSide;
@@ -294,6 +294,13 @@ function ThinkerFile({ t, onClose }: { t: Thinker; onClose?: () => void }) {
   const { d, ix } = useAtlas();
   const refs = useMemo(() => ix.thinkerRefs.get(t.id) ?? [], [ix, t.id]);
   const moments = useMemo(() => [...d.moments].filter((m) => m.thinker === t.id).sort((a, b) => a.year - b.year), [d, t.id]);
+  // Their own signature line if the registry has one; otherwise the first (short enough) quotation of theirs
+  // that a move already carries, so the file opens on their words.
+  const quote = useMemo<Quote | undefined>(() => {
+    if (t.quote?.text) return t.quote;
+    const theirs = refs.map((id) => ix.nodes.get(id)?.node.quote).filter((q): q is Quote => !!q?.text && spokenBy(q.who, t.name));
+    return theirs.find((q) => q.text.length <= 260) ?? theirs[0];
+  }, [t, refs, ix]);
   const s = sideOf(t);
   return (
     <article className={`ca-file s-${s}`} aria-labelledby={`ca-file-${t.id}`}>
@@ -320,8 +327,8 @@ function ThinkerFile({ t, onClose }: { t: Thinker; onClose?: () => void }) {
         </div>
       </header>
       {t.tradition && <p className="ca-file-trad">{t.tradition}</p>}
-      <LibQuote q={t.quote} hideWho={!!t.quote?.who && (t.name.includes(t.quote.who) || t.quote.who.includes(t.name))} className="ca-file-quote" />
-      {t.line && <p className={`ca-file-line serif ${t.quote?.text ? "after-quote" : ""}`}>{t.line}</p>}
+      <LibQuote q={quote} hideWho={spokenBy(quote?.who, t.name)} className="ca-file-quote" />
+      {t.line && <p className={`ca-file-line serif ${quote ? "after-quote" : ""}`}>{t.line}</p>}
       {t.work && (
         <p className="ca-file-work">
           <span className="mono lib-k">Key work</span>

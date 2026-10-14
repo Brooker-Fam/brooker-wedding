@@ -829,10 +829,11 @@
     grid-template-columns: 28px 150px minmax(0, 1fr);
     align-items: baseline;
   }
+  /* top-aligned with the name: descriptions with a quote run several lines */
   .atl .ov-tile {
     grid-row: auto;
-    align-self: center;
-    margin-top: 0;
+    align-self: start;
+    margin-top: -2px;
   }
   .atl .ov-persona dd {
     grid-column: 3;
@@ -944,17 +945,20 @@
   .atl .ov-grid {
     grid-template-columns: var(--ov-cols);
     column-gap: var(--ov-gap);
+    /* the key sits under the map it explains; the voices run down the left */
     grid-template-areas:
       "title title"
       "left right"
-      "key right";
+      "left key";
     grid-template-rows: auto auto 1fr;
   }
   .atl .ov-key {
     grid-area: key;
     align-self: start;
-    max-width: 36rem;
-    margin-top: 40px;
+    justify-self: center;
+    width: 100%;
+    max-width: 32rem;
+    margin-top: 48px;
   }
   .atl .ov-title {
     grid-area: title;

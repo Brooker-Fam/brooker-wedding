@@ -196,7 +196,7 @@ function Personae() {
           </dt>
           <dd>
             <span className="ov-pdesc">
-              Answers from classical theism, the older Christian view of God held by Augustine and Aquinas and defended today by David Bentley Hart.
+              Answers from classical theism, the view of God held by Augustine and Aquinas and defended today by David Bentley Hart.
             </span>
             <PersonaQuote
               text="[God] is not one more object in the inventory of things that are, or any sort of discrete object at all."
@@ -471,8 +471,8 @@ function HowItWorks() {
           </svg>
           <h3>You decide what holds</h3>
           <p>
-            Mark any move Holds or Fails. A move you haven’t marked is answered if any reply to it stands, and stands if every reply to it fails. Every status
-            you see is worked out from your calls this way.
+            Mark any move Holds or Fails. A move you haven’t marked is answered once any reply to it stands, and stands once all its replies fail. Every
+            status you see is worked out from your calls this way.
           </p>
         </li>
         <li>

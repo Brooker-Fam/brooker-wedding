@@ -524,11 +524,7 @@ function TensionPair({ node, reply }: { node: string; reply: string }) {
 
   return (
     <li className="ld-tension">
-      <p className="ld-t-say">
-        {replyJudged
-          ? "You said both of these hold, but the second is a reply to the first. These two contradict each other."
-          : "You said the first holds, and your other calls leave this reply to it standing. These two contradict each other."}
-      </p>
+      <p className="ld-t-say">These two contradict each other.</p>
       <div className="ld-t-pair">
         <div className="ld-t-col">
           <TensionMove id={node} role="You said this holds" />

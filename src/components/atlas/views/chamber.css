@@ -378,11 +378,11 @@
   outline: 2px solid var(--bone);
   outline-offset: 1px;
 }
-.atl .ch-roundel-more {
+.atl .ch-roundels .ch-roundel-more {
   /* plain text, not a roundel: it isn't a control */
   display: flex;
   align-items: center;
-  margin-left: 6px;
+  margin-left: 10px;
   white-space: nowrap;
   font-family: var(--sans);
   font-size: 12.5px;
@@ -2615,8 +2615,9 @@
     height: 44px;
     background: transparent;
   }
-  .atl .ch-roundel-more {
+  .atl .ch-roundels .ch-roundel-more {
     height: 44px;
+    margin-left: 6px;
   }
   .atl .ch-roundel .monogram {
     width: 34px;

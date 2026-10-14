@@ -592,7 +592,7 @@ export default function Chamber({ o: oid, node }: { o: ObjectionId; node?: strin
                   {o.objection && (
                     <p className="ch-ex s-skeptic">
                       <span className="ch-ex-k">
-                        <Glyph side="skeptic" size={11} /> The Objector says
+                        <Glyph side="skeptic" size={11} /> The Objector
                       </span>
                       <span className="ch-ex-t">{o.objection}</span>
                     </p>
@@ -600,7 +600,7 @@ export default function Chamber({ o: oid, node }: { o: ObjectionId; node?: strin
                   {o.counter && (
                     <p className="ch-ex s-theist">
                       <span className="ch-ex-k">
-                        <Glyph side="theist" size={11} /> The Defender answers
+                        <Glyph side="theist" size={11} /> The Defender
                       </span>
                       <span className="ch-ex-t">{o.counter}</span>
                     </p>

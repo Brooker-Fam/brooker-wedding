@@ -20,8 +20,9 @@ import { useAtlas } from "../context";
 import { address } from "../helpers";
 import { ThinkerChip } from "../primitives";
 import { formatRoute } from "../router";
-import type { Moment, Objection, ObjectionId, Side } from "../types";
-import { ERAS, GlyphKey, LibEmpty, LibHead, LibQuote, SIDE_WORD, eraOf, scrollBehavior, useMedia, yearText } from "./Outline";
+import type { DisputationIndex } from "../semantics";
+import type { Moment, Objection, ObjectionId, Quote, Side } from "../types";
+import { ERAS, GlyphKey, LibEmpty, LibHead, LibQuote, SIDE_WORD, eraOf, fold, scrollBehavior, spokenBy, useMedia, yearText } from "./Outline";
 
 type LaneKey = ObjectionId | "spinoza";
 type Filter = "all" | LaneKey;
@@ -37,6 +38,17 @@ interface Lane {
 const MSIDE_WORD: Record<MSide, string> = { ...SIDE_WORD, neutral: "Background" };
 const isSpinoza = (m: Moment) => m.side === "spinoza" || m.thinker === "spinoza";
 const sideCls = (s: MSide | undefined) => (s === "skeptic" || s === "theist" || s === "spinoza" ? s : "neutral");
+
+/** A moment's quotation: its own, or else the quotation on its move when the moment's thinker is the one speaking
+    (and the moment's text doesn't already quote it). */
+function quoteOf(m: Moment, ix: DisputationIndex): Quote | undefined {
+  if (m.quote?.text) return m.quote;
+  const q = m.node ? ix.nodes.get(m.node)?.node.quote : undefined;
+  const who = m.thinker ? ix.thinkers.get(m.thinker)?.name : undefined;
+  if (!q?.text || !who || !spokenBy(q.who, who)) return undefined;
+  if (fold(m.text).includes(fold(q.text).slice(0, 40))) return undefined;
+  return q;
+}
 
 /* ---------- glyph for a moment (adds a square for context moments) ---------- */
 function MGlyph({ side, size = 12, filled = false }: { side: MSide; size?: number; filled?: boolean }) {
@@ -1056,7 +1068,7 @@ function MomentCard({
         </p>
         <h2 className="tl-card-t serif">{m.title}</h2>
         {m.text && <p className="tl-card-x">{m.text}</p>}
-        <LibQuote q={m.quote} className="tl-quote" />
+        <LibQuote q={quoteOf(m, ix)} className="tl-quote" />
         <div className="tl-card-acts">
           {m.thinker && ix.thinkers.has(m.thinker) && <ThinkerChip id={m.thinker} />}
           {node && (
@@ -1205,6 +1217,7 @@ function Chronicle({
                   thinker={m.thinker && ix.thinkers.has(m.thinker) ? m.thinker : undefined}
                   goHref={node ? formatRoute({ view: "objection", o: node.objection, node: node.node.id }) : undefined}
                   goAddr={node ? address(ix, node.node.id) : undefined}
+                  quote={quoteOf(m, ix)}
                 />
               );
             })}
@@ -1230,6 +1243,7 @@ const ChronicleRow = memo(function ChronicleRow({
   thinker,
   goHref,
   goAddr,
+  quote,
 }: {
   m: Moment;
   lanes: Lane[];
@@ -1244,6 +1258,7 @@ const ChronicleRow = memo(function ChronicleRow({
   thinker?: string;
   goHref?: string;
   goAddr?: string;
+  quote?: Quote;
 }) {
   const ns = laneNs ? laneNs.split(",").map(Number) : [];
   const segs = segKey ? segKey.split(",").map((s) => s.split(":") as [LaneKey, Seg["part"]]) : [];
@@ -1283,7 +1298,7 @@ const ChronicleRow = memo(function ChronicleRow({
           <span className="tl-chev" aria-hidden />
         </button>
         {isOpen && m.text && <p className="tl-text">{m.text}</p>}
-        {isOpen && <LibQuote q={m.quote} className="tl-quote tl-quote-row" />}
+        {isOpen && <LibQuote q={quote} className="tl-quote tl-quote-row" />}
         {isOpen && (
           <div className="tl-foot">
             {strands.length > 0 && (
