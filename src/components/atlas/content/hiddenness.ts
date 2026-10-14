@@ -858,7 +858,7 @@ const hiddenness: Objection = {
               label: "Souls who'd refuse God don't come sorted by birthplace",
               gist: "Craig's story needs the people who would refuse God to be born mostly in certain countries and centuries, and nothing supports that apart from the map itself.",
               body: [
-                "Craig's reply explains the map only by turning it into a fact about souls. Thailand would have to be where God placed people who would refuse him in any circumstances, along with the thousands of generations who lived before anyone preached a single creator. {{maitzen}} argued in 2006 and 2008 that this is implausible, and less plausible than the explanation from culture. Culture predicts the pattern without positing anything, while Craig needs an unseen sorting of souls that matches it border for border. His story implies that a child born in Bangkok is likelier than one born in Riyadh to be someone God foresaw would turn him down. And the sorting is needed only if the unreached are lost, which other defenders of God deny in ((mor-inclusivism|Objection V)).",
+                "Craig's reply explains the map only by turning it into a fact about souls. Thailand would have to be where God placed people who would refuse him in any circumstances, along with the thousands of generations who lived before anyone preached a single creator. {{maitzen}} argued in 2008, answering a model built on middle knowledge, that such sorting is less plausible than the explanation from culture, which needs nothing beyond what we already know about how beliefs spread. Craig needs an unseen sorting of souls that matches the map border for border. His story implies that a child born in Bangkok is likelier than one born in Manila to be someone God foresaw would turn him down. And the sorting is needed only if the unreached are lost, which other defenders of God deny in ((mor-inclusivism|Objection V)).",
               ],
               quote: {
                 text: "These dispositions thus resemble other fundamental human characteristics, such as the ability to hear; despite marked differences among individuals, we don't find entire countries whose citizens are nearly all deaf.",
@@ -871,7 +871,7 @@ const hiddenness: Objection = {
               see: [
                 { id: "hid-pursues", why: "The same clustering problem, applied to hidden resistance." },
                 { id: "coh-b-grounding", why: "Objection I raises a deeper problem, that nothing could make facts about what people would freely do true." },
-                { id: "mor-inclusivism", why: "In Objection V the unreached can be saved, which leaves the sorting with nothing to do." },
+                { id: "mor-inclusivism", why: "In Objection V some defenders of God hold that the unreached can be saved, which would leave Craig's sorting with nothing to do." },
               ],
               sources: [
                 {
@@ -890,7 +890,8 @@ const hiddenness: Objection = {
           label: "God may spare would-be refusers by placing them out of reach",
           gist: "A loving God who foresaw that some people would reject him if they believed now might keep belief from them, leaving them innocent for a later chance.",
           body: [
-            "{{marsh|Jason Marsh}} proposed a gentler model in a 2008 reply to {{maitzen}}. He supposes that some people would freely reject God in this life if they came to believe. A loving God might spare them that refusal by placing them where belief won't reach them, keeping them innocent until a later time, beyond this life, when they could love him freely. Then an uneven map is what perfect love, knowing each of us, would draw. Unlike Craig's model, this one damns no one. The unreached are protected, which fits the hope, discussed in ((mor-inclusivism|Objection V)), that Christ reaches those who never knew his name. A refusal made too early, with too little understanding, is the kind of harm a good parent shields a child from.",
+            "{{marsh|Jason Marsh}} proposed a gentler model, also built on middle knowledge, in a 2008 reply to {{maitzen}}. He supposes that some people would freely reject God in this life if they came to believe. A loving God might spare them that refusal by placing them where belief won't reach them, keeping them innocent until a later time, beyond this life, when they could love him freely. On this view a refusal made too early, with too little understanding, is a harm, and a good parent shields a child from such harms. An uneven map is then what a loving God who knew each of us would bring about.",
+            "Unlike Craig's model, Marsh's damns no one. The unreached are protected, which fits the hope, discussed in ((mor-inclusivism|Objection V)), that Christ reaches those who never knew his name.",
           ],
           quote: {
             text: "If I had not come and spoken unto them, they had not had sin: but now they have no cloak for their sin.",
@@ -899,10 +900,10 @@ const hiddenness: Objection = {
           },
           thinkers: ["marsh", "maitzen"],
           cedes:
-            "This fails if hearing of God never makes a refusal more likely or more lasting, so that no one could need sparing from it.",
+            "Marsh's model needs hearing of God to make some refusals more likely or more lasting, and if it never does, no one needs sparing.",
           see: [
-            { id: "hid-seeking-is-finding", why: "Another 'not yet', a relationship that can be completed after death." },
-            { id: "hid-hidden-resistance", why: "Howard-Snyder argues that belief given too soon could harden what it hoped to win." },
+            { id: "hid-seeking-is-finding", why: "Another reply on which a relationship with God can be completed after death." },
+            { id: "hid-hidden-resistance", why: "Howard-Snyder argues that belief given too soon could make a person harder to win." },
           ],
           sources: [
             {
@@ -919,8 +920,8 @@ const hiddenness: Objection = {
               label: "On Marsh's model, missionaries endanger those God spared",
               gist: "If God shields would-be refusers by keeping belief from them, every missionary who reaches them removes the shield and exposes them to the refusal God meant to prevent.",
               body: [
-                "Marsh's model has a problem with missionaries. If God places people who would refuse him where belief won't reach them, for their own protection, then whoever brings belief to them removes that protection. Every new mission field would be a region of people God was guarding, and every sermon there would risk the refusal he arranged history to prevent. Jesus' command to teach all nations becomes either a mistake or a bet against God's own arrangement.",
-                "Marsh could reply that God foresaw the missionaries too, and puts in their path only people ready to hear. Then the map is no longer mercy for the unreached. It becomes Craig's sorting of souls by birthplace again, with all of {{maitzen}}'s ((hid-molinism-clustering|clustering problems)). And since nothing independent tells us who is being spared, the model fits any map at all.",
+                "If God places people who would refuse him where belief won't reach them, for their own protection, then a missionary who brings them belief removes that protection. Every new mission field would be a region of people God was guarding, and every sermon there would risk the refusal he arranged history to prevent. Jesus' command to teach all nations would then work against God's own arrangement.",
+                "Marsh could reply that God foresaw the missionaries too, and puts in their path only people ready to hear. Then his model is Craig's sorting of souls by birthplace again, with all of {{maitzen}}'s ((hid-molinism-clustering|clustering problems)). And nothing independent tells us who is being spared.",
               ],
               quote: {
                 text: "Go ye therefore, and teach all nations, baptizing them in the name of the Father, and of the Son, and of the Holy Ghost",
@@ -929,7 +930,7 @@ const hiddenness: Objection = {
               },
               thinkers: ["marsh", "maitzen"],
               cedes:
-                "This objection goes away if the model can say whom God is sparing without pointing to where the gospel hasn't reached.",
+                "Marsh could answer this by saying whom God is sparing without pointing to where the gospel hasn't reached.",
               see: [
                 { id: "hid-responsibility", why: "Dumsday's good of being a messenger, which this model turns into a hazard." },
               ],
