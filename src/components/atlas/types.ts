@@ -12,6 +12,8 @@ export interface Quote {
   who: string;
   /** e.g. "Euthyphro 10a", "Ethics I P17 Schol." */
   cite: string;
+  /** Free online text where the passage can be read in context (verified to resolve). */
+  url?: string;
 }
 
 export interface Source {
@@ -74,6 +76,8 @@ export interface Thinker {
   work?: string;
   /** A signature line, verified against a public-domain or published text. */
   quote?: Quote;
+  /** Where to read more: reference entries (SEP, IEP) and primary texts. */
+  sources?: Source[];
 }
 
 export interface Term {
@@ -96,6 +100,8 @@ export interface Moment {
   side: Side | "neutral";
   /** A line from the work or event, verified against its text. */
   quote?: Quote;
+  /** The work itself or a good account of the event. */
+  sources?: Source[];
 }
 
 export interface Disputation {

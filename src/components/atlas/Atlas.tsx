@@ -17,6 +17,7 @@ import Cast from "./views/Cast";
 import Lexicon from "./views/Lexicon";
 import Ledger from "./views/Ledger";
 import Outline from "./views/Outline";
+import Sources from "./views/Sources";
 
 function CurrentView() {
   const { route } = useAtlas();
@@ -37,6 +38,8 @@ function CurrentView() {
       return <Ledger />;
     case "outline":
       return <Outline />;
+    case "sources":
+      return <Sources />;
   }
 }
 

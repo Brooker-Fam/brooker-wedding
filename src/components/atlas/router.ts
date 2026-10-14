@@ -19,7 +19,8 @@ export type Route =
   | { view: "cast"; thinker?: string }
   | { view: "lexicon"; term?: string }
   | { view: "ledger" }
-  | { view: "outline" };
+  | { view: "outline" }
+  | { view: "sources" };
 
 const OBJECTIONS: ObjectionId[] = ["coherence", "hiddenness", "nature", "evidence", "morals"];
 const isObjection = (s: string | undefined): s is ObjectionId => !!s && (OBJECTIONS as string[]).includes(s);
@@ -42,6 +43,8 @@ export function parseHash(hash: string): Route {
       return { view: "ledger" };
     case "outline":
       return { view: "outline" };
+    case "sources":
+      return { view: "sources" };
     default:
       return { view: "home" };
   }
@@ -66,6 +69,8 @@ export function formatRoute(r: Route): string {
       return seg("ledger");
     case "outline":
       return seg("outline");
+    case "sources":
+      return seg("sources");
   }
 }
 
