@@ -72,6 +72,8 @@ export interface Thinker {
   side: Side | "neutral";
   line: string;
   work?: string;
+  /** A signature line, verified against a public-domain or published text. */
+  quote?: Quote;
 }
 
 export interface Term {
@@ -92,6 +94,8 @@ export interface Moment {
   node?: string;
   strands: ObjectionId[];
   side: Side | "neutral";
+  /** A line from the work or event, verified against its text. */
+  quote?: Quote;
 }
 
 export interface Disputation {
