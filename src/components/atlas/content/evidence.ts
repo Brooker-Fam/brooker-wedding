@@ -1,8 +1,8 @@
 import type { Objection } from "../types";
 
 /* Objection IV · Evidence.
-   Two parts: (A) the ethics of belief (believing beyond the evidence) and
-   (B) the Gospels as evidence. Each child attacks its parent. Quotes were
+   Part A: the ethics of belief (believing beyond the evidence) and
+   Part B: the Gospels as evidence. Each child attacks its parent. Quotes were
    checked against the cited public-domain texts (Elwes's Spinoza, Cunningham,
    Menzies, Salmond, Crombie, Tanner, Whiston's Josephus, Beveridge's Calvin,
    Trotter's Pascal, the KJV, the English Dominican Summa on New Advent,
@@ -20,7 +20,7 @@ const evidence: Objection = {
   counter:
     "Alvin Plantinga argues that belief in God can be rational without proof, the way belief in other minds is. The contradictions refute strict inerrancy, the claim that the Bible contains no errors at all, and the creeds never required that. The case for the resurrection rests on facts most critical scholars accept. Jesus was crucified, his followers sincerely believed they saw him alive afterwards, and Paul and Jesus's brother James, who had not followed him, came to believe.",
   dek:
-    "Christianity asks for firm, life-shaping belief on evidence many people would call thin, and the evidence it leans on hardest, four Gospels written decades after the events, disagree on details. Christian philosophers have answered in two ways that sit awkwardly together. Plantinga and others say belief in God needs no proof, any more than trust in your memory does. Habermas, Licona and Wright say the history, read carefully, makes a strong case.",
+    "Christianity asks for firm, life-shaping belief on evidence many people would call thin, and the evidence it leans on hardest, four Gospels written decades after the events, disagree on details. Plantinga and other Christian philosophers answer that belief in God needs no proof, any more than trust in your memory does. Habermas, Licona and Wright answer that the history, read carefully, makes a strong case, and the two answers sit awkwardly together.",
   question: "Can Christian belief be rational without proof, when its main witnesses disagree?",
 
   prongs: [
@@ -99,7 +99,7 @@ const evidence: Objection = {
                 "If the sense of the divine led people in every culture to the same God, the way perception and belief in other minds agree across cultures, I'd drop this.",
               see: [
                 { id: "hid-csr-both-ways", why: "Objection II aims the same agent-detection argument at divine hiddenness." },
-                { id: "evi-b-natural", why: "The same problem in history. Sincere witnesses show that people believed, which leaves open whether they were right." },
+                { id: "evi-b-natural", why: "History raises the same problem, since sincere witnesses show that people believed and leave open whether they were right." },
               ],
               sources: [
                 { title: "Atheism: A Philosophical Justification", by: "Michael Martin", year: "1990" },
@@ -112,7 +112,7 @@ const evidence: Objection = {
                   label: "Whether belief in God is rational depends on whether God exists",
                   gist: "Believing without argument is allowed only when a faculty works as designed and nothing refutes the belief, so whether belief in God is reasonable depends on whether God exists.",
                   body: [
-                    "The Pumpkin objection mixes two questions. One is whether the believer is doing her honest best, which Plantinga grants. The other is whether her belief has [[warrant|warrant]], the property that turns a true belief into knowledge, which requires properly working faculties in the right setting. The Pumpkin belief also meets a [[defeater|defeater]], a reason that overturns it, in the empty patch on November 1st. A reliable faculty can also be rare, like perfect pitch, and on the Christian story sin has damaged this one.",
+                    "The Pumpkin objection confuses doing your honest best, which Plantinga grants the Pumpkin believer, with having [[warrant|warrant]], the property that turns a true belief into knowledge and requires properly working faculties in the right setting. The Pumpkin belief also meets a [[defeater|defeater]], a reason that overturns it, in the empty patch on November 1st. A reliable faculty can also be rare, like perfect pitch, and on the Christian story sin has damaged this one.",
                     "Cognitive science doesn't settle it. If God works through [[primary-secondary-causation|secondary causes]], meaning ordinary natural processes, a believer expects a natural mechanism behind the sense of God. Calling it misleading already assumes there is no God. Plantinga concludes that whether belief in God is rational, the [[de-jure-de-facto|de jure question]], depends on whether it is true.",
                   ],
                   quote: {
@@ -125,7 +125,7 @@ const evidence: Objection = {
                     "It fails if someone can show the sense of God to be unreliable without first assuming that there is no God.",
                   see: [
                     { id: "coh-a-concur", why: "How God works through natural causes without competing with them, from the reply to Objection I." },
-                    { id: "nat-b-minds", why: "The reverse worry. If our faculties came from unguided evolution, why trust any of them?" },
+                    { id: "nat-b-minds", why: "Objection III turns the worry around and asks why faculties shaped by unguided evolution should be trusted at all." },
                     { id: "hid-designed-faculty", why: "Objection II argues that a natural faculty that overshoots can still be God's design." },
                   ],
                   sources: [
@@ -168,7 +168,7 @@ const evidence: Objection = {
               gist: "Spinoza thought God can be known with certainty, but a God sensed the way we see a tree comes from imagination, the one kind of knowing that produces error.",
               body: [
                 "Spinoza sided with neither Clifford nor Plantinga. Against Clifford, he held God knowable with certainty: “The human mind has an adequate knowledge of the eternal and infinite essence of God” (Ethics II P47), an adequate idea being a complete and true one. Against Plantinga, he denied that a felt sense of God is knowledge. The first of his three kinds of knowledge (II P40 Schol. 2) is [[imaginatio|imagination]], built from images and hearsay, and it “is the only source of falsity” (II P41).",
-                "A sense of the divine that shows God the way sight shows a tree belongs to the first kind, and so did prophecy. The *Treatise* notes that cheerful prophets were shown victories and peace, and melancholy ones wars and massacres (ch. 2), which is why the God people feel has moods, plans and favourites. The fault lies in the images, since intuition, the highest kind, is direct too. The love of God he valued comes “not in so far as we imagine him as present, but in so far as we understand him to be eternal” (V P32 Cor.).",
+                "A sense of the divine that shows God the way sight shows a tree belongs to the first kind, and so did prophecy. The *Treatise* notes that cheerful prophets were shown victories and peace, and melancholy ones wars and massacres (ch. 2), which is why the God people feel has moods and favourites. The fault lies in the images, since intuition, the highest kind, is direct too. The love of God he valued comes “not in so far as we imagine him as present, but in so far as we understand him to be eternal” (V P32 Cor.).",
               ],
               quote: {
                 text: "Therefore the power of prophecy implies not a peculiarly perfect mind, but a peculiarly vivid imagination",
@@ -200,7 +200,7 @@ const evidence: Objection = {
                   },
                   thinkers: ["calvin", "aquinas", "spinoza"],
                   cedes:
-                    "Spinoza would win this point if he could show the felt God to be an error without first assuming that God has no purposes, no love and no will.",
+                    "Spinoza would win this point if he could show the felt God to be an error without first assuming that God has no will or purposes.",
                   see: [{ id: "coh-a-analogy", why: "How the classical tradition holds that images and words can say true things about God." }],
                   sources: [
                     { title: "Institutes of the Christian Religion, Book I, ch. 13", by: "John Calvin", year: "1559", url: "https://ccel.org/ccel/calvin/institutes.iii.xiv.html", note: "Beveridge translation." },
@@ -250,7 +250,7 @@ const evidence: Objection = {
               },
               thinkers: ["mackie", "oppy", "aquinas", "spinoza"],
               cedes:
-                "One argument for the specifically Christian God, and not just a first cause, that won over a fair share of informed non-believers would answer this.",
+                "One argument for the specifically Christian God, beyond a bare first cause, that won over a fair share of informed non-believers would answer this.",
               see: [{ id: "nat-a-circle", why: "Objection III asks whether miracle reports can be weighed at all, or are ruled out in advance." }],
               sources: [
                 { title: "The Miracle of Theism", by: "J. L. Mackie", year: "1982" },
@@ -318,7 +318,7 @@ const evidence: Objection = {
                   label: "The argument from disagreement counts against every view",
                   gist: "Upbringing shapes every outlook, the skeptic's too, and careful people also disagree about whether nature is all there is, so this rule would forbid almost every view.",
                   body: [
-                    "The diversity argument proves too much when applied evenly. {{plantinga}} grants that had he been born in Madagascar he might not be a Christian, but had the pluralist been born there, she might not be a pluralist. If upbringing discredits a belief about religion, it discredits hers. {{alston}} concluded in *Perceiving God* (ch. 7) that, with no neutral way to show a rival practice more reliable, it is rational to stay with the one that has proved itself in your own life.",
+                    "Applied evenly, the diversity argument proves too much. {{plantinga}} grants that, born in Madagascar, he might not have been a Christian, and that a pluralist born there might not be a pluralist. If upbringing discredits a belief about religion, it discredits hers. {{alston}} concluded in *Perceiving God* (ch. 7) that, with no neutral way to show a rival practice more reliable, it is rational to stay with the one that has proved itself in your own life.",
                     "{{van-inwagen}} rejects views that David Lewis, his equal in ability and information, held on the same evidence, and no one calls either man irrational. Atheism has careful critics too. [[conciliationism|Conciliationism]], the view that disagreement among equals requires suspending judgment, is itself disputed, so by its own rule it should be suspended, a problem its defender Adam Elga admits.",
                   ],
                   quote: {
@@ -376,7 +376,7 @@ const evidence: Objection = {
               label: "The option isn't forced, and wanting doesn't make believing",
               gist: "Agnosticism loses nothing unless God shuts out honest doubters, which possibilities feel real depends on how you were raised, and no one can believe on demand.",
               body: [
-                "James's case needs the option to be forced, and it isn't. Agnosticism loses the prize only if God rewards those who believed before the evidence came, and {{schellenberg}} argues ((hid-argument|in Objection II)) that a loving God wouldn't shut out an honest seeker. James's other test, whether an option feels live, isn't neutral either, since what feels live is mostly what you were raised on. In 1746 {{diderot}} answered {{pascal}} that an imam could offer the same wager.",
+                "James's case needs the option to be forced, and it isn't. Agnosticism loses the prize only if God rewards those who believed before the evidence came, and {{schellenberg}} argues ((hid-argument|in Objection II)) that a loving God wouldn't shut out an honest seeker. James's other test, whether an option feels live, isn't neutral either, since the options that tempt us are mostly the ones we were raised on. In 1746 {{diderot}} answered {{pascal}} that an imam could offer the same wager.",
                 "{{williams-bernard}} argued in 1970 against [[doxastic-voluntarism|doxastic voluntarism]], the idea that we can choose our beliefs at will. A belief you knew you had adopted for comfort could hardly count as aiming at truth, and James granted as much for ordinary facts. A friend, moreover, is already there to meet you halfway. Whether God is there is the question in dispute.",
               ],
               quote: {
@@ -407,7 +407,7 @@ const evidence: Objection = {
                   },
                   thinkers: ["pascal", "alston"],
                   cedes:
-                    "This holds unless acting on trust under uncertainty is always self-deception, or the creeds plainly require full belief before anyone can enter.",
+                    "This holds unless acting on trust under uncertainty is always self-deception, or the creeds require full belief before anyone can enter.",
                   see: [
                     { id: "hid-faith-without-belief", why: "Objection II uses the same distinction against hiddenness, since faith doesn't have to be full belief." },
                     { id: "mor-allegiance", why: "Objection V develops the idea of faith as loyalty to a person." },
@@ -512,8 +512,8 @@ const evidence: Objection = {
                       label: "Others were said to be raised, and the empty tomb is shaky",
                       gist: "Herod's court thought John the Baptist had risen, ancient stories had heroes taken up bodily, and the empty tomb, which Wright's case needs, rests on weak evidence.",
                       body: [
-                        "Wright moves too fast. In Mark, Herod says Jesus is John the Baptist risen from the dead, one man raised before the end, in the Gospels themselves. Jewish tradition had Enoch and Elijah taken up bodily, and Greek and Roman stories had heroes such as Romulus vanish and become gods. Richard C. Miller, a scholar of early Christianity, thinks early readers heard the Gospel endings as such stories, called translation fables.",
-                        "The empty tomb, which Wright needs to turn visions into resurrection, is the weakest link. Paul never mentions it, and Rome usually left the crucified to the birds or a common pit. {{crossan}} doubts that Jesus was laid in a known tomb, and {{ehrman}} thinks a burial by Joseph of Arimathea would have been a rare exception. Without a known tomb, visions alone could lead followers to say *risen*.",
+                        "Wright is too quick, since in Mark Herod says Jesus is John the Baptist risen from the dead, one man raised before the end, in the Gospels themselves. Jewish tradition had Enoch and Elijah taken up bodily, and Roman stories had heroes such as Romulus vanish and become gods. Richard C. Miller, a scholar of early Christianity, thinks early readers heard the Gospel endings as such stories, called translation fables.",
+                        "The empty tomb, which Wright needs to turn visions into resurrection, is the weakest point. Paul never mentions it, and Rome usually left the crucified to the birds or a common pit. {{crossan}} doubts that Jesus was laid in a known tomb, and {{ehrman}} thinks a burial by Joseph of Arimathea would have been a rare exception. Without a known tomb, visions alone could lead followers to say *risen*.",
                       ],
                       quote: {
                         text: "But when Herod heard thereof, he said, It is John, whom I beheaded: he is risen from the dead.",
@@ -677,7 +677,7 @@ const evidence: Objection = {
               label: "Once errors are conceded, why trust the miraculous core?",
               gist: "If the Gospels err on checkable details and reshape history to make theological points, nothing principled exempts the miracles, and the church long held the authors free of error.",
               body: [
-                "The concession is larger than it sounds, because the church did hold the evangelists free of error. {{augustine}} told Jerome so, and {{leo-xiii|Leo XIII}} insisted on it in *Providentissimus Deus* (1893). Some errors look theological. John has Jesus die as the Passover lambs were slaughtered, and calls him “the Lamb of God” (1:29). {{ehrman}} argues that John moved the day, and {{licona}}, a defender of the Gospels, has allowed that John probably did.",
+                "The concession is larger than it sounds, because the church did hold the evangelists free of error. {{augustine}} told Jerome so, and {{leo-xiii|Leo XIII}} insisted on it in *Providentissimus Deus* (1893). Some errors look theological, as when John has Jesus die as the Passover lambs were slaughtered and calls him “the Lamb of God” (1:29). {{ehrman}} argues that John moved the day, and {{licona}}, a defender of the Gospels, has allowed that John probably did.",
                 "Nor are there four independent witnesses. Most scholars hold that Matthew and Luke copied Mark ([[markan-priority|Markan priority]]), so where they differ from him they are editing. The earliest manuscripts of Mark end at 16:8 with no appearance, Matthew and Luke add appearances, and John has Thomas touch the wounds. A tradition loose enough to move a crucifixion for symbolism can't guarantee that its most loaded events were left alone.",
               ],
               quote: {
@@ -753,8 +753,8 @@ const evidence: Objection = {
               label: "Scripture's authority is its ethics, so the miracles can go",
               gist: "Spinoza held that Scripture's authority rests on its teaching of justice and charity and never on accurate history, so the miracle stories can go without loss.",
               body: [
-                "The concession about errors goes further than its defenders think. Spinoza's *Theological-Political Treatise* (1670) reads Scripture through its own history, language and authors, by a method he calls “almost the same” as interpreting nature (ch. 7). It finds Scripture's authority in its moral teaching, to obey God by practising justice and charity toward your neighbour (chs. 5, 13–14), so errors in the narratives take away nothing that made it authoritative.",
-                "The miracles can go too. Scripture tells its wonders to suit ordinary people, who take whatever they can't explain for the hand of God (ch. 6). Its purpose, he told Oldenburg, “is not to teach philosophy, nor to render men wise, but to make them obedient” (Ep. 78). The stories moved people toward justice and charity, and that work survives reading them as stories. No contradiction between Matthew and John can reach the ethics that remain.",
+                "The concession about errors goes further than its defenders think. Spinoza's *Theological-Political Treatise* (1670) reads Scripture through its own history and language, by a method he calls “almost the same” as interpreting nature (ch. 7). It finds Scripture's authority in its moral teaching, to obey God by practising justice and charity toward your neighbour (chs. 5, 13–14), so errors in the narratives take away nothing that made it authoritative.",
+                "The miracles can go too, because Scripture tells its wonders to suit ordinary people, who take whatever they can't explain for the hand of God (ch. 6). Its purpose, he told Oldenburg, “is not to teach philosophy, nor to render men wise, but to make them obedient” (Ep. 78). The stories moved people toward justice and charity, and that work survives reading them as stories. No contradiction between Matthew and John can reach the ethics that remain.",
               ],
               quote: {
                 text: "the truth of narratives, be they what they may, has nothing to do with the Divine law",
@@ -763,7 +763,7 @@ const evidence: Objection = {
               },
               thinkers: ["spinoza"],
               cedes:
-                "Spinoza is wrong if the Gospels' ethics can't be stated, understood or lived apart from the miracle stories.",
+                "Spinoza is wrong if the Gospels' ethics can't be stated or lived apart from the miracle stories.",
               see: [
                 { id: "nat-a-power", why: "Why Spinoza held that nothing can happen against nature, since its laws are God's own decrees." },
                 { id: "mor-allegiance", why: "A Christian version of the same move, with faith understood as loyalty to Christ." },
@@ -777,7 +777,7 @@ const evidence: Objection = {
                   id: "evi-b-event",
                   side: "theist",
                   label: "Christianity stands or falls with a bodily rising",
-                  gist: "From the start the faith said it depends on something that happened to a buried body, so retreating to timeless ethics swaps it for a different religion.",
+                  gist: "From the start the faith said it depends on something that happened to a buried body, so retreating to ethics alone swaps it for a different religion.",
                   body: [
                     "Moving the core to ethics gives away the faith {{paul|Paul}} preached. He wrote in the mid-50s: “if Christ be not risen, then is our preaching vain, and your faith is also vain” (1 Corinthians 15:14). The first Christians announced something that happened to a body, which “was buried” and “rose again the third day” (15:4). That makes the faith open to [[falsification|falsification]], as {{flew}} demanded, since Paul named the fact that would refute it. {{oldenburg|Henry Oldenburg}}, secretary of the Royal Society and Spinoza's friend, pressed this on him in February 1676.",
                     "The moral-core strategy has been tried by Spinoza, by {{kant}} in *Religion within the Bounds of Mere Reason* (1793) and by {{harnack}}'s liberal Protestantism, and each time it produced a different religion, perhaps an admirable one. When Paul preached in Athens, his hearers listened until he reached the resurrection, and then “some mocked” (Acts 17:32). The case for the event rests on ((evi-b-minimal|facts most critics grant)) and never depended on harmonizing the Gospels.",
@@ -807,9 +807,9 @@ const evidence: Objection = {
                       },
                       thinkers: ["spinoza"],
                       cedes:
-                        "Spinoza's reading fails if the earliest witnesses, Paul included, plainly meant a physical body that had left a tomb.",
+                        "Spinoza's reading fails if the earliest witnesses, Paul included, clearly meant a physical body that had left a tomb.",
                       see: [
-                        { id: "nat-a-power", why: "Why Spinoza reads it this way. Nature's laws are God's decrees, and God does not break them." },
+                        { id: "nat-a-power", why: "Spinoza reads it this way because nature's laws are God's decrees, and God does not break them." },
                       ],
                       sources: [
                         {
@@ -875,7 +875,7 @@ const evidence: Objection = {
     title: "God can be proved, and faith is about obedience",
     body: [
       "On the Gospels Spinoza sides with the skeptic. His *Theological-Political Treatise* (1670) reads Scripture the way he reads nature, through its own history. On God and evidence he is no evidentialist, because he doesn't think belief in God has to wait on outside evidence. He held that [[deus-sive-natura|God, or Nature]], can be proved (Ethics I P11), and that a true idea needs no outside support: “as light displays both itself and darkness, so is truth a standard both of itself and of falsity” (II P43 Schol.). Against Clifford, then, he agrees with Plantinga. The two differ over which ideas of God are adequate, that is, complete and true.",
-      "He divided the work between philosophy and faith (TTP chs. 14–15). Philosophy looks for truth. Faith looks for obedience and needs only a handful of pious dogmas, judged by how much justice and charity they produce, which is why he could grant every contradiction in the Gospels and lose nothing. He gave no weight to a felt sense of the divine, which he counted as [[imaginatio|imagination]]. What the intellect understands, it loves, and that love is part of the love with which God loves himself (V P36).",
+      "He divided the work between philosophy and faith (TTP chs. 14–15). Philosophy looks for truth, and faith looks for obedience and needs only a handful of pious dogmas, judged by how much justice and charity they produce, which is why he could grant every contradiction in the Gospels and lose nothing. He gave no weight to a felt sense of the divine, which he counted as [[imaginatio|imagination]]. What the intellect understands, it loves, and that love is part of the love with which God loves himself (V P36).",
       "His God acts from the necessity of his own nature and has no will (I P32 Coroll. 1), so he raises no one from the dead. The Christ Spinoza admired, who “communed with God mind to mind” (TTP ch. 1), can be the wisest of teachers but can't be a risen Lord. Ordinary believers, meanwhile, are asked to trust a just and merciful Judge, which the *Ethics* says God is not. Spinoza's answer is that each dogma has a true reading, since God's decrees are the laws of nature. ((evi-a-owngod|His Christian critics ask)) whether that is translation or a noble lie, Plato's name for a useful falsehood told to the public.",
     ],
     quote: {
@@ -917,7 +917,7 @@ const evidence: Objection = {
       by: "Alvin Plantinga",
       year: "2000",
       url: "https://www.ccel.org/ccel/plantinga/warrant3",
-      note: "Plantinga's case that Christian belief can be rational without argument, with his replies to pluralism and to historical criticism of the Bible. Free to read online.",
+      note: "Plantinga's case that Christian belief can be rational without argument, with his replies to pluralism and to historical criticism of the Bible. The full text is free to read online.",
     },
     {
       title: "The Miracle of Theism",
