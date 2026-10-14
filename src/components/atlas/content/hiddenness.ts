@@ -365,10 +365,10 @@ const hiddenness: Objection = {
                   id: "hid-hiding-god",
                   side: "theist",
                   label: "The Bible's God hides, and believers have met him in lament",
-                  gist: "The Bible's God hides his face, its sufferers cry out to him anyway, and Christians see God himself in that cry on the cross.",
+                  gist: "The Bible's God hides his face, and Christians hear God himself in Jesus' cry from the cross, 'why hast thou forsaken me?'",
                   body: [
-                    "The objection assumes faith was promised felt comfort on demand. The Bible never promised that, and Christians took Isaiah's phrase, the [[deus-absconditus|hidden God]], as one of God's names. The Psalms give sufferers words to throw at the silence, and {{rea}} argues that God authorizes such protest, so that arguing with an absent God is a way of being with him. {{john-of-the-cross}} described the [[dark-night|dark night]] as a time when God purifies love.",
-                    "{{luther}}'s [[theology-of-the-cross|theology of the cross]], his teaching that God shows himself most in weakness, finds God on the cross, where Jesus prays Psalm 22: 'My God, my God, why hast thou forsaken me?' {{adams-marilyn-m|Marilyn McCord Adams}} argues that God defeats horrors by sharing them, so that a child who dies alone can later see her worst hour as one God entered.",
+                    "The Bible never promised sufferers the felt presence Rowe expects, and {{luther}} and Pascal both made Isaiah's phrase, the [[deus-absconditus|hidden God]], central to their theology. {{rea}} argues that God authorizes the protests in the Psalms, so that arguing with an absent God is a way of being with him. {{john-of-the-cross}} described the [[dark-night|dark night]] as a time when God purifies love.",
+                    "Luther taught a [[theology-of-the-cross|theology of the cross]], on which God shows himself most in weakness, and found God on the cross, where Jesus prays Psalm 22: 'My God, my God, why hast thou forsaken me?' {{adams-marilyn-m|Marilyn McCord Adams}} argues that God *defeats* horrors, her term for making them part of a life that is good on the whole, partly by sharing them, so that a child who dies alone can later see her worst hour as one God entered.",
                     "Lewis kept writing, and later in the same book he described God's silence differently: 'It is not the locked door. It is more like a silent, certainly not uncompassionate, gaze.'",
                   ],
                   quote: {
@@ -403,9 +403,9 @@ const hiddenness: Objection = {
           id: "hid-moser",
           side: "theist",
           label: "God shows himself to people willing to be changed by him",
-          gist: "Evidence of God is meant to change people, so God gives it, through conscience, to those willing to be changed, and none of them is left without it.",
+          gist: "Moser holds that God's evidence is meant to change people, so God gives it through conscience to everyone willing to be changed.",
           body: [
-            "{{moser}} answers premise three by asking what kind of openness it tests. Being open to a relationship on your own terms, he argues, differs from being willing to yield to God as Lord. Evidence of a perfectly loving God is a call to change, so God makes it 'purposively available', given in the ways and to the people that suit his aim of remaking us. A message written in the sky would be what Moser calls spectator evidence. It would inform people and leave their wills untouched.",
+            "{{moser}} answers premise three by asking what kind of openness it tests. Being open to a relationship on your own terms, he argues, differs from being willing to yield to God as Lord. On Moser's view, evidence of a perfectly loving God is a call to change, so God makes it 'purposively available', given in the ways and to the people that suit his aim of remaking us. A message written in the sky would be what Moser calls spectator evidence. It would inform people and leave their wills untouched.",
             "The call comes first through conscience, Moser holds, as a pull toward unselfish love, even of enemies, so it reaches everyone. Demanding proof on our own terms before any surrender is what he calls [[cognitive-idolatry|cognitive idolatry]], treating God as an object to inspect. The promise in Jeremiah has a condition: 'ye shall seek me, and find me, when ye shall search for me with all your heart' (Jeremiah 29:13).",
           ],
           quote: {
@@ -415,7 +415,7 @@ const hiddenness: Objection = {
           },
           thinkers: ["moser", "pascal"],
           cedes:
-            "Many people who were ready to let God remake their lives, who searched with all their heart and received nothing, would sink this reply.",
+            "Many people who were ready to let God remake their lives, who searched with all their heart and received nothing, would refute Moser.",
           see: [
             { id: "evi-a-james", why: "In Objection IV, William James argues that some truths show themselves only to people who commit first." },
           ],
@@ -435,8 +435,8 @@ const hiddenness: Objection = {
               label: "Seekers willing to be changed still found nothing",
               gist: "Many who begged to be remade lost their belief or never found it, and no seeker can promise obedience to a Lord she doesn't yet believe in.",
               body: [
-                "Moser's view makes a prediction, and the seekers count against it. {{schellenberg}} describes former believers who begged God to keep them believing and watched honest inquiry dissolve their faith, and lifelong seekers who knocked for years on a door that never opened. Moser's test also asks for something no seeker can give in advance, since being willing to obey a Lord assumes you believe there is one. 'If you are there, I am yours' is all a doubter can offer, and it is what these seekers offered.",
-                "{{pascal}} granted that such people exist. He describes those 'occupied in seeking Him, not having found Him', and the fragment that promises 'enough light' also says God should not come so hidden 'that He could not be known by those who should sincerely seek Him.' The willingness test proves too much as well. The Book of Mormon promises that 'if ye shall ask with a sincere heart, with real intent, having faith in Christ, he will manifest the truth of it unto you' (Moroni 10:4), and sincere askers come away with answers that contradict each other.",
+                "If Moser is right, everyone willing to be changed should find God. {{schellenberg}} describes former believers who begged God to keep them believing and watched honest inquiry dissolve their faith, and lifelong seekers who knocked for years on a door that never opened. Moser's test also demands something no seeker can give in advance, since being willing to obey a Lord assumes you believe there is one. A doubter can offer only something like *if you are there, I am yours*, and that is what these seekers offered.",
+                "{{pascal}} granted that such people exist. He describes those 'occupied in seeking Him, not having found Him', whom he calls 'unhappy and reasonable' (*Pensées* 257), and the fragment that promises 'enough light' also says God should not come so hidden 'that He could not be known by those who should sincerely seek Him' (*Pensées* 430). The same test would also confirm rival faiths. The Book of Mormon promises that 'if ye shall ask with a sincere heart, with real intent, having faith in Christ, he will manifest the truth of it unto you' (Moroni 10:4), and sincere askers come away with answers that contradict each other.",
               ],
               quote: {
                 text: "Ask, and it shall be given you; seek, and ye shall find; knock, and it shall be opened unto you.",
@@ -448,7 +448,7 @@ const hiddenness: Objection = {
                 "I'd concede if the people who searched hardest and found nothing turned out, on some independent test, to have been less willing than those who found.",
               see: [
                 { id: "evi-a-diversity", why: "In Objection IV, seekers in other traditions do find something, and what they find differs." },
-                { id: "evi-a-tradition", why: "In Objection IV the Defender says the signs are public and God's existence can be proved. Here the evidence goes only to the willing." },
+                { id: "evi-a-tradition", why: "In Objection IV the Defender says the signs are public and God's existence can be proved, while Moser says the evidence goes only to the willing." },
               ],
               sources: [
                 {
@@ -463,11 +463,11 @@ const hiddenness: Objection = {
                   id: "hid-hidden-resistance",
                   side: "theist",
                   label: "A seeker's divided will can explain God's silence",
-                  gist: "Wanting evidence differs from being ready to be ruled by love, and a will can be divided without knowing it, so sincere reports can't settle who is open.",
+                  gist: "Wanting evidence differs from being ready to be ruled by love, and a person's will can be divided without her knowing it, so sincere reports can't settle who is open.",
                   body: [
-                    "The seekers' own reports can't settle the question. {{moser}} separates openness to proof from openness to God as Lord. A person can sincerely want the first while shrinking from the second, and can say 'if you are there, I am yours' in earnest with a will still at war with itself. Schellenberg himself counts self-deception as resistance, and self-deception is hidden from the self.",
-                    "{{stump}} gives a version that blames no one. {{aquinas}}, following Aristotle, defined love as 'to wish good to someone', and on Stump's reading love also seeks union. Union needs a beloved who is whole inside, so a divided person can't receive full presence even when asking for it, as you can't be fully known by a friend while hiding from yourself.",
-                    "{{howard-snyder}} adds that belief given too soon, to someone who would answer with rejection or the wrong motives, could harden what it hoped to win.",
+                    "The seekers' own reports can't settle the question. {{moser}} separates openness to proof from openness to God as Lord. A person can sincerely want the first while shrinking from the second, and can say *if you are there, I am yours* in earnest with a will still at war with itself. Schellenberg himself counts self-deception as resistance, and people who deceive themselves don't know they are doing it.",
+                    "{{aquinas}}, quoting Aristotle, defined love as 'to wish good to someone' (*Summa Theologiae* I-II q.26 a.4), and {{stump}} reads him as holding that love also seeks union. Union needs a beloved who is whole inside, so a divided person can't receive full presence even when asking for it, through no one's fault, as you can't be fully known by a friend while hiding from yourself.",
+                    "{{howard-snyder}} adds that belief given too soon, to someone who would answer with rejection or the wrong motives, could make the person harder to win.",
                   ],
                   quote: {
                     text: "A double minded man is unstable in all his ways.",
@@ -476,10 +476,10 @@ const hiddenness: Objection = {
                   },
                   thinkers: ["moser", "stump", "aquinas", "howard-snyder"],
                   cedes:
-                    "If those who search hardest and find nothing prove as humble, charitable and quick to reconcile as those who find God, this explanation falls apart.",
+                    "If those who search hardest and find nothing prove as humble and charitable as those who find God, this explanation falls apart.",
                   see: [
                     { id: "mor-chosen-hell", why: "Objection V describes a refusal of God that lasts as long as the will keeps turning away." },
-                    { id: "mor-honest-doubter", why: "Objection V presses this reply with a dilemma. Either the honest doubter is to blame, or his unbelief is innocent." },
+                    { id: "mor-honest-doubter", why: "In Objection V the Objector asks whether the honest doubter is to blame or innocent, and argues that this reply has trouble either way." },
                   ],
                   sources: [
                     { title: "Wandering in Darkness: Narrative and the Problem of Suffering", by: "Eleonore Stump", year: "2010" },
@@ -497,7 +497,8 @@ const hiddenness: Objection = {
                       label: "A loving God would go after even those who resist him",
                       gist: "Even if some unbelief hid resistance, a loving parent helps a child out of a mess it partly made, and hidden resistance wouldn't follow national borders.",
                       body: [
-                        "Even if some unbelief hides a divided will, perfect love would still go after it. {{maitzen}} writes: 'A loving parent can often be expected to help his or her child out of a miserable predicament, even if the child is in some sense to blame for being in the predicament.' The prodigal son's father didn't wait for a purer motive. And as {{schellenberg}} notes, God already relates to immature, double-minded believers, so readiness can't be a condition of belief. The resistance story also predicts something false. Whatever hidden fault is supposed to block belief, such as pride or self-deception, presumably affects people equally everywhere, Maitzen observes, yet unbelief follows national borders. A resistance hidden even from the resister, always answered with 'not yet', fits anything a seeker could report, so it explains nothing.",
+                        "Even if some unbelief hides a divided will, a perfectly loving God would still go after it. {{maitzen}} writes: 'A loving parent can often be expected to help his or her child out of a miserable predicament, even if the child is in some sense to blame for being in the predicament.' The prodigal son's father didn't wait for a purer motive. And as {{schellenberg}} notes, God already relates to immature, double-minded believers, so readiness can't be a condition of belief.",
+                        "Maitzen adds that whatever hidden fault is supposed to block belief, such as pride or a lack of humility, presumably doesn't cluster by country, yet unbelief follows national borders. And a resistance hidden even from the resister can't be checked, since no seeker's report could ever count against it.",
                       ],
                       quote: {
                         text: "But when he was yet a great way off, his father saw him, and had compassion, and ran, and fell on his neck, and kissed him.",
@@ -506,10 +507,10 @@ const hiddenness: Objection = {
                       },
                       thinkers: ["maitzen", "schellenberg"],
                       cedes:
-                        "I'd give this up if giving belief to a resister made healing less likely, and if hidden resistance could be detected by some sign other than the unbelief it is meant to explain.",
+                        "This would be answered if belief given to a resister made healing less likely, and if hidden resistance showed some sign other than the unbelief it is meant to explain.",
                       see: [
                         { id: "mor-hell", why: "Objection V asks what judgment for unbelief adds to hiddenness." },
-                        { id: "hid-demographics", why: "Why secret resistance would have to follow national borders." },
+                        { id: "hid-demographics", why: "Maitzen on why the resistance story needs resistance to follow national borders." },
                       ],
                     },
                   ],
@@ -526,8 +527,8 @@ const hiddenness: Objection = {
           label: "Belief in an all-seeing judge would make goodness self-serving",
           gist: "If God's majesty were obvious to all, people would do good out of fear, and some distance leaves room to choose the good for its own sake.",
           body: [
-            "Schellenberg assumes that more evidence is always more loving, which is false if what love wants is a free answer. {{hick}} called the needed gap [[epistemic-distance|epistemic distance]], a world where God is not overwhelming, so people can grow into goodness without being pressed into it. {{swinburne}} argues that moral choice needs a God whose existence is not too evident, because with God in plain view the right act would always be the prudent one.",
-            "The danger comes from belief in a God who is all-powerful and judges every act. {{murray}} argued in 1993 that coercion comes from a threat that is evident and near, and no one calls handing over a wallet at gunpoint generosity. {{kant}} imagined God and eternity 'with their awful majesty' standing 'unceasingly before our eyes'. Then, he wrote, most lawful acts 'would be done from fear, a few only from hope, and none at all from duty', and human conduct would become a puppet show in which 'everything would gesticulate well, but there would be no life in the figures.'",
+            "Schellenberg assumes that giving everyone belief is always the loving thing to do, and defenders of free will argue that it isn't, if what love wants is a free answer. {{hick}} argued that people need [[epistemic-distance|epistemic distance]] from God, a distance in what they can know, so that God's existence doesn't overwhelm them and they can grow into goodness without being pressed into it. {{swinburne}} argues that moral choice needs a God whose existence is not too evident, because with God in plain view the right act would always be the prudent one.",
+            "{{murray}} argued in 1993 that belief in a God who is all-powerful and judges every act would coerce, because coercion comes from a threat that is evident and near, and no one calls handing over a wallet at gunpoint generosity. {{kant}} imagined God and eternity 'with their awful majesty' (awful in the old sense, awe-inspiring) standing 'unceasingly before our eyes'. Then, he wrote, most lawful acts 'would be done from fear, a few only from hope, and none at all from duty', and human conduct would become a puppet show in which 'everything would gesticulate well, but there would be no life in the figures.'",
           ],
           quote: {
             text: "Thomas, because thou hast seen me, thou hast believed: blessed are they that have not seen, and yet have believed.",
