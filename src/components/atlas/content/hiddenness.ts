@@ -775,10 +775,9 @@ const hiddenness: Objection = {
           id: "hid-messengers",
           side: "theist",
           label: "God works through messengers, so belief must travel unevenly",
-          gist: "People learn most of what they know from one another, a good God would respect that, and knowledge passed hand to hand spreads unevenly.",
+          gist: "People learn most of what they know from one another, and a God who values that should expect belief in him to spread unevenly.",
           body: [
-            "Maitzen's map shows how knowledge of God travels from person to person. Nearly everything people know, from medicine to mathematics, they know by trusting one another. {{baker-hytch}} argued in 2016 that this [[mutual-epistemic-dependence|mutual dependence]] for knowledge is a great good, and that a God who values it should expect belief to spread unevenly, along the roads people travel.",
-            "{{butler}} answered the objection in 1736. Nature hands out its gifts, such as health, strength, knowledge and the means to improve, 'with the most promiscuous variety', which in Butler's English means without regard to who needs or deserves them, and Butler held that revelation is handed out the same way. {{pascal}} even counted the diversity of religions as a sign of the hidden God: 'If there were only one religion, God would indeed be manifest' (*Pensées* 584).",
+            "{{baker-hytch}} argued in 2016 that Maitzen's map shows knowledge of God passing from person to person, the way nearly everything we know about medicine or history reaches us. He counts this [[mutual-epistemic-dependence|mutual dependence]] for knowledge as a great good, so a God who values it should expect belief to spread unevenly, along the roads people travel. In 1736 the Anglican clergyman {{butler}} answered critics who thought revelation suspect because its light had not reached everyone. God, he observed, hands out health, strength, knowledge and the means of improvement 'with the most promiscuous variety', meaning indiscriminately, without regard to who needs them, and he held that revelation is given the same way. {{pascal}} even counted the diversity of religions as a sign of the hidden God: 'If there were only one religion, God would indeed be manifest' (*Pensées* 585).",
           ],
           quote: {
             text: "…the Author of Nature, in numberless instances, bestows that upon some, which he does not upon others, who seem equally to stand in need of it.",
@@ -787,7 +786,7 @@ const hiddenness: Objection = {
           },
           thinkers: ["baker-hytch", "butler", "pascal"],
           cedes:
-            "This fails if God could keep every good of shared, handed-down knowledge while also giving each person belief directly.",
+            "If God could keep every good of shared, handed-down knowledge and still give each person belief directly, Baker-Hytch has no answer.",
           see: [
             { id: "mor-inclusivism", why: "Objection V asks whether people the messengers never reach can still be saved." },
             { id: "hid-responsibility", why: "Dumsday's good of being a messenger, working with God to bring others to know him." },
@@ -804,11 +803,11 @@ const hiddenness: Objection = {
             {
               id: "hid-testimony-accommodation",
               side: "skeptic",
-              label: "God could prize our witness and still reach everyone",
+              label: "God could value testimony and still give everyone basic belief",
               gist: "Valuing testimony doesn't require leaving whole civilizations without the idea of God, since God could give everyone a bare belief and leave the rest to human witness.",
               body: [
-                "Baker-Hytch's good doesn't require rationing the basics. A God who valued our dependence on one another could give every person the bare belief that he exists and leave the fuller knowledge of his character and will to be handed on. That would not leave the San of the Kalahari, or our ancestors for tens of thousands of years, without the idea at all. {{maitzen}} asked why the San, or any culture, should be 'less lucky' in this regard.",
-                "Pascal's sign doesn't fit the map either, because religious diversity comes in sealed national blocs and hardly exists within each culture. The testimony reply predicts what an atheist would also predict, that belief goes wherever its carriers went. And Butler's comparison helps the objection, since truth handed out as unevenly as health is what the world would look like if there were no providence.",
+                "A God who valued our dependence on one another, as Baker-Hytch says, could still give every person the bare belief that he exists and leave the fuller knowledge of his character and will to be handed on. That would keep Baker-Hytch's good without leaving the San of the Kalahari, or our ancestors for tens of thousands of years, without the idea of God at all. {{maitzen}} had asked in 2006 why the San, or any culture, should be 'less lucky' in this regard.",
+                "Pascal's sign doesn't fit the map either, because the diversity lies mostly between countries, while inside Saudi Arabia or Thailand nearly everyone shares one faith. The testimony reply predicts what an atheist would also predict, that belief goes wherever its carriers went. Butler's comparison arguably helps the Objector, since truth handed out as unevenly as health is also what we would expect if no one were handing it out.",
               ],
               quote: {
                 text: "…why doesn't this valuable diversity flourish within the cultures of Saudi Arabia and Thailand?",
@@ -830,8 +829,7 @@ const hiddenness: Objection = {
           label: "God places those who would respond where the message reaches",
           gist: "A God who knows what anyone would freely do can arrange history so that people who would respond are born where they can hear the gospel.",
           body: [
-            "The map looks like an accident of birth only if God placed people at random. {{craig}} argued in 1989 that he need not have. If God has [[middle-knowledge|middle knowledge]], meaning he knows what every possible person would freely do in any situation, he can order history so that anyone who would accept the gospel is born where they will hear it. Those who never hear are people who would not have believed if they had heard, so no one misses out by the luck of the draw.",
-            "Craig calls their condition transworld damnation, meaning that in no world God could make would they freely believe. On his account the unreached are lost by their own choice. Paul told the Athenians that God set the bounds of each people's dwelling so that they would seek him.",
+            "The map looks like an accident of birth only if God placed people at random, and {{craig}} argued in 1989 that he need not have. If God has [[middle-knowledge|middle knowledge]], meaning he knows what every possible person would freely do in any situation, he can order history so that anyone who would accept the gospel is born where they will hear it. Those who never hear would not have believed in any history God could have created, a condition Craig calls transworld damnation. On his account they are lost because of how they would freely have responded, and no one is lost because of where they happened to be born.",
           ],
           quote: {
             text: "…and hath determined the times before appointed, and the bounds of their habitation; That they should seek the Lord, if haply they might feel after him, and find him…",
