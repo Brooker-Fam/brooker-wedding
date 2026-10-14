@@ -1734,4 +1734,23 @@ export const thinkers: Thinker[] = [
     line: "With R. T. Mullins, argued that a God intrinsically the same whether or not he creates cannot account for creating: the ‘aloneness argument’.",
     work: "“The Aloneness Argument against Classical Theism” (with Mullins, 2022)",
   },
+  {
+    id: "drange",
+    name: "Theodore M. Drange",
+    life: "contemporary",
+    year: 1998,
+    tradition: "philosopher · West Virginia University · atheist",
+    side: "skeptic",
+    line: "Argued that widespread nonbelief counts against the God of evangelical Christianity, and that showing people the truth would not take away their freedom.",
+    work: "Nonbelief and Evil: Two Arguments for the Nonexistence of God (1998)",
+    sources: [
+      {
+        title: "Nonbelief as Support for Atheism",
+        by: "Theodore M. Drange",
+        year: "1998",
+        url: "https://infidels.org/library/modern/theodore-drange-nonbelief/",
+        note: "A short essay that criticizes Schellenberg's version and states Drange's own argument from nonbelief.",
+      },
+    ],
+  },
 ];

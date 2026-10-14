@@ -22,7 +22,9 @@ import { ThinkerChip } from "../primitives";
 import { formatRoute } from "../router";
 import type { DisputationIndex } from "../semantics";
 import type { Moment, Objection, ObjectionId, Quote, Side } from "../types";
-import { ERAS, GlyphKey, LibEmpty, LibHead, LibQuote, eraOf, fold, scrollBehavior, spokenBy, useMedia, yearText } from "./Outline";
+import { ERAS, GlyphKey, LibEmpty, LibHead, eraOf, fold, scrollBehavior, spokenBy, useMedia, yearText } from "./Outline";
+import { QuoteFigure } from "./OutlineList";
+import { SourceList } from "./Sources";
 
 type LaneKey = ObjectionId | "spinoza";
 type Filter = "all" | LaneKey;
@@ -1058,6 +1060,7 @@ function MomentCard({
   const ks = objLanes(m);
   const node = m.node ? ix.nodes.get(m.node) : undefined;
   const side = isSpinoza(m) ? "spinoza" : sideCls(m.side);
+  const reading = (m.sources ?? []).filter((x) => x.title);
   const goTo = (x: Moment) => {
     select(x.id);
     announce(`${x.when}: ${x.title}`);
@@ -1087,7 +1090,13 @@ function MomentCard({
         </p>
         <h2 className="tl-card-t serif">{m.title}</h2>
         {m.text && <p className="tl-card-x">{m.text}</p>}
-        <LibQuote q={quoteOf(m, ix)} className="tl-quote" />
+        <QuoteFigure q={quoteOf(m, ix)} className="tl-quote" />
+        {reading.length > 0 && (
+          <div className="tl-read">
+            <p className="mono lib-k">Read more</p>
+            <SourceList sources={reading} className="tl-read-list" />
+          </div>
+        )}
         <div className="tl-card-acts">
           {m.thinker && ix.thinkers.has(m.thinker) && <ThinkerChip id={m.thinker} />}
           {node && (
@@ -1280,6 +1289,7 @@ const ChronicleRow = memo(function ChronicleRow({
   quote?: Quote;
 }) {
   const ns = laneNs ? laneNs.split(",").map(Number) : [];
+  const reading = (m.sources ?? []).filter((x) => x.title);
   const segs = segKey ? segKey.split(",").map((s) => s.split(":") as [LaneKey, Seg["part"]]) : [];
   const sp = isSpinoza(m);
   const side = sp ? "spinoza" : sideCls(m.side);
@@ -1317,7 +1327,13 @@ const ChronicleRow = memo(function ChronicleRow({
           <span className="tl-chev" aria-hidden />
         </button>
         {isOpen && m.text && <p className="tl-text">{m.text}</p>}
-        {isOpen && <LibQuote q={quote} className="tl-quote tl-quote-row" />}
+        {isOpen && <QuoteFigure q={quote} className="tl-quote tl-quote-row" />}
+        {isOpen && reading.length > 0 && (
+          <div className="tl-read tl-read-row">
+            <p className="mono lib-k">Read more</p>
+            <SourceList sources={reading} className="tl-read-list" />
+          </div>
+        )}
         {isOpen && (
           <div className="tl-foot">
             {strands.length > 0 && (

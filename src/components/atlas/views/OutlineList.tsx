@@ -40,21 +40,63 @@ export interface OutlineListProps {
 /** Quotation marks inside a quotation become single ones, since the stylesheet puts double marks around every quotation. */
 export const nestQuotes = (text: string) => text.replace(/“/g, "‘").replace(/”/g, "’");
 
-/** A quotation in the house style (same classes as the Library's LibQuote, which this file can't import). */
-function OutlineQuote({ q }: { q: Quote }) {
+/* ---------- quotations and their texts (pure: also used by the People file, the Timeline, the peek and the move) ---------- */
+
+/** The site a link goes to, shown beside it so the reader knows where it leads: "gutenberg.org". */
+export function hostOf(url: string): string {
+  try {
+    return new URL(url).hostname.replace(/^www\./, "");
+  } catch {
+    return "";
+  }
+}
+
+/** "Read it in context ↗": a quotation's link to the full text it comes from, in a new tab. Nothing when there's no link. */
+export function ContextLink({ url, className = "" }: { url?: string; className?: string }) {
+  if (!url) return null;
+  const host = hostOf(url);
   return (
-    <figure className="lib-quote ol-quote">
+    <a className={`rf-ctx ${className}`} href={url} target="_blank" rel="noopener noreferrer" aria-label={`Read it in context${host ? ` at ${host}` : ""} (opens in a new tab)`}>
+      <span className="rf-ctx-t">Read it in context</span>
+      <span className="rf-ctx-arrow" aria-hidden>
+        ↗
+      </span>
+      {host && (
+        <span className="rf-ctx-host" aria-hidden>
+          {host}
+        </span>
+      )}
+    </a>
+  );
+}
+
+/** A quotation in the Library's house style: serif italic, the speaker and citation in mono, and a link to the text when there is one. */
+export function QuoteFigure({ q, hideWho = false, className = "" }: { q?: Quote; hideWho?: boolean; className?: string }) {
+  if (!q || !q.text) return null;
+  const who = hideWho ? "" : q.who;
+  return (
+    <figure className={`lib-quote ${className}`}>
       <blockquote>
         <p>{nestQuotes(q.text)}</p>
       </blockquote>
-      {(q.who || q.cite) && (
+      {(who || q.cite || q.url) && (
         <figcaption>
-          {q.who && <span className="lib-quote-who">{q.who}</span>}
+          {who && <span className="lib-quote-who">{who}</span>}
           {q.cite && <span className="lib-quote-cite">{q.cite}</span>}
+          {q.url && (
+            <span className="rf-ctx-row">
+              <ContextLink url={q.url} />
+            </span>
+          )}
         </figcaption>
       )}
     </figure>
   );
+}
+
+/** A move's quotation in the outline. */
+function OutlineQuote({ q }: { q: Quote }) {
+  return <QuoteFigure q={q} className="ol-quote" />;
 }
 
 /** Static glyph (same classes as primitives' Glyph, so atlas.css styles it). */

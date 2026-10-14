@@ -3,7 +3,8 @@
 /* One move in the thread, read as a line in a script.
    Collapsed: cue, address, glyph + claim, the gist, and its status.
    Focused (expanded in place): the plain-terms line, the side's full case,
-   its source quote, people, glossary terms and cross-links, then the decision
+   its quotation (with a link to the text where there is one), its sources,
+   people, glossary terms and cross-links, then the decision
    block (what would change this side's mind, Holds / Fails / Read the reply,
    and a Why? that explains the computed status in a sentence). */
 
@@ -14,6 +15,9 @@ import { address } from "../helpers";
 import { parseMarkup } from "../markup";
 import { usePeek } from "../peek";
 import { Glyph, RichText, ThinkerChip } from "../primitives";
+import { formatRoute } from "../router";
+import { ContextLink } from "./OutlineList";
+import { SourceList } from "./Sources";
 import { CallButtons, MoveChip, SIDE_POSS, SIDE_WORD, TurnStatus, WhyLine, cueFor, moveNoun, q, rippleStyle, seatOf, spellAddress, useChamber } from "./chamberShared";
 
 const KEYS = "ArrowUp ArrowDown ArrowLeft ArrowRight h f";
@@ -29,10 +33,13 @@ function uniqueBy<T>(xs: T[], key: (x: T) => string): T[] {
   });
 }
 
-function Section({ title, children }: { title: string; children: ReactNode }) {
+function Section({ title, count, className = "", children }: { title: string; count?: number; className?: string; children: ReactNode }) {
   return (
-    <section className="ch-sec">
-      <h4 className="ch-sec-h mono">{title}</h4>
+    <section className={`ch-sec ${className}`}>
+      <h4 className="ch-sec-h mono">
+        {title}
+        {count !== undefined && <span className="ch-sec-n"> · {count}</span>}
+      </h4>
       {children}
     </section>
   );
@@ -125,6 +132,7 @@ export default function Turn({ id, focused, next, tensed = false }: TurnProps) {
   const backlinks = uniqueBy(ix.backlinks.get(id) ?? [], (b) => b.from).filter((b) => b.from !== id && !seeIds.has(b.from));
   const offPathTensions = tensions.filter((t) => t.node === id && t.reply !== next);
   const body = n.body.filter((p) => p.trim());
+  const sources = (n.sources ?? []).filter((s) => s.title);
   const parentInfo = info.parent ? ix.nodes.get(info.parent) : undefined;
 
   return (
@@ -183,13 +191,24 @@ export default function Turn({ id, focused, next, tensed = false }: TurnProps) {
           <blockquote>
             <p>{n.quote.text}</p>
           </blockquote>
-          {(n.quote.who || n.quote.cite) && (
+          {(n.quote.who || n.quote.cite || n.quote.url) && (
             <figcaption>
               {n.quote.who && <span className="ch-quote-who">{n.quote.who}</span>}
               {n.quote.cite && <span className="ch-quote-cite">{n.quote.cite}</span>}
+              <ContextLink url={n.quote.url} />
             </figcaption>
           )}
         </figure>
+      )}
+
+      {/* Right under the case and its quotation, so the texts behind the move are easy to find. */}
+      {sources.length > 0 && (
+        <Section title="Sources" count={sources.length} className="ch-srcs">
+          <SourceList sources={sources} className="ch-srclist" />
+          <a className="ch-allsrc" href={formatRoute({ view: "sources" })}>
+            <span className="ch-u">See all sources</span> <span aria-hidden>→</span>
+          </a>
+        </Section>
       )}
 
       {(people.length > 0 || terms.length > 0) && (
@@ -241,32 +260,6 @@ export default function Turn({ id, focused, next, tensed = false }: TurnProps) {
             </Section>
           )}
         </div>
-      )}
-
-      {n.sources && n.sources.length > 0 && (
-        <Section title="Sources">
-          <ul className="ch-sources">
-            {n.sources.map((s, i) => (
-              <li key={i}>
-                {s.url ? (
-                  <a href={s.url} target="_blank" rel="noopener noreferrer" className="ch-src-title">
-                    {s.title} <span aria-hidden>↗</span>
-                  </a>
-                ) : (
-                  <span className="ch-src-title">{s.title}</span>
-                )}
-                {(s.by || s.year) && (
-                  <span className="ch-src-by">
-                    {s.by}
-                    {s.by && s.year ? " · " : ""}
-                    {s.year ?? ""}
-                  </span>
-                )}
-                {s.note && <span className="ch-src-note">{s.note}</span>}
-              </li>
-            ))}
-          </ul>
-        </Section>
       )}
 
       <div className="ch-decide">

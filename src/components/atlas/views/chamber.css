@@ -1331,45 +1331,38 @@
   line-height: 1.45;
   color: var(--faint);
 }
-.atl .ch-sources {
-  display: grid;
-  gap: 10px;
-  list-style: none;
-  margin: 0;
-  padding: 0;
+/* a move's sources (the list itself is the shared .rf-list in library.css) */
+.atl .ch-sec-n {
+  color: var(--mute);
 }
-.atl .ch-sources li {
-  display: flex;
-  flex-direction: column;
-  gap: 1px;
+.atl .ch-srcs {
+  max-width: 66ch;
 }
-.atl .ch-src-title {
-  font-family: var(--serif);
-  font-style: italic;
-  font-size: 15.5px;
-  line-height: 1.4;
-  color: var(--bone);
-  text-decoration: none;
+.atl .ch-srclist {
+  gap: 14px;
 }
-/* links get a 44px-tall hit area without spreading the list */
-.atl a.ch-src-title {
-  align-self: flex-start;
-  padding-block: 11px;
-  margin-block: -11px;
-}
-.atl a.ch-src-title:hover {
-  text-decoration: underline;
-  text-underline-offset: 3px;
-}
-.atl .ch-src-by {
+.atl .ch-allsrc {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 40px;
+  margin-top: 6px;
   font-family: var(--mono);
   font-size: 10.5px;
-  letter-spacing: 0.06em;
-  color: var(--faint);
-}
-.atl .ch-src-note {
-  font-size: 13px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
   color: var(--mute);
+  text-decoration: none;
+}
+.atl .ch-allsrc:hover {
+  color: var(--bone);
+}
+.atl .ch-allsrc:hover .ch-u {
+  text-decoration-color: var(--bone);
+}
+/* a quotation's "Read it in context" link sits under its citation */
+.atl .ch-quote figcaption .rf-ctx {
+  margin-top: 6px;
 }
 
 /* decision block */

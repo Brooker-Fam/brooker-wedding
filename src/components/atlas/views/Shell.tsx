@@ -43,6 +43,7 @@ const LIBRARY = [
   { view: "cast", label: "People", note: "Everyone cited, with the moves they appear in" },
   { view: "lexicon", label: "Glossary", note: "Technical terms in plain words" },
   { view: "outline", label: "Outline", note: "Every move as plain text" },
+  { view: "sources", label: "Sources", note: "Every book and text cited, with links" },
 ] as const;
 
 type LibView = (typeof LIBRARY)[number]["view"];
@@ -86,6 +87,13 @@ function LibIcon({ view }: { view: LibView }) {
       return (
         <svg {...common}>
           <path d="M3 5h14M6 10h11M9 15h8" />
+        </svg>
+      );
+    case "sources":
+      return (
+        <svg {...common}>
+          <path d="M3 4.8c2.6-.9 5-.6 7 .9 2-1.5 4.4-1.8 7-.9v10.4c-2.6-.9-5-.6-7 .9-2-1.5-4.4-1.8-7-.9z" />
+          <path d="M10 5.7v10.4" />
         </svg>
       );
   }
@@ -370,7 +378,7 @@ function TopBar({ onSkip }: { onSkip: () => void }) {
   const cur = currentObjection(route);
   const title = usePipTitle();
   const hash = formatRoute(route);
-  const libActive = route.view === "timeline" || route.view === "cast" || route.view === "lexicon" || route.view === "outline";
+  const libActive = route.view === "timeline" || route.view === "cast" || route.view === "lexicon" || route.view === "outline" || route.view === "sources";
 
   useEffect(() => setMenu(false), [hash]);
 
@@ -483,6 +491,7 @@ function Footer() {
           <Link href="/debates">All Thought Pages</Link>
           <Link href="/">brooker.family</Link>
           <a href="#/outline">Read the outline</a>
+          <a href="#/sources">Sources</a>
         </nav>
       </div>
     </footer>

@@ -5,9 +5,10 @@
    Everyone named in the arguments, in roundels grouped by era and filterable
    by the side that uses their work here (their role in these arguments, which
    can differ from what they believed). Choosing one opens their file: life,
-   tradition, a quotation, why they matter, their key work, every move that
-   names them (grouped by objection), their moments on the timeline, and a
-   small map with those moves lit. Desktop: a sticky file beside the roster.
+   tradition, a quotation (linked to its text where there is a link), why they
+   matter, their key work, where to read more, every move that names them
+   (grouped by objection), their moments on the timeline, and a small map with
+   those moves lit. Desktop: a sticky file beside the roster.
    Phone / tablet: the file opens in place, under the row of the name you tapped. */
 
 import "./library.css";
@@ -17,7 +18,9 @@ import { initials } from "../peek";
 import { Glyph } from "../primitives";
 import { formatRoute } from "../router";
 import type { ObjectionId, Quote, Side, Thinker } from "../types";
-import { ERAS, FootprintBlock, LibEmpty, LibHead, LibQuote, LibTabs, eraOf, fold, scrollBehavior, spokenBy, useMedia, yearText } from "./Outline";
+import { ERAS, FootprintBlock, LibEmpty, LibHead, LibTabs, eraOf, fold, scrollBehavior, spokenBy, useMedia, yearText } from "./Outline";
+import { QuoteFigure } from "./OutlineList";
+import { SourceList } from "./Sources";
 
 type TSide = Side | "neutral";
 type SideFilter = "all" | TSide;
@@ -333,6 +336,7 @@ function ThinkerFile({ t, onClose }: { t: Thinker; onClose?: () => void }) {
     return { quote: lead, more: extra };
   }, [t, refs, ix]);
   const s = sideOf(t);
+  const reading = (t.sources ?? []).filter((x) => x.title);
   return (
     <article className={`ca-file s-${s}`} aria-labelledby={`ca-file-${t.id}`}>
       {onClose && (
@@ -358,7 +362,7 @@ function ThinkerFile({ t, onClose }: { t: Thinker; onClose?: () => void }) {
         </div>
       </header>
       {t.tradition && <p className="ca-file-trad">{t.tradition}</p>}
-      <LibQuote q={quote} hideWho={!!quote?.who && sameName(quote.who, t.name)} className="ca-file-quote" />
+      <QuoteFigure q={quote} hideWho={!!quote?.who && sameName(quote.who, t.name)} className="ca-file-quote" />
       {t.line && <p className={`ca-file-line serif ${quote ? "after-quote" : ""}`}>{t.line}</p>}
       {t.work && (
         <p className="ca-file-work">
@@ -370,8 +374,14 @@ function ThinkerFile({ t, onClose }: { t: Thinker; onClose?: () => void }) {
         <div className="ca-file-sec ca-file-more">
           <p className="mono lib-k">More in their words</p>
           {more.map((q) => (
-            <LibQuote key={q.text} q={q} hideWho={!!q.who && sameName(q.who, t.name)} className="ca-more-quote" />
+            <QuoteFigure key={q.text} q={q} hideWho={!!q.who && sameName(q.who, t.name)} className="ca-more-quote" />
           ))}
+        </div>
+      )}
+      {reading.length > 0 && (
+        <div className="ca-file-sec ca-file-read">
+          <p className="mono lib-k">Read more</p>
+          <SourceList sources={reading} className="ca-read-list" />
         </div>
       )}
 

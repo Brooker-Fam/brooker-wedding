@@ -12,6 +12,7 @@ import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { createContext, useCallback, useContext, useEffect, useLayoutEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { useAtlas } from "./context";
 import { Rich } from "./markup";
+import { ContextLink } from "./views/OutlineList";
 
 type PeekTarget = { kind: "term" | "thinker"; id: string; rect: DOMRect };
 
@@ -140,9 +141,10 @@ function PeekCard({ target, onClose }: { target: PeekTarget; onClose: () => void
             <blockquote className="serif">
               <p>“{quote.text}”</p>
             </blockquote>
-            {(quote.cite || quoteWho) && (
+            {(quote.cite || quoteWho || quote.url) && (
               <figcaption className="mono">
                 {[quoteWho, quote.cite].filter(Boolean).join(" · ")}
+                <ContextLink url={quote.url} className="peek-ctx" />
               </figcaption>
             )}
           </figure>
