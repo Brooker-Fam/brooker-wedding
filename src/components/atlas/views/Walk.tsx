@@ -1010,7 +1010,7 @@ function ResolveRow({ items, fresh, delay }: { items: ResolveItem[]; fresh: bool
           <span className="wk-res-k mono">{top.label === "out" ? "Answered" : "Stands"}</span>
           {chain ? (
             <>
-              {Num(items.length)} moves back up this line of replies are settled. The last of them, <q className="serif">{labelText(top.id)}</q>,{" "}
+              {Num(items.length)} moves further up this line of replies are settled. The last of them, <q className="serif">{labelText(top.id)}</q>,{" "}
               {top.label === "out" ? "is answered" : "stands"}.
             </>
           ) : (

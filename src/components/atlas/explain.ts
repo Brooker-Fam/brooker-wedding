@@ -3,7 +3,7 @@
    Every status on the page is computed from the reader's own calls, so each
    one can be explained in a sentence that points at the move it turns on.
    The status word sits right beside the explanation, so the text doesn't
-   repeat it. Explanations describe the present state only and never preview
+   repeat it (except in a contradiction, which has to name both sides). Explanations describe the present state only and never preview
    what a future call would do (consequences come after a call, not before). */
 
 import type { DisputationIndex, Judgments, Labelling } from "./semantics";
@@ -76,7 +76,7 @@ export function explainNode(ix: DisputationIndex, labels: Labelling, j: Judgment
     if (call === "holds" && standing.length) {
       return {
         tone: "call",
-        text: `${q(name(standing[0]))} replies to it and stands, and a move with a standing reply is answered. These two contradict each other.`,
+        text: `You said it holds, but ${q(name(standing[0]))} replies to it and stands, and a move with a standing reply is answered. These two contradict each other.`,
         link: { id: standing[0], label: name(standing[0]) },
       };
     }

@@ -26,7 +26,7 @@ const nature: Objection = {
   counter:
     "Ruling out miracles in advance is circular. Even John Earman, no apologist, argues that Hume's case against miracles fails. And God arguably explains three things that nature alone leaves unexplained: why anything exists, why the constants of physics permit life, and why minds that evolved can track truth (Plantinga).",
   dek:
-    "The first half says nature never breaks its own laws, so miracles either don't happen or can't be believed. The second half says a God who chooses explains nothing nature can't, and {{aquinas}} raised it, almost word for word, as an objection to himself in the 1260s. His reply is still argued over. {{spinoza}} counted mind as part of nature and called nature God, so the question he presses on both sides is whether anything needs a God who makes choices.",
+    "The objection says that nature never breaks its own laws, so miracles either don't happen or can't be believed, and that a God who chooses explains nothing nature can't. {{aquinas}} raised the second point, almost word for word, as an objection to himself in the 1260s, and his reply is still argued over. {{spinoza}} counted mind as part of nature and called nature God, so what he asks both sides is whether anything needs a God who makes choices.",
   question:
     "Is nature the whole story, with no exceptions and nothing left over, or does it point past itself to a God who chooses?",
 
@@ -368,7 +368,7 @@ const nature: Objection = {
                 "A contingent world with a sufficient reason that does not make it necessary would answer Spinoza here.",
               see: [
                 { id: "coh-a-dogstar", why: "Spinoza's God thinks but does not choose, argued in Objection I." },
-                { id: "coh-a-collapse", why: "The same necessity, pressed against the God of Aquinas, who has no parts." },
+                { id: "coh-a-collapse", why: "The same necessity, aimed at the God of Aquinas, who has no parts." },
               ],
               sources: [
                 { title: "Ethics, pt. I", by: "Benedict de Spinoza, trans. R. H. M. Elwes", year: "1677", url: "https://www.gutenberg.org/ebooks/3800" },
@@ -406,7 +406,7 @@ const nature: Objection = {
                       label: "A reason that fits either choice is a brute fact in disguise",
                       gist: "If the same reasons would have explained God making a different world or none, nothing explains why this one exists, and the unexplained fact is back.",
                       body: [
-                        "Reasons that would have served equally well for the opposite choice can't explain why the choice went this way. Asked why this world exists and not another or none, the free-choice view ends with “God chose to.” That is a [[brute-fact|brute fact]], a fact with no explanation, dressed up as one. In the job example your character settles your choice, and nothing settles God's. {{spinoza}} demanded reasons without exception (*Ethics* I P11), and {{della-rocca}} presses this [[contrastive-explanation|contrastive]] demand, asking why this and not the alternatives.",
+                        "Reasons that would have served equally well for the opposite choice can't explain why the choice went this way. Asked why this world exists and not another or none, the free-choice view ends with “God chose to.” That is a [[brute-fact|brute fact]], a fact with no explanation, dressed up as one. In the job example your character settles your choice, and nothing settles God's. {{spinoza}} demanded reasons without exception (*Ethics* I P11), and {{della-rocca}} makes the same [[contrastive-explanation|contrastive]] demand, asking why this and not the alternatives.",
                         "{{leibniz}} said God chooses the best because reasons incline him without forcing him, and {{rowe}} argued that this fails. If there is a best world, a perfectly good God cannot fail to make it, and creation is necessary after all. If every world has a better one, God's goodness settles nothing and the brute fact returns.",
                       ],
                       quote: {
@@ -495,7 +495,7 @@ const nature: Objection = {
         {
           id: "nat-b-tune",
           side: "theist",
-          label: "Physics set just right for life is evidence of God",
+          label: "Physics tuned for life is evidence of God",
           gist: "Change the numbers of physics slightly and there would be no stars, chemistry or life, which is far less surprising if God intended life than if it came by chance.",
           body: [
             "Even if nature explains what happens inside it, its own settings still need explaining. Small changes to gravity, the strong force or the electron's mass would leave no long-lived stars and no chemistry for life. {{rees}} lists six numbers that must fall in narrow windows. The energy of empty space sits some 120 powers of ten below a naive quantum estimate, and a much larger value would have torn space apart before galaxies formed.",
@@ -596,7 +596,7 @@ const nature: Objection = {
                   gist: "A good God has reason to make a stable world where creatures can act, learn and matter to each other, and that needs physics that permits complex life.",
                   body: [
                     "Against Carroll, {{swinburne}} argues that a good God has reason to create creatures with bodies who are responsible for one another, which requires a stable world run by laws. God could keep life going by constant miracles under any laws, but creatures who act need regularities they can learn, so physics that permits complex life is what we should expect. {{collins}} answers the infinity problem by comparing only the range physicists can assess, where life-permitting values are a tiny fraction.",
-                    "A [[anthropic-principle|selection effect]] explains why we see a friendly universe given that we exist, and leaves open why there is one to exist in. {{leslie}} tells of fifty marksmen who fire at a condemned man and all miss. He would not be wondering otherwise, but that explains nothing, and he should suspect the miss was meant.",
+                    "A [[anthropic-principle|selection effect]] explains why we see a friendly universe given that we exist, and leaves open why there is one to exist in. {{leslie}} tells of fifty marksmen who fire at a condemned man and all miss. That he would not be wondering otherwise is true and explains nothing, and he should suspect the miss was meant.",
                   ],
                   quote: {
                     text: "… He governs things inferior by superior, not on account of any defect in His power, but by reason of the abundance of His goodness; so that the dignity of causality is imparted even to creatures.",
@@ -676,7 +676,7 @@ const nature: Objection = {
                   thinkers: ["plantinga", "dawkins", "swinburne", "aquinas"],
                   cedes:
                     "If an unlimited mind turned out to need more explaining than the finite universe it was invoked to explain, this would fall.",
-                  see: [{ id: "coh-a-collapse", why: "The trouble divine simplicity runs into, pressed in Objection I." }],
+                  see: [{ id: "coh-a-collapse", why: "The trouble divine simplicity runs into, argued in Objection I." }],
                   sources: [
                     { title: "The Dawkins Confusion: Naturalism ad absurdum", by: "Alvin Plantinga, Books & Culture", year: "2007", url: "https://www.booksandculture.com/articles/2007/marapr/1.21.html" },
                     { title: "Summa Theologiae I q.3 a.7", by: "Thomas Aquinas", url: "https://www.newadvent.org/summa/1003.htm" },
@@ -688,7 +688,7 @@ const nature: Objection = {
                       label: "An unlimited mind isn't simple, and toolmakers are no analogy",
                       gist: "A mind that knows every truth holds at least as much as the world it explains, and we infer toolmakers only because we already know toolmakers exist.",
                       body: [
-                        "Against {{swinburne}}, Jeremy Gwiazda (2009) argued that the case for infinite values being simpler than finite ones does not hold up. A mind that knows every truth and chooses among all possible universes holds at least as much information as the world it explains, which was {{dawkins}}'s point, pressed with more care by Herman Philipse (2012) and {{oppy}}. The reply also mixes rival views, since Swinburne's God is a person whose thoughts follow one another in time, while the God of [[divine-simplicity|divine simplicity]] has no parts and faces ((coh-a-collapse|the charge in Objection I)) that nothing could have been otherwise.",
+                        "Against {{swinburne}}, Jeremy Gwiazda (2009) argued that the case for infinite values being simpler than finite ones does not hold up. A mind that knows every truth and chooses among all possible universes holds at least as much information as the world it explains, which was {{dawkins}}'s point, argued more carefully by Herman Philipse (2012) and {{oppy}}. The reply also mixes rival views, since Swinburne's God is a person whose thoughts follow one another in time, while the God of [[divine-simplicity|divine simplicity]] has no parts and faces ((coh-a-collapse|the charge in Objection I)) that nothing could have been otherwise.",
                         "Flints and primes work as evidence because we already know that toolmakers and radio engineers exist and what they want. {{sober}} points out that we have no such knowledge of a mind without a body.",
                       ],
                       quote: {
@@ -850,7 +850,7 @@ const nature: Objection = {
                   },
                   thinkers: ["plantinga"],
                   cedes:
-                    "A materialist account on which a belief's content, and not only its neural shape, is what selection rewards would answer this.",
+                    "A materialist account on which selection rewards a belief's content as well as its neural shape would answer this.",
                   see: [{ id: "evi-a-defeaters", why: "Defeaters and basic beliefs, the same tools used in Objection IV." }],
                   sources: [
                     { title: "Epistemology in the Age of Neuroscience", by: "Patricia S. Churchland, Journal of Philosophy", year: "1987" },
@@ -886,7 +886,7 @@ const nature: Objection = {
                           label: "Selection leaves meaning loose, and basic trust can be defeated",
                           gist: "Selection can't tell a belief about flies from one about small dark moving things, and even basic trust gives way once you learn your faculties may be unreliable.",
                           body: [
-                            "Selection fixes content only as finely as it sees, and it sees coarsely. A frog's tongue-snap was selected because it caught flies, but every fly it caught was also a small dark moving thing, so its history can't say which it is about. {{fodor}} pressed this point in 1990, and with Massimo Piattelli-Palmarini in 2010. {{plantinga}} concluded in 2011 that where content is undetermined, so is truth, most of all for beliefs about logic, mathematics and naturalism.",
+                            "Selection fixes content only as finely as it sees, and it sees coarsely. A frog's tongue-snap was selected because it caught flies, but every fly it caught was also a small dark moving thing, so its history can't say which it is about. {{fodor}} made this point in 1990, and with Massimo Piattelli-Palmarini in 2010. {{plantinga}} concluded in 2011 that where content is undetermined, so is truth, most of all for beliefs about logic, mathematics and naturalism.",
                             "Plantinga answered Bergmann in 2002 that a [[properly-basic|properly basic]] belief is innocent until proven guilty and can still be proven guilty. If you learn you took a drug that makes most users' reasoning unreliable, your trust in it is defeated, basic or not. A naturalist who accepts evolution has learned much the same and cannot argue the [[defeater|defeater]] away without using those faculties.",
                           ],
                           thinkers: ["fodor", "plantinga", "bergmann"],
@@ -941,8 +941,8 @@ const nature: Objection = {
     title: "Spinoza on miracles and on explaining nature",
     body: [
       "{{spinoza}} goes further than Hume on miracles. Hume says we can never have good enough evidence to believe one, and Spinoza says the word names a gap in what the audience knows. Miracles, he wrote, “are only intelligible as in relation to human opinions, and merely mean events of which the natural cause cannot be explained by a reference to any ordinary occurrence, either by us, or at any rate, by the writer and narrator of the miracle” (*Theologico-Political Treatise* ch. 6, 1670). So he can grant every well-attested cure in ((nat-a-keener|the healing reports)) and lose nothing. A wonder done on command or in answer to prayer would show what the witnesses expected. To show where nature's powers end, you would need a list of all of them.",
-      "On explanation he sides with Leibniz and Aquinas against the skeptic who accepts brute facts. He held the principle of sufficient reason without exception (*Ethics* I P11), so he cannot say with Russell that the universe is just there, or call life-friendly physics a lucky draw. Of the three puzzles in the counter, he thinks two are solved without a person: why anything exists, and why minds track truth (II P7). He rejects the third as badly posed. Nature aims at nothing, [[final-causes|final causes]] (purposes in nature) are human inventions, and the constants are what Nature necessarily is (I Appendix, I P33).",
-      "Where he parts from believers is the step from *God explains nature* to *someone chose nature*. His God has infinite intellect and loves itself with an [[amor-dei-intellectualis|intellectual love]] (V P35–36), but has no will that picks among options (I P32–33). His strongest support here is ((nat-b-contrast|the demand for a reason why this and not that)), pressed today by the Spinoza scholar {{della-rocca}}. His weakest point is ((nat-b-tune|the physics)), which has so far found nothing that makes the constants necessary. Each branch comes back to Objection I's question, whether creation is free or necessary.",
+      "On explanation he sides with Leibniz and Aquinas against the skeptic who accepts brute facts. He held the principle of sufficient reason without exception (*Ethics* I P11), so he cannot say with Russell that the universe is just there, or call life-friendly physics a lucky draw. Of the three puzzles in the counter, he thinks two, why anything exists and why minds track truth (II P7), are solved without a person. He rejects the third as badly posed. Nature aims at nothing, [[final-causes|final causes]] (purposes in nature) are human inventions, and the constants are what Nature necessarily is (I Appendix, I P33).",
+      "Where he parts from believers is the step from *God explains nature* to *someone chose nature*. His God has infinite intellect and loves itself with an [[amor-dei-intellectualis|intellectual love]] (V P35–36), but has no will that picks among options (I P32–33). His strongest support here is ((nat-b-contrast|the demand for a reason why this and not that)), defended today by the Spinoza scholar {{della-rocca}}. His weakest point is ((nat-b-tune|the physics)), which has so far found nothing that makes the constants necessary. Each branch comes back to Objection I's question, whether creation is free or necessary.",
     ],
     quote: {
       text: "So they will pursue their questions from cause to cause, till at last you take refuge in the will of God—in other words, the sanctuary of ignorance.",
@@ -983,7 +983,7 @@ const nature: Objection = {
       by: "John Earman",
       year: "2000",
       url: "https://sites.pitt.edu/~jearman/Earman2000HumeAbjectFailure.pdf",
-      note: "Earman, who is not a believer, uses probability theory to argue that Hume's maxim fails. Read it with Robert Fogelin's reply, A Defense of Hume on Miracles (2003).",
+      note: "Earman, who is not a believer, uses probability theory to argue that Hume's maxim fails. Robert Fogelin answered it in A Defense of Hume on Miracles (2003).",
     },
     {
       title: "The Miracle of Theism",
