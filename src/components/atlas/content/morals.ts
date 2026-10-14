@@ -20,8 +20,8 @@ const morals: Objection = {
   objection:
     "Christianity's moral picture is wrong. It threatens hell for holding the wrong beliefs, it uses guilt to keep people in line, and Nietzsche charged that the whole faith says No to life.",
   counter:
-    "In the earliest Christian texts, saving faith means loyalty to Jesus more than correct opinions. Annihilationism (the lost are destroyed) and Hart's universalism (everyone is finally saved) both drop eternal torment, though most evangelicals reject both. Nietzsche's charge is about whether the faith is good for us, and skeptics rightly say a charge like 'Christians are hypocrites' can't show a belief is false. A faith built on God becoming flesh and on a bodily resurrection is hard to call life-denying. And Tom Holland's book Dominion argues that the objector's own care for the weak is a Christian inheritance, which Nietzsche himself said can't stand once the faith is gone.",
-  dek: "This moral objection points to hell for honest doubters, to guilt that keeps people coming back, and to a faith that seems to say No to the body and the world, and it asks whether a picture of God that ugly can be true. ((mor-holland|Tom Holland replies)) that the conscience doing the judging was formed by Christianity in the first place. ((mor-convicts|The objector answers)) that in that case the faith is failing its own moral test, which makes the charge harder to dismiss.",
+    "In the earliest Christian texts, saving faith means loyalty to Jesus more than correct opinions. Annihilationism (the lost are destroyed) and Hart's universalism (everyone is finally saved) both drop eternal torment, though most evangelicals reject both. Nietzsche's charge is about whether the faith is good for us, and skeptics rightly say a charge like 'Christians are hypocrites' can't show a belief is false. A faith built on God becoming flesh and on a bodily resurrection is hard to call life-denying. And Tom Holland's book Dominion argues that the Objector's own care for the weak is a Christian inheritance, which Nietzsche himself said can't stand once the faith is gone.",
+  dek: "This moral objection points to hell for honest doubters, to guilt that keeps people coming back, and to a faith that seems to say No to the body and the world, and it asks whether a picture of God that ugly can be true. ((mor-holland|Tom Holland replies)) that the conscience doing the judging was formed by Christianity in the first place. ((mor-convicts|The Objector answers)) that in that case the faith is failing its own moral test, which makes the charge harder to dismiss.",
   question:
     "If a faith's picture of God looks cruel, is that evidence it is false, and whose conscience gets to say so?",
 
@@ -138,7 +138,7 @@ const morals: Objection = {
                     "If blame turned out to require a choice with no cause at all, or if Spinoza's 'perishing' were a penalty in all but name, this reply would fail.",
                   see: [
                     { id: "coh-b-needslib", why: "Objection I argues that a God who moves every will causes the sins he judges." },
-                    { id: "mor-fixed-will", why: "If God moves the will, the objector asks who keeps it fixed." },
+                    { id: "mor-fixed-will", why: "If God moves the will, the Objector asks who keeps it fixed." },
                   ],
                 },
               ],
@@ -300,7 +300,7 @@ const morals: Objection = {
               gist: "The church condemned universal salvation in 543 and taught endless punishment in 1215, so reviving it now means letting conscience overrule centuries of teaching.",
               body: [
                 "The church weighed restoration and rejected it. In 543 the emperor Justinian's edict against Origen condemned anyone who 'says or thinks that the punishment of demons and of impious men is only temporary, and will one day have an end'. The Fourth Lateran Council in 1215 said the damned would receive 'eternal punishment with the devil'. Michael McClymond's history of Christian universalism, *The Devil's Redemption* (2018), finds it a minority current through the centuries, often esoteric and often condemned.",
-                "{{flew}} named what happens to a claim that is revised every time it meets an objection: 'A fine brash hypothesis may thus be killed by inches, the death by a thousand qualifications' (1950). The doctrine of hell did not change because new texts turned up. It changed, the objector argues, because consciences trained to find the old picture unworthy of a good God would no longer bear it. Each softening grants the objection's premise, that a good God would not do this.",
+                "{{flew}} named what happens to a claim that is revised every time it meets an objection: 'A fine brash hypothesis may thus be killed by inches, the death by a thousand qualifications' (1950). The doctrine of hell did not change because new texts turned up. It changed, the Objector argues, because consciences trained to find the old picture unworthy of a good God would no longer bear it. Each softening grants the objection's premise, that a good God would not do this.",
               ],
               quote: {
                 text: "It is in vain, then, that some, indeed very many, make moan over the eternal punishment, and perpetual, unintermitted torments of the lost, and say they do not believe it shall be so; not, indeed, that they directly oppose themselves to Holy Scripture, but, at the suggestion of their own feelings, they soften down everything that seems hard, and give a milder turn to statements which they think are rather designed to terrify than to be received as literally true.",
@@ -335,7 +335,7 @@ const morals: Objection = {
                   thinkers: ["newman", "hart", "gregory-of-nyssa"],
                   cedes: "If these views could only be defended with a premise from outside the tradition, I'd grant the objection.",
                   see: [
-                    { id: "mor-convicts", why: "The objector's version of correcting from within, aimed at the whole moral picture." },
+                    { id: "mor-convicts", why: "The Objector's version of correcting from within, aimed at the whole moral picture." },
                     { id: "evi-b-core", why: "In Objection IV, correcting from the core meets its hardest case, the miracles themselves." },
                   ],
                   sources: [
@@ -364,7 +364,7 @@ const morals: Objection = {
           cedes:
             "If the Gospels and Paul made explicit assent to propositions the dividing line, instead of loyalty lived out, this reading would be wrong.",
           see: [
-            { id: "hid-devils-believe", why: "The objector uses the same verse in Objection II." },
+            { id: "hid-devils-believe", why: "The Objector uses the same verse in Objection II." },
             { id: "evi-a", why: "Objection IV asks what kind of belief faith requires, and on what evidence." },
           ],
           sources: [
@@ -431,7 +431,7 @@ const morals: Objection = {
                       label: "On Objection II's replies, a doubter who heard isn't innocent",
                       gist: "Either the doubter who heard and declined is to blame, as some replies in Objection II say, or he is blameless, which grants the hiddenness argument a key premise.",
                       body: [
-                        "Inclusivism covers the villager who never heard. Does it cover the objector, who heard the gospel, weighed it and said no? Two replies in Objection II say no. If {{moser}} is right, an unconvinced seeker is resisting God somewhere, and if {{calvin}} is right, every mind senses God and suppresses it. Either way the doubter who heard is to blame, and *Lumen Gentium* 14 shuts out whoever knows and refuses.",
+                        "Inclusivism covers the villager who never heard. Does it cover the Objector, who heard the gospel, weighed it and said no? Two replies in Objection II say it doesn't. If {{moser}} is right, an unconvinced seeker is resisting God somewhere, and if {{calvin}} is right, every mind senses God and suppresses it. Either way the doubter who heard is to blame, and *Lumen Gentium* 14 shuts out whoever knows and refuses.",
                         "Other replies there spare him, but grant something in return. {{rea}} accepts honest unbelief and answers {{schellenberg}} on other grounds. {{plantinga}}'s sense of God ((hid-sensus|blames no one)) for a faculty damaged by inherited sin, and {{stump}}'s divided will ((hid-hidden-resistance|carries no blame)). Each concedes that [[nonresistant-nonbelief|some nonbelief is blameless]], the third premise of Schellenberg's hiddenness argument. The Defender must choose between a guilty doubter here and an innocent one there.",
                       ],
                       quote: {
@@ -785,7 +785,7 @@ const morals: Objection = {
         {
           id: "mor-holland",
           side: "theist",
-          label: "The objector's care for the weak is a Christian inheritance",
+          label: "The Objector's care for the weak is a Christian inheritance",
           gist: "Holland argues that the belief that the weak matter most came from Christianity, and Nietzsche's charge scorns it, so an objector who keeps that care can't borrow the charge.",
           body: [
             "Whoever presses Nietzsche's charge is judging with borrowed tools. {{holland}}'s *Dominion* (2019) argues that the West's deepest instincts, that the weak have claims on the strong and every person has equal dignity, are Christian in origin, and now pass for common sense. {{celsus}}, a second-century pagan critic, saw the novelty at once.",
@@ -801,7 +801,7 @@ const morals: Objection = {
           cedes:
             "If Nietzsche's charge could be kept whole without his contempt for the weak, or if equal regard for the weak had arisen as fully in a culture Christianity never touched, this argument would fail.",
           see: [
-            { id: "mor-hell", why: "If the objector's conscience is Christian, the standard used to judge hell came from the faith being judged." },
+            { id: "mor-hell", why: "If the Objector's conscience is Christian, the standard used to judge hell came from the faith being judged." },
             { id: "mor-guilt", why: "The same point applies to judging guilt as a means of control." },
             { id: "mor-mansel", why: "Mill's 'what I mean when I apply that epithet' is the inheritance in question." },
           ],
@@ -815,7 +815,7 @@ const morals: Objection = {
               id: "mor-convicts",
               side: "skeptic",
               label: "Then Christianity fails its own moral test",
-              gist: "If the objector's care for the weak is Christian, the objection becomes criticism from inside, and secular countries that kept the care suggest it can outlive the faith.",
+              gist: "If the Objector's care for the weak is Christian, the objection becomes criticism from inside, and secular countries that kept the care suggest it can outlive the faith.",
               body: [
                 "Granting the inheritance makes the objection stronger. Nietzsche's charge can be kept without his contempt, since the No to life lies in the ascetic ideal and the deferred heaven, as ((mor-holland-spinoza|Spinoza)) shows. If care for the victim is the faith's deepest value, hell for honest doubters and guilt used as control fail its own test.",
                 "Equal worth may not need God either. {{rawls}} grounds it in a 'range property', a capacity everyone above a threshold has equally (1971). Below it, Eva Kittay finds dignity in relations of care (1999), and {{wielenberg}} holds that basic moral facts need no foundation. Judging a value by its origin is the [[genetic-fallacy|genetic fallacy]], in either direction.",
@@ -931,7 +931,7 @@ const morals: Objection = {
                   gist: "Explaining how a belief arose defeats it only if nothing else supports it, and Christianity claims historical evidence, while Nietzsche's story fits early church history badly.",
                   body: [
                     "An origin story defeats a belief only when nothing but an unreliable process supports it, as Guy Kahane argues. Christian belief claims independent support in the resurrection case of ((evi-b-minimal|Objection IV)), so the debunker must win that argument first. Nietzsche's story also fits the history badly, since the scholars Wayne Meeks and Rodney Stark find the early churches drew a cross-section of city life.",
-                    "The method also backfires, because if origins in fear debunk faith, origins in blind natural selection threaten all the beliefs of someone who thinks nature is all there is, that one included, as ((nat-b-minds|Objection III)) argues. And ((mor-convicts|the objector)) called judging a value by its origin the [[genetic-fallacy|genetic fallacy]], yet here uses an origin to refute. On fruits, studies link a religious upbringing to better mental health, and attending services to flourishing in twenty-two countries (2025).",
+                    "The method also backfires, because if origins in fear debunk faith, origins in blind natural selection threaten all the beliefs of someone who thinks nature is all there is, that one included, as ((nat-b-minds|Objection III)) argues. And ((mor-convicts|the Objector)) called judging a value by its origin the [[genetic-fallacy|genetic fallacy]], yet here uses an origin to refute. On fruits, studies link a religious upbringing to better mental health, and attending services to flourishing in twenty-two countries (2025).",
                   ],
                   quote: {
                     text: "… great numbers must be involved in the danger of these prosecutions, which have already extended, and are still likely to extend, to persons of all ranks and ages, and even of both sexes.",
@@ -943,8 +943,8 @@ const morals: Objection = {
                     "The debunking would succeed if the historical case for the resurrection collapsed, leaving fear and resentment as the faith's only support.",
                   see: [
                     { id: "nat-b-minds", why: "Plantinga's argument that explaining our minds by evolution alone undercuts naturalism itself." },
-                    { id: "mor-convicts", why: "Where the objector calls an argument from origins the genetic fallacy." },
-                    { id: "mor-debt", why: "The objector's caution, in the part on guilt, about survey data like these." },
+                    { id: "mor-convicts", why: "Where the Objector calls an argument from origins the genetic fallacy." },
+                    { id: "mor-debt", why: "The Objector's caution, in the part on guilt, about survey data like these." },
                   ],
                   sources: [
                     { title: "Evolutionary Debunking Arguments", by: "Guy Kahane", year: "2011", note: "Noûs 45." },
