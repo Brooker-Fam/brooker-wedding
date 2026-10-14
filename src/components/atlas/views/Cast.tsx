@@ -49,6 +49,13 @@ function SideMark({ side, size = 10 }: { side: TSide; size?: number }) {
   return <Glyph side={side} size={size} />;
 }
 
+/** The quotation's speaker is just this person's name (so the file needn't repeat it under the quote). */
+const sameName = (who: string, name: string) => {
+  const w = fold(who).trim();
+  const n = fold(name).trim();
+  return w === n || n.endsWith(` ${w}`) || n.startsWith(`${w} of `) || n.startsWith(`${w} the `);
+};
+
 /** A plain click (no modifier keys): handle it in place; otherwise let the browser open the link. */
 const plainClick = (e: MouseEvent) => e.button === 0 && !e.metaKey && !e.ctrlKey && !e.shiftKey && !e.altKey;
 
@@ -327,7 +334,7 @@ function ThinkerFile({ t, onClose }: { t: Thinker; onClose?: () => void }) {
         </div>
       </header>
       {t.tradition && <p className="ca-file-trad">{t.tradition}</p>}
-      <LibQuote q={quote} hideWho={spokenBy(quote?.who, t.name)} className="ca-file-quote" />
+      <LibQuote q={quote} hideWho={!!quote?.who && sameName(quote.who, t.name)} className="ca-file-quote" />
       {t.line && <p className={`ca-file-line serif ${quote ? "after-quote" : ""}`}>{t.line}</p>}
       {t.work && (
         <p className="ca-file-work">

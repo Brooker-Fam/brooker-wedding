@@ -213,8 +213,8 @@ function Personae() {
           </dt>
           <dd>
             <span className="ov-pdesc">
-              The Dutch philosopher speaks up now and then. For him God and Nature are one thing, which acts from necessity and chooses nothing. He sides
-              with the Objector on miracles and with the Defender on the idea that everything has a reason.
+              The Dutch philosopher speaks up now and then. For him God and Nature are one thing, which acts from necessity and chooses nothing. He agrees
+              with the Objector that miracles don’t happen, and with the Defender that everything has a reason.
             </span>
             <PersonaQuote text="Whatsoever is, is in God, and without God nothing can be, or be conceived." cite="Spinoza, Ethics I, Prop. 15 (1677)" />
           </dd>
@@ -301,7 +301,7 @@ function RoseKey() {
           </span>
         </li>
       </ul>
-      <p className="ov-key-note">The colour shows who is talking. The fill shows the status, which changes as you mark moves.</p>
+      <p className="ov-key-note">The color shows who is talking. The fill shows the status, which changes as you mark moves.</p>
     </section>
   );
 }

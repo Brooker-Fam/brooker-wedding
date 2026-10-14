@@ -4,8 +4,8 @@
    nothing more. One result per objection (never a total), each showing the
    reader's result first, then the objection and its best reply. Below them
    come the key call (the call the results most rest on), any contradictions
-   among the reader's calls, and a plain-text copy. Code names: a "ruling" is
-   one objection's result, the "crux" is the key call, a "tension" is a
+   among the reader's calls, and a plain-text copy. In the code, Ruling is
+   one objection's result, Crux is the key call and Tension is a
    contradiction. */
 
 import "./ledger.css";
@@ -65,16 +65,19 @@ export default function Ledger() {
             Everything below is worked out from the moves you marked Holds or Fails, and it changes when you change a call. An objection stands if any one
             of its parts survives every reply. It is answered once every part has a reply that stands.
           </p>
-          <figure className="ld-epi">
-            <blockquote className="serif">
-              “For the force of reason in disputation is to be sought after rather than authority, since the authority of the teacher is often a disadvantage
-              to those who are willing to learn; as they refuse to use their own judgment…”
-            </blockquote>
-            <figcaption>
-              <span className="mono">Cicero · On the Nature of the Gods I.5 (45 BC), tr. C. D. Yonge</span>
-              <span className="ld-epi-note">He is explaining why he won’t say which side of the debate he takes.</span>
-            </figcaption>
-          </figure>
+          {/* One quotation per screen: the empty state carries its own (Socrates). */}
+          {!empty && (
+            <figure className="ld-epi">
+              <blockquote className="serif">
+                “For the force of reason in disputation is to be sought after rather than authority, since the authority of the teacher is often a
+                disadvantage to those who are willing to learn; as they refuse to use their own judgment…”
+              </blockquote>
+              <figcaption>
+                <span className="mono">Cicero · On the Nature of the Gods I.5 (45 BC), tr. C. D. Yonge</span>
+                <span className="ld-epi-note">He is explaining why he won’t say which side of the debate he takes.</span>
+              </figcaption>
+            </figure>
+          )}
           {!empty && (
             <p className="ld-calls mono">
               {calls.length} {calls.length === 1 ? "call" : "calls"} so far
@@ -102,7 +105,7 @@ export default function Ledger() {
           <h2 id="ld-rulings-h" className="ld-h2 serif" tabIndex={-1}>
             {empty ? `${COUNT_WORD[n] ?? n} objection${n === 1 ? "" : "s"}, none decided yet` : "Objection by objection"}
           </h2>
-          <p className="ld-sec-note">Each objection is judged on its own. There’s no overall score.</p>
+          <p className="ld-sec-note">Each objection is judged on its own, and there’s no overall score.</p>
         </div>
         <ol className="ld-list">
           {d.objections.map((o, i) => (

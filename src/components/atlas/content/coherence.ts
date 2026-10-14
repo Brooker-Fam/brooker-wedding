@@ -1,12 +1,17 @@
 import type { Objection } from "../types";
 
 /* Objection I — Coherence.
-   Three prongs: (A) divine vs natural causation, (B) foreknowledge vs freedom,
+   Three parts: (A) divine vs natural causation, (B) foreknowledge vs freedom,
    (C) Euthyphro. Children attack their parent. Quotes were checked against the
-   cited public-domain texts: Elwes's Spinoza (Ethics 1883; Letters, 1891
-   printing), the English Dominican Fathers' Summa Theologiae (New Advent),
-   H. R. James's Boethius (1897), Dods's City of God (1871), Shaw's Enchiridion
-   (New Advent), Jowett's Euthyphro, the KJV, and Hume's Enquiry (Gutenberg). */
+   cited texts: Elwes's Spinoza (Ethics 1883), the English Dominican Fathers'
+   Summa Theologiae (New Advent), H. R. James's Boethius (1897), Dods's City of
+   God (1871), Shaw's Enchiridion (New Advent), Jowett's Euthyphro and Republic,
+   the KJV, Hume's Enquiry and Dialogues (Gutenberg), Huggard's Theodicy
+   (Gutenberg), Montgomery's Discourse on Metaphysics (1902), Abbott's Kant
+   (Gutenberg), Lawson's Einstein (Gutenberg), Motte's Principia (1729 scan),
+   Cudworth's Treatise (1731, archive.org), Mill's Examination (1865 scan),
+   Russell's "Why I Am Not a Christian", Mackie's "Evil and Omnipotence" (course
+   reprint), and Marmura's Ghazali and Kenny as quoted in the SEP. */
 
 const coherence: Objection = {
   id: "coherence",
@@ -14,24 +19,24 @@ const coherence: Objection = {
   short: "Coherence",
   title: "The idea of God doesn't hold together",
   objection:
-    "The idea of God doesn't hold together: divine causation crowds out natural causation, God's foreknowledge rules out our freedom, and Euthyphro's dilemma leaves goodness either arbitrary or above God.",
+    "The idea of God doesn't hold together. If God causes everything, nature's causes do no work. If he knows today what you will do tomorrow, you aren't free to do otherwise. And Euthyphro's old dilemma leaves goodness either an arbitrary choice of God's or a standard above him.",
   counter:
-    "Classical theism (Aquinas, David Bentley Hart) says the objection attacks a God who is one cause among others; God instead grounds every cause without competing with them, which is the same move Spinozism makes, but with a personal God. Goodness is God's nature, which gets around Euthyphro. And calling God incoherent means every model has to fail, while timelessness, Molinism and open theism each claim a consistent account of foreknowledge.",
+    "Classical theism (Aquinas, David Bentley Hart) says the objection attacks a God who is one cause among others. Their God is the source of every cause and competes with none of them, which is Spinoza's move with a personal God added. God's nature is goodness itself, so Euthyphro's two options don't arise. And to prove the idea of God incoherent, the objector must show that every account of God fails. Three accounts of foreknowledge each claim to be consistent: God sees all of time at once, God knows what each of us would freely do (Molinism), or the future is still open (open theism).",
   dek:
-    "Can one God cause everything without making nature idle, know everything without making you unfree, and be goodness itself without making goodness arbitrary? The first two puzzles are mostly a family quarrel among theists, since a Spinozist's God also causes and knows everything; the objector's real target is a God who *chooses*. He wins only if every model of God fails; the theist needs just one that passes all three tests at once.",
+    "The Objector's main target is a God who *chooses*, one who could have made a different world or none at all. Spinoza's God also causes everything and knows everything, so the first two parts mostly divide believers among themselves. The Objector wins if every account of God fails at least one of the three parts. The Defender needs just one account that gets through all of them.",
   question:
     "Can a God who causes everything, knows every free choice and is goodness itself still be someone who chooses?",
 
   prongs: [
-    /* ───────────────────────── Prong A: divine vs natural causation ───────────────────────── */
+    /* ───────────────────────── Part 1: divine vs natural causation ───────────────────────── */
     {
       id: "coh-a",
       side: "skeptic",
       label: "God's causing crowds out nature's, and theism needs both",
-      gist: "If fire's own power is enough to burn cotton, God's causing adds nothing; if it isn't, fire is a stage prop and God does all the burning, and theism can afford neither.",
+      gist: "If fire's own power burns the cotton, God adds nothing, and if it doesn't, fire is a stage prop and God does all the burning.",
       body: [
-        "Theists built this dilemma themselves. {{ghazali}} argued in 1095 that no one can prove fire must burn cotton: God may create the burning directly, and the regularity is only his custom. {{malebranche}} made God the one true cause and creatures mere ‘occasions’, which is [[occasionalism|occasionalism]]. {{hume}} replied that long before such a theory ends, ‘we are got into fairy land’.",
-        "Concurrence, the classical view that God acts in every act of every creature, was meant to escape this, but the scholastics saw the trap. If the creature's power suffices, God's concurring is idle, and {{durandus}} concluded that God merely keeps things in being. {{freddoso}}, a leading modern defender of concurrence, closes that exit himself: conservation is not enough, since God cannot keep an effect in being from its first instant without already acting in its production. If the creature's power does not suffice, occasionalism returns. Physics sharpens it: if every physical event has a sufficient physical cause ([[causal-closure|causal closure]]), {{kim}}'s [[causal-exclusion|exclusion principle]] leaves no slot for a second one.",
+        "Believers built this dilemma themselves. {{ghazali}} argued in 1095 that no one can prove fire must burn cotton, since God may create the burning directly. {{malebranche}} made God the only true cause and called creatures mere ‘occasions’ for his acting, a view known as [[occasionalism|occasionalism]]. {{hume}} thought that long before such a theory ends, ‘we are got into fairy land’.",
+        "The usual view, called concurrence, says God works in everything a creature does. But if the creature's own power is enough, God's part looks idle, and {{durandus}} concluded that God only keeps things in existence. {{freddoso}}, a modern defender of concurrence, argues that this fails, because keeping an effect in being from its first instant already means helping to produce it. If the creature's power is not enough, we are back with Malebranche. And if every physical event has a complete physical cause, as physicists generally assume ([[causal-closure|causal closure]]), {{kim}}'s [[causal-exclusion|exclusion principle]] (one effect can't have two complete causes) leaves God nothing to add.",
       ],
       quote: {
         text: "Thus, according to these philosophers, every thing is full of God. Not content with the principle, that nothing exists but by his will, that nothing possesses any power but by his concession: They rob nature, and all created beings, of every power, in order to render their dependence on the Deity still more sensible and immediate.",
@@ -40,9 +45,9 @@ const coherence: Objection = {
       },
       thinkers: ["ghazali", "malebranche", "hume", "durandus", "freddoso", "kim"],
       cedes:
-        "I'd concede if someone could say what God's concurrence adds to a burning that fire's power does not, without making fire's power idle, or show that theism can let fire do nothing.",
+        "This falls if someone can say what God's part adds to the burning without making fire's part idle, or shows that belief in God can live with fire doing nothing at all.",
       see: [
-        { id: "nat-a-closure", why: "Causal closure again, aimed at miracles in Objection III: physics keeps finding sufficient physical causes." },
+        { id: "nat-a-closure", why: "Causal closure again, this time used against miracles in Objection III." },
       ],
       sources: [
         { title: "Occasionalism", by: "Stanford Encyclopedia of Philosophy (Sukjae Lee)", url: "https://plato.stanford.edu/entries/occasionalism/" },
@@ -53,11 +58,11 @@ const coherence: Objection = {
         {
           id: "coh-a-concur",
           side: "theist",
-          label: "A personal God freely gives fire its power, never as a rival",
-          gist: "God is not a bigger cause on fire's level; he freely gives fire its being and its power to burn, so the burning is wholly fire's and wholly God's, in different ways.",
+          label: "God freely gives fire its power and never competes with it",
+          gist: "God is no bigger cause standing beside fire, since he gives fire its being and power, so the burning belongs wholly to fire and wholly to God in different ways.",
           body: [
-            "The dilemma treats God and fire as two horses sharing one load, so that whatever one pulls, the other doesn't. Classical theism denies exactly that. {{aquinas}} has God work in every agent as the source of its being, its power and its acting, on a different level from it ([[primary-secondary-causation|primary and secondary causation]]). {{farrer}} called this double agency, and {{tanner}} a non-competitive relation; the old picture is an author, whose characters' every line is wholly theirs and wholly his. God is not a being among beings, {{hart}} insists, but the reason there are beings at all.",
-            "The Spinozist knows this move. Spinoza's God is the [[immanent-cause|immanent cause]] of all things (Ethics I P18), conditioning every finite cause (I P26) while each finite thing is caused by another (I P28): two complete stories, one vertical, one horizontal. The theist adds only that the source is a person who gives being freely.",
+            "The dilemma assumes God and fire compete, so that whatever one does, the other doesn't. Classical theism, the tradition of Augustine and Aquinas, denies this. {{aquinas}} held that God gives every creature its being, its power and its acting, and works on a different level from it ([[primary-secondary-causation|primary and secondary causation]]). {{farrer}} called this ‘double agency’, and {{tanner}} calls it a non-competitive relation. The usual picture is an author and his characters, where every line is wholly the character's and wholly the author's. {{hart}} argues that God is the reason there are beings at all, so he can't be one more being among them.",
+            "Spinoza made a similar move. His God is the [[immanent-cause|immanent cause]] of all things, the cause they exist in (Ethics I P18), while each finite thing is also caused by another finite thing (I P28). The reply adds that the source is a person who gives being freely.",
           ],
           quote: {
             text: "One action does not proceed from two agents of the same order. But nothing hinders the same action from proceeding from a primary and a secondary agent.",
@@ -66,11 +71,11 @@ const coherence: Objection = {
           },
           thinkers: ["aquinas", "farrer", "tanner", "hart"],
           cedes:
-            "I'd concede if a cause working on a different level from fire could be shown to compete with fire anyway, or if a source of all being could not act freely.",
+            "If a cause working on a different level from fire could be shown to compete with it anyway, or a source of all being couldn't act freely, this reply would fail.",
           see: [
-            { id: "hid-hart-light", why: "Hart's God as the light we see by, not an object to be found: the same non-competition, applied to hiddenness." },
+            { id: "hid-hart-light", why: "Hart's God as the light we see by, the same idea applied to hiddenness in Objection II." },
             { id: "coh-b-classical", why: "The same move, extended from fire's burning to your choosing." },
-            { id: "nat-a-power", why: "Whether a God who never competes can still raise the dead: Spinoza presses it in Objection III." },
+            { id: "nat-a-power", why: "Spinoza asks in Objection III whether a God who never competes can still raise the dead." },
           ],
           sources: [
             { title: "The Experience of God: Being, Consciousness, Bliss", by: "David Bentley Hart", year: "2013", url: "https://yalebooks.yale.edu/book/9780300209358/the-experience-of-god/" },
@@ -81,10 +86,10 @@ const coherence: Objection = {
               id: "coh-a-collapse",
               side: "skeptic",
               label: "A God with no parts couldn't have made any other world",
-              gist: "If God has no parts, his act of creating just is God; God exists necessarily, so that act, and the world it makes, exist necessarily too: Spinoza's world, not a free creation.",
+              gist: "If God has no parts, his act of creating is God himself, and since God can't fail to exist, neither can that act or the world it makes.",
               body: [
-                "The reply's God is the classical God of [[divine-simplicity|divine simplicity]]: no parts, no distinctions, essence and existence and will all one. Now run the logic. Whatever is identical with a necessary being is necessary. God's act of willing this world is identical with God. So that act is necessary, and so is the world it wills. Free creation, the very thing that makes this God personal rather than Spinozist, has quietly become [[modal-collapse|modal collapse]].",
-                "This is no outsider's trick. {{mullins}}, a Christian philosopher, made the case in 2013 and again, with Shannon Byrd, in 2022. With {{schmid|Joseph Schmid}} he aimed an ‘aloneness argument’ (2022) at the obvious escape: if God is intrinsically the same whether he creates or stays alone, nothing in God makes the difference. {{spinoza}} drew the conclusion openly and welcomed it. The theist who says ‘the same move, plus a person’ has paid full price for Spinoza's God.",
+                "The reply's God is the God of [[divine-simplicity|divine simplicity]], the classical teaching that God has no parts, so that his nature, his existence and his will are one thing. Whatever is identical with a necessary being is itself necessary. God's act of willing this world is identical with God, so that act is necessary, and so is the world it wills. Free creation, which was supposed to make this God personal and unlike Spinoza's, turns into what philosophers call [[modal-collapse|modal collapse]], the result that nothing could have been otherwise.",
+                "{{mullins}}, a Christian philosopher, made this case in 2013 and again, with Shannon Byrd, in 2022. With {{schmid|Joseph Schmid}} he aimed an ‘aloneness argument’ (2022) at the usual escape. If God is the same within himself whether he creates or stays alone, nothing in God accounts for the difference. {{spinoza}} drew the same conclusion openly and welcomed it.",
               ],
               quote: {
                 text: "Things could not have been brought into being by God in any manner or in any order different from that which has in fact obtained.",
@@ -93,9 +98,9 @@ const coherence: Objection = {
               },
               thinkers: ["mullins", "schmid", "spinoza"],
               cedes:
-                "I'd concede if a simple God's act of creating could differ across possible worlds without God himself differing, and without that difference being brute.",
+                "A simple God whose act of creating could differ from world to world, without God himself differing and without the difference going unexplained, would answer this.",
               see: [
-                { id: "nat-b-necess", why: "Spinoza reaches the same necessity from the principle of sufficient reason, in Objection III." },
+                { id: "nat-b-necess", why: "Spinoza reaches the same result in Objection III from the principle that everything has a reason." },
               ],
               sources: [
                 { title: "Divine Simplicity", by: "Stanford Encyclopedia of Philosophy", url: "https://plato.stanford.edu/entries/divine-simplicity/" },
@@ -106,11 +111,11 @@ const coherence: Objection = {
                 {
                   id: "coh-a-extrinsic",
                   side: "theist",
-                  label: "God's one act is necessary; the world it makes is not",
-                  gist: "God's single act is the same in every possible world; only the creatures it brings about differ, so God's necessity does not pass to the world he makes.",
+                  label: "God's act is necessary, but the world it makes isn't",
+                  gist: "God's single act is the same in every possible world and only its results differ, so God's necessity doesn't pass to the world he makes.",
                   body: [
-                    "The collapse argument slides from God's act to its outcome. {{aquinas|Aquinas}} drew the line: God wills his own goodness necessarily, but that goodness is complete without creatures, so his willing them is necessary only ‘by supposition’, the way Socrates must be sitting if he is sitting. {{leibniz}}, who talked with Spinoza in The Hague in 1676 and spent decades answering him, called it the difference between absolute and hypothetical necessity.",
-                    "{{tomaszewski}} argues that the usual argument is invalid: ‘God's act of creating’ picks out God's act only in worlds where there is a creation, so it is not the fixed name the argument needs. {{grant}}'s ‘extrinsic’ model makes ‘God wills this world’ true partly because of the world itself, the way ‘Everest is being photographed’ can go from false to true with no change in the mountain. What makes the difference between a world and none is a choice, explained by its reasons and not forced by them. The necessity of the source is not the necessity of the stream.",
+                    "The collapse argument slides from God's act to what the act produces. {{aquinas|Aquinas}} drew the line here. God wills his own goodness necessarily, but that goodness is complete without creatures, so his willing them is necessary only ‘by supposition’, in the way Socrates must be sitting if he is sitting. {{leibniz}}, who talked with Spinoza in The Hague in 1676 and spent decades answering him, called this the difference between absolute and hypothetical necessity.",
+                    "{{tomaszewski}} argues that the collapse argument is invalid. The phrase ‘God's act of creating’ picks out God's act only in worlds where something is created, and the argument needs a name that refers to the same thing in every world. {{grant}}'s ‘extrinsic’ model makes ‘God wills this world’ true partly because of the world itself, much as ‘Everest is being photographed’ can become true with no change in the mountain. On this view God's choice of a world is explained by his reasons, though the reasons don't force it.",
                   ],
                   quote: {
                     text: "Hence, since the goodness of God is perfect, and can exist without other things inasmuch as no perfection can accrue to Him from them, it follows that His willing things apart from Himself is not absolutely necessary.",
@@ -119,10 +124,10 @@ const coherence: Objection = {
                   },
                   thinkers: ["aquinas", "leibniz", "tomaszewski", "grant"],
                   cedes:
-                    "I'd concede if God's being the same in every world, while the world differs, left the existence of this world with no explanation at all.",
+                    "If a God who is the same in every world, while the world differs, left this world's existence with no explanation at all, the reply would fail.",
                   see: [
-                    { id: "nat-b-reasons", why: "How a free choice can be explained without being forced: the theist's case, argued in Objection III." },
-                    { id: "nat-b-contrast", why: "The rejoinder there: a reason that fits either choice is a brute fact in disguise." },
+                    { id: "nat-b-reasons", why: "Objection III argues at length that reasons can explain a free choice without forcing it." },
+                    { id: "nat-b-contrast", why: "The response there says a reason that fits either choice explains nothing." },
                   ],
                   sources: [
                     { title: "Free Will and God's Universal Causality: The Dual Sources Account", by: "W. Matthews Grant", year: "2019" },
@@ -135,10 +140,10 @@ const coherence: Objection = {
               id: "coh-a-dogstar",
               side: "spinoza",
               label: "A creator's mind would be ‘mind’ as the Dog Star is a dog",
-              gist: "A mind that thinks up the world before the world exists would be as unlike ours as the Dog Star is unlike a barking dog; the only divine mind that makes sense is one ours is part of.",
+              gist: "A mind that planned the world before the world existed would be as unlike ours as the Dog Star is unlike a barking dog, Spinoza argues.",
               body: [
-                "The reply borrows Spinoza's move, which works because things are *in* God (Ethics I P15, P18), and adds ‘a person’. The addition fails. A personal creator is an intellect and will that exist before things and decide them. Such an intellect would cause both what our minds are and that they exist, and a cause differs from its effect in exactly what it gives. A father causes his son's existence, not his human nature, so the two share a nature; a mind that caused the very nature of minds would share nothing with ours but the name (I P17 Schol.).",
-                "Spinoza does not deny that God thinks. Thought is an attribute of God (II P1), and the human mind is part of God's infinite intellect (II P11 Cor.): [[univocity|univocal]] thought, the same kind as ours. What he denies is a mind that precedes and chooses the world. ‘Personal’, in the counter's sense, means either a magnified human or nothing at all.",
+                "The reply borrows Spinoza's idea that things exist *in* God (Ethics I P15, P18) and adds ‘a person’. Spinoza thinks the addition fails. A personal creator would be an intellect and will that exist before things and decide them, so it would cause both what our minds are and the fact that they exist. A father causes his son's existence but not his human nature, which is why the two share a nature. A mind that caused the very nature of minds would share nothing with ours but the name (I P17 Schol.).",
+                "Spinoza doesn't deny that God thinks. Thought is one of God's attributes (II P1), and the human mind is part of God's infinite intellect (II P11 Cor.), so divine and human thought are the same kind of thing ([[univocity|univocal]], in the jargon). What he denies is a mind that comes before the world and chooses it. On his view a ‘personal’ God is either a magnified human or nothing at all.",
               ],
               quote: {
                 text: "… intellect and will, which should constitute the essence of God, would perforce be as far apart as the poles from the human intellect and will, in fact, would have nothing in common with them but the name; there would be about as much correspondence between the two as there is between the Dog, the heavenly constellation, and a dog, an animal that barks.",
@@ -147,20 +152,20 @@ const coherence: Objection = {
               },
               thinkers: ["spinoza"],
               cedes:
-                "I'd concede if someone gave real content to a divine intellect prior to things, one that neither copies ours nor shrinks to a name.",
+                "Spinoza would give way if someone described a divine mind that comes before things and neither copies ours nor shrinks to a name.",
               see: [
-                { id: "hid-love-emptied", why: "The same dilemma for divine ‘love’, in Objection II: stretch the word that far and it stops saying anything." },
-                { id: "evi-a-imagination", why: "Spinoza on a God known by feeling: imagination, not knowledge." },
+                { id: "hid-love-emptied", why: "The same dilemma for divine ‘love’ in Objection II, where stretching the word that far empties it." },
+                { id: "evi-a-imagination", why: "Spinoza on why a God known by feeling is known only by imagination, which for him falls short of knowledge." },
               ],
               children: [
                 {
                   id: "coh-a-analogy",
                   side: "theist",
                   label: "Analogy speaks truly of God without making him one of us",
-                  gist: "‘Wise’ said of God and of Socrates is neither the same meaning nor a pun: God has first what Socrates has by gift, as a builder's mind holds first what the house displays.",
+                  gist: "‘Wise’ said of God and of Socrates means neither the same thing nor something unrelated, because God has first what Socrates has as a gift.",
                   body: [
-                    "The dog-star dilemma offers two options, the same meaning or none, and skips the third. {{aquinas|Aquinas}} held that words like ‘wise’ and ‘good’ are said of God [[analogy-of-being|by analogy]], the way ‘bright’ is said of the sun and of the wall it lights: not the same brightness, not unrelated either, and the sun's comes first. A cause cannot give what it lacks; whatever perfection is in an effect is in its cause, ‘in a more eminent degree’ (ST I q.4 a.2).",
-                    "Nor is a mind that comes before its works a stranger to ours. Ours does it daily: an architect's plan exists before the house and causes it, and Aquinas compares God's knowledge to the knowledge of the artificer (ST I q.14 a.8). If priority to things made a mind alien, every builder would be a dog-star. Aquinas also kept a lesson from {{maimonides}}, who went further and allowed only [[apophatic|negative theology]]: analogy tells us truly *that* God is wise, never what God's wisdom is like.",
+                    "The Dog Star dilemma offers two options, the same meaning or none, and leaves out a third. {{aquinas|Aquinas}} held that words like ‘wise’ and ‘good’ are said of God [[analogy-of-being|by analogy]]. The word ‘bright’ works this way for the sun and for the wall it lights. The two brightnesses differ, they are related, and the sun's comes first. A cause can't give what it lacks, so whatever perfection an effect has is in its cause ‘in a more eminent degree’ (ST I q.4 a.2).",
+                    "A mind that comes before its works isn't foreign to us either. An architect's plan exists before the house and causes it, and Aquinas compares God's knowledge to ‘the knowledge of the artificer’ (ST I q.14 a.8). He also kept a lesson from {{maimonides}}, who allowed only [[apophatic|negative theology]], statements of what God is not. For Aquinas, analogy tells us truly *that* God is wise and never tells us what God's wisdom is like.",
                   ],
                   quote: {
                     text: "Now this mode of community of idea is a mean between pure equivocation and simple univocation. For in analogies the idea is not, as it is in univocals, one and the same, yet it is not totally diverse as in equivocals; …",
@@ -169,10 +174,10 @@ const coherence: Objection = {
                   },
                   thinkers: ["aquinas", "maimonides"],
                   cedes:
-                    "I'd concede if analogical speech about God, looked at closely, always collapsed into either the same meaning as ours or no meaning at all.",
+                    "If talk of God's wisdom, looked at closely, always turned out to mean either what it means for us or nothing at all, the reply would fail.",
                   see: [
-                    { id: "hid-hart-personal", why: "The ground of being as infinite mind and love: Hart's version, in Objection II." },
-                    { id: "hid-rea-love", why: "Rea's answer to hiddenness leans on the same analogy: divine love needn't look like a parent's." },
+                    { id: "hid-hart-personal", why: "Hart's version in Objection II, where the source of being is infinite mind and love." },
+                    { id: "hid-rea-love", why: "Rea's answer to hiddenness in Objection II leans on the same analogy, since divine love needn't look like a parent's." },
                   ],
                   sources: [
                     { title: "Medieval Theories of Analogy", by: "Stanford Encyclopedia of Philosophy", url: "https://plato.stanford.edu/entries/analogy-medieval/" },
@@ -183,18 +188,23 @@ const coherence: Objection = {
                       id: "coh-a-univocal",
                       side: "skeptic",
                       label: "Analogy with no shared core tells us nothing about God",
-                      gist: "If ‘wise’ means something different of God, no argument carries us from wise creatures to a wise God; give the word a shared core and God is back on our scale, a rival after all.",
+                      gist: "If ‘wise’ means something different for God, we can't reason from wise creatures to a wise God, and if it means the same, God is back on our scale.",
                       body: [
-                        "The reply's sun and wall show the problem: ‘bright’ works there because one thing, light, is in both. Take that away and the inference fails. {{scotus|Duns Scotus}}, a Franciscan who shared Aquinas's faith, made the point against him: an argument that shifts the meaning of ‘wise’ between premise and conclusion proves nothing, so if creatures teach us anything about God, some concept must apply to both in the same sense (*Ordinatio* I d.3). {{alston}} reached the same verdict in 1993, finding that Aquinas's analogies need a univocal core, and Thomas Williams titled a 2005 defense ‘The Doctrine of Univocity Is True and Salutary’.",
-                        "So the reply must choose. With a shared core, God's wisdom is our wisdom without its limits: one more item on the scale of beings, larger but comparable, exactly the ‘being among beings’ that {{hart|Hart}} and {{tanner|Tanner}} disowned so that God would never compete with fire. Without the core, ‘wise’ and ‘personal’ give us nothing to reason with. The Dog Star returns either way.",
+                        "The sun and the wall share ‘bright’ because one thing, light, is in both. Without a shared core, an argument from creatures to God fails. {{scotus|Duns Scotus}}, a Franciscan who shared Aquinas's faith, made this point against him. An argument that shifts the meaning of ‘wise’ between premise and conclusion proves nothing, so if creatures teach us anything about God, some concept must apply to both in the same sense (*Ordinatio* I d.3). {{alston}} reached a similar verdict in 1993, and Thomas Williams titled a 2005 defense of Scotus ‘The Doctrine of Univocity Is True and Salutary’.",
+                        "That leaves the reply a choice. With a shared core, God's wisdom is our wisdom without its limits, and God becomes one more being on the scale, larger but comparable. That is the ‘being among beings’ {{hart|Hart}} and {{tanner|Tanner}} rejected so that God would never compete with fire. Without the core, ‘wise’ and ‘personal’ give us nothing to reason with.",
                       ],
-                      thinkers: ["scotus", "alston", "hart", "tanner"],
+                      quote: {
+                        text: "Is the name, without any meaning, of such mighty importance? Or how do you mystics, who maintain the absolute incomprehensibility of the Deity, differ from Sceptics or Atheists, who assert, that the first cause of all is unknown and unintelligible?",
+                        who: "Cleanthes, in Hume's dialogue",
+                        cite: "David Hume, Dialogues Concerning Natural Religion (1779), Part IV",
+                      },
+                      thinkers: ["scotus", "alston", "hart", "tanner", "hume"],
                       cedes:
-                        "I'd concede if an analogical term could carry an inference from creatures to God with no core of meaning shared by both.",
+                        "This would fail if a word like ‘wise’ could carry an argument from creatures to God without any meaning the two share.",
                       see: [
-                        { id: "coh-a-concur", why: "A shared core puts God back on fire's scale: the competition non-competition was meant to end." },
-                        { id: "hid-love-emptied", why: "The same squeeze on divine ‘love’, in Objection II." },
-                        { id: "mor-mansel", why: "Mill's version in Objection V: a goodness with no shared sense is empty praise." },
+                        { id: "coh-a-concur", why: "With a shared core God is back on fire's scale and competing with it again." },
+                        { id: "hid-love-emptied", why: "The same problem for divine ‘love’ in Objection II." },
+                        { id: "mor-mansel", why: "Mill's version in Objection V, where a goodness unlike ours is empty praise." },
                       ],
                       sources: [
                         { title: "Aquinas on Theological Predication: A Look Backward and a Look Forward", by: "William P. Alston", year: "1993", note: "In Reasoned Faith, ed. Eleonore Stump." },
@@ -210,19 +220,25 @@ const coherence: Objection = {
         {
           id: "coh-a-occasion",
           side: "theist",
-          label: "Let God do all the causing: occasionalism holds together",
-          gist: "Take the dilemma's second horn: God alone causes, and nature's laws are the steady habits of his will; that picture is consistent, and a charge of incoherence needs every model to fail.",
+          label: "A God who does all the causing is a consistent picture",
+          gist: "If God alone causes and nature's laws are his steady habits, the picture is still consistent, and a charge of incoherence has to defeat every picture.",
           body: [
-            "The dilemma assumes theism needs fire to have powers of its own. It needs only that God be the source of all, and one consistent way to say so takes the second horn. {{ghazali|Al-Ghazali}} held that fire and cotton touch and God creates the burning. {{malebranche|Malebranche}} argued, before Hume, that we never perceive a necessary connection between any creature and its effect, and found one only in God's will. Hume kept the argument and dropped God.",
-            "Nothing in science is lost. The laws still hold, because God is faithful; they describe how he customarily acts, as reliably as any power in things would. {{mccann|Hugh McCann}} and Jonathan Kvanvig defended a modified occasionalism in 1991, and {{plantinga}} gave it a sympathetic hearing in 2016. Hume's ‘fairy land’ is a sneer, not a contradiction. To call the idea of God incoherent, this model has to fail too.",
+            "The dilemma assumes theism needs fire to have powers of its own. It needs only that God be the source of everything, and one consistent way to say so is to accept the dilemma's second option, [[occasionalism|occasionalism]], on which God alone causes anything. {{ghazali|Al-Ghazali}} held that fire and cotton touch and God creates the burning. {{malebranche|Malebranche}} argued, before Hume, that we never see a necessary connection between a creature and its effect, and he found one only in God's will. Hume later used the same argument without God.",
+            "Science loses nothing on this view. The laws still hold because God is faithful, and they describe how he usually acts as reliably as powers in things would. {{mccann|Hugh McCann}} and Jonathan Kvanvig defended a modified occasionalism in 1991, and {{plantinga}} gave it a sympathetic hearing in 2016. Hume's ‘fairy land’ mocks the view without finding a contradiction in it.",
           ],
+          quote: {
+            text: "The connection (iqtirān) between what is habitually believed to be a cause and what is habitually believed to be an effect is not necessary (ḍarūrī), according to us.",
+            who: "Al-Ghazali",
+            cite: "The Incoherence of the Philosophers (1095), Seventeenth Discussion (trans. Michael E. Marmura), as quoted in the SEP entry “al-Ghazali”",
+          },
           thinkers: ["ghazali", "malebranche", "mccann", "plantinga"],
           cedes:
-            "I'd concede if a God who does all the causing contradicted something theism cannot give up, not merely common sense.",
+            "If a God who does all the causing contradicted some belief theism can't give up, this would fail, though offending common sense isn't enough.",
           see: [
-            { id: "coh-a-concur", why: "The classical alternative: God gives creatures real power instead of doing everything himself." },
+            { id: "coh-a-concur", why: "The classical alternative, where God gives creatures real power of their own." },
           ],
           sources: [
+            { title: "Al-Ghazali", by: "Stanford Encyclopedia of Philosophy (Frank Griffel)", url: "https://plato.stanford.edu/entries/al-ghazali/" },
             { title: "The Occasionalist Proselytizer: A Modified Catechism", by: "Hugh J. McCann and Jonathan L. Kvanvig", year: "1991", note: "Philosophical Perspectives 5." },
             { title: "Law, Cause, and Occasionalism", by: "Alvin Plantinga", year: "2016", note: "In Reason and Faith, ed. Michael Bergmann and Jeffrey E. Brower." },
           ],
@@ -231,10 +247,10 @@ const coherence: Objection = {
               id: "coh-a-sinauthor",
               side: "skeptic",
               label: "If God alone causes, God alone does every evil deed",
-              gist: "On occasionalism the murderer's stab is God's work and the murderer supplies only the occasion; a holy God who is the sole agent of every sin is the contradiction, and the counter's own Aquinas rejects the view.",
+              gist: "If God is the only cause, the murderer's stab is God's work, and a holy God who commits every sin is a contradiction that Aquinas himself rejected.",
               body: [
-                "The model holds together until you count the sins. If God is the only cause, then when a hand drives a knife into a sleeping man, the motion is God's work and the murderer contributes an occasion. The Ash'arites said God creates the act and the human only ‘acquires’ it, a word that names the problem without solving it. {{malebranche|Malebranche}} saw the difficulty and carved out one exception, the will's consent, which he insisted is no real cause. Either it is a real power, and occasionalism has failed, or it is nothing, and God does the sinning.",
-                "The privation reply, that God causes the act but not its defect ((coh-b-teleo|argued in the second prong)), needs a creature that falls short, and occasionalism leaves no creature doing anything. That is why the counter's own authority rejects the model as an insult to the Creator who gives creatures real power.",
+                "Occasionalism holds together until you count the sins. If God is the only cause, then when a hand drives a knife into a sleeping man, the motion is God's work and the murderer supplies only the occasion. The Ash'arites, the school of Islamic theology Ghazali belonged to, said God creates the act and the human only ‘acquires’ it, a word that names the problem without solving it. {{malebranche|Malebranche}} saw the difficulty and made one exception, the will's consent, which he insisted is no real cause. Either consent is a real power, and occasionalism has failed, or it is nothing, and God does the sinning.",
+                "The usual reply about sin, that God causes the act and not its defect ((coh-b-teleo|in Part 2)), needs a creature that falls short, and occasionalism leaves no creature doing anything. Aquinas, the authority classical theism follows, rejected occasionalism outright.",
               ],
               quote: {
                 text: "Some have understood God to work in every agent in such a way that no created power has any effect in things, but that God alone is the ultimate cause of everything wrought; for instance, that it is not fire that gives heat, but God in the fire, and so forth. But this is impossible. First, because the order of cause and effect would be taken away from created things: and this would imply lack of power in the Creator …",
@@ -243,7 +259,7 @@ const coherence: Objection = {
               },
               thinkers: ["malebranche", "aquinas"],
               cedes:
-                "I'd concede if an occasionalist could say who but God does anything when a sin is done, without giving creatures real causal power.",
+                "Someone would need to say who besides God does anything when a sin is done, without giving creatures real power to act.",
               see: [
                 { id: "coh-b-needslib", why: "The same charge against the classical God who causes every choice." },
               ],
@@ -256,15 +272,15 @@ const coherence: Objection = {
       ],
     },
 
-    /* ───────────────────────── Prong B: foreknowledge vs freedom ───────────────────────── */
+    /* ───────────────────────── Part 2: foreknowledge vs freedom ───────────────────────── */
     {
       id: "coh-b",
       side: "skeptic",
       label: "An all-knowing God leaves no room for the freedom theism needs",
-      gist: "If God already knows what you will do and can't be wrong, you can't do otherwise; and freedom, as many theists now defend it, means you could have.",
+      gist: "If God already knows what you will do and can't be wrong, you can't do otherwise, and freedom, as many believers now define it, means you could have.",
       body: [
-        "{{boethius}} met the problem around 524, in a prison cell, awaiting execution. {{pike}} gave it modern rigor in 1965. Yesterday God believed you would take the job. God's beliefs cannot be mistaken. The past is fixed: no one now can make it that God believed otherwise. So no one now can do anything but take the job. Three premises (God can't be wrong, the past can't be changed, and whatever follows from the unchangeable is unchangeable too), and freedom is gone.",
-        "The leading modern answers to the problem of evil need [[libertarian-freedom|libertarian freedom]], the power at the moment of choice to go either way, to explain why God permits evil and why judgment is just. If [[theological-fatalism|theological fatalism]] holds, either God does not foreknow, or no one has ever chosen anything, and the God who judges has nothing to judge.",
+        "{{boethius}} faced this problem around 524, in a prison cell, waiting to be executed. {{pike}} gave it its modern form in 1965. In Pike's version, God believed yesterday that you would take the job today. God's beliefs can't be mistaken. The past can't be changed, so no one now can make it the case that God believed otherwise, and whatever follows from something unchangeable is unchangeable too. So no one, you included, can now do anything but take the job.",
+        "Many of the leading modern answers to the problem of evil rely on [[libertarian-freedom|libertarian freedom]], the power at the moment of choice to go either way. They use it to explain why God permits evil and why his judgment is just. If [[theological-fatalism|theological fatalism]] is right, either God doesn't know the future or no one has ever chosen anything, and a God who judges has nothing to judge.",
       ],
       quote: {
         text: "For if God foresees everything, and can in no wise be deceived, that which providence foresees to be about to happen must necessarily come to pass.",
@@ -273,9 +289,9 @@ const coherence: Objection = {
       },
       thinkers: ["boethius", "pike"],
       cedes:
-        "I'd concede if one of the three premises (God can't be wrong, the past can't be changed, what follows from the unchangeable is unchangeable) were shown false on grounds other than the wish to save freedom, or if a God who judges could do without that freedom.",
+        "If one of the three premises (God can't be wrong, the past can't be changed, what follows from the unchangeable is unchangeable) were shown false for some reason other than saving freedom, or a judging God could do without this kind of freedom, the argument would fail.",
       see: [
-        { id: "mor-locked-door", why: "A hell chosen from the inside needs exactly the freedom this argument threatens." },
+        { id: "mor-locked-door", why: "A hell people choose from the inside, in Objection V, needs the freedom this argument threatens." },
       ],
       sources: [
         { title: "Foreknowledge and Free Will", by: "Stanford Encyclopedia of Philosophy (David Hunt and Linda Zagzebski)", url: "https://plato.stanford.edu/entries/free-will-foreknowledge/" },
@@ -286,10 +302,10 @@ const coherence: Objection = {
           id: "coh-b-eternity",
           side: "theist",
           label: "God sees all of time at once, so his knowing fixes nothing",
-          gist: "A timeless God has no yesterday in which to believe anything; he knows your choice the way you know what you watch happen, and seeing someone sit doesn't make them sit.",
+          gist: "A God outside time has no yesterday in which to believe anything, and he sees your choice the way you see someone sit, which doesn't make them sit.",
           body: [
-            "The argument needs God's belief to sit in the past, fixed before you act. {{boethius|Boethius}} answered from the same cell: God is eternal, possessing his whole life at once ([[timeless-eternity|timeless eternity]]). {{aquinas|Aquinas}} gave the picture: a traveller on the road cannot see who comes behind him, but one who looks down on the whole road from a height sees every traveller at once.",
-            "Seeing is not causing, and it is not earlier. Your choice is present to God as it happens, so the premise about the fixity of the past never gets a grip. {{stump}} and {{kretzmann}} gave the relation between eternity and time a precise definition in 1981, ‘ET-simultaneity’, built so that no event is earlier than God's knowing it.",
+            "Pike's argument needs God's belief to sit in the past, fixed before you act. {{boethius|Boethius}} answered from the same cell that God is eternal and possesses his whole life at once, [[timeless-eternity|outside time]]. {{aquinas|Aquinas}} gave a picture of it: ‘he who goes along the road, does not see those who come after him; whereas he who sees the whole road from a height, sees at once all travelling by the way’ (ST I q.14 a.13 ad 3).",
+            "Seeing something happen doesn't cause it, and on this view God's seeing doesn't come earlier than the event either. Your choice is present to God as it happens, so the premise about the fixed past never applies. In 1981 {{stump}} and {{kretzmann}} gave a precise definition of how eternity relates to time, which they called ‘ET-simultaneity’. They built it so that no event is earlier than God's knowing it.",
           ],
           quote: {
             text: "… thou wilt more rightly deem it not foreknowledge as of something future, but knowledge of a moment that never passes.",
@@ -298,27 +314,32 @@ const coherence: Objection = {
           },
           thinkers: ["boethius", "aquinas", "stump", "kretzmann"],
           cedes:
-            "I'd concede if timeless knowledge turned out to be fixed and beyond our power in just the way past knowledge is.",
+            "If knowledge from outside time turned out to be fixed and out of our reach in the same way past knowledge is, this answer would fail.",
           see: [
-            { id: "coh-b-classical", why: "Aquinas's full answer adds that God knows by causing, not only by seeing." },
+            { id: "coh-b-classical", why: "Aquinas's full answer adds that God knows by causing as well as by seeing." },
           ],
           sources: [
-            { title: "Eternity", by: "Stanford Encyclopedia of Philosophy", url: "https://plato.stanford.edu/entries/eternity/" },
+            { title: "Eternity in Christian Thought", by: "Stanford Encyclopedia of Philosophy", url: "https://plato.stanford.edu/entries/eternity/" },
             { title: "The Consolation of Philosophy", by: "Boethius (trans. H. R. James)", year: "c. 524", url: "https://www.gutenberg.org/ebooks/14328" },
           ],
           children: [
             {
               id: "coh-b-rerun",
               side: "skeptic",
-              label: "Timeless knowledge is as fixed as yesterday's",
-              gist: "Moving God's belief out of time doesn't help: a timeless belief you cannot affect fixes your act just as a past one would, and it was already true yesterday that God knows it.",
+              label: "Knowledge from outside time is as fixed as yesterday's",
+              gist: "Moving God's belief outside time doesn't help, because a belief you can't affect fixes your act just as a past belief would.",
               body: [
-                "Timelessness moves the problem without solving it. The fatalist argument never needed the word ‘past’; it needed a fact about God's knowledge that you cannot now alter. {{zagzebski}} showed the argument runs again with the necessity of the timeless realm in place of the necessity of the past: if God's timeless belief that you will take the job is beyond your power, so is your taking it. {{plantinga}} added a twist in 1986: even on the timeless view, it was true eighty years ago that God knows what you will do, and that past truth looks as fixed as any other.",
-                "And timelessness has a puzzle of its own. If your typing is simultaneous with the whole of eternity, and so is Nero's fiddling, then, {{kenny}} pointed out, Nero is fiddling while you type. ET-simultaneity was invented to block that inference, which shows how much special machinery the view needs.",
+                "Moving God outside time moves the problem without solving it. Pike's argument never needed the word ‘past’. It needed a fact about God's knowledge that you can't now change. {{zagzebski}} showed that the argument runs again if the fixity of God's eternal knowledge takes the place of the fixity of the past. If God's belief that you will take the job is beyond your power, so is your taking it. {{plantinga}} added a twist in 1986. Even on this view it was true eighty years ago that God knows what you will do, and that past truth looks as fixed as any other.",
+                "The view also has a puzzle of its own. If your typing is simultaneous with all of eternity, and so is Nero's fiddling, then by ordinary logic Nero fiddles while you type, as {{kenny}} pointed out. ET-simultaneity was defined to block that inference, and critics take this as a sign of how much special machinery the view needs.",
               ],
+              quote: {
+                text: "But, on St. Thomas' view, my typing of this paper is simultaneous with the whole of eternity. Again, on his view, the great fire of Rome is simultaneous with the whole of eternity. Therefore, while I type these very words, Nero fiddles heartlessly on.",
+                who: "Anthony Kenny",
+                cite: "The God of the Philosophers (1979), pp. 38–39, as quoted in the SEP entry “Eternity in Christian Thought”",
+              },
               thinkers: ["zagzebski", "plantinga", "kenny"],
               cedes:
-                "I'd concede if there were a principled reason why only temporally earlier facts are beyond our power and timeless ones are not.",
+                "A principled reason why only facts earlier in time are beyond our power, while facts outside time are not, would answer this.",
               sources: [
                 { title: "The Dilemma of Freedom and Foreknowledge", by: "Linda Zagzebski", year: "1991" },
                 { title: "The God of the Philosophers", by: "Anthony Kenny", year: "1979" },
@@ -327,20 +348,26 @@ const coherence: Objection = {
                 {
                   id: "coh-b-dependence",
                   side: "theist",
-                  label: "Timeless knowledge depends on your choice; the past can't",
-                  gist: "God's timeless knowledge depends on what you choose, as no past fact depends on what you now do, so had you chosen otherwise God would eternally have known otherwise, and Plantinga's old truth is a soft fact.",
+                  label: "God's knowledge depends on your choice in a way the past doesn't",
+                  gist: "God's knowledge from outside time depends on what you choose, so had you chosen otherwise, he would always have known otherwise.",
                   body: [
-                    "There is a principled difference, the very one the rejoinder asks for. The past is beyond our power because it no longer depends on anything we do. Eternal knowledge is not over and done; it depends on what it knows. {{stump}} and {{kretzmann}} put it plainly in ‘Prophecy, Past Truth, and Eternity’ (1991): had you chosen otherwise, God would eternally have known otherwise. You cannot make God's knowledge different, but you can choose otherwise, and if you did, it would have been different all along. That is all freedom needs.",
-                    "{{plantinga|Plantinga}}'s eighty-year-old truth is the same kind of thing. That God knew, eighty years ago, what you will do is true only because of what you will do: a [[soft-facts|soft fact]] about the past, as {{ockham|Ockham}} and the ((coh-b-molina|Molinists)) say, not a hard one like a broken vase. And {{kenny|Kenny}}'s Nero needs simultaneity to carry over from one pair of events to the next, which ET-simultaneity was defined not to do.",
+                    "The rejoinder asks for a principled difference, and there is one. The past is beyond our power because it no longer depends on anything we do. God's eternal knowledge is never over and done with, because it depends on what it knows. {{stump}} and {{kretzmann}} argued in 1991 that had you chosen otherwise, God would eternally have known otherwise. You can't make God's knowledge different, but you can choose otherwise, and if you did, his knowledge would always have been different.",
+                    "{{plantinga|Plantinga}}'s eighty-year-old truth works the same way. That God knew eighty years ago what you will do is true only because of what you will do. {{ockham|Ockham}} would say it is a fact about the past in wording only, what philosophers now call a [[soft-facts|soft fact]], unlike a hard fact such as a broken vase. {{kenny|Kenny}}'s Nero puzzle assumes that being simultaneous carries over from one pair of events to the next, which ET-simultaneity was defined not to do.",
                   ],
-                  thinkers: ["stump", "kretzmann", "plantinga", "ockham", "kenny"],
+                  quote: {
+                    text: "For a man does not therefore sin because God foreknew that he would sin. … But if he shall not will to sin, even this did God foreknow.",
+                    who: "Augustine",
+                    cite: "The City of God V.10 (trans. Marcus Dods, 1871)",
+                  },
+                  thinkers: ["stump", "kretzmann", "plantinga", "ockham", "kenny", "augustine"],
                   cedes:
-                    "I'd concede if a fact could depend on my choice and still be beyond my power in just the way the past is.",
+                    "If a fact could depend on my choice and still be beyond my power in the way the past is, this would fail.",
                   see: [
-                    { id: "coh-b-molina", why: "Ockham's way out, which the Molinist takes for God's past beliefs." },
+                    { id: "coh-b-molina", why: "Molina's followers use Ockham's answer for God's beliefs about the future." },
                   ],
                   sources: [
                     { title: "Prophecy, Past Truth, and Eternity", by: "Eleonore Stump and Norman Kretzmann", year: "1991", note: "Philosophical Perspectives 5." },
+                    { title: "The City of God", by: "Augustine (trans. Marcus Dods)", url: "https://www.newadvent.org/fathers/120105.htm" },
                   ],
                 },
               ],
@@ -351,16 +378,21 @@ const coherence: Objection = {
           id: "coh-b-molina",
           side: "theist",
           label: "God foreknows by knowing what you would freely do",
-          gist: "Before creating, God knew what every possible person would freely choose in every possible situation; he chose which situations to make real, and your choices stay your own.",
+          gist: "Before creating, God knew what every possible person would freely choose in every situation, then chose which situations to make real, so your choices stay yours.",
           body: [
-            "The fatalist never asks how God knows, and the answer changes the picture. Theologians had given God knowledge of what *could* happen and of what *will* happen because he decides it. {{molina}}, a Jesuit, added a third kind in 1588: [[middle-knowledge|middle knowledge]], of what any creature *would* freely do in any circumstance. Knowing these [[counterfactuals-of-freedom|counterfactuals of freedom]], God chooses a world in which Peter is questioned in a courtyard, knowing that Peter would freely deny Jesus there.",
-            "In the order of explanation your choice comes first: God believes you will do it because you would freely do it. That is how God can steer history without being a puppeteer. On the fixity of the past, Molinists such as {{craig}} and {{flint}} take {{ockham|Ockham}}'s way out: God's past belief is a [[soft-facts|soft fact]], one that depends on what you will do. Dominicans and Jesuits fought over middle knowledge until 1607, when Pope Paul V let both sides teach; {{plantinga|Plantinga}} revived it in 1974 for his free-will defense.",
+            "Pike's argument never asks how God knows, and {{molina}}, a Jesuit, thought the answer changes things. Theologians had said that God knows what *could* happen, and knows what *will* happen because he decides it. In 1588 Molina added a third kind, which he called [[middle-knowledge|middle knowledge]], knowledge of what any creature *would* freely do in any situation. Knowing these [[counterfactuals-of-freedom|counterfactuals of freedom]], God chooses a world in which Peter is questioned in a courtyard, knowing that Peter would freely deny Jesus there.",
+            "On this account your choice comes first in the order of explanation. God believes you will do something because you would freely do it, so he can steer history without being a puppeteer. Dominicans and Jesuits argued over the idea until 1607, when Pope Paul V let both sides teach. {{plantinga|Plantinga}} revived it in 1974 for his free-will defense, and {{craig}} and {{flint}} defend it today, answering the fixed-past problem the way {{ockham|Ockham}} did.",
           ],
+          quote: {
+            text: "Then said David, Will the men of Keilah deliver me and my men into the hand of Saul? And the LORD said, They will deliver thee up.",
+            who: "David and the LORD, at Keilah",
+            cite: "1 Samuel 23:12 (KJV)",
+          },
           thinkers: ["molina", "craig", "flint", "ockham", "plantinga"],
           cedes:
-            "I'd concede if there turned out to be no truths about what free creatures would do, so that God had nothing to know before creating.",
+            "If there were no truths about what free creatures would do, God would have nothing to know before creating, and this account would fail.",
           see: [
-            { id: "hid-middle-knowledge", why: "Middle knowledge at work in Objection II: who gets born where the gospel reaches." },
+            { id: "hid-middle-knowledge", why: "Middle knowledge at work in Objection II, deciding who is born where the gospel reaches." },
           ],
           sources: [
             { title: "Divine Providence: The Molinist Account", by: "Thomas P. Flint", year: "1998" },
@@ -372,27 +404,33 @@ const coherence: Objection = {
               id: "coh-b-grounding",
               side: "skeptic",
               label: "Nothing makes ‘you would freely do X’ true before you exist",
-              gist: "A fact about what you would freely do has nothing to make it true: not God's will, not your character, not you, since you don't yet exist; so God has nothing there to know.",
+              gist: "Nothing can make a claim about what you would freely do true, because God's will would make it his choice, your character would make it determined, and you may never exist.",
               body: [
-                "Middle knowledge needs truths for God to know, and the [[grounding-objection|grounding objection]] asks what makes them true. Not God's will, or the choice would not be yours. Not your character and circumstances, or the choice would be determined, not free in the libertarian sense Molinism wants. Not your actual choice, because in most of the situations God surveys you never exist at all. {{adams-robert-m}}, himself a Christian, made the case in 1977: there is nothing for these propositions to be true *of*.",
-                "Would Peter have denied Jesus if the night had been warmer and he had stayed away from the fire? There seems to be no fact of the matter, only a range of possibilities, and possibilities are what God already knows by knowing what could be. {{hasker}} pressed the point for decades (*God, Time, and Knowledge*, 1989).",
+                "Middle knowledge needs truths for God to know, and the [[grounding-objection|grounding objection]] asks what makes them true. God's will can't, or the choice would be God's. Your character and circumstances can't either, because then the choice would be determined, and Molina wanted it free in the strong sense of being able to go either way. Your actual choice can't, because in most of the situations God surveys, you never exist at all. {{adams-robert-m}}, himself a Christian, argued in 1977 that there is nothing for these claims to be true *of*.",
+                "Would Peter have denied Jesus if the night had been warmer and he had stayed away from the fire? There seems to be no fact of the matter, only possibilities, and God already knows the possibilities by knowing what could be. {{hasker}} pressed the point for decades (*God, Time, and Knowledge*, 1989). The objection is old. {{leibniz}} reported the Thomists' version in 1710.",
               ],
-              thinkers: ["adams-robert-m", "hasker"],
+              quote: {
+                text: "But the principal objection is aimed at the foundation of this knowledge. For what foundation can God have for seeing what the people of Keilah would do? A simple contingent and free act has nothing in itself to yield a principle of certainty, unless one look upon it as predetermined by the decrees of God, and by the causes that are dependent upon them.",
+                who: "Leibniz, reporting the Thomists' objection",
+                cite: "Theodicy (1710), Part I, §41 (trans. E. M. Huggard)",
+              },
+              thinkers: ["adams-robert-m", "hasker", "leibniz"],
               cedes:
-                "I'd concede if truths can be true with nothing making them true, and that holds for ordinary truths about the future as well.",
+                "If claims can be true with nothing making them true, and that goes for ordinary claims about the future too, the objection fails.",
               sources: [
                 { title: "Middle Knowledge and the Problem of Evil", by: "Robert Merrihew Adams", year: "1977" },
                 { title: "God, Time, and Knowledge", by: "William Hasker", year: "1989" },
+                { title: "Theodicy", by: "G. W. Leibniz (trans. E. M. Huggard)", year: "1710", url: "https://www.gutenberg.org/ebooks/17147" },
               ],
               children: [
                 {
                   id: "coh-b-truthmakers",
                   side: "theist",
                   label: "Truths about free choices need nothing to make them true",
-                  gist: "‘You will read this tomorrow’ can be true today with nothing yet to make it true; truths about what you would freely do are no worse off, and Scripture takes them for granted.",
+                  gist: "‘You will read this tomorrow’ can be true today with nothing yet to make it true, and claims about what you would freely do are no worse off.",
                   body: [
-                    "The grounding objection proves too much. Take ‘you will read this tomorrow’. If it is true today, nothing that exists today makes it true; the reading hasn't happened. Yet most philosophers grant that there are truths about the future. {{craig|Craig}}'s point (2001): any [[truthmaker|truthmaker]] rule strict enough to sink counterfactuals of freedom sinks the future tense too, and, for anyone who thinks only the present exists, the past tense as well.",
-                    "So {{plantinga|Plantinga}} and {{flint|Flint}} treat counterfactuals of freedom as basic contingent truths, true because that is what the person would freely do, full stop. {{merricks|Merricks}} argues on independent grounds that many truths need no truthmakers. And Scripture is full of such conditionals. David asks whether the men of Keilah would hand him over to Saul, is told they would, and leaves (1 Samuel 23). Jesus says what Tyre and Sidon would have done.",
+                    "The grounding objection proves too much. ‘You will read this tomorrow’ may be true today, yet nothing that exists today makes it true, because the reading hasn't happened. Most philosophers still grant that there are truths about the future. {{craig|Craig}} argued in 2001 that any [[truthmaker|truthmaker]] rule, the rule that every truth needs something real to make it true, strict enough to sink claims about free choices would sink the future tense too. For anyone who thinks only the present exists, it would sink the past tense as well.",
+                    "So {{plantinga|Plantinga}} and {{flint|Flint}} treat these claims as basic truths, true because that is what the person would freely do. {{merricks|Merricks}} argues on separate grounds that many truths need nothing to make them true. Scripture takes such claims for granted, as when Jesus says what Tyre and Sidon would have done.",
                   ],
                   quote: {
                     text: "Woe unto thee, Chorazin! woe unto thee, Bethsaida! for if the mighty works, which were done in you, had been done in Tyre and Sidon, they would have repented long ago in sackcloth and ashes.",
@@ -401,7 +439,7 @@ const coherence: Objection = {
                   },
                   thinkers: ["craig", "plantinga", "flint", "merricks"],
                   cedes:
-                    "I'd concede if a principled truthmaker requirement condemned counterfactuals of freedom while sparing truths about the future and the past.",
+                    "If someone found a principled rule that ruled out truths about free choices and still allowed truths about the future and the past, this reply would fail.",
                   sources: [
                     { title: "Middle Knowledge, Truth-Makers, and the ‘Grounding Objection’", by: "William Lane Craig", year: "2001" },
                   ],
@@ -409,17 +447,22 @@ const coherence: Objection = {
                     {
                       id: "coh-b-asym",
                       side: "skeptic",
-                      label: "Tomorrow can make ‘will’ true; nothing ever makes ‘would’ true",
-                      gist: "‘You will read this’ is made true by tomorrow's reading, if tomorrow is as real as today; ‘Peter would have denied Jesus on a warmer night’ is about a night that never comes, so nothing makes it true.",
+                      label: "Tomorrow can make ‘will’ true, but nothing makes ‘would’ true",
+                      gist: "Tomorrow's reading can make ‘you will read this’ true if tomorrow is as real as today, but the warmer night when Peter stays away from the fire never comes.",
                       body: [
-                        "The parity holds only on {{craig|Craig}}'s own picture of time, where only the present exists. If past, present and future are equally real, as the block universe of relativity suggests, tomorrow's reading exists, just later, and makes the prediction true now. A counterfactual of freedom has no such luck. The warmer night on which Peter stays away from the fire never happens at any time; there is nothing, then or ever, for ‘he would have denied him anyway’ to be true of.",
-                        "Suppose such truths were simply true, as the reply proposes. Then they are settled before you exist and before God decides anything, and what is settled before you exist is not up to you: {{adams-robert-m|Adams}} argued this in 1991 and {{hasker|Hasker}} in 1999. And the parity cuts both ways. An open futurist grants it and denies truth to both kinds of claim, so a draw between ‘will’ and ‘would’ favors ((coh-b-open|the open future)), not middle knowledge.",
+                        "The reply's comparison between ‘will’ and ‘would’ works only on {{craig|Craig}}'s own view of time, on which only the present exists. If past, present and future are equally real, as the ‘block universe’ reading of relativity suggests, tomorrow's reading exists, just later, and makes the prediction true now. A claim about a free choice has nothing like that. The warmer night on which Peter stays away from the fire never happens at any time, so there is nothing, then or ever, for ‘he would have denied him anyway’ to be true of.",
+                        "Suppose such claims were true anyway, as the reply proposes. Then they are settled before you exist and before God decides anything, and what is settled before you exist isn't up to you. {{adams-robert-m|Adams}} argued this in 1991 and {{hasker|Hasker}} in 1999. And an open theist accepts the comparison and denies truth to both kinds of claim, so a tie between ‘will’ and ‘would’ points toward ((coh-b-open|an open future)) and away from middle knowledge.",
                       ],
+                      quote: {
+                        text: "Verily I say unto thee, That this night, before the cock crow, thou shalt deny me thrice.",
+                        who: "Jesus, to Peter",
+                        cite: "Matthew 26:34 (KJV)",
+                      },
                       thinkers: ["craig", "adams-robert-m", "hasker"],
                       cedes:
-                        "I'd concede if something real, then or ever, made it true what a never-created person would freely have done, and that truth still left the choice up to him.",
+                        "If something real, then or ever, made it true what a never-created person would freely have done, and the choice still stayed up to him, this would fail.",
                       see: [
-                        { id: "coh-b-open", why: "Where the parity points if both kinds of claim lack truthmakers." },
+                        { id: "coh-b-open", why: "Where the comparison leads if neither kind of claim has anything to make it true." },
                       ],
                       sources: [
                         { title: "An Anti-Molinist Argument", by: "Robert Merrihew Adams", year: "1991", note: "Philosophical Perspectives 5." },
@@ -436,10 +479,10 @@ const coherence: Objection = {
           id: "coh-b-open",
           side: "theist",
           label: "An open future is a consistent way out, and one is enough",
-          gist: "If future free choices aren't there yet to be known, an all-knowing God misses nothing by not knowing them; and to defeat a charge of incoherence, one consistent model of God is all it takes.",
+          gist: "If future free choices aren't there yet to be known, an all-knowing God misses nothing, and one consistent account of God is enough to answer the charge.",
           body: [
-            "The fatalist assumes there is already a fact about what you will freely do. Open theists deny it. {{aristotle}} wondered whether ‘there will be a sea battle tomorrow’ is true today; {{todd}} argues (2021) that all such [[future-contingents|future contingents]] are false. Then a God who knows every truth knows all there is, every possibility included. {{swinburne}} and {{hasker|Hasker}} hold instead that God knows everything that *can* be known, and future free acts cannot be; {{boyd}} and Todd hold that there is nothing there yet to know. Either way, the authors of *The Openness of God* (1994) built [[open-theism|open theism]] on a God who tests, relents and says to Abraham, ‘now I know’.",
-            "He passes the other tests too. He keeps every creature in being and gives free agents power without settling its use, so nothing is caused twice over; and his nature is the standard of good, as for {{adams-robert-m|Adams}} ((coh-c-terminus|in the third prong)), with no need of simplicity. One consistent God answers the charge.",
+            "Pike's argument assumes there is already a fact about what you will freely do. Open theists deny it. {{aristotle}} wondered whether ‘there will be a sea battle tomorrow’ is true today, and {{todd}} argues (2021) that all such [[future-contingents|future contingents]], claims about free or chancy future events, are false. If so, a God who knows every truth knows all there is to know, every possibility included. {{swinburne}} and {{hasker|Hasker}} hold instead that God knows everything that *can* be known, and future free acts can't be. {{boyd}} and Todd say there is nothing there yet to know. The authors of *The Openness of God* (1994) built [[open-theism|open theism]] on the God of the Bible who tests people, changes course and tells Abraham ‘now I know’.",
+            "This God also gets through the other two parts. He keeps every creature in existence and gives free agents power without settling how they use it, so nothing is caused twice. His nature is the standard of goodness, as {{adams-robert-m|Adams}} argues ((coh-c-terminus|in Part 3)), and he needs no doctrine of simplicity.",
           ],
           quote: {
             text: "for now I know that thou fearest God, seeing thou hast not withheld thy son, thine only son from me.",
@@ -448,7 +491,7 @@ const coherence: Objection = {
           },
           thinkers: ["aristotle", "todd", "swinburne", "hasker", "boyd", "adams-robert-m"],
           cedes:
-            "I'd concede if future free choices could be infallibly known in advance, or if an open God failed one of the other two tests.",
+            "If future free choices could be known for certain in advance, or an open God failed one of the other two parts, this would fail.",
           sources: [
             { title: "The Open Future: Why Future Contingents Are All False", by: "Patrick Todd", year: "2021" },
             { title: "God of the Possible", by: "Gregory A. Boyd", year: "2000" },
@@ -457,31 +500,37 @@ const coherence: Objection = {
             {
               id: "coh-b-package",
               side: "skeptic",
-              label: "Each model saves a different God; none passes all three tests",
-              gist: "The open God acts in time, so every answered prayer is an intervention and his ‘now’ needs a cosmic present physics denies; the classical answers aren't his to borrow, and three tests can't be passed by three Gods.",
+              label: "Each answer saves a different God, and none passes all three",
+              gist: "The open God acts in time, so each answered prayer is an intervention, and his ‘now’ needs a cosmic present that physics denies.",
               body: [
-                "The open-theism reply changes the subject. Objection I is answered only if one God passes all three tests, not if each test is passed by a different God. The counter's answer to the first was Aquinas's: God is no being among beings, so he never competes. The open God lives in time, learns as we choose and answers as we pray, which makes every answer a [[special-divine-action|special act]], one more push in a world physics finds causally closed ((nat-a-closure|Objection III)). His responsiveness is the miracle problem, daily.",
-                "Time sends its own bill. A God who lives through time needs a single cosmic ‘now’, which special relativity denies; {{craig|Craig}}, who holds God temporal since creation, pays by reviving a preferred state of rest that relativity abolished, a physics few physicists accept (*Time and Eternity*, 2001). The coalition frays elsewhere: followers of Aquinas (Thomists) reject Molinism because a God informed by truths he does not make is taught by his creatures, and Craig rejects strong simplicity. Every rescue saves someone else's God.",
+                "The open-theism reply changes the subject. Objection I is answered only if one God gets through all three parts, and different Gods passing different parts doesn't count. The classical answer to Part 1 was Aquinas's, that God is no being among beings and so never competes with fire. The open God lives in time, learns as we choose and answers as we pray. Each answer is then a [[special-divine-action|special act]] of God in the world, one more push in a world that physics finds causally closed ((nat-a-closure|Objection III)).",
+                "Living in time also needs a single cosmic ‘now’, which special relativity denies. {{craig|Craig}}, who holds that God has been in time since creation, revives a preferred state of rest that relativity abolished, a view few physicists accept (*Time and Eternity*, 2001). The defenders also disagree among themselves. Followers of Aquinas reject Molinism because a God informed by truths he doesn't make is taught by his creatures, and Craig rejects the strong form of simplicity.",
               ],
-              thinkers: ["craig"],
+              quote: {
+                text: "Every reference-body (co-ordinate system) has its own particular time; unless we are told the reference-body to which the statement of time refers, there is no meaning in a statement of the time of an event.",
+                who: "Albert Einstein",
+                cite: "Relativity: The Special and General Theory (1916; trans. Robert W. Lawson, 1920), ch. IX",
+              },
+              thinkers: ["craig", "einstein"],
               cedes:
-                "I'd concede if a single God, described the same way throughout, answered all three objections at once.",
+                "If a single God, described the same way throughout, answered all three parts at once, the objection would fall.",
               see: [
-                { id: "coh-a-concur", why: "The Thomist answer to the first test, which the open God cannot share." },
-                { id: "nat-a-power", why: "Spinoza's version in Objection III: a God who steps into nature is one cause among others." },
+                { id: "coh-a-concur", why: "Aquinas's answer to Part 1, which the open God can't share." },
+                { id: "nat-a-power", why: "Spinoza's version in Objection III, where a God who steps into nature becomes one cause among others." },
               ],
               sources: [
                 { title: "Time and Eternity: Exploring God's Relationship to Time", by: "William Lane Craig", year: "2001" },
+                { title: "Relativity: The Special and General Theory", by: "Albert Einstein (trans. Robert W. Lawson)", year: "1920", url: "https://www.gutenberg.org/ebooks/30155" },
               ],
               children: [
                 {
                   id: "coh-b-classical",
                   side: "theist",
-                  label: "The classical God passes all three tests at once",
-                  gist: "Aquinas's God answers every test with one move: as the non-competing source of all, he causes fire's burning, knows your choice timelessly by causing it as yours, and is goodness itself.",
+                  label: "Aquinas's God answers all three parts at once",
+                  gist: "Aquinas's God is the source of everything and competes with nothing, so he causes fire's burning, knows your choice by giving it being, and is goodness itself.",
                   body: [
-                    "The coalition charge is fair against a theist who picks and mixes, but the classical package needs no allies. {{aquinas|Aquinas}} holds that God knows creatures as their cause, as an artist knows the work: not by watching it but by making it. He knows your choice not from ahead of time, nor by reading truths he did not make, but timelessly, as the one giving it being. And because he works in each thing according to its nature, his causing a free choice is what makes it free.",
-                    "That is the first test's non-competition, extended to the will; {{mccabe}} defended it in the 1980s and {{grant|Grant}} develops it today. Being timeless, this God needs no cosmic ‘now’; being no rival, he pushes nothing aside. The same God is goodness itself, which answers the third test, and his act is necessary while its effects are not ((coh-a-extrinsic|the collapse reply)). One God, one move, three answers. There are costs, but a cost is not a contradiction.",
+                    "Mixing answers from rival camps would deserve the complaint, but Aquinas's account needs no allies. {{aquinas|Aquinas}} holds that God knows creatures as their cause, the way an artist knows a work, by making it. He knows your choice from outside time, as the one giving it being, and doesn't learn it from truths he didn't make. And because God works in each thing according to its nature, his causing a free choice is what makes it free.",
+                    "{{mccabe}} defended this in the 1980s and {{grant|Grant}} develops it today. It is the non-competition of Part 1 applied to the will. Being outside time, this God needs no cosmic ‘now’, and being no rival, he pushes nothing aside. He is also goodness itself, which answers Part 3, and his act is necessary while its effects are not ((coh-a-extrinsic|as the reply to the collapse argument says)).",
                   ],
                   quote: {
                     text: "Now it is manifest that God causes things by His intellect, since His being is His act of understanding; and hence His knowledge must be the cause of things, in so far as His will is joined to it.",
@@ -490,9 +539,9 @@ const coherence: Objection = {
                   },
                   thinkers: ["aquinas", "mccabe", "grant"],
                   cedes:
-                    "I'd concede if God's causing a choice turned out to make it unfree, or to make God the author of its evil.",
+                    "If God's causing a choice made it unfree, or made God the author of its evil, this account would fail.",
                   see: [
-                    { id: "coh-c-nature", why: "The third answer in the package: goodness is what God is." },
+                    { id: "coh-c-nature", why: "The answer to Part 3, that goodness is what God is." },
                   ],
                   sources: [
                     { title: "Summa Theologiae I q.14 (On God's Knowledge)", by: "Thomas Aquinas", url: "https://www.newadvent.org/summa/1014.htm" },
@@ -502,33 +551,39 @@ const coherence: Objection = {
                     {
                       id: "coh-b-needslib",
                       side: "skeptic",
-                      label: "The classical God passes only by causing the sins he judges",
-                      gist: "If God causes every choice, he causes Judas's betrayal too; freedom shrinks to doing what you were made to do, and judging Judas looks like an author punishing a character.",
+                      label: "If God causes every choice, he causes the sins he punishes",
+                      gist: "If God causes every choice, he causes Judas's betrayal too, and judging Judas looks like an author punishing a character for what the author wrote.",
                       body: [
-                        "The classical package buys foreknowledge with causation, and the bill comes in two parts. First, freedom. {{mele}} imagines a goddess who designs a zygote so that the man it becomes will, decades later, do just what she planned; {{pereboom}} builds a ladder of such cases down to ordinary causes. Most readers judge the designed man unfree, and nothing relevant separates him from a man whose every choice God causes, except that God's control is more complete.",
-                        "Second, sin. On {{banez|Báñez}}'s account a creature falls only when God withholds the grace that would have kept it standing, so God's decree settles who falls. That was the Jesuits' charge in the quarrel over grace, and {{maritain}}, a follower of Aquinas, revised the doctrine in 1963 to escape it. {{mackie}} saw the cost in 1955: if freedom fits with being caused, God could have made creatures who always freely choose the good. A God who causes the act and condemns the agent looks less like a judge than an author punishing his characters.",
+                        "If God knows our choices because he causes them, as Aquinas holds, our freedom looks like that of a designed man. {{mele}} imagines a goddess who designs a zygote so that the man it grows into will, decades later, do what she planned. {{pereboom}} lines up a series of such cases, ending with a man whose choices come from ordinary causes, and asks where freedom is supposed to appear. Most readers judge the designed man unfree, and a man whose every choice God causes seems no better off.",
+                        "Sin raises a second problem. On {{banez|Báñez}}'s account a creature falls only when God withholds the grace that would have kept it standing, so God's decree decides who falls. The Jesuits pressed this charge in the long dispute over grace, and {{maritain}}, a follower of Aquinas, revised the doctrine in 1963 to avoid it. {{mackie}} had already pointed out in 1955 that if freedom fits with being caused, God could have made people who always choose the good.",
                       ],
+                      quote: {
+                        text: "if God has made men such that in their free choices they sometimes prefer what is good and sometimes what is evil, why could he not have made men such that they always freely choose the good?",
+                        who: "J. L. Mackie",
+                        cite: "“Evil and Omnipotence”, Mind 64 (1955), p. 209",
+                      },
                       thinkers: ["mele", "pereboom", "banez", "maritain", "mackie"],
                       cedes:
-                        "I'd concede if God could cause every choice without its being settled by design, as the zygote's is, and without his decree settling who falls.",
+                        "I'd give this up if God could cause every choice without designing it the way Mele's goddess designs the man, and without his decree deciding who falls.",
                       see: [
-                        { id: "mor-locked-door", why: "A hell locked from the inside needs the libertarian freedom this package gives up." },
+                        { id: "mor-locked-door", why: "A hell locked from the inside, in Objection V, needs the two-way freedom this account gives up." },
                         { id: "mor-no-desert", why: "Spinoza presses the same point against Aquinas's hell in Objection V." },
                       ],
                       sources: [
                         { title: "Free Will and Luck", by: "Alfred R. Mele", year: "2006" },
                         { title: "Living Without Free Will", by: "Derk Pereboom", year: "2001" },
                         { title: "God and the Permission of Evil", by: "Jacques Maritain", year: "1966", note: "English translation of Dieu et la permission du mal (1963)." },
+                        { title: "Evil and Omnipotence", by: "J. L. Mackie", year: "1955", note: "Mind 64." },
                       ],
                       children: [
                         {
                           id: "coh-b-teleo",
                           side: "theist",
                           label: "God causes every act, but not the defect that makes it sin",
-                          gist: "A manipulator competes with you, but God gives you your will; sin is a lack, and lacks have no maker; and God permits evil to bring good from it, not to protect a coin-toss freedom.",
+                          gist: "A manipulator competes with you, but God gives you your will, sin is a lack that nobody makes, and God permits evil to bring good from it.",
                           body: [
-                            "The zygote case pictures God as a manipulator, but a manipulator is a rival cause on your level, pulling strings you might have pulled yourself. God is the source of the willing itself; {{grant}} and {{mccann|Hugh McCann}} argue that being caused by the one who gives you your will is not being handled but being made. And sin is [[privation|privation]], a lack, like a limp: God gives Judas's act its being; the defect comes from the creature falling away. {{maritain}}'s ‘shatterable motions’ make that falling away the creature's own first move, so God's permission follows it rather than deciding it.",
-                            "As for {{mackie}}: yes, God could make wills that never fall, as the saints cannot sin, and for {{hart}}, who rejects ‘neutral’ libertarian choice as a false picture of freedom, those wills are the freest of all. The classical answer to evil was never the free-will defense. It is {{augustine}}'s: God ‘judged it better to bring good out of evil, than not to permit any evil to exist’ (*Enchiridion* 27).",
+                            "The zygote story pictures God as a manipulator, and a manipulator is a rival cause on your level, pulling strings you might have pulled yourself. God is the source of the willing itself. {{grant}} and {{mccann|Hugh McCann}} argue that being caused by the one who gives you your will is being made, which is different from being handled. Sin is a [[privation|privation]], a lack, like a limp. God gives Judas's act its being, and the defect comes from the creature falling away. {{maritain}}'s ‘shatterable motions’ make that falling away the creature's own first move, so God's permission follows it.",
+                            "As for {{mackie}}, God could indeed make wills that never fall, as the saints in heaven can't sin, and for {{hart}}, who thinks ‘neutral’ two-way choice is a false picture of freedom, those wills are the freest of all. The classical answer to evil is {{augustine}}'s, and it doesn't rely on the free-will defense. God ‘judged it better to bring good out of evil, than not to permit any evil to exist’ (*Enchiridion* 27).",
                           ],
                           quote: {
                             text: "Accordingly God is the cause of the act of sin: and yet He is not the cause of sin, because He does not cause the act to have a defect.",
@@ -537,9 +592,9 @@ const coherence: Objection = {
                           },
                           thinkers: ["grant", "mccann", "aquinas", "maritain", "mackie", "hart", "augustine"],
                           cedes:
-                            "I'd concede if a defect needed a cause in the way a deed does, or if the source of a will had to compete with it as a manipulator does.",
+                            "If a defect needed a cause the way a deed does, or the source of a will had to compete with it as a manipulator does, this would fail.",
                           see: [
-                            { id: "mor-universalism", why: "The same non-libertarian freedom underwrites Hart's universalism in Objection V." },
+                            { id: "mor-universalism", why: "Hart's view of freedom, which is not the two-way kind, supports his belief in Objection V that everyone is saved." },
                           ],
                           sources: [
                             { title: "Summa Theologiae I-II q.79 (On the External Causes of Sin)", by: "Thomas Aquinas", url: "https://www.newadvent.org/summa/2079.htm" },
@@ -555,16 +610,21 @@ const coherence: Objection = {
                   id: "coh-b-open-time",
                   side: "theist",
                   label: "An open God needs no physical ‘now’ and pushes nothing aside",
-                  gist: "The open God's present is the time of his own life, not a reference frame in physics, cosmology supplies a natural cosmic time anyway, and giving creatures power without settling its use is non-competition too.",
+                  gist: "The open God's present is the time of his own life, which physics doesn't measure, and cosmology offers a natural cosmic clock anyway.",
                   body: [
-                    "The bill is addressed to the wrong God. The open God's ‘now’ is metaphysical, the present of his own unfolding life, not a preferred frame among the frames of special relativity. Relativity shows that no experiment picks out a single cosmic present; it does not show there is none. And cosmology supplies a natural one: cosmic time, kept by observers at rest relative to the expanding universe and its background radiation, is the clock by which the universe is 13.8 billion years old. Temporalists such as {{swinburne}}, {{hasker|Hasker}} and {{mullins}} need nothing more exotic.",
-                    "Nor does responsiveness make God a rival. He gives creatures their powers and keeps them in being without settling how they use them, as ((coh-b-open|the open reply)) said: a non-competition of its own, not Aquinas's, but no push alongside the creature's push. Where answering a prayer does mean acting in the world, the open theist owes no more than any theist who allows miracles, and ((nat-a-laws|Objection III)) argues that no law of physics forbids it.",
+                    "Craig's trouble with relativity doesn't touch every God in time. The open God's ‘now’ is the present of his own unfolding life, and it isn't one of the frames of reference special relativity compares. Relativity shows that no experiment picks out a single cosmic present, but it doesn't show there is none. Cosmology even supplies a natural one. Cosmic time, kept by observers at rest relative to the expanding universe and its background radiation, is the clock by which the universe is 13.8 billion years old. Philosophers who hold that God lives in time, such as {{swinburne}}, {{hasker|Hasker}} and {{mullins}}, need nothing more exotic. Their view is close to what {{newton}} called absolute time.",
+                    "Answering prayer doesn't make God a rival either. He gives creatures their powers and keeps them in existence without settling how they use them, which is a kind of non-competition different from Aquinas's. Where answering a prayer does mean acting in the world, the open theist owes no more than any believer in miracles, and ((nat-a-laws|Objection III)) argues that no law of physics forbids it.",
                   ],
-                  thinkers: ["swinburne", "hasker", "mullins"],
+                  quote: {
+                    text: "Absolute, True, and Mathematical Time, of it self, and from its own nature flows equably without regard to any thing external, and by another name is called Duration",
+                    who: "Isaac Newton",
+                    cite: "Principia (1687), Scholium to the Definitions (trans. Andrew Motte, 1729)",
+                  },
+                  thinkers: ["swinburne", "hasker", "mullins", "newton"],
                   cedes:
-                    "I'd concede if God's present had to be a physical reference frame, or if giving creatures power while leaving its use open made God one more cause among them.",
+                    "If God's present had to be a physical frame of reference, or giving creatures power while leaving its use open made God one more cause among them, this would fail.",
                   see: [
-                    { id: "coh-a-concur", why: "Aquinas's form of non-competition, which this one parallels without divine simplicity." },
+                    { id: "coh-a-concur", why: "Aquinas's version of non-competition, which this one parallels without the doctrine that God has no parts." },
                   ],
                   sources: [
                     { title: "The End of the Timeless God", by: "R. T. Mullins", year: "2016" },
@@ -578,11 +638,11 @@ const coherence: Objection = {
         {
           id: "coh-b-spinoza",
           side: "spinoza",
-          label: "Real freedom is acting from your nature; foreknowledge spares it",
-          gist: "If freedom means acting from your own nature rather than acting uncaused, a God who knows everything you will do takes nothing from you, and a theist who takes that freedom has all the freedom there is.",
+          label: "Freedom is acting from your own nature, which God's knowing spares",
+          gist: "If freedom means acting from your own nature, a God who knows everything you will do takes nothing from you.",
           body: [
-            "The whole dilemma assumes a freedom Spinoza denies. Nothing in nature is uncaused, the mind included (Ethics II P48). People think themselves free because they are conscious of their actions and ignorant of the causes that determine them (II P35 Schol.); a stone set flying, Spinoza wrote to Schuller in 1674, would think the same if it could think. The libertarian's power to do otherwise is that ignorance, renamed.",
-            "Real freedom is something else: a thing is free when it acts from the necessity of its own nature alone (I Def. 7), and a person grows freer as understanding grows. A God who knows every act takes none of that away. So the fatalist proves only that every event is settled, which takes nothing real from anyone. {{edwards}} took a similar [[compatibilism|compatibilist]] exit in 1754, on Calvinist grounds. A theist who takes this freedom, as Edwards did, loses nothing to the fatalist.",
+            "Pike's dilemma assumes a kind of freedom Spinoza denies. Nothing in nature is uncaused, the mind included (Ethics II P48). People believe they are free because they are aware of what they do and don't know why they do it. In Spinoza's words, ‘men are mistaken in thinking themselves free; their opinion is made up of consciousness of their own actions, and ignorance of the causes by which they are conditioned’ (II P35 Schol.). A stone set flying, he wrote to Schuller in 1674, would think the same if it could think.",
+            "For Spinoza a thing is free when it acts from the necessity of its own nature alone (I Def. 7), and a person grows freer as understanding grows. A God who knows every act takes none of that away. {{edwards}} took a similar [[compatibilism|compatibilist]] line in 1754, on Calvinist grounds, holding that freedom and being caused fit together.",
           ],
           quote: {
             text: "In the mind there is no absolute or free will; but the mind is determined to wish this or that by a cause, which has also been determined by another cause, and this last by another cause, and so on to infinity.",
@@ -591,10 +651,10 @@ const coherence: Objection = {
           },
           thinkers: ["spinoza", "edwards"],
           cedes:
-            "I'd concede if libertarian freedom could be described coherently, as something other than chance or ignorance of causes.",
+            "Spinoza would give way if someone could describe the power to do otherwise coherently, as something other than chance or ignorance of causes.",
           see: [
-            { id: "coh-b-needslib", why: "The same exit, taken by the classical theist, and the bill it runs up." },
-            { id: "mor-repent", why: "Spinoza's freedom applied to guilt: wrongs call for understanding, not remorse." },
+            { id: "coh-b-needslib", why: "Classical theism's version of this answer, and the trouble it brings." },
+            { id: "mor-repent", why: "Spinoza applies this view of freedom to guilt in Objection V, where wrongs call for understanding instead of remorse." },
             { id: "mor-no-desert", why: "The same denial of free will, turned against hell's desert in Objection V." },
           ],
           sources: [
@@ -604,11 +664,11 @@ const coherence: Objection = {
             {
               id: "coh-b-judge",
               side: "skeptic",
-              label: "Harmless only to a God who judges no one",
-              gist: "Spinoza can shrug off lost freedom because his God is never angry and judges no one; the counter's God judges the living and the dead, and judging people for what he settled is the problem.",
+              label: "Losing freedom is harmless only to a God who judges no one",
+              gist: "Spinoza can shrug off lost freedom because his God judges no one, but the Christian God judges the living and the dead.",
               body: [
-                "Spinoza's exit is honest about its price, and the price is the counter's God. Determinism costs Spinoza nothing because his God has no passions and loves or hates no one (Ethics V P17 Cor.). Pressed by {{oldenburg}} in 1676, he said it plainly: God cannot be angry, and when Scripture calls him a judge who passes sentence, it is speaking humanly ((mor-no-desert|Objection V)).",
-                "The counter cannot say that. Its God tests hearts, forgives and condemns, and Paul, who first heard this objection, answered it with the potter and the clay while keeping the judgment seat (2 Corinthians 5:10). A judge who settled every crime he sentences is the author punishing his characters, the bill ((coh-b-needslib|the classical package)) runs up. So the fatalist's conclusion is harmless only for a God the counter does not believe in.",
+                "Spinoza's answer works for Spinoza because his God has no passions and loves or hates no one (Ethics V P17 Cor.). When {{oldenburg}} pressed him in 1676, he said plainly that God can't be angry, and that when Scripture calls God a judge who passes sentence, it is speaking in human terms ((mor-no-desert|Objection V)).",
+                "Classical theism can't say that. Its God tests hearts, forgives and condemns. Paul, who first heard this objection, answered it with the potter and the clay and still kept ‘the judgment seat of Christ’ (2 Corinthians 5:10). A judge who settled every crime he sentences is the author punishing his characters from ((coh-b-needslib|the reply to Aquinas)).",
               ],
               quote: {
                 text: "Thou wilt say then unto me, Why doth he yet find fault? For who hath resisted his will?",
@@ -617,9 +677,9 @@ const coherence: Objection = {
               },
               thinkers: ["spinoza", "oldenburg"],
               cedes:
-                "I'd concede if a God who settles every choice could still justly condemn the chooser, or if the counter's God judged no one.",
+                "If a God who settles every choice could still justly condemn the chooser, or the Christian God judged no one, this would fail.",
               see: [
-                { id: "mor-spinoza-few", why: "The theist's answer in Objection V: desert survives determinism, and Spinoza's own excusable still perish." },
+                { id: "mor-spinoza-few", why: "The answer in Objection V, that blame survives determinism, and that on Spinoza's own view the excusable still perish." },
               ],
               sources: [
                 {
@@ -636,15 +696,15 @@ const coherence: Objection = {
       ],
     },
 
-    /* ───────────────────────── Prong C: Euthyphro ───────────────────────── */
+    /* ───────────────────────── Part 3: Euthyphro ───────────────────────── */
     {
       id: "coh-c",
       side: "skeptic",
       label: "Either God's commands are arbitrary or goodness stands above God",
-      gist: "If cruelty is wrong only because God forbids it, he could have commanded it and made it right; if he forbids it because it is wrong, goodness doesn't depend on God.",
+      gist: "If cruelty is wrong only because God forbids it, he could have made it right, and if he forbids it because it's wrong, goodness doesn't depend on him.",
       body: [
-        "At the porch of the King Archon, on his way to answer the charges that will cost him his life, Socrates questions a man prosecuting his own father for murder, sure that the gods approve. Out of that conversation comes the [[euthyphro-dilemma|Euthyphro dilemma]]. Put it to one God and his commands. Say right is whatever God commands: then had he commanded cruelty, cruelty would have been right. {{ockham}}, on the standard reading, swallowed it: by his absolute power God could command even hatred of himself.",
-        "Others recoiled. {{leibniz}} saw that this empties praise: why praise God for doing good if he would be just as praiseworthy for doing the opposite? {{cudworth}} saw that it makes justice a mere name, since not even omnipotence can make a thing what it is by will alone. Say instead that God commands kindness because it is good. Then goodness is a standard God consults, not one he makes, and morality stands on its own feet. Either way, ‘God is the source of morality’ fails.",
+        "At the porch of the King Archon in Athens, on his way to answer the charges that would cost him his life, Socrates questions Euthyphro, a man prosecuting his own father for murder and sure the gods approve. The [[euthyphro-dilemma|Euthyphro dilemma]] comes from that conversation. For a single God, the first option says right is whatever he commands, so had he commanded cruelty, cruelty would have been right. {{ockham}}, on the standard reading, accepted this, holding that by his absolute power God could command even hatred of himself.",
+        "Others recoiled. {{leibniz}} asked, ‘why praise him for what he has done, if he would be equally praiseworthy in doing the contrary?’ (*Discourse on Metaphysics* §2). {{cudworth}} argued that it would make justice a mere name, since not even omnipotence can make a thing what it is by will alone. If instead God commands kindness because it is good, goodness is a standard God consults, and morality no longer depends on him.",
       ],
       quote: {
         text: "The point which I should first wish to understand is whether the pious or holy is beloved by the gods because it is holy, or holy because it is beloved of the gods.",
@@ -653,24 +713,25 @@ const coherence: Objection = {
       },
       thinkers: ["plato", "ockham", "leibniz", "cudworth"],
       cedes:
-        "I'd concede if there were a third option that made goodness depend on God without making it his arbitrary choice.",
+        "A third option that made goodness depend on God without making it his arbitrary choice would answer this.",
       see: [
-        { id: "mor-hell", why: "Objection V calls a doctrine monstrous, which presupposes a standard of goodness; this prong asks where it lives." },
+        { id: "mor-hell", why: "Objection V calls a doctrine monstrous, which assumes some standard of goodness, and this part asks where that standard comes from." },
       ],
       sources: [
         { title: "Theological Voluntarism", by: "Stanford Encyclopedia of Philosophy (Mark Murphy)", url: "https://plato.stanford.edu/entries/voluntarism-theological/" },
         { title: "Euthyphro", by: "Plato (trans. Benjamin Jowett)", url: "https://www.gutenberg.org/ebooks/1642" },
+        { title: "Discourse on Metaphysics", by: "G. W. Leibniz (trans. George R. Montgomery)", year: "1902", url: "https://archive.org/details/cu31924032339511" },
         { title: "A Treatise Concerning Eternal and Immutable Morality", by: "Ralph Cudworth", year: "1731", url: "https://archive.org/details/treatiseconcerni00cudw_1" },
       ],
       children: [
         {
           id: "coh-c-nature",
           side: "theist",
-          label: "Goodness is what God is, so neither horn catches him",
-          gist: "God neither obeys a standard nor invents one: he is goodness itself, the source and goal of everything good, so his commands are neither arbitrary nor answerable to anything above him.",
+          label: "God is goodness itself, so neither option of the dilemma applies",
+          gist: "God neither obeys a standard nor invents one, because he is goodness itself, so his commands are neither arbitrary nor answerable to anything above him.",
           body: [
-            "The dilemma assumes goodness must be either a rule above God or a decree from him. Classical theism says it is neither: it is God. For {{aquinas|Aquinas}}, goodness is being itself, looked at as something worth wanting, and God, who is being itself, is good not by sharing in goodness but by his own essence. He is not a moral agent meeting a standard, as {{davies}} puts it, but the Good every creature seeks when it seeks anything, what {{hart|Hart}} calls the end of all desire.",
-            "So the commands of this personal God come from what he is. They cannot be arbitrary, because his nature could not be otherwise; and they answer to nothing above him, because nothing is above him. God can make no exceptions to the core of the moral law, the precepts that protect justice (ST I-II q.100 a.8); particular laws, like Israel's ceremonial rules, he freely adds. {{murphy}}'s *God's Own Ethics* (2017) puts the point sharply: not obligations God has, but goodness God is.",
+            "The dilemma assumes goodness must be either a rule above God or a decree from him. Classical theism says goodness is God. For {{aquinas|Aquinas}}, goodness is being itself considered as something worth wanting, and God, who is being itself, is good by his own essence instead of by sharing in a goodness outside him. {{davies}} argues that God is therefore not a moral agent meeting a standard. He is the Good every creature seeks whenever it seeks anything, what {{hart|Hart}} calls the end of all desire.",
+            "The commands of this God come from what he is. They can't be arbitrary, because his nature couldn't be otherwise, and they answer to nothing above him, because nothing is above him. God can make no exceptions to the core of the moral law, the precepts that protect justice (ST I-II q.100 a.8), though he freely adds particular laws such as Israel's ceremonial rules. {{murphy}} develops the idea in *God's Own Ethics* (2017).",
           ],
           quote: {
             text: "Hence it is manifest that God alone has every kind of perfection by His own essence; therefore He Himself alone is good essentially.",
@@ -679,7 +740,7 @@ const coherence: Objection = {
           },
           thinkers: ["aquinas", "davies", "hart", "murphy"],
           cedes:
-            "I'd concede if calling God ‘goodness itself’ turned out to be either a hidden standard he meets or a word for whatever he happens to be.",
+            "If calling God ‘goodness itself’ turned out to hide a standard he meets, or to be a name for whatever he happens to be, this would fail.",
           see: [
             { id: "mor-not-agent", why: "The same classical claim, that God is not one moral agent among others, applied to hell and evil in Objection V." },
           ],
@@ -692,35 +753,46 @@ const coherence: Objection = {
               id: "coh-c-trivial",
               side: "skeptic",
               label: "Calling God good needs a prior standard, or says nothing",
-              gist: "Either God's nature is good because it meets a standard we can state, so the standard comes first, or ‘God is good’ just means ‘God is God’.",
+              gist: "Either God's nature is good because it meets a standard we can state, so the standard comes first, or ‘God is good’ only means ‘God is God’.",
               body: [
-                "Moving goodness into God's nature moves the dilemma up a floor. Is God's nature good because it is loving, just and merciful? Then those qualities are the standard, and we can state it without mentioning God. Or is it good simply because it is God's? Then ‘God is good’ says only that God is like God, the empty compliment of the arbitrary horn. {{morriston}} supplies the test case: had God's nature been indifferent to suffering, would indifference then be good?",
-                "Our knowledge runs the same way. We judge God good because his nature matches what we already see goodness to be; that is why the hard cases in Scripture hurt, and why believers search them for readings they can call good. {{mill}} drew the line in 1865: he would call no being good who is not good in the sense he means of his fellow creatures.",
+                "Moving goodness into God's nature moves the dilemma up a floor. If God's nature is good because it is loving, just and merciful, then those qualities are the standard, and we can state it without mentioning God. If it is good only because it is God's, then ‘God is good’ says that God is like God, which praises nothing. {{morriston}} offers a test case. Had God's nature been indifferent to suffering, would indifference then have been good?",
+                "Our knowledge runs the same way. We judge God good because his nature matches what we already take goodness to be, which is why the hard cases in Scripture trouble believers and why they look for readings they can call good. {{mill}} drew the line in 1865: ‘I will call no being good, who is not what I mean when I apply that epithet to my fellow-creatures’.",
               ],
-              thinkers: ["morriston", "mill"],
+              quote: {
+                text: "Even the Holy One of the Gospels must first be compared with our ideal of moral perfection before we can recognise Him as such",
+                who: "Immanuel Kant",
+                cite: "Groundwork of the Metaphysics of Morals (1785), Second Section (trans. T. K. Abbott, as Fundamental Principles of the Metaphysic of Morals)",
+              },
+              thinkers: ["morriston", "mill", "kant"],
               cedes:
-                "I'd concede if ‘God is good’ could be informative without measuring God against a standard that comes first, in knowledge or in fact.",
+                "If ‘God is good’ could tell us something without measuring God against a standard that comes first, in what we know or in fact, this would fail.",
               see: [
                 { id: "mor-mansel", why: "Mill's ‘to hell I will go’, aimed at the doctrine of hell in Objection V." },
               ],
               sources: [
                 { title: "What If God Commanded Something Terrible? A Worry for Divine-Command Meta-Ethics", by: "Wes Morriston", year: "2009" },
+                { title: "Fundamental Principles of the Metaphysic of Morals", by: "Immanuel Kant (trans. T. K. Abbott)", year: "1785", url: "https://www.gutenberg.org/ebooks/5682" },
               ],
               children: [
                 {
                   id: "coh-c-terminus",
                   side: "theist",
-                  label: "God is the standard of goodness, not a thing measured by it",
-                  gist: "Every theory ends in something good that isn't good by a further standard; for the theist that is God, and asking whether God meets the standard is like asking whether the standard metre is a metre long.",
+                  label: "God is the standard of goodness and isn't measured by it",
+                  gist: "Every theory of ethics stops at something good that isn't good by a further standard, and for believers that stopping point is God.",
                   body: [
-                    "The regress the objection finds is one every ethics faces. {{plato}}'s Form of the Good makes other things good without being good by sharing in anything further; the naturalist's basic moral facts are true full stop. Something has to be the stopping point. {{alston}} proposed that for the theist it is a particular rather than a principle: as the standard metre bar once fixed what a metre is, God fixes what goodness is, and asking whether God meets the standard mistakes what a standard is.",
-                    "Nor is ‘God is good’ empty. {{adams-robert-m}} borrows a lesson from chemistry: people pointed at lakes and rain and called it ‘water’ long before anyone knew it was H₂O. Our paradigms of goodness fix what ‘good’ is about in the same way, and inquiry discovers its nature. So ‘God is good’ informs the way ‘water is H₂O’ does, and ‘what if God's nature were cruel?’ has an impossible premise, like asking what water would be if it weren't H₂O.",
+                    "Every ethics faces the regress this objection finds. {{plato}}'s Form of the Good makes other things good without being good by sharing in anything further, and in the *Republic* Socrates says ‘the good is not essence, but far exceeds essence in dignity and power’. A godless realist's basic moral facts are just true. Something has to be the stopping point, and {{alston}} proposed that for a believer it is a particular, God, more than a principle. The standard metre bar once fixed what a metre is, and in the same way God fixes what goodness is. Asking whether God meets the standard misunderstands what a standard is.",
+                    "‘God is good’ isn't empty either. {{adams-robert-m}} borrows a lesson from chemistry. People pointed at lakes and rain and called it ‘water’ long before anyone knew it was H₂O, and our examples of goodness fix what ‘good’ is about in the same way. So ‘what if God's nature were cruel?’ has an impossible premise, like asking what water would be if it weren't H₂O.",
                   ],
+                  quote: {
+                    text: "Why callest thou me good? there is none good but one, that is, God.",
+                    who: "Jesus, to the rich young man",
+                    cite: "Mark 10:18 (KJV)",
+                  },
                   thinkers: ["plato", "alston", "adams-robert-m"],
                   cedes:
-                    "I'd concede if a person could not serve as the standard of a value the way a paradigm can, or if the water analogy failed for goodness.",
+                    "If a person couldn't be the standard of a value the way a paradigm can, or the water comparison failed for goodness, this would fail.",
                   see: [
-                    { id: "nat-b-brute", why: "Every explanation stops somewhere: the same question about a brute universe, in Objection III." },
+                    { id: "nat-b-brute", why: "The same question about where explanation stops, asked of the universe in Objection III." },
                   ],
                   sources: [
                     { title: "Finite and Infinite Goods: A Framework for Ethics", by: "Robert Merrihew Adams", year: "1999" },
@@ -730,35 +802,46 @@ const coherence: Objection = {
                     {
                       id: "coh-c-brute",
                       side: "skeptic",
-                      label: "Let ‘cruelty is wrong’ be the stopping point, not a person",
-                      gist: "If something must be good with no further explanation, let it be the moral facts themselves, like ‘cruelty is wrong’, rather than a being whose goodness is just as unexplained.",
+                      label: "Moral facts themselves can be the stopping point",
+                      gist: "If something must be good with no further explanation, it can be moral facts like ‘cruelty is wrong’, which are no more unexplained than God.",
                       body: [
-                        "Grant the stopping point; it needn't be a person. {{wielenberg}} defends [[robust-realism|robust realism]]: basic ethical facts, such as that causing pain for fun is wrong, are objective, necessary and in no need of a foundation. The theist's stopping point is just as unexplained, and it adds a being, with all the coherence costs of the first two tests, for no gain. Nor does the person add bindingness: if God's commands bind because God is good, as Adams holds, goodness is doing the work.",
-                        "The water analogy fails as well. {{horgan}} and {{timmons}} imagine a Moral Twin Earth whose people anchor ‘good’ to different paradigms: when we argue with them we seem to disagree, not to talk past each other, which could not happen if ‘good’ worked like ‘water’. And the impossible premise is no escape. {{morriston}} argues that questions with impossible premises, like ‘what if God were cruel?’, still have better and worse answers, and the theory must give one.",
+                        "There may be a stopping point, but it needn't be a person. {{wielenberg}} defends [[robust-realism|moral realism without God]], which holds that basic ethical facts, such as that causing pain for fun is wrong, are objective and necessary and need no foundation. A believer's stopping point is just as unexplained, and it adds a being, with all the trouble of Parts 1 and 2, for no gain. Nor does a person add authority. If God's commands bind because God is good, as Adams holds, then goodness is doing the work.",
+                        "The water comparison also fails. {{horgan}} and {{timmons}} imagine a Moral Twin Earth whose people anchor ‘good’ to different examples. When we argue with them we seem to disagree, which couldn't happen if ‘good’ worked like ‘water’, because we would be talking about different things. And {{morriston}} argues that questions with impossible premises, like ‘what if God were cruel?’, still have better and worse answers, so the theory owes us one.",
                       ],
-                      thinkers: ["wielenberg", "horgan", "timmons", "morriston"],
+                      quote: {
+                        text: "If you are going to say, as theologians do, that God is good, you must then say that right and wrong have some meaning which is independent of God's fiat, because God's fiats are good and not bad independently of the mere fact that He made them.",
+                        who: "Bertrand Russell",
+                        cite: "“Why I Am Not a Christian” (1927)",
+                      },
+                      thinkers: ["wielenberg", "horgan", "timmons", "morriston", "russell"],
                       cedes:
-                        "I'd concede if brute moral facts could not explain why morality binds us, or how creatures like us could come to know them.",
+                        "If moral facts with no further explanation couldn't account for why morality binds us, or how creatures like us come to know them, this would fail.",
                       see: [
-                        { id: "coh-c-spinoza", why: "The Spinozist rejects mind-independent moral facts; the two skeptic metaethics cannot both be right." },
+                        { id: "coh-c-spinoza", why: "Spinoza rejects moral facts that hold apart from us, so he and Wielenberg can't both be right." },
                       ],
                       sources: [
                         { title: "Robust Ethics: The Metaphysics and Epistemology of Godless Normative Realism", by: "Erik J. Wielenberg", year: "2014" },
                         { title: "Troubles on Moral Twin Earth: Moral Queerness Revived", by: "Terence Horgan and Mark Timmons", year: "1992", note: "Synthese 92." },
+                        { title: "Why I Am Not a Christian", by: "Bertrand Russell", year: "1927", url: "https://users.drew.edu/~jlenz/whynot.html" },
                       ],
                       children: [
                         {
                           id: "coh-c-person",
                           side: "theist",
                           label: "Only a person can make goodness bind us",
-                          gist: "Brute facts just sit there; obligation is a claim someone makes on us, and a personal Good explains why goodness commands and how evolved minds came to know it.",
+                          gist: "Bare facts just sit there, but an obligation is a claim someone makes on us, and a personal God explains both why goodness commands and how we know it.",
                           body: [
-                            "Fewer ingredients win only if they explain as much, and [[brute-fact|brute]] moral facts leave the most important thing unexplained. Obligation is a demand, and {{evans}} argues that a demand needs someone who demands. Goodness does not do all the work: for {{adams-robert-m|Adams}}, God's goodness is why his commands deserve a hearing, and the command makes a thing owed, as a good friend's request binds where the same act, unasked, would only be kind. {{cudworth|Cudworth}}'s regress (a command binds only if obedience is already owed) never starts, since the reason to obey is goodness, not one more command.",
-                            "Knowledge is the second gap. {{street}}'s Darwinian dilemma faces every realist: if moral facts push nothing around, evolved creatures tracking them is a lucky coincidence. On theism the coincidence disappears, because the same God grounds the facts and made the minds. Even {{mackie}}, who coined the argument from queerness, granted in 1982 that objective values would be strange items in a godless world, and would make a god more likely.",
+                            "Fewer ingredients win only if they explain as much, and [[brute-fact|brute]] moral facts, facts with no further explanation, leave the most important thing unexplained. An obligation is a demand, and {{evans}} argues that a demand needs someone who makes it. Goodness doesn't do all the work. For {{adams-robert-m|Adams}}, God's goodness is why his commands deserve a hearing, and the command is what makes a thing owed, the way a good friend's request binds when the same act, unasked, would only be kind. {{cudworth|Cudworth}}'s regress, that a command binds only if obedience is already owed, never starts, because the reason to obey is God's goodness.",
+                            "{{street}} argued in 2006 that if moral facts don't affect anything, it would be a lucky coincidence for evolved creatures to track them. If the same God grounds the facts and made the minds, the coincidence disappears. Even {{mackie}}, who coined the ‘argument from queerness’ against objective values, granted in 1982 that such values would be strange in a godless world and would make a god more likely.",
                           ],
+                          quote: {
+                            text: "For when the Gentiles, which have not the law, do by nature the things contained in the law, these, having not the law, are a law unto themselves: Which shew the work of the law written in their hearts",
+                            who: "Paul",
+                            cite: "Romans 2:14–15 (KJV)",
+                          },
                           thinkers: ["evans", "adams-robert-m", "cudworth", "street", "mackie"],
                           cedes:
-                            "I'd concede if non-theistic realism could explain the authority of obligation, and our knowledge of moral facts, as well as theism does.",
+                            "If moral realism without God could explain the authority of obligation, and our knowledge of moral facts, as well as theism does, this would fail.",
                           see: [
                             { id: "nat-b-minds", why: "The same reliability worry, about reason itself, in Objection III." },
                           ],
@@ -772,16 +855,21 @@ const coherence: Objection = {
                               id: "coh-c-authority",
                               side: "skeptic",
                               label: "A divine command's authority is as unexplained as a brute duty",
-                              gist: "Commands need a commander, but obligation needn't be a command; if heeding God is already owed, that duty is as brute as any, and a godless realist can explain moral knowledge too.",
+                              gist: "If obeying God is owed before he commands anything, that duty is as unexplained as any godless duty, and godless realists can explain moral knowledge too.",
                               body: [
-                                "{{evans}} shows that commands need a commander, not that obligation does. ‘Cruelty is wrong’ binds without anyone's saying so, as a valid proof compels assent unbidden. And {{adams-robert-m|Adams}}'s friend brings back {{cudworth}}'s question. A friend's request binds because we already owe our friends a hearing; God's command binds only if heeding God is already owed. That prior duty cannot itself be commanded, on pain of regress, so it is a [[brute-fact|brute]] moral fact. If the answer is that God is good, goodness is doing the binding: robust realism with an extra step.",
-                                "The knowledge gap closes without God too. {{wielenberg}} answers {{street}} with a ‘third-factor’ account (*Ethics* 120, 2010): the cognitive capacities evolution gave us both make us beings with rights and lead us to believe we have them, so fact and belief share a cause and no luck is needed. And {{mackie}} granted his conditional in 1982 only to deny its antecedent: objective values would point to a god if there were any, and he held there are none.",
+                                "{{evans}} shows that commands need a commander. He doesn't show that obligation does. ‘Cruelty is wrong’ binds without anyone's saying so, the way a valid proof compels agreement unasked. And {{adams-robert-m|Adams}}'s friend brings back {{cudworth}}'s question. A friend's request binds because we already owe friends a hearing, and God's command binds only if heeding God is already owed. That prior duty can't itself be commanded without a regress, so it is a [[brute-fact|brute]] moral fact. If the answer is that God is good, goodness is doing the binding.",
+                                "The knowledge problem has a godless answer too. {{wielenberg}} answers {{street}} with a ‘third-factor’ account (2010), which says the mental abilities evolution gave us both make us beings with rights and lead us to believe we have them. Fact and belief share a cause, and no luck is needed. {{mackie}}'s 1982 concession said only that objective values would point to a god if there were any, and he held that there are none.",
                               ],
+                              quote: {
+                                text: "For it was never heard of, that any one founded all his authority of commanding others, and others obligation or duty to obey his commands, in a law of his own making, that men should be required, obliged, or bound to obey him.",
+                                who: "Ralph Cudworth",
+                                cite: "A Treatise Concerning Eternal and Immutable Morality (1731), Book I, ch. 2, §3",
+                              },
                               thinkers: ["evans", "adams-robert-m", "cudworth", "wielenberg", "street", "mackie"],
                               cedes:
-                                "I'd concede if the duty to heed God could be shown to need no grounding of its own, while every godless duty still needed one.",
+                                "If the duty to heed God needed no grounding of its own while every godless duty still did, this would fail.",
                               see: [
-                                { id: "mor-convicts", why: "Wielenberg again in Objection V: equal worth with no foundation beneath it." },
+                                { id: "mor-convicts", why: "Wielenberg again in Objection V, defending equal human worth with no foundation beneath it." },
                               ],
                               sources: [
                                 { title: "On the Evolutionary Debunking of Morality", by: "Erik J. Wielenberg", year: "2010", note: "Ethics 120." },
@@ -799,10 +887,10 @@ const coherence: Objection = {
               id: "coh-c-spinoza",
               side: "spinoza",
               label: "Every ‘freely added’ command is either forced or arbitrary",
-              gist: "The reply fixes the moral core in God's nature and lets God add the rest freely; but each added command is either required by his goodness, and so necessary, or not, and so arbitrary after all.",
+              gist: "Each command God freely adds is either required by his goodness, and so necessary, or not required, and so arbitrary after all.",
               body: [
-                "The reply escapes Euthyphro for the moral core and leaves the rest to God's free choice. Spinoza asks about the rest. Take a command God ‘freely adds’, such as the order to Abraham to sacrifice Isaac. Either God's goodness required it, and it could not have been otherwise: God chooses nothing, which is Spinoza's God (Ethics I P33). Or it did not, and it holds only because he willed it: the arbitrary horn. Spinoza even ranks those who make good whatever God decrees ‘less far from the truth’ than those who have God aim at the good, since that sets up a standard outside God (I P33 Schol. 2).",
-                "And ‘good’ is not a property God has. It means what we certainly know to be useful to us (IV Def. 1), measured against the ‘type of human nature’ we set before ourselves (IV Pref.). Cruelty is bad because it diminishes the power of beings like us to act and to understand. But it is goodness without a chooser.",
+                "The reply escapes Euthyphro for the core of morality and leaves the rest to God's free choice. Spinoza asks about the rest. A command God ‘freely adds’, such as the order to Abraham to sacrifice Isaac, was either required by God's goodness or it wasn't. If it was, it couldn't have been otherwise and God chose nothing, which is Spinoza's own God (Ethics I P33). If it wasn't, it holds only because God willed it, which is the arbitrary option. Spinoza even ranks the view that everything depends on God's fiat ‘less far from the truth’ than the view that God aims at the good, because the second sets up a standard outside God (I P33 Schol. 2).",
+                "For Spinoza, ‘good’ is not a property God has. It means ‘that which we certainly know to be useful to us’ (IV Def. 1), measured against a model of human nature that we set before ourselves (IV Pref.). Cruelty is bad because it weakens the power of beings like us to act and to understand. On this view goodness has no one choosing it.",
               ],
               quote: {
                 text: "As for the terms good and bad, they indicate no positive quality in things regarded in themselves, but are merely modes of thinking, or notions which we form from the comparison of things one with another.",
@@ -811,9 +899,9 @@ const coherence: Objection = {
               },
               thinkers: ["spinoza"],
               cedes:
-                "I'd concede if a command could be neither required by God's nature nor a bare decree, and still be chosen for a reason.",
+                "Spinoza would give way to a command that was neither required by God's nature nor a bare decree, and was still chosen for a reason.",
               see: [
-                { id: "coh-a-collapse", why: "Necessity in God's nature is the modal-collapse charge again." },
+                { id: "coh-a-collapse", why: "Necessity in God's nature leads back to the argument that God couldn't have made any other world." },
                 { id: "mor-pity", why: "Spinoza's ethic of what reason finds useful, tested against Christian pity in Objection V." },
                 { id: "nat-b-contrast", why: "The same forced-or-arbitrary dilemma, aimed at creation itself in Objection III." },
               ],
@@ -822,10 +910,10 @@ const coherence: Objection = {
                   id: "coh-c-natlaw",
                   side: "theist",
                   label: "A command can fit God's goodness without being forced by it",
-                  gist: "Between required and arbitrary lies fitting: God gives a law for reasons that make it good without making it the only good law, as an artist's choices fit a work without being forced.",
+                  gist: "Between required and arbitrary there is fitting, since God can give a law for reasons that make it good without making it the only good law.",
                   body: [
-                    "The dilemma leaves out the ordinary way reasons work. {{aquinas|Aquinas}} says God ‘wills this to be as means to that; but does not will this on account of that’ (ST I q.19 a.5): each thing he wills fits an end, yet nothing forces his willing it. A sabbath serves rest and worship; another law might have served them too. Fitting is not forced, and it is not arbitrary. Spinoza's God chooses nothing; this one chooses everything but his own character ((nat-b-reasons|Objection III)).",
-                    "On goodness itself the two sides are closer than Spinoza admits. ‘Useful to us’ means what really increases a nature's power of acting, which is very nearly Aquinas's good: all things seek their own perfection, and the first precept of [[natural-law|natural law]] is to pursue that good (ST I-II q.94 a.2). Spinoza's [[conatus|conatus]], each thing's striving to persist in its being, and Aquinas's natural inclination are one striving under two names. What Spinoza subtracts is the lawgiver.",
+                    "Spinoza's dilemma leaves out the ordinary way reasons work. {{aquinas|Aquinas}} says God ‘wills this to be as means to that; but does not will this on account of that’ (ST I q.19 a.5). Each thing he wills fits an end, yet nothing forces his willing it. A sabbath serves rest and worship, and another law might have served them too. On this view Spinoza's God chooses nothing, while Aquinas's chooses everything except his own character ((nat-b-reasons|Objection III)).",
+                    "On goodness the two are closer than Spinoza admits. ‘Useful to us’ means what increases a nature's power of acting, which is very nearly Aquinas's good. All things seek their own perfection, and the first precept of [[natural-law|natural law]], the moral law built into human nature, is that ‘good is to be done and pursued, and evil is to be avoided’ (ST I-II q.94 a.2). Spinoza's [[conatus|conatus]], each thing's striving to persist in its being, and Aquinas's natural inclination look like one striving under two names, though Spinoza's version has no lawgiver behind it.",
                   ],
                   quote: {
                     text: "The will of God is reasonable, not because anything is to God a cause of willing, but in so far as He wills one thing to be on account of another.",
@@ -834,11 +922,11 @@ const coherence: Objection = {
                   },
                   thinkers: ["aquinas"],
                   cedes:
-                    "I'd concede if every reason for a command either forced it or explained nothing about why God gave it.",
+                    "If every reason for a command either forced it or explained nothing about why God gave it, this would fail.",
                   see: [
-                    { id: "nat-b-reasons", why: "The same answer about creation itself: reasons explain a free choice without forcing it." },
+                    { id: "nat-b-reasons", why: "The same answer about creation in Objection III, where reasons explain a free choice without forcing it." },
                     { id: "coh-a-extrinsic", why: "Why fixed goodness doesn't make creation necessary." },
-                    { id: "nat-b-contrast", why: "The forced-or-arbitrary rejoinder, aimed at creation in Objection III." },
+                    { id: "nat-b-contrast", why: "The forced-or-arbitrary response, aimed at creation in Objection III." },
                   ],
                   sources: [
                     { title: "Summa Theologiae I q.19 (The Will of God)", by: "Thomas Aquinas", url: "https://www.newadvent.org/summa/1019.htm" },
@@ -854,11 +942,11 @@ const coherence: Objection = {
   ],
 
   spinoza: {
-    title: "A God who thinks, loves, and does not choose",
+    title: "A God who thinks and loves but doesn't choose",
     body: [
-      "Spinoza grants more of the counter than either side expects. His God is the [[immanent-cause|immanent]], non-competing cause of everything (Ethics I P18), and he denies [[libertarian-freedom|libertarian freedom]] outright (II P48), so a God who causes and knows every act takes nothing from the only freedom there is, acting from your own nature (I Def. 7). The first two prongs are theists' quarrels.",
-      "His own objection is narrower. God thinks ((coh-a-dogstar|with a mind ours is part of)), and God loves, but only with the [[amor-dei-intellectualis|intellectual love]] by which he loves himself, of which your understanding love of God is literally a part (V P36). That is why ‘strictly speaking, God does not love or hate anyone’ (V P17 Cor.): ordinary love is joy at an outside cause, and God has no outside and no greater perfection to pass into. Where ((coh-a-analogy|the theist)) sees a likeness across a gap, Spinoza sees no gap: one love, seen from the part and from the whole.",
-      "So everything turns on one question: could God have done otherwise? Each theist answer here leans on yes: ((coh-a-extrinsic|one act, many possible worlds)), knowing by causing without authoring sin, commands fixed at the core and free at the edges. Spinoza says no, because everything has a reason ([[psr|the principle of sufficient reason]]), and pays openly for his [[necessitarianism|necessitarianism]]: this world, horrors included, is the only one there could have been, produced ‘in the highest perfection’ (I P33 Schol. 2). And ‘good’ measures what helps beings like us flourish (IV Pref.), not a choice God made.",
+      "Spinoza grants more of the classical reply than either side expects. His God is the [[immanent-cause|immanent cause]] of everything, the cause things exist in, and competes with nothing (Ethics I P18). He denies [[libertarian-freedom|libertarian freedom]], the power to do otherwise (II P48). So on his view a God who causes and knows every act takes nothing from the only freedom there is, acting from your own nature (I Def. 7). For him the first two parts are disputes among believers.",
+      "Spinoza's God thinks ((coh-a-dogstar|with a mind ours is part of)), and he loves, but only with the [[amor-dei-intellectualis|intellectual love]] by which he loves himself. Your own understanding love of God is part of that love (V P36). That is why ‘strictly speaking, God does not love or hate anyone’ (V P17 Cor.). Ordinary love is joy at an outside cause, and God has no outside. Where ((coh-a-analogy|Aquinas)) sees a likeness across a gap, Spinoza sees one love, looked at from the part and from the whole.",
+      "Spinoza denies that God could have done otherwise, and each believer's answer in this objection needs him to be wrong. The answers are ((coh-a-extrinsic|one act with many possible worlds)), knowing by causing without causing sin, and commands fixed at the core but free at the edges. Spinoza says no because everything has a reason ([[psr|the principle of sufficient reason]]). He accepts the consequence, which philosophers call [[necessitarianism|necessitarianism]], that this world, horrors included, is the only one there could have been, brought into being ‘in the highest perfection’ (I P33 Schol. 2). And ‘good’, for him, measures what helps beings like us flourish (IV Pref.).",
     ],
     quote: {
       text: "Hence it follows that God, in so far as he loves himself, loves man, and, consequently, that the love of God towards men, and the intellectual love of the mind towards God are identical.",
@@ -892,13 +980,13 @@ const coherence: Objection = {
       by: "David Bentley Hart",
       year: "2013",
       url: "https://yalebooks.yale.edu/book/9780300209358/the-experience-of-god/",
-      note: "The counter's classical theism at full strength: God as the source of being, not a being among beings.",
+      note: "A full statement of classical theism, in which God is the source of all being and not one more being.",
     },
     {
       title: "The God of the Philosophers",
       by: "Anthony Kenny",
       year: "1979",
-      note: "An agnostic's careful case that the traditional attributes, omniscience above all, do not fit together.",
+      note: "An agnostic argues carefully that the traditional attributes, especially knowing everything, don't fit together.",
     },
     {
       title: "Divine Foreknowledge: Four Views",
@@ -910,20 +998,20 @@ const coherence: Objection = {
       title: "A Debate on God and Morality",
       by: "William Lane Craig and Erik J. Wielenberg (Adam Lloyd Johnson, ed.)",
       year: "2020",
-      note: "Divine command theory against godless robust realism, with replies from both sides.",
+      note: "Divine command theory against moral realism without God, with replies from both sides.",
     },
     {
       title: "The End of the Timeless God",
       by: "R. T. Mullins",
       year: "2016",
-      note: "A Christian philosopher's case against simplicity and timelessness; read with W. Matthews Grant's Free Will and God's Universal Causality (2019) for the classical reply.",
+      note: "A Christian philosopher argues against divine simplicity and a God outside time. W. Matthews Grant's Free Will and God's Universal Causality (2019) gives the classical reply.",
     },
     {
       title: "Ethics",
       by: "Baruch Spinoza (trans. R. H. M. Elwes)",
       year: "1677",
       url: "https://www.gutenberg.org/ebooks/3800",
-      note: "Part I for God, necessity and the dog-star scholium; Part V for the intellectual love of God.",
+      note: "Part I covers God, necessity and the Dog Star passage. Part V covers the intellectual love of God.",
     },
   ],
 };

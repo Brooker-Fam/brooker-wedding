@@ -17,7 +17,7 @@ export interface Determination {
   kind: DeterminationKind;
   /** The node the sentence names (a load-bearing call, or a blank but decisive move). */
   focus: string | null;
-  /** The reader's call on `focus`, when it is a call. */
+  /** The reader's call on the focus move, when there is one. */
   call: Judgment | null;
   /** True when no single call carries a settled status (several footings). */
   overdetermined: boolean;
@@ -25,8 +25,8 @@ export interface Determination {
   sentence: string;
   /** First person, for the copied text, e.g. It stands. It rests on my call that “…” fails. */
   firstPerson: string;
-  /** `sentence` split for display: a status headline, then the text around the focus label
-      (so a view can render the label as a link). sentence = head + " " + pre + “label” + post. */
+  /** The sentence split for display: a status headline, then the text around the focus label
+      (so a view can render the label as a link). The sentence is head, a space, pre, the quoted label, post. */
   parts: { head: string; pre: string; post: string };
   /** Settled: the other calls this status rests on. */
   also: string[];
@@ -281,8 +281,8 @@ const PROPER = new Set(["God", "God's", "Christ", "Jesus", "Christian", "Christi
 const INTERROGATIVE = /^(why|how|what|who|whom|whose|where|when|which|is|are|was|were|does|do|did|can|could|would|will|should|shall|may|might|must|has|have|had)\b/i;
 
 /** "The idea of God doesn't hold together" → "Whether the idea of God holds together".
-    A title that is already a question ("Why would God hide?") is not rewritten: the objection's
-    own `question` is used if given, else the title as it stands. */
+    A title that is already a question ("Why would God hide?") is left alone. The objection's own
+    question field is used if it has one, and otherwise the title as it stands. */
 export function whetherForm(title: string, question?: string): string {
   const raw = title.trim();
   if (!raw) return "";

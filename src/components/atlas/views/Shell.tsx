@@ -337,7 +337,7 @@ function MobileSheet({ id, onClose, menuBtn }: { id: string; onClose: (refocus: 
             {item(
               { view: "ledger" },
               "Where you stand",
-              "Each objection, worked out from your calls",
+              "Worked out from your calls",
               <YouMark size={13} />,
               <span title={title}>
                 <Pips current={currentObjection(route)} />

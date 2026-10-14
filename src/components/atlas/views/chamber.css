@@ -1892,6 +1892,8 @@
   color: var(--bone-2);
 }
 .atl .ch-chair-by {
+  display: block;
+  font-size: 12.5px;
   color: var(--faint);
 }
 

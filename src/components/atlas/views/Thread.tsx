@@ -227,7 +227,7 @@ function EmptyChair({ leaf, seat }: { leaf: string; seat: Seat }) {
                 ) : (
                   <cite>{s.title}</cite>
                 )}
-                {s.by && <span className="ch-chair-by"> · {s.by}</span>}
+                {s.by && <span className="ch-chair-by">{s.by}</span>}
               </li>
             ))}
           </ul>

@@ -321,7 +321,7 @@ export default function ObjectionChart({ o, focusId, path, onSelect, variant, ba
       <div className="ch-chart-note">
         <p>
           Each mark is one move. Round 1, at the top, is the Objector’s {many ? `case in ${numWord(counts.parts)} parts` : "case"}, and each round below replies to the one above it.
-          A move stands when every reply to it is answered, and it is answered as soon as one reply stands.
+          A move stands when every reply to it is answered, and it is answered as soon as one reply stands. Your own Holds or Fails on a move overrides its replies.
         </p>
         <p>
           {many ? (

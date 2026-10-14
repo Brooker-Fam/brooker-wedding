@@ -283,7 +283,7 @@ export default function DebatesIndexPage() {
           className="mx-auto mt-12 max-w-xl text-center font-[family-name:var(--font-quicksand)] text-[11px] leading-relaxed text-forest/40 dark:text-cream/40"
         >
           Each opens as a standalone page. A “steelman” is the strongest version of an argument,
-          stated charitably — presenting one is not endorsing it.
+          stated fairly, and presenting one isn’t the same as endorsing it.
         </motion.p>
       </div>
     </main>

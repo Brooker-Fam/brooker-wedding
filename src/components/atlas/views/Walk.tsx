@@ -1388,7 +1388,7 @@ function DoneCard({
       <div className="wk-done-acts">
         {next && next.id !== obj.id && (
           <button type="button" className="btn solid" onClick={() => go({ view: "walk", o: next.id })}>
-            Step through Objection {next.numeral} <span className="wk-arrow" aria-hidden>→</span>
+            On to Objection {next.numeral} <span className="wk-arrow" aria-hidden>→</span>
           </button>
         )}
         <button type="button" className="btn" onClick={() => go({ view: "objection", o: obj.id })}>
