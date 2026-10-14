@@ -1,12 +1,8 @@
-/* The reader's determination: one templated sentence per objection that says
-   what follows from their calls — and never more than that.
-
-   In a medieval disputation the master closed the question with a
-   *determinatio*. Here the reader is the master, so every sentence is
-   phrased "on your calls": it reports which of the reader's own calls a
-   status turns on (or which blank move would settle it), not a verdict of
-   the page. Pure functions only — usable from any view (the ledger, the
-   walk's end-of-objection card) and from tests. */
+/* Where you stand: one generated sentence per objection, saying what follows
+   from the reader's own calls and nothing more. Each sentence names the call
+   a status rests on, or the open move that would settle it. The site never
+   adds a verdict of its own. Pure functions, used by the summary page (the
+   ledger view), the walk's end card and the tests. */
 
 import { plain } from "./markup";
 import { analyzeObjection, labelObjection, type DisputationIndex, type Judgments, type ObjectionAnalysis, type Tension } from "./semantics";
@@ -25,9 +21,9 @@ export interface Determination {
   call: Judgment | null;
   /** True when no single call carries a settled status (several footings). */
   overdetermined: boolean;
-  /** Second person, plain text: "Stands for you. It turns on “…”, which you granted." */
+  /** Second person, plain text, e.g. Stands. It rests on your call that “…” fails. */
   sentence: string;
-  /** First person, for the copied text: "It stands. It turns on “…”, which I granted." */
+  /** First person, for the copied text, e.g. It stands. It rests on my call that “…” fails. */
   firstPerson: string;
   /** `sentence` split for display: a status headline, then the text around the focus label
       (so a view can render the label as a link). sentence = head + " " + pre + “label” + post. */
@@ -55,13 +51,12 @@ export interface Crux {
 
 /* ---------------- small helpers ---------------- */
 
-/** Objection-level status words (moves use Stands / Answered / Open). */
+/** Objection-level status words (moves use Stands, Answered and Open). */
 export const OBJECTION_STATUS: Record<Label, string> = { in: "Stands", out: "Answered", undec: "Undecided" };
-/** What an objection would do if a call flipped: "If you’re wrong, Objection II …". */
-export const IF_WRONG: Record<Label, string> = { in: "would stand", out: "would be answered", undec: "reopens" };
+/** What an objection would do if one call flipped, e.g. If you flipped this call, Objection II would stand. */
+export const IF_WRONG: Record<Label, string> = { in: "would stand", out: "would be answered", undec: "would be undecided" };
 
 const q = (s: string) => `“${s}”`;
-const verbYou = (c: Judgment) => (c === "holds" ? "granted" : "rejected");
 
 function labelText(ix: DisputationIndex, id: string, toPlain?: (s: string) => string): string {
   const raw = ix.nodes.get(id)?.node.label ?? id;
@@ -103,7 +98,7 @@ function support(ix: DisputationIndex, id: string, j: Judgments, labels: Map<str
 
 const uniq = (xs: string[]) => [...new Set(xs)];
 
-/* ---------------- the determination ---------------- */
+/* ---------------- one objection ---------------- */
 
 export function determine(
   ix: DisputationIndex,
@@ -125,7 +120,7 @@ export function determine(
   if (label === "undec") {
     if (called === 0) {
       const moves = total === 1 ? "its one move" : `any of its ${total} moves`;
-      const rest = total === 0 ? "There is nothing here to rule on yet." : `You haven’t ruled on ${moves} yet.`;
+      const rest = total === 0 ? "There is nothing to mark here yet." : `You haven’t marked ${moves} yet.`;
       const sentence = `Undecided. ${rest}`;
       return {
         ...base,
@@ -134,15 +129,15 @@ export function determine(
         call: null,
         overdetermined: false,
         sentence,
-        firstPerson: total === 0 ? "It remains undecided; there is nothing here to rule on yet." : "It remains undecided. I have not ruled on it yet.",
+        firstPerson: total === 0 ? "It is undecided. There is nothing to mark here yet." : "It is undecided. I haven’t marked any of its moves yet.",
         parts: { head: "Undecided.", pre: rest, post: "" },
         also: [],
         decisive: [],
       };
     }
     // Prefer moves at the open frontier (deepest first). A call on a prong
-    // "settles" everything only by overruling the whole tree beneath it, so
-    // prongs come last: they are true but uninformative.
+    // settles everything only by overruling the whole tree beneath it, so
+    // prongs come last. Such a suggestion is true but tells the reader little.
     const isProng = (id: string) => (ix.nodes.get(id)?.depth ?? 1) === 1;
     const pivots = byFrontier(ix, a.pivots, true);
     const levers = byFrontier(ix, a.levers, true);
@@ -169,17 +164,18 @@ export function determine(
       decisive.push(id);
     }
     if (!focus) {
-      const rest = "Nothing here yet turns on a single call.";
-      return { ...base, kind: "undecided", focus, call: null, overdetermined: false, sentence: `Undecided. ${rest}`, firstPerson: "It remains undecided.", parts: { head: "Undecided.", pre: rest, post: "" }, also: [], decisive };
+      const rest = "No single call would settle it yet.";
+      return { ...base, kind: "undecided", focus, call: null, overdetermined: false, sentence: `Undecided. ${rest}`, firstPerson: "It is still undecided.", parts: { head: "Undecided.", pre: rest, post: "" }, also: [], decisive };
     }
     const t = q(L(focus));
     const head = "Undecided.";
+    // pivot: either answer settles it. lever: one of the two answers does. next: the walk's next stop.
     const [pre, post, fp] =
       mode === "pivot"
-        ? ["A call on ", " would settle it.", `It remains undecided. A call on ${t} would settle it.`]
+        ? ["Your call on ", " would settle it either way.", `It is still undecided. My call on ${t} would settle it either way.`]
         : mode === "lever"
-          ? ["A call on ", " could settle it.", `It remains undecided. A call on ${t} could settle it.`]
-          : ["It waits on ", ", the next open move.", `It remains undecided. It waits on ${t}, the next open move.`];
+          ? ["Your call on ", " could settle it, depending on which way you go.", `It is still undecided. My call on ${t} could settle it, depending on which way I go.`]
+          : ["The next open move is ", ".", `It is still undecided. The next open move is ${t}.`];
     return {
       ...base,
       kind: "undecided",
@@ -212,28 +208,21 @@ export function determine(
   const kind: DeterminationKind = label === "in" ? "stands" : "answered";
 
   if (!focus || !call) {
-    const head = kind === "stands" ? "Stands for you." : "Answered for you.";
+    const head = kind === "stands" ? "Stands." : "Answered.";
     return { ...base, kind, focus: null, call: null, overdetermined, sentence: head, firstPerson: kind === "stands" ? "It stands." : "It is answered.", parts: { head, pre: "", post: "" }, also, decisive: [] };
   }
 
   const t = q(L(focus));
-  const v = verbYou(call);
   // Every status line ends in a full stop, so a line break after it never strands a comma.
-  const head = kind === "stands" ? "Stands for you." : "Answered for you.";
+  const head = kind === "stands" ? "Stands." : "Answered.";
   const it = kind === "stands" ? "It stands." : "It is answered.";
   let pre: string, post: string, fp: string;
   if (overdetermined) {
-    [pre, post] = ["It rests on more than one footing — among them ", `, which you ${v}.`];
-    fp = `${it} It rests on more than one footing — among them ${t}, which I ${v}.`;
-  } else if (kind === "stands") {
-    [pre, post] = ["It turns on ", `, which you ${v}.`];
-    fp = `${it} It turns on ${t}, which I ${v}.`;
-  } else if (call === "holds") {
-    [pre, post] = ["You granted ", ", which answers it."];
-    fp = `${it} I granted ${t}, which answers it.`;
+    [pre, post] = ["It rests on several of your calls. One is that ", ` ${call}.`];
+    fp = `${it} It rests on several of my calls. One is that ${t} ${call}.`;
   } else {
-    [pre, post] = ["You rejected ", ", which settles it."];
-    fp = `${it} I rejected ${t}, which settles it.`;
+    [pre, post] = ["It rests on your call that ", ` ${call}.`];
+    fp = `${it} It rests on my call that ${t} ${call}.`;
   }
   return { ...base, kind, focus, call, overdetermined, sentence: `${head} ${pre}${t}${post}`, firstPerson: fp, parts: { head, pre, post }, also, decisive: [] };
 }
@@ -248,11 +237,11 @@ export function determineAll(
   return d.objections.map((o) => determine(ix, o, j, analysis?.get(o.id), toPlain));
 }
 
-/* ---------------- the crux ---------------- */
+/* ---------------- your key call ---------------- */
 
-/** The judged move your determination most rests on: a load-bearing call (each move belongs to one
-    objection, so it carries exactly one status), shallowest first, then the one that carries its
-    objection most nearly alone, then reading order. Null if nothing is settled. */
+/** Your key call: the judged move your results most rest on. It is a load-bearing call (each move
+    belongs to one objection, so it carries one status), shallowest first, then the one that
+    carries its objection most nearly alone, then reading order. Null if nothing is settled. */
 export function findCrux(ix: DisputationIndex, d: Disputation, j: Judgments, analysis?: Map<ObjectionId, ObjectionAnalysis>): Crux | null {
   const company = new Map<string, number>();
   for (const o of d.objections) {
@@ -331,23 +320,23 @@ export function determinationText(
   const P = opts.toPlain ?? ((s: string) => plain(s));
   const dets = determineAll(ix, d, j, opts.analysis, opts.toPlain);
   const lines: string[] = [];
-  lines.push(`MY DETERMINATION — ${d.title}`);
+  lines.push(`Where I stand on “${d.title}”`);
   if (d.subtitle) lines.push(P(d.subtitle));
   lines.push("");
   d.objections.forEach((o, i) => {
     const det = dets[i];
     const head = whetherForm(P(o.title ?? ""), o.question ? P(o.question) : undefined) || P(o.short ?? "") || o.id;
     lines.push(`Objection ${o.numeral}. ${stop(head)}`);
-    if (o.objection?.trim()) lines.push(`It seems that: ${P(o.objection).trim()}`);
-    if (o.counter?.trim()) lines.push(`On the contrary: ${P(o.counter).trim()}`);
-    lines.push(`I answer that, on my calls: ${det.firstPerson}`);
+    if (o.objection?.trim()) lines.push(`The objection: ${P(o.objection).trim()}`);
+    if (o.counter?.trim()) lines.push(`The reply: ${P(o.counter).trim()}`);
+    lines.push(`My answer: ${det.firstPerson}`);
     lines.push("");
   });
   for (const t of opts.tensions ?? []) {
-    lines.push(`Unresolved: I said ${q(labelText(ix, t.node, opts.toPlain))} holds, yet by my other calls a reply to it — ${q(labelText(ix, t.reply, opts.toPlain))} — stands. One of them has to give.`);
+    lines.push(`I said ${q(labelText(ix, t.node, opts.toPlain))} holds, but my other calls leave a reply to it, ${q(labelText(ix, t.reply, opts.toPlain))}, standing. These two contradict each other.`);
   }
   if (opts.tensions?.length) lines.push("");
-  lines.push("Nothing above is the page’s verdict — only what follows from my calls.");
+  lines.push("Each answer above follows from the moves I marked Holds or Fails, and from nothing else.");
   if (opts.url) lines.push(opts.url);
   return lines.join("\n");
 }

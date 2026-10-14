@@ -1,11 +1,11 @@
 "use client";
 
-/* Argue it through (#/walk/<objection>): the grounded game over one objection,
-   presented as a transcript. One move is lit at a time; the reader answers
-   ("It fails" / "Hear the reply", or at the last word "Holds" / "Fails");
-   earlier moves shrink to one-line strips with the reader's stamps between
-   them. The rules live in ../walk.ts; this file is presentation, focus and
-   keyboard handling. */
+/* Step through it (#/walk/<objection>): the grounded game over one objection,
+   shown as a transcript. One move is lit at a time and the reader answers it
+   (It fails or Show the reply, or Holds or Fails when nobody replies). Earlier
+   moves shrink to one-line strips with the reader's stamps between them. The
+   rules live in ../walk.ts. This file handles layout, focus and the keyboard.
+   In the code a "prong" is what the reader sees as a part of the objection. */
 
 import "./walk.css";
 import { motion, useReducedMotion } from "framer-motion";
@@ -37,8 +37,8 @@ import {
 
 /* ---------------- words ---------------- */
 
-const WHO: Record<Side, string> = { skeptic: "The Objector", theist: "The Respondent", spinoza: "Spinoza" };
-const WHO_SHORT: Record<Side, string> = { skeptic: "Objector", theist: "Respondent", spinoza: "Spinoza" };
+const WHO: Record<Side, string> = { skeptic: "The Objector", theist: "The Defender", spinoza: "Spinoza" };
+const WHO_SHORT: Record<Side, string> = { skeptic: "Objector", theist: "Defender", spinoza: "Spinoza" };
 /** "In reply to the Objector" */
 const whoIn = (side: Side) => WHO[side].replace(/^The /, "the ");
 const NUM = ["no", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten"];
@@ -46,8 +46,8 @@ const num = (n: number) => NUM[n] ?? String(n);
 const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 const Num = (n: number) => cap(num(n));
 const joinAnd = (xs: string[]) => (xs.length <= 1 ? xs.join("") : `${xs.slice(0, -1).join(", ")} and ${xs[xs.length - 1]}`);
-/** "objection 2" / "objections 2 and 3" (0-based indexes in). */
-const objList = (idx: number[]) => (idx.length === 1 ? `objection ${idx[0] + 1}` : `objections ${joinAnd(idx.map((i) => String(i + 1)))}`);
+/** "part 2" / "parts 2 and 3" (0-based indexes in). */
+const partList = (idx: number[]) => (idx.length === 1 ? `part ${idx[0] + 1}` : `parts ${joinAnd(idx.map((i) => String(i + 1)))}`);
 const isAre = (n: number) => (n === 1 ? "is" : "are");
 /** Why an inner move stands when nothing answers it. */
 const allFail = (replies: number) => (replies === 1 ? "its one reply fails" : "every reply to it fails");
@@ -58,15 +58,13 @@ const EASE = [0.22, 1, 0.36, 1] as const;
 /** Ignore a second action this soon after the last one (key repeat, double taps). */
 const ACTION_LOCK_MS = 350;
 
-/** The cue line over a move: the Summa's formulas for rounds 1–2, then who is speaking. */
+/** The cue line over a move: who is speaking, and whether it opens the part or answers a move. */
 function cue(depth: number, side: Side): string {
   if (side === "spinoza") return "Spinoza cuts in";
-  if (depth === 1) return `${WHO[side]} · It seems that`;
-  if (depth === 2) return `${WHO[side]} · On the contrary`;
-  return side === "theist" ? "The Respondent replies" : "The Objector rejoins";
+  return depth === 1 ? `${WHO[side]} argues` : `${WHO[side]} replies`;
 }
 
-/** "This side concedes if X" reads better under its heading as "If X". */
+/** Under its heading, "This side concedes if X" reads better as "If X". */
 function cedesText(s: string): string {
   const m = s.match(/^\s*this side (?:concedes|would concede)\s+if\s+/i);
   return m ? "If " + s.slice(m[0].length) : s;
@@ -346,7 +344,7 @@ export default function Walk({ o }: { o: ObjectionId }) {
       toast({
         text: (
           <>
-            Objection {obj.numeral} {after === "in" ? "now stands" : "is now answered"} — because you said “{labelText(id)}” {j}.
+            Objection {obj.numeral} {after === "in" ? "now stands" : "is now answered"}, because you said “{labelText(id)}” {j}.
           </>
         ),
         action: { label: "Undo", run: () => undo(entry) },
@@ -372,10 +370,10 @@ export default function Walk({ o }: { o: ObjectionId }) {
         key: "hear",
         label: (
           <>
-            Hear the {prompt.replies > 1 ? "replies" : "reply"} <span className="wk-arrow" aria-hidden>→</span>
+            Show the {prompt.replies > 1 ? "replies" : "reply"} <span className="wk-arrow" aria-hidden>→</span>
           </>
         ),
-        short: prompt.replies > 1 ? "Hear the replies" : "Hear the reply",
+        short: prompt.replies > 1 ? "Show the replies" : "Show the reply",
         kbd: "R",
         tone: "solid",
         run: () => dispatch({ type: "hear", id: prompt.id }),
@@ -383,19 +381,19 @@ export default function Walk({ o }: { o: ObjectionId }) {
     }
   } else if (prompt.kind === "resolved") {
     const end = prompt.end && !prompt.end.settled ? prompt.end : null;
-    dockContext = <span className="wk-dock-ctx-t">{end ? `Objection ${end.index + 1} of ${prongs.length} · answered` : "Answered, on your calls"}</span>;
+    dockContext = <span className="wk-dock-ctx-t">{end ? `Part ${end.index + 1} of ${prongs.length} · answered` : "Answered"}</span>;
     const k = prompt.untested.length;
     acts.push({
       key: "test",
-      label: <>Test the other {k === 1 ? "reply" : num(k)} anyway</>,
-      short: k === 1 ? "Test the other" : "Test the others",
+      label: <>Show the other {k === 1 ? "reply" : num(k)}</>,
+      short: k === 1 ? "Other reply" : "Other replies",
       kbd: "T",
       tone: "line",
       run: () => dispatch({ type: "test", id: prompt.id }),
     });
     const keys = [`r:${prompt.id}`];
     if (end && !end.final) keys.push(`p:${end.prong}`);
-    const next = end ? (end.final ? "See your determination" : `On to objection ${end.index + 2}`) : "Continue";
+    const next = end ? (end.final ? "See where you stand" : `On to part ${end.index + 2}`) : "Continue";
     acts.push({
       key: "continue",
       label: (
@@ -403,7 +401,7 @@ export default function Walk({ o }: { o: ObjectionId }) {
           {next} <span className="wk-arrow" aria-hidden>→</span>
         </>
       ),
-      short: end ? (end.final ? "Your determination" : `On to objection ${end.index + 2}`) : "Continue",
+      short: end ? (end.final ? "Where you stand" : `On to part ${end.index + 2}`) : "Continue",
       kbd: "C",
       tone: "solid",
       run: () => dispatch({ type: "ack", key: keys }),
@@ -411,19 +409,19 @@ export default function Walk({ o }: { o: ObjectionId }) {
   } else if (prompt.kind === "prong-end") {
     dockContext = (
       <span className="wk-dock-ctx-t">
-        Objection {prompt.index + 1} of {prongs.length} · {STATUS[prompt.label].toLowerCase()}
+        Part {prompt.index + 1} of {prongs.length} · {STATUS[prompt.label].toLowerCase()}
       </span>
     );
     const nextNo = prompt.index + 2;
-    if (prompt.settled) acts.push({ key: "finish", label: "Finish here", tone: "line", run: () => dispatch({ type: "finish", prong: prompt.prong }) });
+    if (prompt.settled) acts.push({ key: "finish", label: "Stop here", tone: "line", run: () => dispatch({ type: "finish", prong: prompt.prong }) });
     acts.push({
       key: "continue",
       label: (
         <>
-          {prompt.settled ? `Hear objection ${nextNo} too` : `On to objection ${nextNo}`} <span className="wk-arrow" aria-hidden>→</span>
+          On to part {nextNo} <span className="wk-arrow" aria-hidden>→</span>
         </>
       ),
-      short: prompt.settled ? `Hear objection ${nextNo}` : `On to objection ${nextNo}`,
+      short: `On to part ${nextNo}`,
       kbd: "C",
       tone: "solid",
       run: () => dispatch({ type: "ack", key: `p:${prompt.prong}` }),
@@ -455,7 +453,7 @@ export default function Walk({ o }: { o: ObjectionId }) {
     return (
       <div className="wk-root" ref={rootRef}>
         <h1 className="wk-title serif" tabIndex={-1}>
-          Nothing to argue here
+          There’s no objection at this link
         </h1>
         <button type="button" className="btn" onClick={() => go({ view: "home" })}>
           Back to the map
@@ -470,7 +468,7 @@ export default function Walk({ o }: { o: ObjectionId }) {
     guarded(() => {
       if (!judgments[id]) return;
       const entry = commit(walkReduce(session, { type: "uncall", id }), [{ id, j: null }]);
-      toast({ text: <>Your call on “{labelText(id)}” is withdrawn. The walk picks up there.</>, action: { label: "Undo", run: () => undo(entry) } });
+      toast({ text: <>Cleared your call on “{labelText(id)}”. You’re back at that move.</>, action: { label: "Undo", run: () => undo(entry) } });
     });
   const failInstead = (id: string) => guarded(() => call(id, "fails", true));
 
@@ -479,7 +477,7 @@ export default function Walk({ o }: { o: ObjectionId }) {
     const entry = commit(EMPTY_SESSION, ids.map((id) => ({ id, j: null })));
     setOpenSecs([]);
     toast({
-      text: ids.length ? <>Cleared your {ids.length === 1 ? "call" : `${ids.length} calls`} on Objection {numeral}. Starting again.</> : <>Starting again from the top.</>,
+      text: ids.length ? <>Cleared your {ids.length === 1 ? "call" : `${ids.length} calls`} on Objection {numeral} and went back to the start.</> : <>Went back to the start.</>,
       action: { label: "Undo", run: () => undo(entry) },
     });
   };
@@ -544,15 +542,15 @@ export default function Walk({ o }: { o: ObjectionId }) {
         sections={sections}
         prompt={prompt}
         intro={sessionIsEmpty(session) && history.length === 0}
-        resume={showResume ? { label: done ? "Jump to your determination" : "Resume where you left off", run: resume } : null}
+        resume={showResume ? { label: done ? "Go to the result" : "Pick up where you left off", run: resume } : null}
         onJump={jumpToProng}
       />
 
       {prompt.kind === "empty" ? (
         <div className="wk-empty">
-          <p className="serif">This objection has no moves to argue yet.</p>
+          <p className="serif">Nothing to step through here yet.</p>
           <button type="button" className="btn" onClick={() => go({ view: "objection", o })}>
-            Back to the chamber
+            Back to Objection {numeral}
           </button>
         </div>
       ) : (
@@ -630,7 +628,7 @@ export default function Walk({ o }: { o: ObjectionId }) {
       <p className="sr-only" aria-live="polite">
         {freshChains
           .map((r) => r.items[r.items.length - 1])
-          .map((r) => (r.label === "out" ? `“${labelText(r.id)}” is answered, on your calls.` : `“${labelText(r.id)}” stands, on your calls.`))
+          .map((r) => (r.label === "out" ? `“${labelText(r.id)}” is answered.` : `“${labelText(r.id)}” stands.`))
           .join(" ")}
       </p>
 
@@ -668,7 +666,7 @@ function WalkHeader({
   let progress: string;
   if (!done) progress = `Objection ${at + 1} of ${total}`;
   else if (unheard.length > 0) progress = `Stopped after objection ${sections.length} of ${total}`;
-  else if (decided.length > 0) progress = `Done · ${objList(decided)} settled earlier`;
+  else if (decided.length > 0) progress = `Done · ${partList(decided)} settled earlier`;
   else progress = total === 2 ? "Both objections argued through" : `All ${num(total)} objections argued through`;
 
   const rules = (
@@ -1182,7 +1180,7 @@ function remainingText(end: ProngEnd, total: number): string {
   const open = rest.filter((i) => !decided.includes(i));
   const stakes = "The Respondent must answer every objection in this article; the Objector needs only one of them to stand.";
   if (decided.length === 0) return `${stakes} ${Num(open.length)} more to go.`;
-  return `${stakes} ${cap(objList(decided))} ${isAre(decided.length)} already settled by your earlier call${decided.length > 1 ? "s" : ""}; ${objList(open)} ${isAre(open.length)} still to hear.`;
+  return `${stakes} ${cap(partList(decided))} ${isAre(decided.length)} already settled by your earlier call${decided.length > 1 ? "s" : ""}; ${partList(open)} ${isAre(open.length)} still to hear.`;
 }
 
 function ResolvedCard({ prompt: p, obj, bar }: { prompt: Extract<WalkPrompt, { kind: "resolved" }>; obj: Objection; bar: ReactNode }) {
@@ -1212,7 +1210,7 @@ function ResolvedCard({ prompt: p, obj, bar }: { prompt: Extract<WalkPrompt, { k
           {!end.final
             ? remainingText(end, obj.prongs.length)
             : end.ahead.length > 0
-              ? `${cap(objList(end.ahead.map((a) => a.index)))} ${isAre(end.ahead.length)} already settled by your earlier call${end.ahead.length > 1 ? "s" : ""}.`
+              ? `${cap(partList(end.ahead.map((a) => a.index)))} ${isAre(end.ahead.length)} already settled by your earlier call${end.ahead.length > 1 ? "s" : ""}.`
               : "That was the last objection in this article."}
         </p>
       )}
@@ -1230,7 +1228,7 @@ function ProngEndCard({ prompt: p, obj, sections, bar }: { prompt: Extract<WalkP
   const total = obj.prongs.length;
   const rest = Array.from({ length: total - p.index - 1 }, (_, k) => p.index + 1 + k);
   const open = rest.filter((i) => !p.ahead.some((a) => a.index === i));
-  const worth = open.length > 0 ? ` ${cap(objList(open))} ${isAre(open.length)} still worth hearing.` : "";
+  const worth = open.length > 0 ? ` ${cap(partList(open))} ${isAre(open.length)} still worth hearing.` : "";
   const by = standsBy(p, sections);
 
   let sub: string;
@@ -1379,7 +1377,7 @@ function DoneCard({
       {unheard.length > 0 && (
         <p className="wk-done-unheard">
           You stopped once it stood.{" "}
-          {unheard.length === 1 ? `Objection ${unheard[0] + 1} wasn't heard.` : `${cap(objList(unheard))} weren't heard.`}{" "}
+          {unheard.length === 1 ? `Objection ${unheard[0] + 1} wasn't heard.` : `${cap(partList(unheard))} weren't heard.`}{" "}
           <button type="button" className="wk-link" onClick={onHearRest}>
             Hear {unheard.length === 1 ? "it" : "them"} anyway →
           </button>

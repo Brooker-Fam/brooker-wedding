@@ -1,13 +1,14 @@
 "use client";
 
-/* Library · Cast (#/cast[/<thinker>]).
+/* Library · People (#/cast[/<thinker>]; the route keeps its old name).
 
-   Everyone the disputation calls as a witness, in roundels grouped by era and
-   filterable by the side they lean toward. Choosing one opens their file:
-   life, tradition, why they matter, their key work, every move that cites
-   them (grouped by objection), their moments in the timeline, and a mini Rose
-   with their footprint lit. Desktop: a sticky file beside the roster. Phone /
-   tablet: the file opens in place, under the row of the name you tapped. */
+   Everyone named in the arguments, in roundels grouped by era and filterable
+   by the side that uses their work here (their role in these arguments, which
+   can differ from what they believed). Choosing one opens their file: life,
+   tradition, a quotation, why they matter, their key work, every move that
+   names them (grouped by objection), their moments on the timeline, and a
+   small map with those moves lit. Desktop: a sticky file beside the roster.
+   Phone / tablet: the file opens in place, under the row of the name you tapped. */
 
 import "./library.css";
 import { Fragment, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type MouseEvent } from "react";
@@ -16,16 +17,23 @@ import { initials } from "../peek";
 import { Glyph } from "../primitives";
 import { formatRoute } from "../router";
 import type { Side, Thinker } from "../types";
-import { ERAS, FootprintBlock, LibEmpty, LibHead, LibTabs, eraOf, fold, scrollBehavior, useMedia, yearText } from "./Outline";
+import { ERAS, FootprintBlock, LibEmpty, LibHead, LibQuote, LibTabs, eraOf, fold, scrollBehavior, useMedia, yearText } from "./Outline";
 
 type TSide = Side | "neutral";
 type SideFilter = "all" | TSide;
 
+/** A thinker's side is the role their work plays in these arguments, not a claim about what they believed. */
 const LEAN: Record<TSide, string> = {
-  skeptic: "Objector-leaning",
-  theist: "Respondent-leaning",
-  spinoza: "Spinoza",
-  neutral: "Context",
+  skeptic: "Used by the Objector",
+  theist: "Used by the Defender",
+  spinoza: "Spinoza’s view",
+  neutral: "Background",
+};
+const LEAN_NOTE: Record<TSide, string> = {
+  skeptic: "Their arguments support the objections. Several were Christians themselves.",
+  theist: "Their arguments help answer the objections.",
+  spinoza: "Spinoza, and people who share his view that God is Nature itself, with no will or plan.",
+  neutral: "Cited by both sides, or there to set the scene.",
 };
 const FILTERS: TSide[] = ["skeptic", "theist", "spinoza", "neutral"];
 const sideOf = (t: Thinker): TSide => (t.side && t.side in LEAN ? t.side : "neutral");
@@ -131,13 +139,9 @@ export default function Cast({ thinker }: { thinker?: string }) {
     <LibHead
       current="cast"
       tabs={false}
-      title={
-        <>
-          The <em>cast</em>
-        </>
-      }
-      dek="Everyone the disputation calls as a witness — for the objector, for the respondent, and the ones who simply set the stage. Choose a name to see every move where they speak."
-      meta={all.length ? `${all.length} thinkers · ${yearText(first.year)} to ${yearText(last.year)}` : undefined}
+      title="People"
+      dek="Everyone named in the arguments, grouped by era. The mark by each name shows the side that uses their work here, and that isn’t always the side they took. Several Christian philosophers, for instance, are marked for the Objector because the Objector borrows their arguments."
+      meta={all.length ? `${all.length} people · ${yearText(first.year)} to ${yearText(last.year)}` : undefined}
     />
   );
 
@@ -147,7 +151,7 @@ export default function Cast({ thinker }: { thinker?: string }) {
       {all.length === 0 ? (
         <>
           {head}
-          <LibEmpty current="cast" title="The cast list is still being drawn up." text="Each thinker will appear here with their dates, their tradition, and every move that cites them. Meanwhile the outline has every move." />
+          <LibEmpty current="cast" title="No one listed yet." text="People named in the arguments will appear here with their dates and every move that names them. Until then, the outline has every move." />
         </>
       ) : (
         <div className="ca-layout">
@@ -155,14 +159,14 @@ export default function Cast({ thinker }: { thinker?: string }) {
             {head}
             <div className="ca-tools">
               <label className="lib-search">
-                <span className="sr-only">Find a thinker</span>
+                <span className="sr-only">Search people</span>
                 <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden className="lib-search-i">
                   <circle cx="7" cy="7" r="5" />
                   <path d="M11 11l3.5 3.5" />
                 </svg>
-                <input type="search" value={q} onChange={(e) => setQ(e.target.value)} placeholder="Find a thinker, tradition or work" autoComplete="off" spellCheck={false} />
+                <input type="search" value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search by name, tradition or book" autoComplete="off" spellCheck={false} />
               </label>
-              <div className="ca-filters" role="group" aria-label="Filter by side">
+              <div className="ca-filters" role="group" aria-label="Show one side">
                 <button type="button" className="ca-filter" aria-pressed={side === "all"} onClick={() => setSide("all")}>
                   Everyone <span className="ca-filter-n mono">{all.length}</span>
                 </button>
@@ -175,11 +179,11 @@ export default function Cast({ thinker }: { thinker?: string }) {
                 ))}
               </div>
               <p className={`lib-count mono ${filtering ? "" : "sr-only"}`} aria-live="polite">
-                {filtering ? (list.length ? `Showing ${list.length} of ${all.length} thinkers` : `No thinker matches`) : ""}
+                {filtering ? (list.length ? `Showing ${list.length} of ${all.length} people` : `No one matches`) : ""}
               </p>
             </div>
 
-            {missing && <p className="lib-notice">No one in the cast goes by “{thinker}”. Choose a name below.</p>}
+            {missing && <p className="lib-notice">There’s no one here called “{thinker}”. Choose a name below.</p>}
             {sel && !wide && !list.includes(sel) && (
               <div className="ca-inline ca-inline-top">
                 <ThinkerFile t={sel} onClose={() => close(sel.id)} />
@@ -197,7 +201,7 @@ export default function Cast({ thinker }: { thinker?: string }) {
                     setSide("all");
                   }}
                 >
-                  Clear the filters
+                  Clear filters
                 </button>
               </div>
             ) : (
@@ -212,7 +216,7 @@ export default function Cast({ thinker }: { thinker?: string }) {
                       <span className="mono">{era.span}</span>
                       <span className="ca-era-n mono">
                         {items.length}
-                        <span className="sr-only"> {items.length === 1 ? "thinker" : "thinkers"}</span>
+                        <span className="sr-only"> {items.length === 1 ? "person" : "people"}</span>
                       </span>
                     </h2>
                     <ul className="ca-grid">
@@ -236,7 +240,7 @@ export default function Cast({ thinker }: { thinker?: string }) {
           </div>
 
           {wide && (
-            <aside className="ca-panel" aria-label="Thinker file">
+            <aside className="ca-panel" aria-label="About this person">
               {sel ? <ThinkerFile t={sel} key={sel.id} /> : <CastIntro onPick={select} />}
             </aside>
           )}
@@ -316,7 +320,8 @@ function ThinkerFile({ t, onClose }: { t: Thinker; onClose?: () => void }) {
         </div>
       </header>
       {t.tradition && <p className="ca-file-trad">{t.tradition}</p>}
-      {t.line && <p className="ca-file-line serif">{t.line}</p>}
+      <LibQuote q={t.quote} hideWho={!!t.quote?.who && (t.name.includes(t.quote.who) || t.quote.who.includes(t.name))} className="ca-file-quote" />
+      {t.line && <p className={`ca-file-line serif ${t.quote?.text ? "after-quote" : ""}`}>{t.line}</p>}
       {t.work && (
         <p className="ca-file-work">
           <span className="mono lib-k">Key work</span>
@@ -326,18 +331,18 @@ function ThinkerFile({ t, onClose }: { t: Thinker; onClose?: () => void }) {
 
       <div className="ca-file-sec">
         {refs.length > 0 ? (
-          <FootprintBlock ids={refs} title={`Speaks in ${refs.length} ${refs.length === 1 ? "move" : "moves"}`} caption="Lit: where they speak" limit={16} />
+          <FootprintBlock ids={refs} title={`Named in ${refs.length} ${refs.length === 1 ? "move" : "moves"}`} caption="Lit on the map" limit={16} />
         ) : (
           <>
-            <p className="mono lib-k">Not yet cited by a move</p>
-            <p className="ca-file-none">They set the scene rather than argue a move{moments.length ? " — see their moments below." : "."}</p>
+            <p className="mono lib-k">Not named in any move</p>
+            {moments.length > 0 && <p className="ca-file-none">They appear on the timeline, below.</p>}
           </>
         )}
       </div>
 
       {moments.length > 0 && (
         <div className="ca-file-sec">
-          <p className="mono lib-k">In the timeline</p>
+          <p className="mono lib-k">On the timeline</p>
           <ul className="ca-moments">
             {moments.map((m) => (
               <li key={m.id}>
@@ -357,7 +362,7 @@ function ThinkerFile({ t, onClose }: { t: Thinker; onClose?: () => void }) {
   );
 }
 
-/** What the desktop panel shows before anyone is chosen: the sides, and a few good first picks. */
+/** What the desktop panel shows before anyone is chosen: what the marks mean, and a few good first picks. */
 function CastIntro({ onPick }: { onPick: (id: string) => void }) {
   const { d, ix } = useAtlas();
   const picks = useMemo(
@@ -371,7 +376,8 @@ function CastIntro({ onPick }: { onPick: (id: string) => void }) {
   );
   return (
     <div className="ca-intro">
-      <p className="mono lib-k">How to read the roster</p>
+      <p className="ca-intro-hint">Choose a name to see their dates, their key work and every move that names them.</p>
+      <p className="mono lib-k">What the marks mean</p>
       <ul className="ca-legend">
         {FILTERS.map((s) => (
           <li key={s} className={`s-${s}`}>
@@ -380,22 +386,14 @@ function CastIntro({ onPick }: { onPick: (id: string) => void }) {
             </span>
             <span>
               <strong>{LEAN[s]}</strong>
-              <span className="ca-legend-d">
-                {s === "skeptic"
-                  ? "Their work arms the objector."
-                  : s === "theist"
-                    ? "Their work arms the respondent."
-                    : s === "spinoza"
-                      ? "The hinge: God as Nature."
-                      : "They set the stage; neither side owns them."}
-              </span>
+              <span className="ca-legend-d">{LEAN_NOTE[s]}</span>
             </span>
           </li>
         ))}
       </ul>
       {picks.length > 0 && (
         <>
-          <p className="mono lib-k ca-picks-k">Most present in the argument</p>
+          <p className="mono lib-k ca-picks-k">Named most often</p>
           <ul className="ca-picks">
             {picks.map(({ t, n }) => (
               <li key={t.id}>

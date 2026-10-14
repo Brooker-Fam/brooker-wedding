@@ -1,5 +1,5 @@
 /* ==========================================================================
-   Library — Timeline · Cast · Lexicon · Outline
+   Library: Timeline · People (cast) · Glossary (lexicon) · Outline
    Scoped under .atl; classes prefixed lib- / tl- / ca- / lx- / ol-.
    Uses the tokens and shared classes from atlas.css.
    ========================================================================== */
@@ -1812,6 +1812,13 @@
   line-height: 1.42;
   color: var(--bone);
 }
+/* after a quotation the line is the plain-words context, so it steps down a size */
+.atl .ca-file-line.after-quote {
+  margin-top: 16px;
+  font-size: 1.06rem;
+  line-height: 1.5;
+  color: var(--bone-2);
+}
 .atl .ca-file-work {
   display: flex;
   flex-direction: column;
@@ -1883,6 +1890,12 @@
 .atl .ca-intro {
   display: flex;
   flex-direction: column;
+}
+.atl .ca-intro-hint {
+  margin: 0 0 22px;
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--bone-2);
 }
 .atl .ca-legend {
   list-style: none;
@@ -3017,6 +3030,62 @@
   }
   .atl .lib-head-split .lib-meta {
     margin-top: 10px;
+  }
+}
+
+/* ---------- quotations (People file, Timeline card and rows): serif italic, citation in mono ---------- */
+.atl .lib-quote {
+  max-width: 44rem;
+  margin: 18px 0 0;
+  padding: 2px 0 2px 18px;
+  border-left: 4px double var(--side, var(--line));
+}
+.atl .lib-quote blockquote {
+  margin: 0;
+}
+.atl .lib-quote blockquote p {
+  margin: 0;
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 1.12rem;
+  line-height: 1.5;
+  color: var(--bone);
+}
+.atl .lib-quote blockquote p::before {
+  content: "\201C";
+}
+.atl .lib-quote blockquote p::after {
+  content: "\201D";
+}
+.atl .lib-quote figcaption {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px 10px;
+  margin-top: 8px;
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: 0.1em;
+  line-height: 1.5;
+  text-transform: uppercase;
+  color: var(--faint);
+}
+.atl .lib-quote-who {
+  color: var(--mute);
+}
+/* the People file: the quotation is the first thing under the name */
+.atl .ca-file-quote {
+  margin-top: 16px;
+}
+.atl .ca-file-quote blockquote p {
+  font-size: clamp(1.18rem, 1.6vw, 1.32rem);
+  line-height: 1.45;
+}
+.atl .tl-quote-row blockquote p {
+  font-size: 1.04rem;
+}
+@media (min-width: 900px) {
+  .atl .tl-item.open .tl-quote-row {
+    margin-left: 168px;
   }
 }
 

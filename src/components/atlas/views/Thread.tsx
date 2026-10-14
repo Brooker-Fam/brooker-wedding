@@ -1,18 +1,18 @@
 "use client";
 
-/* The thread: one branch of an objection read as a script, from the prong
-   down through the focused move to the last word on that branch.
-   Objector turns sit left, Respondent turns right, Spinoza in the middle;
-   a thin connector zig-zags between them. Wherever the branch could have
-   gone another way, a fork shows the alternatives and what each side needs.
-   After the last turn, an empty chair waits in the opposite seat. */
+/* The thread: one branch of an objection read as a script, from the part
+   down through the focused move to the last move on that branch.
+   Objector moves sit left, Defender moves right, Spinoza in the middle,
+   and a thin connector zig-zags between them. Wherever the branch could have
+   gone another way, a fork shows the other replies and what each side needs.
+   After the last move, an empty chair waits in the opposite seat. */
 
 import { useId, type KeyboardEvent } from "react";
 import { useAtlas } from "../context";
 import { Glyph } from "../primitives";
 import type { NodeInfo } from "../semantics";
 import type { Side } from "../types";
-import { CallButtons, SIDE_POSS, SIDE_THE, SIDE_WORD, STATUS_WORD, moveNoun, numWord, rippleStyle, seatOf, turnEl, useChamber, type Seat } from "./chamberShared";
+import { CallButtons, SIDE_POSS, SIDE_THE, SIDE_WORD, moveNoun, numWord, rippleStyle, seatOf, statusText, turnEl, useChamber, type Seat } from "./chamberShared";
 import Turn from "./Turn";
 
 /** Elements on which the arrow keys walk the thread (anywhere else they scroll the page). */
@@ -52,34 +52,25 @@ function sideCounts(ix: ReturnType<typeof useAtlas>["ix"], ids: string[]) {
   return c;
 }
 
-/** "The Respondent has three answers" / "The Objector has two rejoinders" / mixed. */
-function forkTitle(parent: NodeInfo, counts: Record<Side, number>, n: number): string {
+const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
+
+/** "The Defender has three replies" / "Four replies, three from the Defender and one from Spinoza". */
+function forkTitle(counts: Record<Side, number>, n: number): string {
   const sides = (Object.keys(counts) as Side[]).filter((s) => counts[s] > 0).sort((x, y) => counts[y] - counts[x]);
-  const noun = (s: Side, k: number) => {
-    const plural = k !== 1;
-    if (s === "skeptic") return plural ? "rejoinders" : "rejoinder";
-    if (s === "spinoza") return plural ? "objections" : "objection";
-    return parent.node.side === "theist" ? (plural ? "replies" : "reply") : plural ? "answers" : "answer";
-  };
-  if (sides.length === 1) {
-    const s = sides[0];
-    return `${SIDE_THE[s]} has ${numWord(n)} ${noun(s, n)}`;
-  }
+  if (sides.length === 1) return `${SIDE_THE[sides[0]]} has ${numWord(n)} ${n === 1 ? "reply" : "replies"}`;
   const parts = sides.map((s) => `${numWord(counts[s])} from ${s === "spinoza" ? "Spinoza" : `the ${SIDE_WORD[s]}`}`);
-  const head = numWord(n);
-  return `${head.charAt(0).toUpperCase()}${head.slice(1)} answers — ${parts.slice(0, -1).join(", ")} and ${parts[parts.length - 1]}`;
+  return `${cap(numWord(n))} replies, ${parts.slice(0, -1).join(", ")} and ${parts[parts.length - 1]}`;
 }
 
-/** What each side needs at this junction: every attack must fail; one is enough. */
-function forkStakes(parent: NodeInfo, counts: Record<Side, number>, n: number): string {
-  const sides = (Object.keys(counts) as Side[]).filter((s) => counts[s] > 0);
-  const must = `${SIDE_THE[parent.node.side]} must beat ${n === 2 ? "both" : `all ${numWord(n)}`}.`;
-  const one = sides.length === 1 ? `${SIDE_THE[sides[0]]} needs one.` : "Any one of them is enough.";
-  return `${must} ${one}`;
+/** The rule at this fork: the move above stands only if every reply fails, and one standing reply answers it. */
+function forkStakes(parent: NodeInfo, n: number): string {
+  const all = n === 2 ? "both replies fail" : `all ${numWord(n)} replies fail`;
+  const any = n === 2 ? "If either one stands" : "If any one of them stands";
+  return `${cap(SIDE_POSS[parent.node.side])} ${moveNoun(parent.depth)} above stands only if ${all}. ${any}, it is answered.`;
 }
 
 function Fork({ parentId, current }: { parentId: string; current: string }) {
-  const { ix, labelOf, toPlain } = useAtlas();
+  const { ix, labelOf, toPlain, judgments } = useAtlas();
   const api = useChamber();
   const parent = ix.nodes.get(parentId);
   if (!parent) return null;
@@ -87,23 +78,23 @@ function Fork({ parentId, current }: { parentId: string; current: string }) {
   const n = kids.length;
   const idx = Math.max(0, kids.indexOf(current));
   const counts = sideCounts(ix, kids);
-  const title = forkTitle(parent, counts, n);
+  const title = forkTitle(counts, n);
   return (
     <div className="ch-fork" role="group" aria-label={title} data-subject={current}>
       <ForkIcon />
       <p className="ch-fork-title">{title}</p>
       <div className="ch-fork-nav">
-        <button type="button" className="ch-chev" aria-label="Previous alternative" disabled={idx === 0} onClick={() => idx > 0 && api.focus(kids[idx - 1], "fork")}>
+        <button type="button" className="ch-chev" aria-label="Previous reply" disabled={idx === 0} onClick={() => idx > 0 && api.focus(kids[idx - 1], "fork")}>
           ‹
         </button>
         <span className="ch-fork-count">
           {idx + 1} of {n}
         </span>
-        <button type="button" className="ch-chev" aria-label="Next alternative" disabled={idx === n - 1} onClick={() => idx < n - 1 && api.focus(kids[idx + 1], "fork")}>
+        <button type="button" className="ch-chev" aria-label="Next reply" disabled={idx === n - 1} onClick={() => idx < n - 1 && api.focus(kids[idx + 1], "fork")}>
           ›
         </button>
       </div>
-      <p className="ch-fork-stakes">{forkStakes(parent, counts, n)}</p>
+      <p className="ch-fork-stakes">{forkStakes(parent, n)}</p>
       <ul className="ch-fork-opts">
         {kids.map((k, i) => {
           const info = ix.nodes.get(k)!;
@@ -123,7 +114,7 @@ function Fork({ parentId, current }: { parentId: string; current: string }) {
                 <Glyph side={info.node.side} label={l} size={12} />
                 <span className="ch-fork-body">
                   <span className={`ch-fork-l ${l === "out" ? "lab-out" : ""}`}>{toPlain(info.node.label)}</span>
-                  <span className={`ch-fork-st st-${l}`}>{STATUS_WORD[l]}</span>
+                  <span className={`ch-fork-st st-${l}`}>{statusText(l, judgments[k])}</span>
                 </span>
               </button>
             </li>
@@ -143,20 +134,24 @@ function TensionNote({ node, reply }: { node: string; reply: string }) {
       <span className="ch-tension-k">Tension</span>
       <p>
         {both
-          ? "You’ve said both of these hold. One of them has to give."
-          : "You’ve said the claim above holds, and the reply below stands on your other calls. One of them has to give."}
+          ? "You said both of these hold, but the lower one replies to the upper one. These two contradict each other."
+          : "You said the point above holds, and your other calls make the reply below it stand. These two contradict each other."}
       </p>
+      <figure className="ch-tension-q">
+        <blockquote>“the same attribute cannot at the same time belong and not belong to the same subject and in the same respect”</blockquote>
+        <figcaption>Aristotle, Metaphysics IV.3, tr. W. D. Ross</figcaption>
+      </figure>
       <div className="ch-tension-acts">
         <button type="button" className="btn small" onClick={() => api.decide(node, null)}>
-          <span aria-hidden>↑</span> Rethink this
+          <span aria-hidden>↑</span> Clear call above
         </button>
         {judgments[reply] ? (
           <button type="button" className="btn small" onClick={() => api.decide(reply, null)}>
-            <span aria-hidden>↓</span> Rethink that
+            <span aria-hidden>↓</span> Clear call below
           </button>
         ) : (
           <button type="button" className="btn small" onClick={() => api.focus(reply, "link")}>
-            <span aria-hidden>↓</span> Look at that reply
+            <span aria-hidden>↓</span> Go to that reply
           </button>
         )}
       </div>

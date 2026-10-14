@@ -627,3 +627,32 @@ html[data-atl-deep] .atl .sh-foot {
     justify-content: flex-end;
   }
 }
+
+/* ---------- peek: a person's own words (peek.tsx; the rest of the card is in atlas.css) ---------- */
+.atl .peek:not(.peek-sheet) {
+  max-height: calc(100vh - 24px);
+  overflow-y: auto;
+}
+.atl .peek-quote {
+  margin: 10px 0 8px;
+  padding: 1px 0 1px 12px;
+  border-left: 3px double var(--side, var(--line));
+}
+.atl .peek-quote blockquote {
+  margin: 0;
+}
+.atl .peek-quote blockquote p {
+  margin: 0;
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 15.5px;
+  line-height: 1.45;
+  color: var(--bone);
+}
+.atl .peek-quote figcaption {
+  margin-top: 6px;
+  font-size: 10.5px;
+  line-height: 1.5;
+  letter-spacing: 0.06em;
+  color: var(--faint);
+}

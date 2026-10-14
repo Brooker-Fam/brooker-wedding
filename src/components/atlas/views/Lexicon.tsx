@@ -1,10 +1,10 @@
 "use client";
 
-/* Library · Lexicon (#/lexicon[/<term>]).
+/* Library · Glossary (#/lexicon[/<term>]; the route keeps its old name).
 
-   The terms of art, in plain words, A to Z. Each entry links to the moves
-   that lean on it; the chosen entry opens in place with every use, grouped by
-   objection, and a mini Rose with its footprint lit. A deep link scrolls to
+   Technical terms in plain words, A to Z. Each entry links to the moves that
+   use it; the chosen entry opens in place with every use, grouped by
+   objection, and a small map with those moves lit. A deep link scrolls to
    the entry and marks it. Terms inside a definition jump to their own entry. */
 
 import "./library.css";
@@ -100,41 +100,41 @@ export default function Lexicon({ term }: { term?: string }) {
     <div className="lib lib-lexicon">
       <LibHead
         current="lexicon"
-        title="Lexicon"
-        dek="The terms of art, in plain words. Each one links to the moves that lean on it — choose a term to see them all, lit on the map."
-        meta={sorted.length ? `${sorted.length} terms${used ? ` · ${used} in use` : ""}` : undefined}
+        title="Glossary"
+        dek="The technical terms in the arguments, explained in plain words. Choose a term to see every move that uses it."
+        meta={sorted.length ? `${sorted.length} terms${used ? ` · ${used} used in the arguments` : ""}` : undefined}
       />
 
       {sorted.length === 0 ? (
-        <LibEmpty current="lexicon" title="The lexicon is still being written." text="Its entries will appear here, A to Z, each linked to the moves that use it. Meanwhile the outline has every move." />
+        <LibEmpty current="lexicon" title="No terms yet." text="Terms will appear here from A to Z, each linked to the moves that use it. Until then, the outline has every move." />
       ) : (
         <div className="lx-layout">
           <div className="lx-rail">
             <label className="lib-search">
-              <span className="sr-only">Search the lexicon</span>
+              <span className="sr-only">Search the glossary</span>
               <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden className="lib-search-i">
                 <circle cx="7" cy="7" r="5" />
                 <path d="M11 11l3.5 3.5" />
               </svg>
-              <input type="search" value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search the lexicon" autoComplete="off" spellCheck={false} />
+              <input type="search" value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search the glossary" autoComplete="off" spellCheck={false} />
             </label>
             <nav className="lx-az" aria-label="Jump to a letter">
               {letters.map((L) => (
-                <button key={L} type="button" className="lx-letter serif" disabled={!live.has(L)} onClick={() => jump(L)} aria-label={`Terms under ${L}`}>
+                <button key={L} type="button" className="lx-letter serif" disabled={!live.has(L)} onClick={() => jump(L)} aria-label={`Terms starting with ${L}`}>
                   {L}
                 </button>
               ))}
             </nav>
             {wide && (
               <div className="lx-rail-note">
-                <p className="mono lib-k">Chips lead to the moves</p>
+                <p className="mono lib-k">Who makes each move</p>
                 <GlyphKey />
               </div>
             )}
           </div>
 
           <div className="lx-list" ref={listRef}>
-            {missing && <p className="lib-notice">There is no entry for “{term}” yet.</p>}
+            {missing && <p className="lib-notice">There’s no entry for “{term}”.</p>}
             <p className={`lib-count mono ${qt ? "" : "sr-only"}`} aria-live="polite">
               {qt ? (filtered.length ? `${filtered.length} ${filtered.length === 1 ? "match" : "matches"} for “${qt}”` : `No term matches “${qt}”`) : ""}
             </p>
@@ -142,7 +142,7 @@ export default function Lexicon({ term }: { term?: string }) {
               <div className="lib-none">
                 Try a shorter word.{" "}
                 <button type="button" className="lib-link" onClick={() => setQ("")}>
-                  Clear the search
+                  Clear search
                 </button>
               </div>
             ) : (
@@ -189,15 +189,18 @@ function Entry({ t, on, q, onPick }: { t: Term; on: boolean; q: string; onPick: 
     <article ref={box} className={`lx-entry ${on ? "on" : ""}`} data-term={t.id} aria-labelledby={`lx-${t.id}`}>
       <h3 className="lx-term serif" id={`lx-${t.id}`}>
         <button type="button" aria-expanded={on} onClick={() => onPick(t.id, true)}>
-          <Highlight text={t.term} q={q} />
+          {/* one span, so the flex button keeps the spaces around the highlighted part */}
+          <span className="lx-term-t">
+            <Highlight text={t.term} q={q} />
+          </span>
         </button>
       </h3>
       <p className="lx-def">{defHit ? <Highlight text={defPlain} q={q} /> : <DefText text={t.def} onTerm={(id) => onPick(id)} />}</p>
       {n === 0 ? (
-        <p className="lx-unused mono">Not yet used by a move</p>
+        <p className="lx-unused mono">Not used in any move yet</p>
       ) : on ? (
         <div className="lx-open">
-          <FootprintBlock ids={uses} title={`Used in ${n} ${n === 1 ? "move" : "moves"}`} caption="Lit: where it's used" />
+          <FootprintBlock ids={uses} title={`Used in ${n} ${n === 1 ? "move" : "moves"}`} caption="Lit on the map" />
         </div>
       ) : (
         <div className="lx-used">
@@ -222,7 +225,7 @@ function Entry({ t, on, q, onPick }: { t: Term; on: boolean; q: string; onPick: 
   );
 }
 
-/** Definition text: a term reference jumps to its entry, a thinker opens a peek, a node links into its chamber. */
+/** Definition text: a term reference jumps to its entry, a thinker opens a peek, a node links to its objection. */
 function DefText({ text, onTerm }: { text: string; onTerm: (id: string) => void }) {
   const { ix, thinkerName, termName } = useAtlas();
   const peek = usePeek();

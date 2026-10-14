@@ -1,7 +1,7 @@
 "use client";
 
-/* Library · Outline (#/outline) — the whole disputation as nested lists, with
-   the reader's statuses and links into each chamber.
+/* Library · Outline (#/outline): every move as nested lists, with the
+   reader's statuses and links into each objection.
 
    This file also hosts the small pieces every Library view shares (header +
    library tabs, node chips, the footprint Rose, era buckets, a media-query
@@ -13,7 +13,7 @@ import { useAtlas } from "../context";
 import { address } from "../helpers";
 import { Glyph } from "../primitives";
 import { formatRoute } from "../router";
-import type { ObjectionId, Side } from "../types";
+import type { ObjectionId, Quote, Side } from "../types";
 import OutlineList, { OUTLINE_SIDE_WORD } from "./OutlineList";
 import Rose from "./Rose";
 
@@ -80,12 +80,12 @@ export function useMedia(query: string, server = false): boolean {
 type LibView = "timeline" | "cast" | "lexicon" | "outline";
 const TABS: { view: LibView; word: string }[] = [
   { view: "timeline", word: "Timeline" },
-  { view: "cast", word: "Cast" },
-  { view: "lexicon", word: "Lexicon" },
+  { view: "cast", word: "People" },
+  { view: "lexicon", word: "Glossary" },
   { view: "outline", word: "Outline" },
 ];
 
-/** The Library's own tab row (Timeline · Cast · Lexicon · Outline). Views with nothing in them yet say "soon". */
+/** The Library's own tab row (Timeline · People · Glossary · Outline). Views with nothing in them yet say "soon". */
 export function LibTabs({ current }: { current: LibView }) {
   const { d } = useAtlas();
   const empty: Record<LibView, boolean> = {
@@ -278,10 +278,29 @@ export function GlyphKey({ sides = ["skeptic", "theist", "spinoza"], context = f
           <svg className="glyph-svg" width={9} height={9} viewBox="0 0 9 9" aria-hidden>
             <rect x={1.5} y={1.5} width={6} height={6} />
           </svg>
-          Context
+          Background
         </span>
       )}
     </span>
+  );
+}
+
+/** A quotation in the page's house style: serif italic, with the speaker and citation in mono. */
+export function LibQuote({ q, hideWho = false, className = "" }: { q?: Quote; hideWho?: boolean; className?: string }) {
+  if (!q || !q.text) return null;
+  const who = hideWho ? "" : q.who;
+  return (
+    <figure className={`lib-quote ${className}`}>
+      <blockquote>
+        <p>{q.text}</p>
+      </blockquote>
+      {(who || q.cite) && (
+        <figcaption>
+          {who && <span className="lib-quote-who">{who}</span>}
+          {q.cite && <span className="lib-quote-cite">{q.cite}</span>}
+        </figcaption>
+      )}
+    </figure>
   );
 }
 
@@ -329,9 +348,9 @@ export function LibEmpty({ title, text, current }: { title: string; text: string
   const { d } = useAtlas();
   const alt: { view: LibView; word: string }[] = [
     { view: "outline", word: "Read the outline" },
-    ...(d.terms.length && current !== "lexicon" ? [{ view: "lexicon" as const, word: "Open the lexicon" }] : []),
-    ...(d.thinkers.length && current !== "cast" ? [{ view: "cast" as const, word: "Meet the cast" }] : []),
-    ...(d.moments.length && current !== "timeline" ? [{ view: "timeline" as const, word: "Walk the timeline" }] : []),
+    ...(d.terms.length && current !== "lexicon" ? [{ view: "lexicon" as const, word: "Open the glossary" }] : []),
+    ...(d.thinkers.length && current !== "cast" ? [{ view: "cast" as const, word: "See the people" }] : []),
+    ...(d.moments.length && current !== "timeline" ? [{ view: "timeline" as const, word: "Open the timeline" }] : []),
   ];
   return (
     <div className="lib-empty">
@@ -355,7 +374,7 @@ export function LibEmpty({ title, text, current }: { title: string; text: string
    The Outline view
    ====================================================================== */
 
-const OBJ_STATUS: Record<"in" | "out" | "undec", string> = { in: "Stands", out: "Answered", undec: "Undecided" };
+const OBJ_STATUS: Record<"in" | "out" | "undec", string> = { in: "Stands", out: "Answered", undec: "Open" };
 
 export default function Outline() {
   const { d, ix, labelOf, labels, judgments } = useAtlas();
@@ -388,16 +407,12 @@ export default function Outline() {
     <div className="lib lib-outline">
       <LibHead
         current="outline"
-        title={
-          <>
-            The whole disputation, <em>as an outline</em>
-          </>
-        }
-        dek="Every move in one nested list — objection, prong, reply, rejoinder, all the way down. Good for reading straight through, printing, or your browser's find."
+        title="Outline"
+        dek="Every move in one list, with each reply indented under the claim it answers. It's the easiest way to read straight through, or to print."
         meta={
           <>
             {d.objections.length} objections · {moves} moves
-            {called > 0 ? ` · ${called} called by you` : ""}
+            {called > 0 ? ` · you've called ${called}` : ""}
           </>
         }
       >
@@ -412,7 +427,7 @@ export default function Outline() {
             const l = labels.objection.get(o.id) ?? "undec";
             const short = o.short || o.title;
             return (
-              <button key={o.id} type="button" className="ol-toc-btn" onClick={() => jump(o.id)} aria-label={`Objection ${o.numeral}, ${short} — ${OBJ_STATUS[l]}`} title={`${short} — ${OBJ_STATUS[l]}`}>
+              <button key={o.id} type="button" className="ol-toc-btn" onClick={() => jump(o.id)} aria-label={`Objection ${o.numeral}, ${short}, ${OBJ_STATUS[l]}`} title={`${short} · ${OBJ_STATUS[l]}`}>
                 <span className={`ol-toc-pip st-${l}`} aria-hidden />
                 <span className="serif ol-toc-num">{o.numeral}</span>
                 <span className="ol-toc-word mono">{short}</span>
@@ -423,7 +438,7 @@ export default function Outline() {
         <div className="ol-tools">
           <button type="button" className="lib-toggle mono" aria-pressed={gists} onClick={() => setGists((g) => !g)}>
             <span className="lib-toggle-box" aria-hidden />
-            Plain-terms gists
+            Plain summaries
           </button>
         </div>
       </div>

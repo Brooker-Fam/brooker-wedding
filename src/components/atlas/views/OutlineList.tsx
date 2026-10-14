@@ -1,20 +1,19 @@
-/* The whole disputation as nested ordered lists: objection → prong → reply →
-   rejoinder … all the way down.
+/* Every move as nested ordered lists: objection → part → reply → reply to
+   that reply, and so on.
 
    PURE and context-free on purpose: it takes the Disputation and optional
    per-reader data as props, imports nothing client-only, and renders the same
    on the server. `page.tsx` renders it inside <noscript> (for no-JS readers
    and search engines); the Outline view renders it with the reader's statuses
-   and links into each chamber. Styles live in library.css (.ol-*). */
+   and links into each objection. Styles live in library.css (.ol-*). */
 
 import type { ReactNode } from "react";
 import { Rich } from "../markup";
 import type { ArgNode, Disputation, Judgment, Label, Objection, ObjectionId, Side } from "../types";
 
-export const OUTLINE_SIDE_WORD: Record<Side, string> = { skeptic: "Objector", theist: "Respondent", spinoza: "Spinoza" };
+export const OUTLINE_SIDE_WORD: Record<Side, string> = { skeptic: "Objector", theist: "Defender", spinoza: "Spinoza" };
 const NODE_WORD: Record<Label, string> = { in: "Stands", out: "Answered", undec: "Open" };
-const OBJ_WORD: Record<Label, string> = { in: "Stands", out: "Answered", undec: "Undecided" };
-const ROMAN = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X"];
+const OBJ_WORD: Record<Label, string> = { in: "Stands", out: "Answered", undec: "Open" };
 
 export interface OutlineListProps {
   d: Disputation;
@@ -74,12 +73,11 @@ export default function OutlineList({ d, labelOf, objectionLabelOf, judgments, n
     return found;
   };
   const rich = { thinkerName, termName, nodeName };
-  const total = d.objections.length;
 
   return (
     <div className={`ol ${gists ? "" : "ol-compact"}`}>
       {d.objections.map((o) => (
-        <ObjectionBlock key={o.id} o={o} total={total} {...{ labelOf, objectionLabelOf, judgments, nodeHref, objectionHref, gists, idPrefix, rich, sectionEnd }} />
+        <ObjectionBlock key={o.id} o={o} {...{ labelOf, objectionLabelOf, judgments, nodeHref, objectionHref, gists, idPrefix, rich, sectionEnd }} />
       ))}
     </div>
   );
@@ -89,7 +87,6 @@ type Rich3 = { thinkerName: (id: string) => string | undefined; termName: (id: s
 
 function ObjectionBlock({
   o,
-  total,
   labelOf,
   objectionLabelOf,
   judgments,
@@ -99,7 +96,7 @@ function ObjectionBlock({
   idPrefix,
   rich,
   sectionEnd,
-}: Omit<OutlineListProps, "d"> & { o: Objection; total: number; rich: Rich3 }) {
+}: Omit<OutlineListProps, "d"> & { o: Objection; rich: Rich3 }) {
   const ol = objectionLabelOf?.(o.id);
   const moves = o.prongs.reduce((s, p) => s + countMoves(p), 0);
   const depth = Math.max(0, ...o.prongs.map(depthOf));
@@ -112,7 +109,7 @@ function ObjectionBlock({
         </span>
         <div className="ol-objtext">
           <p className="eyebrow ol-objeyebrow">
-            Objection {o.numeral} of {ROMAN[total - 1] ?? total}
+            Objection {o.numeral}
             {o.short ? ` · ${o.short}` : ""}
           </p>
           <h2 className="ol-title serif" id={headId}>
@@ -124,7 +121,7 @@ function ObjectionBlock({
               {o.objection && (
                 <div className="s-skeptic">
                   <dt className="mono">
-                    <OutlineGlyph side="skeptic" size={10} /> It seems that
+                    <OutlineGlyph side="skeptic" size={10} /> The objection
                   </dt>
                   <dd>{o.objection}</dd>
                 </div>
@@ -132,7 +129,7 @@ function ObjectionBlock({
               {o.counter && (
                 <div className="s-theist">
                   <dt className="mono">
-                    <OutlineGlyph side="theist" size={10} /> On the contrary
+                    <OutlineGlyph side="theist" size={10} /> The reply
                   </dt>
                   <dd>{o.counter}</dd>
                 </div>
@@ -140,19 +137,18 @@ function ObjectionBlock({
             </dl>
           )}
           <p className="ol-meta mono">
-            {moves} {moves === 1 ? "move" : "moves"} · {depth} {depth === 1 ? "round" : "rounds"} deep · {o.prongs.length} {o.prongs.length === 1 ? "prong" : "prongs"}
+            {o.prongs.length} {o.prongs.length === 1 ? "part" : "parts"} · {moves} {moves === 1 ? "move" : "moves"} · {depth} {depth === 1 ? "round" : "rounds"} deep
             {ol && (
               <span className={`status-badge st-${ol} ol-objstatus`}>
                 <span className="dot" aria-hidden />
                 {OBJ_WORD[ol]}
-                {ol !== "undec" ? " on your calls" : ""}
               </span>
             )}
           </p>
         </div>
       </header>
 
-      <ol className="ol-tree" aria-label={`Objection ${o.numeral}, move by move`}>
+      <ol className="ol-tree" aria-label={`Objection ${o.numeral}, every move`}>
         {o.prongs.map((p, i) => (
           <NodeItem key={p.id} n={p} o={o} trail={[i + 1]} depth={1} {...{ labelOf, judgments, nodeHref, gists, rich }} />
         ))}
@@ -161,7 +157,7 @@ function ObjectionBlock({
       {o.spinoza?.title && (
         <p className="ol-scholium s-spinoza">
           <span className="mono ol-scholium-k">
-            <OutlineGlyph side="spinoza" size={10} /> {/where spinoza stands/i.test(o.spinoza.title) ? "Scholium" : "Scholium · where Spinoza stands"}
+            <OutlineGlyph side="spinoza" size={10} /> {/where spinoza stands/i.test(o.spinoza.title) ? "Spinoza" : "Where Spinoza stands"}
           </span>
           <span className="serif ol-scholium-t">{o.spinoza.title}</span>
         </p>
@@ -211,12 +207,12 @@ function NodeItem({
               {call || !nodeHref ? (
                 NODE_WORD[label]
               ) : (
-                // A computed status explains itself in the chamber (its "Why?"); the label link goes there too, so keep one tab stop.
-                <a className="ol-why" href={nodeHref(n.id, o.id)} tabIndex={-1} title="Why? Open in the chamber">
+                // A computed status explains itself on the objection's page (its "Why?"); the label link goes there too, so keep one tab stop.
+                <a className="ol-why" href={nodeHref(n.id, o.id)} tabIndex={-1} title="See why">
                   {NODE_WORD[label]}
                 </a>
               )}
-              {call && <span className="your-call ol-call">Your call · {call === "holds" ? "Holds" : "Fails"}</span>}
+              {call && <span className="your-call ol-call">Your call: {call === "holds" ? "Holds" : "Fails"}</span>}
             </span>
           )}
         </p>

@@ -1,8 +1,8 @@
 "use client";
 
-/* What the chamber's parts share: the chamber API (context), the chamber's
-   own vocabulary, and the small pieces used by more than one of the thread,
-   the turns and the chart — Why?, the call buttons, status, move chips. */
+/* What the objection page's parts share: the page API (context), its small
+   vocabulary, and the pieces used by more than one of the thread, the moves
+   and the chart (Why?, the call buttons, status, move chips). */
 
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { createContext, useContext, useId, useState, type CSSProperties } from "react";
@@ -10,35 +10,51 @@ import { useAtlas } from "../context";
 import type { Explanation } from "../explain";
 import { address } from "../helpers";
 import { Glyph } from "../primitives";
+import type { DisputationIndex } from "../semantics";
 import type { Judgment, Label, Objection, Side } from "../types";
 
 export { q } from "../explain";
 
 /* ---------------- vocabulary ---------------- */
 
-export const SIDE_WORD: Record<Side, string> = { skeptic: "Objector", theist: "Respondent", spinoza: "Spinoza" };
-export const SIDE_THE: Record<Side, string> = { skeptic: "The Objector", theist: "The Respondent", spinoza: "Spinoza" };
-export const SIDE_POSS: Record<Side, string> = { skeptic: "the Objector’s", theist: "the Respondent’s", spinoza: "Spinoza’s" };
+export const SIDE_WORD: Record<Side, string> = { skeptic: "Objector", theist: "Defender", spinoza: "Spinoza" };
+export const SIDE_THE: Record<Side, string> = { skeptic: "The Objector", theist: "The Defender", spinoza: "Spinoza" };
+export const SIDE_POSS: Record<Side, string> = { skeptic: "the Objector’s", theist: "the Defender’s", spinoza: "Spinoza’s" };
 export const STATUS_WORD: Record<Label, string> = { in: "Stands", out: "Answered", undec: "Open" };
-export const OBJ_STATUS_WORD: Record<Label, string> = { in: "Stands", out: "Answered", undec: "Undecided" };
+export const OBJ_STATUS_WORD: Record<Label, string> = { in: "Stands", out: "Answered", undec: "Open" };
 const NUM_WORDS = ["no", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten"];
 export const numWord = (n: number) => NUM_WORDS[n] ?? String(n);
 export const callWord = (j: Judgment) => (j === "holds" ? "Holds" : "Fails");
 
-/** The cue that opens a turn: the Summa's formulas for rounds 1–2, plain speech below. */
-export function cueFor(depth: number, side: Side): string {
-  if (side === "spinoza") return "Spinoza cuts in";
-  if (depth === 1) return "It seems that";
-  if (depth === 2 && side === "theist") return "On the contrary";
-  return side === "theist" ? "The Respondent replies" : "The Objector rejoins";
+/** The status as the reader should read it. A move the reader called carries
+    their call, not "Answered": nobody may have answered a move they rejected. */
+export function statusText(label: Label, call?: Judgment): string {
+  return call ? `You said it ${call}` : STATUS_WORD[label];
 }
 
-/** What a move is called, by who makes it and where: "objection", "reply", "rejoinder"… */
-export function moveNoun(depth: number, side: Side): string {
-  if (depth === 1) return "objection";
-  if (side === "theist") return "reply";
-  if (side === "skeptic") return "rejoinder";
-  return "interjection";
+/** The cue that opens a move: who is speaking, in plain words. */
+export function cueFor(depth: number, side: Side): string {
+  if (side === "spinoza") return "Spinoza cuts in";
+  if (depth === 1) return "The Objector argues";
+  return side === "theist" ? "The Defender replies" : "The Objector replies";
+}
+
+/** What a move is called in running text: the opening "argument", then "reply". */
+export function moveNoun(depth: number): string {
+  return depth === 1 ? "argument" : "reply";
+}
+
+/** An address such as "I·1.2" spelled out: "Objection I, part 1, reply 2". */
+export function spellAddress(ix: DisputationIndex, id: string): string {
+  const info = ix.nodes.get(id);
+  if (!info) return "";
+  const o = ix.objections.get(info.objection);
+  const steps = info.path.map((pid) => (ix.nodes.get(pid)?.order ?? 0) + 1);
+  const out = [`Objection ${o?.numeral ?? "?"}`];
+  if ((o?.prongs.length ?? 1) > 1) out.push(`part ${steps[0]}`);
+  else if (steps.length === 1) out.push("the opening argument");
+  for (const k of steps.slice(1)) out.push(`reply ${k}`);
+  return out.join(", ");
 }
 
 export type Seat = "left" | "right" | "center";
@@ -118,7 +134,7 @@ export function rippleStyle(ripple: Ripple | null, depth: number): CSSProperties
 
 /* ---------------- small shared pieces ---------------- */
 
-/** "Why?" — a toggle that reveals a one-sentence explanation of a computed status. */
+/** "Why?": a toggle that shows a one-sentence explanation of a computed status. */
 export function WhyLine({ explanation, onGo, className = "" }: { explanation: Explanation; onGo?: (id: string) => void; className?: string }) {
   const [open, setOpen] = useState(false);
   const reduce = useReducedMotion();
@@ -163,13 +179,12 @@ export function WhyLine({ explanation, onGo, className = "" }: { explanation: Ex
   );
 }
 
-/** Status glyph + word, plus the reader's own stamp if they ruled on it. */
-export function TurnStatus({ id, side, label, call, note = false }: { id: string; side: Side; label: Label; call?: Judgment; note?: boolean }) {
+/** Status glyph + word. A move the reader called shows their call instead. */
+export function TurnStatus({ id, side, label, call }: { id: string; side: Side; label: Label; call?: Judgment }) {
   return (
     <span className={`ch-status st-${label}`} data-status-for={id}>
       <Glyph side={side} label={label} size={11} />
-      <span className="ch-status-word">{STATUS_WORD[label]}</span>
-      {call ? <span className="your-call ch-stamp">Your call · {callWord(call)}</span> : note ? <span className="ch-status-note">on your calls</span> : null}
+      {call ? <span className="your-call ch-stamp">{statusText(label, call)}</span> : <span className="ch-status-word">{STATUS_WORD[label]}</span>}
     </span>
   );
 }
@@ -178,7 +193,7 @@ export function TurnStatus({ id, side, label, call, note = false }: { id: string
 export function CallButtons({ id, side, call, compact = false }: { id: string; side: Side; call?: Judgment; compact?: boolean }) {
   const { decide } = useChamber();
   return (
-    <div className={`judge-btns ch-judge s-${side} ${compact ? "compact" : ""}`} role="group" aria-label="Your call on this move">
+    <div className={`judge-btns ch-judge s-${side} ${compact ? "compact" : ""}`} role="group" aria-label="Your call: does this move hold or fail?">
       {(["holds", "fails"] as const).map((j) => (
         <button
           key={j}
@@ -209,7 +224,9 @@ export function MoveChip({ id, why, onGo }: { id: string; why?: string; onGo: (i
     <li className="ch-xref">
       <button type="button" className={`ch-xchip s-${info.node.side}`} onClick={() => onGo(id)}>
         <Glyph side={info.node.side} label={l} size={11} className="ch-xglyph" />
-        <span className="ch-xaddr mono">{address(ix, id)}</span>
+        <span className="ch-xaddr mono" title={spellAddress(ix, id)}>
+          {address(ix, id)}
+        </span>
         <span className={`ch-xlabel ${l === "out" ? "lab-out" : ""}`}>{toPlain(info.node.label)}</span>
         <span className="ch-xgo" aria-hidden>
           →

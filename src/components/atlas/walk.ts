@@ -1,14 +1,15 @@
-/* "Argue it through" — the grounded game over one objection, as a pure function.
+/* Step through it (#/walk/<objection>): the grounded game over one objection,
+   as a pure function.
 
-   The walk is a dialogue: a move speaks, the reader answers. Going prong by
-   prong, `visit(n)` does this:
+   A move speaks and the reader answers. Going part by part (prong by prong
+   in the code), `visit(n)` does this:
      - already judged      → shown with the reader's stamp; holds = IN, fails = OUT.
-     - a leaf              → "Last word on this branch. Does it hold?"  [Holds] [Fails]
-     - otherwise           → "How does this strike you?"  [It fails] / [Hear the reply]
-       On hear, its replies are visited in content order (strongest first):
-         a reply ends IN   → n is OUT ("Answered, on your calls — '{reply}' stands"),
-                             with the choice to test the remaining replies anyway;
-         every reply OUT   → n is IN  ("Stands, on your calls — every reply to it fails").
+     - a leaf              → asks Does it hold?  [Holds] [Fails]
+     - otherwise           → asks Reject it now, or see the reply first?  [It fails] / [Show the reply]
+       After Show, its replies are visited in content order (strongest first):
+         a reply ends IN   → n is OUT (answered because that reply stands),
+                             and the reader may still check the remaining replies;
+         every reply OUT   → n is IN  (stands because every reply to it fails).
 
    Only the reader's explicit calls are ever written as judgments. Everything
    the walk concludes about an inner move is *computed* (and matches the
@@ -26,7 +27,7 @@ export type Resolved = "in" | "out";
 
 /** What the reader has done in this walk, beyond the judgments themselves. */
 export interface WalkSession {
-  /** Inner moves where the reader chose "Hear the reply". */
+  /** Inner moves where the reader chose Show the reply. */
   heard: string[];
   /** Moves whose remaining replies the reader chose to test after one already stood. */
   testAll: string[];
@@ -157,16 +158,16 @@ export interface ProngEnd {
   index: number;
   /** How this prong came out. */
   label: Resolved;
-  /** The whole objection already stands on the reader's calls (any prong standing is enough). */
+  /** The whole objection already stands, given the reader's calls (one prong standing is enough). */
   settled: boolean;
-  /** Later prongs already decided by earlier calls (made in the chamber, or before). */
+  /** Later prongs already decided by earlier calls (made on the objection's page, or earlier). */
   ahead: Ahead[];
   /** This is the last prong, or every later one is already decided: the next step is the end. */
   final: boolean;
 }
 
 export type WalkPrompt =
-  /** A move waits for the reader: leaf → Holds / Fails; inner → It fails / Hear the reply. */
+  /** A move waits for the reader: leaf → Holds / Fails; inner → It fails / Show the reply. */
   | ({ kind: "ask"; leaf: boolean; replies: number } & Where)
   /** A reply stood, so `id` is answered; the other replies are still unheard. For a prong,
       `end` describes the end-of-prong stop that would follow, so the two can be shown as one. */
@@ -196,12 +197,12 @@ export function runWalk(o: Objection, j: Judgments, s: WalkSession): WalkRun {
   const ack = new Set(s.ack);
   const called = new Set(s.called);
 
-  // The real status of every move on the reader's calls (the walk's results agree with it).
+  // The status of every move given the reader's calls (the walk's results agree with it).
   const labels = new Map<string, Label>();
   const objLabel = labelObjection(o, j, labels);
 
   // Resume: an unjudged inner move counts as heard when the reader has already
-  // called something beneath it (here or in the chamber).
+  // called something beneath it (here or on the objection's page).
   const judgedBelow = new Set<string>();
   const mark = (n: ArgNode): boolean => {
     let any = false;
@@ -301,7 +302,7 @@ export function itemCount(run: WalkRun): number {
 
 /* ---------------- why a prong came out as it did ---------------- */
 
-/** Why a prong came out the way it did, on the reader's calls. */
+/** Why a prong came out the way it did, given the reader's calls. */
 export type ProngReason =
   | { kind: "judged"; j: Judgment }
   | { kind: "all-fail"; replies: number }

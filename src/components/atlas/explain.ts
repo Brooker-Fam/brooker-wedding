@@ -1,15 +1,16 @@
-/* "Why?" — plain-language explanations of computed statuses.
+/* "Why?": plain-language explanations of computed statuses.
 
    Every status on the page is computed from the reader's own calls, so each
    one can be explained in a sentence that points at the move it turns on.
-   Explanations describe the present state only; they never preview what a
-   future call would do (consequences come after a call, not before). */
+   The status word sits right beside the explanation, so the text doesn't
+   repeat it. Explanations describe the present state only and never preview
+   what a future call would do (consequences come after a call, not before). */
 
 import type { DisputationIndex, Judgments, Labelling } from "./semantics";
 import type { Label, Objection } from "./types";
 
 export interface Explanation {
-  /** The status being explained ("call" = the reader ruled on it directly). */
+  /** The status being explained ("call" = the reader made a call on it directly). */
   tone: Label | "call";
   /** One or two plain sentences. */
   text: string;
@@ -19,11 +20,8 @@ export interface Explanation {
 
 type Plain = (s: string) => string;
 
-const LEFT_TO_ITSELF: Record<Label, string> = {
-  in: "standing — every reply to it is answered",
-  out: "answered",
-  undec: "open",
-};
+const NUM = ["no", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten"];
+const num = (n: number) => NUM[n] ?? String(n);
 
 /** Quote a claim the way the page quotes claims: ‘…’. */
 export function q(s: string): string {
@@ -38,7 +36,16 @@ export function labelFromReplies(kids: Label[]): Label {
   return "undec";
 }
 
-/** Why one move carries the status it does, on the reader's calls. */
+/** "Its one reply has been answered." / "Both replies…" / "All four replies…" */
+function allAnswered(n: number): string {
+  if (n === 1) return "its one reply has been answered";
+  if (n === 2) return "both replies to it have been answered";
+  return `all ${num(n)} replies to it have been answered`;
+}
+
+const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
+
+/** Why one move carries the status it does. */
 export function explainNode(ix: DisputationIndex, labels: Labelling, j: Judgments, id: string, toPlain: Plain): Explanation {
   const info = ix.nodes.get(id);
   if (!info) return { tone: "undec", text: "" };
@@ -51,37 +58,35 @@ export function explainNode(ix: DisputationIndex, labels: Labelling, j: Judgment
 
   if (call) {
     const fromReplies = labelFromReplies(kids.map(lab));
-    const said = call === "holds" ? "holds" : "fails";
     if (call === "holds" && standing.length) {
       return {
         tone: "call",
-        text: `You said it holds — but ${q(name(standing[0]))} answers it and also stands on your calls. One of them has to give.`,
+        text: `${q(name(standing[0]))} replies to it and also stands. These two contradict each other.`,
         link: { id: standing[0], label: name(standing[0]) },
       };
     }
     if (kids.length === 0) {
-      return { tone: "call", text: `Your call: you said it ${said}. Nobody in the disputation answers it here, so your word settles it.` };
+      return { tone: "call", text: "Nobody here has replied to it, so your call decides it." };
     }
-    const reason =
-      fromReplies === "out" && standing.length
-        ? `${q(name(standing[0]))} stands`
-        : fromReplies === "undec" && open.length
-          ? `${q(name(open[0]))} is still undecided`
-          : fromReplies === "in"
-            ? "every reply to it is answered"
-            : "";
-    const agree = (fromReplies === "in" && call === "holds") || (fromReplies === "out" && call === "fails");
+    if (fromReplies === "out" && standing.length) {
+      // Only reachable with call === "fails": the replies agree.
+      return {
+        tone: "call",
+        text: `Its replies agree with you. ${q(name(standing[0]))} replies to it and stands.`,
+        link: { id: standing[0], label: name(standing[0]) },
+      };
+    }
+    if (fromReplies === "in") {
+      return {
+        tone: "call",
+        text: call === "holds" ? `Its replies agree with you, since ${allAnswered(kids.length)}.` : `Without your call it would stand, since ${allAnswered(kids.length)}.`,
+      };
+    }
+    const first = open[0];
     return {
       tone: "call",
-      text: agree
-        ? `Your call: you said it ${said}, which agrees with its replies — ${reason}.`
-        : `Your call: you said it ${said}. Left to its replies alone it would be ${LEFT_TO_ITSELF[fromReplies]}${fromReplies === "undec" && reason ? ` — ${reason}` : fromReplies === "out" && reason ? `, because ${reason}` : ""}.`,
-      link:
-        fromReplies === "out" && standing.length
-          ? { id: standing[0], label: name(standing[0]) }
-          : fromReplies === "undec" && open.length
-            ? { id: open[0], label: name(open[0]) }
-            : undefined,
+      text: first ? `Without your call it would be open, because ${q(name(first))} is undecided.` : "Without your call it would be open.",
+      link: first ? { id: first, label: name(first) } : undefined,
     };
   }
 
@@ -90,65 +95,62 @@ export function explainNode(ix: DisputationIndex, labels: Labelling, j: Judgment
     const by = standing.find((c) => j[c] === "holds") ?? standing[0];
     return {
       tone: "out",
-      text: by ? `Answered on your calls, because ${q(name(by))} stands.` : "Answered on your calls.",
+      text: by ? `${q(name(by))} replies to it and stands.` : "A reply to it stands.",
       link: by ? { id: by, label: name(by) } : undefined,
     };
   }
   if (l === "in") {
-    return {
-      tone: "in",
-      text:
-        kids.length === 1
-          ? "Stands on your calls: the one reply to it is answered."
-          : `Stands on your calls: every reply to it is answered${kids.length > 2 ? ` — all ${kids.length} of them` : ""}.`,
-    };
+    return { tone: "in", text: `${cap(allAnswered(kids.length))}.` };
   }
   if (kids.length === 0) {
-    return { tone: "undec", text: "Open: nobody has answered it, and you haven’t called it." };
+    return { tone: "undec", text: "Nobody here has replied to it, and you haven’t made a call on it." };
   }
   const first = open[0];
-  if (!first) return { tone: "undec", text: "Open." };
+  if (!first) return { tone: "undec", text: "None of its replies has been settled yet." };
   const more = open.length - 1;
   return {
     tone: "undec",
-    text: more > 0 ? `Open: ${q(name(first))} and ${more} other ${more === 1 ? "reply" : "replies"} are still undecided.` : `Open: ${q(name(first))} is still undecided.`,
+    text: more > 0 ? `${q(name(first))} and ${num(more)} other ${more === 1 ? "reply" : "replies"} to it are still open.` : `${q(name(first))} replies to it and is still open.`,
     link: { id: first, label: name(first) },
   };
 }
 
-/** Why an objection (a cluster of prongs) carries the status it does. */
-export function explainObjection(labels: Labelling, o: Objection, toPlain: Plain): Explanation {
+/** Why an objection (one to three parts) carries the status it does. */
+export function explainObjection(labels: Labelling, o: Objection, toPlain: Plain, j: Judgments = {}): Explanation {
   const lab = (x: string): Label => labels.node.get(x) ?? "undec";
   const l = labels.objection.get(o.id) ?? "undec";
-  const idx = (id: string) => o.prongs.findIndex((p) => p.id === id) + 1;
-  const many = o.prongs.length > 1;
+  const part = (id: string) => o.prongs.findIndex((p) => p.id === id) + 1;
+  const n = o.prongs.length;
+  const many = n > 1;
   if (l === "in") {
-    const p = o.prongs.find((x) => lab(x.id) === "in")!;
+    const p = o.prongs.find((x) => j[x.id] === "holds" && lab(x.id) === "in") ?? o.prongs.find((x) => lab(x.id) === "in")!;
+    const said = j[p.id] === "holds";
+    const what = many ? `part ${part(p.id)}, ${q(toPlain(p.label))},` : `its argument, ${q(toPlain(p.label))},`;
     return {
       tone: "in",
-      text: many
-        ? `Stands on your calls, because objection ${idx(p.id)} — ${q(toPlain(p.label))} — stands. One is enough.`
-        : `Stands on your calls, because ${q(toPlain(p.label))} stands.`,
+      text: `${said ? `You said ${what} holds.` : `${cap(what)} stands.`}${many ? " The Objector needs only one part to stand." : ""}`,
       link: { id: p.id, label: toPlain(p.label) },
     };
   }
   if (l === "out") {
-    return { tone: "out", text: many ? `Answered on your calls: all ${o.prongs.length} of its objections are answered.` : "Answered on your calls: its objection is answered." };
+    if (many) return { tone: "out", text: n === 2 ? "Neither of its two parts stands." : `None of its ${num(n)} parts stands.` };
+    const p = o.prongs[0];
+    return {
+      tone: "out",
+      text: j[p.id] === "fails" ? `You said its argument, ${q(toPlain(p.label))}, fails.` : `Its argument, ${q(toPlain(p.label))}, has been answered.`,
+      link: { id: p.id, label: toPlain(p.label) },
+    };
   }
   const open = o.prongs.filter((x) => lab(x.id) === "undec");
   const first = open[0];
-  if (!first) return { tone: "undec", text: "Undecided." };
+  if (!first) return { tone: "undec", text: "Nothing has been settled yet." };
   return {
     tone: "undec",
     text: many
-      ? `Undecided: nothing stands yet, and ${
-          open.length === 1
-            ? `objection ${idx(first.id)} is`
-            : open.length === o.prongs.length
-              ? `${open.length === 2 ? "both" : `all ${open.length}`} of its objections are`
-              : `${open.length} of its ${o.prongs.length} objections are`
+      ? `No part stands yet, and ${
+          open.length === 1 ? `part ${part(first.id)} is` : open.length === n ? (n === 2 ? "both parts are" : `all ${num(n)} parts are`) : `${num(open.length)} of the ${num(n)} parts are`
         } still open.`
-      : "Undecided: its objection is still open.",
+      : `Its argument, ${q(toPlain(first.label))}, is still open.`,
     link: { id: first.id, label: toPlain(first.label) },
   };
 }

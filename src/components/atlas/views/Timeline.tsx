@@ -2,16 +2,16 @@
 
 /* Library · Timeline (#/timeline[/<moment>]).
 
-   Twenty-odd centuries of the same five quarrels, drawn as threads. Each lane
-   is one objection; a moment that bears on several objections is a "knot"
-   joining exactly those lanes (it hops over the lanes it doesn't touch).
+   Who argued what, and when, drawn as lines. Each lane is one objection; a
+   moment that bears on several objections is a "knot", a bar joining those
+   lanes (it hops over the lanes it doesn't touch).
    Spinoza's moments sit in their objections' lanes as lilac diamonds, and a
    lilac lane at the bottom keeps a plain tick for each, so his thread reads
    at a glance. Where marks would pile up, a cluster badge lists them. The
    time scale is piecewise so antiquity doesn't swallow the page.
 
    Desktop: the chart + a card for the chosen moment, then the chronicle (a
-   readable list). Phone: the chronicle alone — time flows down, compact lanes
+   readable list). Phone: the chronicle alone. Time flows down, compact lanes
    at the left, titles to the right that open in place. No horizontal scroll. */
 
 import "./library.css";
@@ -21,7 +21,7 @@ import { address } from "../helpers";
 import { ThinkerChip } from "../primitives";
 import { formatRoute } from "../router";
 import type { Moment, Objection, ObjectionId, Side } from "../types";
-import { ERAS, GlyphKey, LibEmpty, LibHead, SIDE_WORD, eraOf, scrollBehavior, useMedia, yearText } from "./Outline";
+import { ERAS, GlyphKey, LibEmpty, LibHead, LibQuote, SIDE_WORD, eraOf, scrollBehavior, useMedia, yearText } from "./Outline";
 
 type LaneKey = ObjectionId | "spinoza";
 type Filter = "all" | LaneKey;
@@ -34,7 +34,7 @@ interface Lane {
   o?: Objection;
 }
 
-const MSIDE_WORD: Record<MSide, string> = { ...SIDE_WORD, neutral: "Context" };
+const MSIDE_WORD: Record<MSide, string> = { ...SIDE_WORD, neutral: "Background" };
 const isSpinoza = (m: Moment) => m.side === "spinoza" || m.thinker === "spinoza";
 const sideCls = (s: MSide | undefined) => (s === "skeptic" || s === "theist" || s === "spinoza" ? s : "neutral");
 
@@ -360,33 +360,21 @@ export default function Timeline({ moment }: { moment?: string }) {
   );
 
   const years = sorted.map((m) => m.year);
-  const span = sorted.length ? `${yearText(Math.min(...years)).replace(" CE", "")} – ${yearText(Math.max(...years)).replace(" CE", "")}` : "";
-  const knots = sorted.filter((m) => objLanes(m).length > 1).length;
+  const span = sorted.length ? `${yearText(Math.min(...years)).replace(" CE", "")} to ${yearText(Math.max(...years)).replace(" CE", "")}` : "";
 
   return (
     <div className="lib lib-timeline">
       <LibHead
         current="timeline"
         className="lib-head-split"
-        title={
-          <>
-            Through <em>history</em>
-          </>
-        }
+        title="Timeline"
         dek={
           <>
-            The same five quarrels, pressed and answered across the centuries.
-            <span className="lib-dek-more"> Each thread is an objection; where one moment bears on several, the threads knot.</span>
+            Who argued what, and when.
+            <span className="lib-dek-more"> Each line on the chart is one objection. When a moment bears on several objections, a bar joins their lines.</span>
           </>
         }
-        meta={
-          sorted.length ? (
-            <>
-              {sorted.length} moments · {span}
-              {knots ? ` · ${knots} ${knots === 1 ? "knot" : "knots"}` : ""}
-            </>
-          ) : undefined
-        }
+        meta={sorted.length ? `${sorted.length} moments · ${span}` : undefined}
       />
       <p className="sr-only" aria-live="polite">
         {said}
@@ -395,12 +383,12 @@ export default function Timeline({ moment }: { moment?: string }) {
       {sorted.length === 0 ? (
         <LibEmpty
           current="timeline"
-          title="The timeline is still being assembled."
-          text="Its moments will appear here, each tied to the strands it bears on and linked to the move it shaped. Meanwhile the outline has every move."
+          title="No moments yet."
+          text="Dated moments will appear here, each linked to the objections it bears on and the move it shaped. Until then, the outline has every move."
         />
       ) : (
         <>
-          {missing && <p className="lib-notice">No moment “{moment}” in the timeline. Choose one below.</p>}
+          {missing && <p className="lib-notice">There’s no moment called “{moment}”. Choose one below.</p>}
           {wide ? (
             <div className="tl-stage" ref={stageRef}>
               <Chart lanes={lanes} sorted={sorted} objLanes={objLanes} lanesOf={lanesOf} visible={visible} filter={filter} setFilter={setFilter} selected={selected?.id} select={select} shown={shown} />
@@ -413,35 +401,35 @@ export default function Timeline({ moment }: { moment?: string }) {
           <section className="tl-chron" aria-labelledby="tl-chron-h">
             <div className="tl-chron-head">
               <h2 id="tl-chron-h" className="lib-h2 serif">
-                The chronicle
+                Every moment, in order
               </h2>
               <p className="tl-chron-note">
                 {filter === "all" ? (
                   wide ? (
-                    "Every moment in order, oldest first. Open one to read it here."
+                    "Oldest first. Open one to read more about it."
                   ) : (
-                    "Every moment in order, oldest first."
+                    "Oldest first. Tap one to read more about it."
                   )
                 ) : (
                   <>
-                    Following <strong>{lanes.find((l) => l.key === filter)?.name}</strong> only.{" "}
+                    Showing only <strong>{lanes.find((l) => l.key === filter)?.name}</strong>.{" "}
                     <button type="button" className="lib-link" onClick={() => setFilter("all")}>
-                      Show every strand
+                      Show all
                     </button>
                   </>
                 )}
               </p>
               {wide ? (
-                <ThreadLegend />
+                <ThreadLegend lanes={lanes} />
               ) : (
                 <details className="tl-howto">
-                  <summary className="mono">How to read the threads</summary>
-                  <ThreadLegend />
+                  <summary className="mono">How to read the lines</summary>
+                  <ThreadLegend lanes={lanes} />
                 </details>
               )}
             </div>
             {shown.length === 0 ? (
-              <p className="lib-none">No moments on this strand yet.</p>
+              <p className="lib-none">No moments for this one yet.</p>
             ) : (
               <Chronicle listRef={listRef} lanes={lanes} items={shown} lanesOf={lanesOf} selected={selected?.id} select={select} wide={wide} onShow={showOnChart} />
             )}
@@ -452,7 +440,9 @@ export default function Timeline({ moment }: { moment?: string }) {
   );
 }
 
-function ThreadLegend() {
+function ThreadLegend({ lanes }: { lanes: Lane[] }) {
+  const objs = lanes.filter((l) => l.key !== "spinoza");
+  const sp = lanes.some((l) => l.key === "spinoza");
   return (
     <ul className="tl-legend">
       <li className="tl-legend-marks">
@@ -460,10 +450,16 @@ function ThreadLegend() {
       </li>
       <li>
         <span className="tl-legend-i tl-legend-thread" aria-hidden />
-        Each line is an objection&rsquo;s thread, from its first moment to its last.
+        Each line is one objection, drawn from its first moment to its last.
+        {objs.length > 1 && (
+          <>
+            {" "}
+            The numerals above each era name the lines, {objs[0].numeral} to {objs[objs.length - 1].numeral} for the objections{sp ? " and ◆ for Spinoza" : ""}.
+          </>
+        )}
       </li>
       <li>
-        <span className="tl-legend-i tl-legend-knot" aria-hidden />A bar across threads is a knot: one moment, several objections.
+        <span className="tl-legend-i tl-legend-knot" aria-hidden />A bar across several lines is one moment that bears on each of those objections.
       </li>
     </ul>
   );
@@ -487,9 +483,9 @@ function StrandChips({
 }) {
   const count = (k: LaneKey) => sorted.filter((m) => lanesOf(m).includes(k)).length;
   return (
-    <div className="tl-chips" role="group" aria-label="Follow one strand">
+    <div className="tl-chips" role="group" aria-label="Show one objection">
       <button type="button" className="tl-chip" aria-pressed={filter === "all"} onClick={() => setFilter("all")}>
-        All strands
+        All
       </button>
       {lanes.map((l) => (
         <button
@@ -607,9 +603,9 @@ function Chart({
       const l = lanes[laneIdx.get(k)!];
       return `${l.numeral} ${l.name}`;
     });
-    return names.length ? `Strands: ${names.join(", ")}` : "No strand";
+    return names.length ? `${names.length === 1 ? "Objection" : "Objections"} ${names.join(", ")}` : "Background, no single objection";
   };
-  const optLabel = (m: Moment) => `${m.when}: ${m.title}. ${MSIDE_WORD[m.side] ?? "Context"}${isSpinoza(m) && m.side !== "spinoza" ? ", Spinoza's thread" : ""}. ${strandText(m)}.`;
+  const optLabel = (m: Moment) => `${m.when}: ${m.title}. ${MSIDE_WORD[m.side] ?? "Background"}${isSpinoza(m) && m.side !== "spinoza" ? ", on Spinoza's line" : ""}. ${strandText(m)}.`;
 
   // Roving tab stop: the chosen moment if it's on the followed strand, else the first one shown.
   const rover = selected && shown.some((m) => m.id === selected) ? selected : shown[0]?.id;
@@ -696,10 +692,10 @@ function Chart({
   return (
     <div className="tl-chart-wrap">
       <div className="tl-chart" ref={wrap} style={{ height: geo.height }}>
-        {/* lane labels — also the strand filter */}
-        <div className="tl-lab-col" role="group" aria-label="Follow one strand">
+        {/* lane labels, which are also the filter */}
+        <div className="tl-lab-col" role="group" aria-label="Show one objection">
           <button type="button" className="tl-all mono" aria-pressed={filter === "all"} onClick={() => setFilter("all")} style={{ top: 4 }}>
-            All strands
+            Show all
           </button>
           {lanes.map((l, i) => {
             const g = geo.rows[i];
@@ -711,7 +707,7 @@ function Chart({
                 style={{ top: g.top, height: g.h }}
                 aria-pressed={filter === l.key}
                 onClick={() => setFilter(filter === l.key ? "all" : l.key)}
-                title={filter === l.key ? "Show every strand" : `Follow ${l.name} only`}
+                title={filter === l.key ? "Show all" : `Show only ${l.name}`}
               >
                 <span className="tl-lab-num serif" style={{ top: g.y - g.top }} aria-hidden={l.key === "spinoza" ? true : undefined}>
                   {l.numeral}
@@ -725,7 +721,7 @@ function Chart({
           })}
           {geo.rows[geo.ctxRow] && (
             <span className="tl-lab-ctx mono" style={{ top: geo.rows[geo.ctxRow].y }} aria-hidden>
-              <MGlyph side="neutral" size={9} /> Context
+              <MGlyph side="neutral" size={9} /> Background
             </span>
           )}
         </div>
@@ -756,7 +752,7 @@ function Chart({
               );
             })}
             {geo.rows[geo.ctxRow] && <line className="tl-base" x1={0} x2={plotW} y1={geo.rows[geo.ctxRow].y} y2={geo.rows[geo.ctxRow].y} />}
-            {/* knots: one moment on several objections — joined only where it touches, hopping the rest */}
+            {/* knots: one moment on several objections, joined only where it touches, hopping the rest */}
             {geo.knots.map((k) => {
               const m = byId.get(k.id)!;
               return <path key={k.id} className={`tl-knot s-${spCls(m)} ${visible(m) ? "" : "dim"} ${selected === k.id || hot === k.id ? "lit" : ""}`} d={hopPath(k)} />;
@@ -954,14 +950,14 @@ function Chart({
               {hotCluster ? (
                 <>
                   <span className="tl-tip-k mono">
-                    {byId.get(hotCluster.ids[0])!.when} – {byId.get(hotCluster.ids[hotCluster.ids.length - 1])!.when}
+                    {byId.get(hotCluster.ids[0])!.when} to {byId.get(hotCluster.ids[hotCluster.ids.length - 1])!.when}
                   </span>
-                  <span className="tl-tip-t serif">{hotCluster.ids.length} moments close together — choose to list them</span>
+                  <span className="tl-tip-t serif">{hotCluster.ids.length} moments close together. Click to list them.</span>
                 </>
               ) : (
                 <>
                   <span className={`tl-tip-k mono s-${spCls(tipM!)}`}>
-                    {tipM!.when} · {MSIDE_WORD[tipM!.side] ?? "Context"}
+                    {tipM!.when} · {MSIDE_WORD[tipM!.side] ?? "Background"}
                   </span>
                   <span className="tl-tip-t serif">{tipM!.title}</span>
                   <span className="tl-tip-s mono">{strandText(tipM!)}</span>
@@ -975,7 +971,7 @@ function Chart({
         <GlyphKey context />
         <span className="tl-note-i mono">
           <span className="tl-note-knot" aria-hidden />
-          Knot: one moment, several objections
+          One moment, several objections
         </span>
         {geo.clusters.length > 0 && (
           <span className="tl-note-i mono">
@@ -985,7 +981,7 @@ function Chart({
             Moments close together
           </span>
         )}
-        <span className="tl-note-i tl-note-kbd mono">Arrow keys step through</span>
+        <span className="tl-note-i tl-note-kbd mono">Arrow keys move between moments</span>
       </div>
     </div>
   );
@@ -1014,11 +1010,11 @@ function MomentCard({
     return (
       <div className="tl-card tl-card-empty">
         <p className="tl-card-hint">
-          <span className="mono">Choose any mark</span> to read its moment here.
+          <span className="mono">Choose a mark</span> on the chart to read about that moment here.
         </p>
         {shown.length > 0 && (
           <button type="button" className="btn small" onClick={() => select(shown[0].id)}>
-            Start with the oldest →
+            Start at the oldest →
           </button>
         )}
       </div>
@@ -1044,7 +1040,7 @@ function MomentCard({
       <div className="tl-card-main">
         <p className="tl-card-k mono">
           <MGlyph side={side === "neutral" ? "neutral" : side} size={10} filled />
-          <span className="tl-side">{MSIDE_WORD[m.side] ?? "Context"}</span>
+          <span className="tl-side">{MSIDE_WORD[m.side] ?? "Background"}</span>
           {ks.length > 0 && (
             <span className="tl-card-strands">
               {ks.map((k) => {
@@ -1060,6 +1056,7 @@ function MomentCard({
         </p>
         <h2 className="tl-card-t serif">{m.title}</h2>
         {m.text && <p className="tl-card-x">{m.text}</p>}
+        <LibQuote q={m.quote} className="tl-quote" />
         <div className="tl-card-acts">
           {m.thinker && ix.thinkers.has(m.thinker) && <ThinkerChip id={m.thinker} />}
           {node && (
@@ -1069,11 +1066,11 @@ function MomentCard({
           )}
         </div>
       </div>
-      <nav className="tl-card-nav" aria-label="Step through moments">
+      <nav className="tl-card-nav" aria-label="Earlier and later moments">
         <button type="button" className="tl-step" disabled={!prev} onClick={() => prev && goTo(prev)} aria-label={prev ? `Earlier: ${prev.title}` : "No earlier moment"}>
           ‹
         </button>
-        <span className="tl-card-pos mono">{i >= 0 ? `${i + 1} / ${shown.length}` : "—"}</span>
+        <span className="tl-card-pos mono">{i >= 0 ? `${i + 1} of ${shown.length}` : "Filtered out"}</span>
         <button type="button" className="tl-step" disabled={!next} onClick={() => next && goTo(next)} aria-label={next ? `Later: ${next.title}` : "No later moment"}>
           ›
         </button>
@@ -1083,7 +1080,7 @@ function MomentCard({
 }
 
 /* ======================================================================
-   The chronicle — the readable list (all widths; the only layout on phones)
+   The chronicle: the readable list (all widths; the only layout on phones)
    ====================================================================== */
 type Seg = { k: LaneKey; part: "start" | "end" | "full" };
 
@@ -1280,17 +1277,18 @@ const ChronicleRow = memo(function ChronicleRow({
         <button type="button" className="tl-head" aria-expanded={isOpen} onClick={() => toggle(m.id, isOpen, on)}>
           <span className="tl-when">
             <span className="tl-year mono">{m.when}</span>
-            <span className={`tl-side mono s-${side}`}>{MSIDE_WORD[m.side] ?? "Context"}</span>
+            <span className={`tl-side mono s-${side}`}>{MSIDE_WORD[m.side] ?? "Background"}</span>
           </span>
           <span className="tl-title serif">{m.title}</span>
           <span className="tl-chev" aria-hidden />
         </button>
         {isOpen && m.text && <p className="tl-text">{m.text}</p>}
+        {isOpen && <LibQuote q={m.quote} className="tl-quote tl-quote-row" />}
         {isOpen && (
           <div className="tl-foot">
             {strands.length > 0 && (
               <span className="tl-strands mono">
-                <span className="sr-only">Strands: </span>
+                <span className="sr-only">{strands.length === 1 ? "Objection: " : "Objections: "}</span>
                 {strands.map((l) => (
                   <span key={l.key} className="tl-strand-tag">
                     <span className="serif">{l.numeral}</span> {l.name}
@@ -1306,7 +1304,7 @@ const ChronicleRow = memo(function ChronicleRow({
             )}
             {wide && (
               <button type="button" className="tl-golink tl-showchart" onClick={() => onShow(m.id)}>
-                <span aria-hidden>↑</span> On the chart
+                <span aria-hidden>↑</span> Show on the chart
               </button>
             )}
           </div>
