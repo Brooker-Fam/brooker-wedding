@@ -505,9 +505,14 @@ const evidence: Objection = {
                   label: "Only an empty tomb plus sightings explains the word 'risen'",
                   gist: "Ancient people never called visions of the dead resurrection, so only an empty tomb plus sightings explains why Jews said one man had been raised.",
                   body: [
-                    "{{wright-nt}} argues that grief visions can't explain the first Christians' claim. Ancient people called visions of the dead ghosts or angels, and in Luke the disciples, seeing Jesus, “supposed that they had seen a spirit” (24:37). *Resurrection* meant bodily life for all the righteous at the end, and the first Christians changed it, saying one man had been raised already. Appearances alone would have meant a ghost, and an empty tomb alone a theft, so it took both to make anyone say *risen*.",
-                    "Dissonance doesn't explain it either, since followers of other slain would-be messiahs, such as Simon bar Giora and Bar Kokhba, gave up or found a new leader, and none said their man had risen. Grief visions are usually private, yet Paul names “above five hundred brethren at once” (1 Corinthians 15:6). {{ludemann}}'s guilt-ridden Paul is hard to square with Paul calling himself “blameless” under the Law (Philippians 3:6), as {{stendahl}} noted in 1963.",
+                    "{{wright-nt}} argues that grief visions can't explain the Christian claim. Ancient people called visions of the dead ghosts or angels, and in Luke the disciples, seeing Jesus, “supposed that they had seen a spirit” (24:37). *Resurrection* meant bodily life for all the righteous at the end, and the first Christians changed it, saying one man had been raised already. Appearances alone would have meant a ghost, and an empty tomb alone a theft, so it took both to make anyone say *risen*.",
+                    "Dissonance fails too, since followers of other slain would-be messiahs, such as Simon bar Giora and Bar Kokhba, gave up or found a new leader, and none said their man had risen. Grief visions are usually private, yet Paul names “above five hundred brethren at once” (1 Corinthians 15:6). {{ludemann}}'s guilt-ridden Paul is hard to square with Paul calling himself “blameless” under the Law (Philippians 3:6), as {{stendahl}} noted in 1963.",
                   ],
+                  quote: {
+                    text: "After that, he was seen of above five hundred brethren at once; of whom the greater part remain unto this present, but some are fallen asleep.",
+                    who: "Paul",
+                    cite: "1 Corinthians 15:6 (KJV)",
+                  },
                   thinkers: ["wright-nt", "ludemann", "stendahl"],
                   cedes:
                     "If a pre-Christian Jewish text clearly said that one person had been raised bodily before the end, with no empty tomb involved, Wright's argument would fail.",
