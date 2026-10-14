@@ -101,12 +101,12 @@ export default function Lexicon({ term }: { term?: string }) {
       <LibHead
         current="lexicon"
         title="Glossary"
-        dek="The technical terms in the arguments, explained in plain words. Choose a term to see every move that uses it."
+        dek="Here are the technical terms in the arguments, explained in plain words. Choose a term to see every move that uses it."
         meta={sorted.length ? `${sorted.length} terms${used ? ` · ${used} used in the arguments` : ""}` : undefined}
       />
 
       {sorted.length === 0 ? (
-        <LibEmpty current="lexicon" title="No terms yet." text="Terms will appear here from A to Z, each linked to the moves that use it. Until then, the outline has every move." />
+        <LibEmpty current="lexicon" title="No terms yet." text="I haven’t written the glossary yet. Each term will link to the moves that use it." />
       ) : (
         <div className="lx-layout">
           <div className="lx-rail">
@@ -134,7 +134,7 @@ export default function Lexicon({ term }: { term?: string }) {
           </div>
 
           <div className="lx-list" ref={listRef}>
-            {missing && <p className="lib-notice">There’s no entry for “{term}”.</p>}
+            {missing && <p className="lib-notice">There’s no entry for “{term}”. Try the search or pick a letter.</p>}
             <p className={`lib-count mono ${qt ? "" : "sr-only"}`} aria-live="polite">
               {qt ? (filtered.length ? `${filtered.length} ${filtered.length === 1 ? "match" : "matches"} for “${qt}”` : `No term matches “${qt}”`) : ""}
             </p>
@@ -200,7 +200,7 @@ function Entry({ t, on, q, onPick }: { t: Term; on: boolean; q: string; onPick: 
         <p className="lx-unused mono">Not used in any move yet</p>
       ) : on ? (
         <div className="lx-open">
-          <FootprintBlock ids={uses} title={`Used in ${n} ${n === 1 ? "move" : "moves"}`} caption="Lit on the map" />
+          <FootprintBlock ids={uses} title={`Used in ${n} ${n === 1 ? "move" : "moves"}`} caption="Highlighted on the map" />
         </div>
       ) : (
         <div className="lx-used">

@@ -3080,6 +3080,15 @@
   font-size: clamp(1.18rem, 1.6vw, 1.32rem);
   line-height: 1.45;
 }
+/* the People file's further quotations: a size down from the one under the name */
+.atl .ca-more-quote {
+  margin-top: 12px;
+}
+.atl .ca-more-quote blockquote p {
+  font-size: 1.02rem;
+  line-height: 1.5;
+  color: var(--bone-2);
+}
 /* the Outline: a move's quotation sits under its summary, smaller than in the files */
 .atl .ol-quote {
   max-width: 42rem;
@@ -3129,10 +3138,18 @@
   }
 }
 
-@media (max-width: 640px) {
+/* the Timeline dek's sentence about the chart: only where the chart is drawn (900px and up) */
+@media (max-width: 899px) {
   .atl .lib-dek-more {
     display: none;
   }
+}
+
+/* the Outline dek's example address */
+.atl .lib-dek-addr {
+  font-size: 0.86em;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
 }
 
 @media (min-width: 900px) {

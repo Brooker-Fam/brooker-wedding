@@ -16,7 +16,7 @@ import { useAtlas } from "../context";
 import { initials } from "../peek";
 import { Glyph } from "../primitives";
 import { formatRoute } from "../router";
-import type { Quote, Side, Thinker } from "../types";
+import type { ArgNode, Quote, Side, Thinker } from "../types";
 import { ERAS, FootprintBlock, LibEmpty, LibHead, LibQuote, LibTabs, eraOf, fold, scrollBehavior, spokenBy, useMedia, yearText } from "./Outline";
 
 type TSide = Side | "neutral";
@@ -30,10 +30,10 @@ const LEAN: Record<TSide, string> = {
   neutral: "Background",
 };
 const LEAN_NOTE: Record<TSide, string> = {
-  skeptic: "Their arguments support the objections. Several were Christians themselves.",
+  skeptic: "Their arguments support the objections.",
   theist: "Their arguments help answer the objections.",
-  spinoza: "Spinoza, and people who share his view that God is Nature itself, with no will or plan.",
-  neutral: "Cited by both sides, or there to set the scene.",
+  spinoza: "Spinoza held that God is Nature itself and acts from necessity, with no choosing will and no purpose. Later thinkers who take up his ideas get the same mark.",
+  neutral: "Cited by both sides, or named for historical context.",
 };
 const FILTERS: TSide[] = ["skeptic", "theist", "spinoza", "neutral"];
 const sideOf = (t: Thinker): TSide => (t.side && t.side in LEAN ? t.side : "neutral");
@@ -147,7 +147,7 @@ export default function Cast({ thinker }: { thinker?: string }) {
       current="cast"
       tabs={false}
       title="People"
-      dek="Everyone named in the arguments, grouped by era. The mark by each name shows the side that uses their work here, and that isn’t always the side they took. Several Christian philosophers, for instance, are marked for the Objector because the Objector borrows their arguments."
+      dek="Everyone in the arguments and on the timeline, grouped by era. The Objector gives five reasons to doubt the Christian God, and the Defender answers them. The mark by each name shows which side uses that person’s work here, and that isn’t always the side they were on. Duns Scotus, a Franciscan friar, is marked for the Objector, who uses his argument against Aquinas."
       meta={all.length ? `${all.length} people · ${yearText(first.year)} to ${yearText(last.year)}` : undefined}
     />
   );
@@ -158,7 +158,7 @@ export default function Cast({ thinker }: { thinker?: string }) {
       {all.length === 0 ? (
         <>
           {head}
-          <LibEmpty current="cast" title="No one listed yet." text="People named in the arguments will appear here with their dates and every move that names them. Until then, the outline has every move." />
+          <LibEmpty current="cast" title="No one listed yet." text="I haven’t added anyone yet. Each person will get their dates and the moves that name them." />
         </>
       ) : (
         <div className="ca-layout">
@@ -173,7 +173,7 @@ export default function Cast({ thinker }: { thinker?: string }) {
                 </svg>
                 <input type="search" value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search by name, tradition or book" autoComplete="off" spellCheck={false} />
               </label>
-              <div className="ca-filters" role="group" aria-label="Show one side">
+              <div className="ca-filters" role="group" aria-label="Show one group">
                 <button type="button" className="ca-filter" aria-pressed={side === "all"} onClick={() => setSide("all")}>
                   Everyone <span className="ca-filter-n mono">{all.length}</span>
                 </button>
@@ -301,12 +301,24 @@ function ThinkerFile({ t, onClose }: { t: Thinker; onClose?: () => void }) {
   const { d, ix } = useAtlas();
   const refs = useMemo(() => ix.thinkerRefs.get(t.id) ?? [], [ix, t.id]);
   const moments = useMemo(() => [...d.moments].filter((m) => m.thinker === t.id).sort((a, b) => a.year - b.year), [d, t.id]);
-  // Their own signature line if the registry has one; otherwise the first (short enough) quotation of theirs
-  // that a move already carries, so the file opens on their words.
-  const quote = useMemo<Quote | undefined>(() => {
-    if (t.quote?.text) return t.quote;
-    const theirs = refs.map((id) => ix.nodes.get(id)?.node.quote).filter((q): q is Quote => !!q?.text && spokenBy(q.who, t.name));
-    return theirs.find((q) => q.text.length <= 260) ?? theirs[0];
+  // Their own signature line if the registry has one; otherwise a quotation of theirs that a move already carries,
+  // so the file opens on their words. Moves on their own side come first: a move on the other side may quote them
+  // stating the view they go on to reject (Boethius's prisoner, before Philosophy answers him). Then up to two more
+  // of their quotations from moves on their side.
+  const { quote, more } = useMemo(() => {
+    const nodes = refs.map((id) => ix.nodes.get(id)?.node).filter((n): n is ArgNode & { quote: Quote } => !!n?.quote?.text && spokenBy(n.quote.who, t.name));
+    const pick = (qs: Quote[]) => qs.find((q) => q.text.length <= 260) ?? qs[0];
+    const ours = nodes.filter((n) => n.side === t.side).map((n) => n.quote);
+    const lead: Quote | undefined = t.quote?.text ? t.quote : (pick(ours) ?? pick(nodes.map((n) => n.quote)));
+    const seen = new Set(lead ? [fold(lead.text)] : []);
+    const extra: Quote[] = [];
+    for (const q of ours) {
+      if (extra.length === 2) break;
+      if (q.text.length > 260 || seen.has(fold(q.text))) continue;
+      seen.add(fold(q.text));
+      extra.push(q);
+    }
+    return { quote: lead, more: extra };
   }, [t, refs, ix]);
   const s = sideOf(t);
   return (
@@ -342,10 +354,18 @@ function ThinkerFile({ t, onClose }: { t: Thinker; onClose?: () => void }) {
           <span className="ca-file-work-t">{t.work}</span>
         </p>
       )}
+      {more.length > 0 && (
+        <div className="ca-file-sec ca-file-more">
+          <p className="mono lib-k">More in their words</p>
+          {more.map((q) => (
+            <LibQuote key={q.text} q={q} hideWho={!!q.who && sameName(q.who, t.name)} className="ca-more-quote" />
+          ))}
+        </div>
+      )}
 
       <div className="ca-file-sec">
         {refs.length > 0 ? (
-          <FootprintBlock ids={refs} title={`Named in ${refs.length} ${refs.length === 1 ? "move" : "moves"}`} caption="Lit on the map" limit={16} />
+          <FootprintBlock ids={refs} title={`Named in ${refs.length} ${refs.length === 1 ? "move" : "moves"}`} caption="Highlighted on the map" limit={16} />
         ) : (
           <>
             <p className="mono lib-k">Not named in any move</p>
@@ -390,7 +410,7 @@ function CastIntro({ onPick }: { onPick: (id: string) => void }) {
   );
   return (
     <div className="ca-intro">
-      <p className="ca-intro-hint">Choose a name to read about them and see every move that names them.</p>
+      <p className="ca-intro-hint">Choose someone to read about them and see every move that mentions them.</p>
       <p className="mono lib-k">What the marks mean</p>
       <ul className="ca-legend">
         {FILTERS.map((s) => (

@@ -23,9 +23,9 @@ type Plain = (s: string) => string;
 const NUM = ["no", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten"];
 const num = (n: number) => NUM[n] ?? String(n);
 
-/** Quote a claim the way the page quotes claims: ‘…’. */
+/** Quote a claim the way the page quotes claims: “…”. (Labels often contain ‘…’ themselves.) */
 export function q(s: string): string {
-  return `‘${s}’`;
+  return `“${s}”`;
 }
 
 /** The label a node would carry from its replies alone (ignoring any call on it). */
@@ -36,11 +36,26 @@ export function labelFromReplies(kids: Label[]): Label {
   return "undec";
 }
 
-/** "Its one reply has been answered." / "Both replies…" / "All four replies…" */
-function allAnswered(n: number): string {
-  if (n === 1) return "its one reply has been answered";
-  if (n === 2) return "both replies to it have been answered";
-  return `all ${num(n)} replies to it have been answered`;
+/** Why every reply to a move is out, told truthfully: a reply the reader said fails
+    hasn't been answered by anyone. "both replies to it have been answered" /
+    "you said both replies to it fail" / "you said one reply to it fails and the other has been answered". */
+function allOut(kids: string[], j: Judgments): string {
+  const n = kids.length;
+  const failed = kids.filter((k) => j[k] === "fails").length;
+  if (failed === 0) {
+    if (n === 1) return "its one reply has been answered";
+    if (n === 2) return "both replies to it have been answered";
+    return `all ${num(n)} replies to it have been answered`;
+  }
+  if (failed === n) {
+    if (n === 1) return "you said its one reply fails";
+    if (n === 2) return "you said both replies to it fail";
+    return `you said all ${num(n)} replies to it fail`;
+  }
+  const rest = n - failed;
+  const said = n === 2 ? "one reply to it fails" : `${num(failed)} of its ${num(n)} replies ${failed === 1 ? "fails" : "fail"}`;
+  const others = rest === 1 ? "the other has been answered" : `the other ${num(rest)} have been answered`;
+  return `you said ${said} and ${others}`;
 }
 
 const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
@@ -61,7 +76,7 @@ export function explainNode(ix: DisputationIndex, labels: Labelling, j: Judgment
     if (call === "holds" && standing.length) {
       return {
         tone: "call",
-        text: `${q(name(standing[0]))} replies to it and also stands. These two contradict each other.`,
+        text: `${q(name(standing[0]))} replies to it and stands, and a move with a standing reply is answered. These two contradict each other.`,
         link: { id: standing[0], label: name(standing[0]) },
       };
     }
@@ -69,23 +84,23 @@ export function explainNode(ix: DisputationIndex, labels: Labelling, j: Judgment
       return { tone: "call", text: "Nobody here has replied to it, so your call decides it." };
     }
     if (fromReplies === "out" && standing.length) {
-      // Only reachable with call === "fails": the replies agree.
+      // Only reachable with call === "fails": the replies alone give the same result.
       return {
         tone: "call",
-        text: `Its replies agree with you. ${q(name(standing[0]))} replies to it and stands.`,
+        text: `Without your call it would still be answered, because ${q(name(standing[0]))} replies to it and stands.`,
         link: { id: standing[0], label: name(standing[0]) },
       };
     }
     if (fromReplies === "in") {
       return {
         tone: "call",
-        text: call === "holds" ? `Its replies agree with you, since ${allAnswered(kids.length)}.` : `Without your call it would stand, since ${allAnswered(kids.length)}.`,
+        text: `Without your call it would ${call === "holds" ? "still stand" : "stand"}, because ${allOut(kids, j)}.`,
       };
     }
     const first = open[0];
     return {
       tone: "call",
-      text: first ? `Without your call it would be open, because ${q(name(first))} is undecided.` : "Without your call it would be open.",
+      text: first ? `Without your call it would be open, because ${q(name(first))}, a reply to it, is still open.` : "Without your call it would be open.",
       link: first ? { id: first, label: name(first) } : undefined,
     };
   }
@@ -100,7 +115,7 @@ export function explainNode(ix: DisputationIndex, labels: Labelling, j: Judgment
     };
   }
   if (l === "in") {
-    return { tone: "in", text: `${cap(allAnswered(kids.length))}.` };
+    return { tone: "in", text: `${cap(allOut(kids, j))}.` };
   }
   if (kids.length === 0) {
     return { tone: "undec", text: "Nobody here has replied to it, and you haven’t made a call on it." };
@@ -147,9 +162,9 @@ export function explainObjection(labels: Labelling, o: Objection, toPlain: Plain
   return {
     tone: "undec",
     text: many
-      ? `No part stands yet, and ${
-          open.length === 1 ? `part ${part(first.id)} is` : open.length === n ? (n === 2 ? "both parts are" : `all ${num(n)} parts are`) : `${num(open.length)} of the ${num(n)} parts are`
-        } still open.`
+      ? open.length === n
+        ? `${n === 2 ? "Both parts are" : `All ${num(n)} parts are`} still open.`
+        : `No part stands yet, and ${open.length === 1 ? `part ${part(first.id)} is` : `${num(open.length)} of the ${num(n)} parts are`} still open.`
       : `Its argument, ${q(toPlain(first.label))}, is still open.`,
     link: { id: first.id, label: toPlain(first.label) },
   };

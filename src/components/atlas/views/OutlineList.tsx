@@ -37,12 +37,15 @@ export interface OutlineListProps {
   sectionEnd?: (o: Objection) => ReactNode;
 }
 
+/** Quotation marks inside a quotation become single ones, since the stylesheet puts double marks around every quotation. */
+export const nestQuotes = (text: string) => text.replace(/“/g, "‘").replace(/”/g, "’");
+
 /** A quotation in the house style (same classes as the Library's LibQuote, which this file can't import). */
 function OutlineQuote({ q }: { q: Quote }) {
   return (
     <figure className="lib-quote ol-quote">
       <blockquote>
-        <p>{q.text}</p>
+        <p>{nestQuotes(q.text)}</p>
       </blockquote>
       {(q.who || q.cite) && (
         <figcaption>
@@ -157,7 +160,7 @@ function ObjectionBlock({
             </dl>
           )}
           <p className="ol-meta mono">
-            {o.prongs.length} {o.prongs.length === 1 ? "part" : "parts"} · {moves} {moves === 1 ? "move" : "moves"} · {depth} {depth === 1 ? "round" : "rounds"} deep
+            {o.prongs.length} {o.prongs.length === 1 ? "part" : "parts"} · {moves} {moves === 1 ? "move" : "moves"} · {depth} {depth === 1 ? "round" : "rounds"}
             {ol && (
               <span className={`status-badge st-${ol} ol-objstatus`}>
                 <span className="dot" aria-hidden />

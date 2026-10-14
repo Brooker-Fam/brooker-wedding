@@ -13,8 +13,8 @@ import { useAtlas } from "../context";
 import { address } from "../helpers";
 import { Glyph } from "../primitives";
 import { formatRoute } from "../router";
-import type { ObjectionId, Quote, Side } from "../types";
-import OutlineList, { OUTLINE_SIDE_WORD } from "./OutlineList";
+import type { Disputation, ObjectionId, Quote, Side } from "../types";
+import OutlineList, { OUTLINE_SIDE_WORD, nestQuotes } from "./OutlineList";
 import Rose from "./Rose";
 
 /* ======================================================================
@@ -305,7 +305,7 @@ export function LibQuote({ q, hideWho = false, className = "" }: { q?: Quote; hi
   return (
     <figure className={`lib-quote ${className}`}>
       <blockquote>
-        <p>{q.text}</p>
+        <p>{nestQuotes(q.text)}</p>
       </blockquote>
       {(who || q.cite) && (
         <figcaption>
@@ -361,9 +361,9 @@ export function LibEmpty({ title, text, current }: { title: string; text: string
   const { d } = useAtlas();
   const alt: { view: LibView; word: string }[] = [
     { view: "outline", word: "Read the outline" },
-    ...(d.terms.length && current !== "lexicon" ? [{ view: "lexicon" as const, word: "Open the glossary" }] : []),
+    ...(d.terms.length && current !== "lexicon" ? [{ view: "lexicon" as const, word: "Go to the glossary" }] : []),
     ...(d.thinkers.length && current !== "cast" ? [{ view: "cast" as const, word: "See the people" }] : []),
-    ...(d.moments.length && current !== "timeline" ? [{ view: "timeline" as const, word: "Open the timeline" }] : []),
+    ...(d.moments.length && current !== "timeline" ? [{ view: "timeline" as const, word: "Go to the timeline" }] : []),
   ];
   return (
     <div className="lib-empty">
@@ -389,6 +389,12 @@ export function LibEmpty({ title, text, current }: { title: string; text: string
 
 const OBJ_STATUS: Record<"in" | "out" | "undec", string> = { in: "Stands", out: "Answered", undec: "Open" };
 
+/** An address to explain the numbering with: the first reply to part 2 (or else part 1) of the first objection that has one. */
+function exampleAddress(d: Disputation) {
+  for (const p of [1, 0]) for (const o of d.objections) if (o.prongs[p]?.children?.length) return { addr: `${o.numeral}·${p + 1}.1`, part: p + 1, numeral: o.numeral };
+  return undefined;
+}
+
 export default function Outline() {
   const { d, ix, labelOf, labels, judgments } = useAtlas();
   const [gists, setGists] = useState(true);
@@ -396,6 +402,7 @@ export default function Outline() {
   const moves = ix.nodes.size;
   const called = Object.keys(judgments).filter((id) => ix.nodes.has(id)).length;
   const barRef = useRef<HTMLDivElement>(null);
+  const eg = exampleAddress(d);
 
   const jump = (o: ObjectionId) => {
     const el = document.getElementById(`ol-${o}`);
@@ -422,11 +429,21 @@ export default function Outline() {
       <LibHead
         current="outline"
         title="Outline"
-        dek="Every move in one list, with each reply indented under the claim it answers. It's the easiest way to read straight through, or to print."
+        dek={
+          <>
+            Every move is here in one list, each reply indented under the claim it answers. It reads straight through and prints well.
+            {eg && (
+              <>
+                {" "}
+                A move’s number gives its place, so <span className="mono lib-dek-addr">{eg.addr}</span> is the first reply to part {eg.part} of Objection {eg.numeral}.
+              </>
+            )}
+          </>
+        }
         meta={
           <>
             {d.objections.length} objections · {moves} moves
-            {called > 0 ? ` · you've called ${called}` : ""}
+            {called > 0 ? ` · you’ve marked ${called}` : ""}
           </>
         }
       >
@@ -472,7 +489,7 @@ export default function Outline() {
         quotes={quotes}
         sectionEnd={() => (
           <button type="button" className="ol-top mono" onClick={toTop}>
-            <span aria-hidden>↑</span> All objections
+            <span aria-hidden>↑</span> Back to top
           </button>
         )}
       />

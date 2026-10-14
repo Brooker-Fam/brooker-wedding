@@ -21,16 +21,16 @@ export interface Determination {
   call: Judgment | null;
   /** True when no single call carries a settled status (several footings). */
   overdetermined: boolean;
-  /** Second person, plain text, e.g. Stands. It rests on your call that “…” fails. */
+  /** Second person, plain text, e.g. Stands. You said “…” fails, and this result rests on that call. */
   sentence: string;
-  /** First person, for the copied text, e.g. It stands. It rests on my call that “…” fails. */
+  /** First person, for the copied text, e.g. The objection stands. I said “…” fails, and this result rests on that call. */
   firstPerson: string;
   /** The sentence split for display: a status headline, then the text around the focus label
       (so a view can render the label as a link). The sentence is head, a space, pre, the quoted label, post. */
   parts: { head: string; pre: string; post: string };
   /** Settled: the other calls this status rests on. */
   also: string[];
-  /** Undecided: up to three more blank moves where one call would settle it. */
+  /** Open: up to three more blank moves where one call would settle it. */
   decisive: string[];
   /** How many of the objection's moves the reader has called, out of how many. */
   called: number;
@@ -51,10 +51,10 @@ export interface Crux {
 
 /* ---------------- small helpers ---------------- */
 
-/** Objection-level status words (moves use Stands, Answered and Open). */
-export const OBJECTION_STATUS: Record<Label, string> = { in: "Stands", out: "Answered", undec: "Undecided" };
-/** What an objection would do if one call flipped, e.g. If you flipped this call, Objection II would stand. */
-export const IF_WRONG: Record<Label, string> = { in: "would stand", out: "would be answered", undec: "would be undecided" };
+/** Objection-level status words (the same three words the moves use). */
+export const OBJECTION_STATUS: Record<Label, string> = { in: "Stands", out: "Answered", undec: "Open" };
+/** What an objection would do if one call went the other way, e.g. If you said it fails instead, Objection II would stand. */
+export const IF_WRONG: Record<Label, string> = { in: "would stand", out: "would be answered", undec: "would be open" };
 
 const q = (s: string) => `“${s}”`;
 
@@ -121,7 +121,7 @@ export function determine(
     if (called === 0) {
       const moves = total === 1 ? "its one move" : `any of its ${total} moves`;
       const rest = total === 0 ? "There is nothing to mark here yet." : `You haven’t marked ${moves} yet.`;
-      const sentence = `Undecided. ${rest}`;
+      const sentence = `Open. ${rest}`;
       return {
         ...base,
         kind: "unruled",
@@ -129,8 +129,8 @@ export function determine(
         call: null,
         overdetermined: false,
         sentence,
-        firstPerson: total === 0 ? "It is undecided. There is nothing to mark here yet." : "It is undecided. I haven’t marked any of its moves yet.",
-        parts: { head: "Undecided.", pre: rest, post: "" },
+        firstPerson: total === 0 ? "The objection is still open. There is nothing to mark here yet." : "The objection is still open. I haven’t marked any of its moves yet.",
+        parts: { head: "Open.", pre: rest, post: "" },
         also: [],
         decisive: [],
       };
@@ -165,17 +165,17 @@ export function determine(
     }
     if (!focus) {
       const rest = "No single call would settle it yet.";
-      return { ...base, kind: "undecided", focus, call: null, overdetermined: false, sentence: `Undecided. ${rest}`, firstPerson: "It is still undecided.", parts: { head: "Undecided.", pre: rest, post: "" }, also: [], decisive };
+      return { ...base, kind: "undecided", focus, call: null, overdetermined: false, sentence: `Open. ${rest}`, firstPerson: `The objection is still open. ${rest}`, parts: { head: "Open.", pre: rest, post: "" }, also: [], decisive };
     }
     const t = q(L(focus));
-    const head = "Undecided.";
+    const head = "Open.";
     // pivot: either answer settles it. lever: one of the two answers does. next: the walk's next stop.
     const [pre, post, fp] =
       mode === "pivot"
-        ? ["Your call on ", " would settle it either way.", `It is still undecided. My call on ${t} would settle it either way.`]
+        ? ["Your call on ", " would settle it either way.", `The objection is still open. My call on ${t} would settle it either way.`]
         : mode === "lever"
-          ? ["Your call on ", " could settle it, depending on which way you go.", `It is still undecided. My call on ${t} could settle it, depending on which way I go.`]
-          : ["The next open move is ", ".", `It is still undecided. The next open move is ${t}.`];
+          ? ["Marking ", " could settle it, depending on whether you say it holds or fails.", `The objection is still open. Marking ${t} could settle it, depending on whether I say it holds or fails.`]
+          : ["The next open move is ", ".", `The objection is still open. The next open move is ${t}.`];
     return {
       ...base,
       kind: "undecided",
@@ -209,21 +209,17 @@ export function determine(
 
   if (!focus || !call) {
     const head = kind === "stands" ? "Stands." : "Answered.";
-    return { ...base, kind, focus: null, call: null, overdetermined, sentence: head, firstPerson: kind === "stands" ? "It stands." : "It is answered.", parts: { head, pre: "", post: "" }, also, decisive: [] };
+    return { ...base, kind, focus: null, call: null, overdetermined, sentence: head, firstPerson: kind === "stands" ? "The objection stands." : "The objection is answered.", parts: { head, pre: "", post: "" }, also, decisive: [] };
   }
 
   const t = q(L(focus));
   // Every status line ends in a full stop, so a line break after it never strands a comma.
   const head = kind === "stands" ? "Stands." : "Answered.";
-  const it = kind === "stands" ? "It stands." : "It is answered.";
-  let pre: string, post: string, fp: string;
-  if (overdetermined) {
-    [pre, post] = ["It rests on several of your calls. One is that ", ` ${call}.`];
-    fp = `${it} It rests on several of my calls. One is that ${t} ${call}.`;
-  } else {
-    [pre, post] = ["It rests on your call that ", ` ${call}.`];
-    fp = `${it} It rests on my call that ${t} ${call}.`;
-  }
+  const it = kind === "stands" ? "The objection stands." : "The objection is answered.";
+  // The call comes first and the quoted label is read before the clause that explains it.
+  const tail = overdetermined ? `, one of several calls this result rests on.` : `, and this result rests on that call.`;
+  const [pre, post] = ["You said ", ` ${call}${tail}`];
+  const fp = `${it} I said ${t} ${call}${tail}`;
   return { ...base, kind, focus, call, overdetermined, sentence: `${head} ${pre}${t}${post}`, firstPerson: fp, parts: { head, pre, post }, also, decisive: [] };
 }
 
@@ -276,41 +272,6 @@ export function findCrux(ix: DisputationIndex, d: Disputation, j: Judgments, ana
 
 /* ---------------- plain-text export ---------------- */
 
-const PROPER = new Set(["God", "God's", "Christ", "Jesus", "Christian", "Christianity", "Spinoza", "Spinoza's", "Scripture", "Gospels", "I"]);
-
-const INTERROGATIVE = /^(why|how|what|who|whom|whose|where|when|which|is|are|was|were|does|do|did|can|could|would|will|should|shall|may|might|must|has|have|had)\b/i;
-
-/** "The idea of God doesn't hold together" → "Whether the idea of God holds together".
-    A title that is already a question ("Why would God hide?") is left alone. The objection's own
-    question field is used if it has one, and otherwise the title as it stands. */
-export function whetherForm(title: string, question?: string): string {
-  const raw = title.trim();
-  if (!raw) return "";
-  if (/^whether\b/i.test(raw)) return raw.replace(/[.!]+$/, "");
-  if (/\?$/.test(raw) || INTERROGATIVE.test(raw)) {
-    const qn = question?.trim();
-    return qn || raw;
-  }
-  let t = raw.replace(/[.?!]+$/, "");
-  const thirdPerson = (verb: string) =>
-    /(s|sh|ch|x|z|o)$/.test(verb) ? `${verb}es` : /[^aeiou]y$/.test(verb) ? `${verb.slice(0, -1)}ies` : verb === "have" ? "has" : `${verb}s`;
-  t = t
-    .replace(/\b(doesn[’']t|does not) (\w+)/i, (_, __, v: string) => thirdPerson(v))
-    .replace(/\b(don[’']t|do not) (\w+)/i, (_, __, v: string) => v)
-    .replace(/\b(wouldn[’']t|would not)\b/i, "would")
-    .replace(/\b(couldn[’']t|could not)\b/i, "could")
-    .replace(/\b(can[’']t|cannot|can not)\b/i, "can")
-    .replace(/\b(won[’']t|will not)\b/i, "will")
-    .replace(/\b(isn[’']t|is not)\b/i, "is")
-    .replace(/\b(aren[’']t|are not)\b/i, "are");
-  const [first, ...rest] = t.split(" ");
-  const keep = PROPER.has(first) || /^[A-Z]{2,}/.test(first);
-  return `Whether ${keep ? first : first.charAt(0).toLowerCase() + first.slice(1)}${rest.length ? " " + rest.join(" ") : ""}`;
-}
-
-/** End a heading with a full stop unless it already ends in punctuation. */
-const stop = (s: string) => (/[.?!…]$/.test(s) ? s : `${s}.`);
-
 export function determinationText(
   ix: DisputationIndex,
   d: Disputation,
@@ -325,18 +286,18 @@ export function determinationText(
   lines.push("");
   d.objections.forEach((o, i) => {
     const det = dets[i];
-    const head = whetherForm(P(o.title ?? ""), o.question ? P(o.question) : undefined) || P(o.short ?? "") || o.id;
-    lines.push(`Objection ${o.numeral}. ${stop(head)}`);
+    const name = P(o.short ?? "").trim() || P(o.title ?? "").trim();
+    lines.push(name ? `Objection ${o.numeral} · ${name}` : `Objection ${o.numeral}`);
     if (o.objection?.trim()) lines.push(`The objection: ${P(o.objection).trim()}`);
     if (o.counter?.trim()) lines.push(`The reply: ${P(o.counter).trim()}`);
-    lines.push(`My answer: ${det.firstPerson}`);
+    lines.push(`My result: ${det.firstPerson}`);
     lines.push("");
   });
   for (const t of opts.tensions ?? []) {
     lines.push(`I said ${q(labelText(ix, t.node, opts.toPlain))} holds, but my other calls leave a reply to it, ${q(labelText(ix, t.reply, opts.toPlain))}, standing. These two contradict each other.`);
   }
   if (opts.tensions?.length) lines.push("");
-  lines.push("Each answer above follows from the moves I marked Holds or Fails, and from nothing else.");
-  if (opts.url) lines.push(opts.url);
+  if (opts.url) lines.push("I got these results by marking moves Holds or Fails here:", opts.url);
+  else lines.push("I got these results by marking moves Holds or Fails.");
   return lines.join("\n");
 }

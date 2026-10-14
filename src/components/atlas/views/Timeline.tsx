@@ -22,7 +22,7 @@ import { ThinkerChip } from "../primitives";
 import { formatRoute } from "../router";
 import type { DisputationIndex } from "../semantics";
 import type { Moment, Objection, ObjectionId, Quote, Side } from "../types";
-import { ERAS, GlyphKey, LibEmpty, LibHead, LibQuote, SIDE_WORD, eraOf, fold, scrollBehavior, spokenBy, useMedia, yearText } from "./Outline";
+import { ERAS, GlyphKey, LibEmpty, LibHead, LibQuote, eraOf, fold, scrollBehavior, spokenBy, useMedia, yearText } from "./Outline";
 
 type LaneKey = ObjectionId | "spinoza";
 type Filter = "all" | LaneKey;
@@ -35,19 +35,31 @@ interface Lane {
   o?: Objection;
 }
 
-const MSIDE_WORD: Record<MSide, string> = { ...SIDE_WORD, neutral: "Background" };
+/** A moment's side, said as whose case it helps (the chart key keeps the bare side names). */
+const MSIDE_WORD: Record<MSide, string> = { skeptic: "For the Objector", theist: "For the Defender", spinoza: "Spinoza", neutral: "Background" };
 const isSpinoza = (m: Moment) => m.side === "spinoza" || m.thinker === "spinoza";
 const sideCls = (s: MSide | undefined) => (s === "skeptic" || s === "theist" || s === "spinoza" ? s : "neutral");
 
-/** A moment's quotation: its own, or else the quotation on its move when the moment's thinker is the one speaking
-    (and the moment's text doesn't already quote it). */
+const words = (s: string) => fold(s).replace(/[^a-z0-9]+/g, " ").trim();
+/** Does the moment's text already quote this, word for word (allowing a few leading words to differ)? */
+function echoes(text: string, quote: string): boolean {
+  const t = ` ${words(text)} `;
+  const w = words(quote).split(" ");
+  for (let k = 0; k <= 4 && w.length - k >= 8; k++) if (t.includes(` ${w.slice(k).join(" ")} `)) return true;
+  return false;
+}
+
+/** A moment's quotation: its own, or else the quotation on its move when the moment's thinker is the one speaking.
+    Never one the moment's text already quotes in full. */
 function quoteOf(m: Moment, ix: DisputationIndex): Quote | undefined {
-  if (m.quote?.text) return m.quote;
-  const q = m.node ? ix.nodes.get(m.node)?.node.quote : undefined;
-  const who = m.thinker ? ix.thinkers.get(m.thinker)?.name : undefined;
-  if (!q?.text || !who || !spokenBy(q.who, who)) return undefined;
-  if (fold(m.text).includes(fold(q.text).slice(0, 40))) return undefined;
-  return q;
+  const own = m.quote?.text ? m.quote : undefined;
+  const q = own ?? (m.node ? ix.nodes.get(m.node)?.node.quote : undefined);
+  if (!q?.text) return undefined;
+  if (!own) {
+    const who = m.thinker ? ix.thinkers.get(m.thinker)?.name : undefined;
+    if (!who || !spokenBy(q.who, who)) return undefined;
+  }
+  return echoes(m.text, q.text) ? undefined : q;
 }
 
 /* ---------- glyph for a moment (adds a square for context moments) ---------- */
@@ -372,6 +384,7 @@ export default function Timeline({ moment }: { moment?: string }) {
   );
 
   const years = sorted.map((m) => m.year);
+  const only = lanes.find((l) => l.key === filter);
   const span = sorted.length ? `${yearText(Math.min(...years)).replace(" CE", "")} to ${yearText(Math.max(...years)).replace(" CE", "")}` : "";
 
   return (
@@ -382,11 +395,14 @@ export default function Timeline({ moment }: { moment?: string }) {
         title="Timeline"
         dek={
           <>
-            Who argued what, and when.
-            <span className="lib-dek-more"> Each line on the chart is one objection. When a moment bears on several objections, a bar joins their lines.</span>
+            Each mark is an event in the history of these arguments.
+            <span className="lib-dek-more">
+              {" "}
+              Each line on the chart is one objection{hasSpinoza ? ", except the lilac line, which follows Spinoza" : ""}.
+            </span>
           </>
         }
-        meta={sorted.length ? `${sorted.length} moments · ${span}` : undefined}
+        meta={sorted.length ? `${sorted.length} ${sorted.length === 1 ? "event" : "events"} · ${span}` : undefined}
       />
       <p className="sr-only" aria-live="polite">
         {said}
@@ -395,12 +411,12 @@ export default function Timeline({ moment }: { moment?: string }) {
       {sorted.length === 0 ? (
         <LibEmpty
           current="timeline"
-          title="No moments yet."
-          text="Dated moments will appear here, each linked to the objections it bears on and the move it shaped. Until then, the outline has every move."
+          title="No events yet."
+          text="I haven’t added any dates yet. The outline has every move in the meantime."
         />
       ) : (
         <>
-          {missing && <p className="lib-notice">There’s no moment called “{moment}”. Choose one below.</p>}
+          {missing && <p className="lib-notice">There’s no event called “{moment}”. Choose one below.</p>}
           {wide ? (
             <div className="tl-stage" ref={stageRef}>
               <Chart lanes={lanes} sorted={sorted} objLanes={objLanes} lanesOf={lanesOf} visible={visible} filter={filter} setFilter={setFilter} selected={selected?.id} select={select} shown={shown} />
@@ -413,18 +429,18 @@ export default function Timeline({ moment }: { moment?: string }) {
           <section className="tl-chron" aria-labelledby="tl-chron-h">
             <div className="tl-chron-head">
               <h2 id="tl-chron-h" className="lib-h2 serif">
-                All moments
+                {filter === "all" ? "All events" : "Events"}
               </h2>
               <p className="tl-chron-note">
                 {filter === "all" ? (
                   wide ? (
-                    "Oldest first. Open one to read more about it."
+                    "Oldest first. Click a title to read more."
                   ) : (
-                    "Oldest first. Tap one to read more about it."
+                    "Oldest first. Tap a title to read more."
                   )
                 ) : (
                   <>
-                    Showing only <strong>{lanes.find((l) => l.key === filter)?.name}</strong>.{" "}
+                    Showing only <strong>{filter === "spinoza" ? "Spinoza’s events" : only ? `Objection ${only.numeral} · ${only.name}` : ""}</strong>.{" "}
                     <button type="button" className="lib-link" onClick={() => setFilter("all")}>
                       Show all
                     </button>
@@ -441,7 +457,7 @@ export default function Timeline({ moment }: { moment?: string }) {
               )}
             </div>
             {shown.length === 0 ? (
-              <p className="lib-none">No moments for this objection yet.</p>
+              <p className="lib-none">No events for this objection yet.</p>
             ) : (
               <Chronicle listRef={listRef} lanes={lanes} items={shown} lanesOf={lanesOf} selected={selected?.id} select={select} wide={wide} onShow={showOnChart} />
             )}
@@ -462,20 +478,23 @@ function ThreadLegend({ lanes }: { lanes: Lane[] }) {
       </li>
       <li>
         <span className="tl-legend-i tl-legend-thread" aria-hidden />
-        Each line is one objection, drawn from its first moment to its last.
+        Each vertical line is one objection, running from its first event to its last.
         {objs.length > 1 && (
           <>
             {" "}
-            The numerals above each era name the lines, {objs[0].numeral} to {objs[objs.length - 1].numeral} for the objections{sp ? " and ◆ for Spinoza" : ""}.
+            The numerals at the top of each era, {objs[0].numeral} to {objs[objs.length - 1].numeral}, show which line is which{sp ? ", and ◆ is Spinoza’s" : ""}.
           </>
         )}
       </li>
       <li>
-        <span className="tl-legend-i tl-legend-knot" aria-hidden />A bar across several lines is one moment that bears on each of those objections.
+        <span className="tl-legend-i tl-legend-knot" aria-hidden />A bar joining several lines is one event that comes up in each of those objections.
       </li>
     </ul>
   );
 }
+
+/** The filter group's name: the objections, and Spinoza's line when there is one. */
+const filterLabel = (lanes: Lane[]) => (lanes.some((l) => l.key === "spinoza") ? "Show one objection, or Spinoza" : "Show one objection");
 
 /* ======================================================================
    Strand filter chips (phone)
@@ -495,7 +514,7 @@ function StrandChips({
 }) {
   const count = (k: LaneKey) => sorted.filter((m) => lanesOf(m).includes(k)).length;
   return (
-    <div className="tl-chips" role="group" aria-label="Show one objection">
+    <div className="tl-chips" role="group" aria-label={filterLabel(lanes)}>
       <button type="button" className="tl-chip" aria-pressed={filter === "all"} onClick={() => setFilter("all")}>
         All
       </button>
@@ -613,11 +632,11 @@ function Chart({
     const ks = objLanes(m);
     const names = ks.map((k) => {
       const l = lanes[laneIdx.get(k)!];
-      return `${l.numeral} ${l.name}`;
+      return `${l.numeral} · ${l.name}`;
     });
-    return names.length ? `${names.length === 1 ? "Objection" : "Objections"} ${names.join(", ")}` : "Not tied to one objection";
+    return names.length ? `${names.length === 1 ? "Objection" : "Objections"} ${names.join(", ")}` : "Not tied to any objection";
   };
-  const optLabel = (m: Moment) => `${m.when}: ${m.title}. ${MSIDE_WORD[m.side] ?? "Background"}${isSpinoza(m) && m.side !== "spinoza" ? ", on Spinoza's line" : ""}. ${strandText(m)}.`;
+  const optLabel = (m: Moment) => `${m.when}: ${m.title}. ${MSIDE_WORD[m.side] ?? "Background"}${isSpinoza(m) && m.side !== "spinoza" ? ", on Spinoza’s line" : ""}. ${strandText(m)}.`;
 
   // Roving tab stop: the chosen moment if it's on the followed strand, else the first one shown.
   const rover = selected && shown.some((m) => m.id === selected) ? selected : shown[0]?.id;
@@ -705,7 +724,7 @@ function Chart({
     <div className="tl-chart-wrap">
       <div className="tl-chart" ref={wrap} style={{ height: geo.height }}>
         {/* lane labels, which are also the filter */}
-        <div className="tl-lab-col" role="group" aria-label="Show one objection">
+        <div className="tl-lab-col" role="group" aria-label={filterLabel(lanes)}>
           <button type="button" className="tl-all mono" aria-pressed={filter === "all"} onClick={() => setFilter("all")} style={{ top: 4 }}>
             All
           </button>
@@ -799,7 +818,7 @@ function Chart({
           </svg>
 
           {/* the moments: one option each, oldest first (arrow keys step through them) */}
-          <div className="tl-marks" role="listbox" aria-label="Moments, oldest first" aria-orientation="horizontal" onKeyDown={onKey}>
+          <div className="tl-marks" role="listbox" aria-label="Events, oldest first" aria-orientation="horizontal" onKeyDown={onKey}>
             {sorted.map((m) => {
               const mk = geo.marks.get(m.id);
               const on = selected === m.id;
@@ -906,7 +925,7 @@ function Chart({
               className={`tl-menu ${geo.rows[openCluster.row].y > geo.lanesBottom - 150 ? "up" : ""}`}
               style={{ left: Math.min(plotW - 150, Math.max(150, openCluster.x)), top: geo.rows[openCluster.row].y + openCluster.tier * TIER }}
               role="dialog"
-              aria-label={`${openCluster.ids.length} moments close together`}
+              aria-label={`${openCluster.ids.length} events close together`}
               onKeyDown={(e) => {
                 const items = [...(menuRef.current?.querySelectorAll<HTMLElement>("button") ?? [])];
                 const i = items.indexOf(document.activeElement as HTMLElement);
@@ -923,7 +942,7 @@ function Chart({
                 if (!e.currentTarget.contains(to) && !(to instanceof Element && to.closest("[data-cluster]"))) setMenu(null);
               }}
             >
-              <p className="tl-menu-k mono">{openCluster.ids.length} moments close together</p>
+              <p className="tl-menu-k mono">{openCluster.ids.length} events close together</p>
               <ul>
                 {openCluster.ids.map((id) => {
                   const m = byId.get(id)!;
@@ -964,7 +983,7 @@ function Chart({
                   <span className="tl-tip-k mono">
                     {byId.get(hotCluster.ids[0])!.when} to {byId.get(hotCluster.ids[hotCluster.ids.length - 1])!.when}
                   </span>
-                  <span className="tl-tip-t serif">{hotCluster.ids.length} moments close together. Click to list them.</span>
+                  <span className="tl-tip-t serif">{hotCluster.ids.length} events close together. Click to list them.</span>
                 </>
               ) : (
                 <>
@@ -983,17 +1002,17 @@ function Chart({
         <GlyphKey context />
         <span className="tl-note-i mono">
           <span className="tl-note-knot" aria-hidden />
-          One moment, several objections
+          One event, several objections
         </span>
         {geo.clusters.length > 0 && (
           <span className="tl-note-i mono">
             <span className="tl-note-cluster" aria-hidden>
               3
             </span>
-            Moments close together
+            Events close together
           </span>
         )}
-        <span className="tl-note-i tl-note-kbd mono">Arrow keys move between moments</span>
+        <span className="tl-note-i tl-note-kbd mono">Arrow keys move between events</span>
       </div>
     </div>
   );
@@ -1022,7 +1041,7 @@ function MomentCard({
     return (
       <div className="tl-card tl-card-empty">
         <p className="tl-card-hint">
-          <span className="mono">Choose a mark</span> on the chart to read about that moment here.
+          <span className="mono">Choose a mark</span> on the chart to read about it here.
         </p>
         {shown.length > 0 && (
           <button type="button" className="btn small" onClick={() => select(shown[0].id)}>
@@ -1078,12 +1097,12 @@ function MomentCard({
           )}
         </div>
       </div>
-      <nav className="tl-card-nav" aria-label="Earlier and later moments">
-        <button type="button" className="tl-step" disabled={!prev} onClick={() => prev && goTo(prev)} aria-label={prev ? `Earlier: ${prev.title}` : "No earlier moment"}>
+      <nav className="tl-card-nav" aria-label="Earlier and later events">
+        <button type="button" className="tl-step" disabled={!prev} onClick={() => prev && goTo(prev)} aria-label={prev ? `Earlier: ${prev.title}` : "No earlier event"}>
           ‹
         </button>
-        <span className="tl-card-pos mono">{i >= 0 ? `${i + 1} of ${shown.length}` : "Filtered out"}</span>
-        <button type="button" className="tl-step" disabled={!next} onClick={() => next && goTo(next)} aria-label={next ? `Later: ${next.title}` : "No later moment"}>
+        <span className="tl-card-pos mono">{i >= 0 ? `${i + 1} of ${shown.length}` : "Hidden by the filter"}</span>
+        <button type="button" className="tl-step" disabled={!next} onClick={() => next && goTo(next)} aria-label={next ? `Later: ${next.title}` : "No later event"}>
           ›
         </button>
       </nav>
