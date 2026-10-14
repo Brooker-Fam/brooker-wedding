@@ -15,7 +15,7 @@ import { useAtlas } from "../context";
 import { IF_WRONG, OBJECTION_STATUS, determinationText, determine, findCrux, type Crux, type Determination } from "../determination";
 import { Glyph, RichText } from "../primitives";
 import { formatRoute } from "../router";
-import { labelObjection, type Judgments, type Tension } from "../semantics";
+import { labelObjection, type DisputationIndex, type Judgments, type Tension } from "../semantics";
 import { useToast } from "../toast";
 import type { Judgment, Label, Objection, ObjectionId, Side } from "../types";
 import Rose from "./Rose";
@@ -31,7 +31,7 @@ const callWord = (j: Judgment) => (j === "holds" ? "Holds" : "Fails");
 const otherCall = (j: Judgment): Judgment => (j === "holds" ? "fails" : "holds");
 
 /** Where a move sits, in the reader's words: "Part 2 · Round 3". */
-function partRound(ix: ReturnType<typeof useAtlas>["ix"], id: string): string {
+function partRound(ix: DisputationIndex, id: string): string {
   const info = ix.nodes.get(id);
   if (!info) return "";
   const part = (ix.nodes.get(info.path[0])?.order ?? 0) + 1;
