@@ -24,7 +24,7 @@ const morals: Objection = {
   objection:
     "Christianity threatens hell for holding the wrong beliefs and uses guilt to keep people in line, and Nietzsche charged that the whole faith says No to life.",
   counter:
-    "Some New Testament scholars, Matthew Bates among them, argue that in the earliest Christian texts saving faith means loyalty to Jesus. Annihilationism (the lost are destroyed) and David Bentley Hart's universalism (everyone is finally saved) both drop eternal torment, though most evangelicals reject both. Nietzsche's charge is about whether the faith is good for us, which settles nothing about whether it is true, as skeptics rightly say of “Christians are hypocrites”. The faith is built on God becoming flesh and on a bodily resurrection, and it is hard to see how that says No to life. And Tom Holland's book Dominion argues that the Objector's own care for the weak is a Christian inheritance, which Nietzsche himself said can't stand once the faith is gone.",
+    "Some New Testament scholars, Matthew Bates among them, argue that in the earliest Christian texts saving faith means loyalty to Jesus. Annihilationism (the lost are destroyed) and David Bentley Hart's universalism (everyone is finally saved) both drop eternal torment, though most evangelicals reject both. Nietzsche's charge is about whether the faith is good for us, and that settles nothing about whether it is true, just as “Christians are hypocrites” settles nothing about it. The faith is built on God becoming flesh and on a bodily resurrection, and it is hard to see how that says No to life. And Tom Holland's book Dominion argues that the Objector's own care for the weak is a Christian inheritance, which Nietzsche himself said can't stand once the faith is gone.",
   dek: "((mor-holland|The historian Tom Holland replies)) that the conscience doing the judging was formed by Christianity in the first place. ((mor-convicts|The Objector answers)) that if so, hell for honest doubters and guilt used as control fail Christianity's own moral test.",
   question:
     "If a faith's picture of God looks cruel, is that evidence it is false, and whose conscience gets to say so?",
@@ -127,7 +127,7 @@ const morals: Objection = {
                 text: "I fully admit that God cannot be angry, and that all things are done in accordance with His will; but I deny that all men ought, therefore, to be blessed—men may be excusable, and, nevertheless, be without blessedness and afflicted in many ways.",
                 who: "Baruch Spinoza",
                 cite: "Letter 78, to Oldenburg, 7 Feb. 1676 (tr. R. H. M. Elwes)",
-                url: "https://archive.org/details/chiefworksofbene02spin",
+                url: "https://archive.org/details/chiefworksofbene02spin/page/306",
               },
               thinkers: ["spinoza", "oldenburg"],
               cedes: "A choice that was uncaused and yet still the chooser's own would answer Spinoza here.",
@@ -136,7 +136,7 @@ const morals: Objection = {
                 { id: "coh-b-needslib", why: "Objection I warns that this way out leaves God unable to judge fairly." },
               ],
               sources: [
-                { title: "Letter 78, to Henry Oldenburg", by: "Baruch Spinoza (trans. R. H. M. Elwes)", year: "1676", url: "https://archive.org/details/chiefworksofbene02spin", note: "In Elwes's Chief Works, volume 2, where it is Letter XXV (LXXVIII in the standard numbering). Spinoza argues that people can be excusable and still unhappy." },
+                { title: "The Chief Works of Benedict de Spinoza, vol. 2, Letter 78 (Elwes XXV)", by: "Baruch Spinoza (trans. R. H. M. Elwes)", year: "1884 (1891 printing)", url: "https://archive.org/details/chiefworksofbene02spin/page/305", note: "To Oldenburg, 7 Feb. 1676. Spinoza argues that people can be excusable and still unhappy." },
                 { title: "Ethics, Parts I–II", by: "Baruch Spinoza (trans. R. H. M. Elwes)", year: "1677", url: "https://www.gutenberg.org/ebooks/3800", note: "Part I, proposition 32, and the scholium to Part II, proposition 35, on why the will is not free." },
                 { title: "Baruch Spinoza", by: "Stanford Encyclopedia of Philosophy (Steven Nadler)", year: "2001, rev. 2023", url: "https://plato.stanford.edu/entries/spinoza/", note: "A general introduction, including Spinoza's rejection of a God who acts for ends, rewarding and punishing." },
               ],
@@ -154,7 +154,7 @@ const morals: Objection = {
                     text: "He who goes mad from the bite of a dog is excusable, yet he is rightly suffocated.",
                     who: "Baruch Spinoza",
                     cite: "Letter 78, to Oldenburg (1676; tr. R. H. M. Elwes)",
-                    url: "https://archive.org/details/chiefworksofbene02spin",
+                    url: "https://archive.org/details/chiefworksofbene02spin/page/306",
                   },
                   thinkers: ["aquinas", "strawson", "spinoza"],
                   cedes:
@@ -180,7 +180,8 @@ const morals: Objection = {
           label: "The damned lock hell's door from the inside",
           gist: "Lewis and Walls held that God never stops offering heaven, and the damned stay because they keep choosing themselves, so hell is God respecting their refusal.",
           body: [
-            "In *The Problem of Pain* (1940) {{lewis-cs}} wrote, “I willingly believe that the damned are, in one sense, successful, rebels to the end; that the doors of hell are locked on the *inside*.” In *The Great Divorce* (1945) a bus runs from hell to heaven, and the damned may stay in heaven if they like. Almost none do, because staying means giving up something they cling to, such as a grudge or their pride. Lewis's guide in the book, the Scottish writer George MacDonald, puts it this way: “There are only two kinds of people in the end: those who say to God, ‘Thy will be done,’ and those to whom God says, in the end, ‘*Thy* will be done.’”",
+            "In *The Problem of Pain* (1940) {{lewis-cs}} wrote, “I willingly believe that the damned are, in one sense, successful, rebels to the end; that the doors of hell are locked on the *inside*.”",
+            "In *The Great Divorce* (1945) a bus runs from hell to heaven, and the damned may stay in heaven if they like. Almost none do, because staying means giving up something they cling to, such as a grudge or their pride. Lewis's guide in the book, the Scottish writer George MacDonald, puts it this way: “There are only two kinds of people in the end: those who say to God, ‘Thy will be done,’ and those to whom God says, in the end, ‘*Thy* will be done.’”",
             "{{walls}} turned the picture into an argument in *Hell: The Logic of Damnation* (1992). He argues that love does not force anyone, and that a [[libertarian-freedom|freedom]] that could never finally say No would not be freedom. By freedom he means the strong kind, in which a person could have chosen otherwise. If God wants to be loved, he has to allow himself to be refused, and keep allowing it.",
           ],
           quote: {
@@ -208,8 +209,7 @@ const morals: Objection = {
               label: "A door held open forever would empty hell",
               gist: "If God never stops inviting and the door never closes, a refusal is very unlikely to last forever, so this kind of hell slowly empties.",
               body: [
-                "Suppose there is some chance, however small, that a person turns back, and the chance never shrinks and comes again and again without end. Then the odds that the person never turns fall to zero. {{talbott}} argues that no one could choose endless misery with fully open eyes, and the philosophers John Kronen and Eric Reitan argue in *God's Final Victory* (2011) that a hell of free choice slides into ((mor-universalism|universalism)), the view that everyone is finally saved.",
-                "In Lewis's own story “the damned have holidays”, excursions to heaven offered to “those that will take them”. The philosopher {{adams-marilyn-m}} asks why a loving God would let immature, half-informed people set a course toward endless ruin at all. No loving parent lets a toddler keep choosing to play in traffic because the choice is his, and the shepherd in Jesus' parable goes looking for the lost sheep.",
+                "Suppose there is some chance, however small, that a person turns back, and the chance never shrinks and comes again and again without end. Then the odds that the person never turns fall to zero. {{talbott}} argues that no one could choose endless misery with fully open eyes, and the philosophers John Kronen and Eric Reitan argue in *God's Final Victory* (2011) that a hell of free choice slides into ((mor-universalism|universalism)), the view that everyone is finally saved. In Lewis's own story “the damned have holidays”, excursions to heaven offered to “those that will take them”. The philosopher {{adams-marilyn-m}} asks why a loving God would let immature, half-informed people set a course toward endless ruin at all. No loving parent lets a toddler keep choosing to play in traffic because the choice is his, and the shepherd in Jesus' parable goes looking for the lost sheep.",
               ],
               quote: {
                 text: "What man of you, having an hundred sheep, if he lose one of them, doth not leave the ninety and nine in the wilderness, and go after that which is lost, until he find it?",
@@ -309,7 +309,7 @@ const morals: Objection = {
               ],
               sources: [
                 { title: "The City of God, Book XXI", by: "Augustine (trans. Marcus Dods)", year: "c. 426", url: "https://www.newadvent.org/fathers/120121.htm", note: "Chapter 23 answers those who deny that punishment is eternal, arguing from Matthew 25:41 and 25:46." },
-                { title: "Revelation 14:9–11", by: "King James Bible", year: "1611", url: "https://en.wikisource.org/wiki/Bible_(King_James)/Revelation#14:9", note: "The passage about the smoke of their torment rising for ever and ever." },
+                { title: "Revelation 14:9–11 (King James Version)", by: "King James Bible", year: "1611", url: "https://en.wikisource.org/wiki/Bible_(King_James)/Revelation#14:9", note: "Revelation, c. 95. The passage about the smoke of their torment rising for ever and ever." },
                 { title: "Four Views on Hell", by: "Preston Sprinkle, ed.", year: "2016", note: "Denny Burk defends eternal conscious torment and John Stackhouse annihilation, and each answers the other." },
               ],
             },
@@ -321,7 +321,8 @@ const morals: Objection = {
           label: "God's love finally restores every soul, so hell ends",
           gist: "Origen and others taught that God's love finally heals every soul, so hell is real but corrective, and it ends.",
           body: [
-            "One of the oldest alternatives to endless hell is [[apokatastasis|apokatastasis]], Greek for “restoration”, the belief that God will finally restore all things. {{origen}} taught it. “We think, indeed,” he wrote, “that the goodness of God, through His Christ, may recall all His creatures to one end, even His enemies being conquered and subdued” (*On First Principles* I.6.1). {{gregory-of-nyssa}} hoped for every creature's return. {{isaac-of-nineveh}}, a seventh-century bishop and monk who wrote in Syriac, said that “even those who are scourged in Hell are tormented with the scourgings of love” (*Mystic Treatises* XXVII). Paul supplies the texts: “as in Adam all die, even so in Christ shall all be made alive” (1 Corinthians 15:22), and God means through Christ “to reconcile all things unto himself” (Colossians 1:20).",
+            "One of the oldest alternatives to endless hell is [[apokatastasis|apokatastasis]], Greek for “restoration”, the belief that God will finally restore all things. {{origen}} taught it. “We think, indeed,” he wrote, “that the goodness of God, through His Christ, may recall all His creatures to one end, even His enemies being conquered and subdued” (*On First Principles* I.6.1). {{gregory-of-nyssa}} hoped for every creature's return. {{isaac-of-nineveh}}, a seventh-century bishop and monk who wrote in Syriac, said that “even those who are scourged in Hell are tormented with the scourgings of love” (*Mystic Treatises* XXVII).",
+            "Paul supplies the texts: “as in Adam all die, even so in Christ shall all be made alive” (1 Corinthians 15:22), and God means through Christ “to reconcile all things unto himself” (Colossians 1:20).",
             "{{hart}} argues from God's nature in *That All Shall Be Saved* (2019). A God who creates from nothing, knowing that some creatures will suffer forever, wills that outcome as surely as anything else he wills, and if he is goodness itself he cannot will it. {{talbott}} adds, in the Stanford Encyclopedia of Philosophy, that choosing a life apart from God with full understanding would be “utterly and almost inconceivably irrational”, too irrational to count as free.",
           ],
           quote: {
@@ -427,7 +428,7 @@ const morals: Objection = {
             { title: "Salvation by Allegiance Alone", by: "Matthew W. Bates", year: "2017", note: "One influential proposal, contested in its strong form." },
             { title: "Roman Faith and Christian Faith", by: "Teresa Morgan", year: "2015", note: "A classicist's study of pistis as trust and loyalty in the Roman world and the early church." },
             { title: "Faith", by: "Stanford Encyclopedia of Philosophy (John Bishop and Daniel J. McKaughan)", year: "2010, rev. 2023", url: "https://plato.stanford.edu/entries/faith/", note: "Section 6 treats faith as an act of trust and cites Morgan on the Greek word." },
-            { title: "Matthew 25:31–46", by: "King James Bible", year: "1611", url: "https://en.wikisource.org/wiki/Bible_(King_James)/Matthew#25:31", note: "The judgment of the nations, sorted by what they did for the least." },
+            { title: "Matthew 25:31–46 (King James Version)", by: "King James Bible", year: "1611", url: "https://en.wikisource.org/wiki/Bible_(King_James)/Matthew#25:31", note: "Matthew, c. 80–90. The judgment of the nations, sorted by what they did for the least." },
           ],
           children: [
             {
@@ -443,12 +444,12 @@ const morals: Objection = {
                 text: "… we can only judge a man faithful or unfaithful by his works. If his works be good, he is faithful, however much his doctrines may differ from those of the rest of the faithful.",
                 who: "Baruch Spinoza",
                 cite: "Theological-Political Treatise, ch. 14 (1670; tr. R. H. M. Elwes)",
-                url: "https://www.gutenberg.org/ebooks/991",
+                url: "https://www.gutenberg.org/cache/epub/991/pg991-images.html#chap14",
               },
               thinkers: ["spinoza"],
               cedes: "If loyalty to Jesus could be shown to need no belief that he rose, Spinoza's dilemma would fail.",
               see: [
-                { id: "hid-demographics", why: "Objection II's map of how belief in God follows history and borders." },
+                { id: "hid-demographics", why: "Objection II on how belief in God follows history and borders." },
                 { id: "evi-b-minimal", why: "Loyalty to a risen king depends on Objection IV's case for the resurrection." },
                 { id: "evi-b-spinoza", why: "Spinoza thought the Gospels' ethics survive their errors, while their miracles do not." },
               ],
@@ -464,7 +465,8 @@ const morals: Objection = {
                   label: "Christ can save people who never knew his name",
                   gist: "Catholic teaching since 1964, echoed by many Protestants, holds that people who never met the gospel, even honest atheists, can be saved by Christ through the good they served.",
                   body: [
-                    "Spinoza's either-or leaves out [[inclusivism|inclusivism]], the view that Christ is the only Savior and still saves some who never knew his name. The Christian philosopher Justin Martyr wrote around 155 that “those who lived reasonably are Christians, even though they have been thought atheists”, naming Socrates and Heraclitus (*First Apology* 46). The Second Vatican Council made the hope official in 1964, extending it to those who “have not yet arrived at an explicit knowledge of God” and try to live a good life (*Lumen Gentium* 16). In 1965 it added that the Holy Spirit offers everyone a share in Christ's death and rising “in a manner known only to God” (*Gaudium et Spes* 22).",
+                    "Spinoza's either-or leaves out [[inclusivism|inclusivism]], the view that Christ is the only Savior and still saves some who never knew his name. The Christian philosopher Justin Martyr wrote around 155 that “those who lived reasonably are Christians, even though they have been thought atheists”, naming Socrates and Heraclitus (*First Apology* 46).",
+                    "The Second Vatican Council made the hope official in 1964, extending it to those who “have not yet arrived at an explicit knowledge of God” and try to live a good life (*Lumen Gentium* 16). In 1965 it added that the Holy Spirit offers everyone a share in Christ's death and rising “in a manner known only to God” (*Gaudium et Spes* 22).",
                     "The Catholic theologian {{rahner}} called such people “anonymous Christians”. In {{lewis-cs}}'s *The Last Battle* (1956), Aslan, the lion who stands for Christ, tells Emeth, who served the rival god Tash all his life, “Child, all the service thou hast done to Tash, I account as service done to me” (ch. 15). For inclusivists the resurrection is how Christ saves, and knowing about it is not required.",
                   ],
                   quote: {
@@ -529,8 +531,7 @@ const morals: Objection = {
           label: "We can't measure God's goodness by a human judge's duties",
           gist: "God has no duties like ours, and “good” said of God only resembles what it means of us, so he can't be charged with a judge's broken duty.",
           body: [
-            "Calling hell “monstrous” assumes God's goodness is a human judge's goodness on a larger scale, with the same duties. {{aquinas}} held instead that words like “good” apply to God by [[analogy-of-being|analogy]], naming something real in God in a way we only partly grasp. Such names, he wrote, “belong properly to God, and more properly than they belong to creatures”, and only our way of using them, borrowed from creatures, falls short (*Summa Theologiae* I q.13 a.3).",
-            "The Dominican philosopher {{davies}} argues (2006) that duties bind members of a moral community, who depend on one another and can wrong one another. In his view the Creator of everything is not a fellow member with obligations to the others, and stands to creatures more as an author stands to characters, so a charge that he broke a duty doesn't apply. Davies still holds that God's goodness can be judged in other ways.",
+            "Calling hell “monstrous” assumes God's goodness is a human judge's goodness on a larger scale, with the same duties. {{aquinas}} held instead that words like “good” apply to God by [[analogy-of-being|analogy]], naming something real in God in a way we only partly grasp. Such names, he wrote, “belong properly to God, and more properly than they belong to creatures”, and only our way of using them, borrowed from creatures, falls short (*Summa Theologiae* I q.13 a.3). The Dominican philosopher {{davies}} argues (2006) that duties bind members of a moral community, who depend on one another and can wrong one another. In his view the Creator of everything is not a fellow member with obligations to the others, and stands to creatures more as an author stands to characters, so a charge that he broke a duty doesn't apply. Davies still holds that God's goodness can be judged in other ways.",
           ],
           quote: {
             text: "For my thoughts are not your thoughts, neither are your ways my ways, saith the LORD. For as the heavens are higher than the earth, so are my ways higher than your ways, and my thoughts than your thoughts.",
@@ -557,8 +558,7 @@ const morals: Objection = {
               label: "If God's goodness is unlike ours, calling him good says nothing",
               gist: "If “good” said of God doesn't mean what it means of people, calling God good says nothing, and no mercy we could recognize allows endless torment.",
               body: [
-                "When the theologian Henry Mansel argued in 1858 that God's goodness may differ in kind from ours, {{mill}} replied, “To say that God's goodness may be different in kind from man's goodness, what is it but saying, with a slight change of phraseology, that God may possibly not be good?” Aquinas's analogy doesn't escape the problem, because if what “good” signifies belongs to God properly, mercy in God must be recognizable as mercy, and endless torment is not.",
-                "Even {{hart}}, who defends Aquinas's picture of God, makes the same point. Analogy is not equivocation, he argues (equivocation means using one word in two unrelated senses), and a “goodness” that permits eternal torment has stopped being analogous to anything we call good. Davies's point about duties doesn't help either. The charge needs only one premise, that endless torment is not what goodness, in any sense we can recognize, would do.",
+                "When the theologian Henry Mansel argued in 1858 that God's goodness may differ in kind from ours, {{mill}} replied, “To say that God's goodness may be different in kind from man's goodness, what is it but saying, with a slight change of phraseology, that God may possibly not be good?” Aquinas's analogy doesn't escape the problem, because if what “good” signifies belongs to God properly, mercy in God must be recognizable as mercy, and endless torment is not. Even {{hart}}, who defends Aquinas's picture of God, makes the same point. Analogy is not equivocation, he argues (equivocation means using one word in two unrelated senses), and a “goodness” that permits eternal torment has stopped being analogous to anything we call good. Davies's point about duties doesn't help either. The charge needs only one premise, that endless torment is not what goodness, in any sense we can recognize, would do.",
               ],
               quote: {
                 text: "I will call no being good, who is not what I mean when I apply that epithet to my fellow-creatures; and if such a being can sentence me to hell for not so calling him, to hell I will go.",
@@ -600,7 +600,7 @@ const morals: Objection = {
         text: "“I suffer: it must be somebody's fault”—so thinks every sick sheep. But his herdsman, the ascetic priest, says to him, “Quite so, my sheep, it must be the fault of some one; but thou thyself art that some one, it is all the fault of thyself alone …”",
         who: "Friedrich Nietzsche",
         cite: "The Genealogy of Morals III §15 (1887; tr. H. B. Samuel, 1910)",
-        url: "https://www.gutenberg.org/ebooks/52319",
+        url: "https://www.gutenberg.org/cache/epub/52319/pg52319-images.html#Page_165",
       },
       thinkers: ["nietzsche", "freud", "spinoza"],
       cedes:
@@ -654,7 +654,7 @@ const morals: Objection = {
                 text: "… that stroke of genius called Christianity:—God personally immolating himself for the debt of man, God paying himself personally out of a pound of his own flesh, God as the one being who can deliver man from what man had become unable to deliver himself—the creditor playing scapegoat for his debtor, from love (can you believe it?), from love of his debtor!",
                 who: "Friedrich Nietzsche",
                 cite: "The Genealogy of Morals II §21 (1887; tr. H. B. Samuel, 1910)",
-                url: "https://www.gutenberg.org/ebooks/52319",
+                url: "https://www.gutenberg.org/cache/epub/52319/pg52319-images.html#Page_111",
               },
               thinkers: ["augustine", "luther", "nietzsche"],
               cedes:
@@ -679,13 +679,13 @@ const morals: Objection = {
                     text: "Certain new theologians dispute original sin, which is the only part of Christian theology which can really be proved.",
                     who: "G. K. Chesterton",
                     cite: "Orthodoxy (1908), ch. 2",
-                    url: "https://www.gutenberg.org/ebooks/130",
+                    url: "https://www.gutenberg.org/cache/epub/130/pg130-images.html#id00019",
                   },
                   thinkers: ["chesterton"],
                   cedes: "A moral disorder that turned out to be shallow, rare or easy to will away would undo this defense.",
                   sources: [
                     { title: "Orthodoxy", by: "G. K. Chesterton", year: "1908", url: "https://www.gutenberg.org/ebooks/130", note: "Chapter 2, “The Maniac”, where Chesterton calls original sin the one provable doctrine." },
-                    { title: "Romans 7:14–25", by: "King James Bible", year: "1611", url: "https://en.wikisource.org/wiki/Bible_(King_James)/Romans#7:14", note: "Paul on doing the evil he does not want to do." },
+                    { title: "Romans 7:14–25 (King James Version)", by: "King James Bible", year: "1611", url: "https://en.wikisource.org/wiki/Bible_(King_James)/Romans#7:14", note: "Romans, c. 57. Paul on doing the evil he does not want to do." },
                     { title: "The Ancestral Sin", by: "John S. Romanides", year: "1957", note: "A Greek Orthodox theologian's case against inherited guilt." },
                   ],
                   children: [
@@ -702,7 +702,7 @@ const morals: Objection = {
                         text: "Repentance is not a virtue, or does not arise from reason; but he who repents of an action is doubly wretched or infirm.",
                         who: "Baruch Spinoza",
                         cite: "Ethics IV P54 (1677; tr. R. H. M. Elwes)",
-                        url: "https://www.gutenberg.org/ebooks/3800",
+                        url: "https://www.gutenberg.org/cache/epub/3800/pg3800-images.html#chap04",
                       },
                       thinkers: ["spinoza", "chesterton"],
                       cedes:
@@ -730,7 +730,7 @@ const morals: Objection = {
                             text: "As men seldom live under the guidance of reason, these two emotions, namely, Humility and Repentance, as also Hope and Fear, bring more good than harm; hence, as we must sin, we had better sin in that direction.",
                             who: "Baruch Spinoza",
                             cite: "Ethics IV P54 Schol. (1677; tr. R. H. M. Elwes)",
-                            url: "https://www.gutenberg.org/ebooks/3800",
+                            url: "https://www.gutenberg.org/cache/epub/3800/pg3800-images.html#chap04",
                           },
                           thinkers: ["spinoza", "strawson", "williams-bernard"],
                           cedes:
@@ -757,8 +757,7 @@ const morals: Objection = {
               label: "Guilt can't be transferred, so Christ can't bear ours",
               gist: "Kant argued that guilt is the most personal of debts, so punishing an innocent man in place of the guilty leaves the guilt untouched and adds a second injustice.",
               body: [
-                "On one common reading, “no condemnation” depends on a transfer, in which Christ bears the penalty and the guilty go free. {{kant}} objected in 1793 that anyone can pay a money debt, and the creditor doesn't care who settles it, but guilt for wrongdoing is different, because only the person who did wrong can bear it, however willing an innocent may be (*Religion within the Boundaries of Mere Reason*, 6:72). Ezekiel said much the same: “The son shall not bear the iniquity of the father” (Ezekiel 18:20).",
-                "The Italian theologian Faustus Socinus had argued in 1594 that if a debt is forgiven, nothing is owed, and if it is paid, it was not forgiven. A judge who punishes an innocent volunteer and lets the guilty go has done two injustices, and defenders of [[penal-substitution|penal substitution]], the view that Christ took the punishment we deserved, call that love.",
+                "On one common reading, “no condemnation” depends on a transfer, in which Christ bears the penalty and the guilty go free. {{kant}} objected in 1793 that anyone can pay a money debt, and the creditor doesn't care who settles it, but guilt for wrongdoing is different, because only the person who did wrong can bear it, however willing an innocent may be (*Religion within the Boundaries of Mere Reason*, 6:72). Ezekiel said much the same: “The son shall not bear the iniquity of the father” (Ezekiel 18:20). The Italian theologian Faustus Socinus had argued in 1594 that if a debt is forgiven, nothing is owed, and if it is paid, it was not forgiven. A judge who punishes an innocent volunteer and lets the guilty go has done two injustices, and defenders of [[penal-substitution|penal substitution]], the view that Christ took the punishment we deserved, call that love.",
               ],
               quote: {
                 text: "… the obligation thence arising is not transferable like a money debt (where it is indifferent to the creditor whether his debtor or some one else discharge the bond) … but is, on the contrary, the most exclusively personal that can be conceived, viz. a debt of sins …",
@@ -782,8 +781,7 @@ const morals: Objection = {
                   label: "Christ supplies the offering we owe, with no transfer of guilt",
                   gist: "Punishing an innocent in our place is one theory of the cross among several, and Swinburne offers another that grants Kant's point.",
                   body: [
-                    "Kant and Socinus object to one theory of the cross, [[penal-substitution|penal substitution]]. No creed shared by all churches defines it, though the Reformed Westminster Confession (1646, VIII.5) teaches it. In 1989 {{swinburne}} accepted that guilt cannot be transferred, and held that a wrongdoer owes repentance, apology, reparation and penance, and that Christ's life and death, which Paul calls “an offering and a sacrifice to God” (Ephesians 5:2), are a perfect offering the guilty can present as their own. It is like a parent giving a child money for a neighbor's broken window, which the child must still carry next door.",
-                    "Bishop Gustaf Aulén's *Christus Victor* (1931) recovered the early church's picture of the cross as victory over sin and death. {{stump}}'s *Atonement* (2018) reads it as God's way to union with people alienated from themselves. None of these views has God punishing someone before he can forgive.",
+                    "Kant and Socinus object to one theory of the cross, [[penal-substitution|penal substitution]]. No creed shared by all churches defines it, though the Reformed Westminster Confession (1646, VIII.5) teaches it. In 1989 {{swinburne}} accepted that guilt cannot be transferred, and held that a wrongdoer owes repentance, apology, reparation and penance, and that Christ's life and death, which Paul calls “an offering and a sacrifice to God” (Ephesians 5:2), are a perfect offering the guilty can present as their own. It is like a parent giving a child money for a neighbor's broken window, which the child must still carry next door. Bishop Gustaf Aulén's *Christus Victor* (1931) recovered the early church's picture of the cross as victory over sin and death. {{stump}}'s *Atonement* (2018) reads it as God's way to union with people alienated from themselves. None of these views has God punishing someone before he can forgive.",
                   ],
                   quote: {
                     text: "He properly atones for an offense who offers something which the offended one loves equally, or even more than he detested the offense. But by suffering out of love and obedience, Christ gave more to God than was required to compensate for the offense of the whole human race.",
@@ -806,8 +804,7 @@ const morals: Objection = {
                       label: "A God who commands free forgiveness needs no offering",
                       gist: "If what we owe is repentance, a God who receives it has all a forgiver can ask, so why require an offering when Jesus tells us to forgive freely?",
                       body: [
-                        "If a wrongdoer owes repentance, as Swinburne says, a God who receives it has everything a forgiver can ask. Why must he also require an offering, and one only his own Son can make, before he forgives? Socinus's point survives, since whatever is paid was not freely forgiven. Jesus tells Peter to forgive without limit (Matthew 18:22), and the father in the parable runs to the prodigal and “fell on his neck, and kissed him” before the son has said a word (Luke 15:20).",
-                        "Philip Quinn, a philosopher, argued this in 1994 in a volume honoring Swinburne. A victim who would forgive only after a third party handed over a perfect gift would seem less gracious. And a God who demands the offering and supplies it is still a creditor who must be paid, only paid by himself, which is {{nietzsche}}'s “stroke of genius” again.",
+                        "If a wrongdoer owes repentance, as Swinburne says, a God who receives it has everything a forgiver can ask. Why must he also require an offering, and one only his own Son can make, before he forgives? Socinus's point survives, since whatever is paid was not freely forgiven. Jesus tells Peter to forgive without limit (Matthew 18:22), and the father in the parable runs to the prodigal and “fell on his neck, and kissed him” before the son has said a word (Luke 15:20). Philip Quinn, a philosopher, argued this in 1994 in a volume honoring Swinburne. A victim who would forgive only after a third party handed over a perfect gift would seem less gracious. And a God who demands the offering and supplies it is still a creditor who must be paid, only paid by himself, which is {{nietzsche}}'s “stroke of genius” again.",
                       ],
                       quote: {
                         text: "I say not unto thee, Until seven times: but, Until seventy times seven.",
@@ -823,7 +820,7 @@ const morals: Objection = {
                       ],
                       sources: [
                         { title: "Swinburne on Guilt, Atonement, and Christian Redemption", by: "Philip L. Quinn", year: "1994", note: "In Alan G. Padgett, ed., Reason and the Christian Religion." },
-                        { title: "Luke 15:11–32", by: "King James Bible", year: "1611", url: "https://en.wikisource.org/wiki/Bible_(King_James)/Luke#15:11", note: "The parable of the prodigal son." },
+                        { title: "Luke 15:11–32 (King James Version)", by: "King James Bible", year: "1611", url: "https://en.wikisource.org/wiki/Bible_(King_James)/Luke#15:11", note: "Luke, c. 80–90. The parable of the prodigal son." },
                         { title: "Forgiveness", by: "Stanford Encyclopedia of Philosophy (Luke Russell and Brandon Warmke)", year: "2010, rev. 2026", url: "https://plato.stanford.edu/entries/forgiveness/", note: "Section 5.2 is on divine forgiveness." },
                       ],
                     },
@@ -849,7 +846,7 @@ const morals: Objection = {
         text: "God degenerated into the contradiction of life, instead of being its transfiguration and eternal Yea! With God war is declared on life, nature, and the will to life!",
         who: "Friedrich Nietzsche",
         cite: "The Antichrist §18 (1888; tr. A. M. Ludovici, 1911)",
-        url: "https://www.gutenberg.org/ebooks/52263",
+        url: "https://www.gutenberg.org/cache/epub/52263/pg52263-images.html#Page_146",
       },
       thinkers: ["nietzsche", "hume", "aquinas"],
       cedes:
@@ -903,7 +900,7 @@ const morals: Objection = {
                 text: "When the centre of gravity of life is laid, not in life, but in a beyond—in nonentity,—life is utterly robbed of its balance.",
                 who: "Friedrich Nietzsche",
                 cite: "The Antichrist §43 (1888; tr. A. M. Ludovici, 1911)",
-                url: "https://www.gutenberg.org/ebooks/52263",
+                url: "https://www.gutenberg.org/cache/epub/52263/pg52263-images.html#Page_185",
               },
               thinkers: ["nietzsche", "paul", "taylor-charles"],
               cedes:
@@ -914,7 +911,7 @@ const morals: Objection = {
               sources: [
                 { title: "The Antichrist", by: "Friedrich Nietzsche (trans. Anthony M. Ludovici)", year: "1888", url: "https://www.gutenberg.org/ebooks/52263", note: "Sections 42–43, on Paul moving life's center of gravity to the beyond." },
                 { title: "Council of Trent, Session 24", by: "Council of Trent (trans. J. Waterworth)", year: "1563", url: "https://history.hanover.edu/texts/trent/ct24.html", note: "Canon 10 puts virginity and celibacy above marriage." },
-                { title: "1 Corinthians 7", by: "King James Bible", year: "1611", url: "https://en.wikisource.org/wiki/Bible_(King_James)/1_Corinthians#7:7", note: "Paul's wish that the unmarried stay as he is." },
+                { title: "1 Corinthians 7 (King James Version)", by: "King James Bible", year: "1611", url: "https://en.wikisource.org/wiki/Bible_(King_James)/1_Corinthians#7:7", note: "1 Corinthians, c. 54. Paul's wish that the unmarried stay as he is." },
               ],
             },
           ],
@@ -964,7 +961,7 @@ const morals: Objection = {
                 text: "… in thus wise did Christianity go to ruin as a dogma, through its own morality; in thus wise must Christianity go again to ruin to-day as a morality—we are standing on the threshold of this event.",
                 who: "Friedrich Nietzsche",
                 cite: "The Genealogy of Morals III §27 (1887; tr. H. B. Samuel, 1910)",
-                url: "https://www.gutenberg.org/ebooks/52319",
+                url: "https://www.gutenberg.org/cache/epub/52319/pg52319-images.html#Page_209",
               },
               thinkers: ["nietzsche", "rawls", "wielenberg"],
               cedes: "If secular societies' care for the weak decayed as their Christian memory faded, I'd concede the point.",
@@ -991,7 +988,7 @@ const morals: Objection = {
                 text: "He who chooses to avenge wrongs with hatred is assuredly wretched. But he, who strives to conquer hatred with love, fights his battle in joy and confidence.",
                 who: "Baruch Spinoza",
                 cite: "Ethics IV P46 Schol. (1677; tr. R. H. M. Elwes)",
-                url: "https://www.gutenberg.org/ebooks/3800",
+                url: "https://www.gutenberg.org/cache/epub/3800/pg3800-images.html#chap04",
               },
               thinkers: ["spinoza"],
               cedes:
@@ -1015,7 +1012,7 @@ const morals: Objection = {
                     text: "Pity, in a man who lives under the guidance of reason, is in itself bad and useless.",
                     who: "Baruch Spinoza",
                     cite: "Ethics IV P50 (1677; tr. R. H. M. Elwes)",
-                    url: "https://www.gutenberg.org/ebooks/3800",
+                    url: "https://www.gutenberg.org/cache/epub/3800/pg3800-images.html#chap04",
                   },
                   thinkers: ["spinoza"],
                   cedes:
@@ -1026,7 +1023,7 @@ const morals: Objection = {
                   ],
                   sources: [
                     { title: "Ethics, Part IV", by: "Baruch Spinoza (trans. R. H. M. Elwes)", year: "1677", url: "https://www.gutenberg.org/ebooks/3800", note: "The scholia to propositions 18 and 37 ground ethics in what is useful." },
-                    { title: "Luke 14:12–14", by: "King James Bible", year: "1611", url: "https://en.wikisource.org/wiki/Bible_(King_James)/Luke#14:12", note: "Jesus tells his host to invite those who cannot repay him." },
+                    { title: "Luke 14:12–14 (King James Version)", by: "King James Bible", year: "1611", url: "https://en.wikisource.org/wiki/Bible_(King_James)/Luke#14:12", note: "Luke, c. 80–90. Jesus tells his host to invite those who cannot repay him." },
                     { title: "Spinoza's Psychological Theory", by: "Stanford Encyclopedia of Philosophy (Michael LeBuffe)", year: "2001, rev. 2024", url: "https://plato.stanford.edu/entries/spinoza-psychological/", note: "Explains why Spinoza counts pity a kind of sadness that weakens us." },
                   ],
                 },
@@ -1046,7 +1043,7 @@ const morals: Objection = {
             text: "If the existence of this Christian God were proved to us, we should feel even less able to believe in him.",
             who: "Friedrich Nietzsche",
             cite: "The Antichrist §47 (1888; tr. A. M. Ludovici, 1911)",
-            url: "https://www.gutenberg.org/ebooks/52263",
+            url: "https://www.gutenberg.org/cache/epub/52263/pg52263-images.html#Page_196",
           },
           thinkers: ["nietzsche"],
           cedes:
@@ -1062,14 +1059,13 @@ const morals: Objection = {
               label: "Explaining how a belief arose can make refuting it unnecessary",
               gist: "Nietzsche explained belief in God by fear and resentment, which would strip it of evidence, and a faith that promises abundant life can be judged by its fruits.",
               body: [
-                "In *Daybreak* §95 (1881) Nietzsche calls the historical refutation “the decisive one”. If a belief is fully explained by causes that have nothing to do with its truth, such as fear of death, the resentment of the weak, or a priestly class's will to power, it has lost its evidence. Philosophers call this a [[debunking-argument|debunking argument]], and unlike the hypocrisy charge it bears on whether anyone should hold the belief.",
-                "Christianity also invites the test, since it claims to be good news, “I am come that they might have life, and that they might have it more abundantly” (John 10:10), and Jesus says “Ye shall know them by their fruits” (Matthew 7:16). A mathematical theorem's truth has nothing to do with whether it does anyone good. The gospel claims to heal, so whether it heals bears on whether it is true.",
+                "In *Daybreak* §95 (1881) Nietzsche calls the historical refutation “the decisive one”. If a belief is fully explained by causes that have nothing to do with its truth, such as fear of death, the resentment of the weak, or a priestly class's will to power, it has lost its evidence. Philosophers call this a [[debunking-argument|debunking argument]], and unlike the hypocrisy charge it bears on whether anyone should hold the belief. Christianity also invites the test, since it claims to be good news, “I am come that they might have life, and that they might have it more abundantly” (John 10:10), and Jesus says “Ye shall know them by their fruits” (Matthew 7:16). A mathematical theorem's truth has nothing to do with whether it does anyone good. The gospel claims to heal, so whether it heals bears on whether it is true.",
               ],
               quote: {
                 text: "Formerly it was sought to prove that there was no God—now it is shown how the belief that a God existed could have originated, and by what means this belief gained authority and importance: in this way the counterproof that there is no God becomes unnecessary and superfluous.",
                 who: "Friedrich Nietzsche",
                 cite: "The Dawn of Day (Daybreak) §95 (1881; tr. J. M. Kennedy, 1911)",
-                url: "https://www.gutenberg.org/ebooks/39955",
+                url: "https://www.gutenberg.org/cache/epub/39955/pg39955-images.html#Pg093",
               },
               thinkers: ["nietzsche"],
               cedes:
@@ -1096,7 +1092,7 @@ const morals: Objection = {
                     text: "… great numbers must be involved in the danger of these prosecutions, which have already extended, and are still likely to extend, to persons of all ranks and ages, and even of both sexes.",
                     who: "Pliny the Younger, governor of Bithynia, to the emperor Trajan",
                     cite: "Letters X.96 (c. 112; tr. William Melmoth, rev. F. C. T. Bosanquet)",
-                    url: "https://www.gutenberg.org/ebooks/2811",
+                    url: "https://www.gutenberg.org/cache/epub/2811/pg2811-images.html#link2H_4_0209",
                   },
                   thinkers: [],
                   cedes:
@@ -1123,9 +1119,9 @@ const morals: Objection = {
   ],
 
   spinoza: {
-    title: "Love without a judge",
+    title: "Spinoza's God loves but doesn't judge",
     body: [
-      "Spinoza's God is no judge, because, as he puts it, “Strictly speaking, God does not love or hate anyone” (*Ethics* V P17 Cor.), and so there is no anger to appease. For Spinoza, reward and punishment happen inside a person. He wrote that “the highest reward of the Divine law is the law itself, namely, to know God and to love Him”, and that its penalty is “the absence of these things, and being in bondage to the flesh” (*Theological-Political Treatise* ch. 4). So for him heaven means understanding God and hell means being ruled by one's passions, both in this life. That is closer to ((mor-chosen-hell|Aquinas's hell)) than either side admits, since in both the penalty follows from a disorder in the soul and lasts as long as the disorder does. He has no place for a free refusal or for endless pain.",
+      "Spinoza's God is no judge, because, as he puts it, “Strictly speaking, God does not love or hate anyone” (*Ethics* V P17 Cor.), and so there is no anger to appease. For Spinoza, reward and punishment happen inside a person. He wrote that “the highest reward of the Divine law is the law itself, namely, to know God and to love Him”, and that its penalty is “the absence of these things, and being in bondage to the flesh” (*Theological-Political Treatise* ch. 4). So for him heaven means understanding God and hell means being ruled by one's passions, both in this life. ((mor-chosen-hell|Aquinas's hell)) is similar in one respect, since in both the penalty follows from a disorder in the soul and lasts as long as the disorder does. He has no place for a free refusal or for endless pain.",
       "He even grants religious fear a use. Repentance is no virtue (IV P54), but few people live by reason, so humility, repentance, hope and fear do more good than harm, and it is no wonder that the prophets, “who consulted the good, not of a few, but of all”, commended them (IV P54 Schol.). He still held that fear is never good in itself (“Emotions of hope and fear cannot be in themselves good”, IV P47).",
       "{{nietzsche}} hailed Spinoza as a forerunner in 1881, but the two part ways over love. God has no feelings of love or hate, yet Spinoza still writes that “God, in so far as he loves himself, loves man” (V P36 Cor.). He means the [[amor-dei-intellectualis|intellectual love]] that comes from understanding God, in which our love of God and God's love of us are one. Spinoza's complaint against Christianity is that it teaches people to love God out of fear, when they should love him because they understand him.",
       "The Defender answers that understanding comes to few, and the least of these cannot wait for it. Spinoza could reply that the majority Christian picture is harder on the weak, with a narrow gate that “few there be that find” (Matthew 7:14), Augustine's *massa damnata* (the “condemned mass” of humanity), and unbaptized infants punished, however mildly (*Enchiridion* 93). His “perishing” is no torment, and his commonwealth exists “to free every man from fear” (*Theological-Political Treatise* ch. 20).",
@@ -1134,7 +1130,7 @@ const morals: Objection = {
       text: "Blessedness is not the reward of virtue, but virtue itself; neither do we rejoice therein, because we control our lusts, but, contrariwise, because we rejoice therein, we are able to control our lusts.",
       who: "Baruch Spinoza",
       cite: "Ethics V P42 (1677; tr. R. H. M. Elwes)",
-      url: "https://www.gutenberg.org/ebooks/3800",
+      url: "https://www.gutenberg.org/cache/epub/3800/pg3800-images.html#chap05",
     },
   },
 
@@ -1158,7 +1154,7 @@ const morals: Objection = {
   ],
 
   reading: [
-    { title: "On the Genealogy of Morality", by: "Friedrich Nietzsche", year: "1887", url: "https://www.gutenberg.org/ebooks/52319", note: "Nietzsche on guilt as debt, the ascetic priest and resentment. The guilt and life-denial charges both draw on it." },
+    { title: "The Genealogy of Morals", by: "Friedrich Nietzsche (trans. Horace B. Samuel)", year: "1887", url: "https://www.gutenberg.org/ebooks/52319", note: "Nietzsche on guilt as debt, the ascetic priest and resentment. The guilt and life-denial charges both draw on it." },
     { title: "The Antichrist", by: "Friedrich Nietzsche", year: "1888", url: "https://www.gutenberg.org/ebooks/52263", note: "Nietzsche's late attack on Christianity as hostile to life. Ludovici's translation is bound with Twilight of the Idols." },
     { title: "Why I Am Not a Christian", by: "Bertrand Russell", year: "1927", url: "https://users.drew.edu/~jlenz/whynot.html", note: "Russell's lecture, including his complaint that Christ believed in hell." },
     { title: "An Examination of Sir William Hamilton's Philosophy, chapter 7", by: "John Stuart Mill", year: "1865", url: "https://archive.org/details/examinationofsir01mill", note: "Mill's reply to Mansel, including the “to hell I will go” passage." },

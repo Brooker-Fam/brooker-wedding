@@ -78,13 +78,15 @@ const nature: Objection = {
         },
         {
           title: "Miracles",
-          by: "Stanford Encyclopedia of Philosophy",
+          by: "Stanford Encyclopedia of Philosophy (Timothy McGrew and Robert Larmer)",
+          year: "2010, rev. 2024",
           url: "https://plato.stanford.edu/entries/miracles/",
           note: "Timothy McGrew and Robert Larmer trace the debate from Hume and his first critics to the probability arguments of today.",
         },
         {
           title: "Hume on Religion",
-          by: "Stanford Encyclopedia of Philosophy",
+          by: "Stanford Encyclopedia of Philosophy (Paul Russell and Anders Kraal)",
+          year: "2005, rev. 2024",
           url: "https://plato.stanford.edu/entries/hume-religion/",
           note: "Places the miracles essay among Hume's other writings on religion, the Dialogues included.",
         },
@@ -97,7 +99,8 @@ const nature: Objection = {
           gist: "Hume says all experience is against miracles, but that is true only if every miracle report is false, which is the question being asked.",
           body: [
             "Hume rests his case on experience showing that nature's laws never break. {{campbell-george}}, a Scottish minister who corresponded with Hume, asked in 1762 whose experience that was. Hume writes that there must be “a uniform experience against every miraculous event, otherwise the event would not merit that appellation.” But a miracle report is itself a report of experience. To call experience uniform, Hume has to set every such report aside first, which means assuming they are all false. Campbell added that most of what we call experience reaches us through other people's testimony.",
-            "{{lewis-cs}} made the same charge about miracles in 1947: “Unfortunately we know the experience against them to be uniform only if we know that all the reports of them are false. And we can know all the reports to be false only if we know already that miracles have never occurred. In fact, we are arguing in a circle.” Learned men once dismissed peasants' reports of stones falling from the sky in the same way, until a shower of them hit L'Aigle in Normandy in 1803 and the physicist Jean-Baptiste Biot confirmed it.",
+            "{{lewis-cs}} made the same charge about miracles in 1947: “Unfortunately we know the experience against them to be uniform only if we know that all the reports of them are false. And we can know all the reports to be false only if we know already that miracles have never occurred. In fact, we are arguing in a circle.”",
+            "Learned men once dismissed peasants' reports of stones falling from the sky in the same way, until a shower of them hit L'Aigle in Normandy in 1803 and the physicist Jean-Baptiste Biot confirmed it.",
           ],
           quote: {
             text: "Thus he falls into that parallogism, which is called begging the question. What he gives with one hand, he takes with the other.",
@@ -175,11 +178,12 @@ const nature: Objection = {
                 {
                   id: "nat-a-earman",
                   side: "theist",
-                  label: "Hume's case fails, since witnesses can make a miracle credible",
+                  label: "Enough independent witnesses can make a miracle credible",
                   gist: "Probability theory shows that enough independent, fairly reliable witnesses can make even a very unlikely event credible, so no rule settles the question before the evidence is in.",
                   body: [
                     "Hume asks us to weigh testimony, and two of his contemporaries, Thomas Bayes and {{price-richard}}, were building the mathematics for weighing it. {{earman}}, a philosopher of science, applied that mathematics to Hume in *Hume's Abject Failure* (2000). He is not a Christian, and says in his preface, “If I had need of Gods, they would be the Gods of the Greeks and the Romans.” Made precise, he concludes, Hume's principles are “either vapid, specious, or at variance with actual scientific practice.”",
-                    "One witness may lie or be wrong, but two strangers who never met and who name the same license plate are hard to dismiss. Many witnesses who could not have colluded, each likelier to report the event if it happened than if not, can together overcome any [[prior-probability|prior probability]] above zero (how likely the event seemed before anyone testified). {{babbage}} worked the numbers in 1837. So Earman thinks each miracle claim has to be weighed on its own evidence.",
+                    "One witness may lie or be wrong, but two strangers who never met and who name the same license plate are hard to dismiss. Many witnesses who could not have colluded, each likelier to report the event if it happened than if not, can together overcome any [[prior-probability|prior probability]] above zero (how likely the event seemed before anyone testified).",
+                    "{{babbage}} worked the numbers in 1837. So Earman thinks each miracle claim has to be weighed on its own evidence.",
                   ],
                   quote: {
                     text: "Any epistemology that does not allow for the possibility that evidence, whether from eyewitness testimony or from some other source, can establish the credibility of a UFO landing, a walking on water, or a resurrection is inadequate.",
@@ -221,11 +225,10 @@ const nature: Objection = {
                     {
                       id: "nat-a-practice",
                       side: "skeptic",
-                      label: "Hume's case stands, since the actual reports fail his test",
+                      label: "The miracle reports on record fail Hume's test",
                       gist: "Testimony could prove a miracle in principle, but the reports we have come from people who wanted them, grow in the retelling, and fall apart when checked.",
                       body: [
-                        "Earman may refute Part 1 of Hume's essay read alone, but Hume's verdict rests on Part 2, as {{fogelin}} argues. Miracle reports come from communities that want them, and each religion's miracles count against its rivals', since “in matters of religion, whatever is different is contrary.” Hume's test case was the cures reported around 1730 at the Paris tomb of the deacon François de Pâris. They were sworn to before judges, and Hume's Protestant readers believed them no more than he did.",
-                        "{{earman}} ends up near this view, suspecting that religious miracle reports resemble faith healing, where group hysteria ruins the witnesses' reliability. Lourdes has recognized 72 cures since 1858 (the latest in 2025) out of many thousands claimed. The largest trial of prayer for the sick, STEP (2006, 1,802 heart-surgery patients), found no benefit, and patients who knew they were being prayed for did slightly worse.",
+                        "Earman may refute Part 1 of Hume's essay read alone, but Hume's verdict rests on Part 2, as {{fogelin}} argues. Miracle reports come from communities that want them, and each religion's miracles count against its rivals', since “in matters of religion, whatever is different is contrary.” Hume's test case was the cures reported around 1730 at the Paris tomb of the deacon François de Pâris. They were sworn to before judges, and Hume's Protestant readers believed them no more than he did. {{earman}} ends up near this view, suspecting that religious miracle reports resemble faith healing, where group hysteria ruins the witnesses' reliability. Lourdes has recognized 72 cures since 1858 (the latest in 2025) out of many thousands claimed. The largest trial of prayer for the sick, STEP (2006, 1,802 heart-surgery patients), found no benefit, and patients who knew they were being prayed for did slightly worse.",
                       ],
                       quote: {
                         text: "But I do believe, in a way that I cannot articulate in detail, that these cases are in fact relevantly similar to the case of faith healing where there is a palpable atmosphere of collective hysteria that renders the participants unable to achieve the minimal reliability condition …",
@@ -243,9 +246,9 @@ const nature: Objection = {
                       sources: [
                         {
                           title: "Study of the Therapeutic Effects of Intercessory Prayer (STEP)",
-                          by: "Herbert Benson et al., American Heart Journal",
+                          by: "Herbert Benson et al.",
                           year: "2006",
-                          note: "The trial of prayer by strangers for heart-surgery patients. It found no benefit, and patients told they were being prayed for had more complications.",
+                          note: "American Heart Journal 151 (2006). The trial of prayer by strangers for heart-surgery patients. It found no benefit, and patients told they were being prayed for had more complications.",
                         },
                         {
                           title: "A Defense of Hume on Miracles",
@@ -290,9 +293,9 @@ const nature: Objection = {
                             },
                             {
                               title: "Study of the Therapeutic Effects of Proximal Intercessory Prayer (STEPP) on Auditory and Visual Impairments in Rural Mozambique",
-                              by: "Candy Gunther Brown et al., Southern Medical Journal",
+                              by: "Candy Gunther Brown et al.",
                               year: "2010",
-                              note: "The Mozambique field study, which tested hearing and sight before and after prayer in person.",
+                              note: "Southern Medical Journal 103 (2010). The Mozambique field study, which tested hearing and sight before and after prayer in person.",
                             },
                             {
                               title: "An Enquiry concerning Human Understanding, sect. X, §99",
@@ -395,7 +398,8 @@ const nature: Objection = {
                 },
                 {
                   title: "Physicalism",
-                  by: "Stanford Encyclopedia of Philosophy",
+                  by: "Stanford Encyclopedia of Philosophy (Daniel Stoljar)",
+                  year: "2001, rev. 2026",
                   url: "https://plato.stanford.edu/entries/physicalism/",
                   note: "Covers the argument from causal closure and how much it can prove.",
                 },
@@ -491,7 +495,7 @@ const nature: Objection = {
                     },
                     {
                       title: "Miracles",
-                      by: "David Corner, Internet Encyclopedia of Philosophy",
+                      by: "Internet Encyclopedia of Philosophy (David Corner)",
                       url: "https://iep.utm.edu/miracles/",
                       note: "Corner surveys definitions of miracle, including Aquinas's view that a miracle goes beyond nature's usual order without being contrary to nature.",
                     },
@@ -550,7 +554,8 @@ const nature: Objection = {
         },
         {
           title: "Simplicity",
-          by: "Stanford Encyclopedia of Philosophy",
+          by: "Stanford Encyclopedia of Philosophy (Alan Baker)",
+          year: "2004, rev. 2022",
           url: "https://plato.stanford.edu/entries/simplicity/",
           note: "What Ockham's razor says, in its different forms, and why anyone should trust it.",
         },
@@ -578,7 +583,8 @@ const nature: Objection = {
           sources: [
             {
               title: "Cosmological Argument",
-              by: "Stanford Encyclopedia of Philosophy",
+              by: "Stanford Encyclopedia of Philosophy (Bruce Reichenbach)",
+              year: "2004, rev. 2026",
               url: "https://plato.stanford.edu/entries/cosmological-argument/",
               note: "Bruce Reichenbach's entry follows the argument from Aquinas and Leibniz to Pruss, with the main objections.",
             },
@@ -591,7 +597,7 @@ const nature: Objection = {
             {
               title: "Principles of Nature and of Grace, §§7–8, in The Monadology and Other Philosophical Writings",
               by: "G. W. Leibniz, trans. Robert Latta",
-              year: "1898",
+              year: "1714 (trans. 1898)",
               url: "https://archive.org/details/themonadology00leibuoft",
               note: "Leibniz's late summary of his system. Sections 7 and 8 ask why there is something and answer with a necessary being.",
             },
@@ -635,13 +641,14 @@ const nature: Objection = {
                 },
                 {
                   title: "PSR",
-                  by: "Michael Della Rocca, Philosophers' Imprint",
+                  by: "Michael Della Rocca",
                   year: "2010",
-                  note: "Della Rocca's argument that the principle of sufficient reason, held without exceptions, leads to Spinoza's conclusions and further.",
+                  note: "Philosophers' Imprint 10 (2010). Della Rocca's argument that the principle of sufficient reason, held without exceptions, leads to Spinoza's conclusions and further.",
                 },
                 {
                   title: "Spinoza's Modal Metaphysics",
-                  by: "Stanford Encyclopedia of Philosophy",
+                  by: "Stanford Encyclopedia of Philosophy (Samuel Newlands)",
+                  year: "2007, rev. 2023",
                   url: "https://plato.stanford.edu/entries/spinoza-modal/",
                   note: "Samuel Newlands on whether Spinoza held that nothing could have been otherwise, and how scholars read the evidence.",
                 },
@@ -690,7 +697,8 @@ const nature: Objection = {
                     },
                     {
                       title: "Principle of Sufficient Reason",
-                      by: "Stanford Encyclopedia of Philosophy",
+                      by: "Stanford Encyclopedia of Philosophy (Yitzhak Y. Melamed and Martin Lin)",
+                      year: "2010, rev. 2023",
                       url: "https://plato.stanford.edu/entries/sufficient-reason/",
                       note: "Yitzhak Melamed and Martin Lin's history of the principle, from Spinoza and Leibniz to its defenders and critics today.",
                     },
@@ -722,7 +730,8 @@ const nature: Objection = {
                       sources: [
                         {
                           title: "Principle of Sufficient Reason",
-                          by: "Stanford Encyclopedia of Philosophy",
+                          by: "Stanford Encyclopedia of Philosophy (Yitzhak Y. Melamed and Martin Lin)",
+                          year: "2010, rev. 2023",
                           url: "https://plato.stanford.edu/entries/sufficient-reason/",
                           note: "Includes Spinoza's and Leibniz's versions of the principle and the worry that it makes everything necessary.",
                         },
@@ -735,7 +744,7 @@ const nature: Objection = {
                         {
                           title: "The Monadology and Other Philosophical Writings",
                           by: "G. W. Leibniz, trans. Robert Latta",
-                          year: "1898",
+                          year: "1714 (trans. 1898)",
                           url: "https://archive.org/details/themonadology00leibuoft",
                           note: "Latta's translation with notes. Monadology §§32–55 move from sufficient reason to God's choice of the best world.",
                         },
@@ -776,7 +785,7 @@ const nature: Objection = {
                   note: "Part IX, where Demea argues for a necessary being and Cleanthes answers with his twenty particles.",
                 },
                 {
-                  title: "The Existence of God: A Debate (BBC Third Programme, 1948)",
+                  title: "A Debate on the Existence of God (BBC Third Programme, 28 January 1948)",
                   by: "Bertrand Russell and F. C. Copleston",
                   year: "1948",
                   url: "https://strangenotions.com/the-most-famous-debate-on-the-existence-of-god/",
@@ -789,7 +798,7 @@ const nature: Objection = {
                   note: "Oppy's case that no argument about God's existence should persuade every reasonable person, with a long chapter on cosmological arguments.",
                 },
                 {
-                  title: "Critique of Pure Reason, “Of the Impossibility of a Cosmological Proof of the Existence of God”",
+                  title: "Critique of Pure Reason, bk. II, ch. III, sect. 5, “Of the Impossibility of a Cosmological Proof of the Existence of God”",
                   by: "Immanuel Kant, trans. J. M. D. Meiklejohn",
                   year: "1787",
                   url: "https://www.gutenberg.org/cache/epub/4280/pg4280-images.html#chap92",
@@ -840,11 +849,50 @@ const nature: Objection = {
                       note: "Part IX, the source of Demea's question about why something exists and of Cleanthes's twenty particles.",
                     },
                     {
-                      title: "The Existence of God: A Debate (BBC Third Programme, 1948)",
+                      title: "A Debate on the Existence of God (BBC Third Programme, 28 January 1948)",
                       by: "Bertrand Russell and F. C. Copleston",
                       year: "1948",
                       url: "https://strangenotions.com/the-most-famous-debate-on-the-existence-of-god/",
                       note: "Copleston presses the question of the whole universe, and Russell declines to ask it.",
+                    },
+                  ],
+                },
+                {
+                  id: "nat-b-own-reason",
+                  side: "spinoza",
+                  label: "Even the universe has a reason, found in its own nature",
+                  gist: "Everything has a reason, the universe included, and the reason Nature exists lies in what Nature is, so it needs no maker and is never just there.",
+                  body: [
+                    "{{spinoza}} would reject {{russell|Russell}}'s universe that is “just there”. In the second proof of *Ethics* I P11 he states the [[psr|principle of sufficient reason]], that everything has a reason, and applies it even to what doesn't exist. A square circle can't exist because its nature involves a contradiction, and whether a triangle exists depends on the order of nature around it. The principle leaves no room for [[brute-fact|brute facts]], facts true for no reason at all.",
+                    "It covers the whole world too. Substance, the one thing that needs nothing else in order to exist, has existence in its own nature (I P7), and on his view that thing is Nature itself. So he grants {{oppy}} that explanation can stop at the world, and denies that it stops there for no reason.",
+                  ],
+                  quote: {
+                    text: "Of everything whatsoever a cause or reason must be assigned, either for its existence, or for its non-existence—e.g. if a triangle exist, a reason or cause must be granted for its existence; if, on the contrary, it does not exist, a cause must also be granted, which prevents it from existing, or annuls its existence.",
+                    who: "Spinoza",
+                    cite: "Ethics I P11, second proof (1677), trans. Elwes",
+                    url: "https://www.gutenberg.org/cache/epub/3800/pg3800-images.html#chap01",
+                  },
+                  thinkers: ["spinoza", "russell", "oppy"],
+                  cedes:
+                    "Something shown to exist with no reason, in its own nature or outside it, would refute Spinoza here.",
+                  see: [
+                    { id: "nat-b-necess", why: "Where Spinoza follows the same principle to Nature as the one being that has to exist." },
+                    { id: "nat-b-psr", why: "The Defender's version of this reply, which ends the chain of reasons at God." },
+                  ],
+                  sources: [
+                    {
+                      title: "Ethics, pt. I",
+                      by: "Benedict de Spinoza, trans. R. H. M. Elwes",
+                      year: "1677",
+                      url: "https://www.gutenberg.org/cache/epub/3800/pg3800-images.html#chap01",
+                      note: "The second proof of Prop. 11 states the principle that everything has a reason, and Prop. 7 says existence belongs to the nature of substance.",
+                    },
+                    {
+                      title: "Principle of Sufficient Reason",
+                      by: "Stanford Encyclopedia of Philosophy (Yitzhak Y. Melamed and Martin Lin)",
+                      year: "2010, rev. 2023",
+                      url: "https://plato.stanford.edu/entries/sufficient-reason/",
+                      note: "Section 2 is on Spinoza's version of the principle.",
                     },
                   ],
                 },
@@ -877,7 +925,8 @@ const nature: Objection = {
           sources: [
             {
               title: "Fine-Tuning",
-              by: "Stanford Encyclopedia of Philosophy",
+              by: "Stanford Encyclopedia of Philosophy (Simon Friederich)",
+              year: "2017, rev. 2026",
               url: "https://plato.stanford.edu/entries/fine-tuning/",
               note: "Simon Friederich's entry on the physics and on the design, multiverse and selection-effect replies.",
             },
@@ -896,10 +945,10 @@ const nature: Objection = {
             },
             {
               title: "The Fine-Tuning of the Universe for Intelligent Life",
-              by: "Luke A. Barnes, Publications of the Astronomical Society of Australia",
+              by: "Luke A. Barnes",
               year: "2012",
               url: "https://arxiv.org/abs/1112.4647",
-              note: "Barnes's technical review of the physics, written in reply to Victor Stenger's claim that the tuning is overstated.",
+              note: "Publications of the Astronomical Society of Australia 29 (2012). Barnes's technical review of the physics, written in reply to Victor Stenger's claim that the tuning is overstated.",
             },
           ],
           children: [
@@ -931,15 +980,15 @@ const nature: Objection = {
                 },
                 {
                   title: "The Inverse Gambler's Fallacy",
-                  by: "Ian Hacking, Mind",
+                  by: "Ian Hacking",
                   year: "1987",
-                  note: "The paper that named the fallacy. Hacking aimed it at inferring a sequence of earlier universes from ours, and accepted the version in which many universes exist side by side.",
+                  note: "Mind 96 (1987). The paper that named the fallacy. Hacking aimed it at inferring a sequence of earlier universes from ours, and accepted the version in which many universes exist side by side.",
                 },
                 {
                   title: "Fine-Tuning and Multiple Universes",
-                  by: "Roger White, Noûs",
+                  by: "Roger White",
                   year: "2000",
-                  note: "White argues that a universe fit for life gives no evidence that other universes exist.",
+                  note: "Noûs 34 (2000). White argues that a universe fit for life gives no evidence that other universes exist.",
                 },
                 {
                   title: "Anthropic Bias, ch. 2",
@@ -972,9 +1021,9 @@ const nature: Objection = {
                   sources: [
                     {
                       title: "The Teleological Argument: An Exploration of the Fine-Tuning of the Universe",
-                      by: "Robin Collins, in The Blackwell Companion to Natural Theology",
+                      by: "Robin Collins",
                       year: "2009",
-                      note: "Collins's long statement of the argument, including why a universe generator would itself need tuning.",
+                      note: "In William Lane Craig and J. P. Moreland, eds., The Blackwell Companion to Natural Theology (2009). Collins's long statement of the argument, including why a universe generator would itself need tuning.",
                     },
                     {
                       title: "Why Boltzmann Brains Are Bad",
@@ -1000,8 +1049,7 @@ const nature: Objection = {
               label: "Fine-tuning yields no odds that favor a designer",
               gist: "No one can give odds for a constant with no upper limit. We could only ever observe a livable universe anyway, and a God could use any physics.",
               body: [
-                "If a constant could take any value without limit, there is no way to spread probability evenly over it, and every finite window, however wide, gets probability zero. {{mcgrew-timothy|Timothy}} and Lydia McGrew, both Christians, made this point in 2001. {{sober}} points to a [[anthropic-principle|selection effect]] that needs no multiverse. We could not have observed a hostile universe, so a friendly one tells us little. When the physicists Fred Adams and Victor Stenger varied several constants at once, they found much less tuning than one-at-a-time studies suggest.",
-                "{{carroll}} told the Christian philosopher William Lane Craig in a 2014 debate that belief in God predicts no particular physics. In his notes after the debate he wrote: “Fine-tuning for life would only potentially be relevant if we already accepted naturalism; God could create life under arbitrary physical conditions.” On his view, a hypothesis that fits any physics gets no support from ours.",
+                "If a constant could take any value without limit, there is no way to spread probability evenly over it, and every finite window, however wide, gets probability zero. {{mcgrew-timothy|Timothy}} and Lydia McGrew, both Christians, made this point in 2001. {{sober}} points to a [[anthropic-principle|selection effect]] that needs no multiverse. We could not have observed a hostile universe, so a friendly one tells us little. When the physicists Fred Adams and Victor Stenger varied several constants at once, they found much less tuning than one-at-a-time studies suggest. {{carroll}} told the Christian philosopher William Lane Craig in a 2014 debate that belief in God predicts no particular physics. In his notes after the debate he wrote: “Fine-tuning for life would only potentially be relevant if we already accepted naturalism; God could create life under arbitrary physical conditions.” On his view, a hypothesis that fits any physics gets no support from ours.",
               ],
               quote: {
                 text: "But how this argument can have place, where the objects, as in the present case, are single, individual, without parallel, or specific resemblance, may be difficult to explain.",
@@ -1015,15 +1063,15 @@ const nature: Objection = {
               sources: [
                 {
                   title: "Probabilities and the Fine-Tuning Argument: A Sceptical View",
-                  by: "Timothy McGrew, Lydia McGrew and Eric Vestrup, Mind",
+                  by: "Timothy McGrew, Lydia McGrew and Eric Vestrup",
                   year: "2001",
-                  note: "The paper showing that no probability can be spread evenly over an unlimited range.",
+                  note: "Mind 110 (2001). The paper showing that no probability can be spread evenly over an unlimited range.",
                 },
                 {
                   title: "The Design Argument",
-                  by: "Elliott Sober, in God and Design, ed. Neil Manson",
+                  by: "Elliott Sober",
                   year: "2003",
-                  note: "Sober treats design arguments as comparisons of likelihoods and presses the selection-effect objection.",
+                  note: "In Neil A. Manson, ed., God and Design (2003). Sober treats design arguments as comparisons of likelihoods and presses the selection-effect objection.",
                 },
                 {
                   title: "Dialogues Concerning Natural Religion, pt. II",
@@ -1068,10 +1116,10 @@ const nature: Objection = {
                     },
                     {
                       title: "Bayes, God, and the Multiverse",
-                      by: "Richard Swinburne, in Probability in the Philosophy of Religion (Oxford)",
+                      by: "Richard Swinburne",
                       year: "2012",
                       url: "https://users.ox.ac.uk/~orie0087/pdf_files/Papers%20from%20Philosophical%20Journals/Swinburne_2012-bayes.pdf",
-                      note: "The author's copy. Swinburne explains why God would make beings like us and argues that a possible multiverse barely weakens the fine-tuning argument.",
+                      note: "In Jake Chandler and Victoria S. Harrison, eds., Probability in the Philosophy of Religion (Oxford, 2012). The author's copy. Swinburne explains why God would make beings like us and argues that a possible multiverse barely weakens the fine-tuning argument.",
                     },
                     {
                       title: "Universes",
@@ -1109,28 +1157,28 @@ const nature: Objection = {
                       sources: [
                         {
                           title: "A Theological Critique of the Fine-Tuning Argument",
-                          by: "Hans Halvorson, in Knowledge, Belief, and God (Oxford)",
+                          by: "Hans Halvorson",
                           year: "2018",
-                          note: "Halvorson's argument that a God who wanted life could have set the odds in its favor, which turns the improbability into a problem for design.",
+                          note: "In Matthew A. Benton, John Hawthorne and Dani Rabinowitz, eds., Knowledge, Belief, and God (Oxford, 2018). Halvorson's argument that a God who wanted life could have set the odds in its favor, which turns the improbability into a problem for design.",
                         },
                         {
                           title: "The Cosmos' Fine-Tuning Does Not Imply a Fine-Tuner",
-                          by: "Hans Halvorson, Nautilus",
+                          by: "Hans Halvorson",
                           year: "2017",
                           url: "https://nautil.us/the-cosmos-fine_tuning-does-not-imply-a-fine_tuner-236378",
-                          note: "A short version for general readers, with a game of Russian roulette as the analogy.",
+                          note: "Nautilus (2017). A short version for general readers, with a game of Russian roulette as the analogy.",
                         },
                         {
                           title: "Problems with the Argument from Fine Tuning",
-                          by: "Mark Colyvan, Jay L. Garfield and Graham Priest, Synthese",
+                          by: "Mark Colyvan, Jay L. Garfield and Graham Priest",
                           year: "2005",
-                          note: "Argues that the range used to judge tuning is arbitrary, and that every finite window shrinks toward zero as the range widens.",
+                          note: "Synthese 145 (2005). Argues that the range used to judge tuning is arbitrary, and that every finite window shrinks toward zero as the range widens.",
                         },
                         {
                           title: "Absence of Evidence and Evidence of Absence: Evidential Transitivity in Connection with Fossils, Fishing, Fine-Tuning, and Firing Squads",
-                          by: "Elliott Sober, Philosophical Studies",
+                          by: "Elliott Sober",
                           year: "2009",
-                          note: "Includes Sober's reply to Leslie's firing squad, built on the survivor's selection effect.",
+                          note: "Philosophical Studies 143 (2009). Includes Sober's reply to Leslie's firing squad, built on the survivor's selection effect.",
                         },
                       ],
                     },
@@ -1172,7 +1220,8 @@ const nature: Objection = {
                 },
                 {
                   title: "Teleological Arguments for God's Existence",
-                  by: "Stanford Encyclopedia of Philosophy",
+                  by: "Stanford Encyclopedia of Philosophy (Del Ratzsch and Jeffrey Koperski)",
+                  year: "2005, rev. 2023",
                   url: "https://plato.stanford.edu/entries/teleological-arguments/",
                   note: "Del Ratzsch and Jeffrey Koperski's survey of design arguments, which notes Hume's point that a designer would need explaining in turn.",
                 },
@@ -1200,10 +1249,10 @@ const nature: Objection = {
                   sources: [
                     {
                       title: "The Dawkins Confusion: Naturalism ad absurdum",
-                      by: "Alvin Plantinga, Books & Culture",
+                      by: "Alvin Plantinga",
                       year: "2007",
                       url: "https://www.booksandculture.com/articles/2007/marapr/1.21.html",
-                      note: "Plantinga's review of The God Delusion, with the tractors and his reply to the regress about the designer.",
+                      note: "Books & Culture, March/April 2007. Plantinga's review of The God Delusion, with the tractors and his reply to the regress about the designer.",
                     },
                     {
                       title: "Summa Theologiae I q.3 a.7",
@@ -1213,7 +1262,8 @@ const nature: Objection = {
                     },
                     {
                       title: "Divine Simplicity",
-                      by: "Stanford Encyclopedia of Philosophy",
+                      by: "Stanford Encyclopedia of Philosophy (William F. Vallicella)",
+                      year: "2006, rev. 2023",
                       url: "https://plato.stanford.edu/entries/divine-simplicity/",
                       note: "What the doctrine claims and the main objections to it, Plantinga's among them.",
                     },
@@ -1253,9 +1303,9 @@ const nature: Objection = {
                         },
                         {
                           title: "Richard Swinburne's Argument to the Simplicity of God via the Infinite",
-                          by: "Jeremy Gwiazda, Religious Studies",
+                          by: "Jeremy Gwiazda",
                           year: "2009",
-                          note: "Gwiazda's reply to Swinburne's claim that infinite values are simpler than finite ones.",
+                          note: "Religious Studies 45 (2009). Gwiazda's reply to Swinburne's claim that infinite values are simpler than finite ones.",
                         },
                         {
                           title: "The Design Argument (Cambridge Elements)",
@@ -1311,7 +1361,8 @@ const nature: Objection = {
                 },
                 {
                   title: "Hume on Religion",
-                  by: "Stanford Encyclopedia of Philosophy",
+                  by: "Stanford Encyclopedia of Philosophy (Paul Russell and Anders Kraal)",
+                  year: "2005, rev. 2024",
                   url: "https://plato.stanford.edu/entries/hume-religion/",
                   note: "Paul Russell and Anders Kraal on how Hume's objections to design fit together across the Enquiry and the Dialogues.",
                 },
@@ -1323,8 +1374,7 @@ const nature: Objection = {
                   label: "The contingency argument shows one source, and it is good",
                   gist: "Fine-tuning is one strand of a larger case, and the contingency argument adds a single source that exists of itself, lacks nothing, and so is good.",
                   body: [
-                    "Hume's rule applies to an argument taken alone, and the tuning argument is one strand of a [[cumulative-case|cumulative case]], several arguments that together raise the odds. The ((nat-b-exist|contingency argument)) supplies what tuning cannot, a source that exists of itself. {{aquinas}} argued that there can be only one such source (*Summa Theologiae* I q.11 a.3).",
-                    "Aquinas argues that the rest follows from what such a source is. What exists by its own nature, without receiving existence from anything, has nothing outside it to limit it: “Since therefore God is subsisting being itself, nothing of the perfection of being can be wanting to Him” (I q.4 a.2). Goodness, for Aquinas, is being considered as worth desiring (I q.5 a.1). The tuning then tells us that this unlimited source made a world fit for life. {{swinburne}} and {{collins}} defend cumulative cases of this general kind, though neither relies on Aquinas's steps.",
+                    "Hume's rule applies to an argument taken alone, and the tuning argument is one strand of a [[cumulative-case|cumulative case]], several arguments that together raise the odds. The ((nat-b-exist|contingency argument)) supplies what tuning cannot, a source that exists of itself. {{aquinas}} argued that there can be only one such source (*Summa Theologiae* I q.11 a.3). Aquinas argues that the rest follows from what such a source is. What exists by its own nature, without receiving existence from anything, has nothing outside it to limit it: “Since therefore God is subsisting being itself, nothing of the perfection of being can be wanting to Him” (I q.4 a.2). Goodness, for Aquinas, is being considered as worth desiring (I q.5 a.1). The tuning then tells us that this unlimited source made a world fit for life. {{swinburne}} and {{collins}} defend cumulative cases of this general kind, though neither relies on Aquinas's steps.",
                   ],
                   quote: {
                     text: "If then many gods existed, they would necessarily differ from each other. Something therefore would belong to one which did not belong to another. And if this were a privation, one of them would not be absolutely perfect; but if a perfection, one of them would be without it.",
@@ -1361,7 +1411,7 @@ const nature: Objection = {
                       id: "nat-b-gap",
                       side: "skeptic",
                       label: "Something that has to exist need not be a mind, or good",
-                      gist: "Grant the contingency argument and it gives something that exists of itself, with no sign that it chooses or loves, and the world it grounds looks indifferent.",
+                      gist: "Even if the contingency argument works, it gives something that exists of itself, with no sign that it chooses or loves, and the world it grounds looks indifferent.",
                       body: [
                         "Even if the contingency argument works, it delivers a source that exists of itself and says nothing about its character. Nothing in ‘exists by its own nature’ says ‘thinks’, ‘chooses’ or ‘loves’. ((nat-b-necess|Spinoza)) accepts the necessary being and identifies it with Nature itself, which is one, unlimited and perfect in his sense, and chooses nothing. He held “that nature has no particular goal in view, and that final causes are mere human figments” (*Ethics* I, Appendix). Aquinas gets from unlimited being to goodness by defining goodness as being considered as worth desiring. That definition does not show that the source cares what becomes of us. Hume's rule says to look at the effect. Philo surveyed a world that mixes good and ill and drew his conclusion from it. Tuning plus contingency yields a necessary source of a world like that, which fits Spinoza's God, or no God at all, better than the God of the creeds.",
                       ],
@@ -1395,7 +1445,8 @@ const nature: Objection = {
                         },
                         {
                           title: "Cosmological Argument",
-                          by: "Stanford Encyclopedia of Philosophy",
+                          by: "Stanford Encyclopedia of Philosophy (Bruce Reichenbach)",
+                          year: "2004, rev. 2026",
                           url: "https://plato.stanford.edu/entries/cosmological-argument/",
                           note: "Section 10 asks whether the necessary being the argument reaches would be God.",
                         },
@@ -1447,10 +1498,10 @@ const nature: Objection = {
             },
             {
               title: "The Dawkins Confusion: Naturalism ad absurdum",
-              by: "Alvin Plantinga, Books & Culture",
+              by: "Alvin Plantinga",
               year: "2007",
               url: "https://www.booksandculture.com/articles/2007/marapr/1.21.html",
-              note: "A short version of the argument, at the end of Plantinga's review of Dawkins.",
+              note: "Books & Culture, March/April 2007. A short version of the argument, at the end of Plantinga's review of Dawkins.",
             },
             {
               title: "Miracles, ch. III",
@@ -1481,10 +1532,10 @@ const nature: Objection = {
               sources: [
                 {
                   title: "Plantinga's Probability Arguments Against Evolutionary Naturalism",
-                  by: "Branden Fitelson and Elliott Sober, Pacific Philosophical Quarterly",
+                  by: "Branden Fitelson and Elliott Sober",
                   year: "1998",
-                  url: "https://drive.google.com/file/d/19GqbeQynpdMGiagSp0nrW051j--wKjVI/view?usp=share_link",
-                  note: "The main probability-based critique of Plantinga. The link is Sober's own copy of the November 1997 preprint. Plantinga answered it in the same journal in 2003.",
+                  url: "https://fitelson.org/plant.pdf",
+                  note: "Pacific Philosophical Quarterly 79 (1998). The main probability-based critique of Plantinga. The link is the authors' November 1997 preprint, on Fitelson's site. Plantinga answered it in the same journal in 2003.",
                 },
                 {
                   title: "Naturalism Defeated?",
@@ -1494,9 +1545,9 @@ const nature: Objection = {
                 },
                 {
                   title: "Natural Kinds",
-                  by: "W. V. Quine, in Essays in Honor of Carl G. Hempel",
+                  by: "W. V. Quine",
                   year: "1969",
-                  note: "Quine's essay on induction and similarity, with the line about creatures wrong in their inductions.",
+                  note: "In Nicholas Rescher et al., eds., Essays in Honor of Carl G. Hempel (1969). Quine's essay on induction and similarity, with the line about creatures wrong in their inductions.",
                 },
               ],
               children: [
@@ -1520,20 +1571,21 @@ const nature: Objection = {
                   sources: [
                     {
                       title: "Epistemology in the Age of Neuroscience",
-                      by: "Patricia S. Churchland, Journal of Philosophy",
+                      by: "Patricia S. Churchland",
                       year: "1987",
-                      note: "The article Plantinga quotes on what nervous systems are for. The line is on p. 548.",
+                      note: "Journal of Philosophy 84 (1987). The article Plantinga quotes on what nervous systems are for. The line is on p. 548.",
                     },
                     {
                       title: "The Dawkins Confusion: Naturalism ad absurdum",
-                      by: "Alvin Plantinga, Books & Culture",
+                      by: "Alvin Plantinga",
                       year: "2007",
                       url: "https://www.booksandculture.com/articles/2007/marapr/1.21.html",
-                      note: "Plantinga's short version of the claim that adaptive wiring tells us nothing about true belief.",
+                      note: "Books & Culture, March/April 2007. Plantinga's short version of the claim that adaptive wiring tells us nothing about true belief.",
                     },
                     {
                       title: "Mental Causation",
-                      by: "Stanford Encyclopedia of Philosophy",
+                      by: "Stanford Encyclopedia of Philosophy (David Robb, John Heil and Sophie Gibb)",
+                      year: "2003, rev. 2023",
                       url: "https://plato.stanford.edu/entries/mental-causation/",
                       note: "On whether what a belief says can make any difference to what the body does.",
                     },
@@ -1546,7 +1598,8 @@ const nature: Objection = {
                       gist: "What a brain state means is set by what it evolved to respond to, so selecting the states that steer behavior well is selecting states that are mostly true.",
                       body: [
                         "Plantinga goes wrong by picturing content floating free of the causal story. On [[teleosemantics|teleosemantics]] ({{millikan}}, 1984; {{papineau}}, 1987; {{dretske}}, 1988), what a brain state represents is fixed by its biological function, meaning what it was selected to signal. A state that means *lion* means it because it was selected for firing when lions were near. So the wiring can't be held fixed while any content at all is swapped in.",
-                        "Abstract beliefs don't come from a separate faculty that selection never touched. The same reasoning that counts predators does our arithmetic and physics, and every eclipse forecast to the minute tests it far from home. {{bergmann}}, himself a Christian, turns Plantinga's theory of knowledge against him, drawing on {{reid}}. If belief in God can be [[properly-basic|properly basic]], reasonable without argument, so can a naturalist's trust in her own faculties.",
+                        "Abstract beliefs don't come from a separate faculty that selection never touched. The same reasoning that counts predators does our arithmetic and physics, and every eclipse forecast to the minute tests it far from home.",
+                        "{{bergmann}}, himself a Christian, turns Plantinga's theory of knowledge against him, drawing on {{reid}}. If belief in God can be [[properly-basic|properly basic]], reasonable without argument, so can a naturalist's trust in her own faculties.",
                       ],
                       quote: {
                         text: "Why, sir, should I believe the faculty of reason more than that of perception; they came both out of the same shop, and were made by the same artist; and if he puts one piece of false ware into my hands, what should hinder him from putting another?",
@@ -1561,7 +1614,8 @@ const nature: Objection = {
                       sources: [
                         {
                           title: "Teleological Theories of Mental Content",
-                          by: "Stanford Encyclopedia of Philosophy",
+                          by: "Stanford Encyclopedia of Philosophy (Peter Schulte and Karen Neander)",
+                          year: "2004, rev. 2022",
                           url: "https://plato.stanford.edu/entries/content-teleological/",
                           note: "Peter Schulte and Karen Neander on the theories of Millikan, Papineau and Dretske, and on the problems Fodor raised.",
                         },
@@ -1573,9 +1627,9 @@ const nature: Objection = {
                         },
                         {
                           title: "Commonsense Naturalism",
-                          by: "Michael Bergmann, in Naturalism Defeated?",
+                          by: "Michael Bergmann",
                           year: "2002",
-                          note: "Bergmann's reply to Plantinga, drawing on Reid, that a naturalist may trust her faculties without arguing for them.",
+                          note: "In James Beilby, ed., Naturalism Defeated? (2002). Bergmann's reply to Plantinga, drawing on Reid, that a naturalist may trust her faculties without arguing for them.",
                         },
                         {
                           title: "An Inquiry into the Human Mind, on the Principles of Common Sense",
@@ -1614,19 +1668,20 @@ const nature: Objection = {
                             },
                             {
                               title: "Content and Natural Selection",
-                              by: "Alvin Plantinga, Philosophy and Phenomenological Research",
+                              by: "Alvin Plantinga",
                               year: "2011",
-                              note: "Plantinga's reply to teleosemantics, arguing that selection leaves the content of abstract beliefs undetermined.",
+                              note: "Philosophy and Phenomenological Research 83 (2011). Plantinga's reply to teleosemantics, arguing that selection leaves the content of abstract beliefs undetermined.",
                             },
                             {
                               title: "Reply to Beilby's Cohorts",
-                              by: "Alvin Plantinga, in Naturalism Defeated?",
+                              by: "Alvin Plantinga",
                               year: "2002",
-                              note: "Plantinga's answers to his critics in the volume, Bergmann among them.",
+                              note: "In James Beilby, ed., Naturalism Defeated? (2002). Plantinga's answers to his critics in the volume, Bergmann among them.",
                             },
                             {
                               title: "Teleological Theories of Mental Content, §4.1",
-                              by: "Stanford Encyclopedia of Philosophy",
+                              by: "Stanford Encyclopedia of Philosophy (Peter Schulte and Karen Neander)",
+                              year: "2004, rev. 2022",
                               url: "https://plato.stanford.edu/entries/content-teleological/",
                               note: "The section on functional indeterminacy, which sets out Fodor's frog case.",
                             },
@@ -1644,8 +1699,7 @@ const nature: Objection = {
               label: "Minds track truth because thought and things are one order",
               gist: "Mind and matter are two sides of one Nature, so the order of ideas matches the order of things, and reason fits the world without anyone designing the fit.",
               body: [
-                "Plantinga's argument targets materialism, the view that only matter is real, which {{spinoza}} rejected. For him thought is an attribute, a basic aspect, of [[deus-sive-natura|God, or Nature]]. Extension, or things as bodies in space, is another, and both run in one order (*Ethics* II P7). Your mind is the idea of your body, the same thing grasped as thought. So knowledge by reason, built on [[common-notions|common notions]] (ideas of what all bodies share, ours included), is necessarily true (II P41).",
-                "On his view mind and world fit without luck or a designer, since they are one reality described in two ways. Matter that feels is no puzzle either, since individual things, Spinoza wrote, “though in different degrees, are animated” (II P13 Schol.), a view the atheist {{nagel}} takes seriously. Spinoza sees no need for the person believers add, with ((nat-b-reasons|free choice)) and ((coh-c-person|a will that binds)).",
+                "Plantinga's argument targets materialism, the view that only matter is real, which {{spinoza}} rejected. For him thought is an attribute, a basic aspect, of [[deus-sive-natura|God, or Nature]]. Extension, or things as bodies in space, is another, and both run in one order (*Ethics* II P7). Your mind is the idea of your body, the same thing grasped as thought. So knowledge by reason, built on [[common-notions|common notions]] (ideas of what all bodies share, ours included), is necessarily true (II P41). On his view mind and world fit without luck or a designer, since they are one reality described in two ways. Matter that feels is no puzzle either, since individual things, Spinoza wrote, “though in different degrees, are animated” (II P13 Schol.), a view the atheist {{nagel}} takes seriously. Spinoza sees no need for the person believers add, with ((nat-b-reasons|free choice)) and ((coh-c-person|a will that binds)).",
               ],
               quote: {
                 text: "The order and connection of ideas is the same as the order and connection of things.",
@@ -1676,13 +1730,15 @@ const nature: Objection = {
                 },
                 {
                   title: "Spinoza's Theory of Attributes",
-                  by: "Stanford Encyclopedia of Philosophy",
+                  by: "Stanford Encyclopedia of Philosophy (Noa Shein)",
+                  year: "2009, rev. 2023",
                   url: "https://plato.stanford.edu/entries/spinoza-attributes/",
                   note: "How thought and extension relate in Spinoza's system, and how to read II P7.",
                 },
                 {
                   title: "Panpsychism",
-                  by: "Stanford Encyclopedia of Philosophy",
+                  by: "Stanford Encyclopedia of Philosophy (Philip Goff, William Seager and Sean Allen-Hermanson)",
+                  year: "2001, rev. 2022",
                   url: "https://plato.stanford.edu/entries/panpsychism/",
                   note: "Counts Spinoza among the historical panpsychists and surveys the view's modern revival.",
                 },
@@ -1697,8 +1753,8 @@ const nature: Objection = {
   spinoza: {
     title: "Spinoza on miracles and on explaining nature",
     body: [
-      "{{spinoza}} thought the word *miracle* names a gap in what the audience knows. Miracles, he wrote, “are only intelligible as in relation to human opinions, and merely mean events of which the natural cause cannot be explained by a reference to any ordinary occurrence, either by us, or at any rate, by the writer and narrator of the miracle” (*Theologico-Political Treatise* ch. 6, 1670). So he can grant every well-attested cure in ((nat-a-keener|the healing reports)) and lose nothing. Even the wonders of the Exodus, he argued, could not give the Egyptians and the Jews a true idea of God, and could only make them “admit that there was a Deity more powerful than anything known to them” (ch. 6). Since he saw no “sound reason for limiting the power and efficacy of nature,” no event could show where nature's powers end.",
-      "On explanation he sides with Leibniz and Aquinas against the skeptic who accepts brute facts. He held the principle of sufficient reason without exception (*Ethics* I P11), so he cannot say with Russell that the universe is just there, or call life-friendly physics a lucky draw. Of the three things the Defender says God explains, he thinks two, why anything exists and why minds track truth (II P7), are solved without a person. He rejects the third as badly posed. Nature aims at nothing, [[final-causes|final causes]] (purposes in nature) are human inventions, and the constants are what Nature necessarily is (I Appendix, I P33).",
+      "{{spinoza}} thought the word *miracle* names a gap in what the audience knows. Miracles, he wrote, “are only intelligible as in relation to human opinions, and merely mean events of which the natural cause cannot be explained by a reference to any ordinary occurrence, either by us, or at any rate, by the writer and narrator of the miracle” (*Theologico-Political Treatise* ch. 6, 1670). So every well-attested cure in ((nat-a-keener|the healing reports)) fits his view. Even the wonders of the Exodus, he argued, could not give the Egyptians and the Jews a true idea of God, and could only make them “admit that there was a Deity more powerful than anything known to them” (ch. 6). Since he saw no “sound reason for limiting the power and efficacy of nature,” no event could show where nature's powers end.",
+      "On explanation he sides with Leibniz and Aquinas against the skeptic who accepts brute facts, facts with no explanation at all. He held the principle of sufficient reason without exception (*Ethics* I P11), so he cannot say ((nat-b-own-reason|with Russell that the universe is just there)), or call life-friendly physics a lucky draw. Of the three things the Defender says God explains, he thinks two, why anything exists and why minds track truth (II P7), are solved without a person. He rejects the third as badly posed. Nature aims at nothing, [[final-causes|final causes]] (purposes in nature) are human inventions, and the constants are what Nature necessarily is (I Appendix, I P33).",
       "He parts from believers at the step from *God explains nature* to *someone chose nature*. His God has infinite intellect and loves itself with an [[amor-dei-intellectualis|intellectual love]] (V P35–36), but has no will that picks among options (I P32–33). The Spinoza scholar {{della-rocca}} defends ((nat-b-contrast|his demand for a reason why this and not that)) today. Spinoza is on weaker ground with ((nat-b-tune|the physics)), which has so far found nothing that makes the constants necessary.",
     ],
     quote: {

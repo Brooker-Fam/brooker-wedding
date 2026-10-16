@@ -3,8 +3,6 @@
    Every `quote` was checked word for word against the linked text; every `url` returned HTTP 200. */
 import type { Moment } from "../types";
 
-const SEP = "Stanford Encyclopedia of Philosophy";
-const IEP = "Internet Encyclopedia of Philosophy";
 const NDPR = "Notre Dame Philosophical Reviews";
 
 export const moments: Moment[] = [
@@ -19,13 +17,13 @@ export const moments: Moment[] = [
     side: "theist",
     quote: {
       text: "Verily thou art a God that hidest thyself, O God of Israel, the Saviour.",
-      who: "Isaiah 45:15",
-      cite: "King James Version",
-      url: "https://en.wikisource.org/wiki/Bible_(King_James)/Isaiah",
+      who: "Isaiah",
+      cite: "Isaiah 45:15 (KJV)",
+      url: "https://en.wikisource.org/wiki/Bible_(King_James)/Isaiah#45:15",
     },
     sources: [
-      { title: "Isaiah, chapter 45 (King James Version)", by: "The Bible", year: "1611", url: "https://en.wikisource.org/wiki/Bible_(King_James)/Isaiah" },
-      { title: "Hiddenness of God", by: SEP, url: "https://plato.stanford.edu/entries/divine-hiddenness/" },
+      { title: "Isaiah 45 (King James Version)", by: "King James Bible", year: "1611", url: "https://en.wikisource.org/wiki/Bible_(King_James)/Isaiah#45:1", note: "Isaiah 40–55, c. 540 BCE." },
+      { title: "Hiddenness of God", by: "Stanford Encyclopedia of Philosophy (Daniel Howard-Snyder and Adam Green)", year: "2016, rev. 2022", url: "https://plato.stanford.edu/entries/divine-hiddenness/" },
     ],
   },
   {
@@ -46,7 +44,7 @@ export const moments: Moment[] = [
     },
     sources: [
       { title: "Euthyphro", by: "Plato, trans. Benjamin Jowett", year: "c. 399–390 BCE", url: "https://www.gutenberg.org/ebooks/1642" },
-      { title: "Theological Voluntarism", by: SEP, url: "https://plato.stanford.edu/entries/voluntarism-theological/" },
+      { title: "Theological Voluntarism", by: "Stanford Encyclopedia of Philosophy (Mark Murphy)", year: "2002, rev. 2025", url: "https://plato.stanford.edu/entries/voluntarism-theological/" },
     ],
   },
   {
@@ -66,8 +64,8 @@ export const moments: Moment[] = [
       url: "https://classics.mit.edu/Aristotle/interpretation.1.1.html",
     },
     sources: [
-      { title: "On Interpretation", by: "Aristotle, trans. E. M. Edghill", url: "https://classics.mit.edu/Aristotle/interpretation.1.1.html" },
-      { title: "Future Contingents", by: SEP, url: "https://plato.stanford.edu/entries/future-contingents/" },
+      { title: "On Interpretation", by: "Aristotle, trans. E. M. Edghill", year: "c. 350 BCE", url: "https://classics.mit.edu/Aristotle/interpretation.1.1.html" },
+      { title: "Future Contingents", by: "Stanford Encyclopedia of Philosophy (Peter Øhrstrøm and Per Hasle)", year: "2011, rev. 2024", url: "https://plato.stanford.edu/entries/future-contingents/" },
     ],
   },
   {
@@ -87,8 +85,8 @@ export const moments: Moment[] = [
       url: "https://www.gutenberg.org/ebooks/1750.html.images",
     },
     sources: [
-      { title: "Laws", by: "Plato, trans. Benjamin Jowett", url: "https://www.gutenberg.org/ebooks/1750" },
-      { title: "Teleological Arguments for God's Existence", by: SEP, url: "https://plato.stanford.edu/entries/teleological-arguments/" },
+      { title: "Laws", by: "Plato, trans. Benjamin Jowett", year: "c. 348 BCE", url: "https://www.gutenberg.org/ebooks/1750" },
+      { title: "Teleological Arguments for God's Existence", by: "Stanford Encyclopedia of Philosophy (Del Ratzsch and Jeffrey Koperski)", year: "2005, rev. 2023", url: "https://plato.stanford.edu/entries/teleological-arguments/" },
     ],
   },
   {
@@ -108,8 +106,8 @@ export const moments: Moment[] = [
       url: "https://www.gutenberg.org/ebooks/785.html.images",
     },
     sources: [
-      { title: "On the Nature of Things", by: "Lucretius, trans. William Ellery Leonard", url: "https://www.gutenberg.org/ebooks/785" },
-      { title: "Lucretius", by: SEP, url: "https://plato.stanford.edu/entries/lucretius/" },
+      { title: "On the Nature of Things", by: "Lucretius, trans. William Ellery Leonard", year: "c. 55 BCE", url: "https://www.gutenberg.org/ebooks/785" },
+      { title: "Lucretius", by: "Stanford Encyclopedia of Philosophy (Simon Trépanier)", year: "2023", url: "https://plato.stanford.edu/entries/lucretius/" },
     ],
   },
   {
@@ -129,8 +127,8 @@ export const moments: Moment[] = [
       url: "https://www.gutenberg.org/ebooks/785.html.images",
     },
     sources: [
-      { title: "On the Nature of Things", by: "Lucretius, trans. William Ellery Leonard", url: "https://www.gutenberg.org/ebooks/785" },
-      { title: "De Rerum Natura, Book I (Latin text)", by: "Lucretius", url: "https://www.thelatinlibrary.com/lucretius/lucretius1.shtml" },
+      { title: "On the Nature of Things", by: "Lucretius, trans. William Ellery Leonard", year: "c. 55 BCE", url: "https://www.gutenberg.org/ebooks/785" },
+      { title: "De Rerum Natura, Book I (Latin text)", by: "Lucretius", year: "c. 55 BCE", url: "https://www.thelatinlibrary.com/lucretius/lucretius1.shtml" },
     ],
   },
   {
@@ -150,8 +148,8 @@ export const moments: Moment[] = [
       url: "https://penelope.uchicago.edu/Thayer/E/Roman/Texts/Cicero/de_Divinatione/2*.html",
     },
     sources: [
-      { title: "On Divination, Book II", by: "Cicero, trans. W. A. Falconer (Loeb, 1923)", url: "https://penelope.uchicago.edu/Thayer/E/Roman/Texts/Cicero/de_Divinatione/2*.html" },
-      { title: "Cicero", by: SEP, url: "https://plato.stanford.edu/entries/cicero/" },
+      { title: "On Divination, Book II", by: "Cicero, trans. W. A. Falconer (Loeb, 1923)", year: "44 BCE", url: "https://penelope.uchicago.edu/Thayer/E/Roman/Texts/Cicero/de_Divinatione/2*.html" },
+      { title: "Cicero", by: "Stanford Encyclopedia of Philosophy (Raphael Woolf)", year: "2022", url: "https://plato.stanford.edu/entries/cicero/" },
     ],
   },
   {
@@ -172,7 +170,7 @@ export const moments: Moment[] = [
     },
     sources: [
       { title: "Against Celsus, Book II", by: "Origen, trans. Frederick Crombie", year: "c. 248", url: "https://www.newadvent.org/fathers/04162.htm" },
-      { title: "Origen", by: SEP, url: "https://plato.stanford.edu/entries/origen/" },
+      { title: "Origen", by: "Stanford Encyclopedia of Philosophy (Mark J. Edwards)", year: "2014, rev. 2026", url: "https://plato.stanford.edu/entries/origen/" },
     ],
   },
   {
@@ -211,7 +209,7 @@ export const moments: Moment[] = [
     },
     sources: [
       { title: "On First Principles, Book I", by: "Origen, trans. Frederick Crombie", url: "https://www.newadvent.org/fathers/04121.htm" },
-      { title: "Origen", by: SEP, url: "https://plato.stanford.edu/entries/origen/" },
+      { title: "Origen", by: "Stanford Encyclopedia of Philosophy (Mark J. Edwards)", year: "2014, rev. 2026", url: "https://plato.stanford.edu/entries/origen/" },
     ],
   },
   {
@@ -250,7 +248,7 @@ export const moments: Moment[] = [
     },
     sources: [
       { title: "City of God, Book XXI", by: "Augustine, trans. Marcus Dods", url: "https://www.newadvent.org/fathers/120121.htm" },
-      { title: "Miracles", by: SEP, url: "https://plato.stanford.edu/entries/miracles/" },
+      { title: "Miracles", by: "Stanford Encyclopedia of Philosophy (Timothy McGrew and Robert Larmer)", year: "2010, rev. 2024", url: "https://plato.stanford.edu/entries/miracles/" },
     ],
   },
   {
@@ -272,7 +270,7 @@ export const moments: Moment[] = [
     sources: [
       { title: "Enchiridion", by: "Augustine, trans. J. F. Shaw", url: "https://www.newadvent.org/fathers/1302.htm" },
       { title: "City of God, Book XXI", by: "Augustine, trans. Marcus Dods", url: "https://www.newadvent.org/fathers/120121.htm" },
-      { title: "Heaven and Hell in Christian Thought", by: SEP, url: "https://plato.stanford.edu/entries/heaven-hell/" },
+      { title: "Heaven and Hell in Christian Thought", by: "Stanford Encyclopedia of Philosophy (Thomas Talbott)", year: "2013, rev. 2025", url: "https://plato.stanford.edu/entries/heaven-hell/" },
     ],
   },
   {
@@ -293,7 +291,7 @@ export const moments: Moment[] = [
     },
     sources: [
       { title: "The Consolation of Philosophy", by: "Boethius, trans. H. R. James", url: "https://www.gutenberg.org/ebooks/14328" },
-      { title: "Eternity in Christian Thought", by: SEP, url: "https://plato.stanford.edu/entries/eternity/" },
+      { title: "Eternity in Christian Thought", by: "Stanford Encyclopedia of Philosophy (Natalja Deng)", year: "2018, rev. 2023", url: "https://plato.stanford.edu/entries/eternity/" },
     ],
   },
   {
@@ -314,7 +312,7 @@ export const moments: Moment[] = [
     },
     sources: [
       { title: "Proslogion", by: "Anselm of Canterbury, trans. S. N. Deane", url: "https://ccel.org/ccel/anselm/basic_works/basic_works.iii.ii.html" },
-      { title: "Anselm of Canterbury", by: SEP, url: "https://plato.stanford.edu/entries/anselm/" },
+      { title: "Anselm of Canterbury", by: "Stanford Encyclopedia of Philosophy (Thomas Williams)", year: "2000, rev. 2023", url: "https://plato.stanford.edu/entries/anselm/" },
     ],
   },
   {
@@ -335,8 +333,8 @@ export const moments: Moment[] = [
     },
     sources: [
       { title: "The Incoherence of the Incoherence, “About the Natural Sciences”", by: "Averroes, trans. Simon Van den Bergh", url: "https://www.muslimphilosophy.com/ir/tt/tt-ns.htm" },
-      { title: "al-Ghazali", by: SEP, url: "https://plato.stanford.edu/entries/al-ghazali/" },
-      { title: "Occasionalism", by: SEP, url: "https://plato.stanford.edu/entries/occasionalism/" },
+      { title: "al-Ghazali", by: "Stanford Encyclopedia of Philosophy (Frank Griffel)", year: "2007, rev. 2026", url: "https://plato.stanford.edu/entries/al-ghazali/" },
+      { title: "Occasionalism", by: "Stanford Encyclopedia of Philosophy (Sukjae Lee)", year: "2008, rev. 2019", url: "https://plato.stanford.edu/entries/occasionalism/" },
     ],
   },
   {
@@ -357,7 +355,7 @@ export const moments: Moment[] = [
     },
     sources: [
       { title: "Summa Theologiae I q.105", by: "Thomas Aquinas", url: "https://www.newadvent.org/summa/1105.htm" },
-      { title: "Occasionalism", by: SEP, url: "https://plato.stanford.edu/entries/occasionalism/" },
+      { title: "Occasionalism", by: "Stanford Encyclopedia of Philosophy (Sukjae Lee)", year: "2008, rev. 2019", url: "https://plato.stanford.edu/entries/occasionalism/" },
     ],
   },
   {
@@ -378,7 +376,7 @@ export const moments: Moment[] = [
     },
     sources: [
       { title: "Summa Theologiae I q.2", by: "Thomas Aquinas", url: "https://www.newadvent.org/summa/1002.htm" },
-      { title: "Cosmological Argument", by: SEP, url: "https://plato.stanford.edu/entries/cosmological-argument/" },
+      { title: "Cosmological Argument", by: "Stanford Encyclopedia of Philosophy (Bruce Reichenbach)", year: "2004, rev. 2026", url: "https://plato.stanford.edu/entries/cosmological-argument/" },
     ],
   },
   {
@@ -417,7 +415,7 @@ export const moments: Moment[] = [
     },
     sources: [
       { title: "Summa Theologiae I-II q.87", by: "Thomas Aquinas", url: "https://www.newadvent.org/summa/2087.htm" },
-      { title: "Heaven and Hell in Christian Thought", by: SEP, url: "https://plato.stanford.edu/entries/heaven-hell/" },
+      { title: "Heaven and Hell in Christian Thought", by: "Stanford Encyclopedia of Philosophy (Thomas Talbott)", year: "2013, rev. 2025", url: "https://plato.stanford.edu/entries/heaven-hell/" },
     ],
   },
   {
@@ -438,7 +436,7 @@ export const moments: Moment[] = [
     },
     sources: [
       { title: "Disputation on the Power and Efficacy of Indulgences (the Ninety-five Theses)", by: "Martin Luther", year: "1517", url: "https://www.gutenberg.org/ebooks/274" },
-      { title: "Martin Luther", by: SEP, url: "https://plato.stanford.edu/entries/luther/" },
+      { title: "Martin Luther", by: "Stanford Encyclopedia of Philosophy (Robert Stern and Volker Leppin)", year: "2020, rev. 2025", url: "https://plato.stanford.edu/entries/luther/" },
     ],
   },
   {
@@ -470,7 +468,7 @@ export const moments: Moment[] = [
     strands: ["coherence"],
     side: "theist",
     sources: [
-      { title: "Middle Knowledge", by: IEP, url: "https://iep.utm.edu/middlekn/" },
+      { title: "Middle Knowledge", by: "Internet Encyclopedia of Philosophy (John D. Laing)", url: "https://iep.utm.edu/middlekn/" },
       { title: "On Divine Foreknowledge: Part IV of the Concordia", by: "Luis de Molina, trans. Alfred J. Freddoso", year: "1988" },
     ],
   },
@@ -483,7 +481,7 @@ export const moments: Moment[] = [
     thinker: "spinoza",
     strands: [],
     side: "spinoza",
-    sources: [{ title: "Baruch Spinoza", by: `${SEP} (Steven Nadler)`, url: "https://plato.stanford.edu/entries/spinoza/" }],
+    sources: [{ title: "Baruch Spinoza", by: "Stanford Encyclopedia of Philosophy (Steven Nadler)", year: "2001, rev. 2023", url: "https://plato.stanford.edu/entries/spinoza/" }],
   },
   {
     id: "m-hid-pascal",
@@ -503,7 +501,7 @@ export const moments: Moment[] = [
     },
     sources: [
       { title: "Pensées", by: "Blaise Pascal, trans. W. F. Trotter", year: "1670", url: "https://www.gutenberg.org/ebooks/18269" },
-      { title: "Blaise Pascal", by: SEP, url: "https://plato.stanford.edu/entries/pascal/" },
+      { title: "Blaise Pascal", by: "Stanford Encyclopedia of Philosophy (Desmond Clarke and William Wood)", year: "2007, rev. 2015", url: "https://plato.stanford.edu/entries/pascal/" },
     ],
   },
   {
@@ -524,7 +522,7 @@ export const moments: Moment[] = [
     },
     sources: [
       { title: "A Theologico-Political Treatise, chs. 6–10", by: "Benedict de Spinoza, trans. R. H. M. Elwes", year: "1670", url: "https://www.gutenberg.org/ebooks/990" },
-      { title: "Miracles", by: SEP, url: "https://plato.stanford.edu/entries/miracles/" },
+      { title: "Miracles", by: "Stanford Encyclopedia of Philosophy (Timothy McGrew and Robert Larmer)", year: "2010, rev. 2024", url: "https://plato.stanford.edu/entries/miracles/" },
     ],
   },
   {
@@ -545,7 +543,7 @@ export const moments: Moment[] = [
     },
     sources: [
       { title: "A Theologico-Political Treatise, chs. 6–10", by: "Benedict de Spinoza, trans. R. H. M. Elwes", year: "1670", url: "https://www.gutenberg.org/ebooks/990" },
-      { title: "Baruch Spinoza", by: SEP, url: "https://plato.stanford.edu/entries/spinoza/" },
+      { title: "Baruch Spinoza", by: "Stanford Encyclopedia of Philosophy (Steven Nadler)", year: "2001, rev. 2023", url: "https://plato.stanford.edu/entries/spinoza/" },
     ],
   },
   {
@@ -583,10 +581,10 @@ export const moments: Moment[] = [
       text: "For the rest, I accept Christ's passion, death, and burial literally, as you do, but His resurrection I understand allegorically.",
       who: "Baruch Spinoza",
       cite: "Letter 78, to Henry Oldenburg (7 February 1676), trans. R. H. M. Elwes",
-      url: "https://archive.org/details/chiefworksofbene02spin",
+      url: "https://archive.org/details/chiefworksofbene02spin/page/306",
     },
     sources: [
-      { title: "The Chief Works of Benedict de Spinoza, vol. 2 (letters 75, 78 and 79)", by: "Benedict de Spinoza, trans. R. H. M. Elwes", year: "1891", note: "Revised edition, George Bell and Sons.", url: "https://archive.org/details/chiefworksofbene02spin" },
+      { title: "The Chief Works of Benedict de Spinoza, vol. 2, Letters 75, 78 and 79 (Elwes XXIII, XXV and XXV.A)", by: "Baruch Spinoza (trans. R. H. M. Elwes)", year: "1884 (1891 printing)", url: "https://archive.org/details/chiefworksofbene02spin/page/301", note: "Spinoza and Oldenburg on the resurrection, Dec. 1675 to Feb. 1676." },
     ],
   },
   {
@@ -606,8 +604,8 @@ export const moments: Moment[] = [
       url: "https://archive.org/details/discourseonmetap00leibuoft",
     },
     sources: [
-      { title: "Discourse on Metaphysics, Correspondence with Arnauld, and Monadology", by: "G. W. Leibniz, trans. George R. Montgomery", year: "1902", url: "https://archive.org/details/discourseonmetap00leibuoft" },
-      { title: "Gottfried Wilhelm Leibniz", by: SEP, url: "https://plato.stanford.edu/entries/leibniz/" },
+      { title: "Discourse on Metaphysics, Correspondence with Arnauld, and Monadology", by: "G. W. Leibniz, trans. George R. Montgomery", year: "1686 (trans. 1902)", url: "https://archive.org/details/discourseonmetap00leibuoft" },
+      { title: "Gottfried Wilhelm Leibniz", by: "Stanford Encyclopedia of Philosophy (Brandon C. Look)", year: "2007, rev. 2013", url: "https://plato.stanford.edu/entries/leibniz/" },
     ],
   },
   {
@@ -628,7 +626,7 @@ export const moments: Moment[] = [
     },
     sources: [
       { title: "Ethics", by: "Benedict de Spinoza, trans. R. H. M. Elwes", year: "1677", url: "https://www.gutenberg.org/ebooks/3800" },
-      { title: "Baruch Spinoza", by: SEP, url: "https://plato.stanford.edu/entries/spinoza/" },
+      { title: "Baruch Spinoza", by: "Stanford Encyclopedia of Philosophy (Steven Nadler)", year: "2001, rev. 2023", url: "https://plato.stanford.edu/entries/spinoza/" },
     ],
   },
   {
@@ -685,7 +683,7 @@ export const moments: Moment[] = [
     },
     sources: [
       { title: "A Collection of Papers, which passed between the late learned Mr. Leibnitz, and Dr. Clarke", by: "G. W. Leibniz and Samuel Clarke", year: "1717", url: "https://archive.org/details/b30520022" },
-      { title: "Samuel Clarke", by: SEP, url: "https://plato.stanford.edu/entries/clarke/" },
+      { title: "Samuel Clarke", by: "Stanford Encyclopedia of Philosophy (Timothy Yenter and Ezio Vailati)", year: "2003, rev. 2024", url: "https://plato.stanford.edu/entries/clarke/" },
     ],
   },
   {
@@ -742,7 +740,7 @@ export const moments: Moment[] = [
     },
     sources: [
       { title: "Sinners in the Hands of an Angry God", by: "Jonathan Edwards", year: "1741", url: "https://www.ccel.org/ccel/edwards/sermons.sinners.html" },
-      { title: "Jonathan Edwards", by: SEP, url: "https://plato.stanford.edu/entries/edwards/" },
+      { title: "Jonathan Edwards", by: "Stanford Encyclopedia of Philosophy (William Wainwright)", year: "2002, rev. 2020", url: "https://plato.stanford.edu/entries/edwards/" },
     ],
   },
   {
@@ -763,7 +761,7 @@ export const moments: Moment[] = [
     },
     sources: [
       { title: "An Enquiry concerning Human Understanding", by: "David Hume", year: "1748", url: "https://www.gutenberg.org/ebooks/9662" },
-      { title: "Occasionalism", by: SEP, url: "https://plato.stanford.edu/entries/occasionalism/" },
+      { title: "Occasionalism", by: "Stanford Encyclopedia of Philosophy (Sukjae Lee)", year: "2008, rev. 2019", url: "https://plato.stanford.edu/entries/occasionalism/" },
     ],
   },
   {
@@ -784,7 +782,7 @@ export const moments: Moment[] = [
     },
     sources: [
       { title: "An Enquiry concerning Human Understanding, sect. X, “Of Miracles”", by: "David Hume", year: "1748", url: "https://www.gutenberg.org/ebooks/9662" },
-      { title: "Miracles", by: SEP, url: "https://plato.stanford.edu/entries/miracles/" },
+      { title: "Miracles", by: "Stanford Encyclopedia of Philosophy (Timothy McGrew and Robert Larmer)", year: "2010, rev. 2024", url: "https://plato.stanford.edu/entries/miracles/" },
     ],
   },
   {
@@ -823,7 +821,7 @@ export const moments: Moment[] = [
     },
     sources: [
       { title: "A Dissertation on Miracles", by: "George Campbell", year: "1762", url: "https://archive.org/details/dissertationonmi00camp" },
-      { title: "Miracles", by: SEP, url: "https://plato.stanford.edu/entries/miracles/" },
+      { title: "Miracles", by: "Stanford Encyclopedia of Philosophy (Timothy McGrew and Robert Larmer)", year: "2010, rev. 2024", url: "https://plato.stanford.edu/entries/miracles/" },
     ],
   },
   {
@@ -859,7 +857,7 @@ export const moments: Moment[] = [
     },
     sources: [
       { title: "Dialogues concerning Natural Religion", by: "David Hume", year: "1779", url: "https://www.gutenberg.org/ebooks/4583" },
-      { title: "Hume on Religion", by: SEP, url: "https://plato.stanford.edu/entries/hume-religion/" },
+      { title: "Hume on Religion", by: "Stanford Encyclopedia of Philosophy (Paul Russell and Anders Kraal)", year: "2005, rev. 2024", url: "https://plato.stanford.edu/entries/hume-religion/" },
     ],
   },
   {
@@ -872,7 +870,7 @@ export const moments: Moment[] = [
     node: "evi-a-imagination",
     strands: ["evidence"],
     side: "theist",
-    sources: [{ title: "Friedrich Heinrich Jacobi", by: SEP, url: "https://plato.stanford.edu/entries/friedrich-jacobi/" }],
+    sources: [{ title: "Friedrich Heinrich Jacobi", by: "Stanford Encyclopedia of Philosophy (Paolo Livieri and George di Giovanni)", year: "2001, rev. 2023", url: "https://plato.stanford.edu/entries/friedrich-jacobi/" }],
   },
   {
     id: "m-hid-kant",
@@ -892,7 +890,7 @@ export const moments: Moment[] = [
     },
     sources: [
       { title: "The Critique of Practical Reason", by: "Immanuel Kant, trans. T. K. Abbott", year: "1788", url: "https://www.gutenberg.org/ebooks/5683" },
-      { title: "Kant's Philosophy of Religion", by: SEP, url: "https://plato.stanford.edu/entries/kant-religion/" },
+      { title: "Kant's Philosophy of Religion", by: "Stanford Encyclopedia of Philosophy (Lawrence Pasternack and Courtney Fugate)", year: "2004, rev. 2025", url: "https://plato.stanford.edu/entries/kant-religion/" },
     ],
   },
   {
@@ -934,7 +932,7 @@ export const moments: Moment[] = [
     },
     sources: [
       { title: "The Life of Jesus, Critically Examined", by: "David Friedrich Strauss, trans. George Eliot", year: "1835", url: "https://archive.org/details/lifeofjesuscriti00straiala" },
-      { title: "Miracles", by: SEP, url: "https://plato.stanford.edu/entries/miracles/" },
+      { title: "Miracles", by: "Stanford Encyclopedia of Philosophy (Timothy McGrew and Robert Larmer)", year: "2010, rev. 2024", url: "https://plato.stanford.edu/entries/miracles/" },
     ],
   },
   {
@@ -955,7 +953,7 @@ export const moments: Moment[] = [
     },
     sources: [
       { title: "An Examination of Sir William Hamilton's Philosophy", by: "John Stuart Mill", year: "1865", url: "https://archive.org/details/in.ernet.dli.2015.223045" },
-      { title: "John Stuart Mill", by: SEP, url: "https://plato.stanford.edu/entries/mill/" },
+      { title: "John Stuart Mill", by: "Stanford Encyclopedia of Philosophy (Christopher Macleod)", year: "2016", url: "https://plato.stanford.edu/entries/mill/" },
     ],
   },
   {
@@ -976,7 +974,7 @@ export const moments: Moment[] = [
     },
     sources: [
       { title: "The Ethics of Belief", by: "W. K. Clifford", year: "1877", url: "https://en.wikisource.org/wiki/The_Ethics_of_Belief" },
-      { title: "The Ethics of Belief", by: SEP, url: "https://plato.stanford.edu/entries/ethics-belief/" },
+      { title: "The Ethics of Belief", by: "Stanford Encyclopedia of Philosophy (Andrew Chignell)", year: "2010, rev. 2018", url: "https://plato.stanford.edu/entries/ethics-belief/" },
     ],
   },
   {
@@ -997,7 +995,7 @@ export const moments: Moment[] = [
     },
     sources: [
       { title: "The Dawn of Day", by: "Friedrich Nietzsche, trans. J. M. Kennedy", year: "1881", url: "https://www.gutenberg.org/ebooks/39955" },
-      { title: "Friedrich Nietzsche", by: SEP, url: "https://plato.stanford.edu/entries/nietzsche/" },
+      { title: "Friedrich Nietzsche", by: "Stanford Encyclopedia of Philosophy (R. Lanier Anderson)", year: "2017, rev. 2026", url: "https://plato.stanford.edu/entries/nietzsche/" },
     ],
   },
   {
@@ -1030,7 +1028,7 @@ export const moments: Moment[] = [
     side: "spinoza",
     sources: [
       { title: "Postcard to Franz Overbeck, 30 July 1881", by: "Friedrich Nietzsche", year: "1881" },
-      { title: "Friedrich Nietzsche", by: SEP, url: "https://plato.stanford.edu/entries/nietzsche/" },
+      { title: "Friedrich Nietzsche", by: "Stanford Encyclopedia of Philosophy (R. Lanier Anderson)", year: "2017, rev. 2026", url: "https://plato.stanford.edu/entries/nietzsche/" },
     ],
   },
   {
@@ -1069,7 +1067,7 @@ export const moments: Moment[] = [
     },
     sources: [
       { title: "The Will to Believe, and Other Essays in Popular Philosophy", by: "William James", year: "1896", url: "https://www.gutenberg.org/ebooks/26659" },
-      { title: "William James", by: SEP, url: "https://plato.stanford.edu/entries/james/" },
+      { title: "William James", by: "Stanford Encyclopedia of Philosophy (Russell Goodman)", year: "2000, rev. 2021", url: "https://plato.stanford.edu/entries/james/" },
     ],
   },
   {
@@ -1095,8 +1093,8 @@ export const moments: Moment[] = [
     strands: ["nature"],
     side: "skeptic",
     sources: [
-      { title: "Cosmological Argument", by: SEP, url: "https://plato.stanford.edu/entries/cosmological-argument/" },
-      { title: "A Debate on the Existence of God (BBC Third Programme, 28 January 1948)", by: "Bertrand Russell and F. C. Copleston", year: "1948" },
+      { title: "Cosmological Argument", by: "Stanford Encyclopedia of Philosophy (Bruce Reichenbach)", year: "2004, rev. 2026", url: "https://plato.stanford.edu/entries/cosmological-argument/" },
+      { title: "A Debate on the Existence of God (BBC Third Programme, 28 January 1948)", by: "Bertrand Russell and F. C. Copleston", year: "1948", url: "https://strangenotions.com/the-most-famous-debate-on-the-existence-of-god/" },
     ],
   },
   {
@@ -1111,7 +1109,7 @@ export const moments: Moment[] = [
     side: "skeptic",
     sources: [
       { title: "Theology and Falsification", by: "Antony Flew", year: "1950", note: "Reprinted in Flew and MacIntyre, eds., New Essays in Philosophical Theology (1955)." },
-      { title: "Religious Language", by: SEP, url: "https://plato.stanford.edu/entries/religious-language/" },
+      { title: "Religious Language", by: "Stanford Encyclopedia of Philosophy (Michael Scott)", year: "2017, rev. 2022", url: "https://plato.stanford.edu/entries/religious-language/" },
     ],
   },
   {
@@ -1157,7 +1155,7 @@ export const moments: Moment[] = [
     side: "skeptic",
     sources: [
       { title: "Divine Omniscience and Voluntary Action", by: "Nelson Pike", year: "1965", note: "The Philosophical Review 74: 27–46." },
-      { title: "Foreknowledge and Free Will", by: SEP, url: "https://plato.stanford.edu/entries/free-will-foreknowledge/" },
+      { title: "Foreknowledge and Free Will", by: "Stanford Encyclopedia of Philosophy (David Hunt and Linda Zagzebski)", year: "2004, rev. 2026", url: "https://plato.stanford.edu/entries/free-will-foreknowledge/" },
     ],
   },
   {
@@ -1170,7 +1168,7 @@ export const moments: Moment[] = [
     node: "nat-b-multi",
     strands: ["nature"],
     side: "neutral",
-    sources: [{ title: "Fine-Tuning", by: SEP, url: "https://plato.stanford.edu/entries/fine-tuning/" }],
+    sources: [{ title: "Fine-Tuning", by: "Stanford Encyclopedia of Philosophy (Simon Friederich)", year: "2017, rev. 2026", url: "https://plato.stanford.edu/entries/fine-tuning/" }],
   },
   {
     id: "m-coh-grounding",
@@ -1184,7 +1182,7 @@ export const moments: Moment[] = [
     side: "skeptic",
     sources: [
       { title: "Middle Knowledge and the Problem of Evil", by: "Robert Merrihew Adams", year: "1977", note: "American Philosophical Quarterly 14: 109–17." },
-      { title: "Middle Knowledge", by: IEP, url: "https://iep.utm.edu/middlekn/" },
+      { title: "Middle Knowledge", by: "Internet Encyclopedia of Philosophy (John D. Laing)", url: "https://iep.utm.edu/middlekn/" },
     ],
   },
   {
@@ -1199,7 +1197,7 @@ export const moments: Moment[] = [
     side: "skeptic",
     sources: [
       { title: "The God of the Philosophers", by: "Anthony Kenny", year: "1979" },
-      { title: "Eternity in Christian Thought", by: SEP, url: "https://plato.stanford.edu/entries/eternity/" },
+      { title: "Eternity in Christian Thought", by: "Stanford Encyclopedia of Philosophy (Natalja Deng)", year: "2018, rev. 2023", url: "https://plato.stanford.edu/entries/eternity/" },
     ],
   },
   {
@@ -1239,7 +1237,7 @@ export const moments: Moment[] = [
     side: "neutral",
     sources: [
       { title: "The Hiddenness of God", by: "Robert McKim", year: "1990", note: "Religious Studies 26: 141–61." },
-      { title: "Hiddenness of God", by: SEP, url: "https://plato.stanford.edu/entries/divine-hiddenness/" },
+      { title: "Hiddenness of God", by: "Stanford Encyclopedia of Philosophy (Daniel Howard-Snyder and Adam Green)", year: "2016, rev. 2022", url: "https://plato.stanford.edu/entries/divine-hiddenness/" },
     ],
   },
   {
@@ -1254,7 +1252,7 @@ export const moments: Moment[] = [
     side: "skeptic",
     sources: [
       { title: "Divine Hiddenness and Human Reason", by: "J. L. Schellenberg", year: "1993", note: "Cornell University Press." },
-      { title: "Hiddenness of God", by: SEP, url: "https://plato.stanford.edu/entries/divine-hiddenness/" },
+      { title: "Hiddenness of God", by: "Stanford Encyclopedia of Philosophy (Daniel Howard-Snyder and Adam Green)", year: "2016, rev. 2022", url: "https://plato.stanford.edu/entries/divine-hiddenness/" },
     ],
   },
   {
@@ -1290,7 +1288,7 @@ export const moments: Moment[] = [
     side: "theist",
     sources: [
       { title: "Finite and Infinite Goods: A Framework for Ethics", by: "Robert Merrihew Adams", year: "1999", note: "Oxford University Press." },
-      { title: "Theological Voluntarism", by: SEP, url: "https://plato.stanford.edu/entries/voluntarism-theological/" },
+      { title: "Theological Voluntarism", by: "Stanford Encyclopedia of Philosophy (Mark Murphy)", year: "2002, rev. 2025", url: "https://plato.stanford.edu/entries/voluntarism-theological/" },
     ],
   },
   {
@@ -1311,7 +1309,7 @@ export const moments: Moment[] = [
     },
     sources: [
       { title: "Hume's Abject Failure: The Argument Against Miracles", by: "John Earman", year: "2000", url: "https://sites.pitt.edu/~jearman/Earman2000HumeAbjectFailure.pdf" },
-      { title: "Miracles", by: SEP, url: "https://plato.stanford.edu/entries/miracles/" },
+      { title: "Miracles", by: "Stanford Encyclopedia of Philosophy (Timothy McGrew and Robert Larmer)", year: "2010, rev. 2024", url: "https://plato.stanford.edu/entries/miracles/" },
     ],
   },
   {
@@ -1332,7 +1330,7 @@ export const moments: Moment[] = [
     },
     sources: [
       { title: "Warranted Christian Belief", by: "Alvin Plantinga", year: "2000", url: "https://ccel.org/ccel/plantinga/warrant3/warrant3.iii.html" },
-      { title: "The Epistemology of Religion", by: SEP, url: "https://plato.stanford.edu/entries/religion-epistemology/" },
+      { title: "The Epistemology of Religion", by: "Stanford Encyclopedia of Philosophy (Peter Forrest)", year: "1997, rev. 2025", url: "https://plato.stanford.edu/entries/religion-epistemology/" },
     ],
   },
   {
@@ -1354,7 +1352,7 @@ export const moments: Moment[] = [
     id: "m-hid-maitzen",
     year: 2006,
     when: "2006",
-    title: "Maitzen's map of belief",
+    title: "Maitzen on belief and birthplace",
     text: "Stephen Maitzen points out that belief in God tracks geography, at least 95 percent in Saudi Arabia and at most 5 percent in Thailand. Culture, he argues, explains that pattern better than a loving God who wants everyone to know him.",
     thinker: "maitzen",
     node: "hid-demographics",
@@ -1362,7 +1360,7 @@ export const moments: Moment[] = [
     side: "skeptic",
     sources: [
       { title: "Divine Hiddenness and the Demographics of Theism", by: "Stephen Maitzen", year: "2006", url: "https://doi.org/10.1017/S0034412506008274", note: "Religious Studies 42." },
-      { title: "Hiddenness of God", by: SEP, url: "https://plato.stanford.edu/entries/divine-hiddenness/" },
+      { title: "Hiddenness of God", by: "Stanford Encyclopedia of Philosophy (Daniel Howard-Snyder and Adam Green)", year: "2016, rev. 2022", url: "https://plato.stanford.edu/entries/divine-hiddenness/" },
     ],
   },
   {
@@ -1419,7 +1417,7 @@ export const moments: Moment[] = [
     side: "theist",
     sources: [
       { title: "The Experience of God: Being, Consciousness, Bliss", by: "David Bentley Hart", year: "2013", note: "Yale University Press." },
-      { title: "Divine Simplicity", by: SEP, url: "https://plato.stanford.edu/entries/divine-simplicity/" },
+      { title: "Divine Simplicity", by: "Stanford Encyclopedia of Philosophy (William F. Vallicella)", year: "2006, rev. 2023", url: "https://plato.stanford.edu/entries/divine-simplicity/" },
     ],
   },
   {
@@ -1434,7 +1432,7 @@ export const moments: Moment[] = [
     side: "skeptic",
     sources: [
       { title: "Simply Impossible: A Case against Divine Simplicity", by: "R. T. Mullins", year: "2013", url: "https://doi.org/10.1163/15697312-12341294", note: "Journal of Reformed Theology 7." },
-      { title: "Divine Simplicity", by: SEP, url: "https://plato.stanford.edu/entries/divine-simplicity/" },
+      { title: "Divine Simplicity", by: "Stanford Encyclopedia of Philosophy (William F. Vallicella)", year: "2006, rev. 2023", url: "https://plato.stanford.edu/entries/divine-simplicity/" },
     ],
   },
   {
@@ -1449,7 +1447,7 @@ export const moments: Moment[] = [
     side: "skeptic",
     sources: [
       { title: "Darwin and the Problem of Natural Nonbelief", by: "Jason Marsh", year: "2013", note: "The Monist 96: 349–76." },
-      { title: "Hiddenness of God", by: SEP, url: "https://plato.stanford.edu/entries/divine-hiddenness/" },
+      { title: "Hiddenness of God", by: "Stanford Encyclopedia of Philosophy (Daniel Howard-Snyder and Adam Green)", year: "2016, rev. 2022", url: "https://plato.stanford.edu/entries/divine-hiddenness/" },
     ],
   },
   {
@@ -1464,7 +1462,7 @@ export const moments: Moment[] = [
     side: "theist",
     sources: [
       { title: "Review of The Hiddenness of God", by: NDPR, url: "https://ndpr.nd.edu/reviews/the-hiddenness-of-god/" },
-      { title: "Gifford Lectures 2017", by: "University of St Andrews", url: "https://gifford.wp.st-andrews.ac.uk/gifford-lectures-2017/" },
+      { title: "Though the Darkness Hide Thee: Seeking the Face of the Invisible God (Gifford Lectures, St Andrews)", by: "Michael C. Rea", year: "2017", url: "https://gifford.wp.st-andrews.ac.uk/gifford-lectures-2017/" },
     ],
   },
   {
@@ -1479,7 +1477,7 @@ export const moments: Moment[] = [
     side: "theist",
     sources: [
       { title: "Collapsing the Modal Collapse Argument: On an Invalid Argument against Divine Simplicity", by: "Christopher Tomaszewski", year: "2019", note: "Analysis 79: 275–84." },
-      { title: "Divine Simplicity", by: SEP, url: "https://plato.stanford.edu/entries/divine-simplicity/" },
+      { title: "Divine Simplicity", by: "Stanford Encyclopedia of Philosophy (William F. Vallicella)", year: "2006, rev. 2023", url: "https://plato.stanford.edu/entries/divine-simplicity/" },
     ],
   },
   {
@@ -1494,7 +1492,7 @@ export const moments: Moment[] = [
     side: "theist",
     sources: [
       { title: "That All Shall Be Saved: Heaven, Hell, and Universal Salvation", by: "David Bentley Hart", year: "2019", note: "Yale University Press." },
-      { title: "Heaven and Hell in Christian Thought", by: SEP, url: "https://plato.stanford.edu/entries/heaven-hell/" },
+      { title: "Heaven and Hell in Christian Thought", by: "Stanford Encyclopedia of Philosophy (Thomas Talbott)", year: "2013, rev. 2025", url: "https://plato.stanford.edu/entries/heaven-hell/" },
     ],
   },
   {

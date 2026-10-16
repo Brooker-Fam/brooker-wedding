@@ -23,17 +23,59 @@ html:has(.atl) {
   scroll-behavior: auto;
   scrollbar-gutter: stable;
 }
+/* While the reader is tabbing (the Shell sets the attribute on Tab and clears it on any other
+   key or a pointer press), a control focused from below lands clear of the 52px sticky bar.
+   Literal sizes: --bar-h lives on .atl, not on html. Only while tabbing, so it never adds to
+   the scroll-margins the views give their own scrollIntoView targets. */
+html[data-atl-tab]:has(.atl) {
+  scroll-padding-top: calc(52px + env(safe-area-inset-top) + 16px);
+}
 
-/* Deep links: hidden until the client has switched to the linked view (see Shell). */
+/* Deep links: hidden until the client has switched to the linked view (see Shell). The
+   failsafe is generous: a slow phone may need several seconds for a lazily loaded view, and
+   revealing early would flash the server-rendered overview in its place. */
 html[data-atl-deep] .atl .sh-main,
 html[data-atl-deep] .atl .sh-foot {
   visibility: hidden;
-  animation: sh-unveil 0s linear 4s forwards;
+  animation: sh-unveil 0s linear 8s forwards;
 }
 @keyframes sh-unveil {
   to {
     visibility: visible;
   }
+}
+/* …with a quiet word while it waits (no animation), gone with the attribute. It borrows the
+   paper grain's pseudo-element (atlas.css), so it resets the grain's look while it shows. */
+html[data-atl-deep] .atl::after {
+  content: "Loading…";
+  position: fixed;
+  inset: 45vh 0 auto;
+  z-index: 1;
+  opacity: 1;
+  mix-blend-mode: normal;
+  background: none;
+  text-align: center;
+  font: 500 11px/1 var(--mono);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--mute);
+  pointer-events: none;
+  animation: sh-unveil-cue 0s linear 8s forwards;
+}
+@keyframes sh-unveil-cue {
+  to {
+    visibility: hidden;
+  }
+}
+
+/* While a toast is up and the reader is tabbing, a control focused near the bottom lands
+   above the toast, not behind it (toast.tsx publishes --toast-h). */
+html[data-atl-tab]:has(.atl .toast) {
+  scroll-padding-bottom: calc(var(--toast-h, 96px) + 16px + 16px + env(safe-area-inset-bottom));
+}
+/* …and the page's last links (the footer) can scroll up above it too */
+html[data-atl-tab]:has(.atl .toast) .atl .sh-foot {
+  padding-bottom: calc(var(--toast-h, 96px) + 40px + env(safe-area-inset-bottom));
 }
 
 /* ---------- top bar ---------- */
@@ -379,6 +421,44 @@ html[data-atl-deep] .atl .sh-foot {
 .atl .sh-pipbtn.on {
   background: #ffffff08;
 }
+/* A visible name for the pips (title tooltips don't show on touch): "You" stacked above
+   them on phones, so it costs no width; "Where you stand" beside them where there's room. */
+.atl .sh-piplab {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--mute);
+  white-space: nowrap;
+}
+.atl .sh-piplab-l {
+  display: none;
+}
+@media (max-width: 599.98px) {
+  .atl .sh-pipbtn {
+    flex-direction: column;
+    gap: 4px;
+  }
+  .atl .sh-piplab {
+    /* optically centre the letter-spaced word over the pips */
+    margin-right: -0.18em;
+  }
+}
+@media (min-width: 600px) {
+  .atl .sh-piplab {
+    margin-right: 8px;
+    font-size: 10.5px;
+    letter-spacing: 0.16em;
+  }
+  .atl .sh-piplab-s {
+    display: none;
+  }
+  .atl .sh-piplab-l {
+    display: inline;
+  }
+}
 .atl .sh-menubtn {
   display: inline-grid;
   place-items: center;
@@ -504,6 +584,56 @@ html[data-atl-deep] .atl .sh-foot {
   text-transform: uppercase;
   color: var(--faint);
 }
+/* the five objections, one tap each */
+.atl .sh-sobj {
+  list-style: none;
+  margin: 6px 0 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 6px;
+}
+.atl .sh-sobj-a {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  min-height: 56px;
+  padding: 6px 2px;
+  border: 1px solid var(--line-soft);
+  border-radius: 10px;
+  color: var(--bone);
+  text-decoration: none;
+  text-align: center;
+}
+.atl .sh-sobj-a:active {
+  background: #ffffff06;
+}
+.atl .sh-sobj-a.on {
+  border-color: var(--bone-2);
+  background: #ffffff08;
+}
+.atl .sh-sobj-top {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+.atl .sh-sobj-n {
+  font-family: var(--serif);
+  font-size: 18px;
+  line-height: 1;
+}
+.atl .sh-sobj-name {
+  max-width: 100%;
+  font-size: 11px;
+  line-height: 1.2;
+  color: var(--mute);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
 .atl .sh-sout {
   display: flex;
   flex-wrap: wrap;
@@ -539,14 +669,61 @@ html[data-atl-deep] .atl .sh-foot {
   display: block;
   min-height: calc(100vh - var(--bar-h) - 160px);
 }
+/* a view whose code is still loading: tall, so the footer waits below the fold */
+.atl .sh-pending {
+  min-height: calc(100vh - var(--bar-total));
+}
+/* a view that failed to render (Atlas.tsx ViewBoundary) */
+.atl .sh-failed {
+  max-width: 40rem;
+  margin: 0 auto;
+  padding: clamp(48px, 10vw, 96px) var(--gutter);
+}
+.atl .sh-failed-h {
+  margin: 0 0 12px;
+  font-family: var(--serif);
+  font-weight: 400;
+  font-size: clamp(1.7rem, 4vw, 2.3rem);
+  line-height: 1.15;
+  color: var(--bone);
+}
+.atl .sh-failed-p {
+  margin: 0 0 24px;
+  color: var(--mute);
+}
+.atl .sh-failed-btns {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 12px;
+}
+/* "There's no objection called …" (a dead link), above the map */
+.atl .sh-notice {
+  max-width: calc(var(--maxw) + 2 * var(--gutter));
+  margin: 16px auto 0;
+  padding: 0 var(--gutter);
+  font-size: 14.5px;
+  line-height: 1.5;
+  color: var(--bone-2);
+}
+.atl .sh-notice::before {
+  content: "";
+  display: inline-block;
+  width: 3px;
+  height: 1em;
+  margin-right: 10px;
+  vertical-align: -2px;
+  border-radius: 2px;
+  background: var(--skeptic);
+}
 .atl .sh-main h1[tabindex="-1"]:focus,
-.atl .sh-main[tabindex="-1"]:focus {
+.atl .sh-main[tabindex="-1"]:focus,
+.atl .sh-main [data-atl-land]:focus {
   outline: none;
 }
 
 /* ---------- footer ---------- */
 .atl .sh-foot {
-  margin-top: clamp(72px, 10vw, 128px);
+  margin-top: clamp(48px, 6vw, 80px);
   border-top: 1px solid var(--line-soft);
   padding: 36px 0 calc(40px + env(safe-area-inset-bottom));
 }
@@ -581,10 +758,6 @@ html[data-atl-deep] .atl .sh-foot {
   align-items: center;
   gap: 7px;
   color: var(--side, var(--bone-2));
-}
-.atl .sh-foot-k .glyph-svg path,
-.atl .sh-foot-k .glyph-svg circle {
-  fill: color-mix(in srgb, var(--side) 35%, transparent);
 }
 .atl .sh-method {
   margin: 0;

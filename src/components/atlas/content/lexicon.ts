@@ -77,7 +77,7 @@ export const terms: Term[] = [
   {
     id: "causal-closure",
     term: "Causal closure",
-    def: "The thesis that every physical event that has a cause has a complete physical cause, so physics never needs a non-physical push to finish its story. Physicalists treat it as a finding of science. Critics call it a philosophical assumption added on top of the science.",
+    def: "The thesis that every physical event that has a cause has a complete physical cause, so physics never needs a non-physical push to finish its story. Physicalists, who hold that everything is physical, treat it as a finding of science. Critics call it a philosophical assumption added on top of the science.",
   },
   {
     id: "causal-exclusion",

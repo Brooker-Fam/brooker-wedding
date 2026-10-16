@@ -4,7 +4,7 @@
    - tidyLayout: one objection as a left-to-right (or top-down) tree where
      every leaf gets its own lane and parents sit centered over their replies. */
 
-import type { ArgNode, Objection, ObjectionId, Side } from "./types";
+import type { ArgNode, Disputation, Objection, ObjectionId, Side } from "./types";
 
 export interface RadialPoint {
   id: string;
@@ -206,3 +206,35 @@ export function tidyEdge(a: { x: number; y: number }, b: { x: number; y: number 
 
 export const treeDepth = depthOf;
 export const treeLeaves = leafCount;
+
+/* ------------------------------------------------------------------ */
+/* The Rose's five sectors (shared by the Rose, its emblem, and the    */
+/* /debates index card, which computes them on the server)             */
+/* ------------------------------------------------------------------ */
+
+const SECTOR_GAP = 0.07;
+
+export interface RoseSector {
+  o: ObjectionId;
+  a0: number;
+  a1: number;
+  leaves: number;
+}
+
+/** The sectors' angles (radians, clockwise from 12 o'clock; sector I centred at the top).
+    Width is mostly proportional to leaves, with a floor so a lean objection stays legible. */
+export function sectorLayout(d: Pick<Disputation, "objections">): RoseSector[] {
+  const n = d.objections.length;
+  if (!n) return [];
+  const leaves = d.objections.map((o) => Math.max(1, o.prongs.reduce((s, p) => s + leafCount(p), 0)));
+  const total = leaves.reduce((a, b) => a + b, 0);
+  const avail = Math.PI * 2 - SECTOR_GAP * n;
+  const shares = leaves.map((l) => 0.35 / n + (0.65 * l) / total);
+  let cursor = -(shares[0] * avail) / 2;
+  return d.objections.map((o, i) => {
+    const w = shares[i] * avail;
+    const s = { o: o.id, a0: cursor, a1: cursor + w, leaves: leaves[i] };
+    cursor += w + SECTOR_GAP;
+    return s;
+  });
+}

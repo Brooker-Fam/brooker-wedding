@@ -8,7 +8,7 @@ import { Fraunces, IBM_Plex_Mono, IBM_Plex_Sans } from "next/font/google";
 const fraunces = Fraunces({
   subsets: ["latin"],
   style: ["normal", "italic"],
-  axes: ["opsz", "SOFT"],
+  axes: ["opsz"],
   variable: "--atl-serif",
   display: "swap",
 });

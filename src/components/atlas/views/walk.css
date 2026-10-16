@@ -75,7 +75,9 @@
   color: var(--skeptic);
 }
 .atl .wk-head-k {
+  min-width: 0;
   padding-bottom: 2px;
+  overflow-wrap: anywhere;
 }
 .atl .wk-kicker {
   display: flex;
@@ -87,9 +89,11 @@
   letter-spacing: 0.24em;
   text-transform: uppercase;
   color: var(--bone);
+  overflow-wrap: anywhere;
 }
 .atl .wk-kicker::before {
   content: "";
+  flex: none;
   width: 22px;
   height: 1px;
   background: var(--skeptic);
@@ -100,11 +104,12 @@
   letter-spacing: 0.16em;
   text-transform: uppercase;
   color: var(--faint);
+  overflow-wrap: anywhere;
 }
 .atl .wk-title {
   grid-area: title;
   margin: 12px 0 8px;
-  font-size: clamp(2.05rem, 5.4vw, 3.15rem);
+  font-size: clamp(2.1rem, 4.4vw, 3.1rem);
   font-weight: 400;
   line-height: 1.04;
   letter-spacing: -0.018em;
@@ -133,7 +138,8 @@
   border-top: 1px solid var(--line-soft);
   border-bottom: 1px solid var(--line-soft);
 }
-.atl details.wk-how > summary {
+.atl details.wk-how > summary,
+.atl .wk-how-tog {
   display: inline-flex;
   align-items: center;
   gap: 8px;
@@ -149,15 +155,42 @@
 .atl details.wk-how > summary::-webkit-details-marker {
   display: none;
 }
-.atl details.wk-how > summary:hover {
+.atl details.wk-how > summary:hover,
+.atl .wk-how-tog:hover {
   color: var(--bone-2);
 }
-.atl details.wk-how > summary span {
+.atl details.wk-how > summary span,
+.atl .wk-how-tog span {
   display: inline-block;
   transition: transform 0.25s var(--ease);
 }
-.atl details.wk-how[open] > summary span {
+.atl details.wk-how[open] > summary span,
+.atl .wk-how-tog[aria-expanded="true"] span {
   transform: rotate(180deg);
+}
+/* a fresh walk shows the rules outright; on phones they fold behind the same disclosure the
+   walk uses later, so the first move is on the first screen */
+.atl .wk-how-tog {
+  display: none;
+  padding: 0;
+  border: 0;
+  background: none;
+  font-family: var(--mono);
+}
+@media (max-width: 639px) {
+  .atl .wk-how.is-open {
+    border: 0;
+  }
+  .atl .wk-how.is-open .wk-how-tog {
+    display: inline-flex;
+  }
+  .atl .wk-how.is-open:not(.is-shown) .wk-how-body {
+    display: none;
+  }
+  .atl .wk-how.is-shown .wk-how-body {
+    border-top: 1px solid var(--line-soft);
+    border-bottom: 1px solid var(--line-soft);
+  }
 }
 .atl details.wk-how[open] .wk-rules {
   border-top: 1px solid var(--line-soft);
@@ -485,6 +518,28 @@
   position: relative;
   z-index: 1;
 }
+/* ■ the reader's call, right beside the status glyph (as on the objection page) */
+.atl .wk-said-you {
+  flex: none;
+  margin-left: -5px;
+}
+.atl .wk-v-node .glyph-svg + .you-mark {
+  margin-left: -5px;
+}
+.atl .wk-chip-you {
+  flex: none;
+  margin-left: -3px;
+}
+.atl .wk-sec-label .you-mark,
+.atl .wk-dp-label .you-mark {
+  position: relative;
+  top: 1px;
+  flex: none;
+  margin-left: -5px;
+}
+.atl .wk-sec-st .your-call {
+  letter-spacing: 0.12em;
+}
 .atl .wk-said-label {
   flex: 1;
   min-width: 0;
@@ -500,7 +555,7 @@
   color: var(--bone);
 }
 .atl .wk-said-label.lab-out {
-  color: #8a8794;
+  color: var(--faint);
 }
 .atl .wk-said:hover .wk-said-label,
 .atl .wk-said:focus-visible .wk-said-label {
@@ -832,7 +887,8 @@
   color: var(--bone);
   text-wrap: balance;
 }
-/* the card heading takes focus after each step: no box, a slim bar in the speaker's colour */
+/* the card heading takes focus after each step: no box, a bone bar beside it (the side colour
+   alone was too faint a cue) */
 .atl [data-wk-head] {
   position: relative;
   scroll-margin-top: 90px;
@@ -846,9 +902,9 @@
   left: -14px;
   top: 0.12em;
   bottom: 0.12em;
-  width: 2px;
+  width: 3px;
   border-radius: 2px;
-  background: var(--side, var(--bone));
+  background: var(--bone);
 }
 .atl .wk-gist {
   margin: 0 0 4px;
@@ -906,11 +962,66 @@
   color: var(--bone);
 }
 .atl .wk-quote figcaption {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
   margin-top: 9px;
   font-size: 10.5px;
   letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--faint);
+}
+/* "Read it in context ↗" under the citation (the same look as the move page and the Library) */
+.atl .wk-quote .rf-ctx {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  min-height: 28px;
+  padding-top: 4px;
+  font-family: var(--sans);
+  font-size: 13px;
+  font-style: normal;
+  letter-spacing: 0.01em;
+  line-height: 1.5;
+  text-transform: none;
+  color: var(--bone-2);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+.atl .wk-quote .rf-ctx-t {
+  text-decoration: underline;
+  text-decoration-color: color-mix(in srgb, var(--side, var(--bone-2)) 70%, transparent);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+.atl .wk-quote .rf-ctx-arrow {
+  margin-left: 3px;
+  color: var(--mute);
+}
+.atl .wk-quote .rf-ctx-host {
+  margin-left: 8px;
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: 0.04em;
+  color: var(--faint);
+}
+.atl .wk-quote .rf-ctx:hover {
+  color: var(--bone);
+}
+.atl .wk-quote .rf-ctx:hover .rf-ctx-t {
+  text-decoration-color: var(--bone);
+}
+.atl .wk-quote .rf-ctx:focus-visible {
+  outline: 2px solid var(--bone);
+  outline-offset: 2px;
+  border-radius: 3px;
+}
+@media (pointer: coarse) {
+  .atl .wk-quote .rf-ctx {
+    align-items: center;
+    min-height: 44px;
+  }
 }
 .atl .wk-case-sec {
   margin: 18px 0 0;
@@ -953,7 +1064,7 @@
 .atl .wk-cedes {
   margin: 16px 0 0;
   padding: 13px 16px 14px;
-  border: 1px dashed color-mix(in srgb, var(--side) 34%, var(--line));
+  border: 1px solid color-mix(in srgb, var(--side) 22%, var(--line-soft));
   border-radius: 12px;
   background: color-mix(in srgb, var(--side) 5%, transparent);
 }
@@ -999,14 +1110,15 @@
   display: flex;
   flex-wrap: wrap;
   gap: 0 22px;
-  margin: 10px 0 -8px;
+  /* the links' 44px boxes are taller than their text: the margins take back the extra */
+  margin: 8px 0 -10px;
 }
 .atl .wk-qlink {
   display: inline-flex;
   align-items: center;
   gap: 7px;
-  min-height: 40px;
-  padding: 0;
+  min-height: 44px;
+  padding: 2px 0;
   border: 0;
   background: none;
   font-size: 10.5px;
@@ -1092,7 +1204,14 @@
   font-family: var(--mono);
   font-size: 10.5px;
   letter-spacing: 0;
-  opacity: 0.5;
+}
+/* the hints are the only sign the shortcuts exist, so they stay readable (6.3:1 and 6.6:1) */
+.atl .wk-btn.line .wk-kbd,
+.atl .wk-undo .wk-kbd {
+  color: var(--mute);
+}
+.atl .wk-btn.solid .wk-kbd {
+  color: #4b4e5c;
 }
 @media (hover: none), (pointer: coarse) {
   .atl .wk-kbd {
@@ -1199,8 +1318,10 @@
 }
 .atl .wk-bar-pin .wk-btn {
   min-height: 48px;
-  padding: 5px 12px;
+  padding: 5px 10px;
   font-size: 11.5px;
+  letter-spacing: 0.08em;
+  white-space: nowrap;
 }
 .atl .wk-bar-pin .wk-arrow {
   display: none;
@@ -1209,7 +1330,30 @@
   grid-template-columns: minmax(0, 1fr) 48px;
 }
 .atl .wk-bar-pin .n2.with-undo {
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 48px;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.35fr) 48px;
+}
+/* narrow phones (320–374px): a little less air, so every label stays on one line */
+@media (max-width: 374px) {
+  .atl .wk-bar-pin .wk-bar-btns {
+    gap: 8px;
+  }
+  .atl .wk-bar-pin .wk-btn {
+    padding-inline: 6px;
+    font-size: 11px;
+    letter-spacing: 0.02em;
+  }
+  .atl .wk-bar-pin .n1.with-undo {
+    grid-template-columns: minmax(0, 1fr) 44px;
+  }
+  .atl .wk-bar-pin .n2.with-undo {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.35fr) 44px;
+  }
+  .atl .wk-bar-pin .wk-undo-ic {
+    align-self: center;
+    width: 44px;
+    min-height: 44px;
+    height: 44px;
+  }
 }
 .atl .wk-undo-ic {
   width: 48px;
@@ -1221,6 +1365,10 @@
 }
 .atl .wk-undo-ic:hover {
   color: var(--bone);
+}
+/* a control reached with Tab never ends up under the docked bar (its context line + 48px buttons) */
+html:has(.atl .wk-bar-pin.is-on) {
+  scroll-padding-bottom: calc(132px + env(safe-area-inset-bottom));
 }
 /* keep toasts (and their Undo) clear of the docked bar */
 .atl:has(.wk-bar-pin.is-on) .toast-dock {
@@ -1656,7 +1804,8 @@
     min-height: 44px;
     padding-top: 9px;
   }
-  .atl .wk-said-glyph {
+  .atl .wk-said-glyph,
+  .atl .wk-said-you {
     margin-top: 5px;
   }
   .atl .wk-said-label {

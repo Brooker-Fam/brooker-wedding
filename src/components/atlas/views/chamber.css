@@ -58,6 +58,10 @@
   flex-direction: column;
   max-height: calc(100vh - var(--bar-h, 52px) - 32px);
   max-height: calc(100dvh - var(--bar-h, 52px) - 32px);
+  /* the chart sizes its tree to fit; this only scrolls when the help text is open */
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
   padding: 16px 16px 14px;
   border: 1px solid var(--line-soft);
   border-radius: var(--radius);
@@ -80,6 +84,17 @@
   font-style: normal;
   color: var(--bone-2);
   cursor: pointer;
+}
+
+/* an unknown move id in the link (same look as the Library's notices) */
+.atl .ch-notice {
+  margin: 0 0 18px;
+  padding: 12px 16px;
+  border-left: 2px solid var(--faint);
+  border-radius: 0 8px 8px 0;
+  background: #ffffff06;
+  color: var(--bone-2);
+  font-size: 14.5px;
 }
 
 /* ---------- one-hop "back" chip ---------- */
@@ -197,7 +212,8 @@
   font-family: var(--serif);
   font-optical-sizing: auto;
   font-weight: 400;
-  font-size: clamp(30px, 3.6vw, 44px);
+  /* the same size as the title in Step through it (.wk-title) */
+  font-size: clamp(2.1rem, 4.4vw, 3.1rem);
   line-height: 1.06;
   letter-spacing: -0.018em;
   color: var(--bone);
@@ -287,7 +303,7 @@
 }
 .atl .ch-ex {
   display: grid;
-  grid-template-columns: 148px minmax(0, 1fr);
+  grid-template-columns: 188px minmax(0, 1fr);
   gap: 6px 20px;
   margin: 0;
   padding: 16px 0 17px;
@@ -308,10 +324,10 @@
   white-space: nowrap;
 }
 .atl .ch-ex-t {
-  font-family: var(--serif);
-  font-size: 18px;
-  line-height: 1.48;
-  color: var(--bone);
+  font-family: var(--sans);
+  font-size: 16.5px;
+  line-height: 1.62;
+  color: var(--bone-2);
   text-wrap: pretty;
 }
 .atl .ch-dek {
@@ -378,20 +394,52 @@
   outline: 2px solid var(--bone);
   outline-offset: 1px;
 }
-.atl .ch-roundels .ch-roundel-more {
-  /* plain text, not a roundel: it isn't a control */
-  display: flex;
+/* used by both sides: half ochre (the Objector's seat, left), half verdigris (the Defender's, right) */
+.atl .ch-roundel.s-both .monogram {
+  border-color: transparent;
+  background:
+    radial-gradient(circle at 35% 30%, #ffffff12, transparent 70%) padding-box,
+    linear-gradient(var(--ink-2), var(--ink-2)) padding-box,
+    linear-gradient(90deg, var(--skeptic) 50%, var(--theist) 50%) border-box;
+  color: var(--bone);
+}
+.atl .ch-roundels.is-all {
+  flex-wrap: wrap;
+  row-gap: 6px;
+}
+.atl .ch-roundels .ch-roundel-more-li {
+  margin-left: 6px;
+}
+.atl .ch-roundel-more {
+  display: inline-flex;
   align-items: center;
-  margin-left: 10px;
+  min-height: 44px;
+  padding: 0 6px;
+  border: 0;
+  background: none;
   white-space: nowrap;
   font-family: var(--sans);
   font-size: 12.5px;
-  color: var(--faint);
+  color: var(--bone-2);
+  text-decoration: underline;
+  text-decoration-color: var(--line);
+  text-underline-offset: 4px;
+  cursor: pointer;
+}
+.atl .ch-roundel-more:hover {
+  color: var(--bone);
+  text-decoration-color: var(--bone);
+}
+.atl .ch-roundel-more:focus-visible {
+  outline: 2px solid var(--bone);
+  outline-offset: 1px;
+  border-radius: 6px;
 }
 .atl .ch-lineage-span {
   font-family: var(--mono);
   font-size: 10.5px;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
   color: var(--faint);
 }
 .atl .ch-lineage-go {
@@ -579,6 +627,12 @@
   padding-left: 14px;
   border-left: 2px solid var(--side);
 }
+.atl .ch-echo-k,
+.atl .ch-scholium-k {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
 .atl .ch-echo-k {
   margin: 0 0 6px;
   font-family: var(--mono);
@@ -667,7 +721,8 @@
 .atl .ch-map-toggle-m {
   font-family: var(--mono);
   font-size: 10.5px;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
   color: var(--faint);
 }
 .atl .ch-map-toggle-chev {
@@ -951,13 +1006,11 @@
   color: var(--bone);
   text-wrap: pretty;
 }
-.atl .ch-label:focus {
-  outline: none;
-}
+/* Focus on an open move's headline shows on its card, not as a box round the headline
+   (a dashed box read as a selection bug, and dashes mean Answered). */
+.atl .ch-label:focus,
 .atl .ch-label:focus-visible {
-  outline: 1px dashed #ebe5d699;
-  outline-offset: 6px;
-  border-radius: 6px;
+  outline: none;
 }
 .atl .ch-hit,
 .atl .ch-label-big {
@@ -1042,6 +1095,20 @@
 .atl .ch-status-word {
   transition: color 0.45s var(--ease) var(--ch-delay, 0ms);
 }
+/* ■ the reader's call, right beside the status glyph */
+.atl .ch-status .ch-you {
+  margin-left: -3px;
+}
+.atl .ch-xyou {
+  flex: none;
+  margin: 6px 0 0 -5px;
+}
+.atl .ch-fork-st .ch-you,
+.atl .ch-prong-st .ch-you {
+  display: inline-block;
+  margin-right: 6px;
+  vertical-align: -1px;
+}
 .atl .ch-status.st-in .ch-status-word {
   color: var(--bone);
 }
@@ -1064,29 +1131,31 @@
     stroke 0.45s var(--ease) var(--ch-delay, 0ms);
 }
 
-/* the ripple after a call: a single ring, staggered bottom-up by depth */
+/* the ripple after a call: a single ring, staggered bottom-up by depth. The glow is static and
+   only opacity and a slight scale animate (both composited), so the ring costs no repaints. */
 .atl .ch-ripple {
   position: absolute;
   inset: -1px;
   z-index: 0;
   border-radius: inherit;
   border: 1px solid var(--side);
+  box-shadow: 0 0 0 5px var(--side-glow);
   pointer-events: none;
   opacity: 0;
+  will-change: opacity, transform;
   animation: ch-ripple 1.1s var(--ease) var(--ch-delay, 0ms) 1 both;
 }
 @keyframes ch-ripple {
   0% {
     opacity: 0;
-    box-shadow: 0 0 0 0 var(--side-glow);
+    transform: scale(1);
   }
   22% {
     opacity: 1;
-    box-shadow: 0 0 0 5px var(--side-glow);
   }
   100% {
     opacity: 0;
-    box-shadow: 0 0 0 16px transparent;
+    transform: scale(1.01);
   }
 }
 
@@ -1132,9 +1201,10 @@
   margin: 10px 0 0;
 }
 .atl .ch-answers {
-  font-family: var(--mono);
-  font-size: 10.5px;
-  letter-spacing: 0.08em;
+  margin: 0;
+  font-family: var(--sans);
+  font-size: 12.5px;
+  letter-spacing: 0;
   color: var(--faint);
 }
 /* an inline link with a 44px hit area that doesn't push the line apart */
@@ -1365,16 +1435,91 @@
   margin-top: 6px;
 }
 
-/* decision block */
+/* decision block: right after the case (a band across the card), then the folded references */
 .atl .ch-decide {
   margin: 24px -26px 0;
   padding: 18px 26px 20px;
   border-top: 1px solid var(--line-soft);
-  border-radius: 0 0 var(--radius) var(--radius);
   background: #12141b9c;
 }
-.atl .ch-turn.seat-center .ch-decide {
+.atl .ch-decide:last-child {
+  border-radius: 0 0 var(--radius) var(--radius);
+}
+.atl .ch-turn.seat-center .ch-decide:last-child {
   border-radius: 0 0 4px 4px;
+}
+/* "Does the Defender's reply hold up?" */
+.atl .ch-ask {
+  margin: 0 0 10px;
+  font-size: 10.5px;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--bone-2);
+}
+
+/* "Sources, people and links": closed by default, the card's last row */
+.atl .ch-more {
+  margin: 0 -26px;
+  border-top: 1px solid var(--line-soft);
+}
+.atl .ch-more-sum,
+.atl .ch-chart-help-sum {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 0 26px;
+  list-style: none;
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--mute);
+  cursor: pointer;
+  user-select: none;
+}
+.atl .ch-more-sum::-webkit-details-marker,
+.atl .ch-chart-help-sum::-webkit-details-marker {
+  display: none;
+}
+.atl .ch-more-sum:hover,
+.atl .ch-chart-help-sum:hover {
+  color: var(--bone);
+}
+.atl .ch-more-sum:focus-visible,
+.atl .ch-chart-help-sum:focus-visible {
+  outline: 2px solid var(--bone);
+  outline-offset: -4px;
+  border-radius: 10px;
+}
+.atl .ch-more-n {
+  color: var(--faint);
+}
+.atl .ch-more-chev {
+  display: inline-grid;
+  place-items: center;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 1px solid var(--line);
+  font-size: 11px;
+  letter-spacing: 0;
+  line-height: 1;
+}
+.atl .ch-more-chev::before {
+  content: "+";
+}
+.atl details[open] > summary .ch-more-chev::before {
+  content: "−";
+}
+.atl .ch-more-body {
+  padding: 0 26px 22px;
+}
+.atl .ch-more-body > :first-child,
+.atl .ch-more-body > :first-child > .ch-sec:first-child {
+  margin-top: 4px;
 }
 .atl .ch-cedes {
   margin: 0 0 16px;
@@ -1517,16 +1662,15 @@
 .atl .ch-turn.is-focus > .ch-plain,
 .atl .ch-turn.is-focus > .ch-body,
 .atl .ch-turn.is-focus > .ch-quote,
-.atl .ch-turn.is-focus > .ch-refs,
-.atl .ch-turn.is-focus > .ch-links,
-.atl .ch-turn.is-focus > .ch-sec,
+.atl .ch-turn.is-focus > .ch-more,
 .atl .ch-turn.is-focus > .ch-decide {
   animation: ch-unfold 0.5s var(--ease) both;
 }
 .atl .ch-turn.is-focus > .ch-body {
   animation-delay: 0.04s;
 }
-.atl .ch-turn.is-focus > .ch-decide {
+.atl .ch-turn.is-focus > .ch-decide,
+.atl .ch-turn.is-focus > .ch-more {
   animation-delay: 0.08s;
 }
 @keyframes ch-unfold {
@@ -1546,6 +1690,13 @@
     0 0 0 1px #e07a5f22,
     0 40px 80px -46px #000;
 }
+/* keyboard focus on an open move's headline: the site's 2px bone ring, round the whole card
+   (focus-visible only, so a tap or a route change never leaves a ring; nor does a deep link's
+   first focus, marked data-quiet until it moves on) */
+.atl article[data-turn]:has([data-turn-heading]:focus-visible:not([data-quiet])) {
+  outline: 2px solid var(--bone);
+  outline-offset: 3px;
+}
 
 /* ---------- forks ---------- */
 .atl .ch-fork {
@@ -1562,7 +1713,8 @@
   align-self: center;
   width: min(100%, 560px);
   padding: 12px 12px 10px 16px;
-  border: 1px dashed #3d4154;
+  /* solid: dashes mean only Answered (and the empty seat) */
+  border: 1px solid var(--line-soft);
   border-radius: var(--radius);
   background: #171922;
 }
@@ -1686,10 +1838,24 @@
   gap: 12px;
   min-width: 0;
 }
+.atl .ch-fork-main {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
 .atl .ch-fork-l {
   font-size: 14.5px;
   line-height: 1.38;
   color: var(--bone-2);
+}
+/* how far the branch runs: "6 moves · 4 rounds below" */
+.atl .ch-fork-meta {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--faint);
 }
 .atl .ch-fork-opt.on .ch-fork-l:not(.lab-out) {
   color: var(--bone);
@@ -1824,7 +1990,8 @@
 .atl .ch-chair-of {
   font-family: var(--mono);
   font-size: 10.5px;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
   color: var(--faint);
 }
 .atl .ch-chair-read {
@@ -1876,10 +2043,14 @@
 .atl .ch-keys {
   margin: 26px 0 0;
   text-align: center;
-  font-family: var(--mono);
-  font-size: 10.5px;
-  letter-spacing: 0.06em;
+  font-family: var(--sans);
+  font-size: 12.5px;
+  letter-spacing: 0;
   color: var(--faint);
+}
+/* a key and its word never part at a line break */
+.atl .ch-keys-pair {
+  white-space: nowrap;
 }
 .atl .ch-keys kbd {
   display: inline-block;
@@ -1896,6 +2067,20 @@
 @media (hover: none), (max-width: 639px) {
   .atl .ch-keys {
     display: none;
+  }
+}
+/* Desktop: forks, contradiction notes and the key hint span 14%–86%, where the Defender's
+   cards start and the Objector's end, so the thread has one pair of inner edges. */
+@media (min-width: 721px) {
+  .atl .ch-fork,
+  .atl .ch-tension,
+  .atl .ch-keys {
+    width: 72%;
+    margin-inline: auto;
+  }
+  .atl .ch-keys {
+    width: auto;
+    text-wrap: balance;
   }
 }
 
@@ -1929,12 +2114,13 @@
   margin: 0;
   font-family: var(--mono);
   font-size: 10.5px;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
   color: var(--faint);
 }
+/* never shrinks (it would clip the deepest rounds); the panel chart sizes its rows to fit instead */
 .atl .ch-chart-fig {
-  flex: 0 1 auto;
-  min-height: 0;
+  flex: none;
   border-radius: 10px;
   overflow: hidden;
   background: #12141b80;
@@ -1967,6 +2153,16 @@
 }
 .atl .ch-chart.v-inline .ch-band text {
   font-size: 13px;
+}
+/* "Part 1", "Part 2"… above each part's opening move */
+.atl .ch-part-k {
+  font-family: var(--mono);
+  font-size: 11.5px;
+  letter-spacing: 0.06em;
+  fill: var(--faint);
+}
+.atl .ch-chart.v-inline .ch-part-k {
+  font-size: 12.5px;
 }
 .atl .ch-chart.v-inline .ch-readout {
   min-height: 104px;
@@ -2012,7 +2208,7 @@
   fill: var(--side);
 }
 .atl .ch-cn.st-out .ch-cn-g {
-  stroke: #8a8794;
+  stroke: var(--faint);
   stroke-dasharray: 2.2 1.8;
 }
 .atl .ch-cn-halo {
@@ -2024,8 +2220,11 @@
   stroke: var(--bone);
   stroke-width: 1.4;
 }
+/* ■ the reader's call */
 .atl .ch-cn-mine {
-  fill: var(--bone);
+  fill: color-mix(in srgb, var(--bone-2) 55%, transparent);
+  stroke: var(--bone);
+  stroke-width: 1;
 }
 .atl .ch-cn-flag {
   fill: var(--bone);
@@ -2041,10 +2240,24 @@
 .atl .ch-cn.hov .ch-cn-hit {
   fill: #ffffff0d;
 }
-.atl .ch-cn:focus-visible .ch-cn-hit {
+/* keyboard focus: a solid 2px bone ring on a 2px ink gap (dotted lines mean Answered) */
+.atl .ch-cn-fgap,
+.atl .ch-cn-fring {
+  display: none;
+  fill: none;
+  pointer-events: none;
+}
+.atl .ch-cn:focus-visible .ch-cn-fgap,
+.atl .ch-cn:focus-visible .ch-cn-fring {
+  display: inline;
+}
+.atl .ch-cn-fgap {
+  stroke: var(--ink);
+  stroke-width: 6px;
+}
+.atl .ch-cn-fring {
   stroke: var(--bone);
-  stroke-width: 1.2;
-  stroke-dasharray: 2 2.5;
+  stroke-width: 2px;
 }
 
 /* fixed room for up to three lines of claim, so the legend below doesn't jump */
@@ -2153,12 +2366,14 @@
 }
 .atl .ch-legend .lg-out {
   fill: none;
-  stroke: #8a8794;
+  stroke: var(--faint);
   stroke-width: 1.3;
   stroke-dasharray: 2 1.6;
 }
 .atl .ch-legend .lg-mine {
-  fill: var(--bone);
+  fill: color-mix(in srgb, var(--bone-2) 55%, transparent);
+  stroke: var(--bone);
+  stroke-width: 1;
 }
 .atl .ch-legend .lg-tense {
   fill: none;
@@ -2183,13 +2398,23 @@
   text-transform: uppercase;
 }
 .atl .ch-legend-sides span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   color: var(--side);
 }
-/* one plain explanation of how to read the chart */
-.atl .ch-chart-note {
-  margin: 10px 0 0;
-  padding-top: 10px;
+/* one plain explanation of how to read the chart, folded */
+.atl .ch-chart-help {
+  margin: 8px 0 0;
   border-top: 1px solid var(--line-soft);
+}
+.atl .ch-chart-help-sum {
+  justify-content: flex-start;
+  padding: 0;
+}
+.atl .ch-chart-note {
+  margin: 0;
+  padding: 0 0 4px;
   font-size: 12.5px;
   line-height: 1.5;
   color: var(--mute);
@@ -2202,7 +2427,7 @@
 }
 
 /* tablets: the overview map sits beside its readout and legend */
-@media (min-width: 640px) and (max-width: 1099px) {
+@media (min-width: 640px) and (max-width: 1199px) {
   .atl .ch-chart.v-inline {
     display: grid;
     grid-template-columns: minmax(0, 1.5fr) minmax(200px, 1fr);
@@ -2212,7 +2437,7 @@
       "fig readout"
       "fig legend"
       "fig sides"
-      "fig note";
+      "fig help";
     column-gap: 24px;
   }
   .atl .ch-chart.v-inline .ch-chart-head {
@@ -2235,8 +2460,8 @@
     grid-area: sides;
     align-self: start;
   }
-  .atl .ch-chart.v-inline .ch-chart-note {
-    grid-area: note;
+  .atl .ch-chart.v-inline .ch-chart-help {
+    grid-area: help;
     align-self: start;
   }
 }
@@ -2335,9 +2560,9 @@
 .atl .ch-reading-by {
   display: block;
   margin-top: 2px;
-  font-family: var(--mono);
-  font-size: 10.5px;
-  letter-spacing: 0.08em;
+  font-family: var(--sans);
+  font-size: 12.5px;
+  letter-spacing: 0;
   color: var(--faint);
 }
 .atl .ch-reading-note {
@@ -2426,7 +2651,6 @@
   }
   .atl .ch-title {
     margin-top: 18px;
-    font-size: clamp(29px, 8.4vw, 36px);
   }
   .atl .ch-question {
     margin-top: 16px;
@@ -2441,7 +2665,7 @@
     padding-top: 0;
   }
   .atl .ch-ex-t {
-    font-size: 17px;
+    font-size: 16px;
   }
   .atl .ch-dek {
     font-size: 16px;
@@ -2521,9 +2745,6 @@
   .atl .ch-turn {
     padding: 13px 15px 12px;
   }
-  .atl .ch-round {
-    display: none;
-  }
   .atl .ch-decide-status {
     grid-template-columns: minmax(0, 1fr) auto;
   }
@@ -2552,6 +2773,15 @@
   .atl .ch-decide {
     margin: 22px -16px 0;
     padding: 16px 16px 18px;
+  }
+  .atl .ch-more {
+    margin: 0 -16px;
+  }
+  .atl .ch-more-sum {
+    padding: 0 16px;
+  }
+  .atl .ch-more-body {
+    padding: 0 16px 18px;
   }
   .atl .ch-decide-row {
     display: grid;
@@ -2593,17 +2823,13 @@
     height: 44px;
     background: transparent;
   }
-  .atl .ch-roundels .ch-roundel-more {
-    height: 44px;
+  .atl .ch-roundels .ch-roundel-more-li {
     margin-left: 6px;
   }
   .atl .ch-roundel .monogram {
     width: 34px;
     height: 34px;
     font-size: 12px;
-  }
-  .atl .ch-roundel-more {
-    border: 0;
   }
   .atl a.ch-reading-t {
     padding-block: 10px;
@@ -2629,7 +2855,7 @@
     justify-content: center;
     margin-top: 4px;
     padding-top: 4px;
-    border-top: 1px dashed var(--line-soft);
+    border-top: 1px solid var(--line-soft);
   }
   .atl .ch-fork-opt {
     grid-template-columns: 12px 13px minmax(0, 1fr);
@@ -2659,5 +2885,176 @@
   .atl .ch-pn-link.next {
     text-align: left;
     align-items: flex-start;
+  }
+}
+
+/* ==========================================================================
+   Touch: every small text link in the chamber is a full 44px target
+   ========================================================================== */
+@media (pointer: coarse) {
+  .atl .ch .rf-ctx,
+  .atl .ch .ch-allsrc {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+  }
+  /* a source title keeps its arrow in the text flow, so it only grows to 44px */
+  .atl .ch a.rf-title {
+    min-height: 44px;
+  }
+  .atl .ch-answers-link {
+    min-width: 44px;
+  }
+}
+.atl .ch-echo-ctx {
+  margin-top: 4px;
+}
+
+/* ==========================================================================
+   Wide screens: skip from the reading column to the chart (visually hidden until focused)
+   ========================================================================== */
+.atl .ch-skip {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+/* absolute with no offsets: it shows at its own place in the flow without pushing the thread down */
+.atl .ch-skip:focus,
+.atl .ch-skip:focus-visible {
+  z-index: 5;
+  display: inline-flex;
+  align-items: center;
+  width: auto;
+  height: auto;
+  min-height: 44px;
+  margin: 18px 0 0;
+  padding: 0 16px;
+  overflow: visible;
+  clip: auto;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--ink-2);
+  font-family: var(--sans);
+  font-size: 14px;
+  color: var(--bone);
+  outline: 2px solid var(--bone);
+  outline-offset: 2px;
+  cursor: pointer;
+}
+
+/* ==========================================================================
+   Phones: "Mark it ↓" jumps from the top of the open move to its Holds / Fails
+   ========================================================================== */
+.atl .ch-mark-go {
+  display: none;
+}
+.atl .ch-side-line.only-mark {
+  display: none;
+}
+.atl .ch-decide:focus {
+  outline: none;
+}
+.atl .ch-decide:focus-visible {
+  outline: 2px solid var(--bone);
+  outline-offset: -2px;
+}
+@media (max-width: 639px) {
+  .atl .ch-side-line.only-mark {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 2px;
+  }
+  .atl .ch-mark-go {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    min-height: 44px;
+    margin: -10px -6px -10px auto;
+    padding: 0 6px;
+    border: 0;
+    border-radius: 6px;
+    background: none;
+    font-family: var(--sans);
+    font-size: 13px;
+    color: var(--bone-2);
+    white-space: nowrap;
+    cursor: pointer;
+  }
+  .atl .ch-mark-go:active {
+    background: #ffffff0c;
+  }
+  .atl .ch-mark-go:focus-visible {
+    outline: 2px solid var(--bone);
+    outline-offset: 1px;
+  }
+}
+
+/* ==========================================================================
+   Lineage on phones: name chips ("Pascal 1670"), two to a row, instead of bare initials
+   ========================================================================== */
+.atl .ch-roundel-name {
+  display: none;
+}
+@media (max-width: 639px) {
+  .atl .ch-roundels {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 6px;
+    flex: 1 1 100%;
+    width: 100%;
+    padding: 0;
+  }
+  .atl .ch-roundels li,
+  .atl .ch-roundels .ch-roundel-more-li {
+    min-width: 0;
+    margin: 0;
+  }
+  .atl .ch-roundel {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 9px;
+    width: 100%;
+    height: auto;
+    min-height: 44px;
+    padding: 4px 12px 4px 5px;
+    border: 1px solid var(--line-soft);
+    border-radius: 999px;
+    background: #ffffff05;
+    text-align: left;
+  }
+  .atl .ch-roundel:hover {
+    transform: none;
+  }
+  .atl .ch-roundel .monogram {
+    flex: none;
+    width: 32px;
+    height: 32px;
+    font-size: 11.5px;
+  }
+  .atl .ch-roundel-name {
+    display: block;
+    min-width: 0;
+    font-family: var(--sans);
+    font-size: 14px;
+    line-height: 1.25;
+    color: var(--bone-2);
+    overflow-wrap: anywhere;
+  }
+  .atl .ch-roundel-yr {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.04em;
+    color: var(--faint);
+  }
+  .atl .ch-roundel-more {
+    width: 100%;
+    justify-content: center;
   }
 }

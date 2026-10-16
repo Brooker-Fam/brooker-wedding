@@ -1,9 +1,10 @@
 import type { Objection } from "../types";
 
 /* Objection II — Divine hiddenness. Two parts: Schellenberg's argument from
-   nonresistant nonbelief, and Maitzen's map of belief. Every quotation below was
-   checked word for word against its source: the KJV (Gutenberg #10 and the
-   per-book Gutenberg KJV, #8001–8066, which the Bible links point to); Elwes's
+   nonresistant nonbelief, and Maitzen's figures on belief and birthplace. Every
+   quotation below was checked word for word against its source: the KJV
+   (Gutenberg #10 and the per-book Gutenberg KJV, #8001–8066; the Bible links
+   go to the verse anchors of Wikisource's KJV); Elwes's
    Spinoza (Ethics, Gutenberg #3800; Theologico-Political Treatise, Gutenberg #990;
    Letter 73 in Elwes's Chief Works vol. 2, archive.org); Trotter's Pascal (Gutenberg
    #18269, Brunschvicg numbering; the Gutenberg text numbers 552–585 one lower, so
@@ -34,7 +35,7 @@ const hiddenness: Objection = {
     "A God who wanted a relationship with each of us wouldn't leave a sincere, open seeker unsure that he exists (J. L. Schellenberg's hiddenness argument).",
   counter:
     "Michael Rea argues that God's love needn't look like a parent's, and that God can be present without being felt. Paul Moser argues that God offers the evidence to people willing to be changed by it, and holds it back from people who only want to inspect it.",
-  dek: "J. L. Schellenberg, a Canadian philosopher, has asked since 1993 why so many honest people, some searching hard and some never told, find no one there. His question is a cousin of the problem of evil, which asks why a good God allows suffering. In 2006 Stephen Maitzen added a world map on which belief follows birthplace. More than three centuries earlier, Pascal had made God's hiding part of his case for Christianity: “every religion which does not affirm that God is hidden, is not true” (*Pensées* 585).",
+  dek: "J. L. Schellenberg, a Canadian philosopher, has asked since 1993 why so many honest people, some searching hard and some never told, find no one there. His question is a cousin of the problem of evil, which asks why a good God allows suffering. In 2006 Stephen Maitzen pointed out that belief in God follows birthplace, with Saudi Arabia at least 95 percent theist and Thailand at most 5 percent. More than three centuries earlier, Pascal had made God's hiding part of his case for Christianity: “every religion which does not affirm that God is hidden, is not true” (*Pensées* 585).",
   question: "Would a perfectly loving God leave anyone who isn't running from him unsure he is there?",
 
   prongs: [
@@ -53,13 +54,13 @@ const hiddenness: Objection = {
         text: "An omniscient and omnipotent God who does not even take care that His intentions shall be understood by His creatures—could He be a God of goodness?",
         who: "Friedrich Nietzsche",
         cite: "Daybreak (The Dawn of Day) §91 (1881; tr. J. M. Kennedy, 1911)",
-        url: "https://www.gutenberg.org/ebooks/39955",
+        url: "https://www.gutenberg.org/cache/epub/39955/pg39955-images.html#Pg090",
       },
       thinkers: ["schellenberg", "nietzsche", "mckim"],
       cedes:
         "The argument fails if a loving God could have a reason, weightier than the relationship itself, to leave a non-resisting person without belief, or if no one is in that position after all.",
       see: [
-        { id: "hid-demographics", why: "Part 2 maps the same unbelief by birthplace and century." },
+        { id: "hid-demographics", why: "Part 2 traces the same unbelief by birthplace and century." },
         { id: "evi-a", why: "Objection IV asks the reverse question, why belief runs ahead of the evidence." },
         { id: "mor-hell", why: "If God also judges people for unbelief, Objection V's charge gets worse." },
       ],
@@ -78,8 +79,9 @@ const hiddenness: Objection = {
           note: "The original argument, framed in terms of reasonable nonbelief.",
         },
         {
-          title: "Hiddenness of God (Stanford Encyclopedia of Philosophy)",
-          by: "Daniel Howard-Snyder and Adam Green",
+          title: "Hiddenness of God",
+          by: "Stanford Encyclopedia of Philosophy (Daniel Howard-Snyder and Adam Green)",
+          year: "2016, rev. 2022",
           url: "https://plato.stanford.edu/entries/divine-hiddenness/",
           note: "Section 2 states the argument from nonresistant nonbelief and the case for each premise.",
         },
@@ -149,14 +151,13 @@ const hiddenness: Objection = {
               label: "A love that won't let you know it's there is a lesser love",
               gist: "We can easily picture a greater love than one that leaves a willing beloved forever unsure, so Rea's reply makes God's love smaller.",
               body: [
-                "{{schellenberg}} replies that premise one never needed the parent picture. It needs only what believers already say, that God's love can't be surpassed. Of two lovers, one who leaves a willing beloved forever unsure he exists and one who makes himself known, almost anyone would call the first love the lesser.",
-                "The Bible also says God “will have all men to be saved, and to come unto the knowledge of the truth” (1 Timothy 2:4). Rea's appeal to God's own purposes makes things worse, since a love shaped by the lover's interests falls short of the self-giving love Christians see on the cross. If *love* is stretched further still, God's love would resemble ours only as the Dog Star resembles the dog that barks, sharing a name and no [[univocity|common meaning]], which is ((coh-a-dogstar|Spinoza's point)) about God's mind.",
+                "{{schellenberg}} replies that premise one never needed the parent picture. It needs only what believers already say, that God's love can't be surpassed. Of two lovers, one who leaves a willing beloved forever unsure he exists and one who makes himself known, almost anyone would call the first love the lesser. The Bible also says God “will have all men to be saved, and to come unto the knowledge of the truth” (1 Timothy 2:4). Rea's appeal to God's own purposes makes things worse, since a love shaped by the lover's interests falls short of the self-giving love Christians see on the cross. If *love* is stretched further still, God's love would resemble ours only as the Dog Star resembles the dog that barks, sharing a name and no [[univocity|common meaning]], which is ((coh-a-dogstar|Spinoza's point)) about God's mind.",
               ],
               quote: {
                 text: "If ye then, being evil, know how to give good gifts unto your children, how much more shall your Father which is in heaven give good things to them that ask him?",
                 who: "Jesus, in the Gospel of Matthew",
                 cite: "Matthew 7:11 (KJV)",
-                url: "https://www.gutenberg.org/ebooks/8040",
+                url: "https://en.wikisource.org/wiki/Bible_(King_James)/Matthew#7:11",
               },
               thinkers: ["schellenberg"],
               cedes:
@@ -195,14 +196,13 @@ const hiddenness: Objection = {
                   label: "We can't see far enough to judge what perfect love would do",
                   gist: "A hiding love looks lesser to us, but that is weak evidence that it is lesser, because we can't see all the goods an infinite mind can see.",
                   body: [
-                    "Schellenberg's two-lovers comparison works only if we can see everything that depends on the choice, and we probably can't. This is [[skeptical-theism|skeptical theism]], the view that our failure to see God's reasons is poor evidence that he has none. God answered Job with question after question, among them “Where wast thou when I laid the foundations of the earth?” (Job 38:4).",
-                    "The philosophers Justin McBrayer and Philip Swenson argued in 2012 that the hiddenness argument rests on an unstated premise, that if God had a reason to allow nonresistant nonbelief, we would probably see it, and that nothing supports that premise. {{bergmann}} states the general point this way: “We have no good reason for thinking that the possible goods we know of are representative of the possible goods there are.”",
+                    "Schellenberg's two-lovers comparison works only if we can see everything that depends on the choice, and we probably can't. This is [[skeptical-theism|skeptical theism]], the view that our failure to see God's reasons is poor evidence that he has none. God answered Job with question after question, among them “Where wast thou when I laid the foundations of the earth?” (Job 38:4). The philosophers Justin McBrayer and Philip Swenson argued in 2012 that the hiddenness argument rests on an unstated premise, that if God had a reason to allow nonresistant nonbelief, we would probably see it, and that nothing supports that premise. {{bergmann}} states the general point this way: “We have no good reason for thinking that the possible goods we know of are representative of the possible goods there are.”",
                   ],
                   quote: {
                     text: "For as the heavens are higher than the earth, so are my ways higher than your ways, and my thoughts than your thoughts.",
                     who: "The Book of Isaiah",
                     cite: "Isaiah 55:9 (KJV)",
-                    url: "https://www.gutenberg.org/ebooks/8023",
+                    url: "https://en.wikisource.org/wiki/Bible_(King_James)/Isaiah#55:9",
                   },
                   thinkers: ["bergmann"],
                   cedes: "This reply falls if the goods at stake in hiddenness are all goods we can fully survey.",
@@ -225,8 +225,9 @@ const hiddenness: Objection = {
                       note: "Noûs 35. Bergmann's thesis about known and unknown goods is on p. 279.",
                     },
                     {
-                      title: "Skeptical Theism (Stanford Encyclopedia of Philosophy)",
-                      by: "Timothy Perrine",
+                      title: "Skeptical Theism",
+                      by: "Stanford Encyclopedia of Philosophy (Timothy Perrine)",
+                      year: "2023",
                       url: "https://plato.stanford.edu/entries/skeptical-theism/",
                       note: "Section 2 sets out Bergmann's three theses; section 7.3 applies skeptical theism to the hiddenness argument.",
                     },
@@ -236,16 +237,15 @@ const hiddenness: Objection = {
                       id: "hid-logical-foul",
                       side: "skeptic",
                       label: "Unseen reasons can't defeat an argument from what love is",
-                      gist: "Unseen reasons may weaken arguments from piles of evil, but this argument starts from what perfect love is, and the goods in question would be human goods.",
+                      gist: "Unseen reasons can answer arguments from how much evil we see, but this one starts from what perfect love is, and any reason God had would be a human good we can judge.",
                       body: [
-                        "Skeptical theism answers arguments that go from what we see to what is probably true, such as *I see no reason for this evil, so there probably is none*. {{schellenberg}} reasons instead from what perfect love is. His argument is deductive, meaning the conclusion follows with certainty if the premises are true. So if we can see that the premises are true, no hidden good can block the conclusion. In 2015 he called the appeal to unknown goods a “logical foul” for that reason.",
-                        "Schellenberg adds that any good God had in mind here would be a good for us, a good of human relationship or growth, and those are the goods we understand best. And if we can't judge what perfect love would do about our unbelief, we can't be sure God will keep his promises either, including “I will never leave thee, nor forsake thee” (Hebrews 13:5).",
+                        "Skeptical theism answers arguments that go from what we see to what is probably true, such as *I see no reason for this evil, so there probably is none*. {{schellenberg}} reasons instead from what perfect love is. His argument is deductive, meaning the conclusion follows with certainty if the premises are true. So if we can see that the premises are true, no hidden good can block the conclusion. In 2015 he called the appeal to unknown goods a “logical foul” for that reason. Schellenberg adds that any good God had in mind here would be a good for us, a good of human relationship or growth, and those are the goods we understand best. And if we can't judge what perfect love would do about our unbelief, we can't be sure God will keep his promises either, including “I will never leave thee, nor forsake thee” (Hebrews 13:5).",
                       ],
                       quote: {
                         text: "He that loveth not knoweth not God; for God is love.",
                         who: "The First Letter of John",
                         cite: "1 John 4:8 (KJV)",
-                        url: "https://www.gutenberg.org/ebooks/8062",
+                        url: "https://en.wikisource.org/wiki/Bible_(King_James)/1_John#4:8",
                       },
                       thinkers: ["schellenberg"],
                       cedes:
@@ -269,8 +269,8 @@ const hiddenness: Objection = {
                           note: "Quotes the whole argument and doubts that skeptical theists will accept the 'logical foul' charge.",
                         },
                         {
-                          title: "Divine Hiddenness Argument against God's Existence (Internet Encyclopedia of Philosophy)",
-                          by: "Luke Teeninga",
+                          title: "Divine Hiddenness Argument against God's Existence",
+                          by: "Internet Encyclopedia of Philosophy (Luke Teeninga)",
                           url: "https://iep.utm.edu/divine-hiddenness-argument-against-gods-existence/",
                           note: "Section 2d describes skeptical theism as a reply to hiddenness arguments.",
                         },
@@ -290,14 +290,13 @@ const hiddenness: Objection = {
           label: "People can meet God without knowing it is God",
           gist: "Feeling God near and God being near are different, and people can meet God in Scripture, worship and ordinary life without knowing it is him.",
           body: [
-            "{{rea}} doubts premise two, which says no one can relate to God without first believing he exists. Feeling God near differs from God's being near, he argues. Thunder, beauty or a text read aloud in church can be experiences of God even when no one recognizes them. In 2009 he argued that Scripture and liturgy, the set forms of public worship, carry God's presence to anyone who takes part.",
-            "{{stump}} and the philosopher Matthew Benton add that knowing a person may not require believing that he exists, just as a stranger can steady you long before you learn his name. Philosophers call a belief about someone you can't yet identify [[de-re-belief|*de re*]], Latin for 'about the thing'. On their view you can be in touch with God this way before you believe it is God. The psalmist asked, “whither shall I flee from thy presence?” (Psalm 139:7).",
+            "{{rea}} doubts premise two, which says no one can relate to God without first believing he exists. Feeling God near differs from God's being near, he argues. Thunder, beauty or a text read aloud in church can be experiences of God even when no one recognizes them. In 2009 he argued that Scripture and liturgy, the set forms of public worship, carry God's presence to anyone who takes part. {{stump}} and the philosopher Matthew Benton add that knowing a person may not require believing that he exists, just as a stranger can steady you long before you learn his name. Philosophers call a belief about someone you can't yet identify [[de-re-belief|*de re*]], Latin for 'about the thing'. On their view you can be in touch with God this way before you believe it is God. The psalmist asked, “whither shall I flee from thy presence?” (Psalm 139:7).",
           ],
           quote: {
             text: "Surely the LORD is in this place; and I knew it not.",
             who: "Jacob, waking at Bethel",
             cite: "Genesis 28:16 (KJV)",
-            url: "https://www.gutenberg.org/ebooks/8001",
+            url: "https://en.wikisource.org/wiki/Bible_(King_James)/Genesis#28:16",
           },
           thinkers: ["rea", "stump"],
           cedes: "If relating to God requires believing, from the first moment, that it is God you are dealing with, Rea's reply doesn't work.",
@@ -322,8 +321,8 @@ const hiddenness: Objection = {
               note: "In Fiona Ellis (ed.), New Models of Religious Understanding, 172–190.",
             },
             {
-              title: "Divine Hiddenness Argument against God's Existence (Internet Encyclopedia of Philosophy)",
-              by: "Luke Teeninga",
+              title: "Divine Hiddenness Argument against God's Existence",
+              by: "Internet Encyclopedia of Philosophy (Luke Teeninga)",
               url: "https://iep.utm.edu/divine-hiddenness-argument-against-gods-existence/",
               note: "Section 2b covers replies on which a relationship with God needn't begin with belief; section 2c summarizes Rea on liturgy and Scripture.",
             },
@@ -335,8 +334,7 @@ const hiddenness: Objection = {
               label: "You can't relate to someone you don't believe is there",
               gist: "Schellenberg's argument is about a two-way relationship you know you're in, and an encounter you don't recognize as anyone isn't that.",
               body: [
-                "{{schellenberg}} can grant that God might be present unrecognized, because his argument is about what he calls a “conscious, reciprocal relationship”, one you know you are in and can answer from your side. His premises require only belief, with no particular felt experience, because believing someone is there is the least such a relationship needs.",
-                "The stranger example supports Schellenberg, since you know the stranger who steadies you is someone, even without his name, while a nonbeliever who hears thunder thinks only of the weather. Jacob already believed in the God of his fathers when he woke at Bethel. The Bible itself says that “he that cometh to God must believe that he is” (Hebrews 11:6). And someone raised where no liturgy is ever read never meets it at all.",
+                "{{schellenberg}} can grant that God might be present unrecognized, because his argument is about what he calls a “conscious, reciprocal relationship”, one you know you are in and can answer from your side. His premises require only belief, with no particular felt experience, because believing someone is there is the least such a relationship needs. The stranger example supports Schellenberg, since you know the stranger who steadies you is someone, even without his name, while a nonbeliever who hears thunder thinks only of the weather. Jacob already believed in the God of his fathers when he woke at Bethel. The Bible itself says that “he that cometh to God must believe that he is” (Hebrews 11:6). And someone raised where no liturgy is ever read never meets it at all.",
               ],
               quote: {
                 text: "But if thou art everywhere, why do I not see thee present?",
@@ -362,8 +360,9 @@ const hiddenness: Objection = {
                   note: "Anselm's prayer to a God he believes in and can't find.",
                 },
                 {
-                  title: "Hiddenness of God (Stanford Encyclopedia of Philosophy)",
-                  by: "Daniel Howard-Snyder and Adam Green",
+                  title: "Hiddenness of God",
+                  by: "Stanford Encyclopedia of Philosophy (Daniel Howard-Snyder and Adam Green)",
+                  year: "2016, rev. 2022",
                   url: "https://plato.stanford.edu/entries/divine-hiddenness/",
                   note: "Section 4 weighs the replies, including Benton's and Stump's, on which a relationship can begin before belief.",
                 },
@@ -375,14 +374,14 @@ const hiddenness: Objection = {
                   label: "Trust without belief is enough to begin a relationship with God",
                   gist: "You can trust God, hope in him and act on that hope while unsure he exists, so a relationship can begin before belief is settled.",
                   body: [
-                    "Schellenberg's claim that relating to God requires believing in him doesn't fit faith as people live it. {{howard-snyder}} argues that [[nondoxastic-faith|faith that God exists doesn't require believing]] that he does, just as you can have faith that a friend will pull through surgery without quite believing she will. Such faith rests on hope and trust. The New Testament's own definition puts hope first: “faith is the substance of things hoped for, the evidence of things not seen” (Hebrews 11:1).",
-                    "In Mark's Gospel a father who can't settle his doubts prays anyway, and Jesus heals his son. Even {{schellenberg}}, in *The Will to Imagine* (2009), recommends a faith without belief, aimed at an ultimate reality he describes only in general terms, as the right response to religious doubt. On his account such faith “involves voluntary assent to a proposition, undertaken in circumstances where one views the state of affairs it reports as good and desirable but in which one lacks belief of the proposition”.",
+                    "Schellenberg's claim that relating to God requires believing in him doesn't fit faith as people live it. {{howard-snyder}} argues that [[nondoxastic-faith|faith that God exists doesn't require believing]] that he does, just as you can have faith that a friend will pull through surgery without quite believing she will. Such faith rests on hope and trust. The New Testament's own definition puts hope first: “faith is the substance of things hoped for, the evidence of things not seen” (Hebrews 11:1). In Mark's Gospel a father who can't settle his doubts prays anyway, and Jesus heals his son.",
+                    "Even {{schellenberg}}, in *The Will to Imagine* (2009), recommends a faith without belief, aimed at an ultimate reality he describes only in general terms, as the right response to religious doubt. On his account such faith “involves voluntary assent to a proposition, undertaken in circumstances where one views the state of affairs it reports as good and desirable but in which one lacks belief of the proposition”.",
                   ],
                   quote: {
                     text: "Lord, I believe; help thou mine unbelief.",
                     who: "A father, to Jesus",
                     cite: "Mark 9:24 (KJV)",
-                    url: "https://www.gutenberg.org/ebooks/8041",
+                    url: "https://en.wikisource.org/wiki/Bible_(King_James)/Mark#9:24",
                   },
                   thinkers: ["howard-snyder", "schellenberg"],
                   cedes:
@@ -406,8 +405,9 @@ const hiddenness: Objection = {
                       note: "Religious Studies 43. Belief comes in degrees, so someone unsure about God can still turn toward him.",
                     },
                     {
-                      title: "Faith (Stanford Encyclopedia of Philosophy)",
-                      by: "John Bishop and Daniel J. McKaughan",
+                      title: "Faith",
+                      by: "Stanford Encyclopedia of Philosophy (John Bishop and Daniel J. McKaughan)",
+                      year: "2010, rev. 2023",
                       url: "https://plato.stanford.edu/entries/faith/",
                       note: "Section 8, 'Venturing faith, without belief', covers the accounts of Schellenberg and Howard-Snyder.",
                     },
@@ -432,7 +432,7 @@ const hiddenness: Objection = {
                         text: "Oh that I knew where I might find him! that I might come even to his seat!",
                         who: "Job",
                         cite: "Job 23:3 (KJV)",
-                        url: "https://www.gutenberg.org/ebooks/8018",
+                        url: "https://en.wikisource.org/wiki/Bible_(King_James)/Job#23:3",
                       },
                       thinkers: ["schellenberg"],
                       cedes:
@@ -455,10 +455,11 @@ const hiddenness: Objection = {
                           note: "The article Schellenberg was answering.",
                         },
                         {
-                          title: "1 Corinthians 13 (KJV)",
-                          by: "Paul",
-                          url: "https://www.gutenberg.org/ebooks/8046",
-                          note: "The chapter on love, where Paul says we now see 'through a glass, darkly', the phrase in Schellenberg's title.",
+                          title: "1 Corinthians 13 (King James Version)",
+                          by: "King James Bible",
+                          year: "1611",
+                          url: "https://en.wikisource.org/wiki/Bible_(King_James)/1_Corinthians#13:1",
+                          note: "1 Corinthians, c. 54. The chapter on love, where Paul says we now see 'through a glass, darkly', the phrase in Schellenberg's title.",
                         },
                       ],
                       children: [
@@ -469,13 +470,14 @@ const hiddenness: Objection = {
                           gist: "Perfect love wants a relationship both sides know about, though not necessarily from the first day, and a seeker's longing may already be God's work.",
                           body: [
                             "Schellenberg assumes the relationship must be conscious from the start, since premise one says God would be open *always*, as if every delay were a refusal. A relationship meant to last forever could begin below awareness and be named later. {{augustine}} wrote that “our heart is restless, until it repose in Thee” (*Confessions* I.1, tr. E. B. Pusey), and on his view the restlessness is already God's doing, the pull of the one it seeks.",
-                            "{{aquinas}} says knowledge that God exists “in a general and confused way is implanted in us by nature”, though this “is not to know absolutely that God exists; just as to know that someone is approaching is not the same as to know that Peter is approaching, even though it is Peter who is approaching” (*Summa Theologiae* I q.2 a.1, reply 1). His reason is that everyone naturally desires happiness, which is finally found in God, though many people think it lies in riches or pleasure. The Oxford philosopher T. J. Mawson asked in 2012 what deadline God has set for belief. He suggested either “the moment of his or her death” or “one and the same deadline, the Eschaton/Last Judgment”. Paul expected the rest to come later: “For now we see through a glass, darkly; but then face to face” (1 Corinthians 13:12).",
+                            "{{aquinas}} says knowledge that God exists “in a general and confused way is implanted in us by nature”, though this “is not to know absolutely that God exists; just as to know that someone is approaching is not the same as to know that Peter is approaching, even though it is Peter who is approaching” (*Summa Theologiae* I q.2 a.1, reply 1). His reason is that everyone naturally desires happiness, which is finally found in God, though many people think it lies in riches or pleasure.",
+                            "The Oxford philosopher T. J. Mawson asked in 2012 what deadline God has set for belief. He suggested either “the moment of his or her death” or “one and the same deadline, the Eschaton/Last Judgment”. Paul expected the rest to come later: “For now we see through a glass, darkly; but then face to face” (1 Corinthians 13:12).",
                           ],
                           quote: {
                             text: "Console thyself, thou wouldst not seek Me, if thou hadst not found Me.",
                             who: "Blaise Pascal",
-                            cite: "Pensées 553, 'The Mystery of Jesus' (Brunschvicg numbering; tr. W. F. Trotter)",
-                            url: "https://www.gutenberg.org/ebooks/18269",
+                            cite: "Pensées 553, 'The Mystery of Jesus' (Brunschvicg numbering; tr. W. F. Trotter); no. 552 in the Gutenberg text",
+                            url: "https://www.gutenberg.org/cache/epub/18269/pg18269-images.html#p_552",
                           },
                           thinkers: ["augustine", "pascal", "aquinas"],
                           cedes:
@@ -524,14 +526,13 @@ const hiddenness: Objection = {
               label: "God's silence when people suffer most refutes Rea's reply",
               gist: "If God allows horrors for reasons beyond us, love would at least let the sufferer know he is there, yet a child dying alone in pain gets no such sign.",
               body: [
-                "{{rowe}}, an atheist philosopher best known for his argument from evil, argued that if God allows horrible suffering for reasons beyond our grasp, a loving God would at least be consciously present to the sufferer and assure her of his love, which Rea's unrecognized presence doesn't do. {{schellenberg}} argued in 2010 that hiddenness in the middle of horror makes a stronger case than either the problem of evil or the problem of hiddenness alone. His example is a child dying in pain, alone, with no sense of anyone there.",
-                "Christians have said this too, among them {{lewis-cs}}, the author of *Mere Christianity*. After his wife died he wrote in *A Grief Observed* (1961) that if you go to God “when your need is desperate, when all other help is vain”, you find “A door slammed in your face, and a sound of bolting and double bolting on the inside. After that, silence.”",
+                "{{rowe}}, an atheist philosopher best known for his argument from evil, argued that if God allows horrible suffering for reasons beyond our grasp, a loving God would at least be consciously present to the sufferer and assure her of his love, which Rea's unrecognized presence doesn't do. {{schellenberg}} argued in 2010 that hiddenness in the middle of horror makes a stronger case than either the problem of evil or the problem of hiddenness alone. His example is a child dying in pain, alone, with no sense of anyone there. Christians have said this too, among them {{lewis-cs}}, the author of *Mere Christianity*. After his wife died he wrote in *A Grief Observed* (1961) that if you go to God “when your need is desperate, when all other help is vain”, you find “A door slammed in your face, and a sound of bolting and double bolting on the inside. After that, silence.”",
               ],
               quote: {
                 text: "O my God, I cry in the day time, but thou hearest not; and in the night season, and am not silent.",
                 who: "Psalm 22",
                 cite: "Psalm 22:2 (KJV)",
-                url: "https://www.gutenberg.org/ebooks/8019",
+                url: "https://en.wikisource.org/wiki/Bible_(King_James)/Psalms#22:2",
               },
               thinkers: ["rowe", "schellenberg", "lewis-cs"],
               cedes:
@@ -554,8 +555,9 @@ const hiddenness: Objection = {
                   note: "Lewis's notebooks after his wife's death, which hold both the slammed door and the later silent gaze.",
                 },
                 {
-                  title: "The Problem of Evil (Stanford Encyclopedia of Philosophy)",
-                  by: "Michael Tooley",
+                  title: "The Problem of Evil",
+                  by: "Stanford Encyclopedia of Philosophy (Michael Tooley)",
+                  year: "2002, rev. 2015",
                   url: "https://plato.stanford.edu/entries/evil/",
                   note: "Explains William Rowe's evidential argument from evil and the replies to it.",
                 },
@@ -575,7 +577,7 @@ const hiddenness: Objection = {
                     text: "Verily thou art a God that hidest thyself, O God of Israel, the Saviour.",
                     who: "The Book of Isaiah",
                     cite: "Isaiah 45:15 (KJV; Vulgate: Vere tu es Deus absconditus)",
-                    url: "https://www.gutenberg.org/ebooks/8023",
+                    url: "https://en.wikisource.org/wiki/Bible_(King_James)/Isaiah#45:15",
                   },
                   thinkers: ["rea", "john-of-the-cross", "luther", "adams-marilyn-m", "lewis-cs"],
                   cedes:
@@ -626,7 +628,7 @@ const hiddenness: Objection = {
             text: "There is enough light for those who only desire to see, and enough obscurity for those who have a contrary disposition.",
             who: "Blaise Pascal",
             cite: "Pensées 430 (Brunschvicg; pub. 1670; tr. W. F. Trotter)",
-            url: "https://www.gutenberg.org/ebooks/18269",
+            url: "https://www.gutenberg.org/cache/epub/18269/pg18269-images.html#p_430",
           },
           thinkers: ["moser", "pascal"],
           cedes:
@@ -664,13 +666,14 @@ const hiddenness: Objection = {
               gist: "Many who begged to be remade lost their belief or never found it, and no seeker can promise obedience to a Lord she doesn't yet believe in.",
               body: [
                 "If Moser is right, everyone willing to be changed should find God. {{schellenberg}} describes former believers who begged God to keep them believing and watched honest inquiry dissolve their faith, and lifelong seekers who knocked for years on a door that never opened. Moser's test also demands something no seeker can give in advance, since being willing to obey a Lord assumes you believe there is one. These seekers offered all a doubter can, something like *if you are there, I am yours*.",
-                "{{pascal}} granted that such people exist, those “occupied in seeking Him, not having found Him”, whom he calls “unhappy and reasonable” (*Pensées* 257), and the fragment that promises “enough light” also says God should not come so hidden “that He could not be known by those who should sincerely seek Him” (*Pensées* 430). The same test would also confirm rival faiths. The Book of Mormon promises that “if ye shall ask with a sincere heart, with real intent, having faith in Christ, he will manifest the truth of it unto you” (Moroni 10:4), and sincere askers come away with answers that contradict each other.",
+                "{{pascal}} granted that such people exist, those “occupied in seeking Him, not having found Him”, whom he calls “unhappy and reasonable” (*Pensées* 257), and the fragment that promises “enough light” also says God should not come so hidden “that He could not be known by those who should sincerely seek Him” (*Pensées* 430).",
+                "The same test would also confirm rival faiths. The Book of Mormon promises that “if ye shall ask with a sincere heart, with real intent, having faith in Christ, he will manifest the truth of it unto you” (Moroni 10:4), and sincere askers come away with answers that contradict each other.",
               ],
               quote: {
                 text: "Ask, and it shall be given you; seek, and ye shall find; knock, and it shall be opened unto you.",
                 who: "Jesus, in the Sermon on the Mount",
                 cite: "Matthew 7:7 (KJV)",
-                url: "https://www.gutenberg.org/ebooks/8040",
+                url: "https://en.wikisource.org/wiki/Bible_(King_James)/Matthew#7:7",
               },
               thinkers: ["schellenberg", "pascal"],
               cedes:
@@ -724,7 +727,7 @@ const hiddenness: Objection = {
                     text: "A double minded man is unstable in all his ways.",
                     who: "The Letter of James",
                     cite: "James 1:8 (KJV)",
-                    url: "https://www.gutenberg.org/ebooks/8059",
+                    url: "https://en.wikisource.org/wiki/Bible_(King_James)/James#1:8",
                   },
                   thinkers: ["moser", "stump", "aquinas", "howard-snyder"],
                   cedes:
@@ -763,14 +766,13 @@ const hiddenness: Objection = {
                       label: "A loving God would go after even those who resist him",
                       gist: "Even if some unbelief hid resistance, a loving parent helps a child out of a mess it partly made, and hidden resistance wouldn't follow national borders.",
                       body: [
-                        "Even if some unbelief hides a divided will, a perfectly loving God would still go after it. {{maitzen}} writes: “A loving parent can often be expected to help his or her child out of a miserable predicament, even if the child is in some sense to blame for being in the predicament.” The atheist philosopher {{drange|Theodore Drange}} had made the same point in 1998: “A perfectly loving deity would set vindictiveness aside and still want to help nonbelievers (by supplying them with evidence of his existence), despite their culpability.”",
-                        "The prodigal son's father didn't wait for a purer motive. And as {{schellenberg}} notes, God already relates to immature, double-minded believers, so readiness can't be a condition of belief. Maitzen adds that whatever hidden fault is supposed to block belief, such as pride or a lack of humility, presumably doesn't cluster by country, yet unbelief follows national borders. And a resistance hidden even from the resister can't be checked, since no seeker's report could ever count against it.",
+                        "Even if some unbelief hides a divided will, a perfectly loving God would still go after it. {{maitzen}} writes: “A loving parent can often be expected to help his or her child out of a miserable predicament, even if the child is in some sense to blame for being in the predicament.” The atheist philosopher {{drange|Theodore Drange}} had made the same point in 1998: “A perfectly loving deity would set vindictiveness aside and still want to help nonbelievers (by supplying them with evidence of his existence), despite their culpability.” The prodigal son's father didn't wait for a purer motive. And as {{schellenberg}} notes, God already relates to immature, double-minded believers, so readiness can't be a condition of belief. Maitzen adds that whatever hidden fault is supposed to block belief, such as pride or a lack of humility, presumably doesn't cluster by country, yet unbelief follows national borders. And a resistance hidden even from the resister can't be checked, since no seeker's report could ever count against it.",
                       ],
                       quote: {
                         text: "But when he was yet a great way off, his father saw him, and had compassion, and ran, and fell on his neck, and kissed him.",
                         who: "Jesus, in the parable of the prodigal son",
                         cite: "Luke 15:20 (KJV)",
-                        url: "https://www.gutenberg.org/ebooks/8042",
+                        url: "https://en.wikisource.org/wiki/Bible_(King_James)/Luke#15:20",
                       },
                       thinkers: ["maitzen", "schellenberg"],
                       cedes:
@@ -817,7 +819,7 @@ const hiddenness: Objection = {
             text: "Thomas, because thou hast seen me, thou hast believed: blessed are they that have not seen, and yet have believed.",
             who: "Jesus, to Thomas",
             cite: "John 20:29 (KJV)",
-            url: "https://www.gutenberg.org/ebooks/8043",
+            url: "https://en.wikisource.org/wiki/Bible_(King_James)/John#20:29",
           },
           thinkers: ["hick", "swinburne", "murray", "kant"],
           cedes:
@@ -858,13 +860,13 @@ const hiddenness: Objection = {
                 text: "Thou believest that there is one God; thou doest well: the devils also believe, and tremble.",
                 who: "The Letter of James",
                 cite: "James 2:19 (KJV)",
-                url: "https://www.gutenberg.org/ebooks/8059",
+                url: "https://en.wikisource.org/wiki/Bible_(King_James)/James#2:19",
               },
               thinkers: ["schellenberg", "maitzen", "kant"],
               cedes:
                 "This fails if modest belief overwhelms the freedom of those who hold it, or if some good worth having can come only through real, temporary unbelief.",
               see: [
-                { id: "hid-testimony-accommodation", why: "Part 2 uses the same strategy against the map of belief." },
+                { id: "hid-testimony-accommodation", why: "Part 2 uses the same strategy against the spread of belief." },
                 { id: "mor-allegiance", why: "In Objection V the Defender cites the same verse to show that bare belief saves no one." },
                 { id: "coh-b-teleo", why: "Objection I on whether a will that can't fall is free." },
               ],
@@ -903,13 +905,13 @@ const hiddenness: Objection = {
                     text: "How then shall they call on him in whom they have not believed? and how shall they believe in him of whom they have not heard? and how shall they hear without a preacher?",
                     who: "Paul, to the Romans",
                     cite: "Romans 10:14 (KJV)",
-                    url: "https://www.gutenberg.org/ebooks/8045",
+                    url: "https://en.wikisource.org/wiki/Bible_(King_James)/Romans#10:14",
                   },
                   thinkers: ["dumsday", "swinburne"],
                   cedes:
                     "If helping others come to God could be had as fully in a world where everyone already believed, Dumsday's good gives God no reason to hide.",
                   see: [
-                    { id: "hid-messengers", why: "Part 2 finds the same good in the map of belief, where faith passes from person to person." },
+                    { id: "hid-messengers", why: "Part 2 finds the same good in the spread of belief, where faith passes from person to person." },
                     { id: "mor-inclusivism", why: "Objection V asks what becomes of people the messengers never reach." },
                   ],
                   sources: [
@@ -921,8 +923,9 @@ const hiddenness: Objection = {
                     },
                     { title: "Providence and the Problem of Evil", by: "Richard Swinburne", year: "1998" },
                     {
-                      title: "Hiddenness of God (Stanford Encyclopedia of Philosophy)",
-                      by: "Daniel Howard-Snyder and Adam Green",
+                      title: "Hiddenness of God",
+                      by: "Stanford Encyclopedia of Philosophy (Daniel Howard-Snyder and Adam Green)",
+                      year: "2016, rev. 2022",
                       url: "https://plato.stanford.edu/entries/divine-hiddenness/",
                       note: "Section 3 lists this and the other proposed reasons for God to allow nonbelief, with references.",
                     },
@@ -947,7 +950,7 @@ const hiddenness: Objection = {
             text: "For in him we live, and move, and have our being.",
             who: "Paul, at the Areopagus",
             cite: "Acts 17:28 (KJV)",
-            url: "https://www.gutenberg.org/ebooks/8044",
+            url: "https://en.wikisource.org/wiki/Bible_(King_James)/Acts#17:28",
           },
           thinkers: ["hart", "aquinas", "augustine"],
           cedes: "The reply is in trouble if classical theism, to escape the argument, has to stop saying that God knows and loves each person.",
@@ -1021,13 +1024,14 @@ const hiddenness: Objection = {
               gist: "Spinoza agrees that a God who grounds everything is the most knowable thing there is, but such a God has no feelings and chooses nothing, so he loves no one.",
               body: [
                 "Spinoza would agree with Hart that a God in whom we live and move is no object and isn't hidden at all, and would conclude that such a God can't love anyone. Spinoza wrote that “The human mind has an adequate knowledge of the eternal and infinite essence of God” (*Ethics* II P47), where *adequate* means true and complete. He claimed Paul's sentence, telling Henry Oldenburg, secretary of the Royal Society, in 1675, “I say that all things are in God and move in God, thus agreeing with Paul” (Letter 73).",
-                "If God is the ground of being in Spinoza's sense, the one substance from whose nature everything follows by necessity, he can't also be a lover. Spinoza's God “is without passions” and, “Strictly speaking, God does not love or hate anyone” (V P17 and Cor.). He “does not act according to freedom of the will” (I P32 Cor. 1). Spinoza does speak of an [[amor-dei-intellectualis|intellectual love]] in which “the love of God towards men, and the intellectual love of the mind towards God are identical” (V P36 Cor.), but that love chooses no one and waits for no reply. On Spinoza's view, Hart escapes the argument only by describing a God who couldn't want a relationship at all.",
+                "If God is the ground of being in Spinoza's sense, the one substance from whose nature everything follows by necessity, he can't also be a lover. Spinoza's God “is without passions” and, “Strictly speaking, God does not love or hate anyone” (V P17 and Cor.). He “does not act according to freedom of the will” (I P32 Cor. 1).",
+                "Spinoza does speak of an [[amor-dei-intellectualis|intellectual love]] in which “the love of God towards men, and the intellectual love of the mind towards God are identical” (V P36 Cor.), but that love chooses no one and waits for no reply. On Spinoza's view, Hart escapes the argument only by describing a God who couldn't want a relationship at all.",
               ],
               quote: {
                 text: "He, who loves God, cannot endeavour that God should love him in return.",
                 who: "Baruch Spinoza",
                 cite: "Ethics V P19 (1677; tr. R. H. M. Elwes)",
-                url: "https://www.gutenberg.org/ebooks/3800",
+                url: "https://www.gutenberg.org/cache/epub/3800/pg3800-images.html#chap05",
               },
               thinkers: ["spinoza"],
               cedes:
@@ -1046,15 +1050,16 @@ const hiddenness: Objection = {
                   note: "Spinoza's lines on God come from I P32, II P47, and V P17–19 and P36.",
                 },
                 {
-                  title: "Letter 73, to Henry Oldenburg (Letter XXI in Elwes)",
-                  by: "Baruch Spinoza (tr. R. H. M. Elwes)",
-                  year: "1675",
-                  url: "https://archive.org/details/chiefworksofbene02spin",
-                  note: "In The Chief Works of Benedict de Spinoza, vol. 2, where Spinoza says all things 'are in God and move in God'.",
+                  title: "The Chief Works of Benedict de Spinoza, vol. 2, Letter 73 (Elwes XXI)",
+                  by: "Baruch Spinoza (trans. R. H. M. Elwes)",
+                  year: "1884 (1891 printing)",
+                  url: "https://archive.org/details/chiefworksofbene02spin/page/298",
+                  note: "To Oldenburg, late 1675, where Spinoza says all things 'are in God and move in God'.",
                 },
                 {
-                  title: "Baruch Spinoza (Stanford Encyclopedia of Philosophy)",
-                  by: "Steven Nadler",
+                  title: "Baruch Spinoza",
+                  by: "Stanford Encyclopedia of Philosophy (Steven Nadler)",
+                  year: "2001, rev. 2023",
                   url: "https://plato.stanford.edu/entries/spinoza/",
                   note: "An overview of Spinoza's God, or Nature, and of the Ethics.",
                 },
@@ -1073,7 +1078,7 @@ const hiddenness: Objection = {
                     text: "No man hath seen God at any time, the only begotten Son, which is in the bosom of the Father, he hath declared him.",
                     who: "The Gospel of John",
                     cite: "John 1:18 (KJV)",
-                    url: "https://www.gutenberg.org/ebooks/8043",
+                    url: "https://en.wikisource.org/wiki/Bible_(King_James)/John#1:18",
                   },
                   thinkers: ["hart", "aquinas", "kierkegaard"],
                   cedes:
@@ -1103,8 +1108,9 @@ const hiddenness: Objection = {
                       note: "Article 3, on why God wills his own goodness necessarily and creatures freely.",
                     },
                     {
-                      title: "Immutability (Stanford Encyclopedia of Philosophy)",
-                      by: "Brian Leftow",
+                      title: "Immutability",
+                      by: "Stanford Encyclopedia of Philosophy (Brian Leftow)",
+                      year: "2002, rev. 2024",
                       url: "https://plato.stanford.edu/entries/immutability/",
                       note: "Section 2 separates the claim that God can't change from the claim that nothing can affect him, the impassibility Hart defends.",
                     },
@@ -1117,7 +1123,7 @@ const hiddenness: Objection = {
       ],
     },
 
-    /* ───────────────────── II. THE MAP OF BELIEF ───────────────────── */
+    /* ──────────────── II. BELIEF FOLLOWS BIRTHPLACE ──────────────── */
     {
       id: "hid-demographics",
       side: "skeptic",
@@ -1125,7 +1131,8 @@ const hiddenness: Objection = {
       gist: "If God were open to every heart, belief wouldn't depend on where and when you were born, but it clusters by culture and was absent for most of history.",
       body: [
         "{{maitzen}} looked at where believers live: “The populace of Saudi Arabia is at least 95 per cent Muslim and therefore at least 95 per cent theistic, while the populace of Thailand is 95 per cent Buddhist and therefore at most 5 per cent theistic.” Theistic here means believing in one personal God. No one supposes Thais resist God more than Saudis do. Maitzen argues that culture and politics explain the pattern easily, while a God open to every heart would leave it a puzzle.",
-        "For most of our species' history probably no one had the idea of a single personal creator to accept or resist. {{schellenberg}} treats these people as the clearest cases, since they “never have had a real chance to *think* about God” (*The Hiddenness Argument*, p. 106). {{nietzsche}} had asked in *Daybreak* (1881, §91) about a God who “for thousands of years, has permitted innumerable doubts and scruples to continue unchecked”. {{marsh}} argued in 2013 that early humans “originally lacked a concept of God and were religiously restricted to concepts of limited, and sometimes mean, supernatural agents”, and that such [[natural-nonbelief|natural nonbelief]], unbelief from never having met the idea, is what unguided evolution predicts.",
+        "For most of our species' history probably no one had the idea of a single personal creator to accept or resist. {{schellenberg}} treats these people as the clearest cases, since they “never have had a real chance to *think* about God” (*The Hiddenness Argument*, p. 106). {{nietzsche}} had asked in *Daybreak* (1881, §91) about a God who “for thousands of years, has permitted innumerable doubts and scruples to continue unchecked”.",
+        "{{marsh}} argued in 2013 that early humans “originally lacked a concept of God and were religiously restricted to concepts of limited, and sometimes mean, supernatural agents”, and that such [[natural-nonbelief|natural nonbelief]], unbelief from never having met the idea, is what unguided evolution predicts.",
       ],
       quote: {
         text: "…the patchiness of theistic belief has everything to do with the notoriously haphazard play of human culture and politics and nothing to do with God: the messy, uneven data have messy, uneven causes.",
@@ -1137,7 +1144,7 @@ const hiddenness: Objection = {
         "I'd concede if the spread of belief turned out to follow anything like openness of heart, and not birthplace and century.",
       see: [
         { id: "evi-a-diversity", why: "In Objection IV, religious experience divides along the same cultural lines." },
-        { id: "mor-inclusivism", why: "Objection V asks whether people the gospel never reaches are lost, which makes this map matter more." },
+        { id: "mor-inclusivism", why: "Objection V asks whether people the gospel never reaches are lost, which makes this pattern matter more." },
       ],
       sources: [
         {
@@ -1154,14 +1161,15 @@ const hiddenness: Objection = {
           note: "The Monist 96. The passage on early humans is on p. 359.",
         },
         {
-          title: "Hiddenness of God (Stanford Encyclopedia of Philosophy)",
-          by: "Daniel Howard-Snyder and Adam Green",
+          title: "Hiddenness of God",
+          by: "Stanford Encyclopedia of Philosophy (Daniel Howard-Snyder and Adam Green)",
+          year: "2016, rev. 2022",
           url: "https://plato.stanford.edu/entries/divine-hiddenness/",
           note: "Sections 5 and 6 cover the argument from the demographics of nonbelief and the argument from natural nonbelief, with replies.",
         },
         {
-          title: "Divine Hiddenness Argument against God's Existence (Internet Encyclopedia of Philosophy)",
-          by: "Luke Teeninga",
+          title: "Divine Hiddenness Argument against God's Existence",
+          by: "Internet Encyclopedia of Philosophy (Luke Teeninga)",
           url: "https://iep.utm.edu/divine-hiddenness-argument-against-gods-existence/",
           note: "Section 1b summarizes Maitzen's argument and why it sidesteps the usual replies.",
         },
@@ -1173,7 +1181,7 @@ const hiddenness: Objection = {
           label: "God works through messengers, so belief must travel unevenly",
           gist: "People learn most of what they know from one another, and a God who values that should expect belief in him to spread unevenly.",
           body: [
-            "{{baker-hytch}} argued in 2016 that Maitzen's map shows knowledge of God passing from person to person. We are, he writes, “cognitively constituted in such a way that it is a practical necessity that we rely upon testimony for much of what we know about the world”. He counts this [[mutual-epistemic-dependence|mutual dependence]] for knowledge as a great good, so a God who values it should expect belief to spread unevenly, along the roads people travel.",
+            "{{baker-hytch}} argued in 2016 that Maitzen's figures show knowledge of God passing from person to person. We are, he writes, “cognitively constituted in such a way that it is a practical necessity that we rely upon testimony for much of what we know about the world”. He counts this [[mutual-epistemic-dependence|mutual dependence]] for knowledge as a great good, so a God who values it should expect belief to spread unevenly, along the roads people travel.",
             "In 1736 the Anglican clergyman {{butler}} answered critics who thought revelation suspect because its light had not reached everyone. God, he observed, hands out health, strength, knowledge and the means of improvement “with the most promiscuous variety”, meaning indiscriminately, without regard to who needs them, and he held that revelation is given the same way. {{pascal}} even counted the diversity of religions as a sign of the hidden God: “If there were only one religion, God would indeed be manifest” (*Pensées* 585).",
           ],
           quote: {
@@ -1204,8 +1212,9 @@ const hiddenness: Objection = {
               note: "'Of the Want of Universality in Revelation', Butler's answer to the complaint that revelation hasn't reached everyone.",
             },
             {
-              title: "Hiddenness of God (Stanford Encyclopedia of Philosophy)",
-              by: "Daniel Howard-Snyder and Adam Green",
+              title: "Hiddenness of God",
+              by: "Stanford Encyclopedia of Philosophy (Daniel Howard-Snyder and Adam Green)",
+              year: "2016, rev. 2022",
               url: "https://plato.stanford.edu/entries/divine-hiddenness/",
               note: "Section 5 sets out Baker-Hytch's reply to Maitzen step by step.",
             },
@@ -1218,7 +1227,7 @@ const hiddenness: Objection = {
               gist: "Valuing testimony doesn't require leaving whole civilizations without the idea of God, since God could give everyone a bare belief and leave the rest to human witness.",
               body: [
                 "A God who valued our dependence on one another could still give every person the bare belief that he exists and leave knowledge of his character and will to be handed on. That would keep Baker-Hytch's good while giving the idea of God to the San of the Kalahari, and to people tens of thousands of years ago. {{maitzen}} had asked in 2006 why the San, or any culture, should be “less lucky”.",
-                "Pascal's sign doesn't fit the map either, since inside Saudi Arabia or Thailand nearly everyone shares one faith and the diversity lies between countries. Butler's comparison arguably helps the Objector, since truth handed out as unevenly as health is what we would expect if no one were handing it out. As Maitzen puts it, “Suffering does not respect geography the way non-belief does.”",
+                "Pascal's sign doesn't fit the pattern either, since inside Saudi Arabia or Thailand nearly everyone shares one faith and the diversity lies between countries. Butler's comparison arguably helps the Objector, since truth handed out as unevenly as health is what we would expect if no one were handing it out. As Maitzen puts it, “Suffering does not respect geography the way non-belief does.”",
               ],
               quote: {
                 text: "…why doesn't this valuable diversity flourish within the cultures of Saudi Arabia and Thailand?",
@@ -1256,14 +1265,13 @@ const hiddenness: Objection = {
           label: "God places those who would respond where the message reaches",
           gist: "A God who knows what anyone would freely do can arrange history so that people who would respond are born where they can hear the gospel.",
           body: [
-            "The map looks like an accident of birth only if God placed people at random, and {{craig}} argued in 1989 that he need not have. If God has [[middle-knowledge|middle knowledge]], meaning he knows what every possible person would freely do in any situation, he can order history so that anyone who would accept the gospel is born where they will hear it. In Craig's words, “God in His providence has so arranged the world that anyone who would receive Christ has the opportunity to do so.”",
-            "Those who never hear would not have believed in any history God could have created, a condition Craig calls transworld damnation. On his account they are lost because of how they would freely have responded, and no one is lost because of where they happened to be born.",
+            "The pattern looks like an accident of birth only if God placed people at random, and {{craig}} argued in 1989 that he need not have. If God has [[middle-knowledge|middle knowledge]], meaning he knows what every possible person would freely do in any situation, he can order history so that anyone who would accept the gospel is born where they will hear it. In Craig's words, “God in His providence has so arranged the world that anyone who would receive Christ has the opportunity to do so.” Those who never hear would not have believed in any history God could have created, a condition Craig calls transworld damnation. On his account they are lost because of how they would freely have responded, and no one is lost because of where they happened to be born.",
           ],
           quote: {
             text: "…and hath determined the times before appointed, and the bounds of their habitation; That they should seek the Lord, if haply they might feel after him, and find him…",
             who: "Paul, at the Areopagus",
             cite: "Acts 17:26–27 (KJV)",
-            url: "https://www.gutenberg.org/ebooks/8044",
+            url: "https://en.wikisource.org/wiki/Bible_(King_James)/Acts#17:26",
           },
           thinkers: ["craig"],
           cedes:
@@ -1281,14 +1289,15 @@ const hiddenness: Objection = {
               note: "Faith and Philosophy 6: 172–188. The full text, including Craig's definition of 'transworld damnation'.",
             },
             {
-              title: "Middle Knowledge (Internet Encyclopedia of Philosophy)",
-              by: "John D. Laing",
+              title: "Middle Knowledge",
+              by: "Internet Encyclopedia of Philosophy (John D. Laing)",
               url: "https://iep.utm.edu/middlekn/",
               note: "Explains middle knowledge, the doctrine Craig's model depends on, and the objections to it.",
             },
             {
-              title: "Foreknowledge and Free Will (Stanford Encyclopedia of Philosophy)",
-              by: "David Hunt and Linda Zagzebski",
+              title: "Foreknowledge and Free Will",
+              by: "Stanford Encyclopedia of Philosophy (David Hunt and Linda Zagzebski)",
+              year: "2004, rev. 2026",
               url: "https://plato.stanford.edu/entries/free-will-foreknowledge/",
               note: "Section 2.6, 'The transfer of necessity', sets out Luis de Molina's theory of middle knowledge.",
             },
@@ -1298,10 +1307,9 @@ const hiddenness: Objection = {
               id: "hid-molinism-clustering",
               side: "skeptic",
               label: "Souls who'd refuse God don't come sorted by birthplace",
-              gist: "Craig's story needs the people who would refuse God to be born mostly in certain countries and centuries, and nothing supports that apart from the map itself.",
+              gist: "Craig's story needs the people who would refuse God to be born mostly in certain countries and centuries, and nothing supports that apart from the pattern itself.",
               body: [
-                "Craig's reply explains the map only by turning it into a fact about souls. Thailand would have to be where God placed people who would refuse him in any circumstances, along with the thousands of generations who lived before anyone preached a single creator. Craig's paper begins from {{hick}}'s question whether it is “credible that the loving God and Father of all men has decreed that only those born within one particular thread of human history shall be saved”.",
-                "{{maitzen}} argued in 2008, answering a model built on middle knowledge, that such sorting is less plausible than the explanation from culture, which needs nothing beyond what we already know about how beliefs spread. Craig's story implies that a child born in Bangkok is likelier than one born in Manila to be someone God foresaw would turn him down. And the sorting is needed only if the unreached are lost, which other defenders of God deny in ((mor-inclusivism|Objection V)).",
+                "Craig's reply explains the pattern only by turning it into a fact about souls. Thailand would have to be where God placed people who would refuse him in any circumstances, along with the thousands of generations who lived before anyone preached a single creator. Craig's paper begins from {{hick}}'s question whether it is “credible that the loving God and Father of all men has decreed that only those born within one particular thread of human history shall be saved”. {{maitzen}} argued in 2008, answering a model built on middle knowledge, that such sorting is less plausible than the explanation from culture, which needs nothing beyond what we already know about how beliefs spread. Craig's story implies that a child born in Bangkok is likelier than one born in Manila to be someone God foresaw would turn him down. And the sorting is needed only if the unreached are lost, which other defenders of God deny in ((mor-inclusivism|Objection V)).",
               ],
               quote: {
                 text: "These dispositions thus resemble other fundamental human characteristics, such as the ability to hear; despite marked differences among individuals, we don't find entire countries whose citizens are nearly all deaf.",
@@ -1348,14 +1356,13 @@ const hiddenness: Objection = {
           label: "God may spare would-be refusers by placing them out of reach",
           gist: "A loving God who foresaw that some people would reject him if they believed now might keep belief from them, leaving them innocent for a later chance.",
           body: [
-            "{{marsh|Jason Marsh}} proposed a gentler model, also built on middle knowledge, in a 2008 reply to {{maitzen}}. He supposes that some people would freely reject God in this life if they came to believe. A loving God might spare them that refusal by placing them where belief won't reach them until after this life. That choice, Marsh writes, “largely cashes out in terms of the geographic circumstances in which they are placed”, and keeps them “innocent for a later time, when they will be in a position truly to love God”.",
-            "On this view a refusal made too early, with too little understanding, is a harm, and a good parent shields a child from such harms. Unlike Craig's model, Marsh's damns no one. The unreached are protected, which fits the hope, discussed in ((mor-inclusivism|Objection V)), that Christ reaches those who never knew his name.",
+            "{{marsh|Jason Marsh}} proposed a gentler model, also built on middle knowledge, in a 2008 reply to {{maitzen}}. He supposes that some people would freely reject God in this life if they came to believe. A loving God might spare them that refusal by placing them where belief won't reach them until after this life. That choice, Marsh writes, “largely cashes out in terms of the geographic circumstances in which they are placed”, and keeps them “innocent for a later time, when they will be in a position truly to love God”. On this view a refusal made too early, with too little understanding, is a harm, and a good parent shields a child from such harms. Unlike Craig's model, Marsh's damns no one. The unreached are protected, which fits the hope, discussed in ((mor-inclusivism|Objection V)), that Christ reaches those who never knew his name.",
           ],
           quote: {
             text: "If I had not come and spoken unto them, they had not had sin: but now they have no cloak for their sin.",
             who: "Jesus, in John's Gospel",
             cite: "John 15:22 (KJV)",
-            url: "https://www.gutenberg.org/ebooks/8043",
+            url: "https://en.wikisource.org/wiki/Bible_(King_James)/John#15:22",
           },
           thinkers: ["marsh", "maitzen"],
           cedes:
@@ -1373,8 +1380,9 @@ const hiddenness: Objection = {
               note: "Religious Studies 44: 465–471. The passages on geography and innocence are on p. 468.",
             },
             {
-              title: "Hiddenness of God (Stanford Encyclopedia of Philosophy)",
-              by: "Daniel Howard-Snyder and Adam Green",
+              title: "Hiddenness of God",
+              by: "Stanford Encyclopedia of Philosophy (Daniel Howard-Snyder and Adam Green)",
+              year: "2016, rev. 2022",
               url: "https://plato.stanford.edu/entries/divine-hiddenness/",
               note: "Section 5 summarizes Marsh's model and raises objections to it.",
             },
@@ -1400,7 +1408,7 @@ const hiddenness: Objection = {
                 text: "Go ye therefore, and teach all nations, baptizing them in the name of the Father, and of the Son, and of the Holy Ghost",
                 who: "Jesus, in Matthew's Gospel",
                 cite: "Matthew 28:19 (KJV)",
-                url: "https://www.gutenberg.org/ebooks/8040",
+                url: "https://en.wikisource.org/wiki/Bible_(King_James)/Matthew#28:19",
               },
               thinkers: ["marsh", "maitzen", "craig"],
               cedes:
@@ -1437,10 +1445,10 @@ const hiddenness: Objection = {
         {
           id: "hid-sensus",
           side: "theist",
-          label: "Every mind is built to sense a maker, whatever the map shows",
-          gist: "Calvin held that everyone has a built-in sense of God, and children everywhere seem primed to see a maker, so the map shows how cultures name that sense.",
+          label: "Every mind is built to sense a maker, wherever it was born",
+          gist: "Calvin held that everyone has a built-in sense of God, and children everywhere seem primed to see a maker, so the spread of creeds shows how cultures name that sense.",
           body: [
-            "Maitzen's map counts creeds, and a sense of God may lie beneath them. {{calvin}} held it “beyond dispute” that the mind has, “by natural instinct, some sense of Deity”, the [[sensus-divinitatis|sensus divinitatis]] ('sense of the divine'). Echoing Cicero, he added that “there is no nation so barbarous, no race so brutish, as not to be imbued with the conviction that there is a God” (*Institutes* I.3.1). {{plantinga}} built this into a model on which belief in God is [[properly-basic|properly basic]], reasonable without argument, like trusting your memory. Plantinga writes, “Were it not for sin and its effects, God's presence and glory would be as obvious and uncontroversial to us all as the presence of other minds, physical objects, and the past.” The damage is inherited, so unbelief need not be the unbeliever's own fault.",
+            "Maitzen's figures count creeds, and a sense of God may lie beneath them. {{calvin}} held it “beyond dispute” that the mind has, “by natural instinct, some sense of Deity”, the [[sensus-divinitatis|sensus divinitatis]] ('sense of the divine'). Echoing Cicero, he added that “there is no nation so barbarous, no race so brutish, as not to be imbued with the conviction that there is a God” (*Institutes* I.3.1). {{plantinga}} built this into a model on which belief in God is [[properly-basic|properly basic]], reasonable without argument, like trusting your memory. Plantinga writes, “Were it not for sin and its effects, God's presence and glory would be as obvious and uncontroversial to us all as the presence of other minds, physical objects, and the past.” The damage is inherited, so unbelief need not be the unbeliever's own fault.",
             "[[csr|Cognitive science of religion]], the study of how ordinary minds come to religious ideas, partly supports Calvin. {{barrett}} reports in *Born Believers* (2012) that young children in many cultures see purpose in nature and credit a super-knowing maker, and the psychologist Deborah Kelemen asked whether children are 'intuitive theists'. {{evans}} calls such pointers natural signs, widely available and easy to resist. Culture, on this view, changes what people call them.",
           ],
           quote: {
@@ -1481,8 +1489,7 @@ const hiddenness: Objection = {
               label: "The built-in sense finds spirits, so it's no pointer to God",
               gist: "Cognitive science finds a readiness to see agents and purposes everywhere, which produces ghosts and ancestors as easily as one God.",
               body: [
-                "Barrett's findings don't give Calvin what he needs. They describe a hair-trigger for detecting agents, which Barrett calls the [[hadd|hypersensitive agency detection device]] (the reflex that turns a rustle in the grass into someone), and a bias toward seeing purpose everywhere. These produce spirits, ancestors and many gods as readily as a loving creator. {{hume}} noticed the habit in 1757: “We find human faces in the moon, armies in the clouds.”",
-                "Widening 'theism' to cover any supernatural being, says {{maitzen}}, “merely changes the subject”. Evans might say everyone gets the signs and only the response varies, but the response varies by birthplace, and resistance shouldn't follow borders. Calvin himself said the sense was given so that all “may be condemned by their own conscience” (*Institutes* I.3.1), and a faculty that mostly produced other gods would be a strange tool for that.",
+                "Barrett's findings don't give Calvin what he needs. They describe a hair-trigger for detecting agents, which Barrett calls the [[hadd|hypersensitive agency detection device]] (the reflex that turns a rustle in the grass into someone), and a bias toward seeing purpose everywhere. These produce spirits, ancestors and many gods as readily as a loving creator. {{hume}} noticed the habit in 1757: “We find human faces in the moon, armies in the clouds.” Widening 'theism' to cover any supernatural being, says {{maitzen}}, “merely changes the subject”. Evans might say everyone gets the signs and only the response varies, but the response varies by birthplace, and resistance shouldn't follow borders. Calvin himself said the sense was given so that all “may be condemned by their own conscience” (*Institutes* I.3.1), and a faculty that mostly produced other gods would be a strange tool for that.",
               ],
               quote: {
                 text: "Granted, belief in the supernatural is more widespread and more evenly distributed than belief in God, but divine hiddenness is a problem for theism in particular, not for supernaturalism in general.",
@@ -1533,7 +1540,7 @@ const hiddenness: Objection = {
                     text: "Whom therefore ye ignorantly worship, him declare I unto you.",
                     who: "Paul, at the Areopagus",
                     cite: "Acts 17:23 (KJV)",
-                    url: "https://www.gutenberg.org/ebooks/8044",
+                    url: "https://en.wikisource.org/wiki/Bible_(King_James)/Acts#17:23",
                   },
                   thinkers: ["barrett", "reid", "calvin", "rea"],
                   cedes:
@@ -1564,8 +1571,8 @@ const hiddenness: Objection = {
                       note: "Chapter 4, 'The Knowledge of God Stifled or Corrupted', which opens with the seed of religion sown in all.",
                     },
                     {
-                      title: "Reformed Epistemology (Internet Encyclopedia of Philosophy)",
-                      by: "Anthony Bolos and Kyle Scott",
+                      title: "Reformed Epistemology",
+                      by: "Internet Encyclopedia of Philosophy (Anthony Bolos and Kyle Scott)",
                       url: "https://iep.utm.edu/ref-epis/",
                       note: "Explains Plantinga's model of the sense of the divine and the main objections, including religious diversity.",
                     },
@@ -1580,13 +1587,13 @@ const hiddenness: Objection = {
               gist: "Spinoza agrees with Calvin that everyone knows God, but what they know is the eternal order of things, and what people reject is only an image of a judge.",
               body: [
                 "Spinoza agrees with Calvin that every mind knows God, since every idea of any particular thing that exists, he argues, “necessarily involves the eternal and infinite essence of God” (*Ethics* II P45). People miss this, he says, because “they have associated the name God with images of things that they are in the habit of seeing” (II P47 Schol.), so they don't recognize what they already know.",
-                "But what everyone knows, on Spinoza's view, is the eternal order of things, with no maker in it watching for submission. Because the idea of God in us is adequate, meaning true and complete, it brings no pain, and so, Spinoza concludes, “No one can hate God” (V P18). What the supposed resister turns away from is an [[imaginatio|image]], a judge built out of human hopes and fears, of the kind Spinoza takes apart in the Appendix to *Ethics* I. On his view the map shows only where that image was taught.",
+                "But what everyone knows, on Spinoza's view, is the eternal order of things, with no maker in it watching for submission. Because the idea of God in us is adequate, meaning true and complete, it brings no pain, and so, Spinoza concludes, “No one can hate God” (V P18). What the supposed resister turns away from is an [[imaginatio|image]], a judge built out of human hopes and fears, of the kind Spinoza takes apart in the Appendix to *Ethics* I. On his view the pattern shows only where that image was taught.",
               ],
               quote: {
                 text: "Hence we see, that the infinite essence and the eternity of God are known to all.",
                 who: "Baruch Spinoza",
                 cite: "Ethics II P47 Schol. (1677; tr. R. H. M. Elwes)",
-                url: "https://www.gutenberg.org/ebooks/3800",
+                url: "https://www.gutenberg.org/cache/epub/3800/pg3800-images.html#chap02",
               },
               thinkers: ["spinoza"],
               cedes:
@@ -1605,8 +1612,9 @@ const hiddenness: Objection = {
                   note: "II P45–47 on every mind's knowledge of God, V P18 on why no one can hate him, and the Appendix to Part I on the image of God as judge.",
                 },
                 {
-                  title: "Baruch Spinoza (Stanford Encyclopedia of Philosophy)",
-                  by: "Steven Nadler",
+                  title: "Baruch Spinoza",
+                  by: "Stanford Encyclopedia of Philosophy (Steven Nadler)",
+                  year: "2001, rev. 2023",
                   url: "https://plato.stanford.edu/entries/spinoza/",
                   note: "An overview of Spinoza's God, or Nature, and of his account of knowledge.",
                 },
@@ -1619,7 +1627,7 @@ const hiddenness: Objection = {
   ],
 
   spinoza: {
-    title: "The God who cannot hide",
+    title: "Spinoza's God can't hide, and loves no one in particular",
     body: [
       "The hiddenness argument doesn't apply to Spinoza's [[deus-sive-natura|God, or Nature]]. On his view God is the most knowable thing there is, since every mind that knows anything has an adequate idea of God's eternal essence (*Ethics* II P47). In the *Theological-Political Treatise* (1670) he denied that miracles could show God, and wrote that God's nature and existence “can all be much better perceived from the fixed and immutable order of nature” (ch. 6). Only a God who appeared in particular events could fail to appear, he thought, and the order of nature is present in every event. {{schellenberg}} himself aims the argument only at a personal God, and leaves room for an ultimate reality that is not a person.",
       "Spinoza agrees with {{calvin}} that no one lacks knowledge of God, and thinks the nonbeliever has only attached the name to the wrong images. On resistance he sides with Schellenberg against Calvin and {{moser}}. No one, he holds, is suppressing a judge or refusing a Lord, because “No one can hate God” (V P18), and God, being without passions, “does not love or hate anyone” (V P17 Cor.). The freedom reply gets no help from him either, since “In the mind there is no absolute or free will” (II P48).",
@@ -1629,7 +1637,7 @@ const hiddenness: Objection = {
       text: "How would it be possible, if salvation were ready to our hand, and could without great labour be found, that it should be by almost all men neglected? But all things excellent are as difficult as they are rare.",
       who: "Baruch Spinoza",
       cite: "Ethics V P42 Schol. (1677; tr. R. H. M. Elwes)",
-      url: "https://www.gutenberg.org/ebooks/3800",
+      url: "https://www.gutenberg.org/cache/epub/3800/pg3800-images.html#chap05",
     },
   },
 
@@ -1722,14 +1730,15 @@ const hiddenness: Objection = {
       note: "Fifteen newer essays, including De Cruz on cognitive science, Rea on transcendence, and chapters on Jewish, Islamic and Eastern Christian views.",
     },
     {
-      title: "Hiddenness of God (Stanford Encyclopedia of Philosophy)",
-      by: "Daniel Howard-Snyder and Adam Green",
+      title: "Hiddenness of God",
+      by: "Stanford Encyclopedia of Philosophy (Daniel Howard-Snyder and Adam Green)",
+      year: "2016, rev. 2022",
       url: "https://plato.stanford.edu/entries/divine-hiddenness/",
       note: "A careful survey of the debate, with the main replies on both sides.",
     },
     {
-      title: "Divine Hiddenness Argument against God's Existence (Internet Encyclopedia of Philosophy)",
-      by: "Luke Teeninga",
+      title: "Divine Hiddenness Argument against God's Existence",
+      by: "Internet Encyclopedia of Philosophy (Luke Teeninga)",
       url: "https://iep.utm.edu/divine-hiddenness-argument-against-gods-existence/",
       note: "A shorter survey that sorts the different hiddenness arguments, including Drange's, Maitzen's and Marsh's, and the kinds of reply to each.",
     },

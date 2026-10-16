@@ -19,7 +19,8 @@
 
 import { memo, useEffect, useId, useMemo, useRef, useState, useSyncExternalStore, type CSSProperties, type KeyboardEvent } from "react";
 import { useAtlas } from "../context";
-import type { ArgNode, Disputation, Label, ObjectionId, Side } from "../types";
+import { sectorLayout, type RoseSector } from "../layout";
+import type { ArgNode, Label, ObjectionId, Side } from "../types";
 
 const R_OUT = 300;
 const HUB_R = 58;
@@ -27,7 +28,6 @@ const OBJ_RING = 16; // thickness of the objection ring around the hub
 const PAD = 38; // room outside the panes for the dashed rim and the sector legend
 const LABEL_R = R_OUT + 16; // inner edge of the legend band (the dashed rim sits at R_OUT + 10)
 const VB = (R_OUT + PAD) * 2;
-const SECTOR_GAP = 0.07;
 /** Below this rendered scale (px per viewBox unit) full legends no longer fit: numerals only.
     Mirrored by the container query in atlas.css (0.62 × 676 ≈ 419px) for the first paint. */
 const NARROW_SCALE = 0.62;
@@ -59,35 +59,10 @@ export function glyphPath(side: Side, x: number, y: number, s: number): string {
   return `M${f(x - s)},${f(y)}a${f(s)},${f(s)} 0 1,0 ${f(s * 2)},0a${f(s)},${f(s)} 0 1,0 ${f(-s * 2)},0`;
 }
 
-function leafCount(n: ArgNode): number {
-  const k = n.children ?? [];
-  return k.length ? k.reduce((s, c) => s + leafCount(c), 0) : 1;
-}
 
-export interface RoseSector {
-  o: ObjectionId;
-  a0: number;
-  a1: number;
-  leaves: number;
-}
-
-/** The five sectors' angles (radians, clockwise from 12 o'clock; sector I centred at the top).
-    Width is mostly proportional to leaves, with a floor so a lean objection stays legible. */
-export function sectorLayout(d: Disputation): RoseSector[] {
-  const n = d.objections.length;
-  if (!n) return [];
-  const leaves = d.objections.map((o) => Math.max(1, o.prongs.reduce((s, p) => s + leafCount(p), 0)));
-  const total = leaves.reduce((a, b) => a + b, 0);
-  const avail = Math.PI * 2 - SECTOR_GAP * n;
-  const shares = leaves.map((l) => 0.35 / n + (0.65 * l) / total);
-  let cursor = -(shares[0] * avail) / 2;
-  return d.objections.map((o, i) => {
-    const w = shares[i] * avail;
-    const s = { o: o.id, a0: cursor, a1: cursor + w, leaves: leaves[i] };
-    cursor += w + SECTOR_GAP;
-    return s;
-  });
-}
+/* The sector layout lives in ../layout (no "use client"), so the /debates index can compute
+   it on the server; re-exported here for existing imports. */
+export { sectorLayout, type RoseSector };
 
 interface PaneGeom {
   id: string;
@@ -203,7 +178,7 @@ function Readout({ hover, focus, onEnter }: { hover: HoverStore; focus: Objectio
           </>
         ) : (
           <span className="rose-readout-hint">
-            <span className="rose-hint-fine">Point at a move to read it</span>
+            <span className="rose-hint-fine">Point at a move or focus a slice to read it</span>
             <span className="rose-hint-coarse">Tap a slice to preview it, tap again to open</span>
           </span>
         )}
@@ -419,6 +394,7 @@ export default function Rose({ onEnter, onNode, footprint, current, verdicts = t
   return (
     <figure
       ref={figRef}
+      aria-label={mini ? undefined : "Map of the five objections"}
       className={`rose${mini ? " rose-mini" : ""}${build && !mini ? " build" : ""}${scale !== null ? " measured" : ""}${narrow ? " narrow" : ""}${!mini && active ? " previewing" : ""} ${className}`}
       onPointerLeave={(e) => {
         // On the figure (not the svg) so the pointer can travel down to the readout's Enter button.
@@ -433,6 +409,8 @@ export default function Rose({ onEnter, onNode, footprint, current, verdicts = t
       }}
       onKeyDown={(e) => {
         if (e.key === "Escape" && focus !== null) {
+          // Handled here: a toast showing at the same time stays (toast.tsx skips handled keys).
+          e.preventDefault();
           setFocus(null);
           hover.set(null);
         }
@@ -442,7 +420,7 @@ export default function Rose({ onEnter, onNode, footprint, current, verdicts = t
         ref={svgRef}
         viewBox={vb}
         role={mini ? "img" : "group"}
-        aria-label={mini ? "Map of the five objections" : "Map of all five objections. Each ring outward is one more round of replies."}
+        aria-label={mini ? "Map of the five objections" : "One slice per objection. Each ring outward is one more round of replies."}
         onPointerOver={(e) => {
           if (mini || e.pointerType !== "mouse") return;
           const el = paneAt(e.target);
@@ -497,7 +475,7 @@ export default function Rose({ onEnter, onNode, footprint, current, verdicts = t
                 className={`rose-sector${focus === s.o ? " on" : ""}`}
                 role="button"
                 tabIndex={0}
-                aria-label={`Objection ${o.numeral}: ${toPlain(o.title || o.short || "")}. ${ol === "in" ? "Stands." : ol === "out" ? "Answered." : "Still open."} Press Enter to open it.`}
+                aria-label={`Objection ${o.numeral}: ${toPlain(o.title || o.short || "")}. ${ol === "in" ? "Stands." : ol === "out" ? "Answered." : "Still open."}`}
                 onPointerDown={(e) => {
                   pressed.current = { type: e.pointerType, at: e.timeStamp };
                 }}
@@ -525,7 +503,7 @@ export default function Rose({ onEnter, onNode, footprint, current, verdicts = t
             <g key={`obj-${s.o}`} className={`rose-objring st-${ol}${active && active !== s.o ? " dim" : ""}${active === s.o ? " cur" : ""}`} pointerEvents="none">
               <path d={pane(HUB_R, HUB_R + OBJ_RING, s.a0, s.a1)} />
               {!mini && (
-                <text className="rose-objtext" x={r2(Math.sin(am) * rm)} y={r2(-Math.cos(am) * rm + fs.hub * 0.36)} textAnchor="middle" style={{ fontSize: fs.hub }}>
+                <text className="rose-objtext" aria-hidden="true" x={r2(Math.sin(am) * rm)} y={r2(-Math.cos(am) * rm + fs.hub * 0.36)} textAnchor="middle" style={{ fontSize: fs.hub }}>
                   {o.numeral}
                 </text>
               )}
@@ -571,7 +549,7 @@ export default function Rose({ onEnter, onNode, footprint, current, verdicts = t
         {/* hub */}
         <circle r={HUB_R - 4} className="rose-hub" />
         {!mini && (
-          <text className="rose-q" y={11} textAnchor="middle">
+          <text className="rose-q" y={11} textAnchor="middle" aria-hidden="true">
             ?
           </text>
         )}
@@ -598,7 +576,7 @@ export default function Rose({ onEnter, onNode, footprint, current, verdicts = t
             const pid = `${uid}-lab-${s.o}`;
             const arc = flip ? `M${pt(b1, r)}A${r},${r} 0 ${large} 0 ${pt(b0, r)}` : `M${pt(b0, r)}A${r},${r} 0 ${large} 1 ${pt(b1, r)}`;
             return (
-              <g key={`lab-${s.o}`} pointerEvents="none">
+              <g key={`lab-${s.o}`} pointerEvents="none" aria-hidden="true">
                 <path id={pid} d={arc} fill="none" stroke="none" />
                 <text className={`rose-label full${on}`} textAnchor="middle" style={{ fontSize: fs.legend }}>
                   <textPath href={`#${pid}`} startOffset="50%">

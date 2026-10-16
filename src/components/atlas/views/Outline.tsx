@@ -14,6 +14,8 @@ import { address } from "../helpers";
 import { Glyph } from "../primitives";
 import { formatRoute } from "../router";
 import type { Disputation, ObjectionId, Quote, Side } from "../types";
+import { answeredMark, placeLabel, shownLabel, spellAddress } from "./chamberShared";
+import { StatusPip } from "./marks";
 import OutlineList, { OUTLINE_SIDE_WORD, nestQuotes } from "./OutlineList";
 import Rose from "./Rose";
 
@@ -77,15 +79,17 @@ export function useMedia(query: string, server = false): boolean {
   );
 }
 
-type LibView = "timeline" | "cast" | "lexicon" | "outline";
+type LibView = "timeline" | "cast" | "lexicon" | "outline" | "sources";
 const TABS: { view: LibView; word: string }[] = [
   { view: "timeline", word: "Timeline" },
   { view: "cast", word: "People" },
   { view: "lexicon", word: "Glossary" },
   { view: "outline", word: "Outline" },
+  { view: "sources", word: "Sources" },
 ];
 
-/** The Library's own tab row (Timeline · People · Glossary · Outline). Views with nothing in them yet say "soon". */
+/** The Library's own tab row (Timeline · People · Glossary · Outline · Sources), the same on every Library view.
+    Views with nothing in them yet say "soon". */
 export function LibTabs({ current }: { current: LibView }) {
   const { d } = useAtlas();
   const empty: Record<LibView, boolean> = {
@@ -93,6 +97,7 @@ export function LibTabs({ current }: { current: LibView }) {
     cast: d.thinkers.length === 0,
     lexicon: d.terms.length === 0,
     outline: false,
+    sources: false,
   };
   return (
     <nav className="lib-tabs" aria-label="Library">
@@ -151,14 +156,18 @@ export function LibHead({
   );
 }
 
-/** "Holds"/"Fails" are only ever the reader's own calls; everything else is computed on them. */
+/** A move the reader called carries their call ("You said it fails"), the same words as the chamber: nobody may have
+    answered a move they rejected. Everything else is computed on the calls. */
 export function statusWord(l: "in" | "out" | "undec", call?: "holds" | "fails"): string {
-  if (call) return `Your call: ${call === "holds" ? "Holds" : "Fails"}`;
+  if (call) return `You said it ${call}`;
   return l === "in" ? "Stands" : l === "out" ? "Answered" : "Open";
 }
 
-/** A move as a chip: status glyph + address + status word + label → the move in its chamber. */
-export function NodeChip({ id, className = "" }: { id: string; className?: string }) {
+/** A move as a chip: status glyph + address + status word + label → the move in its chamber.
+    `plain` (the Glossary and People): the place in words ("Part 2 · Round 6") instead of the dotted address, no
+    visible status word (the glyph shows it; screen readers still hear it), and a label that wraps to two lines.
+    The dotted address stays in the tooltip. */
+export function NodeChip({ id, className = "", plain = false }: { id: string; className?: string; plain?: boolean }) {
   const { ix, labelOf, judgments, toPlain } = useAtlas();
   const info = ix.nodes.get(id);
   if (!info) return null;
@@ -170,21 +179,26 @@ export function NodeChip({ id, className = "" }: { id: string; className?: strin
   const status = statusWord(l, call);
   return (
     <a
-      className={`lib-node s-${side} st-${l} ${className}`}
+      className={`lib-node s-${side} st-${l} ${plain ? "lib-node-plain" : ""} ${className}`}
       href={formatRoute({ view: "objection", o: info.objection, node: id })}
       title={`${addr} · ${SIDE_WORD[side]} · ${status} · ${label}`}
       data-node={id}
     >
-      <Glyph side={side} label={l} size={11} />
+      <Glyph side={side} label={shownLabel(l, call)} size={11} />
       <span className="lib-node-addr mono">
-        {addr}
-        <span className={`lib-node-st st-${l} ${call ? "called" : ""}`}>
-          <span aria-hidden> · </span>
-          <span className="sr-only">, </span>
-          {status}
-        </span>
+        <span aria-hidden>{plain ? placeLabel(ix, id) : addr}</span>
+        <span className="sr-only">{spellAddress(ix, id)}</span>
+        {plain ? (
+          <span className="sr-only">, {status}</span>
+        ) : (
+          <span className={`lib-node-st st-${l} ${call ? "called" : ""}`}>
+            <span aria-hidden> · </span>
+            <span className="sr-only">, </span>
+            {status}
+          </span>
+        )}
       </span>
-      <span className={`lib-node-lab ${l === "out" ? "lab-out" : ""}`}>
+      <span className={`lib-node-lab ${answeredMark(l, call) ? "lab-out" : ""}`}>
         <span className="sr-only">: </span>
         {label}
       </span>
@@ -205,7 +219,7 @@ export function useByObjection(ids: string[]) {
 }
 
 /** "Used in / appears in" list: chips grouped by objection (optionally capped, with "+ N more"). */
-export function Appearances({ ids, limit }: { ids: string[]; limit?: number }) {
+export function Appearances({ ids, limit, plain = false }: { ids: string[]; limit?: number; plain?: boolean }) {
   const groups = useByObjection(ids);
   const [all, setAll] = useState(false);
   const box = useRef<HTMLDivElement>(null);
@@ -241,7 +255,7 @@ export function Appearances({ ids, limit }: { ids: string[]; limit?: number }) {
           <ul className="lib-chips">
             {g.ids.map((id) => (
               <li key={id}>
-                <NodeChip id={id} />
+                <NodeChip id={id} plain={plain} />
               </li>
             ))}
           </ul>
@@ -333,7 +347,22 @@ export function FootRose({ ids, size = 132, caption }: { ids: string[]; size?: n
 }
 
 /** "Where it appears": a heading + glyph key, a footprint Rose, and the chips grouped by objection. */
-export function FootprintBlock({ ids, title, caption, limit, roseSize = 112 }: { ids: string[]; title: ReactNode; caption?: ReactNode; limit?: number; roseSize?: number }) {
+export function FootprintBlock({
+  ids,
+  title,
+  caption,
+  limit,
+  roseSize = 112,
+  plain = false,
+}: {
+  ids: string[];
+  title: ReactNode;
+  caption?: ReactNode;
+  limit?: number;
+  roseSize?: number;
+  /** Chips show the place in words, without status words (see NodeChip). */
+  plain?: boolean;
+}) {
   return (
     <div className="lib-fp">
       <div className="lib-fp-grid">
@@ -350,7 +379,7 @@ export function FootprintBlock({ ids, title, caption, limit, roseSize = 112 }: {
           )}
         </div>
         <FootRose ids={ids} size={roseSize} />
-        <Appearances ids={ids} limit={limit} />
+        <Appearances ids={ids} limit={limit} plain={plain} />
       </div>
     </div>
   );
@@ -431,7 +460,7 @@ export default function Outline() {
         title="Outline"
         dek={
           <>
-            Every move is here in one list, each reply indented under the claim it answers. It reads straight through and prints well.
+            Every move is here in one list, each reply indented under the claim it answers.
             {eg && (
               <>
                 {" "}
@@ -459,7 +488,7 @@ export default function Outline() {
             const short = o.short || o.title;
             return (
               <button key={o.id} type="button" className="ol-toc-btn" onClick={() => jump(o.id)} aria-label={`Objection ${o.numeral}, ${short}, ${OBJ_STATUS[l]}`} title={`${short} · ${OBJ_STATUS[l]}`}>
-                <span className={`ol-toc-pip st-${l}`} aria-hidden />
+                <StatusPip label={l} size={9} />
                 <span className="serif ol-toc-num">{o.numeral}</span>
                 <span className="ol-toc-word mono">{short}</span>
               </button>

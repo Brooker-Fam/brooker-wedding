@@ -1,7 +1,8 @@
 /* ==========================================================================
    Where you stand (#/ledger), scoped under .atl and prefixed .ld-
    A ruled register of five independent results. Stands = ochre, answered =
-   verdigris, undecided = faint and dashed. The two settled states carry equal
+   verdigris, open = faint and hollow (a solid ring, like the top bar's pip:
+   dashes mean Answered on the map and on move glyphs). The two settled states carry equal
    visual weight so neither side looks louder. Text is never dimmed to show
    defeat.
    ========================================================================== */
@@ -9,7 +10,8 @@
 .atl .ld {
   --st: var(--faint);
   --st-tint: transparent;
-  max-width: var(--maxw);
+  /* the gutter sits inside, so the content lines up with the top bar, Home and the objection page */
+  max-width: calc(var(--maxw) + 2 * var(--gutter));
   margin: 0 auto;
   padding: clamp(28px, 6vw, 64px) var(--gutter) clamp(32px, 6vw, 72px);
 }
@@ -28,6 +30,12 @@
 }
 
 .atl .ld-nw {
+  display: inline-block;
+  max-width: 100%;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  vertical-align: bottom;
   white-space: nowrap;
 }
 
@@ -189,11 +197,10 @@
   text-wrap: balance;
 }
 /* Objection-level status on the inner ring, as everywhere else for objections (the top bar's
-   pips, the seals): ochre filled = stands, verdigris filled = answered, dashed hollow = undecided. */
+   pips, the seals): ochre filled = stands, verdigris filled = answered, hollow = open. */
 .atl .ld-head-rose .rose-objring.st-undec path {
   fill: transparent;
   stroke: var(--faint);
-  stroke-dasharray: 2 2;
 }
 .atl .ld-head-rose .rose-objring.st-out path {
   fill: var(--theist);
@@ -245,6 +252,11 @@
   display: inline-flex;
   align-items: center;
   gap: 7px;
+}
+.atl .ld-key-spin {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
 }
 .atl .ld-sw {
   flex: none;
@@ -346,6 +358,7 @@
   align-self: start;
 }
 .atl .ld-art-eyebrow {
+  min-width: 0;
   grid-column: 2;
   grid-row: 1;
   margin: 4px 0 0;
@@ -398,11 +411,9 @@
     stroke 0.4s var(--ease);
 }
 .atl .ld-seal.st-undec .ld-seal-outer {
-  stroke-dasharray: 1.5 3.2;
   stroke-opacity: 1;
 }
 .atl .ld-seal.st-undec .ld-seal-disc {
-  stroke-dasharray: 2.4 2.6;
   stroke-width: 1;
 }
 .atl .ld-seal-num {
@@ -580,7 +591,7 @@
   width: 14px;
   height: 14px;
   border-radius: 50%;
-  border: 1.5px dashed var(--faint);
+  border: 1.5px solid var(--faint);
 }
 .atl .ld-hollow-sm {
   width: 11px;
@@ -591,7 +602,7 @@
 /* a question nobody has ruled on yet: one quiet line */
 .atl .ld-resp.ld-resp-blank {
   padding: 12px 16px;
-  border-style: dashed;
+  border-style: solid;
   border-color: var(--line);
   background: transparent;
 }
@@ -1411,6 +1422,18 @@
 @media (max-width: 519px) {
   .atl .ld-empty-actions .btn {
     flex: 1 1 100%;
+  }
+  /* phones: a chip's side and place get the rest of the first line, and the call stamp drops below */
+  .atl .ld-chip-top {
+    flex-wrap: wrap;
+    row-gap: 5px;
+  }
+  .atl .ld-chip-addr {
+    flex: 1 1 calc(100% - 18px);
+    white-space: normal;
+  }
+  .atl .ld-chip-call {
+    margin-left: 0;
   }
 }
 @media (min-width: 720px) {

@@ -16,31 +16,41 @@ const EMPTY: Judgments = Object.freeze({}) as Judgments;
 class JudgmentStore {
   private state: Judgments = EMPTY;
   private loaded = false;
+  private listening = false;
   private listeners = new Set<Listener>();
 
   constructor(private key: string) {}
 
-  private load() {
-    if (this.loaded || typeof window === "undefined") return;
-    this.loaded = true;
+  /** Parse what storage holds into `state` (empty if missing, malformed or unreadable). */
+  private read() {
     try {
       const raw = window.localStorage.getItem(this.key);
       if (raw) {
         const parsed = JSON.parse(raw) as Record<string, unknown>;
         const clean: Judgments = {};
-        for (const [k, v] of Object.entries(parsed)) if (v === "holds" || v === "fails") clean[k] = v;
+        for (const [k, v] of Object.entries(parsed ?? {})) if (v === "holds" || v === "fails") clean[k] = v;
         this.state = clean;
       }
     } catch {
       /* storage unavailable — start empty */
     }
-    window.addEventListener("storage", (e) => {
-      if (e.key !== this.key) return;
-      this.loaded = false;
-      this.state = EMPTY;
-      this.load();
-      this.emit();
-    });
+  }
+
+  private load() {
+    if (this.loaded || typeof window === "undefined") return;
+    this.loaded = true;
+    this.read();
+    // Another tab changed the calls: re-read. Registered once per store, never from inside
+    // the handler (that would add a listener per event). A null key is localStorage.clear().
+    if (!this.listening) {
+      this.listening = true;
+      window.addEventListener("storage", (e) => {
+        if (e.key !== null && e.key !== this.key) return;
+        this.state = EMPTY;
+        this.read();
+        this.emit();
+      });
+    }
   }
 
   private persist() {

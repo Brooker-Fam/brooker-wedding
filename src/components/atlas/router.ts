@@ -3,6 +3,7 @@
 /* Tiny hash router so every view and every argument node is deep-linkable
    without leaving the page (and without a server round trip):
      #/                     overview
+     #/map                  overview, scrolled to the map
      #/o/<objection>        an objection's chamber
      #/o/<objection>/<node> …with a node open in the reader
      #/walk/<objection>     the guided "argue it through" walk
@@ -12,7 +13,15 @@ import { useCallback, useSyncExternalStore } from "react";
 import type { ObjectionId } from "./types";
 
 export type Route =
-  | { view: "home" }
+  | {
+      view: "home";
+      /** "map": arrive scrolled to the map instead of the top of the hero. */
+      at?: "map";
+      /** A link named something that doesn't exist (the URL is then replaced with #/). */
+      missing?: string;
+      /** What the missing name was meant to be: an objection (#/o/nope) or a page (#/nope). */
+      kind?: "objection" | "page";
+    }
   | { view: "objection"; o: ObjectionId; node?: string }
   | { view: "walk"; o: ObjectionId }
   | { view: "timeline"; moment?: string }
@@ -25,14 +34,33 @@ export type Route =
 const OBJECTIONS: ObjectionId[] = ["coherence", "hiddenness", "nature", "evidence", "morals"];
 const isObjection = (s: string | undefined): s is ObjectionId => !!s && (OBJECTIONS as string[]).includes(s);
 
+/* A malformed %-escape (#/cast/%) must not throw during render: keep the raw text. */
+const dec = (s: string) => {
+  try {
+    return decodeURIComponent(s);
+  } catch {
+    return s;
+  }
+};
+
 export function parseHash(hash: string): Route {
-  const parts = hash.replace(/^#\/?/, "").split("/").filter(Boolean).map(decodeURIComponent);
+  // Ids are lowercase kebab and never contain "?" or "&": a pasted tracking tail
+  // (#/o/coherence/coh-a?x=1) or a capitalised name (#/cast/Plato) still finds its target.
+  const parts = hash
+    .replace(/^#\/?/, "")
+    .replace(/[?&].*$/, "")
+    .split("/")
+    .filter(Boolean)
+    .map((p) => dec(p).trim().toLowerCase())
+    .filter(Boolean);
   const [a, b, c] = parts;
   switch (a) {
+    case "map":
+      return { view: "home", at: "map" };
     case "o":
-      return isObjection(b) ? { view: "objection", o: b, node: c } : { view: "home" };
+      return isObjection(b) ? { view: "objection", o: b, node: c } : b ? { view: "home", missing: b, kind: "objection" } : { view: "home" };
     case "walk":
-      return isObjection(b) ? { view: "walk", o: b } : { view: "home" };
+      return isObjection(b) ? { view: "walk", o: b } : b ? { view: "home", missing: b, kind: "objection" } : { view: "home" };
     case "timeline":
       return { view: "timeline", moment: b };
     case "cast":
@@ -46,7 +74,7 @@ export function parseHash(hash: string): Route {
     case "sources":
       return { view: "sources" };
     default:
-      return { view: "home" };
+      return a ? { view: "home", missing: a, kind: "page" } : { view: "home" };
   }
 }
 
@@ -54,7 +82,7 @@ export function formatRoute(r: Route): string {
   const seg = (...s: (string | undefined)[]) => "#/" + s.filter(Boolean).map((x) => encodeURIComponent(x!)).join("/");
   switch (r.view) {
     case "home":
-      return "#/";
+      return r.at === "map" ? "#/map" : "#/";
     case "objection":
       return seg("o", r.o, r.node);
     case "walk":

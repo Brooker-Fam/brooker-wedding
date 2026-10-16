@@ -19,7 +19,7 @@ is adapted for **brooker.family** and how to add a new map.
 | Thing | Path |
 |-------|------|
 | The maps (one portable `.html` each) | `public/debates/<slug>.html` |
-| The index page (wedding-themed) | `src/app/debates/page.tsx` (route: `/debates`) |
+| The index page (wedding-themed) | `src/app/debates/DebatesIndex.tsx`, wrapped by `page.tsx` (route: `/debates`) |
 | Reference implementation / template | `public/debates/god.html` |
 | Old `/vaccine-debate` URL | redirects to `/debates/vaccines.html` |
 
@@ -124,7 +124,7 @@ reachable from `/debates`.
      -A "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15" "<URL>"
    ```
    Keep only `200`s. A book cited by title + author beats a dead link.
-4. Add a card to the `DEBATES` array in `src/app/debates/page.tsx`.
+4. Add a card to the `DEBATES` array in `src/app/debates/DebatesIndex.tsx`.
 5. Re-read both panels of every crux back to back: would a real proponent of each
    side sign off on theirs as their *best* case? If one reads weaker, rewrite it.
 

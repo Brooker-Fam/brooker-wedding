@@ -14,10 +14,11 @@ import { useAtlas } from "../context";
 import { determine } from "../determination";
 import { ROMAN } from "../helpers";
 import { Glyph, RichText, ThinkerChip } from "../primitives";
-import { labelObjection, type DisputationIndex } from "../semantics";
+import { labelObjection, type DisputationIndex, type Judgments } from "../semantics";
 import { useToast } from "../toast";
 import type { ArgNode, Judgment, Label, Objection, ObjectionId, Side } from "../types";
 import {
+  allOutText,
   EMPTY_SESSION,
   itemCount,
   prongReason,
@@ -34,6 +35,9 @@ import {
   type WalkSection,
   type WalkSession,
 } from "../walk";
+import { answeredMark, shownLabel, statusText } from "./chamberShared";
+import { YouMark } from "./marks";
+import { ContextLink } from "./OutlineList";
 
 /* ---------------- words ---------------- */
 
@@ -44,7 +48,6 @@ const whoIn = (side: Side) => WHO[side].replace(/^The /, "the ");
 const NUM = ["no", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten"];
 const num = (n: number) => NUM[n] ?? String(n);
 const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
-const Num = (n: number) => cap(num(n));
 const joinAnd = (xs: string[]) => (xs.length <= 1 ? xs.join("") : `${xs.slice(0, -1).join(", ")} and ${xs[xs.length - 1]}`);
 /** "part 2" / "parts 2 and 3" (0-based indexes in). */
 const partList = (idx: number[]) => (idx.length === 1 ? `part ${idx[0] + 1}` : `parts ${joinAnd(idx.map((i) => String(i + 1)))}`);
@@ -55,12 +58,10 @@ function partRound(ix: DisputationIndex, id: string): string {
   if (!info) return "";
   return `Part ${(ix.nodes.get(info.path[0])?.order ?? 0) + 1} · Round ${info.depth}`;
 }
-/** Why an inner move stands when nothing answers it. */
-const allFail = (replies: number) => (replies === 1 ? "its one reply fails" : "every reply to it fails");
-
 /** Status words, the same for moves and objections. */
 const STATUS: Record<Label, string> = { in: "Stands", out: "Answered", undec: "Open" };
-const callWord = (j: Judgment) => (j === "holds" ? "Holds" : "Fails");
+/** The name of the button that walks into a move's replies (the rules quote it too). */
+const hearLabel = (replies: number) => (replies > 1 ? "Show the replies" : "Show the reply");
 const EASE = [0.22, 1, 0.36, 1] as const;
 /** Ignore a second action this soon after the last one (key repeat, double taps). */
 const ACTION_LOCK_MS = 350;
@@ -81,6 +82,31 @@ function cedesText(s: string): string {
 function useLabelText() {
   const { ix, toPlain } = useAtlas();
   return useCallback((id: string) => toPlain(ix.nodes.get(id)?.node.label || "Untitled move"), [ix, toPlain]);
+}
+
+/** The toast when a call settles the objection. It credits the call or calls the new status
+    rests on, the same ones the end card and Where you stand name (and the same rule as the
+    objection page's toast): the call itself, the one other call, or how many calls. */
+function settleText(ix: DisputationIndex, obj: Objection, next: Judgments, id: string, j: Judgment, name: (id: string) => string): string {
+  const det = determine(ix, obj, next);
+  const N = `Objection ${obj.numeral}`;
+  const what = det.label === "in" ? "now stands" : "is now answered";
+  const footing = det.focus ? [det.focus, ...det.also] : det.also;
+  if (footing.length <= 1) {
+    const x = footing[0] ?? id;
+    return x === id ? `You said “${name(id)}” ${j}, so ${N} ${what}.` : `${N} ${what}. It rests on your call on “${name(x)}”.`;
+  }
+  const parts = obj.prongs.map((p) => p.id);
+  const onParts = footing.every((x) => parts.includes(x));
+  const on =
+    onParts && footing.length === parts.length
+      ? parts.length === 2
+        ? "both parts"
+        : `all ${num(parts.length)} parts`
+      : onParts
+        ? partList(footing.map((x) => parts.indexOf(x)).sort((a, b) => a - b))
+        : `${num(footing.length)} moves`;
+  return `${N} ${what}. It rests on your calls on ${on}.`;
 }
 
 /* ---------------- small hooks ---------------- */
@@ -263,7 +289,9 @@ export default function Walk({ o }: { o: ObjectionId }) {
       setDockOn(true);
       return;
     }
-    const io = new IntersectionObserver((es) => es.some((e) => e.isIntersecting) && setDockOn(true), { rootMargin: "0px 0px -42% 0px" });
+    // The bottom margin is about the dock's height (≈96px), so on short phones the buttons
+    // arrive with the first screen as soon as the lit card's top clears the dock.
+    const io = new IntersectionObserver((es) => es.some((e) => e.isIntersecting) && setDockOn(true), { rootMargin: "0px 0px -100px 0px" });
     io.observe(stage);
     return () => io.disconnect();
   }, [narrow, dockOn, promptKey]);
@@ -345,17 +373,15 @@ export default function Walk({ o }: { o: ObjectionId }) {
 
   const call = (id: string, j: Judgment, unhear = false) => {
     if (!obj) return;
-    const after = labelObjection(obj, { ...judgments, [id]: j });
-    const entry = commit(walkReduce(session, { type: "call", id, unhear }), [{ id, j }]);
-    if (after !== objLabel && after !== "undec") {
-      toast({
-        text: (
-          <>
-            Objection {obj.numeral} {after === "in" ? "now stands" : "is now answered"}, because you said “{labelText(id)}” {j}.
-          </>
-        ),
-        action: { label: "Undo", run: () => undo(entry) },
-      });
+    const next: Judgments = { ...judgments, [id]: j };
+    const after = labelObjection(obj, next);
+    const nextSession = walkReduce(session, { type: "call", id, unhear });
+    const entry = commit(nextSession, [{ id, j }]);
+    // When this call ends the walk, the end card says the result (and offers Undo) and takes
+    // focus, so a toast would only repeat it and cover the card's buttons.
+    const ends = runWalk(obj, next, nextSession).prompt.kind === "done";
+    if (after !== objLabel && after !== "undec" && !ends) {
+      toast({ text: settleText(ix, obj, next, id, j, labelText), action: { label: "Undo", run: () => undo(entry) } });
     }
   };
 
@@ -377,10 +403,10 @@ export default function Walk({ o }: { o: ObjectionId }) {
         key: "hear",
         label: (
           <>
-            Show the {prompt.replies > 1 ? "replies" : "reply"} <span className="wk-arrow" aria-hidden>→</span>
+            {hearLabel(prompt.replies)} <span className="wk-arrow" aria-hidden>→</span>
           </>
         ),
-        short: prompt.replies > 1 ? "Show the replies" : "Show the reply",
+        short: hearLabel(prompt.replies),
         kbd: "R",
         tone: "solid",
         run: () => dispatch({ type: "hear", id: prompt.id }),
@@ -393,7 +419,7 @@ export default function Walk({ o }: { o: ObjectionId }) {
     acts.push({
       key: "test",
       label: <>Show the other {k === 1 ? "reply" : num(k)}</>,
-      short: k === 1 ? "Show the other" : "Show the others",
+      short: k === 1 ? "Other reply" : "Show others",
       kbd: "T",
       tone: "line",
       run: () => dispatch({ type: "test", id: prompt.id }),
@@ -408,15 +434,16 @@ export default function Walk({ o }: { o: ObjectionId }) {
           {next} <span className="wk-arrow" aria-hidden>→</span>
         </>
       ),
-      short: end ? (end.final ? "See results" : `On to part ${end.index + 2}`) : "Continue",
+      short: end ? (end.final ? "Results" : `Part ${end.index + 2} →`) : "Continue",
       kbd: "C",
       tone: "solid",
       run: () => dispatch({ type: "ack", key: keys }),
     });
   } else if (prompt.kind === "prong-end") {
+    const own = prongs[prompt.index] ? judgments[prongs[prompt.index].id] : undefined;
     dockContext = (
       <span className="wk-dock-ctx-t">
-        Part {prompt.index + 1} of {prongs.length} · {STATUS[prompt.label].toLowerCase()}
+        Part {prompt.index + 1} of {prongs.length} · {(own ? statusText(prompt.label, own) : STATUS[prompt.label]).toLowerCase()}
       </span>
     );
     const nextNo = prompt.index + 2;
@@ -428,7 +455,7 @@ export default function Walk({ o }: { o: ObjectionId }) {
           On to part {nextNo} <span className="wk-arrow" aria-hidden>→</span>
         </>
       ),
-      short: `On to part ${nextNo}`,
+      short: `Part ${nextNo} →`,
       kbd: "C",
       tone: "solid",
       run: () => dispatch({ type: "ack", key: `p:${prompt.prong}` }),
@@ -437,6 +464,8 @@ export default function Walk({ o }: { o: ObjectionId }) {
 
   useEffect(() => {
     keyHandler.current = (e: KeyboardEvent) => {
+      // Nothing acts behind an open peek (a person or glossary card) or any other dialog.
+      if ((e.target as Element | null)?.closest?.("[role='dialog']") || document.querySelector(".atl .peek, .peek[role='dialog']")) return;
       if (e.defaultPrevented || e.repeat || e.metaKey || e.ctrlKey || e.altKey) return;
       const root = rootRef.current;
       if (!root) return;
@@ -670,9 +699,13 @@ function WalkHeader({
   resume: { label: string; run: () => void } | null;
   onJump: (i: number) => void;
 }) {
-  const { d, go, labelOf, toPlain } = useAtlas();
+  const { d, go, judgments, labelOf, toPlain } = useAtlas();
+  /** Phones: the rules and the epigraph wait behind a disclosure on a fresh walk, so the first move is on the first screen. */
+  const [howOpen, setHowOpen] = useState(false);
   const total = (obj.prongs ?? []).length;
   const done = prompt.kind === "done";
+  // The rules name the button the reader will see (it says "reply" when a move has only one).
+  const hearName = hearLabel(prompt.kind === "ask" && !prompt.leaf ? prompt.replies : 2);
   const unheard = prompt.kind === "done" ? prompt.unheard : [];
   const decided = prompt.kind === "done" ? prompt.decided : [];
 
@@ -689,7 +722,7 @@ function WalkHeader({
           1
         </span>
         <span>
-          <b>It fails</b> rejects the move without hearing the replies to it.
+          <b>It fails</b> rejects the move without reading the replies.
         </span>
       </li>
       <li>
@@ -697,7 +730,8 @@ function WalkHeader({
           2
         </span>
         <span>
-          <b>Show the reply</b> takes you through its replies one at a time. The move is answered if any reply stands, and it stands if every reply fails.
+          <b>{hearName}</b> takes you through the replies one at a time. The move is answered if any reply stands. It stands if every reply has failed or
+          been answered.
         </span>
       </li>
       <li>
@@ -743,9 +777,15 @@ function WalkHeader({
       {obj.question && <p className="wk-question serif">{toPlain(obj.question)}</p>}
 
       {intro ? (
-        <div className="wk-how is-open" role="group" aria-label="How it works">
-          {rules}
-          {epigraph}
+        <div className={`wk-how is-open ${howOpen ? "is-shown" : ""}`} role="group" aria-label="How it works">
+          {/* Shown only on phones (walk.css): the rules fold away until asked for. */}
+          <button type="button" className="wk-how-tog mono" aria-expanded={howOpen} aria-controls="wk-how-body" onClick={() => setHowOpen((v) => !v)}>
+            How it works <span aria-hidden>▾</span>
+          </button>
+          <div id="wk-how-body" className="wk-how-body">
+            {rules}
+            {epigraph}
+          </div>
         </div>
       ) : (
         <details className="wk-how">
@@ -765,9 +805,10 @@ function WalkHeader({
               <ol className="wk-pips">
                 {obj.prongs.map((p, i) => {
                   const reached = i < sections.length;
+                  const own = judgments[p.id];
                   const l = labelOf(p.id);
                   const cur = !done && i === at;
-                  const text = `Part ${i + 1}: ${toPlain(p.label)}. ${reached || l !== "undec" ? STATUS[l] : "Not reached yet"}.`;
+                  const text = `Part ${i + 1}: ${toPlain(p.label)}. ${own ? statusText(l, own) : reached || l !== "undec" ? STATUS[l] : "Not reached yet"}.`;
                   return (
                     <li key={p.id}>
                       {reached ? (
@@ -778,12 +819,12 @@ function WalkHeader({
                           aria-current={cur ? "step" : undefined}
                           onClick={() => onJump(i)}
                         >
-                          <Glyph side={p.side} label={l} size={11} />
+                          <Glyph side={p.side} label={shownLabel(l, own)} size={11} />
                           <span className="mono">{i + 1}</span>
                         </button>
                       ) : (
                         <span className={`wk-pip s-${p.side} later`} role="img" aria-label={text}>
-                          <Glyph side={p.side} label={l} size={11} />
+                          <Glyph side={p.side} label={shownLabel(l, own)} size={11} />
                           <span className="mono">{i + 1}</span>
                         </span>
                       )}
@@ -819,7 +860,7 @@ function SectionHead({
   collapsed: boolean;
   onToggle: () => void;
 }) {
-  const { labelOf, toPlain } = useAtlas();
+  const { judgments, labelOf, toPlain } = useAtlas();
   const id = `wk-sh-${sec.prong}`;
   const moves = sec.items.filter((i) => i.kind === "move").length;
   if (current) {
@@ -839,15 +880,23 @@ function SectionHead({
     );
   }
   const l = prong ? labelOf(prong.id) : "undec";
+  const own = prong ? judgments[prong.id] : undefined;
   return (
     <h2 id={id} className="wk-sec-past">
       <button type="button" className="wk-sec-btn" aria-expanded={!collapsed} onClick={onToggle}>
         <span className="wk-sec-n mono">Part {sec.index + 1}</span>
         <span className="wk-sec-label">
-          {prong && <Glyph side={prong.side} label={l} size={12} />}
-          <span className={`serif ${l === "out" ? "lab-out" : ""}`}>{toPlain(prong?.label || "Untitled move")}</span>
+          {prong && <Glyph side={prong.side} label={shownLabel(l, own)} size={12} />}
+          {own && <YouMark size={10} className="wk-sec-you" />}
+          <span className={`serif ${answeredMark(l, own) ? "lab-out" : ""}`}>{toPlain(prong?.label || "Untitled move")}</span>
         </span>
-        <span className={`wk-sec-st wk-st mono st-${l}`}>{STATUS[l]}</span>
+        {own ? (
+          <span className="wk-sec-st">
+            <span className="your-call">{statusText(l, own)}</span>
+          </span>
+        ) : (
+          <span className={`wk-sec-st wk-st mono st-${l}`}>{STATUS[l]}</span>
+        )}
         <span className="wk-sec-toggle mono">
           {collapsed ? (moves === 1 ? "Show the move" : `Show the ${moves} moves`) : moves === 1 ? "Hide the move" : "Hide the moves"} <span aria-hidden>{collapsed ? "▾" : "▴"}</span>
         </span>
@@ -886,6 +935,7 @@ function Strip({
   if (!n) return null;
   const l = labelOf(item.id);
   const res = item.res;
+  const own = res.r === "judged" ? res.j : undefined;
   const status =
     res.r === "judged" ? null : l === "undec" ? (
       <span className="sr-only">Status: open</span>
@@ -897,7 +947,7 @@ function Strip({
     );
   const stamp =
     res.r === "judged" ? (
-      <span className="your-call">Your call: {callWord(res.j)}</span>
+      <span className="your-call">{statusText(l, res.j)}</span>
     ) : res.auto ? null : (
       <span className="wk-stamp heard">
         <span className="wk-sq" aria-hidden />
@@ -918,8 +968,9 @@ function Strip({
       </span>
       <div className="wk-strip-main">
         <button type="button" className="wk-said" aria-expanded={open} onClick={onToggle}>
-          <Glyph side={n.side} label={l} size={12} className="wk-said-glyph" />
-          <span className={`wk-said-label serif ${l === "out" ? "lab-out" : l === "in" ? "lab-in" : ""}`}>{labelText(item.id)}</span>
+          <Glyph side={n.side} label={shownLabel(l, own)} size={12} className="wk-said-glyph" />
+          {own && <YouMark size={10} className="wk-said-you" />}
+          <span className={`wk-said-label serif ${answeredMark(l, own) ? "lab-out" : l === "in" ? "lab-in" : ""}`}>{labelText(item.id)}</span>
           <span className="wk-chev" aria-hidden>
             ▾
           </span>
@@ -973,6 +1024,7 @@ function Strip({
 
 /** One result sentence, e.g. “X” is answered, because its reply “Y” stands. */
 function ResolveSentence({ item }: { item: ResolveItem }) {
+  const { judgments } = useAtlas();
   const labelText = useLabelText();
   const k = item.untested.length;
   return item.label === "out" && item.by ? (
@@ -982,7 +1034,7 @@ function ResolveSentence({ item }: { item: ResolveItem }) {
     </>
   ) : (
     <>
-      <q className="serif">{labelText(item.id)}</q> stands, because {allFail(item.replies)}.
+      <q className="serif">{labelText(item.id)}</q> stands, because {allOutText(item.kids, judgments)}.
     </>
   );
 }
@@ -1010,7 +1062,7 @@ function ResolveRow({ items, fresh, delay }: { items: ResolveItem[]; fresh: bool
           <span className="wk-res-k mono">{top.label === "out" ? "Answered" : "Stands"}</span>
           {chain ? (
             <>
-              {Num(items.length)} moves further up this line of replies are settled. The last of them, <q className="serif">{labelText(top.id)}</q>,{" "}
+              This also decides {num(items.length)} moves above it. The highest, <q className="serif">{labelText(top.id)}</q>,{" "}
               {top.label === "out" ? "is answered" : "stands"}.
             </>
           ) : (
@@ -1042,16 +1094,17 @@ function ResolveRow({ items, fresh, delay }: { items: ResolveItem[]; fresh: bool
 /* The lit move and the result cards                                       */
 
 /** Glyph + side word + label: a move named on a card. */
-function NodeLine({ id, label, className = "" }: { id: string; label: Label; className?: string }) {
+function NodeLine({ id, label, call, className = "" }: { id: string; label: Label; call?: Judgment; className?: string }) {
   const { ix } = useAtlas();
   const labelText = useLabelText();
   const n = ix.nodes.get(id)?.node;
   const side = n?.side ?? "skeptic";
   return (
     <p className={`wk-v-node s-${side} ${className}`}>
-      <Glyph side={side} label={label} size={13} />
+      <Glyph side={side} label={shownLabel(label, call)} size={13} />
+      {call && <YouMark size={11} />}
       <span className="wk-v-who mono">{WHO_SHORT[side]}</span>
-      <span className={`serif ${label === "out" ? "lab-out" : label === "in" ? "lab-in" : ""}`}>{labelText(id)}</span>
+      <span className={`serif ${answeredMark(label, call) ? "lab-out" : label === "in" ? "lab-in" : ""}`}>{labelText(id)}</span>
     </p>
   );
 }
@@ -1118,8 +1171,11 @@ function LitMove({ prompt: p, bar }: { prompt: Extract<WalkPrompt, { kind: "ask"
             <figure className="wk-quote">
               <blockquote className="serif">{n.quote.text}</blockquote>
               <figcaption className="mono">
-                {n.quote.who}
-                {n.quote.cite ? ` · ${n.quote.cite}` : ""}
+                <span>
+                  {n.quote.who}
+                  {n.quote.cite ? ` · ${n.quote.cite}` : ""}
+                </span>
+                {n.quote.url && <ContextLink url={n.quote.url} />}
               </figcaption>
             </figure>
           )}
@@ -1263,25 +1319,27 @@ function ProngEndCard({ prompt: p, obj, sections, bar }: { prompt: Extract<WalkP
   else if (by.kind === "earlier") sub = `Objection ${obj.numeral} still stands, because part ${by.index + 1} stood.${worth}`;
   else sub = `Objection ${obj.numeral} stands anyway, because your earlier calls leave part ${by.index + 1} standing.${worth}`;
 
+  const own = why.kind === "judged" ? why.j : undefined;
   return (
     <article className={`wk-verdict wk-pend st-${p.label}`} aria-labelledby="wk-pend-h">
       <p className="wk-k mono">
-        Part {p.index + 1} of {total} · {STATUS[p.label].toLowerCase()}
+        Part {p.index + 1} of {total}
+        {own ? "" : ` · ${STATUS[p.label].toLowerCase()}`}
       </p>
-      <NodeLine id={p.prong} label={p.label} />
+      <NodeLine id={p.prong} label={p.label} call={own} />
       <h3 id="wk-pend-h" className="wk-v-line serif" tabIndex={-1} data-wk-head="">
-        {p.label === "in" ? (
-          why.kind === "judged" ? (
-            <>Stands. You said it holds.</>
-          ) : (
-            <>Stands, because {allFail(why.kind === "all-fail" ? why.replies : 2)}.</>
-          )
+        {own === "holds" ? (
+          <>You said it holds.</>
+        ) : own === "fails" ? (
+          <>You said it fails.</>
+        ) : p.label === "in" ? (
+          <>Stands, because {allOutText(why.kind === "all-fail" ? why.replies : (prong?.children ?? []).map((c) => c.id), judgments)}.</>
         ) : why.kind === "reply" ? (
           <>
             Answered, because the reply <q>{labelText(why.by)}</q> stands.
           </>
         ) : (
-          <>Answered. You said it fails.</>
+          <>Answered.</>
         )}
       </h3>
       <p className="wk-v-sub">{sub}</p>
@@ -1337,13 +1395,14 @@ function DoneCard({
 
       {chips.length > 0 && (
         <div className="wk-done-more">
-          <p className="wk-k mono">{label === "undec" ? "These could also settle it" : "It also rests on"}</p>
+          <p className="wk-k mono">{label === "undec" ? "These could also settle it" : det.focus ? "It also rests on" : "It rests on"}</p>
           <div className="wk-chips">
             {shown.map((id) => {
               const n = ix.nodes.get(id)?.node;
               return (
                 <button key={id} type="button" className={`chip wk-nodechip s-${n?.side ?? "skeptic"}`} onClick={() => openNode(id)}>
-                  {n && <Glyph side={n.side} label={labelOf(id)} size={11} />}
+                  {n && <Glyph side={n.side} label={shownLabel(labelOf(id), judgments[id])} size={11} />}
+                  {judgments[id] && <YouMark size={9} className="wk-chip-you" />}
                   <span className="mono wk-nodechip-addr">{partRound(ix, id)}</span>
                   <span>{labelText(id)}</span>
                 </button>
@@ -1364,13 +1423,14 @@ function DoneCard({
           const why = prongReason(p, judgments, labelOf);
           const skipped = unheard.includes(i);
           const earlier = decided.includes(i);
+          const own = why.kind === "judged" ? why.j : undefined;
           const reason =
             skipped && l === "undec"
               ? "skipped"
-              : why.kind === "judged"
-                ? `you said it ${why.j}`
+              : own
+                ? ""
                 : why.kind === "all-fail"
-                  ? allFail(why.replies)
+                  ? allOutText(why.replies, judgments)
                   : why.kind === "reply"
                     ? `“${labelText(why.by)}” stands`
                     : "";
@@ -1378,15 +1438,16 @@ function DoneCard({
             <li key={p.id} className={`s-${p.side}`}>
               <span className="wk-dp-n mono">Part {i + 1}</span>
               <span className="wk-dp-label">
-                <Glyph side={p.side} label={l} size={12} />
-                <span className={`serif ${l === "out" ? "lab-out" : ""}`}>{labelText(p.id)}</span>
+                <Glyph side={p.side} label={shownLabel(l, own)} size={12} />
+                {own && <YouMark size={10} />}
+                <span className={`serif ${answeredMark(l, own) ? "lab-out" : ""}`}>{labelText(p.id)}</span>
               </span>
               <span className="wk-dp-why">
                 <span className="wk-dp-who mono">{WHO_SHORT[p.side]}</span>
                 <span className="wk-dp-sep" aria-hidden>
                   ·
                 </span>
-                <span className={`wk-st st-${l}`}>{STATUS[l]}</span>
+                {own ? <span className="your-call">{statusText(l, own)}</span> : <span className={`wk-st st-${l}`}>{STATUS[l]}</span>}
                 {reason && <span className="wk-dp-reason"> · {reason}</span>}
                 {earlier && <span className="wk-dp-reason"> · decided by your earlier calls</span>}
               </span>
