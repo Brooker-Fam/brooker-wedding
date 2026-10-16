@@ -88,7 +88,7 @@ export async function GET(request: NextRequest) {
         return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
       }
       const rows = await query(
-        `SELECT id, url, thumb_url, media_type, uploader_name, approved, reported, created_at
+        `SELECT id, url, thumb_url, media_type, uploader_name, approved, reported, featured, created_at
          FROM photos ORDER BY id DESC LIMIT 1000`
       );
       return NextResponse.json({ data: rows ?? [] });
@@ -184,7 +184,8 @@ export async function DELETE(request: NextRequest) {
   }
 }
 
-// Admin: restore a reported/hidden photo back into the gallery (undo a mis-tap).
+// Admin: restore a reported/hidden photo back into the gallery (undo a mis-tap),
+// or, with a { featured } body, star/unstar it for the home page.
 export async function PATCH(request: NextRequest) {
   try {
     if (!isAdminRequest(request)) {
@@ -197,18 +198,25 @@ export async function PATCH(request: NextRequest) {
       return NextResponse.json({ error: "Valid photo id is required" }, { status: 400 });
     }
 
-    const result = await query(
-      `UPDATE photos SET approved = TRUE, reported = FALSE WHERE id = $1`,
-      [id]
-    );
+    const body = await request.json().catch(() => ({}));
+    const featured = body?.featured;
+    if (featured !== undefined && typeof featured !== "boolean") {
+      return NextResponse.json({ error: "featured must be true or false" }, { status: 400 });
+    }
+
+    const result =
+      featured === undefined
+        ? await query(`UPDATE photos SET approved = TRUE, reported = FALSE WHERE id = $1`, [id])
+        : await query(`UPDATE photos SET featured = $2 WHERE id = $1`, [id, featured]);
     if (!result) {
       return NextResponse.json({ error: "Database unavailable" }, { status: 503 });
     }
+    revalidatePath("/");
 
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error("Photo restore error:", error);
+    console.error("Photo update error:", error);
     await captureServerException(error, { route: "PATCH /api/photos" });
-    return NextResponse.json({ error: "Failed to restore photo" }, { status: 500 });
+    return NextResponse.json({ error: "Failed to update photo" }, { status: 500 });
   }
 }

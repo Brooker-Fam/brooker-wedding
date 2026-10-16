@@ -80,7 +80,7 @@ src/
 │   ├── FarmScene.tsx              # SVG landscape with fireflies, stars (home page closing)
 │   └── ConfettiCelebration.tsx    # Canvas confetti (Sapphire's party, crib guide)
 └── lib/
-    ├── celebration.ts             # Home page data: random album prints + photo/song counts
+    ├── celebration.ts             # Home page data: album prints (starred first, rest random) + photo/song counts
     ├── db.ts                      # Neon connection (returns null if no DATABASE_URL)
     ├── migrate.ts                 # Auto-migration on build
     └── schema.sql                 # Reference schema (rsvps + game_scores tables)
@@ -135,6 +135,8 @@ Pulls events (TKD, drama club, etc.) from a connected Google account into `/cale
 ## Guest Photos (`/photos`)
 
 Guest uploads live in **Vercel Blob** (files) + Neon (`photos` table, metadata). Uploads are re-encoded client-side (~4096px JPEG + 512px thumb; videos get a captured poster frame). Grid tiles use `thumb_url`, falling back to Vercel's image optimizer (`/_next/image`, remotePatterns in `next.config.ts`) for rows without thumbs. Gallery pages with a `before` id cursor (200/page).
+
+**Home page prints:** the star on each `/photos/manage` tile sets `photos.featured` (admin `PATCH /api/photos?id=` with `{ featured }`, which revalidates `/`). The home page lays starred photos down first, shuffled, and fills the rest of the 12 at random; reported or unapproved photos never show, starred or not.
 
 **Export:** `/photos` → "Take the memories home" panel (`src/components/photos/ExportPanel.tsx`): client-side zip via `fflate` (streams to disk on Chromium; also the Apple Photos path), and per-guest **Google Photos album export** (`photoslibrary.appendonly` scope, token in an httpOnly cookie only, batched relay via `/api/photos/google-export`). Reuses `GOOGLE_CLIENT_ID/SECRET`; requires Photos Library API enabled + redirect URI `{BASE_URL}/api/photos/google-export/callback`. See `docs/photos-ops.md`.
 
