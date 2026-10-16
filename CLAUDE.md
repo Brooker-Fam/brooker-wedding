@@ -4,7 +4,13 @@ Wedding celebration website for Matt & Brittany Brooker at **brooker.family**.
 
 ## Context
 
-Matt & Brittany got married **January 1, 2026**. This site is for their **celebration party on June 27, 2026** at their farm (49 Clarks Mill Rd, Greenwich, NY 12834). The tone is "we already got married, now come party with us" -- not a traditional wedding site.
+Matt & Brittany got married **January 1, 2026** and threw their **celebration party on June 27, 2026** at their farm in Greenwich, NY. The party is over, so the public site is a thank-you keepsake: the home page looks back on the day, and the nav only offers Photos, Playlist, and Games. Write in a warm past tense, never "join us" or "RSVP".
+
+### What's linked and what isn't
+
+- **Public nav and home:** `/`, `/photos`, `/songs` (labelled "Playlist", read-only), `/games`.
+- **Retired:** `/rsvp`, `/details`, `/bridal-shower` redirect to `/`. `/registry` still renders but nothing links to it. RSVP admin pages and APIs still work.
+- **Family side projects stay unlinked on purpose:** `/calendar`, `/sapphire`, `/backpacking-2026`, `/crib`, `/debates`, `/birth`. Matt doesn't want them easy to find, so don't add them to the nav, home page, or footer.
 
 ### Family
 
@@ -50,12 +56,11 @@ src/
 │   │   ├── yoga-goat/
 │   │   ├── zoes-adventure/
 │   │   └── page.tsx               # Games hub/gallery
-│   ├── details/page.tsx           # Event details (location, timeline, FAQ)
-│   ├── rsvp/page.tsx              # RSVP form
-│   ├── story/page.tsx             # Our Story timeline + farm animals
-│   ├── globals.css                # Theme, animations, dark mode
+│   ├── details/page.tsx           # Redirects to / (retired after the party)
+│   ├── rsvp/page.tsx              # Redirects to / (admin lives under rsvp/admin)
+│   ├── globals.css                # Theme, animations, dark mode, keepsake prints
 │   ├── layout.tsx                 # Root layout with ThemeProvider
-│   └── page.tsx                   # Home page (hero, countdown, games grid)
+│   └── page.tsx                   # Home: thank-you card + album prints, timeline, links (ISR, 10 min)
 ├── components/
 │   ├── games/
 │   │   ├── GameWrapper.tsx        # Shared game shell (header, leaderboard)
@@ -68,14 +73,13 @@ src/
 │   │   ├── ZoesAdventure.tsx      # Endless runner (Zoe the dog)
 │   │   ├── CakeCreator.tsx        # Cake decoration
 │   │   └── HereComesTheBride.tsx  # Rhythm/timing aisle walk
+│   ├── home/MemoryTable.tsx       # Home hero: polaroid prints of album photos around the thank-you card
 │   ├── Navigation.tsx             # Fixed nav + mobile menu + theme toggle
 │   ├── ThemeProvider.tsx          # Dark mode context (light/system/dark)
-│   ├── FarmScene.tsx              # SVG landscape with fireflies, stars
-│   ├── Countdown.tsx              # Live countdown to June 27, 2026
-│   ├── GameCard.tsx               # Game card for home page grid
-│   ├── PixelButton.tsx            # Button component
-│   └── ConfettiCelebration.tsx    # Canvas confetti on RSVP success
+│   ├── FarmScene.tsx              # SVG landscape with fireflies, stars (home page closing)
+│   └── ConfettiCelebration.tsx    # Canvas confetti (Sapphire's party, crib guide)
 └── lib/
+    ├── celebration.ts             # Home page data: random album prints + photo/song counts
     ├── db.ts                      # Neon connection (returns null if no DATABASE_URL)
     ├── migrate.ts                 # Auto-migration on build
     └── schema.sql                 # Reference schema (rsvps + game_scores tables)
@@ -167,8 +171,7 @@ All games use **HTML5 Canvas** with `requestAnimationFrame`. Key patterns:
 1. Create `src/components/games/NewGame.tsx` (export default component)
 2. Create `src/app/games/new-game/page.tsx` importing the component
 3. Add to `GAMES` array in `src/app/games/page.tsx`
-4. Add to `games` array in `src/app/page.tsx` (home page grid)
-5. Use `GameWrapper` for consistent layout
+4. Use `GameWrapper` for consistent layout
 
 ## Key CSS Classes
 
