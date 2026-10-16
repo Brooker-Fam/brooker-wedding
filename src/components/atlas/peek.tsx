@@ -259,7 +259,11 @@ function PeekCard({ target, onClose }: { target: OpenPeek; onClose: (refocus?: b
           </div>
         </div>
         {th?.tradition && <p className="peek-trad">{th.tradition}</p>}
-        {th?.line && <p className="peek-text">{th.line}</p>}
+        {th?.line && (
+          <p className="peek-text">
+            <Rich text={th.line} r={{ thinkerName, termName }} />
+          </p>
+        )}
         {th?.work && <p className="peek-work mono">{th.work}</p>}
         {quote && (
           <figure className="peek-quote s-neutral">
