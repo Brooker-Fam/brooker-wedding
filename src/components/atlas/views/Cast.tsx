@@ -15,7 +15,7 @@ import "./library.css";
 import { Fragment, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type KeyboardEvent, type MouseEvent } from "react";
 import { useAtlas } from "../context";
 import { initials } from "../peek";
-import { Glyph } from "../primitives";
+import { Glyph, RichText } from "../primitives";
 import { formatRoute } from "../router";
 import type { DisputationIndex } from "../semantics";
 import type { ObjectionId, Quote, Side, Thinker } from "../types";
@@ -445,7 +445,11 @@ function ThinkerFile({ t, onClose, onBack }: { t: Thinker; onClose?: () => void;
       </header>
       {t.tradition && <p className="ca-file-trad">{t.tradition}</p>}
       <QuoteFigure q={quote} hideWho={!!quote?.who && sameName(quote.who, t.name)} className="ca-file-quote" />
-      {t.line && <p className={`ca-file-line serif ${quote ? "after-quote" : ""}`}>{t.line}</p>}
+      {t.line && (
+        <p className={`ca-file-line serif ${quote ? "after-quote" : ""}`}>
+          <RichText text={t.line} />
+        </p>
+      )}
       {t.work && (
         <p className="ca-file-work">
           <span className="mono lib-k">Key work</span>

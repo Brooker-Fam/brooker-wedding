@@ -18,7 +18,8 @@ import "./library.css";
 import { memo, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type KeyboardEvent, type RefObject } from "react";
 import { useAtlas } from "../context";
 import { address } from "../helpers";
-import { Glyph, ThinkerChip } from "../primitives";
+import { Glyph, RichText, ThinkerChip } from "../primitives";
+import { plain } from "../markup";
 import { formatRoute } from "../router";
 import type { DisputationIndex } from "../semantics";
 import type { Moment, Objection, ObjectionId, Quote, Side } from "../types";
@@ -101,7 +102,7 @@ function quoteOf(m: Moment, ix: DisputationIndex): Quote | undefined {
     const who = m.thinker ? ix.thinkers.get(m.thinker)?.name : undefined;
     if (!who || !spokenBy(q.who, who)) return undefined;
   }
-  return echoes(m.text, q.text) ? undefined : q;
+  return echoes(plain(m.text), q.text) ? undefined : q;
 }
 
 /* ---------- glyph for a moment (adds a square for context moments) ---------- */
@@ -1195,7 +1196,11 @@ function MomentCard({
           )}
         </p>
         <h2 className="tl-card-t serif">{m.title}</h2>
-        {m.text && <p className="tl-card-x">{m.text}</p>}
+        {m.text && (
+          <p className="tl-card-x">
+            <RichText text={m.text} />
+          </p>
+        )}
         <QuoteFigure q={quoteOf(m, ix)} className="tl-quote" />
         {reading.length > 0 && (
           <div className="tl-read">
@@ -1445,7 +1450,11 @@ const ChronicleRow = memo(function ChronicleRow({
           <span className="tl-title serif">{m.title}</span>
           <span className="tl-chev" aria-hidden />
         </button>
-        {isOpen && m.text && <p className="tl-text">{m.text}</p>}
+        {isOpen && m.text && (
+          <p className="tl-text">
+            <RichText text={m.text} />
+          </p>
+        )}
         {isOpen && <QuoteFigure q={quote} className="tl-quote tl-quote-row" />}
         {isOpen && reading.length > 0 && (
           <div className="tl-read tl-read-row">

@@ -817,7 +817,9 @@ export default function Chamber({ o: oid, node }: { o: ObjectionId; node?: strin
                           <span className="ch-ex-k">
                             <Glyph side="skeptic" size={11} /> The Objector argues
                           </span>
-                          <span className="ch-ex-t">{o.objection}</span>
+                          <span className="ch-ex-t">
+                            <RichText text={o.objection} />
+                          </span>
                         </p>
                       )}
                       {o.counter && (
@@ -825,7 +827,9 @@ export default function Chamber({ o: oid, node }: { o: ObjectionId; node?: strin
                           <span className="ch-ex-k">
                             <Glyph side="theist" size={11} /> The Defender replies
                           </span>
-                          <span className="ch-ex-t">{o.counter}</span>
+                          <span className="ch-ex-t">
+                            <RichText text={o.counter} />
+                          </span>
                         </p>
                       )}
                     </div>

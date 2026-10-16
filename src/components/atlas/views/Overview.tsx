@@ -504,7 +504,9 @@ function Poster({ o }: { o: Objection }) {
                   <Glyph side="skeptic" size={11} /> The Objector argues
                   <span className="sr-only">: </span>
                 </span>
-                <span className="ov-saytext">{toPlain(objection)}</span>
+                <span className="ov-saytext">
+                  <RichText text={objection} />
+                </span>
               </p>
             )}
             {counter && (
@@ -513,7 +515,9 @@ function Poster({ o }: { o: Objection }) {
                   <Glyph side="theist" size={11} /> The Defender replies
                   <span className="sr-only">: </span>
                 </span>
-                <span className="ov-saytext">{toPlain(counter)}</span>
+                <span className="ov-saytext">
+                  <RichText text={counter} />
+                </span>
               </p>
             )}
           </div>

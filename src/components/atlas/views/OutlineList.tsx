@@ -214,7 +214,9 @@ function ObjectionBlock({
                   <dt className="mono">
                     <OutlineGlyph side="skeptic" size={10} /> The Objector argues
                   </dt>
-                  <dd>{o.objection}</dd>
+                  <dd>
+                    <Rich text={o.objection} r={rich} />
+                  </dd>
                 </div>
               )}
               {o.counter && (
@@ -222,7 +224,9 @@ function ObjectionBlock({
                   <dt className="mono">
                     <OutlineGlyph side="theist" size={10} /> The Defender replies
                   </dt>
-                  <dd>{o.counter}</dd>
+                  <dd>
+                    <Rich text={o.counter} r={rich} />
+                  </dd>
                 </div>
               )}
             </dl>
