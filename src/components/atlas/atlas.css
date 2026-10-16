@@ -504,22 +504,10 @@
     box-shadow: 0 0 0 9px var(--ink-c, var(--side, var(--bone)));
   }
 }
-/* phones: tall, wide targets (a view may lay them out its own way) */
-@media (max-width: 720px) {
-  .atl .judge:not(.compact) {
-    width: 100%;
-  }
-  .atl .judge:not(.compact) .judge-btns {
-    display: flex;
-    flex: 1 1 100%;
-    max-width: 420px;
-  }
-  .atl .judge:not(.compact) .judge-btn {
-    flex: 1 1 0;
-    min-height: 48px;
-    font-size: 12.5px;
-  }
-}
+/* Phones: every Holds / Fails pair on the page is the chamber's (chamberShared.tsx CallButtons,
+   .judge-btns.ch-judge), and chamber.css sizes both of them, the full pair and the compact one
+   under "Does it hold?", full width and 48px tall. No phone rule here: the shared JudgeControl
+   above isn't rendered anywhere. */
 
 /* ---------- peek (term / thinker cards) ---------- */
 .atl .peek {
@@ -1058,10 +1046,14 @@
   border-color: var(--mute);
 }
 /* While a bottom sheet is open (a phone peek, the phone menu), a toast rides above it, not over
-   its buttons (peek.tsx publishes the flag and --atl-sheet-h). Doubled class: this outranks a
-   view's own placement of the toast (the walk's bar). */
+   its buttons (peek.tsx publishes the flag and --atl-sheet-h), but never higher than just under
+   the top bar: a tall sheet on a small phone or a phone on its side would push it over the bar
+   (the menu dismisses any toast as it opens; a peek keeps it, for its Undo). Doubled class: this
+   outranks a view's own placement of the toast (the walk's bar). */
 html[data-atl-sheet="open"] .atl.atl .toast-dock {
   bottom: calc(var(--atl-sheet-h, 50vh) + 12px);
+  bottom: min(calc(var(--atl-sheet-h, 50vh) + 12px), calc(100vh - var(--bar-total) - var(--toast-h, 96px) - 12px));
+  bottom: min(calc(var(--atl-sheet-h, 50vh) + 12px), calc(100dvh - var(--bar-total) - var(--toast-h, 96px) - 12px));
 }
 
 /* ---------- touch: every control at least 44px ---------- */
@@ -1098,6 +1090,14 @@ html[data-atl-sheet="open"] .atl.atl .toast-dock {
 @media (hover: none) {
   .atl :where(a[href], button, [role="button"], summary):where(:not(svg *, .ref-term, .ref-thinker, .ref-node, [aria-disabled="true"], :disabled)):active {
     scale: 0.97;
+  }
+  /* Inline links to a person, a term or a move can't scale (they wrap across lines): a wash of
+     the side's colour under the finger shows the tap landed while the card opens. */
+  .atl :is(.ref-term, .ref-thinker, .ref-node):active {
+    background: color-mix(in srgb, var(--side, var(--bone)) 18%, transparent);
+    border-radius: 3px;
+    -webkit-box-decoration-break: clone;
+    box-decoration-break: clone;
   }
 }
 /* A text field under 16px makes iOS zoom the page when it takes focus (zero specificity: a

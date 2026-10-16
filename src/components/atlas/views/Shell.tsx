@@ -8,8 +8,7 @@
 
    On phones and tablets (below the desktop nav) a thumb dock sits at the bottom:
    Map · I–V · You. It publishes its height for everything else fixed to the bottom
-   (see Dock), the menu opens as a bottom sheet, and a change of view slides in from
-   the side it lies on (deeper from the right, back or up from the left). */
+   (see Dock), and the menu opens as a bottom sheet. */
 
 import "./shell.css";
 import { AnimatePresence, motion, useAnimate, useIsPresent, useMotionValue, useReducedMotion } from "framer-motion";
@@ -29,7 +28,7 @@ import {
 } from "react";
 import { useAtlas } from "../context";
 import { tick } from "../haptics";
-import { useSheetDrag, useSheetPresence } from "../peek";
+import { usePageLock, useSheetDrag, useSheetPresence } from "../peek";
 import { Glyph } from "../primitives";
 import { formatRoute, parseHash, viewKey, type Route } from "../router";
 import { useToastDismiss } from "../toast";
@@ -112,17 +111,19 @@ function LibIcon({ view }: { view: LibView }) {
 let popsLive = false;
 
 /** A status pip that gives one small spring when the reader's calls change its status
-    (a state change, never on load; nothing under reduced motion). */
-function PopPip({ label, size }: { label: Label; size?: number }) {
+    (a state change, never on load; nothing under reduced motion). `delay` (seconds) holds the
+    spring back, e.g. until a tucked dock has risen into view. */
+function PopPip({ label, size, delay = 0 }: { label: Label; size?: number; delay?: number }) {
   const [scope, animateEl] = useAnimate<HTMLSpanElement>();
   const reduce = useReducedMotion();
   const prev = useRef(label);
   useEffect(() => {
+    // Only a change of label springs (a change of delay alone re-runs this and stops here).
     if (prev.current === label) return;
     prev.current = label;
     if (reduce || !popsLive || !scope.current) return;
-    animateEl(scope.current, { scale: [1, 1.9, 0.86, 1] }, { duration: 0.55, times: [0, 0.32, 0.68, 1], ease: "easeOut" });
-  }, [label, reduce, animateEl, scope]);
+    animateEl(scope.current, { scale: [1, 1.9, 0.86, 1] }, { duration: 0.55, times: [0, 0.32, 0.68, 1], ease: "easeOut", delay });
+  }, [label, reduce, animateEl, scope, delay]);
   return (
     <span ref={scope} className="sh-pop">
       <StatusPip label={label} size={size} />
@@ -208,42 +209,29 @@ function topClick(here: boolean) {
 /** Where the dock shows: below the desktop nav, held upright (a phone on its side keeps its
     height for reading). Must match the dock's media query in shell.css. */
 const DOCK_MQ = "(max-width: 959.98px) and (min-height: 480px)";
-/** Where a change of view slides in from the side (wider screens keep the plain fade). */
+/** Where a change of view gets the phone treatment (see enterFor); wider screens fade. */
 const SLIDE_MQ = "(max-width: 959.98px)";
 
-/* The order the dock shows things in, left to right: Map, I–V, You. The Library's pages sit
-   further right, in the menu's order. A change of view slides in from the side the new view
-   lies on: deeper (a new page) from the right, back or up (to the map) from the left. */
-const LIB_RANK: Partial<Record<Route["view"], number>> = { timeline: 10, cast: 11, lexicon: 12, outline: 13, sources: 14 };
-
-function slideDir(from: Route, to: Route, order: ObjectionId[]): -1 | 1 {
-  if (to.view === "home") return -1;
-  // Out of a walk into its own objection: up a level.
-  if (from.view === "walk" && to.view === "objection" && from.o === to.o) return -1;
-  const place = (r: Route): [group: string, rank: number] => {
-    if (r.view === "objection") return ["dock", 1 + order.indexOf(r.o)];
-    if (r.view === "walk") return ["dock", 1.5 + order.indexOf(r.o)];
-    if (r.view === "ledger") return ["dock", 1 + order.length];
-    if (r.view === "home") return ["home", 0];
-    return ["lib", LIB_RANK[r.view] ?? 20];
-  };
-  const [ga, ra] = place(from);
-  const [gb, rb] = place(to);
-  // Neighbours (along the dock, or within the Library) slide from the side they sit on.
-  if (ga === gb && ga !== "home") return rb >= ra ? 1 : -1;
-  return 1;
-}
-
-/* The side a new view slides in from: a change the reader tapped for slides by place
-   (slideDir); Back and Forward (no tap just before) fade, because phones already animate their
-   own back gesture. Wider screens fade. Slides start once the page has settled (catching up to
-   a deep link isn't a navigation). The tap time comes from a capture listener (Shell), which
-   runs before any navigation the tap causes. */
+/* How a new view comes in: opacity only, which the compositor animates even while the new view
+   is still busy settling on a slow phone's main thread (a slide that moved <main> with `left`
+   stalled there, and a transform on <main> would make it the containing block of the views'
+   fixed bars; a View Transition slide cost a full repaint of the old page before the new one
+   could even start, about a second extra on a throttled phone).
+   - Phones and tablets: a change the reader tapped for comes in with a quick fade (the dock's
+     ribbon glides to show which way they went). Back and Forward show the view at once: the
+     phone has already animated its own back gesture, and a fade from nothing would flash after it.
+   - Wider screens: a slower fade, Back and Forward included.
+   Before the page has settled (catching up to a deep link isn't a navigation) every size fades.
+   The tap time comes from a capture listener (Shell), which runs before any navigation the tap
+   causes. */
 let lastTapAt = -Infinity;
 let slidesLive = false;
-function slideFor(from: Route, to: Route, order: ObjectionId[]): -1 | 0 | 1 {
-  if (!slidesLive || typeof window === "undefined" || Date.now() - lastTapAt > 800) return 0;
-  return window.matchMedia(SLIDE_MQ).matches ? slideDir(from, to, order) : 0;
+
+type Enter = "" | " sh-in-fade" | " sh-in-quick";
+/** The entrance class for a view that has just replaced another (taken during that render). */
+function enterFor(): Enter {
+  if (typeof window === "undefined" || !slidesLive || !window.matchMedia(SLIDE_MQ).matches) return " sh-in-fade";
+  return Date.now() - lastTapAt > 800 ? "" : " sh-in-quick";
 }
 
 const LIB_TITLE: Record<string, string> = {
@@ -418,7 +406,8 @@ function LibraryMenu({ active }: { active: boolean }) {
 
 /* A bottom sheet, near the thumb: it rises from the bottom edge (the dock tucks away beneath
    it), and closes with the × in the bar or in the sheet, Escape, a tap on the page behind, or
-   a drag down (by the grip, or anywhere on it while it is scrolled to the top). */
+   a drag down (by the grip, or anywhere on it while it is scrolled to the top). Every way of
+   closing it without choosing a page returns focus to the menu button. */
 function MobileSheet({ id, onClose, menuBtn }: { id: string; onClose: (refocus: boolean) => void; menuBtn: HTMLButtonElement | null }) {
   const { route, d, labels } = useAtlas();
   const panel = useRef<HTMLDivElement>(null);
@@ -428,16 +417,21 @@ function MobileSheet({ id, onClose, menuBtn }: { id: string; onClose: (refocus: 
   const present = useIsPresent();
   const y = useMotionValue(0);
   useSheetPresence(panel, present);
-  const dismiss = useCallback(() => onClose(false), [onClose]);
+  usePageLock(present);
+  const dismiss = useCallback(() => onClose(true), [onClose]);
   const onGripDown = useSheetDrag(y, dismiss, body, present);
+
+  // Opening the menu is a step toward somewhere else: a toast's Undo belongs to the page it
+  // came from (and a tall sheet would push the toast up over the bar).
+  const dismissToast = useToastDismiss();
+  useEffect(() => {
+    dismissToast();
+  }, [dismissToast]);
 
   useEffect(() => {
     // Some rows are hidden at some sizes (Map, while the dock has it): only shown ones count.
     const shown = (sel: string) => Array.from(panel.current?.querySelectorAll<HTMLElement>(sel) ?? []).filter((el) => el.getClientRects().length > 0);
     shown(".sh-sbody a")[0]?.focus({ preventScroll: true });
-    const root = document.documentElement;
-    const prev = root.style.overflow;
-    root.style.overflow = "hidden";
     // A modal sheet: the page behind it is out of reach (screen readers' virtual cursor included).
     const behind = [document.getElementById("atl-main"), document.querySelector<HTMLElement>(".atl .sh-foot"), document.querySelector<HTMLElement>(".atl .sh-dock")].filter(
       (el): el is HTMLElement => !!el,
@@ -462,7 +456,6 @@ function MobileSheet({ id, onClose, menuBtn }: { id: string; onClose: (refocus: 
     window.addEventListener("keydown", onKey);
     mq.addEventListener("change", onMq);
     return () => {
-      root.style.overflow = prev;
       behind.forEach((el) => (el.inert = false));
       window.removeEventListener("keydown", onKey);
       mq.removeEventListener("change", onMq);
@@ -489,7 +482,7 @@ function MobileSheet({ id, onClose, menuBtn }: { id: string; onClose: (refocus: 
 
   return (
     <>
-      <motion.div className="sh-scrim" onClick={() => onClose(false)} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.22 }} />
+      <motion.div className="sh-scrim" onClick={() => onClose(true)} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.22 }} />
       <motion.div
         ref={panel}
         id={id}
@@ -594,6 +587,10 @@ type DockState = "shown" | "tucked" | "away" | "off";
 
 const TYPING = "input:not([type=checkbox]):not([type=radio]):not([type=button]):not([type=submit]):not([type=reset]):not([type=range]), textarea, select, [contenteditable='true']";
 
+/** Seconds the dock's rise (the 0.34s transform in shell.css) takes to bring a tucked dock
+    nearly into view: a spring or a nod meant to be seen waits this long. */
+const RISE_S = 0.3;
+
 function Dock() {
   const { route, d, labels, toPlain } = useAtlas();
   const nav = useRef<HTMLElement>(null);
@@ -601,6 +598,7 @@ function Dock() {
   const off = route.view === "walk";
   const [tucked, setTucked] = useState(false);
   const [away, setAway] = useState(false);
+  const reduce = useReducedMotion();
 
   // Every change of view brings it back (and the jump to the new view's spot doesn't tuck it).
   useEffect(() => {
@@ -610,26 +608,42 @@ function Dock() {
 
   // The reader scrolling down the page tucks it away (after 24px of travel); a little scroll up,
   // the top of the page, or the end of it brings it back. Only the reader's own scrolling tucks
-  // it (a finger, a fling still running, a wheel, a scroll key): a view gliding to a move or an
-  // entry doesn't, and neither does a jump the Shell makes itself (hushDock).
+  // it (a finger moving on the glass, a fling it set off, a wheel, a scroll key): a view gliding
+  // to a move or an entry after a tap doesn't, and neither does a jump the Shell makes itself
+  // (hushDock).
   useEffect(() => {
     if (off) return;
     let lastY = Math.max(0, window.scrollY);
     let run = 0;
     let raf = 0;
     let touching = false;
+    let moved = false;
+    let x0 = 0;
+    let y0 = 0;
     let userAt = -Infinity;
     let flingAt = -Infinity;
     const mark = () => {
       userAt = performance.now();
     };
-    const onTouchStart = () => {
+    const onTouchStart = (e: TouchEvent) => {
       touching = true;
+      moved = false;
+      // A finger on the glass stops any fling: from here on only what this touch does counts.
+      userAt = flingAt = -Infinity;
+      x0 = e.touches[0]?.clientX ?? 0;
+      y0 = e.touches[0]?.clientY ?? 0;
+    };
+    const onTouchMove = (e: TouchEvent) => {
+      const t = e.touches[0];
+      // A tap's few pixels of jitter aren't a scroll.
+      if (!moved && t && Math.abs(t.clientX - x0) < 10 && Math.abs(t.clientY - y0) < 10) return;
+      moved = true;
       mark();
     };
     const onTouchEnd = () => {
       touching = false;
-      mark();
+      // A swipe's fling is the reader's; the glide a tapped button starts is not.
+      if (moved) mark();
     };
     const onKey = (e: KeyboardEvent) => {
       if (/^(ArrowDown|ArrowUp|PageDown|PageUp|Home|End| )$/.test(e.key)) mark();
@@ -641,9 +655,9 @@ function Dock() {
       const end = document.documentElement.scrollHeight - window.innerHeight - 6;
       const dy = y - lastY;
       lastY = y;
-      // The reader's: a finger down or just lifted, a key or wheel just now, or the tail of a
-      // fling that started that way (its scroll events keep coming close together).
-      const user = touching || now - userAt < 700 || now - flingAt < 160;
+      // The reader's: a finger moving now or just lifted from a swipe, a key or wheel just now,
+      // or the tail of a fling that started that way (its scroll events keep coming close together).
+      const user = (touching && moved) || now - userAt < 700 || now - flingAt < 160;
       if (user) flingAt = now;
       if (y < 64 || y >= end) {
         run = 0;
@@ -666,7 +680,7 @@ function Dock() {
     const opt = { passive: true, capture: true } as const;
     window.addEventListener("scroll", onScroll, { passive: true });
     window.addEventListener("touchstart", onTouchStart, opt);
-    window.addEventListener("touchmove", mark, opt);
+    window.addEventListener("touchmove", onTouchMove, opt);
     window.addEventListener("touchend", onTouchEnd, opt);
     window.addEventListener("touchcancel", onTouchEnd, opt);
     window.addEventListener("wheel", mark, opt);
@@ -674,7 +688,7 @@ function Dock() {
     return () => {
       window.removeEventListener("scroll", onScroll);
       window.removeEventListener("touchstart", onTouchStart, opt);
-      window.removeEventListener("touchmove", mark, opt);
+      window.removeEventListener("touchmove", onTouchMove, opt);
       window.removeEventListener("touchend", onTouchEnd, opt);
       window.removeEventListener("touchcancel", onTouchEnd, opt);
       window.removeEventListener("wheel", mark, opt);
@@ -701,6 +715,46 @@ function Dock() {
   }, []);
 
   const state: DockState = off ? "off" : away ? "away" : tucked ? "tucked" : "shown";
+  const shown = state === "shown";
+
+  // A call that changes an objection's status brings a tucked dock up for a moment, so the reader
+  // sees the pip spring (held back until the dock is up) and the ribbon give a small nod. Not for
+  // the stored calls arriving on load, nor for calls made in another tab.
+  const statusKey = d.objections.map((o) => labels.objection.get(o.id) ?? "undec").join(",");
+  const lastStatus = useRef(statusKey);
+  const [nod, setNod] = useState({ n: 0, delay: 0 });
+  useEffect(() => {
+    if (lastStatus.current === statusKey) return;
+    lastStatus.current = statusKey;
+    if (!popsLive || changedElsewhere()) return;
+    hushDock(1600);
+    setTucked(false);
+    setNod((v) => ({ n: v.n + 1, delay: shown ? 0 : RISE_S }));
+  }, [statusKey, shown]);
+  const pipDelay = shown ? 0 : RISE_S;
+  const [ribbonMark, animateRibbon] = useAnimate<HTMLSpanElement>();
+  useEffect(() => {
+    if (!nod.n || reduce || !ribbonMark.current) return;
+    animateRibbon(ribbonMark.current, { y: [0, 3, -0.5, 0] }, { duration: 0.5, times: [0, 0.35, 0.7, 1], ease: "easeOut", delay: nod.delay });
+  }, [nod, reduce, animateRibbon, ribbonMark]);
+
+  // Switching objections: the new one's short name shows above the ribbon for a moment, so the
+  // numerals mean something to a first-time reader.
+  const chamberO = route.view === "objection" ? route.o : undefined;
+  const lastO = useRef(chamberO);
+  const [tag, setTag] = useState<{ o: ObjectionId; n: number } | null>(null);
+  useEffect(() => {
+    const was = lastO.current;
+    lastO.current = chamberO;
+    if (!chamberO || chamberO === was || !slidesLive) return;
+    setTag((t) => ({ o: chamberO, n: (t?.n ?? 0) + 1 }));
+  }, [chamberO]);
+  useEffect(() => {
+    if (!tag) return;
+    const t = window.setTimeout(() => setTag(null), 1800);
+    return () => window.clearTimeout(t);
+  }, [tag]);
+  const tagName = tag && tag.o === chamberO && shown ? d.objections.find((o) => o.id === tag.o)?.short : undefined;
 
   // Publish the contract (see above).
   useLayoutEffect(() => {
@@ -771,7 +825,7 @@ function Dock() {
                     {o.numeral}
                   </span>
                   <span className="sh-tab-sub" aria-hidden>
-                    <PopPip label={l} size={9} />
+                    <PopPip label={l} size={9} delay={pipDelay} />
                   </span>
                 </a>
               </li>
@@ -788,7 +842,8 @@ function Dock() {
             </a>
           </li>
         </ul>
-        {/* The bookmark: one gold ribbon that glides to the page you are on. */}
+        {/* The bookmark: one gold ribbon that glides to the page you are on, carrying the
+            objection's name for a moment after a switch. */}
         <motion.span
           className="sh-ribbon"
           aria-hidden
@@ -796,9 +851,25 @@ function Dock() {
           animate={{ x: `${ribbonAt * 100}%`, opacity: curIdx >= 0 ? 1 : 0 }}
           transition={{ x: { type: "spring", stiffness: 520, damping: 36, mass: 0.9 }, opacity: { duration: 0.2 } }}
         >
-          <svg width="16" height="11" viewBox="0 0 16 11">
-            <path d="M0 0H16V11L8 6.8L0 11Z" />
-          </svg>
+          <span ref={ribbonMark} className="sh-ribbon-mark">
+            <svg width="16" height="11" viewBox="0 0 16 11">
+              <path d="M0 0H16V11L8 6.8L0 11Z" />
+            </svg>
+          </span>
+          <AnimatePresence>
+            {tagName && tag && (
+              <motion.span
+                key={tag.n}
+                className="sh-ribbon-tag"
+                initial={reduce ? { opacity: 0 } : { opacity: 0, y: 6, scale: 0.92 }}
+                animate={reduce ? { opacity: 1 } : { opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, transition: { duration: 0.2 } }}
+                transition={{ type: "spring", stiffness: 480, damping: 28 }}
+              >
+                {tagName}
+              </motion.span>
+            )}
+          </AnimatePresence>
         </motion.span>
       </div>
     </nav>
@@ -1000,7 +1071,7 @@ type EarlyWindow = Window & { __atlLive?: boolean; __atlEarlyHash?: string };
 /* Shell                                                                */
 /* ------------------------------------------------------------------ */
 
-export default function Shell({ children }: { children: ReactNode }) {
+export default function Shell({ children, warm }: { children: ReactNode; warm?: (r: Route) => Promise<unknown> | null }) {
   const { route, d, ix, judgments, go, toPlain } = useAtlas();
   const key = viewKey(route);
   const hash = formatRoute(route);
@@ -1009,13 +1080,12 @@ export default function Shell({ children }: { children: ReactNode }) {
   const dismissToast = useToastDismiss();
   const at = route.view === "home" ? route.at : undefined;
 
-  /* --- how each view comes in: a fade, or on phones and tablets a slide from its side ---
-     Taken once per change of view, during the render that mounts it (see slideFor); CSS
+  /* --- how each view comes in (see enterFor) ---
+     The entrance class is taken once per change of view, during the render that mounts it; CSS
      keyframes (shell.css) run as its <main> mounts. Nothing for the server-rendered view. */
-  const order = useMemo(() => d.objections.map((o) => o.id), [d]);
-  const [slide, setSlide] = useState<{ key: string; route: Route; dir: -1 | 0 | 1; nav: boolean }>(() => ({ key, route, dir: 0, nav: false }));
-  if (slide.key !== key) setSlide({ key, route, dir: slideFor(slide.route, route, order), nav: true });
-  const enter = !slide.nav ? "" : slide.dir > 0 ? " sh-in-r" : slide.dir < 0 ? " sh-in-l" : " sh-in-fade";
+  const [entered, setEntered] = useState<{ key: string; enter: Enter }>(() => ({ key, enter: "" }));
+  if (entered.key !== key) setEntered({ key, enter: enterFor() });
+  const enter = entered.enter;
   useEffect(() => {
     const onTap = (e: Event) => {
       if (e.type === "keydown" && (e as KeyboardEvent).key !== "Enter" && (e as KeyboardEvent).key !== " ") return;
@@ -1036,6 +1106,23 @@ export default function Shell({ children }: { children: ReactNode }) {
       slidesLive = false;
     };
   }, []);
+
+  /* --- a press on a link to a view whose code isn't in yet starts fetching it (the click comes a
+     moment later); and iOS Safari applies :active (the press feedback in atlas.css) only where a
+     touchstart listener exists, which the second listener is for --- */
+  useEffect(() => {
+    const onDown = (e: PointerEvent) => {
+      const a = e.target instanceof Element ? e.target.closest("a[href^='#/']") : null;
+      if (a?.closest(".atl")) warm?.(parseHash(a.getAttribute("href") ?? ""))?.catch(() => {});
+    };
+    const noop = () => {};
+    document.addEventListener("pointerdown", onDown, true);
+    document.addEventListener("touchstart", noop, { passive: true });
+    return () => {
+      document.removeEventListener("pointerdown", onDown, true);
+      document.removeEventListener("touchstart", noop);
+    };
+  }, [warm]);
 
   /* --- Holds / Fails, anywhere: a haptic tick on the press, and a stamp on the call it makes ---
      One delegated listener for every .judge-btn (the chamber's and the shared control's), in the
@@ -1316,10 +1403,9 @@ export default function Shell({ children }: { children: ReactNode }) {
       <TopBar onSkip={skip} />
       {/* The main landmark (the root layout leaves it out on this route, so the bar and footer
           are the page's banner and contentinfo). Each view's <main> comes in with a CSS keyframe
-          (shell.css): a fade, or on phones and tablets a short slide from the side the view lies
-          on. The slide moves it with `left` (it is position: relative): a transform would make it
-          the containing block of the views' position:fixed bars while it moved. No exit
-          transition: the old view leaves at once. */}
+          (shell.css; see enterFor), opacity only, or slides in as a View Transition (slideTo).
+          No transform on <main> itself: it would become the containing block of the views'
+          position:fixed bars. No exit transition: the old view leaves at once. */}
       <main key={key} ref={main} id="atl-main" className={`sh-main${enter}`}>
         {missing && route.view === "home" && (
           <p className="sh-notice" role="status">

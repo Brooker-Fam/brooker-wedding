@@ -1057,6 +1057,17 @@
 .atl .ch-hit:active::after {
   background: #ffffff07;
 }
+/* Touch screens: a folded card's whole face is .ch-hit::after. The shell's press-in (a scale on
+   the pressed button) would make the button the overlay's containing block and shrink the hit
+   area to the headline in the middle of a tap, so here the card presses in instead. */
+@media (hover: none) {
+  .atl .ch-hit:active {
+    scale: none;
+  }
+  .atl .ch-turn.is-folded:has(.ch-hit:active) {
+    scale: 0.985;
+  }
+}
 .atl .ch-gist-fold {
   display: -webkit-box;
   -webkit-line-clamp: 2;
@@ -2068,7 +2079,7 @@
   font-size: 10.5px;
   color: var(--bone-2);
 }
-@media (hover: none), (max-width: 639px) {
+@media (hover: none), (max-width: 720px) {
   .atl .ch-keys {
     display: none;
   }
@@ -2808,8 +2819,15 @@
   .atl .ch-why-btn {
     min-height: 44px;
   }
+  /* the empty seat's Holds / Fails record a real call on the move above: full width and 48px,
+     like the open move's (its "on the … reply above" line moves under them) */
+  .atl .ch-chair-call .ch-judge.compact {
+    flex: 1 1 100%;
+  }
   .atl .ch-chair-call .ch-judge.compact .judge-btn {
-    min-height: 44px;
+    flex: 1;
+    min-height: 48px;
+    font-size: 12px;
   }
   .atl .ch-tension-acts .btn.small {
     min-height: 44px;
@@ -2908,10 +2926,10 @@
     min-height: 44px;
   }
   .atl .ch-judge .judge-btn,
+  .atl .ch-chair-call .ch-judge.compact .judge-btn,
   .atl .ch-hear {
     min-height: 48px;
   }
-  .atl .ch-chair-call .ch-judge.compact .judge-btn,
   .atl .ch-tension-acts .btn.small,
   .atl .ch-chips .chip {
     min-height: 44px;
@@ -3010,7 +3028,7 @@
   outline: 2px solid var(--bone);
   outline-offset: -2px;
 }
-@media (max-width: 639px) {
+@media (max-width: 720px), (max-height: 480px) {
   .atl .ch-side-line.only-mark {
     display: flex;
     justify-content: flex-end;
@@ -3048,7 +3066,7 @@
 .atl .ch-roundel-name {
   display: none;
 }
-@media (max-width: 639px) {
+@media (max-width: 720px) {
   .atl .ch-lineage {
     gap: 8px 12px;
   }
@@ -3238,10 +3256,59 @@
     transform: rotate(225deg);
   }
 }
-/* phones: "Show the chart" comes after the parts */
-@media (max-width: 639px), (max-height: 480px) {
+/* phones: "Show the chart" comes after the parts (Chamber: the same media query) */
+@media (max-width: 720px), (max-height: 480px) {
   .atl .ch-prongs + .ch-map-inline {
     margin-top: 12px;
+  }
+}
+/* phones on their side (short screens): a tighter header, so the parts come sooner. The question
+   runs wider (two lines, not three), the Defender's preview shows two lines, and the status sits on
+   one line with "Step through it" as a pill at its end. */
+@media (max-height: 480px) {
+  .atl .ch {
+    padding-top: 14px;
+  }
+  .atl .ch-question {
+    margin-top: 12px;
+    max-width: 62ch;
+  }
+  .atl .ch-exchange {
+    margin-top: 16px;
+  }
+  .atl .ch-ex {
+    padding: 11px 0 12px;
+  }
+  .atl .ch-teaser {
+    -webkit-line-clamp: 2;
+  }
+  .atl .ch-sum-btn {
+    margin-top: 2px;
+  }
+  .atl .ch-statusrow {
+    flex-wrap: nowrap;
+    gap: 6px 14px;
+    margin-top: 10px;
+    padding: 4px 4px 4px 16px;
+  }
+  /* the count takes what room is left (in two short lines if it must); Why? stays on the line */
+  .atl .ch-objstatus {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px 12px;
+    flex: 1 1 auto;
+  }
+  .atl .ch-objcount {
+    flex: 1 1 160px;
+    min-width: 0;
+    text-wrap: balance;
+  }
+  .atl .ch-argue {
+    width: auto;
+  }
+  .atl .ch-prongs {
+    margin-top: 22px;
   }
 }
 
@@ -3600,6 +3667,14 @@
 .atl .ch-loc-btn[aria-expanded="true"] .ch-loc-chev {
   margin-top: 3px;
   transform: rotate(225deg);
+}
+
+/* while the parts menu is open: a clear layer over the page (under the bar and its menu, over the
+   back chip) that takes the press that closes the menu, so it never presses what is under it */
+.atl .ch-loc-scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 41;
 }
 
 /* the parts menu, hanging from the bar under the "Parts" button */

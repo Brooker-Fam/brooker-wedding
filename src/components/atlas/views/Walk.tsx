@@ -201,16 +201,23 @@ function bringIntoView(stage: HTMLElement, fresh: HTMLElement | null, smooth: bo
   if (Math.abs(delta) > 4) window.scrollBy({ top: delta, behavior: scrollMode(smooth) });
 }
 
+/** Where a stage begins on screen once it has settled: the end card's stage arrives lifted
+    (translated down), and the deck's own stage is never moved. */
+function stageTop(stage: HTMLElement): number {
+  const tf = getComputedStyle(stage).transform;
+  return stage.getBoundingClientRect().top - (tf && tf !== "none" ? new DOMMatrixReadOnly(tf).m42 : 0);
+}
+
 /** The deck: where the next card is dealt. In the old card's place (`slot`, where the old card's
     stage began on screen), but never with its top edge under the top bar, and always with its
     heading above the docked bar (the heading wins). When the old card's top was out of sight the
     card moves anyway, and then it also leaves room for what the last call settled (`fresh`). */
-function dealTarget(stage: HTMLElement, slot: number, fresh: HTMLElement | null): number {
+function dealTarget(stage: HTMLElement, at: number, slot: number, fresh: HTMLElement | null): number {
   const { top, bottom } = viewBand(stage.closest(".wk-root"));
   const head = stage.querySelector<HTMLElement>("[data-wk-head]");
   const lowest = bottom - (head ? bottomIn(head, stage) : 0) - 8;
   let target = Math.max(slot, top);
-  if (slot < top && fresh) target = Math.max(target, top + stage.getBoundingClientRect().top - fresh.getBoundingClientRect().top);
+  if (slot < top && fresh) target = Math.max(target, top + at - fresh.getBoundingClientRect().top);
   return Math.min(target, lowest);
 }
 
@@ -221,7 +228,7 @@ function revealIfNeeded(stage: HTMLElement, fresh: HTMLElement | null, smooth: b
   const head = stage.querySelector<HTMLElement>("[data-wk-head]");
   if (!head) return;
   const { top, bottom } = viewBand(stage.closest(".wk-root"));
-  const headBottom = stage.getBoundingClientRect().top + bottomIn(head, stage);
+  const headBottom = stageTop(stage) + bottomIn(head, stage);
   if (headBottom - head.offsetHeight < top - 1 || headBottom > bottom + 1) {
     bringIntoView(stage, fresh, smooth);
     return;
@@ -363,7 +370,7 @@ export default function Walk({ o }: { o: ObjectionId }) {
   const slot = useRef<number | null>(null);
   const holdSlot = useCallback(() => {
     const st = rootRef.current?.querySelector<HTMLElement>(".wk-stage");
-    slot.current = st ? st.getBoundingClientRect().top : null;
+    slot.current = st ? stageTop(st) : null;
   }, []);
   /** Words for screen readers when a call changes the objection and no toast says so. */
   const [liveNote, setLiveNote] = useState("");
@@ -411,13 +418,14 @@ export default function Walk({ o }: { o: ObjectionId }) {
      step added above it (and the header leaving its first-visit layout) would push it down;
      scrolling by as much keeps it where the old card was, so it rises from the deck there. ----- */
   useLayoutEffect(() => {
-    const at = slot.current;
+    const was = slot.current;
     slot.current = null;
-    if (at === null || focusTick === 0) return;
+    if (was === null || focusTick === 0) return;
     const root = rootRef.current;
     const stage = root?.querySelector<HTMLElement>(".wk-stage");
     if (!root || !stage) return;
-    const delta = stage.getBoundingClientRect().top - dealTarget(stage, at, root.querySelector<HTMLElement>(".wk-res.wk-fresh"));
+    const at = stageTop(stage);
+    const delta = at - dealTarget(stage, at, was, root.querySelector<HTMLElement>(".wk-res.wk-fresh"));
     if (Math.abs(delta) > 1) window.scrollBy({ top: delta, behavior: "instant" });
   }, [focusTick]);
 
@@ -1391,7 +1399,7 @@ function NodeLine({ id, label, call, className = "" }: { id: string; label: Labe
 }
 
 function LitMove({ prompt: p, bar }: { prompt: Extract<WalkPrompt, { kind: "ask" }>; bar: ReactNode }) {
-  const { ix, labelOf, toPlain, openNode } = useAtlas();
+  const { ix, labelOf, openNode } = useAtlas();
   const labelText = useLabelText();
   const reduce = useReducedMotion();
   const [open, setOpen] = useState(false);
@@ -1501,7 +1509,9 @@ function LitMove({ prompt: p, bar }: { prompt: Extract<WalkPrompt, { kind: "ask"
       {n.cedes && (
         <div className="wk-cedes">
           <p className="wk-k mono">What would change this side’s mind</p>
-          <p className="wk-cedes-t serif">{toPlain(cedesText(n.cedes))}</p>
+          <p className="wk-cedes-t serif">
+            <RichText text={cedesText(n.cedes)} />
+          </p>
         </div>
       )}
       <div className="wk-ask">
@@ -1987,7 +1997,8 @@ function DeckCard({
   /** 1 while the card is held: it lifts a hair off the deck. */
   const grab = useMotionValue(0);
   const scale = useTransform([lift, grab], ([l, g]: number[]) => (1 - 0.045 * l) * (1 + 0.012 * g));
-  const y = useTransform(lift, [0, 1], [0, 14]);
+  // Dealt, the card starts where the card beneath begins (.wk-ghost.g1 sits 9px lower) and rises.
+  const y = useTransform(lift, [0, 1], [0, 9]);
   const stampL = useTransform(pull, [-COMMIT_PX, -14], [1, 0]);
   const stampR = useTransform(pull, [14, COMMIT_PX], [0, 1]);
   // The stamp presses in as it fades in, and the card beneath rises a little as this one is pulled.

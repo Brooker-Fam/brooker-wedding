@@ -108,8 +108,8 @@ const TABS: { view: LibView; word: string }[] = [
 
 /** Where the Library's rows stick: phones and tablets held upright (library.css uses the same query). */
 export const STICKY_QUERY = "(max-width: 1023px) and (min-height: 561px)";
-/** Where the A–Z rail shows: phones and tablets in portrait. */
-const RAIL_QUERY = "(max-width: 1023px) and (orientation: portrait)";
+/** Where the A–Z rail shows: phones and tablets in portrait, and phones on their side. */
+const RAIL_QUERY = "(max-width: 1023px) and (orientation: portrait), (max-height: 560px) and (pointer: coarse)";
 
 /* A jump (a chip in a jump row, the A–Z rail, a letter) scrolls the page itself. Until it settles the sticky rows
    stay as they are, so the place it lands on is worked out against rows that don't move. */
@@ -509,15 +509,19 @@ export function ScrubRail({
       if (scrubbing.current && e.cancelable) e.preventDefault();
     };
     el.addEventListener("touchmove", onTouchMove, { passive: false });
-    return () => el.removeEventListener("touchmove", onTouchMove);
-  }, [active]);
-  useEffect(
-    () => () => {
-      window.clearTimeout(fade.current);
+    return () => {
+      el.removeEventListener("touchmove", onTouchMove);
+      // The rail goes away under a finger (the phone turned, the view changed): drop the touch and let the sticky
+      // rows move again.
       window.clearTimeout(pending.current?.timer);
-    },
-    [],
-  );
+      pending.current = null;
+      if (scrubbing.current) {
+        scrubbing.current = false;
+        holdUntil = 0;
+      }
+    };
+  }, [active]);
+  useEffect(() => () => window.clearTimeout(fade.current), []);
 
   if (!active) return null;
 
@@ -641,8 +645,11 @@ export function ScrubRail({
     letters in use on narrow ones. A letter scrolls to its section and takes focus there, so the next Tab goes on
     into its entries. */
 export function LetterNav({ letters, live, target, label, describe }: { letters: string[]; live: Set<string>; target: (L: string) => HTMLElement | null; label: string; describe: (L: string) => string }) {
+  // On a phone the letters make one row that scrolls sideways (library.css), its edges fading where there is more.
+  const ref = useRef<HTMLElement>(null);
+  useEdgeFade(ref);
   return (
-    <nav className="lx-az" aria-label={label}>
+    <nav className="lx-az" aria-label={label} ref={ref}>
       {letters.map((L) => (
         <button
           key={L}
@@ -670,6 +677,7 @@ export function LibHead({
   title,
   dek,
   meta,
+  metaSide,
   className = "",
   children,
 }: {
@@ -677,9 +685,12 @@ export function LibHead({
   title: ReactNode;
   dek?: ReactNode;
   meta?: ReactNode;
+  /** A small control that sits at the end of the meta line (People's order switch on a phone). */
+  metaSide?: ReactNode;
   className?: string;
   children?: ReactNode;
 }) {
+  const metaLine = meta && <p className="lib-meta mono">{meta}</p>;
   return (
     <header className={`lib-head ${className}`}>
       <div className="lib-head-main">
@@ -689,7 +700,14 @@ export function LibHead({
         {(dek || meta) && (
           <div className="lib-head-side">
             {dek && <p className="lib-dek">{dek}</p>}
-            {meta && <p className="lib-meta mono">{meta}</p>}
+            {metaSide ? (
+              <div className="lib-meta-row">
+                {metaLine}
+                {metaSide}
+              </div>
+            ) : (
+              metaLine
+            )}
           </div>
         )}
       </div>
@@ -966,6 +984,37 @@ function exampleAddress(d: Disputation) {
   return undefined;
 }
 
+/* While the reader tabs, a control focused from below must land clear of the objection bar stuck under the top bar.
+   Where that bar sticks whole (desktop, phones on their side) it wraps to one, two or more rows depending on the width,
+   so its foot is measured and published as --lib-olbar on <html>, where library.css reserves it as scroll-padding.
+   It changes only when the bar's size does, never while scrolling. (Phones and tablets held upright stick only the
+   objection row; library.css reserves that with fixed sizes.) */
+function useOutlineBarFoot(barRef: RefObject<HTMLDivElement | null>) {
+  useEffect(() => {
+    const bar = barRef.current;
+    if (!bar) return;
+    const root = document.documentElement;
+    let last = "";
+    const measure = () => {
+      const cs = getComputedStyle(bar);
+      const v = cs.display !== "contents" && cs.position === "sticky" ? `${Math.ceil((parseFloat(cs.top) || 0) + bar.offsetHeight)}px` : "";
+      if (v === last) return;
+      last = v;
+      if (v) root.style.setProperty("--lib-olbar", v);
+      else root.style.removeProperty("--lib-olbar");
+    };
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(bar);
+    window.addEventListener("resize", measure);
+    return () => {
+      ro.disconnect();
+      window.removeEventListener("resize", measure);
+      root.style.removeProperty("--lib-olbar");
+    };
+  }, [barRef]);
+}
+
 export default function Outline() {
   const { d, ix, labelOf, labels, judgments } = useAtlas();
   const [gists, setGists] = useState(true);
@@ -991,6 +1040,7 @@ export default function Outline() {
       ),
     };
   });
+  useOutlineBarFoot(barRef);
   const toTop = () => {
     const bar = barRef.current;
     if (!bar) return;

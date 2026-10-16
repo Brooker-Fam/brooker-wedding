@@ -8,7 +8,7 @@
    After the last move, an empty seat ("No reply yet") waits opposite it. */
 
 import { useReducedMotion } from "framer-motion";
-import { useCallback, useContext, useId, useRef, useState, type KeyboardEvent, type MouseEvent, type PointerEvent, type ReactNode } from "react";
+import { useCallback, useContext, useId, useRef, useState, type AnimationEvent, type KeyboardEvent, type MouseEvent, type PointerEvent, type ReactNode } from "react";
 import { useAtlas } from "../context";
 import { tick } from "../haptics";
 import { depthBelow, movesBelow } from "../helpers";
@@ -366,8 +366,24 @@ interface Gesture {
     ‹ › buttons and the list of replies above do the same, and so do ← and →). A drag is sideways
     only once the finger has clearly gone sideways (|dx| > 1.5·|dy|), so scrolling always wins, and
     none starts within 24px of the screen's edges. Past 84px or on a flick it moves on (with a tick
-    where the phone can); otherwise the card springs back. With no reply that way it only gives. */
-function SwipeCard({ id, sibs, enter, onStep, children }: { id: string; sibs: string[]; enter: 1 | -1 | 0; onStep: Step; children: ReactNode }) {
+    where the phone can); otherwise the card springs back. With no reply that way it only gives.
+    Once a card has slid in, `onEntered` lets the thread forget the slide, so the card's own
+    animations (the place bar's glow) can play on it. */
+function SwipeCard({
+  id,
+  sibs,
+  enter,
+  onStep,
+  onEntered,
+  children,
+}: {
+  id: string;
+  sibs: string[];
+  enter: 1 | -1 | 0;
+  onStep: Step;
+  onEntered: (id: string) => void;
+  children: ReactNode;
+}) {
   const ref = useRef<HTMLDivElement>(null);
   const g = useRef<Gesture | null>(null);
   /** A click that lands right after a swipe is swallowed (it was the end of the drag). */
@@ -475,6 +491,11 @@ function SwipeCard({ id, sibs, enter, onStep, children }: { id: string; sibs: st
     }
   };
 
+  // The card's own entrance (chamber.css: ch-in-next / ch-in-prev, or ch-fade-in with reduced motion), not a ring inside it.
+  const onAnimationEnd = (e: AnimationEvent<HTMLDivElement>) => {
+    if (enter && (e.target as Element).parentElement === e.currentTarget && /^ch-(in-next|in-prev|fade-in)$/.test(e.animationName)) onEntered(id);
+  };
+
   return (
     <div
       ref={ref}
@@ -485,6 +506,7 @@ function SwipeCard({ id, sibs, enter, onStep, children }: { id: string; sibs: st
       onPointerUp={onPointerUp}
       onPointerCancel={onPointerCancel}
       onClickCapture={onClickCapture}
+      onAnimationEnd={onAnimationEnd}
     >
       {children}
       {prevId && (
@@ -513,7 +535,8 @@ export default function Thread() {
   const tenseKey = (a: string, b: string) => tensions.some((t) => t.node === a && t.reply === b);
 
   /* Moving to a sibling reply (‹ ›, a reply in the fork's list, ← →, a swipe): the new card comes
-     in from that side. Forgotten once the reader moves on to anything else. */
+     in from that side. Forgotten once it has come in (its entrance would otherwise outrank the
+     glow a tap on the place bar gives it), or once the reader moves on to anything else. */
   const [slide, setSlide] = useState<Slide | null>(null);
   if (slide && focusId !== slide.id && focusId !== slide.from) setSlide(null);
   const step = useCallback<Step>(
@@ -523,6 +546,7 @@ export default function Thread() {
     },
     [api],
   );
+  const entered = useCallback((id: string) => setSlide((s) => (s && s.id === id ? null : s)), []);
 
   const onKey = (e: KeyboardEvent<HTMLElement>) => {
     const t = e.target as HTMLElement;
@@ -641,7 +665,7 @@ export default function Thread() {
               {tense && <TensionNote node={prev!} reply={id} line={noteLines.get(id) ?? CONTRADICTION_QUOTES[0]} />}
               {between && <Connector from="center" to={seat} side={info.node.side} tense={tense} short />}
               {fork ? (
-                <SwipeCard id={id} sibs={prevInfo!.childIds} enter={slide && slide.id === id && focusId === id ? slide.dir : 0} onStep={step}>
+                <SwipeCard id={id} sibs={prevInfo!.childIds} enter={slide && slide.id === id && focusId === id ? slide.dir : 0} onStep={step} onEntered={entered}>
                   {turn}
                 </SwipeCard>
               ) : (

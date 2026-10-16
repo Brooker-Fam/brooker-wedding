@@ -25,7 +25,7 @@ import { plain } from "../markup";
 import { formatRoute } from "../router";
 import type { DisputationIndex } from "../semantics";
 import type { Moment, Objection, ObjectionId, Quote, Side } from "../types";
-import { ChipRow, ERAS, GlyphKey, JumpRow, LibEmpty, LibHead, LibTabs, eraOf, fold, holdChrome, jumpTo, scrollBehavior, spokenBy, useMedia, yearText } from "./Outline";
+import { ChipRow, ERAS, GlyphKey, JumpRow, LibEmpty, LibHead, LibTabs, eraOf, focusHeading, fold, holdChrome, jumpTo, scrollBehavior, spokenBy, useMedia, yearText } from "./Outline";
 import { QuoteFigure } from "./OutlineList";
 import { spellAddress } from "./chamberShared";
 import { SourceList } from "./Sources";
@@ -552,7 +552,21 @@ export default function Timeline({ moment }: { moment?: string }) {
                 ) : (
                   <>
                     Showing only <strong>{filter === "spinoza" ? "Spinoza’s events" : only ? `Objection ${only.numeral} · ${only.name}` : ""}</strong>.{" "}
-                    <button type="button" className="btn small tl-showall" onClick={() => setFilter("all")}>
+                    <button
+                      type="button"
+                      className="btn small tl-showall"
+                      onClick={() => {
+                        setFilter("all");
+                        // The button goes away: focus moves to the filter that now says "All" (or, if that is off the
+                        // screen, to this list's heading), so it never falls back to the top of the page.
+                        requestAnimationFrame(() => {
+                          const all = document.querySelector<HTMLElement>(".atl .tl-chips [aria-pressed='true'], .atl .tl-all[aria-pressed='true']");
+                          const r = all?.getBoundingClientRect();
+                          if (all && r && r.bottom > 0 && r.top < window.innerHeight) all.focus({ preventScroll: true });
+                          else focusHeading(document.getElementById("tl-chron-h"));
+                        });
+                      }}
+                    >
                       Show all
                     </button>
                   </>

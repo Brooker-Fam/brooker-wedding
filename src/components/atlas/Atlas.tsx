@@ -4,20 +4,21 @@
 
    Only the overview (server-rendered) and the chamber (where most deep links land)
    ship in the first chunk; every other view loads on demand and is warmed in the
-   background once the page is idle. A lazy view lifts the deep-link veil itself
-   when it mounts (see Shell), so a slow phone never shows a blank or a flash of
-   the overview in its place. */
+   background once the page is idle. Once a view's code is in, the view renders on
+   the spot, with no placeholder in between. A lazy view lifts the deep-link veil
+   itself when it mounts (see Shell), so a slow phone never shows a blank or a flash
+   of the overview in its place. */
 
 import "./atlas.css";
 import { MotionConfig } from "framer-motion";
 import dynamic from "next/dynamic";
-import { Component, useEffect, useLayoutEffect, type ComponentType, type ErrorInfo, type ReactNode } from "react";
+import { Component, useEffect, useLayoutEffect, useState, type ComponentType, type ErrorInfo, type ReactNode } from "react";
 import { AtlasProvider, useAtlas } from "./context";
 import { PeekProvider } from "./peek";
 import { ToastProvider } from "./toast";
 import type { Disputation } from "./types";
 import defaultDisputation from "./content";
-import { viewKey } from "./router";
+import { viewKey, type Route } from "./router";
 import Shell from "./views/Shell";
 import Overview from "./views/Overview";
 import Chamber from "./views/Chamber";
@@ -27,51 +28,97 @@ function Pending() {
   return <div className="sh-pending" data-atl-pending="" aria-busy="true" />;
 }
 
-/** Wraps a lazily loaded view: once it has mounted, the deep-link veil comes off and, if the
+/** Around a lazily loaded view: once it has mounted, the deep-link veil comes off and, if the
     view's heading wasn't there yet when the Shell moved focus, focus moves to it now. */
-function lazyView<P extends object>(load: () => Promise<{ default: ComponentType<P> }>) {
-  // One quiet retry: React.lazy caches a rejection, so a chunk that failed once (a dropped
-  // connection on a phone) would otherwise stay broken until a reload.
-  const attempt = () => load().catch(() => new Promise<void>((r) => setTimeout(r, 1200)).then(load));
-  return () =>
-    attempt().then(({ default: View }) => {
-      function Mounted(props: P) {
-        useLayoutEffect(() => {
-          document.documentElement.removeAttribute("data-atl-deep");
-          // After a navigation the Shell focuses the view's h1, or the frame itself when the h1
-          // wasn't there yet: in that case, finish the job now.
-          const main = document.getElementById("atl-main");
-          if (main && document.activeElement === main) {
-            const h = main.querySelector<HTMLElement>("h1");
-            if (h) {
-              if (!h.hasAttribute("tabindex")) h.setAttribute("tabindex", "-1");
-              h.focus({ preventScroll: true });
-            }
-          }
-        }, []);
-        return <View {...props} />;
+function Settled({ children }: { children: ReactNode }) {
+  useLayoutEffect(() => {
+    document.documentElement.removeAttribute("data-atl-deep");
+    // After a navigation the Shell focuses the view's h1, or the frame itself when the h1
+    // wasn't there yet: in that case, finish the job now.
+    const main = document.getElementById("atl-main");
+    if (main && document.activeElement === main) {
+      const h = main.querySelector<HTMLElement>("h1");
+      if (h) {
+        if (!h.hasAttribute("tabindex")) h.setAttribute("tabindex", "-1");
+        h.focus({ preventScroll: true });
       }
-      return { default: Mounted };
-    });
+    }
+  }, []);
+  return children;
 }
 
-const loaders = {
-  walk: () => import("./views/Walk"),
-  timeline: () => import("./views/Timeline"),
-  cast: () => import("./views/Cast"),
-  lexicon: () => import("./views/Lexicon"),
-  ledger: () => import("./views/Ledger"),
-  outline: () => import("./views/Outline"),
-  sources: () => import("./views/Sources"),
+/** A view whose code loads on demand. `preload` fetches it once (the idle warm-up, a press on a
+    link to it and the view itself share that one fetch); from then on the view renders at once.
+    Until then it goes through next/dynamic, whose React.lazy suspends on its first render even
+    when the code has already arrived, and React then holds the reveal until 300ms after the
+    placeholder appeared: a blank page on every first visit, with the entrance spent on it. */
+function lazyView<P extends object>(load: () => Promise<{ default: ComponentType<P> }>) {
+  let loaded: ComponentType<P> | null = null;
+  let loading: Promise<ComponentType<P>> | null = null;
+  const preload = () => {
+    if (!loading) {
+      // One quiet retry: a chunk that failed once (a dropped connection on a phone) gets a
+      // second chance, and a failure isn't kept, so the next attempt starts afresh.
+      const p = load()
+        .catch(() => new Promise<void>((r) => setTimeout(r, 1200)).then(load))
+        .then((m) => (loaded = m.default));
+      loading = p;
+      p.catch(() => {
+        if (loading === p) loading = null;
+      });
+    }
+    return loading;
+  };
+  const Later = dynamic(
+    () =>
+      preload().then((View) => ({
+        default: function Arrived(props: P) {
+          return (
+            <Settled>
+              <View {...props} />
+            </Settled>
+          );
+        },
+      })),
+    { ssr: false, loading: Pending },
+  );
+  function LazyView(props: P) {
+    // Decided once per mount, so a view that started on the placeholder never remounts.
+    const [View] = useState(() => loaded);
+    if (!View) return <Later {...props} />;
+    return (
+      <Settled>
+        <View {...props} />
+      </Settled>
+    );
+  }
+  return { View: LazyView, preload, ready: () => loaded !== null };
+}
+
+const lazy = {
+  walk: lazyView(() => import("./views/Walk")),
+  timeline: lazyView(() => import("./views/Timeline")),
+  cast: lazyView(() => import("./views/Cast")),
+  lexicon: lazyView(() => import("./views/Lexicon")),
+  ledger: lazyView(() => import("./views/Ledger")),
+  outline: lazyView(() => import("./views/Outline")),
+  sources: lazyView(() => import("./views/Sources")),
 };
 
-const Walk = dynamic(lazyView(() => import("./views/Walk")), { ssr: false, loading: Pending });
-const Timeline = dynamic(lazyView(() => import("./views/Timeline")), { ssr: false, loading: Pending });
-const Cast = dynamic(lazyView(() => import("./views/Cast")), { ssr: false, loading: Pending });
-const Lexicon = dynamic(lazyView(() => import("./views/Lexicon")), { ssr: false, loading: Pending });
-const Ledger = dynamic(lazyView(() => import("./views/Ledger")), { ssr: false, loading: Pending });
-const Outline = dynamic(lazyView(() => import("./views/Outline")), { ssr: false, loading: Pending });
-const Sources = dynamic(lazyView(() => import("./views/Sources")), { ssr: false, loading: Pending });
+const Walk = lazy.walk.View;
+const Timeline = lazy.timeline.View;
+const Cast = lazy.cast.View;
+const Lexicon = lazy.lexicon.View;
+const Ledger = lazy.ledger.View;
+const Outline = lazy.outline.View;
+const Sources = lazy.sources.View;
+
+/** Start fetching a route's view code if it isn't in yet: the fetch to wait on, or null when
+    there is nothing to wait for (the overview and the chamber ship in the first chunk). */
+function warmRoute(r: Route): Promise<unknown> | null {
+  const v = r.view in lazy ? lazy[r.view as keyof typeof lazy] : null;
+  return v && !v.ready() ? v.preload() : null;
+}
 
 /** Fetch the other views' code once the page has settled: after a deep link's own view is on
     screen (so the warm-up never competes with it for a slow phone's bandwidth), when idle. */
@@ -82,7 +129,7 @@ function useWarmViews() {
     const root = document.documentElement;
     let idle = 0;
     let timer = 0;
-    const warm = () => Object.values(loaders).forEach((load) => void load().catch(() => {}));
+    const warm = () => Object.values(lazy).forEach((v) => void v.preload().catch(() => {}));
     const schedule = () => {
       if (w.requestIdleCallback) idle = w.requestIdleCallback(warm, { timeout: 6000 });
       else timer = window.setTimeout(warm, 3000);
@@ -199,7 +246,7 @@ export default function Atlas({ d = defaultDisputation }: { d?: Disputation }) {
         <AtlasProvider d={d}>
           <ToastProvider>
             <PeekProvider>
-              <Shell>
+              <Shell warm={warmRoute}>
                 <CurrentView />
               </Shell>
             </PeekProvider>

@@ -116,6 +116,10 @@
   text-transform: uppercase;
   color: var(--faint);
 }
+/* a phrase in the meta line that keeps together when the line wraps ("380 BCE to 2022") */
+.atl .lib-nw {
+  white-space: nowrap;
+}
 .atl .lib-h2 {
   margin: 0;
   font-size: clamp(1.55rem, 3vw, 2.05rem);
@@ -2591,8 +2595,9 @@
     z-index: 4;
     background: var(--ink);
   }
+  /* a jump lands just under the stuck bar: its foot as measured (Outline.tsx sets --lib-olbar), else one row */
   .atl .ol-obj {
-    scroll-margin-top: calc(var(--bar-h) + 76px);
+    scroll-margin-top: calc(var(--lib-olbar, calc(var(--bar-h) + 62px)) + 14px);
   }
   /* the tree shares the header's text edge; the numeral hangs in the margin */
   .atl .ol-tree,
@@ -3878,19 +3883,22 @@
 }
 .atl .lib-chiprow[data-more-right],
 .atl .lib-jump-row[data-more-right],
-.atl .lib-tabs ul[data-more-right] {
+.atl .lib-tabs ul[data-more-right],
+.atl .lx-az[data-more-right] {
   -webkit-mask-image: linear-gradient(90deg, #000 calc(100% - 32px), transparent);
   mask-image: linear-gradient(90deg, #000 calc(100% - 32px), transparent);
 }
 .atl .lib-chiprow[data-more-left],
 .atl .lib-jump-row[data-more-left],
-.atl .lib-tabs ul[data-more-left] {
+.atl .lib-tabs ul[data-more-left],
+.atl .lx-az[data-more-left] {
   -webkit-mask-image: linear-gradient(90deg, transparent, #000 32px);
   mask-image: linear-gradient(90deg, transparent, #000 32px);
 }
 .atl .lib-chiprow[data-more-left][data-more-right],
 .atl .lib-jump-row[data-more-left][data-more-right],
-.atl .lib-tabs ul[data-more-left][data-more-right] {
+.atl .lib-tabs ul[data-more-left][data-more-right],
+.atl .lx-az[data-more-left][data-more-right] {
   -webkit-mask-image: linear-gradient(90deg, transparent, #000 32px, #000 calc(100% - 32px), transparent);
   mask-image: linear-gradient(90deg, transparent, #000 32px, #000 calc(100% - 32px), transparent);
 }
@@ -4081,10 +4089,16 @@
   color: var(--faint);
 }
 /* the list leaves room for the rail at its right */
-@media (max-width: 1023px) and (orientation: portrait) {
+@media (max-width: 1023px) and (orientation: portrait), (max-height: 560px) and (pointer: coarse) {
   .atl .lx-list,
   .atl .ca-groups.ca-az {
     padding-right: 26px;
+  }
+}
+/* a phone on its side: no dock and no sticky rows, so the rail can run the height of the screen */
+@media (max-height: 560px) and (pointer: coarse) {
+  .atl .lib-rail {
+    top: calc(var(--bar-total) + 10px);
   }
 }
 
@@ -4210,11 +4224,11 @@
   }
 }
 
-/* ---------- Glossary: compact entries on a phone ---------- */
+/* ---------- Glossary: compact entries on a phone (held either way; Lexicon.tsx uses the same query) ---------- */
 .atl .lx-term-t {
   overflow-wrap: anywhere;
 }
-@media (max-width: 720px) {
+@media (max-width: 720px), (max-height: 560px) and (pointer: coarse) {
   .atl .lx-entry.lx-compact {
     padding: 12px 0 15px;
   }
@@ -4265,6 +4279,8 @@
   .atl .lx-full.on .lx-def {
     margin-top: 6px;
   }
+}
+@media (max-width: 720px) {
   .atl .lx-group-h {
     padding-top: 22px;
   }
@@ -4354,6 +4370,91 @@
   .atl .tl-chips {
     margin-top: -6px;
     margin-bottom: 6px;
+  }
+
+  /* the letters above an alphabetical list: one row that scrolls sideways (the A–Z rail does the long jumps) */
+  .atl .lx-az {
+    flex-wrap: nowrap;
+    gap: 2px;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    margin-left: calc(-1 * var(--gutter));
+    margin-right: calc(-1 * var(--gutter));
+    padding: 0 var(--gutter);
+    scroll-padding: 0 var(--gutter);
+    scrollbar-width: none;
+  }
+  .atl .lx-az::-webkit-scrollbar {
+    display: none;
+  }
+  .atl .lx-az .lx-letter {
+    flex: none;
+  }
+  .atl .lib-cast .lx-az {
+    margin-top: 16px;
+  }
+
+  /* a shorter header, so the list starts on the first screen */
+  .atl .lib-head {
+    margin-bottom: 20px;
+  }
+  .atl .lib-dek {
+    margin-top: 14px;
+    font-size: 15px;
+    line-height: 1.56;
+  }
+  .atl .lib-meta {
+    margin-top: 12px;
+  }
+  /* People: the order switch at the end of the meta line (its "Order" label stays for screen readers) */
+  .atl .lib-meta-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px 12px;
+    margin-top: 10px;
+  }
+  .atl .lib-meta-row .lib-meta {
+    flex: 1 1 0;
+    min-width: 0;
+    margin: 0;
+    line-height: 1.7;
+  }
+  .atl .lib-meta-row .ca-order {
+    flex: none;
+    margin: 0;
+  }
+  .atl .lib-meta-row .ca-order .lib-k {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  /* the space between the tools and the list, a step tighter */
+  .atl .tl-chron {
+    margin-top: 22px;
+  }
+  .atl .tl-chron-head {
+    padding-bottom: 10px;
+  }
+  .atl .tl-chron-head .lib-h2 {
+    line-height: 1.25;
+  }
+  .atl .tl-era-name2 {
+    padding-top: 13px;
+  }
+  .atl .ca-groups > .ca-era:first-child {
+    margin-top: 12px;
+  }
+  .atl .src-layout {
+    gap: 16px;
+  }
+  .atl .src-rail {
+    gap: 10px;
   }
 }
 
@@ -4475,10 +4576,10 @@
     padding: 0 12px;
   }
   .atl .lib-jump.ca-jump {
-    margin-top: 22px;
+    margin-top: clamp(14px, 3vw, 22px);
   }
   .atl .lib-jump.src-jumprow {
-    margin-bottom: 20px;
+    margin-bottom: clamp(12px, 3vw, 20px);
   }
 
   /* bands and panels that already stuck under the top bar now stick under the tab row */
@@ -4548,9 +4649,11 @@ html[data-atl-tab]:has(.atl .lib-timeline) {
   /* the top bar and the tallest (two-line) era band stuck under it */
   scroll-padding-top: calc(52px + env(safe-area-inset-top) + 100px);
 }
+/* the Outline's objection bar where it sticks whole: its foot, as measured by Outline.tsx (it wraps to two rows on
+   desktop, more at some widths), or two rows until then */
 @media (min-width: 720px) {
   html[data-atl-tab]:has(.atl .lib-outline) {
-    scroll-padding-top: calc(52px + env(safe-area-inset-top) + 86px);
+    scroll-padding-top: calc(var(--lib-olbar, calc(52px + env(safe-area-inset-top) + 126px)) + 16px);
   }
 }
 @media (max-width: 1023px) and (min-height: 561px) {

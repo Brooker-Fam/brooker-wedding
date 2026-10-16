@@ -79,6 +79,27 @@ export function useSheetPresence(ref: RefObject<HTMLElement | null>, active: boo
   }, [ref, active]);
 }
 
+/* While a bottom sheet is open the page behind it holds still (overflow: hidden on <html>).
+   Counted, so one sheet closing never unlocks the page under another. */
+let pageLocks = 0;
+let overflowBefore = "";
+
+/** Hold the page still while `active` (pass false once the sheet starts to leave). */
+export function usePageLock(active: boolean) {
+  useEffect(() => {
+    if (!active) return;
+    const root = document.documentElement;
+    if (pageLocks++ === 0) {
+      overflowBefore = root.style.overflow;
+      root.style.overflow = "hidden";
+    }
+    return () => {
+      pageLocks = Math.max(0, pageLocks - 1);
+      if (!pageLocks) root.style.overflow = overflowBefore;
+    };
+  }, [active]);
+}
+
 const DISMISS_PX = 80;
 /** px per ms: a downward flick at least this fast closes the sheet whatever the distance. */
 const FLICK = 0.5;
@@ -127,7 +148,9 @@ export function useSheetDrag(y: MotionValue<number>, onDismiss: () => void, body
     [y, reduce],
   );
 
-  // Touch on the body: pull down from the top.
+  // Touch on the body: pull down from the top. A swipe up on a body that can't scroll any
+  // further (a short card, or one read to its end) moves nothing: it must not scroll the page
+  // behind the sheet, which a browser without the page lock (older iOS) would otherwise do.
   useEffect(() => {
     const el = body.current;
     if (!el || !enabled) return;
@@ -137,6 +160,7 @@ export function useSheetDrag(y: MotionValue<number>, onDismiss: () => void, body
     let atTop = false;
     let decided = false;
     let pulling = false;
+    const atBottom = () => el.scrollTop + el.clientHeight >= el.scrollHeight - 1;
     const start = (e: TouchEvent) => {
       decided = e.touches.length !== 1;
       pulling = false;
@@ -146,8 +170,9 @@ export function useSheetDrag(y: MotionValue<number>, onDismiss: () => void, body
       atTop = el.scrollTop <= 0;
     };
     const move = (e: TouchEvent) => {
-      if (decided && !pulling) return;
       const t = e.touches[0];
+      if (t && !pulling && t.clientY < y0 && e.cancelable && atBottom()) e.preventDefault();
+      if (decided && !pulling) return;
       if (!t) return;
       const dy = t.clientY - y0;
       const dx = t.clientX - x0;
@@ -335,6 +360,11 @@ function PeekCard({ target, onClose }: { target: OpenPeek; onClose: (refocus?: b
   const dismiss = useCallback(() => onClose(), [onClose]);
   const onGripDown = useSheetDrag(sheetY, dismiss, bodyRef, sheet && present);
 
+  // …and, like the menu sheet, it holds the page still while it shows: a swipe on a card whose
+  // text doesn't scroll would otherwise scroll the page behind it (the sheet doesn't close on
+  // page scrolls; the scrim, the ×, Escape or a drag down close it).
+  usePageLock(sheet && present);
+
   // Focus the title (without scrolling anything) so the next Tab lands on the card's actions.
   useEffect(() => {
     ref.current?.querySelector<HTMLElement>(".peek-title")?.focus({ preventScroll: true });
@@ -373,14 +403,16 @@ function PeekCard({ target, onClose }: { target: OpenPeek; onClose: (refocus?: b
     };
     const t = setTimeout(() => {
       window.addEventListener("pointerdown", onDown);
-      window.addEventListener("scroll", onScroll, { passive: true, capture: true });
+      // The floating card follows nothing as the page moves, so a page scroll closes it. The
+      // phone sheet holds the page still instead (above) and stays.
+      if (!sheet) window.addEventListener("scroll", onScroll, { passive: true, capture: true });
     }, 0);
     return () => {
       clearTimeout(t);
       window.removeEventListener("pointerdown", onDown);
       window.removeEventListener("scroll", onScroll, { capture: true });
     };
-  }, [onClose]);
+  }, [onClose, sheet]);
 
   const body = useMemo(() => {
     if (target.kind === "term") {

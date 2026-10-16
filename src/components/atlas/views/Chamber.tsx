@@ -296,8 +296,8 @@ function Lineage({ oid, numeral, lineage, onHistory }: { oid: ObjectionId; numer
   const { ix } = useAtlas();
   const peek = usePeek();
   const [all, setAll] = useState(false);
-  // Phones: everyone, in one row of name chips that scrolls sideways (chamber.css).
-  const row = useMedia("(max-width: 639px)");
+  // Phones: everyone, in one row of name chips that scrolls sideways (chamber.css, the same query).
+  const row = useMedia("(max-width: 720px)");
   const listId = `ch-roundels-${oid}`;
   const people = useMemo(() => {
     const seen = new Set<string>();
@@ -407,6 +407,7 @@ function Locator({ o, focusId, path }: { o: Objection; focusId: string; path: st
   const reduce = useReducedMotion();
   const barRef = useRef<HTMLElement>(null);
   const partsRef = useRef<HTMLButtonElement>(null);
+  const scrimRef = useRef<HTMLDivElement>(null);
   const menuId = useId();
   const [inThread, setInThread] = useState(false);
   const [tucked, setTucked] = useState(false);
@@ -530,11 +531,16 @@ function Locator({ o, focusId, path }: { o: Objection; focusId: string; path: st
   }, [shown]);
 
   // The parts menu closes on Escape, on a press anywhere outside the bar, and when Tab leaves it.
+  // A press on the page lands on a clear scrim under the menu, which closes it on the click itself,
+  // so that press never also presses whatever is under the finger (a Holds or Fails, a name). The
+  // dock, the top bar and anything else above the scrim close it as the press starts, then work as usual.
   useEffect(() => {
     if (!menu) return;
     const bar = barRef.current;
     const onDown = (e: PointerEvent) => {
-      if (!bar?.contains(e.target as Node)) setMenu(false);
+      const t = e.target as Node;
+      if (bar?.contains(t) || scrimRef.current?.contains(t)) return;
+      setMenu(false);
     };
     const onKey = (e: KeyboardEvent) => {
       if (e.key !== "Escape") return;
@@ -576,6 +582,20 @@ function Locator({ o, focusId, path }: { o: Objection; focusId: string; path: st
 
   return (
     <>
+      {menu && (
+        <div
+          ref={scrimRef}
+          className="ch-loc-scrim"
+          aria-hidden
+          onClick={() => setMenu(false)}
+          // the press became a scroll: the page scrolls, and the menu goes
+          onPointerCancel={() => setMenu(false)}
+          onContextMenu={(e) => {
+            e.preventDefault();
+            setMenu(false);
+          }}
+        />
+      )}
       <nav ref={barRef} className="ch-loc" data-state={shown ? "shown" : "hidden"} aria-label="Your place in this objection">
         <div className="ch-loc-in">
           <button
@@ -733,8 +753,10 @@ export default function Chamber({ o: oid, node }: { o: ObjectionId; node?: strin
   const focusId = valid ?? o?.prongs[0]?.id ?? null;
   // Two columns from 1200px: below that, the reading column and the chart panel are both too narrow.
   const wide = useMedia("(min-width: 1200px)");
-  // Phones (upright, or on their side): the chart folds away behind "Show the chart", after the parts.
-  const narrow = useMedia("(max-width: 639px), (max-height: 480px)");
+  /* Phones, upright or on their side (the pass's phone breakpoint; chamber.css uses the same query):
+     the header's background folds behind "Read the summary", and the chart folds away behind
+     "Show the chart", after the parts. */
+  const phone = useMedia("(max-width: 720px), (max-height: 480px)");
 
   // A move id that isn't in this objection: go to its real address (or this objection's top), without a history entry.
   useEffect(() => {
@@ -800,9 +822,9 @@ export default function Chamber({ o: oid, node }: { o: ObjectionId; node?: strin
 
   const [mapOpen, setMapOpen] = useState(false);
 
-  /* ---- phones: the Defender's reply and the background sit behind "Read the summary" ----
-     (the Objector's case stays in full), so the parts come within about a screen and a half. */
-  const phone = useMedia("(max-width: 720px), (max-height: 480px)");
+  /* ---- phones: the Defender's reply and the background (the note under it, who argued it, what
+     is at stake) sit behind "Read the summary" (the Objector's case stays in full), so the parts
+     come within about a screen and a half. ---- */
   const reduce = useReducedMotion();
   const sumId = useId();
   const [sumOpen, setSumOpen] = useState(false);
@@ -1121,7 +1143,7 @@ export default function Chamber({ o: oid, node }: { o: ObjectionId; node?: strin
   /* Below 1200px the chart sits in the page: in full on tablets, folded on phones. */
   const mapBlock =
     !wide && ready ? (
-      narrow ? (
+      phone ? (
         <section className="ch-map-inline ch-map-disc" aria-label="All moves in this objection">
           <button type="button" id="ch-map-btn" className="ch-map-toggle" aria-expanded={mapOpen} aria-controls="ch-map-body" onClick={() => setMapOpen((v) => !v)}>
             <span className="ch-map-toggle-k">{mapOpen ? "Hide the chart" : "Show the chart"}</span>
@@ -1139,6 +1161,22 @@ export default function Chamber({ o: oid, node }: { o: ObjectionId; node?: strin
           {chart("inline")}
         </section>
       )
+    ) : null;
+
+  const lineageRow = <Lineage oid={oid} numeral={o.numeral} lineage={o.lineage ?? []} onHistory={() => go({ view: "timeline", moment: o.lineage?.[0] })} />;
+  const stakes =
+    nProngs > 0 ? (
+      <p className="ch-stakes">
+        {nProngs > 2 ? (
+          <>
+            If any one of its {numWord(nProngs)} parts stands, Objection {o.numeral} stands, so the Defender has to answer all {numWord(nProngs)}.
+          </>
+        ) : nProngs === 2 ? (
+          <>If either part stands, Objection {o.numeral} stands, so the Defender has to answer both.</>
+        ) : (
+          <>If its one argument stands, Objection {o.numeral} stands, so the Defender has to answer it.</>
+        )}
+      </p>
     ) : null;
 
   return (
@@ -1273,13 +1311,24 @@ export default function Chamber({ o: oid, node }: { o: ObjectionId; node?: strin
                       )}
                     </div>
                   )}
+                  {/* Phones: who argued it and what is at stake are background too, and open with the summary. */}
+                  {foldable && (
+                    <div id={`${sumId}-c`} className="ch-sum-more">
+                      {sumShown && (
+                        <motion.div initial={reduce ? false : { opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.3, delay: 0.18 }}>
+                          {lineageRow}
+                          {stakes}
+                        </motion.div>
+                      )}
+                    </div>
+                  )}
                   {foldable && (
                     <button
                       ref={sumBtnRef}
                       type="button"
                       className="ch-sum-btn"
                       aria-expanded={sumOpen}
-                      aria-controls={[o.counter ? `${sumId}-a` : "", o.dek ? `${sumId}-b` : ""].filter(Boolean).join(" ")}
+                      aria-controls={[o.counter ? `${sumId}-a` : "", o.dek ? `${sumId}-b` : "", `${sumId}-c`].filter(Boolean).join(" ")}
                       onClick={() => (sumOpen ? closeSummary() : openSummary())}
                     >
                       <span className="ch-u">{sumOpen ? "Hide the summary" : "Read the summary"}</span>
@@ -1287,7 +1336,7 @@ export default function Chamber({ o: oid, node }: { o: ObjectionId; node?: strin
                     </button>
                   )}
 
-                  <Lineage oid={oid} numeral={o.numeral} lineage={o.lineage ?? []} onHistory={() => go({ view: "timeline", moment: o.lineage?.[0] })} />
+                  {!foldable && lineageRow}
 
                   <div className="ch-statusrow">
                     <div className="ch-objstatus">
@@ -1304,25 +1353,13 @@ export default function Chamber({ o: oid, node }: { o: ObjectionId; node?: strin
                     </button>
                   </div>
 
-                  {nProngs > 0 && (
-                    <p className="ch-stakes">
-                      {nProngs > 2 ? (
-                        <>
-                          If any one of its {numWord(nProngs)} parts stands, Objection {o.numeral} stands, so the Defender has to answer all {numWord(nProngs)}.
-                        </>
-                      ) : nProngs === 2 ? (
-                        <>If either part stands, Objection {o.numeral} stands, so the Defender has to answer both.</>
-                      ) : (
-                        <>If its one argument stands, Objection {o.numeral} stands, so the Defender has to answer it.</>
-                      )}
-                    </p>
-                  )}
+                  {!foldable && stakes}
 
-                  {oid === "nature" && <Echo full={wide} />}
+                  {oid === "nature" && !phone && <Echo full={wide} />}
                 </header>
 
                 {/* Tablets: the chart of every move, before the parts. (Phones: after them, folded.) */}
-                {!narrow && mapBlock}
+                {!phone && mapBlock}
 
                 {/* ---------- part chips ---------- */}
                 {nProngs > 1 && (
@@ -1367,7 +1404,10 @@ export default function Chamber({ o: oid, node }: { o: ObjectionId; node?: strin
                   </nav>
                 )}
 
-                {narrow && mapBlock}
+                {/* Phones: Aquinas's own version of Objection III comes after the parts (it speaks of part 2), not before them. */}
+                {oid === "nature" && phone && <Echo full={false} />}
+
+                {phone && mapBlock}
 
                 {/* Wide screens: the chart sits top right but comes last in the tab order; this skips to it. */}
                 {wide && ready && (

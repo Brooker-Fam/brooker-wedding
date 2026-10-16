@@ -646,6 +646,8 @@ const sortTitle = (a: Work, b: Work) => fold(a.title).replace(/^(the|a|an)\s+/, 
 interface Section {
   id: string;
   title: ReactNode;
+  /** The title in words (what a chip or a button says it is, with the visible words first). */
+  label: string;
   note?: string;
   works: Work[];
   /** Listed last, under "Date not given": classic texts with no year to sort them by. */
@@ -682,7 +684,7 @@ export default function Sources() {
         const works = shown.filter((w) => w.kind === k.kind).sort(k.kind === "old" ? sortOld : k.kind === "ref" ? sortTitle : sortAuthor);
         // Oldest first only works for texts with a date; the rest go last, under their own label.
         const undated = k.kind === "old" ? works.filter((w) => w.sortYear === undefined) : [];
-        return { id: `src-${k.kind}`, title: k.title, note: k.note, works, undated };
+        return { id: `src-${k.kind}`, title: k.title, label: k.title, note: k.note, works, undated };
       }).filter((s) => s.works.length > 0);
     }
     const out: Section[] = d.objections.map((o) => ({
@@ -692,6 +694,7 @@ export default function Sources() {
           <span className="src-sec-num serif">{o.numeral}</span> {o.short || o.title}
         </>
       ),
+      label: `Objection ${o.numeral}, ${o.short || o.title}`,
       note: o.title,
       o: o.id,
       works: shown.filter((w) => w.objections.has(o.id)).sort(sortAuthor),
@@ -701,6 +704,7 @@ export default function Sources() {
     out.push({
       id: "src-o-people",
       title: "People and the Timeline",
+      label: "People and the Timeline",
       note: "Further reading on a person’s file or a timeline event.",
       works: elsewhere,
       only: (c: Citer) => c.kind === "person" || c.kind === "moment",
@@ -715,7 +719,9 @@ export default function Sources() {
     () =>
       sections.map((s) => ({
         id: s.id,
-        aria: `${typeof s.title === "string" ? s.title : (s.note ?? "")}, ${s.works.length} ${s.works.length === 1 ? "work" : "works"}`,
+        // the visible words first ("I Coherence 97" is "Objection I, Coherence, 97 works"), so voice control can say them
+        aria: `${s.label}, ${s.works.length} ${s.works.length === 1 ? "work" : "works"}`,
+        title: s.o ? s.note : undefined,
         content: (
           <>
             <span className="src-jump-t">{s.title}</span>
@@ -873,7 +879,7 @@ export default function Sources() {
                         }}
                       >
                         Show all {total} works
-                        <span className="sr-only"> in {typeof s.title === "string" ? s.title : (s.note ?? "this section")}</span>
+                        <span className="sr-only"> in {s.label}</span>
                       </button>
                     )}
                   </section>

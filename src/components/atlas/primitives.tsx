@@ -66,8 +66,9 @@ export function StatusBadge({ label, objectionLevel = false }: { label: Label; o
 }
 
 /** The reader's call on one move. A press ticks (where the phone can vibrate) and the chosen
-    pill stamps (atlas.css; the Shell marks the pressed button). On phones the two buttons are
-    48px tall and share the width. */
+    pill stamps (atlas.css; the Shell marks the pressed button). Not rendered anywhere at
+    present: the chamber has its own pair (chamberShared.tsx CallButtons), and the phone sizing
+    in atlas.css is written for that one. */
 export function JudgeControl({ id, side, compact = false }: { id: string; side: Side; compact?: boolean }) {
   const { judgments, judge, labelOf } = useAtlas();
   const current = judgments[id] ?? null;

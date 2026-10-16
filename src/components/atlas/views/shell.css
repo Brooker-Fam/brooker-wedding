@@ -951,10 +951,35 @@ html[data-atl-tab]:has(.atl .toast) .atl .sh-foot {
   justify-content: center;
   pointer-events: none;
 }
+.atl .sh-ribbon-mark {
+  display: block;
+  transform-origin: 50% 0;
+}
 .atl .sh-ribbon svg {
   display: block;
   fill: var(--skeptic);
   filter: drop-shadow(0 2px 6px #d8a65266);
+}
+/* the objection's short name, shown above the ribbon for a moment after a switch (Shell Dock) */
+.atl .sh-ribbon-tag {
+  position: absolute;
+  bottom: calc(100% + 10px);
+  left: 50%;
+  translate: -50% 0;
+  padding: 6px calc(11px - 0.16em) 5px 11px;
+  border: 1px solid #d8a65259;
+  border-radius: 999px;
+  background: rgba(23, 25, 34, 0.96);
+  box-shadow: 0 10px 24px -12px #000000d9;
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--skeptic);
+  white-space: nowrap;
+  pointer-events: none;
 }
 /* a status pip that springs when a call changes it (Shell PopPip) */
 .atl .sh-pop {
@@ -972,7 +997,6 @@ html[data-atl-tab]:has(.atl .toast) .atl .sh-foot {
     padding: 0 8px;
     border: 1px solid var(--line);
     border-radius: 22px;
-    overflow: hidden;
     box-shadow: 0 20px 50px -22px #000000e6;
   }
   .atl .sh-dock[data-state="tucked"],
@@ -982,54 +1006,40 @@ html[data-atl-tab]:has(.atl .toast) .atl .sh-foot {
 }
 
 /* ---------- view frame ---------- */
-/* position: relative so a change of view can slide it in with `left` (a transform would make
-   it the containing block of the views' fixed bars while it moved). */
+/* Never a transform on <main>: it would become the containing block of the views' fixed bars. */
 .atl .sh-main {
   position: relative;
-  /* a length, so the slide interpolates (from `auto` it would jump halfway through) */
-  left: 0;
   display: block;
   min-height: calc(100vh - var(--bar-h) - 160px);
 }
-/* How a view comes in (Shell: once, as its <main> mounts after a navigation). CSS rather than
-   script: it starts on the first frame the new view is drawn (a heavy view's first layout can't
-   swallow it), and leaves no inline style behind. `backwards` holds the first keyframe until
-   then. Desktop: a fade. Phones and tablets: a short slide from the side the view lies on
-   (deeper from the right, back or up from the left). */
+/* How a view comes in (Shell enterFor: once, as its <main> mounts after a navigation). CSS rather
+   than script: it starts on the first frame the new view is drawn (a heavy view's first layout
+   can't swallow it), and leaves no inline style behind. `backwards` holds the first keyframe until
+   then. Opacity only, which the compositor animates even while the new view is still busy
+   settling. Desktop: a fade. Phones and tablets: a quicker fade after a tap; Back and Forward
+   show the view at once. */
 .atl .sh-main.sh-in-fade {
   animation: sh-in-fade 0.38s var(--ease) backwards;
 }
-.atl .sh-main.sh-in-r {
-  animation: sh-in-r 0.22s var(--ease) backwards;
-}
-.atl .sh-main.sh-in-l {
-  animation: sh-in-l 0.22s var(--ease) backwards;
+.atl .sh-main.sh-in-quick {
+  animation: sh-in-fade 0.2s var(--ease) backwards;
 }
 @keyframes sh-in-fade {
   from {
     opacity: 0;
   }
 }
-@keyframes sh-in-r {
-  from {
-    opacity: 0;
-    left: 28px;
-  }
-}
-@keyframes sh-in-l {
-  from {
-    opacity: 0;
-    left: -28px;
-  }
-}
-/* reduced motion: no slide, a short fade (outranks the blanket rule in atlas.css on purpose) */
+/* reduced motion: a short fade (outranks the blanket rule in atlas.css on purpose) */
 @media (prefers-reduced-motion: reduce) {
   .atl .sh-main.sh-in-fade,
-  .atl .sh-main.sh-in-r,
-  .atl .sh-main.sh-in-l {
-    animation-name: sh-in-fade !important;
+  .atl .sh-main.sh-in-quick {
     animation-duration: 0.16s !important;
   }
+}
+/* A view whose code is still loading shows a blank placeholder: the entrance waits for the real
+   page (it starts the moment the placeholder is replaced) instead of being spent on the blank. */
+.atl .sh-main:has(> [data-atl-pending]) {
+  animation-name: none !important;
 }
 /* a view whose code is still loading: tall, so the footer waits below the fold */
 .atl .sh-pending {

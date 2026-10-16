@@ -45,6 +45,10 @@ function splitSentences(text: string): string[] {
   return out.map((s) => s.trim()).filter(Boolean);
 }
 
+/** A first sentence that says what the word means in its own language: "Greek for “restoration.”", "Latin for “cause
+    of itself.”" */
+const ORIGIN_NOTE = /^(Latin|Greek|Hebrew|German|French|Arabic)\b[^.]* for\b/;
+
 /** Mark the first match of `q` in `text` (accent- and case-insensitive; folding keeps one char per char for Latin text). */
 function Highlight({ text, q }: { text: string; q: string }) {
   const needle = fold(q.trim());
@@ -64,7 +68,8 @@ function Highlight({ text, q }: { text: string; q: string }) {
 export default function Lexicon({ term }: { term?: string }) {
   const { d, ix, go, toPlain } = useAtlas();
   const wide = useMedia("(min-width: 1100px)");
-  const compact = useMedia("(max-width: 720px)");
+  // Compact entries on a phone, held upright or on its side (library.css uses the same query).
+  const compact = useMedia("(max-width: 720px), (max-height: 560px) and (pointer: coarse)");
   const [q, setQ] = useState("");
 
   const sorted = useMemo(() => [...d.terms].sort((a, b) => sortKey(a.term).localeCompare(sortKey(b.term))), [d]);
@@ -227,8 +232,11 @@ function Entry({ t, on, q, compact, onPick }: { t: Term; on: boolean; q: string;
   if (compact && !on) {
     const parts = splitSentences(defPlain);
     const hit = defHit ? parts.find((s) => fold(s).includes(fold(q))) : undefined;
-    // A first sentence that only gives the word's origin ("Greek for “restoration.”") takes the next one with it.
-    const lead = parts[0] && parts[0].length < 70 && parts[1] ? `${parts[0]} ${parts[1]}` : parts[0];
+    // A first sentence that only translates the word ("Greek for “restoration.”") takes the next one with it, and so
+    // does a short one when the two together are short too. Otherwise the first sentence stands alone: a second one
+    // cut off mid-word by the three-line clamp helps nobody.
+    const bare = ORIGIN_NOTE.test(parts[0] ?? "") && parts[0].length <= 60;
+    const lead = parts[1] && (bare || parts[0].length + parts[1].length < 110) ? `${parts[0]} ${parts[1]}` : parts[0];
     const gist = hit ?? lead ?? defPlain;
     return (
       <article

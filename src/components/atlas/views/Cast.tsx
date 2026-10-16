@@ -282,12 +282,36 @@ export default function Cast({ thinker }: { thinker?: string }) {
   const first = all[0];
   const last = all[all.length - 1];
 
+  // The order switch: on a phone it sits at the end of the header's meta line (a row saved before the list starts);
+  // elsewhere it stays with the other tools.
+  const phone = useMedia("(max-width: 720px)");
+  const orderSwitch = (
+    <div className="src-group ca-order" role="group" aria-label="Order the list">
+      <span className="mono lib-k">Order</span>
+      <div className="src-seg">
+        <button type="button" className="ca-filter" aria-pressed={order === "era"} onClick={() => setOrder("era")}>
+          By era
+        </button>
+        <button type="button" className="ca-filter" aria-pressed={order === "az"} onClick={() => setOrder("az")}>
+          A to Z
+        </button>
+      </div>
+    </div>
+  );
+
   const head = (
     <LibHead
       current="cast"
       title="People"
       dek="Everyone in the arguments and on the timeline. The mark by each name shows which side uses that person’s work here, and that isn’t always the side they were on. Duns Scotus, a Franciscan friar, is marked for the Objector, who uses his argument against Aquinas."
-      meta={all.length ? `${all.length} people · ${yearText(first.year)} to ${yearText(last.year)}` : undefined}
+      meta={
+        all.length ? (
+          <>
+            {all.length} people · <span className="lib-nw">{`${yearText(first.year)} to ${yearText(last.year)}`}</span>
+          </>
+        ) : undefined
+      }
+      metaSide={phone && all.length ? orderSwitch : undefined}
     />
   );
 
@@ -324,17 +348,7 @@ export default function Cast({ thinker }: { thinker?: string }) {
                   </button>
                 ))}
               </ChipRow>
-              <div className="src-group ca-order" role="group" aria-label="Order the list">
-                <span className="mono lib-k">Order</span>
-                <div className="src-seg">
-                  <button type="button" className="ca-filter" aria-pressed={order === "era"} onClick={() => setOrder("era")}>
-                    By era
-                  </button>
-                  <button type="button" className="ca-filter" aria-pressed={order === "az"} onClick={() => setOrder("az")}>
-                    A to Z
-                  </button>
-                </div>
-              </div>
+              {!phone && orderSwitch}
               <p className={`lib-count mono ${filtering ? "" : "sr-only"}`} aria-live="polite">
                 {filtering ? (list.length ? `Showing ${list.length} of ${all.length} people` : `No one matches`) : ""}
               </p>

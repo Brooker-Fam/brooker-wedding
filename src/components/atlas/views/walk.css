@@ -1252,14 +1252,16 @@
   flex: none;
 }
 
-/* the dock: on phones the action bar sticks to the bottom of the screen while the walk is
-   in view. It is the walk's last child (after the lit card, before the footer in reading
-   order) and stays hidden until the reader has reached the lit move. */
+/* the dock: on phones and tablets the action bar is fixed to the bottom of the screen (fixed,
+   not sticky: after a short card a sticky bar would ride up the screen above the footer). It is
+   the walk's last child (after the lit card, before the footer in reading order) and stays
+   hidden until the reader has reached the lit move. */
 .atl .wk-bar-pin {
-  position: sticky;
+  position: fixed;
+  left: 0;
+  right: 0;
   bottom: 0;
   z-index: 45;
-  margin: 24px calc((100% - 100vw) / 2) 0;
   padding: 9px max(16px, env(safe-area-inset-right)) calc(12px + env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
   border-top: 1px solid var(--line-soft);
   background: linear-gradient(180deg, #191b25eb, #14161ef8);
@@ -1283,11 +1285,20 @@
     transform 0.38s var(--ease),
     opacity 0.25s var(--ease);
 }
+/* the footer pads its bottom by the bar's height (the context line or the tip, the 52px buttons
+   and their padding; buttons only on a short screen), so the end of the walk and then the
+   footer can scroll clear of the bar */
+.atl:has(.wk-bar-pin) {
+  --wk-bar-space: calc(112px + env(safe-area-inset-bottom));
+}
 .atl .wk-root:has(.wk-bar-pin) {
-  padding-bottom: 0;
+  padding-bottom: 32px;
 }
 .atl .wk-root:has(.wk-bar-pin) .wk-body {
   padding-bottom: 8px;
+}
+.atl:has(.wk-bar-pin) .sh-foot {
+  --atl-dock-space: var(--wk-bar-space);
 }
 .atl .wk-dock-ctx {
   display: flex;
@@ -1504,6 +1515,9 @@ html:not([data-atl-sheet="open"]):has(.atl .wk-bar-pin.is-on) .atl .toast-dock {
 
 /* short landscape phones: buttons only, and less padding around them */
 @media (max-height: 520px) {
+  .atl:has(.wk-bar-pin) {
+    --wk-bar-space: calc(70px + env(safe-area-inset-bottom));
+  }
   .atl .wk-bar-pin {
     padding-top: 7px;
     padding-bottom: calc(8px + env(safe-area-inset-bottom));
@@ -1537,41 +1551,6 @@ html:not([data-atl-sheet="open"]):has(.atl .wk-bar-pin.is-on) .atl .toast-dock {
   }
   .atl .wk-how {
     margin-top: 6px;
-  }
-  /* the question waits for a taller screen (screen readers still get it) */
-  .atl .wk-question {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    overflow: hidden;
-    clip: rect(0 0 0 0);
-    white-space: nowrap;
-  }
-  /* a fresh walk: How it works and the part pips share one row, as on phones held upright */
-  .atl .wk-head.is-intro .wk-progress {
-    grid-area: how;
-    justify-self: end;
-    align-self: start;
-    position: relative;
-    z-index: 1;
-    margin-top: 6px;
-  }
-  .atl .wk-head.is-intro .wk-progress-t {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    overflow: hidden;
-    clip: rect(0 0 0 0);
-    white-space: nowrap;
-  }
-  /* the move a card answers takes one line, so the card's heading clears the docked bar */
-  .atl .wk-ctx-q {
-    white-space: nowrap;
-  }
-  .atl .wk-ctx-q .serif {
-    min-width: 0;
-    overflow: hidden;
-    text-overflow: ellipsis;
   }
 }
 
@@ -1612,7 +1591,9 @@ html:not([data-atl-sheet="open"]):has(.atl .wk-bar-pin.is-on) .atl .toast-dock {
   z-index: 1;
   /* vertical drags scroll the page; sideways drags move the card (pinch zoom still works) */
   touch-action: pan-y pinch-zoom;
-  transform-origin: 50% 100%;
+  /* a dealt card grows from where the card beneath it begins (a drag or a throw sets its own
+     pivot, in the part of the card on screen) */
+  transform-origin: 50% 0;
 }
 /* pinch-zoomed in, the browser pans the page every way and the card stays put */
 .atl .wk-card.is-zoomed {
@@ -2280,5 +2261,54 @@ html:not([data-atl-sheet="open"]):has(.atl .wk-bar-pin.is-on) .atl .toast-dock {
   }
   .atl .wk-undo {
     min-height: 44px;
+  }
+}
+
+/* ---------- phones on their side (after the phone rules, which a 740px-wide one also gets) ----------
+   The first card should start about halfway down the first screen: the way back shares the
+   numeral's row, the part pips sit beside How it works, and the question waits for a taller
+   screen. On every card the move it answers takes one line, so the heading clears the bar. */
+@media (max-height: 520px) and (pointer: coarse) {
+  .atl .wk-head {
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas:
+      "id exit"
+      "title title"
+      "q q"
+      "how how";
+  }
+  .atl .wk-exit {
+    justify-self: end;
+    align-self: center;
+    margin-top: 4px;
+  }
+  .atl .wk-progress {
+    grid-area: how;
+    justify-self: end;
+    align-self: start;
+    position: relative;
+    z-index: 1;
+    margin-top: 6px;
+  }
+  .atl .wk-progress-t,
+  .atl .wk-question {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+  .atl .wk-body,
+  .atl .wk-stage {
+    margin-top: 12px;
+  }
+  .atl .wk-ctx-q {
+    white-space: nowrap;
+  }
+  .atl .wk-ctx-q .serif {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 }
