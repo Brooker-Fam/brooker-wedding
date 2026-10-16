@@ -18,6 +18,7 @@ import Lexicon from "./views/Lexicon";
 import Ledger from "./views/Ledger";
 import Outline from "./views/Outline";
 import Sources from "./views/Sources";
+import Play from "./views/Play";
 
 function CurrentView() {
   const { route } = useAtlas();
@@ -40,6 +41,8 @@ function CurrentView() {
       return <Outline />;
     case "sources":
       return <Sources />;
+    case "play":
+      return <Play />;
   }
 }
 

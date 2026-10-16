@@ -57,8 +57,9 @@ one ring per round (the code calls it the Rose). Each objection has its own page
 the whole tree. Each move gives one side's case in its own voice, with a
 quotation where there is a verified one, sources, and what would change that
 side's mind. Around these sit *Step through it* (a guided walk, `#/walk/…`),
-*Where you stand* (the reader's summary, `#/ledger`) and the Library: Timeline,
-People (`#/cast`), Glossary (`#/lexicon`) and Outline. Every view and move has
+*Where you stand* (the reader's summary, `#/ledger`), the Library: Timeline,
+People (`#/cast`), Glossary (`#/lexicon`) and Outline, and a game (`#/play`,
+below). Every view and move has
 its own link (`#/o/<objection>/<node>`, `#/cast/<thinker>` …). Routes keep their
 old names; only the visible labels changed.
 
@@ -83,6 +84,18 @@ word by default. Quotes go in only when the wording has been checked against the
 text. Inline markup: `*italic*`, `[[term|text]]`, `{{thinker|text}}`,
 `((node-id|text))`. Thinkers and timeline moments can carry an optional `quote`
 (checked like any other); the card that opens from a person's name shows theirs.
+
+**The game.** *The Long Conversation* (`#/play`; rules in `play.ts`, view in
+`views/Play.tsx`) teaches the history by putting it in order. A round deals eight
+moments from the timeline, one from each ninth of it so every round spans the
+whole history, plus one from the middle dealt face up to start the line. The
+reader puts each card in a gap. A wrong guess costs a point and nothing else: the
+card moves to where it belongs and the guess stays marked until the next card.
+Each placed card opens with its year, its story, its quotation and the move it
+feeds (and what that move answers). The five objections run down the left as
+threads, and each card knots the ones it comes up in. The game reads only
+`moments`, so another disputation gets it unchanged. It adds three words to the
+vocabulary: card, line and thread. The best score lives in `localStorage`.
 
 **Adding another disputation.** Write a new `Disputation` object (objections,
 thinkers, terms, moments) in its own content folder, give it a route like this

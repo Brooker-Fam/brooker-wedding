@@ -48,6 +48,17 @@ const LIBRARY = [
 
 type LibView = (typeof LIBRARY)[number]["view"];
 
+function PlayIcon() {
+  return (
+    <svg width={20} height={20} viewBox="0 0 20 20" aria-hidden className="sh-icon">
+      <path d="M4 2.5v15M10 2.5v15M16 2.5v15" />
+      <path d="M4 10h12" />
+      <circle cx="4" cy="10" r="1.9" />
+      <circle cx="16" cy="10" r="1.9" />
+    </svg>
+  );
+}
+
 const noopSubscribe = () => () => {};
 /** True while hydrating the server HTML (and on the server); false for client-only renders. */
 const useHydrating = () =>
@@ -337,7 +348,10 @@ function MobileSheet({ id, onClose, menuBtn }: { id: string; onClose: (refocus: 
         transition={{ duration: 0.24, ease: [0.22, 1, 0.36, 1] }}
       >
         <nav aria-label="Disputation">
-          <ul className="sh-slist">{item({ view: "home" }, "Map", "All five objections at once", <Emblem current={currentObjection(route)} size={20} />)}</ul>
+          <ul className="sh-slist">
+            {item({ view: "home" }, "Map", "All five objections at once", <Emblem current={currentObjection(route)} size={20} />)}
+            {item({ view: "play" }, "Play", "A game: put the argument’s history in order", <PlayIcon />)}
+          </ul>
           <p className="sh-sgroup">Library</p>
           <ul className="sh-slist">{LIBRARY.map((it) => item({ view: it.view } as Route, it.label, it.note, <LibIcon view={it.view} />))}</ul>
           <p className="sh-sgroup">You</p>
@@ -417,6 +431,9 @@ function TopBar({ onSkip }: { onSkip: () => void }) {
               Map
             </a>
             <LibraryMenu active={libActive} />
+            <a href="#/play" className={`sh-link${route.view === "play" ? " on" : ""}`} aria-current={route.view === "play" ? "page" : undefined}>
+              Play
+            </a>
             <a
               href="#/ledger"
               className={`sh-link sh-det${route.view === "ledger" ? " on" : ""}`}

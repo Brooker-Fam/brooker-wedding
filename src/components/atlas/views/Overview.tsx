@@ -451,6 +451,69 @@ function Poster({ o }: { o: Objection }) {
   );
 }
 
+const WEAVE: { y: number; lanes: number[]; side: Side | "neutral" }[] = [
+  { y: 16, lanes: [0, 4], side: "neutral" },
+  { y: 40, lanes: [1], side: "theist" },
+  { y: 62, lanes: [2, 3], side: "skeptic" },
+  { y: 86, lanes: [0], side: "spinoza" },
+  { y: 110, lanes: [1, 4], side: "theist" },
+  { y: 134, lanes: [3], side: "skeptic" },
+];
+
+function WeaveMark({ side, cx, cy }: { side: Side | "neutral"; cx: number; cy: number }) {
+  const r = 4.4;
+  if (side === "skeptic") return <path d={`M${cx},${cy - r}L${cx + r},${cy + r * 0.8}L${cx - r},${cy + r * 0.8}Z`} className="dot" />;
+  if (side === "spinoza") return <path d={`M${cx},${cy - r}L${cx + r},${cy}L${cx},${cy + r}L${cx - r},${cy}Z`} className="dot" />;
+  if (side === "neutral") return <rect x={cx - 3.4} y={cy - 3.4} width={6.8} height={6.8} className="dot" />;
+  return <circle cx={cx} cy={cy} r={3.9} className="dot" />;
+}
+
+function WeaveArt() {
+  const x = (j: number) => 12 + j * 26;
+  const lit = [0, 1, 2, 3, 4].map((j) => WEAVE.filter((k) => k.lanes.includes(j)).map((k) => k.y));
+  return (
+    <svg className="ov-weave" viewBox="0 0 128 150" aria-hidden>
+      {lit.map((ys, j) => (
+        <g key={j}>
+          <line x1={x(j)} x2={x(j)} y1={0} y2={150} className="thr" />
+          {ys.length > 1 && <line x1={x(j)} x2={x(j)} y1={ys[0]} y2={ys[ys.length - 1]} className="thr lit" />}
+        </g>
+      ))}
+      {WEAVE.map((k) => (
+        <g key={k.y} className={`s-${k.side}`}>
+          {k.lanes.length > 1 && <line x1={x(k.lanes[0])} x2={x(k.lanes[k.lanes.length - 1])} y1={k.y} y2={k.y} className="bar" />}
+          {k.lanes.map((j) => (
+            <WeaveMark key={j} side={k.side} cx={x(j)} cy={k.y} />
+          ))}
+        </g>
+      ))}
+    </svg>
+  );
+}
+
+function PlayInvite() {
+  return (
+    <section className="ov-play ov-wrap" aria-labelledby="ov-play-h">
+      <div className="ov-play-in">
+        <div className="ov-play-txt">
+          <p className="eyebrow ov-sect-k">A game</p>
+          <h2 id="ov-play-h" className="ov-play-t">
+            The Long <em>Conversation</em>
+          </h2>
+          <p className="ov-play-d">
+            Put the argument’s history in order, one moment at a time. Each card you place shows its year, the people in it and the move it feeds, and ties a
+            knot in the threads of the five objections. There is no timer.
+          </p>
+          <a className="btn solid" href="#/play">
+            Play a round <span aria-hidden>→</span>
+          </a>
+        </div>
+        <WeaveArt />
+      </div>
+    </section>
+  );
+}
+
 function HowItWorks() {
   return (
     <section className="ov-how ov-wrap" aria-labelledby="ov-how-h">
@@ -571,6 +634,8 @@ export default function Overview() {
           ))}
         </ol>
       </section>
+
+      <PlayInvite />
 
       <HowItWorks />
     </div>

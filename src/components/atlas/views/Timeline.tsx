@@ -38,7 +38,7 @@ interface Lane {
 }
 
 /** A moment's side, said as whose case it helps (the chart key keeps the bare side names). */
-const MSIDE_WORD: Record<MSide, string> = { skeptic: "For the Objector", theist: "For the Defender", spinoza: "Spinoza", neutral: "Background" };
+export const MSIDE_WORD: Record<MSide, string> = { skeptic: "For the Objector", theist: "For the Defender", spinoza: "Spinoza", neutral: "Background" };
 const isSpinoza = (m: Moment) => m.side === "spinoza" || m.thinker === "spinoza";
 const sideCls = (s: MSide | undefined) => (s === "skeptic" || s === "theist" || s === "spinoza" ? s : "neutral");
 
@@ -53,7 +53,7 @@ function echoes(text: string, quote: string): boolean {
 
 /** A moment's quotation: its own, or else the quotation on its move when the moment's thinker is the one speaking.
     Never one the moment's text already quotes in full. */
-function quoteOf(m: Moment, ix: DisputationIndex): Quote | undefined {
+export function quoteOf(m: Moment, ix: DisputationIndex): Quote | undefined {
   const own = m.quote?.text ? m.quote : undefined;
   const q = own ?? (m.node ? ix.nodes.get(m.node)?.node.quote : undefined);
   if (!q?.text) return undefined;
@@ -65,7 +65,7 @@ function quoteOf(m: Moment, ix: DisputationIndex): Quote | undefined {
 }
 
 /* ---------- glyph for a moment (adds a square for context moments) ---------- */
-function MGlyph({ side, size = 12, filled = false }: { side: MSide; size?: number; filled?: boolean }) {
+export function MGlyph({ side, size = 12, filled = false }: { side: MSide; size?: number; filled?: boolean }) {
   const h = size / 2;
   const s = sideCls(side);
   return (
