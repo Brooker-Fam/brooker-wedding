@@ -55,6 +55,17 @@ const LIBRARY = [
 
 type LibView = (typeof LIBRARY)[number]["view"];
 
+function PlayIcon() {
+  return (
+    <svg width={20} height={20} viewBox="0 0 20 20" aria-hidden className="sh-icon">
+      <path d="M4 2.5v15M10 2.5v15M16 2.5v15" />
+      <path d="M4 10h12" />
+      <circle cx="4" cy="10" r="1.9" />
+      <circle cx="16" cy="10" r="1.9" />
+    </svg>
+  );
+}
+
 const noopSubscribe = () => () => {};
 /** True while hydrating the server HTML (and on the server); false for client-only renders. */
 const useHydrating = () =>
@@ -241,6 +252,7 @@ const LIB_TITLE: Record<string, string> = {
   ledger: "Where you stand",
   outline: "Outline",
   sources: "Sources",
+  play: "The Long Conversation",
 };
 
 function focusViewHeading(main: HTMLElement | null): HTMLElement | null {
@@ -510,6 +522,7 @@ function MobileSheet({ id, onClose, menuBtn }: { id: string; onClose: (refocus: 
           <nav aria-label="Disputation" className="sh-snav">
             <div className="sh-sg sh-sg-obj">
               <ul className="sh-slist sh-smap">{item({ view: "home", at: "map" }, "Map", "All five objections at once", <Emblem current={currentObjection(route)} size={20} />)}</ul>
+              <ul className="sh-slist">{item({ view: "play" }, "Play", "A game: put the argument’s history in order", <PlayIcon />)}</ul>
               <p className="sh-sgroup" id={`${id}-obj`}>
                 Objections
               </p>
@@ -598,7 +611,8 @@ function Dock() {
   const { route, d, labels, toPlain } = useAtlas();
   const nav = useRef<HTMLElement>(null);
   const key = viewKey(route);
-  const off = route.view === "walk";
+  // Off in the two modes with their own bottom bar: the walk and the game (its card in hand).
+  const off = route.view === "walk" || route.view === "play";
   const [tucked, setTucked] = useState(false);
   const [away, setAway] = useState(false);
   const reduce = useReducedMotion();
@@ -935,6 +949,9 @@ function TopBar({ onSkip }: { onSkip: () => void }) {
               Map
             </a>
             <LibraryMenu active={libActive} />
+            <a href="#/play" className={`sh-link${route.view === "play" ? " on" : ""}`} aria-current={route.view === "play" ? "page" : undefined}>
+              Play
+            </a>
             <a
               href="#/ledger"
               className={`sh-link sh-det${route.view === "ledger" ? " on" : ""}`}

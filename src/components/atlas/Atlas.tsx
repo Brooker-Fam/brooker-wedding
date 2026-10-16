@@ -103,6 +103,7 @@ const lazy = {
   ledger: lazyView(() => import("./views/Ledger")),
   outline: lazyView(() => import("./views/Outline")),
   sources: lazyView(() => import("./views/Sources")),
+  play: lazyView(() => import("./views/Play")),
 };
 
 const Walk = lazy.walk.View;
@@ -112,6 +113,7 @@ const Lexicon = lazy.lexicon.View;
 const Ledger = lazy.ledger.View;
 const Outline = lazy.outline.View;
 const Sources = lazy.sources.View;
+const Play = lazy.play.View;
 
 /** Start fetching a route's view code if it isn't in yet: the fetch to wait on, or null when
     there is nothing to wait for (the overview and the chamber ship in the first chunk). */
@@ -228,6 +230,9 @@ function CurrentView() {
       break;
     case "sources":
       view = <Sources />;
+      break;
+    case "play":
+      view = <Play />;
       break;
   }
   return (

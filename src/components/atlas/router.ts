@@ -7,7 +7,8 @@
      #/o/<objection>        an objection's chamber
      #/o/<objection>/<node> …with a node open in the reader
      #/walk/<objection>     the guided "argue it through" walk
-     #/timeline[/<moment>]  #/cast[/<thinker>]  #/lexicon[/<term>]  #/ledger */
+     #/timeline[/<moment>]  #/cast[/<thinker>]  #/lexicon[/<term>]  #/ledger
+     #/play                 the chronology game */
 
 import { useCallback, useSyncExternalStore } from "react";
 import type { ObjectionId } from "./types";
@@ -29,7 +30,8 @@ export type Route =
   | { view: "lexicon"; term?: string }
   | { view: "ledger" }
   | { view: "outline" }
-  | { view: "sources" };
+  | { view: "sources" }
+  | { view: "play" };
 
 const OBJECTIONS: ObjectionId[] = ["coherence", "hiddenness", "nature", "evidence", "morals"];
 const isObjection = (s: string | undefined): s is ObjectionId => !!s && (OBJECTIONS as string[]).includes(s);
@@ -73,6 +75,8 @@ export function parseHash(hash: string): Route {
       return { view: "outline" };
     case "sources":
       return { view: "sources" };
+    case "play":
+      return { view: "play" };
     default:
       return a ? { view: "home", missing: a, kind: "page" } : { view: "home" };
   }
@@ -99,6 +103,8 @@ export function formatRoute(r: Route): string {
       return seg("outline");
     case "sources":
       return seg("sources");
+    case "play":
+      return seg("play");
   }
 }
 

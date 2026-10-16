@@ -440,19 +440,6 @@ export default function PhotosPage() {
       <div className="mx-auto max-w-5xl px-4 pt-24 pb-16 sm:pt-28 sm:pb-24">
         <PageHeader count={photos.length} />
 
-        <UploadCard
-          uploaderName={uploaderName}
-          setUploaderName={setUploaderName}
-          fileInputRef={fileInputRef}
-          cameraInputRef={cameraInputRef}
-          onFiles={handleFiles}
-          activeCount={activeCount}
-        />
-
-        <UploadQueue queue={queue} />
-
-        {photos.length > 0 && <ExportPanel />}
-
         <Gallery
           photos={photos}
           loaded={loaded}
@@ -463,6 +450,23 @@ export default function PhotosPage() {
           loadingMore={loadingMore}
           onLoadMore={loadOlder}
         />
+
+        {photos.length > 0 && <ExportPanel />}
+
+        <section id="add" className="mt-16 scroll-mt-24">
+          <h2 className="mb-6 text-center font-[family-name:var(--font-cormorant-garamond)] text-3xl font-semibold text-forest dark:text-cream">
+            Add yours
+          </h2>
+          <UploadCard
+            uploaderName={uploaderName}
+            setUploaderName={setUploaderName}
+            fileInputRef={fileInputRef}
+            cameraInputRef={cameraInputRef}
+            onFiles={handleFiles}
+            activeCount={activeCount}
+          />
+          <UploadQueue queue={queue} />
+        </section>
       </div>
 
       <AnimatePresence>
@@ -485,15 +489,18 @@ export default function PhotosPage() {
 function PageHeader({ count }: { count: number }) {
   return (
     <div className="mb-8 text-center">
-      <div className="mb-3 text-sm font-medium tracking-widest text-sage uppercase dark:text-sage-light">
-        Our Celebration
-      </div>
       <h1 className="font-[family-name:var(--font-cormorant-garamond)] text-4xl font-semibold text-forest dark:text-cream sm:text-5xl">
-        Share the Magic
+        The album
       </h1>
-      <p className="mx-auto mt-4 max-w-xl text-base text-deep-plum/75 dark:text-cream/75">
-        Snap away and drop your photos &amp; videos here — they appear in our shared album for
-        everyone to enjoy. The more eyes, the more moments we get to keep. ✨
+      <p className="mx-auto mt-4 max-w-xl text-base text-pretty text-deep-plum/75 dark:text-cream/75">
+        Photos and videos from our celebration on June 27, 2026. Still have some on your phone?{" "}
+        <a
+          href="#add"
+          className="font-medium text-gold-dark underline underline-offset-4 hover:text-soft-gold-dark dark:text-soft-gold-light"
+        >
+          Add yours
+        </a>
+        .
       </p>
       {count > 0 && (
         <p className="mt-3 text-sm text-sage/80 dark:text-sage-light/80">
@@ -680,7 +687,7 @@ function Gallery({
             No moments yet
           </p>
           <p className="mt-2 text-sm text-deep-plum/70 dark:text-cream/70">
-            Be the first to share a little magic — anything you capture today shows up right here for everyone.
+            Be the first to share one. Anything you add below shows up right here for everyone.
           </p>
         </div>
       </div>

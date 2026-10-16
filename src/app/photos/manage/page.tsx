@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { PRINTS_ON_TABLE } from "@/components/home/MemoryTable";
 
 interface Photo {
   id: number;
@@ -10,7 +11,21 @@ interface Photo {
   uploader_name: string | null;
   approved: boolean;
   reported: boolean;
+  featured: boolean;
   created_at: string;
+}
+
+function canBeOnHomePage(photo: Photo): boolean {
+  return photo.approved && !photo.reported && photo.media_type === "image" && !!photo.thumb_url;
+}
+
+function starredSummary(count: number): string {
+  if (count === 0) return `Nothing starred yet, so the home page picks all ${PRINTS_ON_TABLE} photos at random.`;
+  if (count < PRINTS_ON_TABLE) {
+    return `${count} starred. The home page shows ${count === 1 ? "it" : "these"} first and fills the other ${PRINTS_ON_TABLE - count} spots at random.`;
+  }
+  if (count === PRINTS_ON_TABLE) return `${count} starred. The home page shows exactly these.`;
+  return `${count} starred. The home page shows ${PRINTS_ON_TABLE} of them at a time.`;
 }
 
 export default function ManagePhotosPage() {
@@ -87,6 +102,28 @@ export default function ManagePhotosPage() {
     setPhotos((prev) => prev.map((p) => (p.id === id ? { ...p, approved: true, reported: false } : p)));
   };
 
+  const handleFeature = async (id: number, featured: boolean) => {
+    setError("");
+    const res = await fetch(`/api/photos?id=${id}`, {
+      method: "PATCH",
+      headers: { Authorization: `Bearer ${secret.trim()}`, "Content-Type": "application/json" },
+      body: JSON.stringify({ featured }),
+    });
+    if (res.status === 401) {
+      setError("That admin password didn't work.");
+      sessionStorage.removeItem("photo_admin_secret");
+      setUnlocked(false);
+      return;
+    }
+    if (!res.ok) {
+      setError(featured ? "Couldn't star that one — try again." : "Couldn't unstar that one — try again.");
+      return;
+    }
+    setPhotos((prev) => prev.map((p) => (p.id === id ? { ...p, featured } : p)));
+  };
+
+  const starredCount = photos.filter((p) => p.featured && canBeOnHomePage(p)).length;
+
   return (
     <div className="enchanted-bg relative min-h-screen overflow-hidden">
       <div className="mx-auto max-w-5xl px-4 pt-24 pb-16 sm:pt-28">
@@ -94,7 +131,8 @@ export default function ManagePhotosPage() {
           Manage Photos
         </h1>
         <p className="mb-8 text-center text-sm text-deep-plum/70 dark:text-cream/70">
-          Remove any photo, or restore one a guest reported (flagged in red, dimmed).
+          Star the photos you want on the home page. Remove any photo, or restore one a guest
+          reported (flagged in red, dimmed).
         </p>
 
         {!unlocked ? (
@@ -125,6 +163,11 @@ export default function ManagePhotosPage() {
             {error && (
               <p className="mb-4 text-center text-sm text-red-600 dark:text-red-400">{error}</p>
             )}
+            {!loading && photos.length > 0 && (
+              <p className="mb-4 text-center text-sm text-deep-plum/70 dark:text-cream/70">
+                {starredSummary(starredCount)}
+              </p>
+            )}
             {loading ? (
               <p className="text-center text-sm text-deep-plum/70 dark:text-cream/70">Loading…</p>
             ) : photos.length === 0 ? (
@@ -132,7 +175,10 @@ export default function ManagePhotosPage() {
             ) : (
               <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
                 {photos.map((photo) => (
-                  <div key={photo.id} className="relative aspect-square overflow-hidden rounded-xl bg-sage/10">
+                  <div
+                    key={photo.id}
+                    className={`relative aspect-square overflow-hidden rounded-xl bg-sage/10 ${photo.featured && canBeOnHomePage(photo) ? "ring-2 ring-soft-gold" : ""}`}
+                  >
                     {photo.media_type === "video" ? (
                       <video src={`${photo.url}#t=0.1`} muted playsInline preload="metadata" className={`h-full w-full object-cover ${!photo.approved ? "opacity-40" : ""}`} />
                     ) : (
@@ -142,6 +188,21 @@ export default function ManagePhotosPage() {
                       <span className="absolute left-1.5 top-1.5 rounded-full bg-red-600/90 px-2 py-0.5 text-[10px] font-semibold text-white">
                         Reported
                       </span>
+                    )}
+                    {canBeOnHomePage(photo) && (
+                      <button
+                        onClick={() => handleFeature(photo.id, !photo.featured)}
+                        aria-pressed={photo.featured}
+                        aria-label="Star for the home page"
+                        title={photo.featured ? "Starred for the home page" : "Star for the home page"}
+                        className={`absolute left-1.5 top-1.5 flex h-8 w-8 items-center justify-center rounded-full text-lg leading-none backdrop-blur-sm transition ${
+                          photo.featured
+                            ? "bg-soft-gold text-[#2A1A00] hover:bg-soft-gold-dark"
+                            : "bg-black/55 text-white hover:bg-black/75"
+                        }`}
+                      >
+                        {photo.featured ? "★" : "☆"}
+                      </button>
                     )}
                     <button
                       onClick={() => handleDelete(photo.id)}

@@ -1,427 +1,154 @@
-"use client";
-
-import { motion } from "framer-motion";
+import Link from "next/link";
 import FarmScene from "@/components/FarmScene";
-import Countdown from "@/components/Countdown";
-import PixelButton from "@/components/PixelButton";
-import HeartGarland from "@/components/HeartGarland";
+import MemoryTable, { PRINTS_ON_TABLE } from "@/components/home/MemoryTable";
+import { getCelebrationMemories } from "@/lib/celebration";
 
-function getAge(birthYear: number, birthMonth: number, birthDay: number) {
-  const today = new Date();
-  let age = today.getFullYear() - birthYear;
-  const monthDiff = today.getMonth() + 1 - birthMonth;
-  if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDay)) age--;
-  return age;
-}
+export const revalidate = 600;
 
+const MILESTONES = [
+  {
+    date: "Thanksgiving 2025",
+    title: "The proposal",
+    body: "In the woods at New Skete Monastery, Matt sang, played the mandolin, and read Brittany a poem he wrote for her. Then he asked. She said yes, and we stayed for a service at the monastery.",
+  },
+  {
+    daysLater: 35,
+    date: "January 1, 2026",
+    title: "The wedding",
+    body: "We couldn’t wait, so we planned a winter wedding in five weeks and said our vows with our 20 closest loved ones.",
+  },
+  {
+    daysLater: 177,
+    date: "June 27, 2026",
+    title: "The celebration",
+    body: "Then we celebrated with everyone on our farm: a ceremony in the field, tables under the tent, cake, and a fire after dark.",
+  },
+];
 
-const fadeInUp = {
-  initial: { opacity: 0, y: 30 },
-  whileInView: { opacity: 1, y: 0 },
-  viewport: { once: true, margin: "-80px" },
-};
+const display = "font-[family-name:var(--font-cormorant-garamond)]";
 
-export default function Home() {
+function HowWeGotHere() {
   return (
-    <div className="relative min-h-screen overflow-hidden">
-      {/* =============================================
-          HERO SECTION
-          ============================================= */}
-      <section className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden">
-        {/* Enchanted forest background */}
-        <FarmScene />
-
-        {/* Content overlay */}
-        <div className="relative z-10 flex flex-col items-center px-4 pt-20 pb-8 sm:pt-24">
-          {/* Small subtitle */}
-          <HeartGarland size="lg" className="mb-5" />
-          <motion.p
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            className="mb-4 text-sm font-medium tracking-[0.3em] text-sage-dark/90 uppercase dark:text-sage-light/90 sm:text-base"
-          >
-            Together with their families
-          </motion.p>
-
-          {/* Main title with sparkle accents */}
-          <motion.h1
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{
-              duration: 0.8,
-              delay: 0.4,
-              ease: "easeOut",
-            }}
-            className="fairy-sparkle mb-3 text-center font-[family-name:var(--font-cormorant-garamond)] text-5xl font-bold text-forest dark:text-cream sm:mb-4 sm:text-7xl md:text-8xl"
-          >
-            Matt & Brittany
-          </motion.h1>
-
-          {/* Subtitle */}
-          <motion.p
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.6, delay: 0.7 }}
-            className="mb-6 text-center text-lg font-medium text-forest/80 dark:text-cream/80 sm:mb-8 sm:text-xl md:text-2xl"
-          >
-            invite you to their wedding celebration
-          </motion.p>
-
-          {/* Date display */}
-          <motion.div
-            initial={{ opacity: 0, y: 15 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.9 }}
-            className="mb-8 sm:mb-10"
-          >
-            <div className="relative rounded-2xl border border-soft-gold/25 bg-warm-white/60 px-12 py-7 text-center shadow-[0_4px_20px_rgba(196,154,60,0.1)] backdrop-blur-sm dark:border-soft-gold/30 dark:bg-[#162618]/70 dark:shadow-[0_4px_20px_rgba(196,154,60,0.15)] sm:px-16 sm:py-8">
-              <p className="mb-2 text-sm font-medium tracking-[0.25em] text-soft-gold/70 uppercase sm:text-base">
-                Join the Celebration
-              </p>
-              <p className="font-[family-name:var(--font-cormorant-garamond)] text-4xl font-bold text-soft-gold dark:text-soft-gold-light sm:text-5xl md:text-6xl">
-                June 27, 2026
-              </p>
-              <p className="mt-2 text-sm font-medium text-sage-dark/80 dark:text-sage-light/85 sm:text-base">
-                Arrival 12:30 PM · Ceremony 1:00 PM
-              </p>
-              <div className="mt-6">
-                <PixelButton href="/rsvp" variant="primary" size="lg">
-                  RSVP Here
-                </PixelButton>
-              </div>
-              <p className="mt-4 text-sm font-medium text-soft-gold-dark dark:text-soft-gold-light">
-                Please RSVP by May 20th
-              </p>
-            </div>
-          </motion.div>
-
-          <motion.div
-            {...fadeInUp}
-            transition={{ duration: 0.6, delay: 1.05 }}
-            className="mb-8 w-full max-w-4xl sm:mb-10"
-          >
-            <div className="overflow-hidden rounded-3xl border border-blush/30 bg-warm-white/75 px-6 py-8 shadow-[0_10px_40px_rgba(164,112,120,0.08)] backdrop-blur-sm dark:border-blush-dark/25 dark:bg-[#162618]/70 dark:shadow-[0_10px_40px_rgba(0,0,0,0.22)] sm:px-10 sm:py-10">
-              <div className="mx-auto max-w-3xl text-center">
-                <p className="mb-3 text-xs font-medium tracking-[0.25em] text-soft-gold/70 uppercase sm:text-sm">
-                  Our Story
+    <section className="px-4 pt-10 pb-16 sm:px-6 sm:pt-16 sm:pb-24">
+      <div className="mx-auto max-w-2xl">
+        <h2 className={`${display} text-4xl font-semibold text-forest dark:text-cream sm:text-5xl`}>
+          How we got here
+        </h2>
+        <ol className="mt-10 ml-1.5 border-l border-sage/35 dark:border-sage-light/30">
+          {MILESTONES.map((m) => (
+            <li key={m.date} className="pl-8 sm:pl-10">
+              {m.daysLater && (
+                <p className={`${display} pt-1 pb-8 text-xl font-medium text-sage italic dark:text-sage-light`}>
+                  {m.daysLater} days later
                 </p>
-                <h3 className="fairy-sparkle mb-6 font-[family-name:var(--font-cormorant-garant)] text-3xl font-bold text-forest dark:text-cream sm:text-4xl">
-                  A Love Worth Celebrating
-                </h3>
-
-                <div className="space-y-5 text-left text-sm leading-relaxed text-forest/70 dark:text-cream/70 sm:text-base">
-                  <p>
-                    Matt proposed to Brittany on Thanksgiving 2025 in the
-                    beautiful woods at the New Skete Monastery. Before asking her
-                    to marry him, he sang and played the mandolin and read her a
-                    poem he had written just for her. After Brittany said yes,
-                    they attended a peaceful service at the monastery, making the
-                    moment even more meaningful.
-                  </p>
-
-                  <p>
-                    They couldn&apos;t wait to be husband and wife, so in just 35
-                    days, they planned their dream winter wedding, exchanging
-                    vows surrounded by their 20 closest loved ones.
-                  </p>
-
-                  <p>
-                    Now, they&apos;re so excited to gather everyone they love for
-                    their summer wedding celebration under the open sky at their
-                    farm on June 27.
-                  </p>
-
-                  <p>
-                    The day will begin with a ceremony celebrating their union,
-                    followed by a joyful celebration filled with good food,
-                    music, dancing, games, and lots of love.
-                  </p>
-                </div>
+              )}
+              <div className="relative pb-2">
+                <span
+                  aria-hidden="true"
+                  className="absolute top-2 -left-[calc(2rem+7.5px)] h-3.5 w-3.5 rounded-full border-2 border-soft-gold bg-cream sm:-left-[calc(2.5rem+7.5px)] dark:bg-dark-bg"
+                />
+                <p className={`${display} text-xl text-gold-dark italic dark:text-soft-gold-light`}>{m.date}</p>
+                <h3 className={`${display} mt-1 text-3xl font-semibold text-forest dark:text-cream`}>{m.title}</h3>
+                <p className="mt-3 max-w-[60ch] text-[1.0625rem] leading-relaxed text-pretty text-forest/75 dark:text-cream/75">
+                  {m.body}
+                </p>
               </div>
-            </div>
-          </motion.div>
+            </li>
+          ))}
+        </ol>
+      </div>
+    </section>
+  );
+}
 
-        </div>
-      </section>
+function ReliveTheDay({ photoCount, songCount }: { photoCount: number; songCount: number }) {
+  const rows = [
+    {
+      href: "/photos",
+      title: "The album",
+      body: `${photoCount > 0 ? `${photoCount} photos and videos` : "Photos and videos"} from the day. Add the ones still on your phone, or download the whole album.`,
+    },
+    {
+      href: "/songs",
+      title: "The playlist",
+      body: `The ${songCount > 0 ? `${songCount} ` : ""}songs you asked for, plus the playlists from the day.`,
+    },
+    {
+      href: "/games",
+      title: "The party games",
+      body: "Egg Catcher, Yoga Goat, Zoe’s Adventure, and the rest are still here to play.",
+    },
+  ];
 
-      {/* Enchanted section divider - toadstools and fairy lights */}
-      <WhimsicalDivider />
-
-      {/* =============================================
-          RSVP CTA SECTION
-          ============================================= */}
-      <section className="relative px-4 py-10 sm:py-14">
-        {/* Soft gradient background */}
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-sage/10 to-transparent" />
-
-        <div className="relative mx-auto max-w-4xl">
-          <motion.div
-            {...fadeInUp}
-            transition={{ duration: 0.6 }}
-            className="text-center"
-          >
-            {/* Secondary links */}
-            <div className="flex justify-center">
-              <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: 0.1 }}
-              >
-                <PixelButton
-                  href="/details"
-                  variant="success"
-                  size="lg"
-                  className="px-12 py-4 text-base sm:px-16 sm:py-5 sm:text-lg"
-                >
-                  Celebration Details
-                </PixelButton>
-              </motion.div>
-            </div>
-
-            <div className="mt-8 sm:mt-10">
-              <Countdown />
-            </div>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* Enchanted section divider - gnome and sparkles */}
-      <GnomeDivider />
-
-      {/* =============================================
-          FAMILY SECTION
-          ============================================= */}
-      <section className="relative px-4 py-16 sm:py-20">
-        <div className="mx-auto max-w-3xl">
-          <motion.div
-            {...fadeInUp}
-            transition={{ duration: 0.6 }}
-            className="text-center"
-          >
-            <div className="overflow-hidden rounded-3xl border border-sage/15 bg-warm-white/70 px-6 py-10 shadow-[0_4px_30px_rgba(29,68,32,0.05)] backdrop-blur-sm dark:border-sage/20 dark:bg-[#162618]/70 dark:shadow-[0_4px_30px_rgba(0,0,0,0.2)] sm:px-10 sm:py-14">
-              <h3 className="fairy-sparkle mb-6 font-[family-name:var(--font-cormorant-garamond)] text-2xl font-bold text-forest dark:text-cream sm:mb-8 sm:text-3xl">
-                The Brooker Family
-              </h3>
-
-              <div className="mb-6 flex flex-wrap items-center justify-center gap-6 sm:gap-10">
-                <div className="flex flex-col items-center gap-2">
-                  <span className="text-3xl sm:text-4xl">🤵</span>
-                  <span className="font-[family-name:var(--font-cormorant-garamond)] text-lg font-semibold text-forest dark:text-cream">
-                    Matt
-                  </span>
-                </div>
-                <div className="flex flex-col items-center gap-2">
-                  <motion.span
-                    animate={{ scale: [1, 1.15, 1] }}
-                    transition={{ duration: 2.5, repeat: Infinity }}
-                    className="text-2xl text-soft-gold sm:text-3xl"
-                  >
-                    &hearts;
-                  </motion.span>
-                </div>
-                <div className="flex flex-col items-center gap-2">
-                  <span className="text-3xl sm:text-4xl">👰</span>
-                  <span className="font-[family-name:var(--font-cormorant-garamond)] text-lg font-semibold text-forest dark:text-cream">
-                    Brittany
-                  </span>
-                </div>
-              </div>
-
-              <div className="mt-4 border-t border-sage/10 pt-6 dark:border-sage/20">
-                <div className="flex flex-wrap items-center justify-center gap-8 sm:gap-12">
-                  <div className="flex flex-col items-center gap-1.5">
-                    <span className="text-2xl sm:text-3xl">&#127775;</span>
-                    <span className="font-[family-name:var(--font-cormorant-garamond)] text-base font-semibold text-forest dark:text-cream">
-                      Emmett
-                    </span>
-                    <span className="text-xs text-forest/70 dark:text-cream/70">Age {getAge(2014, 3, 29)}</span>
-                  </div>
-                  <div className="flex flex-col items-center gap-1.5">
-                    <span className="text-2xl sm:text-3xl">&#128142;</span>
-                    <span className="font-[family-name:var(--font-cormorant-garamond)] text-base font-semibold text-forest dark:text-cream">
-                      Sapphire
-                    </span>
-                    <span className="text-xs text-forest/70 dark:text-cream/70">Age {getAge(2017, 6, 19)}</span>
-                  </div>
-                </div>
-                <div className="mt-6 flex justify-center">
-                  <div className="flex flex-col items-center gap-1.5">
-                    <span className="text-2xl sm:text-3xl">🩷</span>
-                    <span className="font-[family-name:var(--font-cormorant-garamond)] text-base font-semibold text-forest dark:text-cream">
-                      Baby Girl Brooker
-                    </span>
-                    <span className="text-xs text-forest/70 dark:text-cream/70">Due October 2026</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </motion.div>
-        </div>
-      </section>
-
-
-      {/* =============================================
-          FOOTER
-          ============================================= */}
-      <footer className="relative border-t border-sage/15 bg-cream-dark/50 px-4 py-12 dark:border-sage/20 dark:bg-[#0A1A0C]/50 sm:py-16">
-        <div className="mx-auto max-w-4xl text-center">
-          <HeartGarland className="mb-5" />
-
-          <p className="font-[family-name:var(--font-cormorant-garamond)] text-xl font-semibold text-forest/60 dark:text-cream/60 sm:text-2xl">
-            Matt & Brittany
-          </p>
-          <p className="mt-1 text-sm text-forest/70 dark:text-cream/70">June 27, 2026</p>
-
-          <div className="mt-5">
-            <a
-              href="mailto:brookerhousehold@gmail.com"
-              className="text-sm text-soft-gold-dark transition-colors hover:text-soft-gold dark:text-soft-gold-light"
+  return (
+    <section className="px-4 pb-20 sm:px-6 sm:pb-28">
+      <div className="mx-auto max-w-2xl">
+        <h2 className={`${display} text-4xl font-semibold text-forest dark:text-cream sm:text-5xl`}>
+          Relive the day
+        </h2>
+        <ul className="mt-8 border-t border-sage/25 dark:border-cream/15">
+          {rows.map((row) => (
+            <li
+              key={row.href}
+              className="group relative grid items-baseline gap-1 border-b border-sage/25 py-6 sm:grid-cols-[12rem_1fr] sm:gap-8 dark:border-cream/15"
             >
-              brookerhousehold@gmail.com
-            </a>
-          </div>
-
-          <div className="mt-8 flex items-center justify-center gap-3">
-            <div className="h-px w-12 bg-sage/10 dark:bg-sage/20" />
-            <span className="text-xs text-forest/60 dark:text-cream/60">2026</span>
-            <div className="h-px w-12 bg-sage/10 dark:bg-sage/20" />
-          </div>
-
-          <motion.p
-            className="mt-5 text-xs text-forest/60 dark:text-cream/60"
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.5 }}
-          >
-            Made with love and a little fairy dust
-          </motion.p>
-        </div>
-      </footer>
-    </div>
-  );
-}
-
-function WhimsicalDivider() {
-  return (
-    <div className="relative flex items-center justify-center py-4">
-      <div className="flex items-end gap-3 opacity-30">
-        {/* Left sparkle */}
-        <motion.svg
-          width="8"
-          height="8"
-          viewBox="0 0 12 12"
-          fill="none"
-          animate={{ opacity: [0.3, 0.8, 0.3], scale: [0.8, 1, 0.8] }}
-          transition={{ duration: 2, repeat: Infinity, delay: 0 }}
-        >
-          <path d="M6 0 L7 4.5 L12 6 L7 7.5 L6 12 L5 7.5 L0 6 L5 4.5 Z" fill="#C49A3C" />
-        </motion.svg>
-
-        {/* Line */}
-        <div className="h-px w-12 bg-gradient-to-r from-transparent via-soft-gold/40 to-transparent sm:w-20" />
-
-        {/* Toadstool */}
-        <svg width="16" height="20" viewBox="0 0 24 28" fill="none" className="translate-y-1">
-          <rect x="9" y="16" width="6" height="12" rx="2" fill="#D4A894" opacity="0.6" />
-          <ellipse cx="12" cy="14" rx="12" ry="10" fill="#9B4040" opacity="0.5" />
-          <circle cx="7" cy="10" r="1.5" fill="#FDF8F0" opacity="0.6" />
-          <circle cx="14" cy="8" r="1.2" fill="#FDF8F0" opacity="0.6" />
-          <circle cx="17" cy="12" r="1" fill="#FDF8F0" opacity="0.5" />
-        </svg>
-
-        {/* Center sparkle */}
-        <motion.svg
-          width="10"
-          height="10"
-          viewBox="0 0 12 12"
-          fill="none"
-          animate={{ opacity: [0.4, 1, 0.4], scale: [0.9, 1.1, 0.9] }}
-          transition={{ duration: 2.5, repeat: Infinity, delay: 0.5 }}
-        >
-          <path d="M6 0 L7 4.5 L12 6 L7 7.5 L6 12 L5 7.5 L0 6 L5 4.5 Z" fill="#C49A3C" />
-        </motion.svg>
-
-        {/* Toadstool (smaller) */}
-        <svg width="12" height="16" viewBox="0 0 24 28" fill="none" className="translate-y-1.5">
-          <rect x="9" y="16" width="6" height="12" rx="2" fill="#D4A894" opacity="0.5" />
-          <ellipse cx="12" cy="14" rx="12" ry="10" fill="#9B4040" opacity="0.45" />
-          <circle cx="8" cy="11" r="1.5" fill="#FDF8F0" opacity="0.5" />
-          <circle cx="15" cy="9" r="1" fill="#FDF8F0" opacity="0.5" />
-        </svg>
-
-        {/* Line */}
-        <div className="h-px w-12 bg-gradient-to-r from-transparent via-soft-gold/40 to-transparent sm:w-20" />
-
-        {/* Right sparkle */}
-        <motion.svg
-          width="8"
-          height="8"
-          viewBox="0 0 12 12"
-          fill="none"
-          animate={{ opacity: [0.3, 0.8, 0.3], scale: [0.8, 1, 0.8] }}
-          transition={{ duration: 2, repeat: Infinity, delay: 1 }}
-        >
-          <path d="M6 0 L7 4.5 L12 6 L7 7.5 L6 12 L5 7.5 L0 6 L5 4.5 Z" fill="#C49A3C" />
-        </motion.svg>
+              <Link
+                href={row.href}
+                className={`${display} text-3xl font-semibold text-forest transition-colors group-hover:text-gold-dark after:absolute after:inset-y-0 after:-inset-x-3 focus-visible:outline-none focus-visible:after:rounded-sm focus-visible:after:outline-2 focus-visible:after:outline-soft-gold dark:text-cream dark:group-hover:text-soft-gold-light`}
+              >
+                {row.title}
+              </Link>
+              <p className="text-[1.0625rem] leading-relaxed text-pretty text-forest/75 dark:text-cream/75">{row.body}</p>
+            </li>
+          ))}
+        </ul>
       </div>
-    </div>
+    </section>
   );
 }
 
-function GnomeDivider() {
+const MAPLE_DUE = new Date("2026-10-20T00:00:00-04:00");
+
+function Closing() {
+  // eslint-disable-next-line react-hooks/purity -- server-only; ISR re-renders it every 10 minutes
+  const maple = Date.now() < MAPLE_DUE.getTime() ? "baby Maple Jane, due October 20" : "baby Maple Jane";
+
   return (
-    <div className="relative flex items-center justify-center py-4">
-      <div className="flex items-end gap-4 opacity-25">
-        {/* Sparkle */}
-        <motion.svg
-          width="6"
-          height="6"
-          viewBox="0 0 12 12"
-          fill="none"
-          animate={{ opacity: [0.3, 0.9, 0.3] }}
-          transition={{ duration: 2.2, repeat: Infinity }}
+    <footer>
+      <div className="mx-auto max-w-xl px-4 text-center">
+        <h2 className={`${display} text-4xl font-semibold text-balance text-forest dark:text-cream sm:text-5xl`}>
+          With love from all of us on our farm
+        </h2>
+        <p className="mt-5 text-lg leading-relaxed text-forest/80 dark:text-cream/80">
+          Matt, Brittany, Emmett, Sapphire, and {maple}.
+        </p>
+        <p className="mt-3 leading-relaxed text-forest/70 dark:text-cream/70">
+          Plus Zoe the couch commander, Bruce, the barn cats, the livestock dogs, and the guinea hens,
+          ducks, geese, and chickens.
+        </p>
+        <a
+          href="mailto:brookerhousehold@gmail.com"
+          className="mt-6 inline-block text-gold-dark underline-offset-4 hover:underline dark:text-soft-gold-light"
         >
-          <path d="M6 0 L7 4.5 L12 6 L7 7.5 L6 12 L5 7.5 L0 6 L5 4.5 Z" fill="#C49A3C" />
-        </motion.svg>
-
-        {/* Line */}
-        <div className="h-px w-16 bg-gradient-to-r from-transparent via-sage/30 to-transparent sm:w-24" />
-
-        {/* Gnome silhouette */}
-        <svg width="14" height="22" viewBox="0 0 14 22" fill="none" className="translate-y-0.5">
-          <polygon points="7,0 11,10 3,10" fill="#1D4420" opacity="0.6" />
-          <circle cx="7" cy="12" r="3.5" fill="#1D4420" opacity="0.5" />
-          <ellipse cx="7" cy="18" rx="4.5" ry="4" fill="#1D4420" opacity="0.5" />
-          <ellipse cx="7" cy="15" rx="3" ry="3.5" fill="#1D4420" opacity="0.4" />
-        </svg>
-
-        {/* Tiny toadstool */}
-        <svg width="10" height="12" viewBox="0 0 24 28" fill="none" className="translate-y-2">
-          <rect x="9" y="16" width="6" height="12" rx="2" fill="#D4A894" opacity="0.5" />
-          <ellipse cx="12" cy="14" rx="12" ry="10" fill="#9B4040" opacity="0.4" />
-          <circle cx="8" cy="11" r="1.5" fill="#FDF8F0" opacity="0.5" />
-          <circle cx="15" cy="10" r="1" fill="#FDF8F0" opacity="0.4" />
-        </svg>
-
-        {/* Line */}
-        <div className="h-px w-16 bg-gradient-to-r from-transparent via-sage/30 to-transparent sm:w-24" />
-
-        {/* Sparkle */}
-        <motion.svg
-          width="6"
-          height="6"
-          viewBox="0 0 12 12"
-          fill="none"
-          animate={{ opacity: [0.3, 0.9, 0.3] }}
-          transition={{ duration: 2.2, repeat: Infinity, delay: 1.1 }}
-        >
-          <path d="M6 0 L7 4.5 L12 6 L7 7.5 L6 12 L5 7.5 L0 6 L5 4.5 Z" fill="#C49A3C" />
-        </motion.svg>
+          brookerhousehold@gmail.com
+        </a>
       </div>
-    </div>
+      <div className="relative h-[max(20rem,52vw)] max-h-[56rem] [mask-image:linear-gradient(to_bottom,transparent,black_25%)]">
+        <FarmScene />
+      </div>
+    </footer>
   );
 }
 
+export default async function Home() {
+  const { prints, photoCount, songCount } = await getCelebrationMemories(PRINTS_ON_TABLE);
+
+  return (
+    <>
+      <MemoryTable prints={prints} photoCount={photoCount} />
+      <HowWeGotHere />
+      <ReliveTheDay photoCount={photoCount} songCount={songCount} />
+      <Closing />
+    </>
+  );
+}

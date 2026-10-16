@@ -4,7 +4,13 @@ Wedding celebration website for Matt & Brittany Brooker at **brooker.family**.
 
 ## Context
 
-Matt & Brittany got married **January 1, 2026**. This site is for their **celebration party on June 27, 2026** at their farm (49 Clarks Mill Rd, Greenwich, NY 12834). The tone is "we already got married, now come party with us" -- not a traditional wedding site.
+Matt & Brittany got married **January 1, 2026** and threw their **celebration party on June 27, 2026** at their farm in Greenwich, NY. The party is over, so the public site is a thank-you keepsake: the home page looks back on the day, and the nav only offers Photos, Playlist, and Games. Write in a warm past tense, never "join us" or "RSVP".
+
+### What's linked and what isn't
+
+- **Public nav and home:** `/`, `/photos`, `/songs` (labelled "Playlist", read-only), `/games`.
+- **Retired:** `/rsvp`, `/details`, `/bridal-shower` redirect to `/`. `/registry` still renders but nothing links to it. RSVP admin pages and APIs still work.
+- **Family side projects stay unlinked on purpose:** `/calendar`, `/sapphire`, `/backpacking-2026`, `/crib`, `/debates`, `/birth`. Matt doesn't want them easy to find, so don't add them to the nav, home page, or footer.
 
 ### Family
 
@@ -12,6 +18,7 @@ Matt & Brittany got married **January 1, 2026**. This site is for their **celebr
 - **Brittany** - Bride.
 - **Emmett** (11) - Matt's son from a prior marriage
 - **Sapphire** (8) - Matt's daughter from a prior marriage
+- **Maple Jane** - Matt & Brittany's baby girl, due October 20, 2026. The home page sign-off drops "due October 20" on that date; once she's born, swap in her real birthday.
 - **Zoe** - Small black dog with grey muzzle, "couch commander"
 - **Bruce** - Cat
 
@@ -50,12 +57,11 @@ src/
 │   │   ├── yoga-goat/
 │   │   ├── zoes-adventure/
 │   │   └── page.tsx               # Games hub/gallery
-│   ├── details/page.tsx           # Event details (location, timeline, FAQ)
-│   ├── rsvp/page.tsx              # RSVP form
-│   ├── story/page.tsx             # Our Story timeline + farm animals
-│   ├── globals.css                # Theme, animations, dark mode
+│   ├── details/page.tsx           # Redirects to / (retired after the party)
+│   ├── rsvp/page.tsx              # Redirects to / (admin lives under rsvp/admin)
+│   ├── globals.css                # Theme, animations, dark mode, keepsake prints
 │   ├── layout.tsx                 # Root layout with ThemeProvider
-│   └── page.tsx                   # Home page (hero, countdown, games grid)
+│   └── page.tsx                   # Home: thank-you card + album prints, timeline, links (ISR, 10 min)
 ├── components/
 │   ├── games/
 │   │   ├── GameWrapper.tsx        # Shared game shell (header, leaderboard)
@@ -68,14 +74,13 @@ src/
 │   │   ├── ZoesAdventure.tsx      # Endless runner (Zoe the dog)
 │   │   ├── CakeCreator.tsx        # Cake decoration
 │   │   └── HereComesTheBride.tsx  # Rhythm/timing aisle walk
+│   ├── home/MemoryTable.tsx       # Home hero: polaroid prints of album photos around the thank-you card
 │   ├── Navigation.tsx             # Fixed nav + mobile menu + theme toggle
 │   ├── ThemeProvider.tsx          # Dark mode context (light/system/dark)
-│   ├── FarmScene.tsx              # SVG landscape with fireflies, stars
-│   ├── Countdown.tsx              # Live countdown to June 27, 2026
-│   ├── GameCard.tsx               # Game card for home page grid
-│   ├── PixelButton.tsx            # Button component
-│   └── ConfettiCelebration.tsx    # Canvas confetti on RSVP success
+│   ├── FarmScene.tsx              # SVG landscape with fireflies, stars (home page closing)
+│   └── ConfettiCelebration.tsx    # Canvas confetti (Sapphire's party, crib guide)
 └── lib/
+    ├── celebration.ts             # Home page data: album prints (starred first, rest random) + photo/song counts
     ├── db.ts                      # Neon connection (returns null if no DATABASE_URL)
     ├── migrate.ts                 # Auto-migration on build
     └── schema.sql                 # Reference schema (rsvps + game_scores tables)
@@ -131,11 +136,13 @@ Pulls events (TKD, drama club, etc.) from a connected Google account into `/cale
 
 Guest uploads live in **Vercel Blob** (files) + Neon (`photos` table, metadata). Uploads are re-encoded client-side (~4096px JPEG + 512px thumb; videos get a captured poster frame). Grid tiles use `thumb_url`, falling back to Vercel's image optimizer (`/_next/image`, remotePatterns in `next.config.ts`) for rows without thumbs. Gallery pages with a `before` id cursor (200/page).
 
+**Home page prints:** the star on each `/photos/manage` tile sets `photos.featured` (admin `PATCH /api/photos?id=` with `{ featured }`, which revalidates `/`). The home page lays starred photos down first, shuffled, and fills the rest of the 12 at random; reported or unapproved photos never show, starred or not.
+
 **Export:** `/photos` → "Take the memories home" panel (`src/components/photos/ExportPanel.tsx`): client-side zip via `fflate` (streams to disk on Chromium; also the Apple Photos path), and per-guest **Google Photos album export** (`photoslibrary.appendonly` scope, token in an httpOnly cookie only, batched relay via `/api/photos/google-export`). Reuses `GOOGLE_CLIENT_ID/SECRET`; requires Photos Library API enabled + redirect URI `{BASE_URL}/api/photos/google-export/callback`. See `docs/photos-ops.md`.
 
 ## Thought Pages (`/debates`)
 
-Long-read debate "field maps" are self-contained HTML in `public/debates/*.html`; the index is `src/app/debates/page.tsx`. `/debates/all-the-way-down` is an interactive **Disputation** (multi-layer argument map: Rose overview → objection chambers → moves, plus a guided walk, the reader's ledger, timeline, cast, lexicon). Engine: `src/components/atlas/` (content-agnostic); content: `src/components/atlas/content/`. See `src/app/debates/README.md` for the content rules and how to add another.
+Long-read debate "field maps" are self-contained HTML in `public/debates/*.html`; the index is `src/app/debates/page.tsx`. `/debates/all-the-way-down` is an interactive **Disputation** (multi-layer argument map: Rose overview → objection chambers → moves, plus a guided walk, the reader's ledger, timeline, cast, lexicon, and a chronology game at `#/play`). Engine: `src/components/atlas/` (content-agnostic); content: `src/components/atlas/content/`. See `src/app/debates/README.md` for the content rules and how to add another.
 
 ## Analytics
 
@@ -167,8 +174,7 @@ All games use **HTML5 Canvas** with `requestAnimationFrame`. Key patterns:
 1. Create `src/components/games/NewGame.tsx` (export default component)
 2. Create `src/app/games/new-game/page.tsx` importing the component
 3. Add to `GAMES` array in `src/app/games/page.tsx`
-4. Add to `games` array in `src/app/page.tsx` (home page grid)
-5. Use `GameWrapper` for consistent layout
+4. Use `GameWrapper` for consistent layout
 
 ## Key CSS Classes
 
