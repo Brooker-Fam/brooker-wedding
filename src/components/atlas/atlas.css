@@ -995,19 +995,22 @@
 }
 
 /* ---------- toast ---------- */
-/* Above the dock while it shows (--atl-dock-h includes the safe area), else above the bottom
-   edge; it glides as the dock comes and goes. */
+/* Above the bottom edge, or above the dock while it shows (--atl-dock-space includes the safe
+   area); it glides as the dock comes and goes. */
 .atl .toast-dock {
   position: fixed;
   left: 0;
   right: 0;
-  bottom: max(calc(var(--atl-dock-h, 0px) + 12px), calc(16px + env(safe-area-inset-bottom)));
+  bottom: calc(16px + env(safe-area-inset-bottom));
   z-index: 95;
   display: flex;
   justify-content: center;
   pointer-events: none;
   padding: 0 max(12px, env(safe-area-inset-right)) 0 max(12px, env(safe-area-inset-left));
   transition: bottom 0.3s var(--ease);
+}
+html[data-atl-dock="shown"] .atl .toast-dock {
+  bottom: max(calc(var(--atl-dock-space, 0px) + 12px), calc(16px + env(safe-area-inset-bottom)));
 }
 .atl .toast {
   pointer-events: auto;

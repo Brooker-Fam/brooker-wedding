@@ -38,11 +38,14 @@ import {
   useSyncExternalStore,
   type CSSProperties,
   type KeyboardEvent,
+  type MouseEvent as ReactMouseEvent,
+  type PointerEvent as ReactPointerEvent,
 } from "react";
 import { useAtlas } from "../context";
 import { tick } from "../haptics";
 import { nearestPane, polarOf, readingOrder, sectorAt, sectorBase, sectorLayout, type RoseSector } from "../layout";
-import { Glyph, StatusBadge } from "../primitives";
+import { Glyph, RichText, StatusBadge } from "../primitives";
+import type { Judgments, Labelling } from "../semantics";
 import type { ArgNode, Label, ObjectionId, Side } from "../types";
 import { StatusPip } from "./marks";
 
@@ -59,14 +62,21 @@ const NARROW_SCALE = 0.62;
     (full legends at desktop scale ≈ .87, numerals at phone scale ≈ .55). */
 const FS_DEFAULT = { legend: 12, num: 22, hub: 12 };
 
-/* The dial's zoom window: along the top ray it shows the zoomed objection's band of rounds
-   (just inside the first ring to just past its last), centred. The zoom aims for rings ~50px
-   deep on screen, and never so far that the band would overflow the window. */
+/* The dial's zoom window. The zoom is sized for a thumb: rings at least ~50px deep, the
+   objection's median block at least 36px wide and its narrowest 28px (each block's whole arc
+   takes the tap, since taps are hit-tested by polar position). Where the objection's band of
+   rounds (just inside its first ring to just past its last) still fits the window, the window
+   shows all of it, centred, as on a tablet. On a phone it doesn't: the window then shows
+   rounds 1 to 4 or so, and each pick slides it out to centre the picked block's round (a pan
+   on a state change, never a free pan). */
 const RING0 = HUB_R + OBJ_RING + 6;
 const ZOOM_IN = RING0 - 8;
 const ZOOM_OUT = R_OUT + 8;
 const ZOOM_RING_PX = 50;
+const ZOOM_MEDIAN_PX = 36;
+const ZOOM_NARROW_PX = 28;
 const ZOOM_MIN = 1.5;
+const ZOOM_MAX = 6;
 
 const SIDE_WORD: Record<Side, string> = { skeptic: "Objector", theist: "Defender", spinoza: "Spinoza" };
 const OBJ_STATUS: Record<Label, string> = { in: "Stands", out: "Answered", undec: "Open" };
@@ -83,17 +93,23 @@ function pane(r0: number, r1: number, a0: number, a1: number): string {
   return `M${pt(a0, r1)}A${r1},${r1} 0 ${large} 1 ${pt(a1, r1)}L${pt(a1, r0)}A${r0},${r0} 0 ${large} 0 ${pt(a0, r0)}Z`;
 }
 
-export function glyphPath(side: Side, x: number, y: number, s: number): string {
-  const f = (v: number) => r2(v);
+/** A side's glyph (▲ ● ◆) centred on (x, y). `rotDeg` turns its corners about that centre
+    (clockwise on screen), so a glyph drawn inside the turned dial can be baked upright. */
+export function glyphPath(side: Side, x: number, y: number, s: number, rotDeg = 0): string {
+  if (side === "theist") {
+    // a circle looks the same at any turn
+    return `M${r2(x - s)},${r2(y)}a${r2(s)},${r2(s)} 0 1,0 ${r2(s * 2)},0a${r2(s)},${r2(s)} 0 1,0 ${r2(-s * 2)},0`;
+  }
+  const rad = (rotDeg * Math.PI) / 180;
+  const cos = Math.cos(rad);
+  const sin = Math.sin(rad);
+  const p = (dx: number, dy: number) => `${r2(x + dx * cos - dy * sin)},${r2(y + dx * sin + dy * cos)}`;
   if (side === "skeptic") {
     const h = s * 1.15;
-    return `M${f(x)},${f(y - h)}L${f(x + h * 0.95)},${f(y + h * 0.62)}L${f(x - h * 0.95)},${f(y + h * 0.62)}Z`;
+    return `M${p(0, -h)}L${p(h * 0.95, h * 0.62)}L${p(-h * 0.95, h * 0.62)}Z`;
   }
-  if (side === "spinoza") {
-    const h = s * 1.25;
-    return `M${f(x)},${f(y - h)}L${f(x + h * 0.8)},${f(y)}L${f(x)},${f(y + h)}L${f(x - h * 0.8)},${f(y)}Z`;
-  }
-  return `M${f(x - s)},${f(y)}a${f(s)},${f(s)} 0 1,0 ${f(s * 2)},0a${f(s)},${f(s)} 0 1,0 ${f(-s * 2)},0`;
+  const h = s * 1.25;
+  return `M${p(0, -h)}L${p(h * 0.8, 0)}L${p(0, h)}L${p(-h * 0.8, 0)}Z`;
 }
 
 /* The sector layout lives in ../layout (no "use client"), so the /debates index can compute
@@ -202,6 +218,62 @@ const PaneView = memo(function PaneView({ id, o, side, label, depth, d, glyph, d
   );
 });
 
+/** One sector's panes, memoised as a group: a zoom, a pick or a hover changes the sector's own
+    classes (outside this) and re-renders only the sector whose glyphs turn upright, never the
+    other four. `sel` is the picked block when it is in this sector. */
+const SectorPanes = memo(function SectorPanes({
+  panes,
+  upright,
+  sel,
+  mini,
+  miniDim,
+  verdicts,
+  labels,
+  judgments,
+  footprint,
+  uid,
+}: {
+  panes: PaneGeom[];
+  upright: number;
+  sel: string | null;
+  mini: boolean;
+  miniDim: boolean;
+  verdicts: boolean;
+  labels: Labelling;
+  judgments: Judgments;
+  footprint?: Set<string>;
+  uid: string;
+}) {
+  return (
+    <>
+      {panes.map((p) => {
+        const showGlyph = !mini && p.arc >= 13;
+        const gs = Math.min(4.4, Math.max(2.4, p.arc / 6.5));
+        return (
+          <PaneView
+            key={p.id}
+            id={p.id}
+            o={p.o}
+            side={p.side}
+            label={verdicts ? (labels.node.get(p.id) ?? "undec") : "undec"}
+            depth={p.depth}
+            d={p.d}
+            glyph={showGlyph ? glyphPath(p.side, p.mid.x, p.mid.y, gs, upright) : ""}
+            dotX={r2(Math.sin(p.mid.a) * (p.r1 - 3.2))}
+            dotY={r2(-Math.cos(p.mid.a) * (p.r1 - 3.2))}
+            mine={!mini && verdicts && !!judgments[p.id]}
+            foot={!!footprint?.has(p.id)}
+            dim={miniDim}
+            sel={sel === p.id}
+            tagged={!mini}
+            uid={uid}
+          />
+        );
+      })}
+    </>
+  );
+});
+
 /* ------------------------------------------------------------------ */
 /* The dial's state                                                     */
 /* ------------------------------------------------------------------ */
@@ -213,8 +285,26 @@ interface DialState {
   sel: string | null;
   /** Cumulative turn in degrees (so the map always turns the short way). */
   turn: number;
+  /** The way the last step went (‹ -1, › 1): the card that follows slides in from that side. */
+  from?: -1 | 1;
 }
 const DIAL0: DialState = { o: null, sel: null, turn: 0 };
+/** What a tap on the dial does: zoom into a slice, pick a block, or zoom out. */
+type DialHit = { kind: "zoom"; o: ObjectionId } | { kind: "pick"; id: string } | { kind: "out" };
+
+/* The dial keeps its place for the session (like Overview's firstVisitDone): open a move from
+   the map, come back, and the same objection, block and card are there. The measured scale is
+   kept too, so the restored zoom is right on the first frame (nothing animates into place). */
+let lastDial: DialState | null = null;
+let lastDialScale: number | null = null;
+let lastDialCrop = 1;
+
+/** While the map turns, and for this long after a tap that zoomed it, map taps are ignored: the
+    map is still moving (or not yet drawn) under the finger, so a quick second tap (impatience, or
+    a double tap on a slice) would pick a block nobody saw. Timed from each tap's pointerdown, whose
+    time stamp is the touch's own even when a busy page handles it late (a click's is taken when it
+    is dispatched). */
+const TAP_SETTLE_MS = 500;
 
 /* ------------------------------------------------------------------ */
 /* Readout and cross-links: the only parts that follow the hover        */
@@ -226,7 +316,16 @@ interface DialProps {
   onStep: (dir: -1 | 1) => void;
   canPrev: boolean;
   canNext: boolean;
+  reduce: boolean;
 }
+
+/** A sideways swipe on the dial's card steps to the next or previous move (the ‹ › buttons do
+    the same). Horizontal only past 1.5× the vertical travel, so scrolling always wins; never from
+    within 24px of the screen's edges (the system's back swipe); commits past 64px or on a flick. */
+const SWIPE_EDGE = 24;
+const SWIPE_LOCK = 10;
+const SWIPE_COMMIT = 64;
+const SWIPE_FLICK = 0.45; // px per ms
 
 function Readout({ hover, focus, onEnter, dial }: { hover: HoverStore; focus: ObjectionId | null; onEnter: (o: ObjectionId) => void; dial?: DialProps }) {
   const { ix, labels, judgments, toPlain } = useAtlas();
@@ -285,12 +384,99 @@ function Readout({ hover, focus, onEnter, dial }: { hover: HoverStore; focus: Ob
   );
 }
 
+/** The tallest dial card seen this session at the card's current width. Every card is at least
+    this tall (on top of a floor in CSS that fits today's content), with its buttons at its foot,
+    so ‹ › never jump up and down under the thumb while the reader steps through the moves. */
+let cardTallest = { w: 0, h: 0 };
+
 /** The dial's caption card: the zoomed objection, or the picked block. */
-function DialCard({ state, onNode, onEnter, onStep, canPrev, canNext }: DialProps & { onEnter: (o: ObjectionId) => void }) {
+function DialCard({ state, onNode, onEnter, onStep, canPrev, canNext, reduce }: DialProps & { onEnter: (o: ObjectionId) => void }) {
   const { ix, labels, judgments, toPlain } = useAtlas();
+  const ref = useRef<HTMLDivElement>(null);
+  // The swipe (see SWIPE_*): touch and pen only. The card follows the finger (not with reduced
+  // motion), gives a little where there is nothing that way, and a swipe never also clicks.
+  const drag = useRef<{ id: number; x: number; y: number; t: number; on: boolean; dx: number } | null>(null);
+  const draggedAt = useRef(-Infinity);
+  const swipe = {
+    onPointerDown: (e: ReactPointerEvent<HTMLDivElement>) => {
+      if (e.pointerType === "mouse" || !e.isPrimary) return;
+      if (e.clientX < SWIPE_EDGE || e.clientX > window.innerWidth - SWIPE_EDGE) return;
+      drag.current = { id: e.pointerId, x: e.clientX, y: e.clientY, t: e.timeStamp, on: false, dx: 0 };
+    },
+    onPointerMove: (e: ReactPointerEvent<HTMLDivElement>) => {
+      const g = drag.current;
+      if (!g || g.id !== e.pointerId) return;
+      const dx = e.clientX - g.x;
+      const dy = e.clientY - g.y;
+      if (!g.on) {
+        if (Math.abs(dy) > SWIPE_LOCK && Math.abs(dy) * 1.5 >= Math.abs(dx)) {
+          drag.current = null; // a scroll
+          return;
+        }
+        if (Math.abs(dx) < SWIPE_LOCK || Math.abs(dx) <= 1.5 * Math.abs(dy)) return;
+        g.on = true;
+        e.currentTarget.setPointerCapture(e.pointerId);
+      }
+      g.dx = dx;
+      if (!reduce) {
+        const room = dx < 0 ? canNext : canPrev;
+        e.currentTarget.style.transition = "none";
+        e.currentTarget.style.transform = `translateX(${r2(room ? dx * 0.85 : dx * 0.22)}px)`;
+      }
+    },
+    onPointerUp: (e: ReactPointerEvent<HTMLDivElement>) => release(e, true),
+    onPointerCancel: (e: ReactPointerEvent<HTMLDivElement>) => release(e, false),
+    onClickCapture: (e: ReactMouseEvent<HTMLDivElement>) => {
+      if (e.timeStamp - draggedAt.current > 400) return;
+      e.preventDefault();
+      e.stopPropagation();
+    },
+  };
+  function release(e: ReactPointerEvent<HTMLDivElement>, up: boolean) {
+    const g = drag.current;
+    drag.current = null;
+    if (!g?.on) return;
+    draggedAt.current = e.timeStamp;
+    const dir = g.dx < 0 ? 1 : -1;
+    const fast = Math.abs(g.dx) / Math.max(1, e.timeStamp - g.t) > SWIPE_FLICK;
+    const go = up && (dir > 0 ? canNext : canPrev) && (Math.abs(g.dx) > SWIPE_COMMIT || fast);
+    const el = e.currentTarget;
+    // springs back unless the step replaces it (the next card slides in from that side)
+    el.style.transition = "";
+    el.style.transform = "";
+    if (go) onStep(dir);
+  }
+  // Measured by a ResizeObserver (after layout, never forcing one while a tap is handled). The
+  // height goes on the figure, so the map's window can make room for the card on a short screen.
+  useEffect(() => {
+    const el = ref.current;
+    const fig = el?.closest<HTMLElement>(".rose");
+    if (!el || !fig) return;
+    const ro = new ResizeObserver(([entry]) => {
+      const box = entry?.borderBoxSize?.[0];
+      const w = box ? box.inlineSize : el.offsetWidth;
+      let h = box ? box.blockSize : el.offsetHeight;
+      if (Math.abs(w - cardTallest.w) > 1) {
+        // a new width (a turned phone): start over from this card's own height
+        if (fig.style.getPropertyValue("--rose-card-h")) {
+          fig.style.removeProperty("--rose-card-h");
+          h = el.offsetHeight;
+        }
+        cardTallest = { w, h: 0 };
+      }
+      cardTallest = { w, h: Math.max(cardTallest.h, h) };
+      // Only once the tallest card outgrows the floor (and on a figure just mounted, coming back
+      // to the map): setting the property restyles everything inside the map.
+      const floor = parseFloat(getComputedStyle(el).minHeight) || 0;
+      if (cardTallest.h > floor + 0.5) fig.style.setProperty("--rose-card-h", `${Math.ceil(cardTallest.h)}px`);
+    });
+    ro.observe(el);
+    return () => ro.disconnect();
+  });
   const info = state.sel ? ix.nodes.get(state.sel) : undefined;
   const o = ix.objections.get(info?.objection ?? state.o!);
   if (!o) return null;
+  const inFrom = state.from === 1 ? "next" : state.from === -1 ? "prev" : undefined;
   const steppers = (
     <span className="rose-steps">
       <button type="button" className="rose-step" aria-label="Previous move" disabled={!canPrev} onClick={() => onStep(-1)}>
@@ -311,7 +497,7 @@ function DialCard({ state, onNode, onEnter, onStep, canPrev, canNext }: DialProp
     const l = labels.node.get(n.id) ?? "undec";
     const call = judgments[n.id];
     return (
-      <div className={`rose-card s-${n.side}`} key={n.id}>
+      <div ref={ref} className={`rose-card s-${n.side}`} key={n.id} data-in={inFrom} {...swipe}>
         <p className="rose-card-k">
           <span className="rose-card-side">
             <Glyph side={n.side} label={l} size={11} />
@@ -322,7 +508,11 @@ function DialCard({ state, onNode, onEnter, onStep, canPrev, canNext }: DialProp
           <StatusBadge label={l} />
         </p>
         <p className={`rose-card-t${l === "out" ? " lab-out" : ""}`}>{toPlain(n.label)}</p>
-        {n.gist?.trim() && <p className="rose-card-g">{toPlain(n.gist)}</p>}
+        {n.gist?.trim() && (
+          <p className="rose-card-g">
+            <RichText text={n.gist} />
+          </p>
+        )}
         {call && <p className="rose-card-call">You said it {call}</p>}
         <div className="rose-card-btns">
           {onNode && (
@@ -338,7 +528,7 @@ function DialCard({ state, onNode, onEnter, onStep, canPrev, canNext }: DialProp
 
   const ol = labels.objection.get(o.id) ?? "undec";
   return (
-    <div className="rose-card is-obj" key={o.id}>
+    <div ref={ref} className="rose-card is-obj" key={o.id} {...swipe}>
       <p className="rose-card-k">
         <span className="rose-card-side">{o.short?.trim() ? `Objection ${o.numeral} · ${o.short.trim()}` : `Objection ${o.numeral}`}</span>
         <span className={`rose-card-ost st-${ol}`}>
@@ -455,17 +645,49 @@ export default function Rose({
   const { d, ix, labels, judgments, toPlain } = useAtlas();
   const [focus, setFocus] = useState<ObjectionId | null>(null);
   const [hover] = useState(createHoverStore);
-  // Rendered px per viewBox unit (bucketed to 0.02), null until measured.
-  const [scale, setScale] = useState<number | null>(null);
-  const [dialState, setDial] = useState<DialState>(DIAL0);
+  // Rendered px per viewBox unit (bucketed to 0.02), null until measured. The dial starts from
+  // its own last measurement this session, so a restored zoom is right on the first frame.
+  const [scale, setScale] = useState<number | null>(() => (dial && !mini ? lastDialScale : null));
+  // The dial comes back where the reader left it this session (see lastDial).
+  const [dialState, setDial] = useState<DialState>(() => {
+    const s = dial && !mini ? lastDial : null;
+    if (!s?.o || !ix.objections.has(s.o)) return DIAL0;
+    // (the card that comes back doesn't slide in from the last step's side)
+    return { ...s, sel: s.sel && ix.nodes.has(s.sel) ? s.sel : null, from: undefined };
+  });
   const reduce = useMediaQuery("(prefers-reduced-motion: reduce)");
   const svgRef = useRef<SVGSVGElement>(null);
   const turnRef = useRef<SVGGElement>(null);
+  const stageRef = useRef<HTMLDivElement>(null);
+  // How much of the square window a short phone shows while zoomed (its height over its width).
+  const [crop, setCrop] = useState(() => (dial && !mini ? lastDialCrop : 1));
   const figRef = useRef<HTMLElement>(null);
   // Unique ids so several Roses (overview, ledger, emblems…) never share pattern ids.
   const uid = "rose" + useId().replace(/[^a-zA-Z0-9_-]/g, "");
   const dialOn = dial && !mini;
   const zoomed = dialOn && dialState.o !== null;
+
+  useEffect(() => {
+    if (dialOn) lastDial = dialState;
+  }, [dialOn, dialState]);
+  useEffect(() => {
+    if (dialOn && scale !== null) lastDialScale = scale;
+  }, [dialOn, scale]);
+  useEffect(() => {
+    if (dialOn) lastDialCrop = crop;
+  }, [dialOn, crop]);
+  // The window's crop is CSS (overview.css); the zoom reads it back so a pick stays inside what shows.
+  useEffect(() => {
+    const st = stageRef.current;
+    if (!dialOn || !st) return;
+    const ro = new ResizeObserver(() => {
+      if (!st.closest(".zoomed") || !st.clientWidth) return;
+      const f = Math.min(1, Math.round((st.clientHeight / st.clientWidth) * 50) / 50);
+      setCrop((c) => (Math.abs(c - f) < 0.02 ? c : f));
+    });
+    ro.observe(st);
+    return () => ro.disconnect();
+  }, [dialOn]);
 
   useEffect(() => {
     if (mini) return;
@@ -539,6 +761,24 @@ export default function Rose({
 
   const order = useMemo(() => new Map(d.objections.map((o) => [o.id, readingOrder(o)] as const)), [d]);
 
+  // The dial's zoom for each objection at the measured scale (see ZOOM_* above), and the outer
+  // edge of the objection's band of rounds.
+  const zooms = useMemo(() => {
+    const sc = scale ?? 0.53;
+    const m = new Map<ObjectionId, { k: number; out: number }>();
+    for (const s of geo.bySector) {
+      const out = Math.min(ZOOM_OUT, geo.ring0 + (geo.depthOf.get(s.o) ?? geo.maxDepth) * geo.ringGap + 8);
+      const fit = VB / (out - ZOOM_IN);
+      const arcs = s.panes.map((p) => p.arc).sort((a, b) => a - b);
+      const median = arcs[Math.floor(arcs.length / 2)] ?? geo.ringGap;
+      const narrowest = arcs[0] ?? geo.ringGap;
+      // At least nine tenths of the window is rounds, so a big screen gets no wide empty margins.
+      const k = Math.max(ZOOM_RING_PX / (geo.ringGap * sc), ZOOM_MEDIAN_PX / (median * sc), ZOOM_NARROW_PX / (narrowest * sc), fit * 0.9);
+      m.set(s.o, { k: r2(clamp(k, ZOOM_MIN, ZOOM_MAX)), out });
+    }
+    return m;
+  }, [geo, scale]);
+
   const links = useMemo<LinkGeom[]>(() => {
     if (mini) return [];
     const out: LinkGeom[] = [];
@@ -567,53 +807,111 @@ export default function Rose({
     tick();
     setDial((s) => ({ o, sel: null, turn: turnFor(s.turn, sectorMid(o)) }));
   };
-  const pick = (id: string) => {
+  const pick = (id: string, from?: -1 | 1) => {
     const p = geo.byId.get(id);
     if (!p) return;
     tick();
-    setDial((s) => ({ o: p.o, sel: id, turn: turnFor(s.turn, p.mid.a) }));
+    setDial((s) => ({ o: p.o, sel: id, turn: turnFor(s.turn, p.mid.a), from }));
   };
   const zoomOut = () => setDial((s) => ({ o: null, sel: null, turn: reduce ? 0 : s.turn + wrap180(-s.turn) }));
   const list = dialState.o ? (order.get(dialState.o) ?? []) : [];
   const at = dialState.sel ? list.indexOf(dialState.sel) : -1;
   const step = (dir: -1 | 1) => {
     const next = list[at + dir];
-    if (next) pick(next);
+    if (next) pick(next, dir);
   };
 
-  // A tap, in client px, on the dial: hit-tested in the turned and zoomed map's own units.
-  const dialTap = (x: number, y: number) => {
-    const g = turnRef.current;
-    const m = g?.getScreenCTM();
-    if (!g || !m) return;
+  // What a tap at (x, y), in client px, would do on the dial. Hit-tested in the turned and
+  // zoomed map's own units, so it always lands on one block (the blocks tile their slice).
+  const dialHit = (x: number, y: number): DialHit | null => {
+    const m = turnRef.current?.getScreenCTM();
+    if (!m) return null;
     const p = new DOMPoint(x, y).matrixTransform(m.inverse());
     const { a, r } = polarOf(p.x, p.y, geo.base);
-    if (!zoomed && r > R_OUT + PAD) return; // the empty corners around the map
+    if (!zoomed && r > R_OUT + PAD) return null; // the empty corners around the map
     const s = sectorAt(geo.sectors, a);
-    if (!s) return;
-    if (!zoomed) return zoomTo(s.o);
-    if (r < HUB_R - 2) return zoomOut();
-    if (r < geo.ring0 - 3 || r > R_OUT + 8) return s.o === dialState.o && !dialState.sel ? undefined : zoomTo(s.o);
+    if (!s) return null;
+    if (!zoomed) return { kind: "zoom", o: s.o };
+    if (r < HUB_R - 2) return { kind: "out" };
+    if (r < geo.ring0 - 3 || r > R_OUT + 8) return s.o === dialState.o && !dialState.sel ? null : { kind: "zoom", o: s.o };
     const hit = nearestPane(geo.bySector.find((x) => x.o === s.o)?.panes ?? [], a, r);
-    if (hit) pick(hit.id);
+    return hit ? { kind: "pick", id: hit.id } : null;
+  };
+  // When (pointerdown time) a tap last zoomed the map, and whether a turn is still running: taps
+  // then are ignored (TAP_SETTLE_MS). Reduced motion has no turn, so quick picks still land there.
+  const zoomedAt = useRef(-Infinity);
+  const turning = useRef(false);
+  useEffect(() => {
+    const g = turnRef.current;
+    if (!dialOn || !g) return;
+    let stuck = 0;
+    const on = (e: TransitionEvent) => {
+      if (e.target !== g || e.propertyName !== "transform") return;
+      turning.current = e.type === "transitionrun";
+      // never stuck on: the turn is 0.6s, so after 1.5s the map takes taps whatever happened
+      window.clearTimeout(stuck);
+      if (turning.current) stuck = window.setTimeout(() => (turning.current = false), 1500);
+    };
+    const types = ["transitionrun", "transitionend", "transitioncancel"] as const;
+    types.forEach((t) => g.addEventListener(t, on));
+    return () => {
+      types.forEach((t) => g.removeEventListener(t, on));
+      window.clearTimeout(stuck);
+    };
+  }, [dialOn]);
+  const settling = (at: number) => turning.current || at - zoomedAt.current < TAP_SETTLE_MS;
+  const dialTap = (x: number, y: number, at: number) => {
+    if (settling(at)) return;
+    const h = dialHit(x, y);
+    if (!h) return;
+    if (h.kind === "pick") return pick(h.id);
+    zoomedAt.current = at;
+    if (h.kind === "zoom") zoomTo(h.o);
+    else zoomOut();
+  };
+  // A finger landing on the dial lights what the tap will take (the slice, or once zoomed the
+  // block) at once, without a render: the class goes on the element itself, and comes off with
+  // the tap's click (which starts the turn), a cancelled touch (a scroll), or soon after a lift.
+  const pressEl = useRef<Element | null>(null);
+  const pressTimer = useRef(0);
+  const unpress = () => {
+    window.clearTimeout(pressTimer.current);
+    pressEl.current?.classList.remove("press");
+    pressEl.current = null;
+  };
+  const pressAt = (x: number, y: number, at: number) => {
+    unpress();
+    const root = svgRef.current;
+    const h = settling(at) ? null : dialHit(x, y);
+    if (!root || !h || h.kind === "out") return;
+    const el = root.querySelector(h.kind === "pick" ? `[data-node-id="${CSS.escape(h.id)}"]` : `[data-sector="${CSS.escape(h.o)}"]`);
+    el?.classList.add("press");
+    pressEl.current = el;
   };
 
-  // Zooming in grows the caption card: keep the map and its card on screen, above the dock.
+  // A dial change can grow the card, or turn a block toward a window edge the reader has
+  // scrolled under the top bar: keep the map's top and its card on screen, above the dock.
+  // Not on the first render (a restored dial keeps the spot the page restored).
+  const seenDial = useRef(dialState);
   useEffect(() => {
+    if (seenDial.current === dialState) return;
+    seenDial.current = dialState;
     if (!zoomed) return;
     const fig = figRef.current;
     if (!fig) return;
     const id = requestAnimationFrame(() => {
       const box = fig.getBoundingClientRect();
-      const dock = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--atl-dock-h")) || 0;
+      // The dock's height even while it is tucked away, since scrolling up brings it back.
+      const dock = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--atl-dock-space")) || 0;
       const bar = document.querySelector<HTMLElement>(".atl .sh-bar")?.getBoundingClientRect().bottom ?? 52;
-      const over = box.bottom - (window.innerHeight - dock - 8);
       const room = box.top - bar - 8;
-      const dy = Math.min(over, room);
-      if (dy > 1) window.scrollBy({ top: dy, behavior: reduce ? "instant" : "smooth" });
+      const over = box.bottom - (window.innerHeight - dock - 8);
+      // the map's top first (that is where a pick turns to), then the card's foot
+      const dy = room < 0 ? room : over > 0 ? Math.min(over, room) : 0;
+      if (Math.abs(dy) > 1) window.scrollBy({ top: dy, behavior: reduce ? "instant" : "smooth" });
     });
     return () => cancelAnimationFrame(id);
-  }, [zoomed, reduce]);
+  }, [dialState, zoomed, reduce]);
 
   // Mouse: hover previews a sector and a click enters. Touch/pen: the first tap previews
   // (the readout offers "Open"), a second tap on the same sector enters. Focus that comes
@@ -641,28 +939,27 @@ export default function Rose({
     scale === null
       ? FS_DEFAULT
       : { legend: clamp(10.5 / scale, 10.5, 17), num: clamp(12.5 / scale, 12, 24), hub: clamp(10.5 / scale, 10, 14.5) };
-  const lab = (id: string): Label => (verdicts ? (labels.node.get(id) ?? "undec") : "undec");
   const objFor = (o: ObjectionId) => d.objections.find((x) => x.id === o)!;
 
-  // The dial's one transform: turn the chosen angle to the top, then zoom on the top band.
+  // The dial's one transform: turn the chosen angle to the top, then zoom on a window along the
+  // top ray (the band of rounds where it fits; else rounds 1 to 4, or the picked block's round).
   // Reduced motion: no turn; pan straight to the picked block (or the slice) instead.
   let turnStyle: CSSProperties | undefined;
   if (dialOn) {
     let t = `translate(0px, 0px) scale(1) rotate(${r2(dialState.turn)}deg)`;
-    if (zoomed) {
-      // The window fits the zoomed objection's own rounds (a shallow one gets no empty rim).
-      const out = Math.min(ZOOM_OUT, geo.ring0 + (geo.depthOf.get(dialState.o!) ?? geo.maxDepth) * geo.ringGap + 8);
-      // At least nine tenths of the window is rounds (no wide empty margins on a big screen),
-      // with rings ~50px deep where the screen is small enough to need it.
-      const fit = VB / (out - ZOOM_IN);
-      const k = r2(clamp(Math.max(ZOOM_RING_PX / (geo.ringGap * (scale ?? 0.53)), fit * 0.9), ZOOM_MIN, fit));
-      const c = (ZOOM_IN + out) / 2;
-      if (!reduce) t = `translate(0px, ${r2(c * k)}px) scale(${k}) rotate(${r2(dialState.turn)}deg)`;
+    const z = zoomed ? zooms.get(dialState.o!) : undefined;
+    if (z) {
+      // half the window's height, in map units (less where a short phone crops it)
+      const half = (VB / (2 * z.k)) * crop;
+      const sp = dialState.sel ? geo.byId.get(dialState.sel) : undefined;
+      // the radius at the window's centre, never past either end of the band
+      const c = 2 * half >= z.out - ZOOM_IN ? (ZOOM_IN + z.out) / 2 : sp ? clamp(sp.mid.r, ZOOM_IN + half, z.out - half) : ZOOM_IN + half;
+      if (!reduce) t = `translate(0px, ${r2(c * z.k)}px) scale(${z.k}) rotate(${r2(dialState.turn)}deg)`;
       else {
-        const sp = dialState.sel ? geo.byId.get(dialState.sel) : undefined;
+        // unturned, the window can't follow a ray: it centres on the picked block itself
         const am = sp ? sp.mid.a : sectorMid(dialState.o!);
         const rm = sp ? sp.mid.r : c;
-        t = `translate(${r2(-Math.sin(am) * rm * k)}px, ${r2(Math.cos(am) * rm * k)}px) scale(${k}) rotate(0deg)`;
+        t = `translate(${r2(-Math.sin(am) * rm * z.k)}px, ${r2(Math.cos(am) * rm * z.k)}px) scale(${z.k}) rotate(0deg)`;
       }
     }
     turnStyle = { transform: t, "--turn": `${r2(dialState.turn)}deg` } as CSSProperties;
@@ -676,6 +973,15 @@ export default function Rose({
       aria-label={mini ? "Map of the five objections" : "One slice per objection. Each ring outward is one more round of replies."}
       onPointerDown={(e) => {
         pressed.current = { type: e.pointerType, at: e.timeStamp };
+        if (dialOn && e.pointerType !== "mouse" && e.isPrimary) pressAt(e.clientX, e.clientY, e.timeStamp);
+      }}
+      onPointerUp={() => {
+        if (!pressEl.current) return;
+        window.clearTimeout(pressTimer.current);
+        pressTimer.current = window.setTimeout(unpress, 400);
+      }}
+      onPointerCancel={() => {
+        if (pressEl.current) unpress();
       }}
       onPointerOver={(e) => {
         if (mini || e.pointerType !== "mouse") return;
@@ -693,7 +999,8 @@ export default function Rose({
         const touch = !!p && p.type !== "mouse" && e.timeStamp - p.at < 1500;
         if (dialOn && touch) {
           pressed.current = null;
-          dialTap(e.clientX, e.clientY);
+          unpress();
+          dialTap(e.clientX, e.clientY, p.at);
           return;
         }
         const el = paneAt(e.target);
@@ -787,35 +1094,26 @@ export default function Rose({
 
         {/* panes, grouped by sector so a preview dims four groups instead of re-rendering every pane */}
         <g className={`rose-panes${mini ? "" : " live"}`}>
-          {geo.bySector.map((sec) => (
-            <g key={sec.o} className={`rose-sec${!mini && active && active !== sec.o ? " dim" : ""}${zoomed && dialState.o === sec.o ? " cur" : ""}`}>
-              {sec.panes.map((p) => {
-                const showGlyph = !mini && p.arc >= 13;
-                const gs = Math.min(4.4, Math.max(2.4, p.arc / 6.5));
-                const mine = !mini && verdicts && !!judgments[p.id];
-                return (
-                  <PaneView
-                    key={p.id}
-                    id={p.id}
-                    o={p.o}
-                    side={p.side}
-                    label={lab(p.id)}
-                    depth={p.depth}
-                    d={p.d}
-                    glyph={showGlyph ? glyphPath(p.side, p.mid.x, p.mid.y, gs) : ""}
-                    dotX={r2(Math.sin(p.mid.a) * (p.r1 - 3.2))}
-                    dotY={r2(-Math.cos(p.mid.a) * (p.r1 - 3.2))}
-                    mine={mine}
-                    foot={!!footprint?.has(p.id)}
-                    dim={mini && !!active && active !== p.o}
-                    sel={zoomed && dialState.sel === p.id}
-                    tagged={!mini}
-                    uid={uid}
-                  />
-                );
-              })}
-            </g>
-          ))}
+          {geo.bySector.map((sec) => {
+            const cur = zoomed && dialState.o === sec.o;
+            return (
+              <g key={sec.o} className={`rose-sec${!mini && active && active !== sec.o ? " dim" : ""}${cur ? " cur" : ""}`}>
+                <SectorPanes
+                  panes={sec.panes}
+                  // the zoomed slice's glyphs come to rest upright: the turn is baked into their paths
+                  upright={cur ? -dialState.turn : 0}
+                  sel={cur ? dialState.sel : null}
+                  mini={mini}
+                  miniDim={mini && !!active && active !== sec.o}
+                  verdicts={verdicts}
+                  labels={labels}
+                  judgments={judgments}
+                  footprint={footprint}
+                  uid={uid}
+                />
+              </g>
+            );
+          })}
         </g>
 
         {/* cross-objection links */}
@@ -906,7 +1204,7 @@ export default function Rose({
       }}
     >
       {dialOn ? (
-        <div className="rose-stage">
+        <div ref={stageRef} className="rose-stage">
           {svg}
           {zoomed && (
             <button type="button" className="rose-back" onClick={zoomOut}>
@@ -927,7 +1225,7 @@ export default function Rose({
           hover={hover}
           focus={focus}
           onEnter={onEnter}
-          dial={dialOn ? { state: dialState, onNode, onStep: step, canPrev: at > 0, canNext: at < list.length - 1 } : undefined}
+          dial={dialOn ? { state: dialState, onNode, onStep: step, canPrev: at > 0, canNext: at < list.length - 1, reduce } : undefined}
         />
       )}
     </figure>

@@ -497,7 +497,7 @@ html[data-atl-calls] .atl .ov-resume-slot:empty {
   overflow: hidden;
   text-overflow: ellipsis;
 }
-@media (min-width: 640px) and (max-width: 859.98px), (min-width: 1200px) {
+@media (min-width: 640px) and (max-width: 859.98px), (min-width: 1200px), (orientation: landscape) and (max-height: 500px) and (min-width: 860px) and (max-width: 1023.98px) {
   html[data-atl-calls] .atl .ov-resume-slot:empty,
   .atl .ov-resume {
     height: 100px;
@@ -894,11 +894,12 @@ html[data-atl-calls] .atl .ov-resume-slot:empty {
   stroke-dasharray: 1.5 3;
 }
 
-/* ---------- below 860px: one column in reading order ----------
+/* ---------- below 860px (and on a phone on its side): one column in reading order ----------
    What this is → (last time) → where to start → the epigraph → the map and its key → how it
    works → who's talking. The left column's pieces join the hero grid so they can interleave
-   with the map. */
-@media (max-width: 859.98px) {
+   with the map. A big phone on its side (932×430, say) is wider than 860px but far too short
+   for two columns: it gets this layout, with the map and its card side by side (below). */
+@media (max-width: 859.98px), (orientation: landscape) and (max-height: 500px) and (max-width: 1023.98px) {
   .atl .ov-left {
     display: contents;
   }
@@ -1005,8 +1006,9 @@ html[data-atl-calls] .atl .ov-resume-slot:empty {
   }
 }
 
-/* ---------- ≥ 860px: hero in two columns, title stepped across both, the Rose under "Down" ---------- */
-@media (min-width: 860px) {
+/* ---------- ≥ 860px: hero in two columns, title stepped across both, the Rose under "Down" ----------
+   (not on a phone on its side: those keep one column, above) */
+@media (min-width: 1024px), (min-width: 860px) and (min-height: 500.02px) {
   .atl .ov-grid {
     grid-template-columns: var(--ov-cols);
     column-gap: var(--ov-gap);
@@ -1081,7 +1083,7 @@ html[data-atl-calls] .atl .ov-resume-slot:empty {
 /* ≥ 860px: the Rose and its readout fit the first screen (at 1440×900 the Rose starts near
    y 380), but never below 420px, where the ring legends would fall back to numerals. The
    readout puts "Open" beside the kicker to stay short. */
-@media (min-width: 860px) {
+@media (min-width: 1024px), (min-width: 860px) and (min-height: 500.02px) {
   .atl .ov-rose svg,
   .atl .ov-rose .rose-stage {
     max-width: clamp(420px, calc(100vh - 500px), 640px);
@@ -1117,7 +1119,7 @@ html[data-atl-calls] .atl .ov-resume-slot:empty {
     grid-column: 1 / -1;
   }
 }
-@media (min-width: 860px) and (max-width: 1199.98px) {
+@media (min-width: 1024px) and (max-width: 1199.98px), (min-width: 860px) and (max-width: 1199.98px) and (min-height: 500.02px) {
   /* the left column is narrow here: name above description */
   .atl .ov-persona {
     grid-template-columns: 28px minmax(0, 1fr);
@@ -1505,11 +1507,11 @@ html[data-atl-calls] .atl .ov-resume-slot:empty {
   }
 }
 
-/* ---------- phones: how it works folds into three rows ---------- */
+/* ---------- phones (upright or on their side): how it works folds into three rows ---------- */
 .atl .ov-step-tog {
   display: none;
 }
-@media (max-width: 720px) {
+@media (max-width: 720px), (orientation: landscape) and (max-height: 500px) and (max-width: 1023.98px) {
   .atl .ov-how {
     margin-top: 44px;
   }
@@ -1594,11 +1596,11 @@ html[data-atl-calls] .atl .ov-resume-slot:empty {
   }
 }
 
-/* ---------- phones: who's talking is four tiles and one voice ---------- */
+/* ---------- phones (upright or on their side): who's talking is four tiles and one voice ---------- */
 .atl .ov-voices {
   display: none;
 }
-@media (max-width: 720px) {
+@media (max-width: 720px), (orientation: landscape) and (max-height: 500px) and (max-width: 1023.98px) {
   .atl .ov-cast {
     margin-top: 44px;
   }
@@ -1640,6 +1642,7 @@ html[data-atl-calls] .atl .ov-resume-slot:empty {
   }
   .atl .ov-voice .ov-tile {
     grid-row: auto;
+    align-self: center;
     margin: 0;
   }
   .atl .ov-voice-ind {
@@ -1720,15 +1723,41 @@ html[data-atl-dock="hidden"] .atl .ov-you-dock {
    The dial (Rose `dial`; here because atlas.css belongs to the shell). Touch only:
    a tap turns a slice to the top and zooms in, the next taps pick blocks.
    ========================================================================== */
+.atl .rose.dial {
+  /* the caption card's height floor (see the card below): the tallest card at 360 to 412 */
+  --rose-card-floor: 17.5rem;
+}
+@media (min-width: 420px) {
+  .atl .rose.dial {
+    --rose-card-floor: 15.75rem;
+  }
+}
+@media (min-width: 721px) {
+  .atl .rose.dial {
+    --rose-card-floor: 14.5rem;
+  }
+}
 .atl .rose.dial .rose-stage {
   position: relative;
   width: 100%;
+  aspect-ratio: 1;
   border-radius: 24px;
   overflow: hidden;
 }
+/* the map sits centred in its window (margin-top: -50% is half the svg's own height, a square) */
 .atl .rose.dial .rose-stage > svg {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  margin-top: -50%;
   display: block;
   overflow: hidden;
+}
+/* A short phone (an iPhone SE, say) can't show the whole map window, its card and the dock at
+   once: while zoomed, the window gives up its top and bottom edges (the pick is at its centre)
+   so the card's buttons stay clear of the dock. Taller phones never reach this. */
+.atl .rose.dial.zoomed .rose-stage {
+  max-height: calc(100svh - var(--bar-total, 52px) - var(--atl-dock-space, 0px) - 26px - max(var(--rose-card-floor), var(--rose-card-h, 0px)));
 }
 /* atlas.css sizes every svg in a Rose to the map's width: icons in the card and chip keep theirs */
 .atl .rose.dial .rose-readout svg,
@@ -1774,22 +1803,12 @@ html[data-atl-dock="hidden"] .atl .ov-you-dock {
     opacity 0.3s var(--ease),
     fill 0.2s;
 }
-/* the zoomed slice's glyphs keep their shape upright too (a turned ◆ would read as the
-   reader's ■). Only that slice's: the rest sit dimmed at the window's edges, and turning
-   every glyph costs a phone too much on each frame. */
-.atl .rose.dial .rose-glyph {
-  transform-box: fill-box;
-  transform-origin: center;
-  transition:
-    transform 0.6s var(--ease),
-    opacity 0.25s;
-}
-.atl .rose.dial .rose-sec.cur .rose-glyph {
-  transform: rotate(calc(var(--turn, 0deg) * -1));
-}
-/* the other slices' glyphs (turned with the map) step aside while zoomed */
+/* The zoomed slice's glyphs come to rest upright (a turned ◆ would read as the reader's ■).
+   Rose.tsx bakes the turn into their path data, once per pick, so no glyph animates on its own:
+   a transform or a fade on each glyph stalled a phone's first frame of the turn. The other
+   slices' glyphs, turned with the map, step aside at once while zoomed. */
 .atl .rose.dial.zoomed .rose-sec:not(.cur) .rose-glyph {
-  opacity: 0;
+  visibility: hidden;
 }
 .atl .rose.dial.zoomed .rose-label,
 .atl .rose.dial.zoomed .rose-objtext,
@@ -1825,6 +1844,24 @@ html[data-atl-dock="hidden"] .atl .ov-you-dock {
     stroke-width: 1.6;
     stroke-opacity: 1;
   }
+}
+/* A finger on the dial: what the tap will take lights up at once, before the turn starts.
+   Before zooming that is the slice (its hit area, under the blocks: a soft wash and a rim in
+   the gaps around it); once zoomed, the block. */
+.atl .rose.dial .rose-sector.press {
+  fill: #ebe5d612;
+  stroke: var(--bone-2);
+  stroke-opacity: 0.55;
+  stroke-width: 1.5;
+  vector-effect: non-scaling-stroke;
+}
+.atl .rose.dial .rose-pane.press .rose-glass {
+  stroke: var(--bone);
+  stroke-opacity: 1;
+  transition: none;
+}
+.atl .rose.dial .rose-pane.press:not(.st-in) .rose-glass {
+  fill-opacity: 0.38;
 }
 
 /* "Zoom out", over the zoomed map's top-left corner */
@@ -1872,7 +1909,9 @@ html[data-atl-dock="hidden"] .atl .ov-you-dock {
   }
 }
 
-/* the caption card: the zoomed objection, or the picked block */
+/* the caption card: the zoomed objection, or the picked block. Its height holds steady while
+   the reader steps through the moves (a floor that fits today's content, raised by Rose.tsx to
+   the tallest card seen), with the buttons at its foot, so ‹ › never move under the thumb. */
 .atl .rose-dialcap {
   width: 100%;
 }
@@ -1882,6 +1921,7 @@ html[data-atl-dock="hidden"] .atl .ov-you-dock {
 .atl .rose-card {
   pointer-events: auto;
   width: 100%;
+  min-height: max(var(--rose-card-floor, 0px), var(--rose-card-h, 0px));
   display: flex;
   flex-direction: column;
   gap: 6px;
@@ -1897,6 +1937,39 @@ html[data-atl-dock="hidden"] .atl .ov-you-dock {
   from {
     opacity: 0;
     translate: 0 5px;
+  }
+  to {
+    opacity: 1;
+    translate: 0 0;
+  }
+}
+/* A sideways swipe on the card steps through the moves (Rose.tsx DialCard): the card follows the
+   finger and springs back, vertical pans still scroll the page, and the next card slides in from
+   the side the step went (› or a swipe left: from the right). */
+.atl .rose-dialcap .rose-card {
+  touch-action: pan-y pinch-zoom;
+  transition: transform 0.3s var(--ease);
+}
+.atl .rose-card[data-in="next"] {
+  animation-name: rose-card-next;
+}
+.atl .rose-card[data-in="prev"] {
+  animation-name: rose-card-prev;
+}
+@keyframes rose-card-next {
+  from {
+    opacity: 0;
+    translate: 28px 0;
+  }
+  to {
+    opacity: 1;
+    translate: 0 0;
+  }
+}
+@keyframes rose-card-prev {
+  from {
+    opacity: 0;
+    translate: -28px 0;
   }
   to {
     opacity: 1;
@@ -1954,6 +2027,12 @@ html[data-atl-dock="hidden"] .atl .ov-you-dock {
   line-height: 1.5;
   color: var(--bone-2);
   text-wrap: pretty;
+  /* a bound for the card's height; every summary written so far fits ("Open this move" has it all) */
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 5;
+  line-clamp: 5;
+  overflow: hidden;
 }
 .atl .rose-card-q {
   font-family: var(--serif);
@@ -1985,11 +2064,13 @@ html[data-atl-dock="hidden"] .atl .ov-you-dock {
   display: flex;
   align-items: center;
   gap: 8px;
-  margin-top: 6px;
+  margin-top: auto;
+  padding-top: 6px;
 }
-.atl .rose-card-go {
+/* the card's main action is 48px tall (atlas.css gives the readout's buttons 44px on touch) */
+.atl .rose-card .rose-card-go.btn {
   flex: 1 1 auto;
-  min-height: 44px;
+  min-height: 48px;
   padding: 0 14px;
 }
 .atl .rose-steps {
@@ -2053,6 +2134,19 @@ html[data-atl-dock="hidden"] .atl .ov-you-dock {
     width: calc(100svh - var(--bar-total, 52px) - 32px);
     max-width: 360px;
   }
+  /* the card sits beside the window here: the window keeps its full height */
+  .atl .ov-rose.dial {
+    --rose-card-floor: 15.75rem;
+  }
+  @media (max-width: 739.98px) {
+    /* a small phone on its side leaves the card a narrow column */
+    .atl .ov-rose.dial {
+      --rose-card-floor: 19.75rem;
+    }
+  }
+  .atl .ov-rose.dial.zoomed .rose-stage {
+    max-height: none;
+  }
   .atl .ov-rose.dial .rose-readout {
     flex: 1 1 0;
     min-width: 0;
@@ -2060,9 +2154,17 @@ html[data-atl-dock="hidden"] .atl .ov-you-dock {
     min-height: 0;
     margin-top: 0;
   }
-  /* deck cards turn sideways: numeral and fan on the left, words on the right */
+}
+
+/* ---------- tablets, and phones on their side: a deck of wide cards ----------
+   The cards turn sideways (numeral and fan on the left, words on the right) and are wide enough
+   that one shows with the next peeking in, as on a phone, so every swipe moves one card. The deck
+   ends with the last card at the right-hand gutter: no empty half-screen after it (a row of
+   two cards side by side would leave the last steps of the dots stuck or tiny). */
+@media (min-width: 721px) and (max-width: 1023.98px), (orientation: landscape) and (max-height: 500px) and (max-width: 1023.98px) {
   .atl .ov-posters {
     --deck-card: min(80vw, 600px);
+    padding-inline-end: var(--gutter);
   }
   .atl .ov-poster article {
     grid-template-columns: 136px minmax(0, 1fr);

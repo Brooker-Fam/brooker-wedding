@@ -2962,9 +2962,14 @@
     align-items: center;
     min-height: 44px;
   }
-  /* a source title keeps its arrow in the text flow, so it only grows to 44px */
+  /* a source title keeps its arrow in the text flow, so it only grows to 44px (a short one, such
+     as "Hell ↗", also grows to 44px wide) */
   .atl .ch a.rf-title {
     min-height: 44px;
+    min-width: 44px;
+  }
+  .atl .ch-chair-src a {
+    min-width: 44px;
   }
   .atl .ch-answers-link {
     min-width: 44px;
@@ -3463,7 +3468,8 @@
     height: var(--ch-loc-h);
     padding: 0 max(var(--gutter), env(safe-area-inset-right)) 0 max(var(--gutter), env(safe-area-inset-left));
     --faint: #9895a2;
-    background: rgba(23, 25, 34, 0.88);
+    /* nearly opaque, like the top bar: the blur can't reach the thread that follows it in the DOM */
+    background: rgba(23, 25, 34, 0.96);
     -webkit-backdrop-filter: blur(14px) saturate(1.25);
     backdrop-filter: blur(14px) saturate(1.25);
     border-bottom: 1px solid var(--line-soft);

@@ -42,9 +42,10 @@ html[data-atl-tab]:has(.atl) {
   }
 }
 /* Anything scrolled into view (a focused control, a scrollIntoView target) stops above the
-   dock while it shows (the Dock publishes --atl-dock-h; 0px when it is tucked away or absent). */
+   dock's space, whether or not the dock is tucked at that moment. This must not change as the dock
+   tucks: any style change on <html> restyles the whole page (600ms on a slowed phone CPU). */
 html:has(.atl) {
-  scroll-padding-bottom: var(--atl-dock-h, 0px);
+  scroll-padding-bottom: var(--atl-dock-space, 0px);
 }
 
 /* Deep links: hidden until the client has switched to the linked view (see Shell). The
@@ -88,7 +89,7 @@ html[data-atl-deep] .atl::after {
 /* While a toast is up and the reader is tabbing, a control focused near the bottom lands
    above the toast, not behind it (toast.tsx publishes --toast-h; the toast sits above the dock). */
 html[data-atl-tab]:has(.atl .toast) {
-  scroll-padding-bottom: calc(var(--toast-h, 96px) + 16px + 16px + max(var(--atl-dock-h, 0px), env(safe-area-inset-bottom)));
+  scroll-padding-bottom: calc(var(--toast-h, 96px) + 16px + 16px + max(var(--atl-dock-space, 0px), env(safe-area-inset-bottom)));
 }
 /* …and the page's last links (the footer) can scroll up above it too */
 html[data-atl-tab]:has(.atl .toast) .atl .sh-foot {
@@ -101,7 +102,9 @@ html[data-atl-tab]:has(.atl .toast) .atl .sh-foot {
   top: 0;
   z-index: 80;
   padding-top: env(safe-area-inset-top);
-  background: rgba(23, 25, 34, 0.82);
+  /* Nearly opaque: Chromium's backdrop blur doesn't reach content that comes after the bar in the
+     DOM (all of main), so a lighter tint let scrolled text read through it. */
+  background: rgba(23, 25, 34, 0.95);
   -webkit-backdrop-filter: blur(14px) saturate(1.25);
   backdrop-filter: blur(14px) saturate(1.25);
   border-bottom: 1px solid var(--line-soft);
@@ -963,7 +966,7 @@ html[data-atl-tab]:has(.atl .toast) .atl .sh-foot {
 /* the objection's short name, shown above the ribbon for a moment after a switch (Shell Dock) */
 .atl .sh-ribbon-tag {
   position: absolute;
-  bottom: calc(100% + 10px);
+  bottom: calc(100% + 7px);
   left: 50%;
   translate: -50% 0;
   padding: 6px calc(11px - 0.16em) 5px 11px;

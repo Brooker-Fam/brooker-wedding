@@ -489,7 +489,7 @@ function Locator({ o, focusId, path }: { o: Objection; focusId: string; path: st
         return;
       }
       const t = el.getBoundingClientRect();
-      const dock = parseFloat(document.documentElement.style.getPropertyValue("--atl-dock-h")) || 0;
+      const dock = Number(document.documentElement.getAttribute("data-atl-dock-px")) || 0;
       setOff(t.bottom < top + h + 12 ? "up" : t.top > window.innerHeight - dock - 12 ? "down" : null);
     };
     const on = () => {

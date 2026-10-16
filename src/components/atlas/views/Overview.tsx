@@ -157,8 +157,8 @@ function Echo({ reveal }: { reveal: boolean }) {
           <span className="ov-nw">I, q. 2, a. 3, obj. 2</span> · <span className="ov-nw">1265–68</span>
         </span>
         <span className="ov-echo-line">
-          In a medieval disputation, the teacher opened each question with the arguments against his own answer. Aquinas wrote this objection against
-          himself in the <cite>Summa</cite>.{" "}
+          In a medieval disputation, the teacher opened each question with the arguments against his own answer. <RichText text="{{aquinas|Aquinas}}" /> wrote
+          this objection against himself in the <cite>Summa</cite>.{" "}
           <span className="ov-echo-reply" id={replyId}>
             He replied, “Since nature works for a determinate end under the direction of a higher agent, whatever is done by nature must needs be traced
             back to God, as to its first cause.”
@@ -235,9 +235,13 @@ function Personae() {
             <span className="ov-pname">The Objector</span>
           </dt>
           <dd>
+            {/* first mentions link to People and the Glossary (the dialogue's title stays in italics) */}
             <span className="ov-pdesc">
-              Gives five reasons not to believe in the God of Christianity. He draws on Plato’s <cite>Euthyphro</cite>, Hume, Nietzsche and J. L.
-              Schellenberg, among others.
+              <RichText text="Gives five reasons not to believe in the God of Christianity. He draws on {{plato|Plato}}’s" />{" "}
+              <cite>
+                <RichText text="[[euthyphro-dilemma|Euthyphro]]" />
+              </cite>
+              <RichText text={", {{hume|Hume}}, {{nietzsche|Nietzsche}} and {{schellenberg|J.\u00a0L.\u00a0Schellenberg}}, among others."} />
             </span>
             <PersonaQuote text="A wise man, therefore, proportions his belief to the evidence." cite="Hume, Enquiry Concerning Human Understanding, sect. X (1748)" />
           </dd>
@@ -249,9 +253,7 @@ function Personae() {
           </dt>
           <dd>
             <span className="ov-pdesc">
-              Answers for Christianity, often from classical theism, the tradition of Augustine and Aquinas, which treats God as the source of everything
-              that exists and not as one more being. David Bentley Hart defends it today. The Defender also draws on modern Christian thinkers such as the philosopher
-              Alvin Plantinga and the New Testament scholar N. T. Wright.
+              <RichText text={"Answers for Christianity, often from [[classical-theism|classical theism]], the tradition of {{augustine|Augustine}} and {{aquinas|Aquinas}}, which treats God as the source of everything that exists and not as one more being. {{hart|David Bentley Hart}} defends it today. The Defender also draws on modern Christian thinkers such as the philosopher {{plantinga|Alvin Plantinga}} and the New Testament scholar {{wright-nt|N.\u00a0T.\u00a0Wright}}."} />
             </span>
             <PersonaQuote
               text="[God] is not one more object in the inventory of things that are."

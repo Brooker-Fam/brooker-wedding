@@ -576,12 +576,15 @@ function MobileSheet({ id, onClose, menuBtn }: { id: string; onClose: (refocus: 
 /* The thumb dock (phones and tablets held upright)                     */
 /* ------------------------------------------------------------------ */
 
-/* Contract with the views (the pass's shared brief): the dock keeps --atl-dock-h on <html> at its
-   visible height including the bottom safe area, 0px whenever it is tucked away, hidden or absent
-   (desktop, a phone on its side, the walk), and sets html[data-atl-dock="shown|hidden|off"].
-   Anything else fixed to the bottom sits at bottom: calc(var(--atl-dock-h, 0px) + …).
-   --atl-dock-space is the same height whether shown or tucked (0px when off): page bottoms pad
-   with it, so the page's length never changes as the dock comes and goes. */
+/* Contract with the views: the dock sets html[data-atl-dock="shown|hidden|off"] ("off" on desktop,
+   on a phone held sideways and in the walk) and keeps --atl-dock-space on <html> at its height
+   including the bottom safe area, the same whether shown or tucked (0px when off). Page bottoms pad
+   with --atl-dock-space, so the page's length never changes as the dock comes and goes; anything
+   fixed to the bottom sits above it with html[data-atl-dock="shown"] rules. Scripts read the
+   visible height from html[data-atl-dock-px] (0 when tucked or off).
+   Tucking must never change a style on <html> itself (a custom property, or a rule whose subject
+   is html[data-atl-dock]): Chromium then restyles every element on the page, 100–600ms per tuck on
+   a slowed phone CPU. Rules like html[data-atl-dock="shown"] .x restyle only what they match. */
 
 type DockState = "shown" | "tucked" | "away" | "off";
 
@@ -765,9 +768,11 @@ function Dock() {
       const on = state !== "off" && !!el && mq.matches && el.offsetHeight > 0;
       // The pill on tablets floats above the bottom edge: its gap counts as height too.
       const h = on && el ? Math.round(el.offsetHeight + (parseFloat(getComputedStyle(el).bottom) || 0)) : 0;
-      root.style.setProperty("--atl-dock-space", `${h}px`);
-      root.style.setProperty("--atl-dock-h", `${state === "shown" ? h : 0}px`);
-      root.setAttribute("data-atl-dock", !on ? "off" : state === "shown" ? "shown" : "hidden");
+      const space = `${h}px`;
+      if (root.style.getPropertyValue("--atl-dock-space") !== space) root.style.setProperty("--atl-dock-space", space);
+      const set = (k: string, v: string) => root.getAttribute(k) !== v && root.setAttribute(k, v);
+      set("data-atl-dock-px", String(on && state === "shown" ? h : 0));
+      set("data-atl-dock", !on ? "off" : state === "shown" ? "shown" : "hidden");
     };
     apply();
     const ro = el ? new ResizeObserver(apply) : null;
@@ -781,8 +786,8 @@ function Dock() {
   useEffect(
     () => () => {
       const root = document.documentElement;
-      root.style.removeProperty("--atl-dock-h");
       root.style.removeProperty("--atl-dock-space");
+      root.removeAttribute("data-atl-dock-px");
       root.removeAttribute("data-atl-dock");
     },
     [],

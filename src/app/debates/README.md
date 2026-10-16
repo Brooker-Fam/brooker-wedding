@@ -84,6 +84,26 @@ text. Inline markup: `*italic*`, `[[term|text]]`, `{{thinker|text}}`,
 `((node-id|text))`. Thinkers and timeline moments can carry an optional `quote`
 (checked like any other); the card that opens from a person's name shows theirs.
 
+**First mentions.** Readers arrive anywhere: a move's plain-terms line read on its
+own in *Step through it*, a timeline entry, a bio, a definition. So in each of
+those units the first mention of a person, text or idea is a link
+(`{{thinker}}`, `[[term]]`) or a tag of a few words ("a French priest"), or it
+gets cut if it doesn't carry the point. Links render in every prose field: gists,
+bodies, `cedes`, the objection summaries, timeline text, bios and definitions.
+Labels, titles and questions stay plain text (the content validator checks both).
+
+**On phones** (720px and narrower) a dock along the bottom holds the map, the
+five objections and *Where you stand*, and tucks away while you scroll down. It
+publishes `html[data-atl-dock="shown|hidden|off"]`, `--atl-dock-space` (its
+height, the same whether shown or tucked) and `data-atl-dock-px` (its visible
+height, for scripts). Anything fixed to the bottom sits above it with
+`html[data-atl-dock="shown"] …` rules. Never change a style on `<html>` itself
+when the dock tucks (a custom property, or a rule whose subject is
+`html[data-atl-dock]`): Chromium then restyles the whole page, which cost up to
+600ms per tuck on a slowed phone. Swipes are shortcuts only: every swipe (the
+walk's card deck, sibling replies in a chamber, the map card) has a button that
+does the same thing, and none starts within 24px of a screen edge.
+
 **Adding another disputation.** Write a new `Disputation` object (objections,
 thinkers, terms, moments) in its own content folder, give it a route like this
 one that renders `<Atlas d={…} />`, and add a card to the index. Objection ids are
