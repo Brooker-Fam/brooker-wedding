@@ -12,44 +12,90 @@
    Phone / tablet: the file opens in place, under the row of the name you tapped. */
 
 import "./library.css";
-import { Fragment, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type MouseEvent } from "react";
+import { Fragment, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type KeyboardEvent, type MouseEvent } from "react";
 import { useAtlas } from "../context";
 import { initials } from "../peek";
-import { Glyph } from "../primitives";
+import { Glyph, RichText } from "../primitives";
 import { formatRoute } from "../router";
+import type { DisputationIndex } from "../semantics";
 import type { ObjectionId, Quote, Side, Thinker } from "../types";
 import { ERAS, FootprintBlock, LibEmpty, LibHead, LibTabs, eraOf, fold, scrollBehavior, spokenBy, useMedia, yearText } from "./Outline";
 import { QuoteFigure } from "./OutlineList";
 import { SourceList } from "./Sources";
 
 type TSide = Side | "neutral";
-type SideFilter = "all" | TSide;
+/** Which side uses a person's work here: worked out from the moves that name them, never from their own `side`. */
+type Use = "skeptic" | "theist" | "both" | "spinoza" | "neutral";
+type UseFilter = "all" | Use;
 
-/** A thinker's side is the role their work plays in these arguments. It says nothing about what they believed. */
-const LEAN: Record<TSide, string> = {
+/* A person's mark says which side uses their work in these arguments, from the moves that name them (and the moves
+   their timeline events go with). It says nothing about what they believed, and neither does their card's colour. */
+const USE: Record<Use, string> = {
   skeptic: "Used by the Objector",
   theist: "Used by the Defender",
-  spinoza: "Spinoza’s view",
+  both: "Used by both sides",
+  spinoza: "Spinoza",
   neutral: "Background",
 };
-const LEAN_NOTE: Record<TSide, string> = {
-  skeptic: "Their arguments support the objections.",
-  theist: "Their arguments help answer the objections.",
-  spinoza: "Spinoza held that God is Nature itself and acts from necessity, with no choosing will and no purpose. Later thinkers who take up his ideas get the same mark.",
-  neutral: "Cited by both sides, or named for historical context.",
+const USE_NOTE: Record<Use, string> = {
+  skeptic: "Named only on the Objector’s side, in a move or a timeline event tied to one. Their work supports the objections.",
+  theist: "Named only on the Defender’s side, in a move or a timeline event tied to one. Their work helps answer the objections.",
+  both: "Named in moves on both sides. Often one side builds on their work and the other replies to it.",
+  spinoza: "Spinoza himself, who held that God is Nature itself and acts from necessity, with no choosing will and no purpose. Anyone named only where he speaks gets the same mark.",
+  neutral: "Not tied to any move. They’re here for the history, on the timeline.",
 };
-const FILTERS: TSide[] = ["skeptic", "theist", "spinoza", "neutral"];
-const sideOf = (t: Thinker): TSide => (t.side && t.side in LEAN ? t.side : "neutral");
+const FILTERS: Use[] = ["skeptic", "theist", "both", "spinoza", "neutral"];
 
-function SideMark({ side, size = 10 }: { side: TSide; size?: number }) {
-  if (side === "neutral") {
+/** The one rule for a person's mark (filters, counts, roundel badges, card colours, the file and the legend all use it):
+    Objector moves only → the Objector; Defender moves only → the Defender; both → both sides; Spinoza himself, or
+    named only where Spinoza speaks → Spinoza; no move names them → Background. A timeline event of theirs that goes
+    with a move counts as that move (so the Timeline's "Go to the move" and this mark agree). */
+function usageOf(ix: DisputationIndex, t: Thinker): Use {
+  if (t.id === "spinoza") return "spinoza";
+  const sides = new Set<Side>();
+  for (const id of ix.thinkerRefs.get(t.id) ?? []) {
+    const s = ix.nodes.get(id)?.node.side;
+    if (s) sides.add(s);
+  }
+  for (const m of ix.moments.values()) {
+    if (m.thinker !== t.id || !m.node) continue;
+    const s = ix.nodes.get(m.node)?.node.side;
+    if (s) sides.add(s);
+  }
+  if (sides.has("skeptic") && sides.has("theist")) return "both";
+  if (sides.has("skeptic")) return "skeptic";
+  if (sides.has("theist")) return "theist";
+  if (sides.has("spinoza")) return "spinoza";
+  return "neutral";
+}
+/** The mark's words for one person: Spinoza's own file says "Spinoza"; others with his mark are named where he speaks. */
+const useWord = (t: Thinker, u: Use) => (u === "spinoza" && t.id !== "spinoza" ? "Used where Spinoza speaks" : USE[u]);
+/** The card's colour follows the mark (which side uses their work here), never what they believed: one side's
+    colour for one side only, bone for both sides and for background figures. */
+const tint = (u: Use): TSide => (u === "skeptic" || u === "theist" || u === "spinoza" ? u : "neutral");
+
+function SideMark({ use, size = 10 }: { use: Use; size?: number }) {
+  if (use === "neutral") {
+    // a short dash: not the ■ that marks the reader, nor the dotted empty chair
     return (
-      <svg className="glyph-svg ca-neutral" width={size} height={size} viewBox={`0 0 ${size} ${size}`} aria-hidden>
-        <rect x={size * 0.15} y={size * 0.15} width={size * 0.7} height={size * 0.7} />
+      <svg className="glyph-svg ca-mark s-neutral" width={size} height={size} viewBox={`0 0 ${size} ${size}`} aria-hidden>
+        <path d={`M${size * 0.2},${size / 2}H${size * 0.8}`} />
       </svg>
     );
   }
-  return <Glyph side={side} size={size} />;
+  if (use === "both") {
+    // ▲ and ● side by side, each in its own side's colour
+    const h = size * 0.92;
+    const w = h * 2 + size * 0.18;
+    const c = h + size * 0.18 + h / 2;
+    return (
+      <svg className="glyph-svg ca-mark ca-both" width={w} height={size} viewBox={`0 0 ${w} ${size}`} aria-hidden>
+        <path className="s-skeptic" d={`M${h / 2},${size * 0.1}L${h * 0.97},${size * 0.88}L${h * 0.03},${size * 0.88}Z`} />
+        <circle className="s-theist" cx={c} cy={size / 2} r={h * 0.4} />
+      </svg>
+    );
+  }
+  return <Glyph side={use} size={size} className="ca-mark" />;
 }
 
 /** The quotation's speaker is just this person's name (so the file needn't repeat it under the quote). */
@@ -65,19 +111,20 @@ const plainClick = (e: MouseEvent) => e.button === 0 && !e.metaKey && !e.ctrlKey
 export default function Cast({ thinker }: { thinker?: string }) {
   const { d, ix, go } = useAtlas();
   const wide = useMedia("(min-width: 980px)");
-  const [side, setSide] = useState<SideFilter>("all");
+  const [side, setSide] = useState<UseFilter>("all");
   const [q, setQ] = useState("");
 
   const all = useMemo(() => [...d.thinkers].sort((a, b) => a.year - b.year || a.name.localeCompare(b.name)), [d]);
+  const uses = useMemo(() => new Map(all.map((t) => [t.id, usageOf(ix, t)])), [all, ix]);
   const counts = useMemo(() => {
-    const c: Record<TSide, number> = { skeptic: 0, theist: 0, spinoza: 0, neutral: 0 };
-    for (const t of all) c[sideOf(t)]++;
+    const c: Record<Use, number> = { skeptic: 0, theist: 0, both: 0, spinoza: 0, neutral: 0 };
+    for (const t of all) c[uses.get(t.id) ?? "neutral"]++;
     return c;
-  }, [all]);
+  }, [all, uses]);
   const list = useMemo(() => {
     const needle = fold(q.trim());
-    return all.filter((t) => (side === "all" || sideOf(t) === side) && (!needle || fold(`${t.name} ${t.tradition} ${t.work ?? ""}`).includes(needle)));
-  }, [all, side, q]);
+    return all.filter((t) => (side === "all" || uses.get(t.id) === side) && (!needle || fold(`${t.name} ${t.tradition} ${t.work ?? ""}`).includes(needle)));
+  }, [all, uses, side, q]);
   const groups = useMemo(
     () => ERAS.map((era) => ({ era, items: list.filter((t) => eraOf(t.year).id === era.id) })).filter((g) => g.items.length > 0),
     [list],
@@ -86,18 +133,48 @@ export default function Cast({ thinker }: { thinker?: string }) {
 
   const sel = thinker ? ix.thinkers.get(thinker) : undefined;
   const missing = !!thinker && !sel;
+  // Choosing someone in this view moves focus to their file (the panel beside the roster, or the file under the row),
+  // so the next Tab reads it rather than walking on through the roster. Arriving from another view is the Shell's job.
+  const focusFile = useRef<string | null>(null);
   const select = (id: string) => {
-    const off = id === thinker && !wide;
+    if (id === thinker && wide) {
+      // already showing: just take focus there
+      requestAnimationFrame(() => document.getElementById(`ca-file-${id}`)?.focus({ preventScroll: true }));
+      return;
+    }
+    const off = id === thinker;
+    focusFile.current = off ? null : id;
     go({ view: "cast", thinker: off ? undefined : id }, { replace: true });
   };
+  useEffect(() => {
+    const id = focusFile.current;
+    if (!id || id !== thinker) return;
+    focusFile.current = null;
+    const raf = requestAnimationFrame(() => document.getElementById(`ca-file-${id}`)?.focus({ preventScroll: true }));
+    return () => cancelAnimationFrame(raf);
+  }, [thinker]);
   const rosterRef = useRef<HTMLDivElement>(null);
+  /** Back to this person's card in the roster (the file's ×, "Back to the list", Escape in the panel). */
+  const toCard = useCallback((id: string) => {
+    const card = rosterRef.current?.querySelector<HTMLElement>(`[data-tid="${CSS.escape(id)}"]`);
+    if (!card) return;
+    const r = card.getBoundingClientRect();
+    if (r.top < 60 || r.bottom > window.innerHeight) card.scrollIntoView({ block: "center", behavior: scrollBehavior() });
+    card.focus({ preventScroll: true });
+  }, []);
   const close = useCallback(
     (id: string) => {
       go({ view: "cast" }, { replace: true });
-      requestAnimationFrame(() => rosterRef.current?.querySelector<HTMLElement>(`[data-tid="${CSS.escape(id)}"]`)?.focus());
+      // after the re-render: on a phone the card is hidden while its file is open
+      requestAnimationFrame(() => toCard(id));
     },
-    [go],
+    [go, toCard],
   );
+  const onPanelKey = (e: KeyboardEvent<HTMLElement>) => {
+    if (e.key !== "Escape" || e.defaultPrevented || !sel) return;
+    e.preventDefault();
+    toCard(sel.id);
+  };
 
   // How many roundels share a row (phone / tablet), so a file opens under the whole row, not mid-row.
   const [cols, setCols] = useState(1);
@@ -133,9 +210,11 @@ export default function Cast({ thinker }: { thinker?: string }) {
           return;
         }
         const file = rosterRef.current?.querySelector<HTMLElement>(".ca-inline");
-        const r = (file ?? card)?.getBoundingClientRect();
-        const cr = card?.getBoundingClientRect();
-        if (r && (first || r.top > window.innerHeight * 0.55 || (cr && cr.top < 0))) (card ?? file)?.scrollIntoView({ block: "start", behavior: scrollBehavior() });
+        // On a phone the chosen card hides while its file is open (the file repeats it), so the file is the anchor.
+        const shown = card && card.getClientRects().length > 0 ? card : undefined;
+        const r = (file ?? shown)?.getBoundingClientRect();
+        const cr = shown?.getBoundingClientRect();
+        if (r && (first || r.top > window.innerHeight * 0.55 || (cr && cr.top < 0) || (!shown && r.top < 0))) (shown ?? file)?.scrollIntoView({ block: "start", behavior: scrollBehavior() });
       },
       first ? 420 : 30,
     );
@@ -150,7 +229,7 @@ export default function Cast({ thinker }: { thinker?: string }) {
       current="cast"
       tabs={false}
       title="People"
-      dek="Everyone in the arguments and on the timeline, grouped by era. The Objector gives five reasons to doubt the Christian God, and the Defender answers them. The mark by each name shows which side uses that person’s work here, and that isn’t always the side they were on. Duns Scotus, a Franciscan friar, is marked for the Objector, who uses his argument against Aquinas."
+      dek="Everyone in the arguments and on the timeline, grouped by era. The mark by each name shows which side uses that person’s work here, and that isn’t always the side they were on. Duns Scotus, a Franciscan friar, is marked for the Objector, who uses his argument against Aquinas."
       meta={all.length ? `${all.length} people · ${yearText(first.year)} to ${yearText(last.year)}` : undefined}
     />
   );
@@ -182,8 +261,8 @@ export default function Cast({ thinker }: { thinker?: string }) {
                 </button>
                 {FILTERS.filter((s) => counts[s] > 0).map((s) => (
                   <button key={s} type="button" className={`ca-filter s-${s}`} aria-pressed={side === s} onClick={() => setSide(side === s ? "all" : s)}>
-                    <SideMark side={s} size={10} />
-                    {LEAN[s]}
+                    <SideMark use={s} size={10} />
+                    {USE[s]}
                     <span className="ca-filter-n mono">{counts[s]}</span>
                   </button>
                 ))}
@@ -233,7 +312,7 @@ export default function Cast({ thinker }: { thinker?: string }) {
                       {items.map((t, i) => (
                         <Fragment key={t.id}>
                           <li className="ca-cell">
-                            <Roundel t={t} on={sel?.id === t.id} wide={wide} onPick={() => select(t.id)} />
+                            <Roundel t={t} use={uses.get(t.id) ?? "neutral"} on={sel?.id === t.id} wide={wide} onPick={() => select(t.id)} />
                           </li>
                           {i === rowEnd && sel && (
                             <li className="ca-inline">
@@ -250,8 +329,8 @@ export default function Cast({ thinker }: { thinker?: string }) {
           </div>
 
           {wide && (
-            <aside className="ca-panel" aria-label="About this person">
-              {sel ? <ThinkerFile t={sel} key={sel.id} /> : <CastIntro onPick={select} />}
+            <aside className="ca-panel" id="ca-panel" aria-label="About this person" onKeyDown={onPanelKey}>
+              {sel ? <ThinkerFile t={sel} key={sel.id} onBack={() => toCard(sel.id)} /> : <CastIntro onPick={select} />}
             </aside>
           )}
           {/* The desktop file changes beside the roster; say so. */}
@@ -264,10 +343,10 @@ export default function Cast({ thinker }: { thinker?: string }) {
   );
 }
 
-function Roundel({ t, on, wide, onPick }: { t: Thinker; on: boolean; wide: boolean; onPick: () => void }) {
+function Roundel({ t, use, on, wide, onPick }: { t: Thinker; use: Use; on: boolean; wide: boolean; onPick: () => void }) {
   const { ix } = useAtlas();
   const n = ix.thinkerRefs.get(t.id)?.length ?? 0;
-  const s = sideOf(t);
+  const s = tint(use);
   return (
     <a
       href={formatRoute({ view: "cast", thinker: t.id })}
@@ -280,18 +359,19 @@ function Roundel({ t, on, wide, onPick }: { t: Thinker; on: boolean; wide: boole
       }}
       aria-current={wide && on ? "true" : undefined}
       aria-expanded={wide ? undefined : on}
+      aria-controls={wide ? "ca-panel" : undefined}
     >
       <span className="monogram ca-mono" aria-hidden>
         {initials(t.name)}
-        <span className="ca-badge">
-          <SideMark side={s} size={8} />
+        <span className={`ca-badge s-${use}`}>
+          <SideMark use={use} size={use === "both" ? 6 : 8} />
         </span>
       </span>
       <span className="ca-txt">
         <span className="ca-name serif">{t.name}</span>
         <span className="ca-life mono">
           {t.life}
-          <span className="sr-only"> · {LEAN[s]}</span>
+          <span className="sr-only"> · {useWord(t, use)}</span>
           {n > 0 && <span className="ca-n">{` · ${n} ${n === 1 ? "move" : "moves"}`}</span>}
         </span>
         {t.tradition && <span className="ca-trad">{t.tradition}</span>}
@@ -300,7 +380,7 @@ function Roundel({ t, on, wide, onPick }: { t: Thinker; on: boolean; wide: boole
   );
 }
 
-function ThinkerFile({ t, onClose }: { t: Thinker; onClose?: () => void }) {
+function ThinkerFile({ t, onClose, onBack }: { t: Thinker; onClose?: () => void; onBack?: () => void }) {
   const { d, ix } = useAtlas();
   const refs = useMemo(() => ix.thinkerRefs.get(t.id) ?? [], [ix, t.id]);
   const moments = useMemo(() => [...d.moments].filter((m) => m.thinker === t.id).sort((a, b) => a.year - b.year), [d, t.id]);
@@ -335,8 +415,10 @@ function ThinkerFile({ t, onClose }: { t: Thinker; onClose?: () => void }) {
     }
     return { quote: lead, more: extra };
   }, [t, refs, ix]);
-  const s = sideOf(t);
+  const use = usageOf(ix, t);
+  const s = tint(use);
   const reading = (t.sources ?? []).filter((x) => x.title);
+  const linked = refs.length === 0 && moments.some((m) => m.node && ix.nodes.has(m.node));
   return (
     <article className={`ca-file s-${s}`} aria-labelledby={`ca-file-${t.id}`}>
       {onClose && (
@@ -354,16 +436,20 @@ function ThinkerFile({ t, onClose }: { t: Thinker; onClose?: () => void }) {
           </h2>
           <p className="ca-file-meta mono">
             {t.life}
-            <span className={`ca-file-lean s-${s}`}>
-              <SideMark side={s} size={9} />
-              {LEAN[s]}
+            <span className={`ca-file-lean s-${use}`}>
+              <SideMark use={use} size={9} />
+              {useWord(t, use)}
             </span>
           </p>
         </div>
       </header>
       {t.tradition && <p className="ca-file-trad">{t.tradition}</p>}
       <QuoteFigure q={quote} hideWho={!!quote?.who && sameName(quote.who, t.name)} className="ca-file-quote" />
-      {t.line && <p className={`ca-file-line serif ${quote ? "after-quote" : ""}`}>{t.line}</p>}
+      {t.line && (
+        <p className={`ca-file-line serif ${quote ? "after-quote" : ""}`}>
+          <RichText text={t.line} />
+        </p>
+      )}
       {t.work && (
         <p className="ca-file-work">
           <span className="mono lib-k">Key work</span>
@@ -387,11 +473,13 @@ function ThinkerFile({ t, onClose }: { t: Thinker; onClose?: () => void }) {
 
       <div className="ca-file-sec">
         {refs.length > 0 ? (
-          <FootprintBlock ids={refs} title={`Named in ${refs.length} ${refs.length === 1 ? "move" : "moves"}`} caption="Highlighted on the map" limit={16} />
+          <FootprintBlock ids={refs} title={`Named in ${refs.length} ${refs.length === 1 ? "move" : "moves"}`} caption="Highlighted on the map" limit={16} plain />
         ) : (
           <>
             <p className="mono lib-k">Not named in any move</p>
-            {moments.length > 0 && <p className="ca-file-none">They appear on the timeline, below.</p>}
+            {moments.length > 0 && (
+              <p className="ca-file-none">{linked ? "Their event on the timeline, below, goes with a move." : "They appear on the timeline, below."}</p>
+            )}
           </>
         )}
       </div>
@@ -414,6 +502,13 @@ function ThinkerFile({ t, onClose }: { t: Thinker; onClose?: () => void }) {
           </ul>
         </div>
       )}
+      {onBack && (
+        <p className="ca-back-row">
+          <button type="button" className="ca-back mono" onClick={onBack} title="Or press Escape">
+            <span aria-hidden>←</span> Back to the list
+          </button>
+        </p>
+      )}
     </article>
   );
 }
@@ -424,7 +519,7 @@ function CastIntro({ onPick }: { onPick: (id: string) => void }) {
   const picks = useMemo(
     () =>
       [...d.thinkers]
-        .map((t) => ({ t, n: ix.thinkerRefs.get(t.id)?.length ?? 0 }))
+        .map((t) => ({ t, n: ix.thinkerRefs.get(t.id)?.length ?? 0, u: usageOf(ix, t) }))
         .filter((x) => x.n > 0)
         .sort((a, b) => b.n - a.n || a.t.year - b.t.year)
         .slice(0, 5),
@@ -438,11 +533,11 @@ function CastIntro({ onPick }: { onPick: (id: string) => void }) {
         {FILTERS.map((s) => (
           <li key={s} className={`s-${s}`}>
             <span className="monogram ca-legend-mono" aria-hidden>
-              <SideMark side={s} size={9} />
+              <SideMark use={s} size={s === "both" ? 7 : 9} />
             </span>
             <span>
-              <strong>{LEAN[s]}</strong>
-              <span className="ca-legend-d">{LEAN_NOTE[s]}</span>
+              <strong>{USE[s]}</strong>
+              <span className="ca-legend-d">{USE_NOTE[s]}</span>
             </span>
           </li>
         ))}
@@ -451,10 +546,10 @@ function CastIntro({ onPick }: { onPick: (id: string) => void }) {
         <>
           <p className="mono lib-k ca-picks-k">Named most often</p>
           <ul className="ca-picks">
-            {picks.map(({ t, n }) => (
+            {picks.map(({ t, n, u }) => (
               <li key={t.id}>
                 <a
-                  className={`ca-pick s-${sideOf(t)}`}
+                  className={`ca-pick s-${tint(u)}`}
                   href={formatRoute({ view: "cast", thinker: t.id })}
                   onClick={(e) => {
                     if (!plainClick(e)) return;

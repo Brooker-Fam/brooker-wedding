@@ -28,7 +28,8 @@ export interface Determination {
   /** The sentence split for display: a status headline, then the text around the focus label
       (so a view can render the label as a link). The sentence is head, a space, pre, the quoted label, post. */
   parts: { head: string; pre: string; post: string };
-  /** Settled: the other calls this status rests on. */
+  /** Settled: the other calls this status rests on (every call it rests on when `focus` is null,
+      as when the reader said every part fails). */
   also: string[];
   /** Open: up to three more blank moves where one call would settle it. */
   decisive: string[];
@@ -57,6 +58,8 @@ export const OBJECTION_STATUS: Record<Label, string> = { in: "Stands", out: "Ans
 export const IF_WRONG: Record<Label, string> = { in: "would stand", out: "would be answered", undec: "would be open" };
 
 const q = (s: string) => `“${s}”`;
+const NUM_WORD = ["no", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten"];
+const numWord = (n: number) => NUM_WORD[n] ?? String(n);
 
 function labelText(ix: DisputationIndex, id: string, toPlain?: (s: string) => string): string {
   const raw = ix.nodes.get(id)?.node.label ?? id;
@@ -169,12 +172,13 @@ export function determine(
     }
     const t = q(L(focus));
     const head = "Open.";
-    // pivot: either answer settles it. lever: one of the two answers does. next: the walk's next stop.
+    // pivot: either answer settles it. lever: only one of the two answers does (which one is not
+    // previewed, so the sentence never steers the reader). next: the walk's next stop.
     const [pre, post, fp] =
       mode === "pivot"
         ? ["Your call on ", " would settle it either way.", `The objection is still open. My call on ${t} would settle it either way.`]
         : mode === "lever"
-          ? ["Marking ", " could settle it, depending on whether you say it holds or fails.", `The objection is still open. Marking ${t} could settle it, depending on whether I say it holds or fails.`]
+          ? ["Your call on ", " could settle it, depending on which way you mark it.", `The objection is still open. My call on ${t} could settle it, depending on which way I mark it.`]
           : ["The next open move is ", ".", `The objection is still open. The next open move is ${t}.`];
     return {
       ...base,
@@ -202,10 +206,29 @@ export function determine(
     const grounds = prongs.filter((p) => label === "out" || nodeLabels.get(p) === "in").flatMap((p) => support(ix, p, j, nodeLabels));
     footing = byFrontier(ix, uniq(grounds));
   }
+  const kind: DeterminationKind = label === "in" ? "stands" : "answered";
+  // Answered because the reader said every part fails: say so, rather than naming one part and
+  // listing the rest as "also". No single move is the focus then; `also` holds every part.
+  const partIds = o.prongs.map((p) => p.id);
+  if (kind === "answered" && partIds.length > 1 && footing.length === partIds.length && partIds.every((p) => footing.includes(p) && j[p] === "fails")) {
+    const head = "Answered.";
+    const said = partIds.length === 2 ? "both parts fail" : "every part fails";
+    return {
+      ...base,
+      kind,
+      focus: null,
+      call: null,
+      overdetermined,
+      sentence: `${head} You said ${said}.`,
+      firstPerson: `The objection is answered. I said ${said}.`,
+      parts: { head, pre: `You said ${said}.`, post: "" },
+      also: partIds,
+      decisive: [],
+    };
+  }
   const focus = footing[0] ?? null;
   const call = focus ? (j[focus] ?? null) : null;
   const also = footing.slice(1);
-  const kind: DeterminationKind = label === "in" ? "stands" : "answered";
 
   if (!focus || !call) {
     const head = kind === "stands" ? "Stands." : "Answered.";
@@ -217,7 +240,12 @@ export function determine(
   const head = kind === "stands" ? "Stands." : "Answered.";
   const it = kind === "stands" ? "The objection stands." : "The objection is answered.";
   // The call comes first and the quoted label is read before the clause that explains it.
-  const tail = overdetermined ? `, one of several calls this result rests on.` : `, and this result rests on that call.`;
+  const tail =
+    also.length > 0
+      ? `, one of ${numWord(also.length + 1)} calls this result rests on.`
+      : overdetermined
+        ? `, one of several calls this result rests on.`
+        : `, and this result rests on that call.`;
   const [pre, post] = ["You said ", ` ${call}${tail}`];
   const fp = `${it} I said ${t} ${call}${tail}`;
   return { ...base, kind, focus, call, overdetermined, sentence: `${head} ${pre}${t}${post}`, firstPerson: fp, parts: { head, pre, post }, also, decisive: [] };
@@ -286,11 +314,21 @@ export function determinationText(
   lines.push("");
   d.objections.forEach((o, i) => {
     const det = dets[i];
-    const name = P(o.short ?? "").trim() || P(o.title ?? "").trim();
+    // "Objection III · Nature: Nature runs on its own"
+    const short = P(o.short ?? "").trim();
+    const title = P(o.title ?? "").trim();
+    const name = short && title && short !== title ? `${short}: ${title}` : short || title;
     lines.push(name ? `Objection ${o.numeral} · ${name}` : `Objection ${o.numeral}`);
     if (o.objection?.trim()) lines.push(`The objection: ${P(o.objection).trim()}`);
     if (o.counter?.trim()) lines.push(`The reply: ${P(o.counter).trim()}`);
     lines.push(`My result: ${det.firstPerson}`);
+    // The other calls this result rests on, as the page lists them under "It also rests on"
+    // (or "It rests on" when the sentence names no single move).
+    const rests = det.focus ? "It also rests on" : "It rests on";
+    for (const id of det.also) {
+      const call = j[id];
+      if (call) lines.push(`${rests} my call that ${q(labelText(ix, id, opts.toPlain))} ${call}.`);
+    }
     lines.push("");
   });
   for (const t of opts.tensions ?? []) {

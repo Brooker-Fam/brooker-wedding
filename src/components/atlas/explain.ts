@@ -14,8 +14,9 @@ export interface Explanation {
   tone: Label | "call";
   /** One or two plain sentences. */
   text: string;
-  /** The move this status turns on, if any. */
-  link?: { id: string; label: string };
+  /** The move this status turns on, if any; `part` when it is one of the objection's parts
+      (so the link can say "Go to part 2" when the sentence doesn't quote it). */
+  link?: { id: string; label: string; part?: number };
 }
 
 type Plain = (s: string) => string;
@@ -137,6 +138,7 @@ export function explainObjection(labels: Labelling, o: Objection, toPlain: Plain
   const part = (id: string) => o.prongs.findIndex((p) => p.id === id) + 1;
   const n = o.prongs.length;
   const many = n > 1;
+  const linkTo = (p: Objection["prongs"][number]) => ({ id: p.id, label: toPlain(p.label), part: many ? part(p.id) : undefined });
   if (l === "in") {
     const p = o.prongs.find((x) => j[x.id] === "holds" && lab(x.id) === "in") ?? o.prongs.find((x) => lab(x.id) === "in")!;
     const said = j[p.id] === "holds";
@@ -144,16 +146,25 @@ export function explainObjection(labels: Labelling, o: Objection, toPlain: Plain
     return {
       tone: "in",
       text: `${said ? `You said ${what} holds.` : `${cap(what)} stands.`}${many ? " The Objector needs only one part to stand." : ""}`,
-      link: { id: p.id, label: toPlain(p.label) },
+      link: linkTo(p),
     };
   }
   if (l === "out") {
-    if (many) return { tone: "out", text: n === 2 ? "Neither of its two parts stands." : `None of its ${num(n)} parts stands.` };
+    if (many) {
+      // Each part, told truthfully (as allOut does for replies): out by the reader's Fails, or answered by a standing reply.
+      const why = o.prongs.map((p) => {
+        if (j[p.id] === "fails") return `You said part ${part(p.id)}, ${q(toPlain(p.label))}, fails.`;
+        const kids = p.children ?? [];
+        const by = kids.find((c) => lab(c.id) === "in" && j[c.id] === "holds") ?? kids.find((c) => lab(c.id) === "in");
+        return by ? `Part ${part(p.id)} is answered because ${q(toPlain(by.label))} stands.` : `Part ${part(p.id)} is answered.`;
+      });
+      return { tone: "out", text: why.join(" "), link: linkTo(o.prongs[0]) };
+    }
     const p = o.prongs[0];
     return {
       tone: "out",
       text: j[p.id] === "fails" ? `You said its argument, ${q(toPlain(p.label))}, fails.` : `Its argument, ${q(toPlain(p.label))}, has been answered.`,
-      link: { id: p.id, label: toPlain(p.label) },
+      link: linkTo(p),
     };
   }
   const open = o.prongs.filter((x) => lab(x.id) === "undec");
@@ -166,6 +177,6 @@ export function explainObjection(labels: Labelling, o: Objection, toPlain: Plain
         ? `${n === 2 ? "Both parts are" : `All ${num(n)} parts are`} still open.`
         : `No part stands yet, and ${open.length === 1 ? `part ${part(first.id)} is` : `${num(open.length)} of the ${num(n)} parts are`} still open.`
       : `Its argument, ${q(toPlain(first.label))}, is still open.`,
-    link: { id: first.id, label: toPlain(first.label) },
+    link: linkTo(first),
   };
 }

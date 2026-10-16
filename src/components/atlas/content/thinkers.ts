@@ -15,7 +15,7 @@ export const thinkers: Thinker[] = [
     year: -380,
     tradition: "Greek philosopher, student of Socrates",
     side: "neutral",
-    line: "In the Euthyphro, Socrates asks whether the gods love what is holy because it is holy, or whether it is holy because they love it. Arguments about God and morality have started from that question ever since. In Laws X Plato argued that the order of the heavens comes from a mind.",
+    line: "In his dialogue Euthyphro, Socrates asks whether the gods love what is holy because it is holy, or whether it is holy because they love it. Arguments about God and morality have started from [[euthyphro-dilemma|that question]] ever since. In Book X of his Laws, Plato argued that the order of the heavens comes from a mind.",
     work: "Euthyphro; Laws X (c. 350 BCE)",
     quote: {
       text: "I mean to say that the holy has been acknowledged by us to be loved of God because it is holy, not to be holy because it is loved.",
@@ -31,7 +31,7 @@ export const thinkers: Thinker[] = [
     year: -340,
     tradition: "Greek philosopher, student of Plato",
     side: "theist",
-    line: "The Defender borrows two of his ideas. A statement about tomorrow's sea battle may not yet be true, which supports an open future, and we become just by doing just acts, so character sets with practice.",
+    line: "The Defender borrows two of his ideas. A statement about [[future-contingents|tomorrow's sea battle]] may not yet be true, which supports an open future, and we become just by doing just acts, so character sets with practice.",
     work: "On Interpretation, ch. 9",
     quote: {
       text: "Neither by nature, then, nor contrary to nature do the virtues arise in us; rather we are adapted by nature to receive them, and are made perfect by habit.",
@@ -89,13 +89,75 @@ export const thinkers: Thinker[] = [
     },
   },
   {
+    id: "josephus",
+    name: "Flavius Josephus",
+    life: "37–c. 100",
+    year: 75,
+    tradition: "Jewish priest and historian who wrote in Rome",
+    side: "neutral",
+    line: "His Jewish War and Antiquities of the Jews are the main source outside the Bible for first-century Judea. The Objector cites his date for the Roman census that Luke ties to Jesus's birth, and the Defender his report that Jews buried the crucified before sunset.",
+    work: "The Jewish War (c. 75); Antiquities of the Jews (c. 94)",
+    quote: {
+      text: "the Jews used to take so much care of the burial of men, that they took down those that were condemned and crucified, and buried them before the going down of the sun.",
+      who: "Flavius Josephus",
+      cite: "The Jewish War 4.5.2 (c. 75; tr. William Whiston)",
+      url: "https://www.gutenberg.org/cache/epub/2850/pg2850-images.html#link42HCH0005",
+    },
+    sources: [
+      {
+        title: "The Wars of the Jews",
+        by: "Flavius Josephus",
+        year: "c. 75",
+        url: "https://www.gutenberg.org/ebooks/2850",
+        note: "William Whiston’s translation.",
+      },
+      {
+        title: "Antiquities of the Jews, Book XVIII",
+        by: "Flavius Josephus",
+        year: "c. 94",
+        url: "https://www.gutenberg.org/cache/epub/2848/pg2848-images.html#link182HCH0001",
+        note: "Whiston’s translation. Chapter 1 tells how Quirinius came to take a census of Judea.",
+      },
+    ],
+  },
+  {
+    id: "plutarch",
+    name: "Plutarch",
+    life: "c. 46–after 119",
+    year: 100,
+    tradition: "Greek biographer and Platonist philosopher, a priest at Delphi",
+    side: "neutral",
+    line: "Wrote the Parallel Lives, paired biographies of Greek and Roman leaders. He warned readers that he was writing lives, not histories, so some famous deeds would be told briefly or left out. The Defender compares the Gospels' differences with the way he retold the same events in different Lives.",
+    work: "Parallel Lives (c. 100)",
+    quote: {
+      text: "I am writing biography, not history; and often a man's most brilliant actions prove nothing as to his true character, while some trifling incident, some casual remark or jest, will throw more light upon what manner of man he was than the bloodiest battle, the greatest array of armies, or the most important siege.",
+      who: "Plutarch",
+      cite: "Life of Alexander 1 (tr. Aubrey Stewart and George Long)",
+      url: "https://www.gutenberg.org/cache/epub/14140/pg14140-images.html#LIFE_OF_ALEXANDER",
+    },
+    sources: [
+      {
+        title: "Plutarch (Stanford Encyclopedia of Philosophy)",
+        by: "George Karamanolis",
+        url: "https://plato.stanford.edu/entries/plutarch/",
+      },
+      {
+        title: "Plutarch's Lives, vol. 3 (Life of Alexander)",
+        by: "Plutarch",
+        year: "c. 100",
+        url: "https://www.gutenberg.org/cache/epub/14140/pg14140-images.html#LIFE_OF_ALEXANDER",
+        note: "Stewart and Long’s translation. Chapter 1 explains how a life differs from a history.",
+      },
+    ],
+  },
+  {
     id: "celsus",
     name: "Celsus",
     life: "fl. c. 175–180",
     year: 177,
     tradition: "Greek philosopher, the first known pagan critic of Christianity",
     side: "theist",
-    line: "His attack survives only in Origen's reply. The Defender cites his mockery of the Easter story for resting on a woman's word, and his sneer at a faith that welcomed sinners, children and the unlucky, which shows how new that welcome was.",
+    line: "His attack survives only in {{origen|Origen}}'s reply. The Defender cites his mockery of the Easter story for resting on a woman's word, and his sneer at a faith that welcomed sinners, children and the unlucky, which shows how new that welcome was.",
     work: "The True Word (c. 177), preserved in Origen's reply",
     quote: {
       text: "for such a hope is simply one which might be cherished by worms.",
@@ -127,7 +189,7 @@ export const thinkers: Thinker[] = [
     year: 230,
     tradition: "Theologian of Alexandria and early church father",
     side: "theist",
-    line: "Admitted that the Gospels conflict when read as a strict record of events, preserved Celsus's attack by answering it, and was the first to set out the hope that God will restore all things, the damned included.",
+    line: "Admitted that the Gospels conflict when read as a strict record of events, preserved {{celsus|Celsus}}'s attack by answering it, and was the first to set out [[apokatastasis|the hope that God will restore all things]], the damned included.",
     work: "On First Principles (c. 220–230); Commentary on John (c. 231–40); Against Celsus (c. 248)",
     quote: {
       text: "And who is so foolish as to suppose that God, after the manner of a husbandman, planted a paradise in Eden, towards the east, and placed in it a tree of life, visible and palpable, so that one tasting of the fruit by the bodily teeth obtained life?",
@@ -143,7 +205,7 @@ export const thinkers: Thinker[] = [
     year: 380,
     tradition: "Bishop and theologian in Cappadocia, in modern Turkey",
     side: "theist",
-    line: "Hoped that every creature would finally return to God, and attacked the owning of slaves itself. He was never condemned for his hope of a universal restoration.",
+    line: "Hoped that every creature would finally return to God, and attacked the owning of slaves itself. He was never condemned for his hope of a [[apokatastasis|universal restoration]].",
     work: "On the Soul and the Resurrection; Homilies on Ecclesiastes (c. 380)",
     quote: {
       text: "Since it is not in its nature that evil should exist outside the will, does it not follow that when it shall be that every will rests in God, evil will be reduced to complete annihilation, owing to no receptacle being left for it?",
@@ -159,7 +221,7 @@ export const thinkers: Thinker[] = [
     year: 400,
     tradition: "Bishop of Hippo in North Africa, the most influential church father in the West",
     side: "theist",
-    line: "The Defender takes his account of evil as a lack of some good, his view that a wonder goes against nature only as we know it, and his restless heart. The Objector takes his defense of endless punishment and of guilt inherited from Adam.",
+    line: "The Defender takes his account of evil as [[privation|a lack of some good]], his view that a wonder goes against nature only as we know it, and his saying that our heart is restless until it rests in God. The Objector takes his defense of endless punishment and of [[original-sin|guilt inherited from Adam]].",
     work: "Confessions (c. 397–400); City of God (413–426)",
     quote: {
       text: "For understanding is the reward of faith. Therefore do not seek to understand in order to believe, but believe that you may understand",
@@ -196,7 +258,7 @@ export const thinkers: Thinker[] = [
     year: 524,
     tradition: "Roman statesman who wrote his best-known book in prison",
     side: "theist",
-    line: "Faced the clash between God's foreknowledge and human freedom around 524, while awaiting execution. He answered that God lives in an eternal present, so he sees our choices the way we see something happening now.",
+    line: "Faced the clash between God's foreknowledge and human freedom around 524, while awaiting execution. He answered that God lives in [[timeless-eternity|an eternal present]], so he sees our choices the way we see something happening now.",
     work: "The Consolation of Philosophy (c. 524)",
     quote: {
       text: "'There is freedom,' said she; 'nor, indeed, can any creature be rational, unless he be endowed with free will.",
@@ -206,13 +268,62 @@ export const thinkers: Thinker[] = [
     },
   },
   {
+    id: "justinian",
+    name: "Justinian I",
+    life: "c. 482–565",
+    year: 543,
+    tradition: "Eastern Roman emperor from 527 to 565",
+    side: "neutral",
+    line: "Codified Roman law, and in 543 issued an edict condemning {{origen}} and anyone who holds that the punishment of the damned will one day end. The Objector cites it as the church rejecting [[apokatastasis|universal restoration]], and the Defender answers that an emperor issued it.",
+    work: "Edict against Origen (543)",
+    quote: {
+      text: "If anyone says or thinks that the punishment of demons and of impious men is only temporary, and will one day have an end, and that a restoration (ἀποκατάστασις) will take place of demons and of impious men, let him be anathema.",
+      who: "Justinian I",
+      cite: "Anathemas against Origen, no. 9 (543; tr. Henry Percival)",
+      url: "https://www.newadvent.org/fathers/3812.htm",
+    },
+    sources: [
+      {
+        title: "The Anathemas of the Emperor Justinian Against Origen",
+        by: "Justinian I",
+        year: "543",
+        url: "https://www.newadvent.org/fathers/3812.htm",
+        note: "Henry Percival’s translation, printed with the acts of the Second Council of Constantinople (553).",
+      },
+    ],
+  },
+  {
+    id: "gregory-the-great",
+    name: "Gregory the Great",
+    life: "c. 540–604",
+    year: 590,
+    tradition: "Pope from 590 to 604",
+    side: "neutral",
+    line: "In a sermon on the risen Jesus he said that there is no merit in believing what reason shows. {{aquinas}} opens an article of his Summa with the line, then answers that reasons a willing believer goes looking for add to faith's merit.",
+    work: "Homilies on the Gospels (590s)",
+    quote: {
+      text: "there is no merit in believing what is shown by reason.",
+      who: "Gregory the Great, as quoted by Aquinas",
+      cite: "Homilies on the Gospels 26, as quoted in Aquinas, Summa Theologiae II-II q.2 a.10 (tr. Fathers of the English Dominican Province)",
+      url: "https://www.newadvent.org/summa/3002.htm#article10",
+    },
+    sources: [
+      {
+        title: "Pope St. Gregory I (Catholic Encyclopedia)",
+        by: "Gilbert Huddleston",
+        year: "1909",
+        url: "https://www.newadvent.org/cathen/06780a.htm",
+      },
+    ],
+  },
+  {
     id: "isaac-of-nineveh",
     name: "Isaac of Nineveh",
     life: "c. 613–c. 700",
     year: 680,
     tradition: "Monk and bishop who wrote in Syriac",
     side: "theist",
-    line: "Taught that even those in hell are struck by God's love, and hoped for the restoration of all. His most direct writings on that hope were rediscovered only in 1983.",
+    line: "Taught that even those in hell are struck by God's love, and hoped for [[apokatastasis|the restoration of all]]. His most direct writings on that hope were rediscovered only in 1983.",
     work: "Ascetical Homilies and the “Second Part”",
     quote: {
       text: "The retribution of the sinners is this, that He repays them with resurrection instead of with justice.",
@@ -260,7 +371,7 @@ export const thinkers: Thinker[] = [
     year: 1190,
     tradition: "Jewish philosopher and rabbi in Egypt",
     side: "neutral",
-    line: "Held that we know God mainly by what he is not, so a word like 'wise' only denies some limit in God (negative theology). Aquinas set this aside in favor of analogy.",
+    line: "Held that we know God mainly by what he is not, so a word like 'wise' only denies some limit in God ([[apophatic|negative theology]]). {{aquinas|Aquinas}} set this aside in favor of [[analogy-of-being|analogy]].",
     work: "The Guide of the Perplexed (c. 1190)",
     quote: {
       text: "by each additional negative attribute you advance toward the knowledge of God, and you are nearer to it than he who does not negative, in reference to God, those qualities which you are convinced by proof must be negatived.",
@@ -276,7 +387,7 @@ export const thinkers: Thinker[] = [
     year: 1265,
     tradition: "Dominican friar and theologian, the main voice of medieval Christian philosophy",
     side: "theist",
-    line: "The Defender's chief source. For Aquinas, God is the first cause of every cause without competing with any of them, knows each choice from outside time, and is goodness itself. He also stated against himself the objection that God explains nothing nature can't.",
+    line: "The Defender's chief source. For Aquinas, God is [[primary-secondary-causation|the first cause of every cause]] without competing with any of them, knows each choice [[timeless-eternity|from outside time]], and is goodness itself. He also stated against himself the objection that God explains nothing nature can't.",
     work: "Summa Theologiae (1265–74)",
     quote: {
       text: "This is part of the infinite goodness of God, that He should allow evil to exist, and out of it produce good.",
@@ -306,7 +417,7 @@ export const thinkers: Thinker[] = [
     year: 1300,
     tradition: "Franciscan friar and philosopher",
     side: "skeptic",
-    line: "Argued that unless some idea applies to God and to creatures in the same sense, nothing we learn about creatures tells us anything about God. The Objector uses this against Aquinas's analogy.",
+    line: "Argued that unless some idea applies to God and to creatures [[univocity|in the same sense]], nothing we learn about creatures tells us anything about God. The Objector uses this against {{aquinas|Aquinas}}'s [[analogy-of-being|analogy]].",
     work: "Ordinatio (c. 1300)",
   },
   {
@@ -326,7 +437,7 @@ export const thinkers: Thinker[] = [
     year: 1323,
     tradition: "Franciscan friar and philosopher",
     side: "neutral",
-    line: "The Defender takes his idea that some facts about the past depend on the future ('soft facts'). The Objector takes his view, on the usual reading, that morality hangs on God's will, and the razor named after him, the rule that you shouldn't assume more causes than you need.",
+    line: "The Defender takes his idea that some facts about the past depend on the future ([[soft-facts|'soft facts']]). The Objector takes his view, on the usual reading, that morality hangs on God's will, and [[ockhams-razor|the razor named after him]], the rule that you shouldn't assume more causes than you need.",
     work: "Tractatus de praedestinatione (c. 1322–24); Summa Logicae (c. 1323)",
     sources: [
       {
@@ -344,7 +455,7 @@ export const thinkers: Thinker[] = [
     year: 1517,
     tradition: "German friar who began the Protestant Reformation",
     side: "theist",
-    line: "Found God hidden in suffering and the cross, and attacked the sale of indulgences (pardons). The Objector also cites his teaching that the law first terrifies sinners so that the gospel can comfort them.",
+    line: "Found [[theology-of-the-cross|God hidden in suffering and the cross]], and attacked the sale of [[indulgence|indulgences]]. The Objector also cites his teaching that the law first terrifies sinners so that the gospel can comfort them.",
     work: "Ninety-five Theses (1517); Heidelberg Disputation (1518)",
     quote: {
       text: "The true treasure of the Church is the Most Holy Gospel of the glory and the grace of God.",
@@ -373,7 +484,7 @@ export const thinkers: Thinker[] = [
     year: 1559,
     tradition: "French Protestant reformer in Geneva",
     side: "theist",
-    line: "Taught that a sense of the divine is planted in every human mind, so that unbelief always involves pushing that sense down. Plantinga built his account of reasonable belief in God on this idea.",
+    line: "Taught that [[sensus-divinitatis|a sense of the divine]] is planted in every human mind, so that unbelief always involves pushing that sense down. {{plantinga}} built his account of reasonable belief in God on this idea.",
     work: "Institutes of the Christian Religion (1559)",
     quote: {
       text: "so to manifest his perfections in the whole structure of the universe, and daily place himself in our view, that we cannot open our eyes without being compelled to behold him.",
@@ -403,7 +514,7 @@ export const thinkers: Thinker[] = [
     year: 1578,
     tradition: "Spanish Carmelite friar, poet and mystic",
     side: "theist",
-    line: "Described the 'dark night', when God seems absent, as a stage in which love is purified. The Defender uses him to show that believers have long lived with God's silence.",
+    line: "Described the [[dark-night|'dark night']], when God seems absent, as a stage in which love is purified. The Defender uses him to show that believers have long lived with God's silence.",
     work: "Dark Night of the Soul (c. 1578–86)",
     quote: {
       text: "But what the sorrowful soul feels most in this condition is its clear perception, as it thinks, that God has abandoned it, and, in His abhorrence of it, has flung it into darkness; it is a grave and piteous grief for it to believe that God has forsaken it.",
@@ -429,8 +540,26 @@ export const thinkers: Thinker[] = [
     year: 1588,
     tradition: "Spanish Jesuit theologian",
     side: "theist",
-    line: "Proposed that God has 'middle knowledge', knowledge of what any creature would freely do in any situation, and uses it to choose which situations to make real.",
+    line: "Proposed that God has [[middle-knowledge|'middle knowledge']], knowledge of what any creature would freely do in any situation, and uses it to choose which situations to make real.",
     work: "Concordia (1588)",
+  },
+  {
+    id: "socinus",
+    name: "Faustus Socinus",
+    life: "1539–1604",
+    year: 1594,
+    tradition: "Italian theologian who denied the Trinity",
+    side: "skeptic",
+    line: "Argued that a debt that has been paid has not been forgiven, so Christ cannot have paid for sins that God forgives. The Objector uses the point against [[penal-substitution|penal substitution]]. His followers, the Socinians, flourished in Poland.",
+    work: "De Jesu Christo Servatore (On Jesus Christ the Saviour; written 1578, printed 1594)",
+    sources: [
+      {
+        title: "Atonement (Stanford Encyclopedia of Philosophy)",
+        by: "Joshua C. Thurow",
+        url: "https://plato.stanford.edu/entries/atonement/",
+        note: "Section 4.3 sets out his objections to satisfaction theories, and section 2.8 traces the objection to punishing a substitute back to him.",
+      },
+    ],
   },
   {
     id: "pascal",
@@ -439,7 +568,7 @@ export const thinkers: Thinker[] = [
     year: 1658,
     tradition: "French mathematician and Catholic writer",
     side: "theist",
-    line: "Held that a true religion must say God is hidden, with enough light for those who want to see. He also framed belief as a wager and told doubters to begin by acting as believers do.",
+    line: "Held that a true religion must say [[deus-absconditus|God is hidden]], with enough light for those who want to see. He also framed belief as a wager and told doubters to begin by acting as believers do.",
     work: "Pensées (pub. 1670)",
     quote: {
       text: "The heart has its reasons, which reason does not know.",
@@ -469,13 +598,13 @@ export const thinkers: Thinker[] = [
     year: 1670,
     tradition: "Dutch-Jewish philosopher, cast out of his synagogue in 1656",
     side: "spinoza",
-    line: "He cuts in on all five objections with a third view. His God is Nature itself, which thinks but chooses nothing, works no miracles, loves no one in return and hides from no one. His Treatise of 1670 also began the critical study of the Bible.",
+    line: "He cuts in on all five objections with a third view. His God is [[deus-sive-natura|Nature itself]], which thinks but chooses nothing, works no miracles, loves no one in return and hides from no one. His Theological-Political Treatise (1670) also began the critical study of the Bible.",
     work: "Theological-Political Treatise (1670); Ethics (1677)",
     quote: {
       text: "Whatsoever is, is in God, and without God nothing can be, or be conceived.",
       who: "Baruch Spinoza",
       cite: "Ethics I, Prop. 15 (1677; tr. R. H. M. Elwes)",
-      url: "https://www.gutenberg.org/cache/epub/3800/pg3800-images.html#chap01",
+      url: "https://www.gutenberg.org/cache/epub/3800/pg3800-images.html#chap01:~:text=Whatsoever%20is%2C%20is%20in%20God%2C%20and%20without%20God",
     },
     sources: [
       {
@@ -513,7 +642,7 @@ export const thinkers: Thinker[] = [
     year: 1675,
     tradition: "French priest and philosopher",
     side: "theist",
-    line: "Made God the only true cause, with creatures as mere occasions for God's acts (occasionalism), and argued before Hume that we never perceive a necessary link between a cause and its effect.",
+    line: "Made God the only true cause, with creatures as mere occasions for God's acts ([[occasionalism|occasionalism]]), and argued before {{hume|Hume}} that we never perceive a necessary link between a cause and its effect.",
     work: "The Search After Truth (1674–75)",
     sources: [
       {
@@ -530,7 +659,7 @@ export const thinkers: Thinker[] = [
     year: 1676,
     tradition: "German-born first secretary of London's Royal Society",
     side: "theist",
-    line: "Spinoza's friend and correspondent. In 1675 and 1676 he pressed Spinoza that Christianity stands or falls with a literal resurrection, a point the Defender takes up.",
+    line: "{{spinoza|Spinoza}}'s friend and correspondent. In 1675 and 1676 he pressed Spinoza that Christianity stands or falls with a literal resurrection, a point the Defender takes up.",
     work: "Letters to Spinoza (1661–76)",
     sources: [
       {
@@ -578,7 +707,7 @@ export const thinkers: Thinker[] = [
     year: 1686,
     tradition: "German philosopher, mathematician and diplomat",
     side: "theist",
-    line: "Visited Spinoza in 1676 and spent decades resisting his view that everything is necessary, holding that reasons incline God without forcing him. He made 'why is there something rather than nothing?' the first question.",
+    line: "Visited {{spinoza|Spinoza}} in 1676 and spent decades resisting his view that [[necessitarianism|everything is necessary]], holding that reasons incline God without forcing him. He made 'why is there something rather than nothing?' the first question.",
     work: "Discourse on Metaphysics (1686); Theodicy (1710); Monadology (1714)",
     quote: {
       text: "Now this supreme wisdom, united to a goodness that is no less infinite, cannot but have chosen the best.",
@@ -608,7 +737,7 @@ export const thinkers: Thinker[] = [
     year: 1690,
     tradition: "English philosopher of experience, a member of the Church of England",
     side: "theist",
-    line: "Held that reason must judge what counts as revelation, and defended Christianity as reasonable. The Defender counts him in the tradition that backs faith with arguments.",
+    line: "Held that reason must judge what counts as [[revelation|revelation]], and defended Christianity as reasonable. The Defender counts him in the tradition that backs faith with arguments.",
     work: "An Essay Concerning Human Understanding (1690)",
     quote: {
       text: "Whatever God hath revealed is certainly true: no doubt can be made of it. This is the proper object of faith: but whether it be a DIVINE revelation or no, reason must judge",
@@ -624,7 +753,7 @@ export const thinkers: Thinker[] = [
     year: 1713,
     tradition: "English physicist and mathematician, an unorthodox Christian",
     side: "theist",
-    line: "Credited the order of the solar system to an intelligent Being and thought the planets would need God's occasional correction. Laplace later showed they did not.",
+    line: "Credited the order of the solar system to an intelligent Being and thought the planets would need God's occasional correction. {{laplace|Laplace}} later showed they did not.",
     work: "Principia, General Scholium (1713)",
     quote: {
       text: "This most beautiful system of the sun, planets, and comets, could only proceed from the counsel and dominion of an intelligent and powerful Being.",
@@ -640,7 +769,7 @@ export const thinkers: Thinker[] = [
     year: 1736,
     tradition: "Anglican bishop and moral philosopher",
     side: "theist",
-    line: "Answered the deists, who accepted a creator but no revelation, that probability is the guide of life, and that a revelation reaching some people and not others matches the uneven way nature hands out its gifts.",
+    line: "Answered the deists, who accepted a creator but no [[revelation|revelation]], that probability is the guide of life, and that a revelation reaching some people and not others matches the uneven way nature hands out its gifts.",
     work: "The Analogy of Religion (1736)",
     quote: {
       text: "The evidence of religion not appearing obvious, may constitute one particular part of some men's trial in the religious sense",
@@ -656,7 +785,7 @@ export const thinkers: Thinker[] = [
     year: 1741,
     tradition: "New England preacher and Calvinist theologian",
     side: "neutral",
-    line: "Preached that God holds sinners over hell 'much as one holds a spider', which the Objector quotes. He also argued that freedom means acting as you will even though your will has causes, a view close to Spinoza's.",
+    line: "Preached that God holds sinners over hell 'much as one holds a spider', which the Objector quotes. He also argued that [[compatibilism|freedom means acting as you will]] even though your will has causes, a view close to {{spinoza|Spinoza}}'s.",
     work: "Sinners in the Hands of an Angry God (1741); Freedom of the Will (1754)",
     quote: {
       text: "There is nothing that keeps wicked men at any one moment out of hell, but the mere pleasure of God.",
@@ -672,7 +801,7 @@ export const thinkers: Thinker[] = [
     year: 1746,
     tradition: "French writer and editor of the Encyclopédie",
     side: "skeptic",
-    line: "Answered Pascal's wager by pointing out that an imam could argue in just the same way, so the wager favors no one religion.",
+    line: "Answered {{pascal|Pascal}}'s wager by pointing out that an imam could argue in just the same way, so the wager favors no one religion.",
     work: "Pensées philosophiques (1746)",
     quote: {
       text: "If to ascertain the existence of God the philosopher begins by questioning it, is there any proposition which should not be so tested?",
@@ -688,7 +817,7 @@ export const thinkers: Thinker[] = [
     year: 1748,
     tradition: "Scottish philosopher and historian",
     side: "skeptic",
-    line: "The Objector's main source. He held that a wise person proportions belief to the evidence, that no testimony can establish a miracle as the foundation of a religion, that the design argument proves little, and that the 'monkish virtues' are vices.",
+    line: "The Objector's main source. He held that a wise person proportions belief to the evidence, that no testimony can establish a miracle as the foundation of a religion, that the design argument proves little, and that the 'monkish virtues', such as fasting and humility, are vices.",
     work: "An Enquiry Concerning Human Understanding (1748); Dialogues Concerning Natural Religion (1779)",
     quote: {
       text: "the Christian Religion not only was at first attended with miracles, but even at this day cannot be believed by any reasonable person without one.",
@@ -724,7 +853,7 @@ export const thinkers: Thinker[] = [
     year: 1762,
     tradition: "Scottish minister and writer on rhetoric",
     side: "theist",
-    line: "Charged in 1762 that Hume's essay begs the question, and argued that we trust testimony before we have any experience to check it against.",
+    line: "Charged in 1762 that {{hume|Hume}}'s essay on miracles begs the question, and argued that we trust testimony before we have any experience to check it against.",
     work: "A Dissertation on Miracles (1762)",
     quote: {
       text: "testimony hath a natural and original influence on belief, antecedent to experience",
@@ -740,7 +869,7 @@ export const thinkers: Thinker[] = [
     year: 1764,
     tradition: "Scottish philosopher of common sense",
     side: "theist",
-    line: "Held that our faculties deserve trust until they are shown unreliable, since reason and perception 'came both out of the same shop'. The Defender uses the idea, and the Objector borrows it for the naturalist.",
+    line: "Held that our faculties deserve trust until they are shown unreliable, since reason and perception 'came both out of the same shop'. The Defender uses the idea, and the Objector borrows it for those who think nature is all there is.",
     work: "An Inquiry into the Human Mind (1764)",
     quote: {
       text: "Philosophy, (if I may be permitted to change the metaphor) has no other root but the principles of Common Sense; it grows out of them, and draws its nourishment from them",
@@ -769,7 +898,7 @@ export const thinkers: Thinker[] = [
     year: 1767,
     tradition: "Welsh minister and moral philosopher",
     side: "theist",
-    line: "Brought Thomas Bayes's essay on probability to the Royal Society and turned probability against Hume, arguing that weak testimony can outweigh a huge improbability.",
+    line: "Brought Thomas Bayes's essay on probability to the Royal Society and turned probability against {{hume|Hume}}, arguing that weak testimony can outweigh a huge improbability.",
     work: "Four Dissertations (1767)",
     quote: {
       text: "It is then very common for the slightest testimony to overcome an almost infinite improbability.",
@@ -785,7 +914,7 @@ export const thinkers: Thinker[] = [
     year: 1768,
     tradition: "German scholar who wrote a secret attack on revealed religion",
     side: "skeptic",
-    line: "His hidden Apology, published in fragments after his death, argued that the Easter witnesses contradict one another.",
+    line: "His hidden Apology, published in fragments by {{lessing|Lessing}} after his death, argued that the Easter witnesses contradict one another.",
     work: "Apology for the Rational Worshippers of God (fragments pub. 1774–78)",
     quote: {
       text: "the witnesses of the resurrection of Jesus are unable to bring forward any others, but are the only ones who pretend to have seen that which for other honest people remained invisible",
@@ -801,7 +930,7 @@ export const thinkers: Thinker[] = [
     year: 1777,
     tradition: "German playwright and critic",
     side: "skeptic",
-    line: "Published Reimarus's attack on the Easter accounts, and named the 'ugly broad ditch' between facts of history, which could have been otherwise, and truths of reason, which could not.",
+    line: "Published {{reimarus|Reimarus}}'s attack on the Easter accounts, and named the [[lessings-ditch|'ugly broad ditch']] between facts of history, which could have been otherwise, and truths of reason, which could not.",
     work: "On the Proof of the Spirit and of Power (1777)",
   },
   {
@@ -841,7 +970,7 @@ export const thinkers: Thinker[] = [
     year: 1785,
     tradition: "German philosopher and critic of the Enlightenment",
     side: "theist",
-    line: "Reported that Lessing had come to hold Spinoza's views, and answered Spinoza with a leap of faith that no proof supports (the salto mortale, Italian for 'deadly leap').",
+    line: "Reported that {{lessing|Lessing}} had come to hold {{spinoza|Spinoza}}'s views, and answered Spinoza with a leap of faith that no proof supports (the salto mortale, Italian for 'deadly leap').",
     work: "On the Doctrine of Spinoza (1785)",
   },
   {
@@ -851,7 +980,7 @@ export const thinkers: Thinker[] = [
     year: 1794,
     tradition: "Anglican clergyman and writer on natural theology",
     side: "theist",
-    line: "Read the watch and the eye as designs that need a designer, and rested Christianity's historical case on the apostles' testimony and their suffering for it.",
+    line: "Argued that the eye, like a watch found on a heath, is a design that needs a designer, and rested Christianity's historical case on the apostles' testimony and their suffering for it.",
     work: "A View of the Evidences of Christianity (1794); Natural Theology (1802)",
     quote: {
       text: "There cannot be design without a designer; contrivance, without a contriver; order, without choice",
@@ -867,11 +996,17 @@ export const thinkers: Thinker[] = [
         note: "Discusses Paley’s watch argument and its critics.",
       },
       {
-        title: "The Works of William Paley",
+        title: "Natural Theology",
         by: "William Paley",
-        year: "1830 ed.",
+        year: "1802",
         url: "https://archive.org/details/worksofwilliampa00pale",
-        note: "Includes Natural Theology and A View of the Evidences of Christianity.",
+        note: "In The Works of William Paley (1830), one volume.",
+      },
+      {
+        title: "A View of the Evidences of Christianity",
+        by: "William Paley",
+        year: "1794",
+        url: "https://www.gutenberg.org/ebooks/14780",
       },
     ],
   },
@@ -882,7 +1017,7 @@ export const thinkers: Thinker[] = [
     year: 1799,
     tradition: "French mathematician and astronomer",
     side: "skeptic",
-    line: "Showed that the solar system stays stable without God's correction. He is said to have told Napoleon that he had no need of that hypothesis.",
+    line: "Showed that the solar system stays stable without the corrections {{newton|Newton}} thought God must make. He is said to have told Napoleon that he had no need of that hypothesis.",
     work: "Traité de mécanique céleste (1799–1825)",
     quote: {
       text: "We ought then to regard the present state of the universe as the effect of its anterior state and as the cause of the one which is to follow.",
@@ -914,7 +1049,7 @@ export const thinkers: Thinker[] = [
     year: 1837,
     tradition: "English mathematician and inventor of calculating machines",
     side: "theist",
-    line: "Calculated that enough independent witnesses can outweigh any finite improbability, which turns Hume's own way of weighing testimony against him.",
+    line: "Calculated that enough independent witnesses can outweigh any finite improbability, which turns {{hume|Hume}}'s own way of weighing testimony against him.",
     work: "The Ninth Bridgewater Treatise (1837)",
     quote: {
       text: "As the argument of Hume is universal, it is sufficient for its refutation to give a single instance in which it does not hold.",
@@ -946,7 +1081,7 @@ export const thinkers: Thinker[] = [
     year: 1845,
     tradition: "Anglican priest who became a Catholic cardinal",
     side: "theist",
-    line: "Explained how many independent probabilities can add up to a real certainty that no formal proof captures, and how doctrine develops as the church works out what its core implies.",
+    line: "Explained how [[cumulative-case|many independent probabilities]] can add up to a real certainty that no formal proof captures, and how doctrine develops as the church works out what its core implies.",
     work: "An Essay on the Development of Christian Doctrine (1845); An Essay in Aid of a Grammar of Assent (1870)",
     quote: {
       text: "Ten thousand difficulties do not make one doubt, as I understand the subject; difficulty and doubt are incommensurate.",
@@ -970,13 +1105,32 @@ export const thinkers: Thinker[] = [
     ],
   },
   {
+    id: "mansel",
+    name: "Henry Longueville Mansel",
+    life: "1820–1871",
+    year: 1858,
+    tradition: "Oxford philosopher and Anglican priest",
+    side: "neutral",
+    line: "In his Oxford lectures of 1858 he argued that finite minds cannot grasp God's infinite nature, so human ideas of goodness cannot measure God's. {{mill}} answered that he would call no being good whose goodness is unlike ours, and if such a being could send him to hell for refusing, 'to hell I will go'.",
+    work: "The Limits of Religious Thought (1858)",
+    sources: [
+      {
+        title: "The Limits of Religious Thought",
+        by: "Henry Longueville Mansel",
+        year: "1858",
+        url: "https://archive.org/details/limitsofreligiou00mans",
+        note: "The Oxford lectures that Mill was answering.",
+      },
+    ],
+  },
+  {
     id: "darwin",
     name: "Charles Darwin",
     life: "1809–1882",
     year: 1859,
     tradition: "English naturalist",
     side: "neutral",
-    line: "Showed how the look of design can arise by natural selection. He later doubted whether a mind that evolved from animal minds can be trusted, a doubt the Defender takes up.",
+    line: "Showed how the look of design can arise by natural selection. He later doubted whether a mind that evolved from animal minds can be trusted, [[eaan|a doubt the Defender takes up]].",
     work: "On the Origin of Species (1859)",
     quote: {
       text: "If it could be demonstrated that any complex organ existed, which could not possibly have been formed by numerous, successive, slight modifications, my theory would absolutely break down.",
@@ -992,7 +1146,7 @@ export const thinkers: Thinker[] = [
     year: 1865,
     tradition: "English philosopher and economist",
     side: "skeptic",
-    line: "Refused to call any being good whose goodness is unlike ours, and saw that the accident of birth decides most people's religion. The Objector uses both points.",
+    line: "Answered {{mansel|Henry Mansel}} that he would call no being good whose goodness is unlike ours, and saw that the accident of birth decides most people's religion. The Objector uses both points.",
     work: "On Liberty (1859); An Examination of Sir William Hamilton's Philosophy (1865)",
     quote: {
       text: "He who knows only his own side of the case, knows little of that.",
@@ -1011,6 +1165,31 @@ export const thinkers: Thinker[] = [
         by: "John Stuart Mill",
         year: "1859",
         url: "https://www.gutenberg.org/ebooks/34901",
+      },
+    ],
+  },
+  {
+    id: "macdonald-george",
+    name: "George MacDonald",
+    life: "1824–1905",
+    year: 1867,
+    tradition: "Scottish novelist and Congregational minister",
+    side: "theist",
+    line: "{{lewis-cs}} said MacDonald's novel Phantastes had baptized his imagination, and made him the narrator's guide in his fantasy The Great Divorce (1945), where he speaks the book's best-known lines on hell. MacDonald himself hoped that all would finally be saved.",
+    work: "Phantastes (1858); Unspoken Sermons (1867–89)",
+    quote: {
+      text: "It is not that the fire will burn us if we do not worship thus; but that the fire will burn us until we worship thus",
+      who: "George MacDonald",
+      cite: "“The Consuming Fire”, Unspoken Sermons, First Series (1867)",
+      url: "https://www.gutenberg.org/cache/epub/9057/pg9057-images.html#id00052",
+    },
+    sources: [
+      {
+        title: "Unspoken Sermons, Series I, II and III",
+        by: "George MacDonald",
+        year: "1867–89",
+        url: "https://www.gutenberg.org/ebooks/9057",
+        note: "“The Consuming Fire” describes God’s love as a fire that purifies.",
       },
     ],
   },
@@ -1037,7 +1216,7 @@ export const thinkers: Thinker[] = [
     year: 1881,
     tradition: "German philologist and philosopher",
     side: "skeptic",
-    line: "Charged Christianity with breeding guilt and saying no to life, and asked how a God who leaves his intentions unclear could be good. He hailed Spinoza as a forerunner.",
+    line: "Charged Christianity with breeding guilt and saying no to life, and asked how a God who leaves his intentions unclear could be good. He hailed {{spinoza|Spinoza}} as a forerunner.",
     work: "Daybreak (1881); On the Genealogy of Morality (1887); The Antichrist (1888)",
     quote: {
       text: "God is dead! God remains dead! And we have killed him!",
@@ -1072,7 +1251,7 @@ export const thinkers: Thinker[] = [
     year: 1893,
     tradition: "Pope from 1878 to 1903",
     side: "skeptic",
-    line: "Taught that inspiration rules out every error in Scripture and forbade saying that a sacred writer had erred. The Objector cites him to show that the church once held the Bible free of all error.",
+    line: "Taught that divine inspiration rules out every error in Scripture and forbade saying that a sacred writer had erred. The Objector cites him to show that the Catholic Church once held the Bible [[inerrancy|free of all error]].",
     work: "Providentissimus Deus (1893)",
     quote: {
       text: "inspiration not only is essentially incompatible with error, but excludes and rejects it as absolutely and necessarily as it is impossible that God Himself, the supreme Truth, can utter that which is not true.",
@@ -1088,7 +1267,7 @@ export const thinkers: Thinker[] = [
     year: 1896,
     tradition: "American psychologist and philosopher of pragmatism",
     side: "theist",
-    line: "Answered Clifford that when a momentous question can't be settled by evidence, our feelings and will may decide it, since refusing to choose is itself a choice.",
+    line: "Answered {{clifford}} that when a [[genuine-option|momentous question]] can't be settled by evidence, our feelings and will may decide it, since refusing to choose is itself a choice.",
     work: "The Will to Believe (1896)",
     quote: {
       text: "And where faith in a fact can help create the fact, that would be an insane logic which should say that faith running ahead of scientific evidence is the 'lowest kind of immorality' into which a thinking being can fall.",
@@ -1120,7 +1299,7 @@ export const thinkers: Thinker[] = [
     year: 1908,
     tradition: "English essayist and Catholic convert",
     side: "theist",
-    line: "Called original sin, the inborn bent toward wrong, the one part of Christian teaching that can be proved. The Defender uses this to argue that the guilt the gospel lifts is real.",
+    line: "Called [[original-sin|original sin]], the inborn bent toward wrong, the one part of Christian teaching that can be proved. The Defender uses this to argue that the guilt the gospel lifts is real.",
     work: "Orthodoxy (1908)",
     quote: {
       text: "The Christian ideal has not been tried and found wanting. It has been found difficult; and left untried.",
@@ -1150,7 +1329,7 @@ export const thinkers: Thinker[] = [
     year: 1927,
     tradition: "British philosopher and logician",
     side: "skeptic",
-    line: "Found one serious defect in Christ's moral character, his belief in hell. He also told the Jesuit Frederick Copleston that the universe is just there and needs no reason.",
+    line: "Found one serious defect in Christ's moral character, his belief in hell. He also told the Jesuit {{copleston|Frederick Copleston}} that the universe is [[brute-fact|just there and needs no reason]].",
     work: "Why I Am Not a Christian (1927); BBC debate with Copleston (1948)",
     quote: {
       text: "I do not myself feel that any person who is really profoundly humane can believe in everlasting punishment.",
@@ -1179,7 +1358,7 @@ export const thinkers: Thinker[] = [
     year: 1927,
     tradition: "Austrian founder of psychoanalysis",
     side: "skeptic",
-    line: "Read religion as an illusion born of wishes, and made guilt the central problem of civilization. The Objector uses the second point, and Plantinga answers the first.",
+    line: "Read religion as an illusion born of wishes, and made guilt the central problem of civilization. The Objector uses the second point, and {{plantinga}} answers the first.",
     work: "The Future of an Illusion (1927); Civilization and Its Discontents (1930)",
     quote: {
       text: "Thus religion would be the universal obsessional neurosis of humanity.",
@@ -1195,7 +1374,7 @@ export const thinkers: Thinker[] = [
     year: 1929,
     tradition: "German-born physicist who discovered relativity",
     side: "skeptic",
-    line: "The Objector uses his relativity of simultaneity, the finding that events simultaneous for one observer are not simultaneous for another, against a God who shares a single cosmic 'now'. In 1929 he said he believed in Spinoza's God, who does not concern himself with human fates.",
+    line: "The Objector uses his relativity of simultaneity, the finding that events simultaneous for one observer are not simultaneous for another, against a God who shares a single cosmic 'now'. In 1929 he said he believed in {{spinoza|Spinoza}}'s God, who does not concern himself with human fates.",
     work: "Cable to Rabbi Herbert Goldstein (1929)",
     quote: {
       text: "Events which are simultaneous with reference to the embankment are not simultaneous with respect to the train, and vice versa (relativity of simultaneity).",
@@ -1211,7 +1390,7 @@ export const thinkers: Thinker[] = [
     year: 1932,
     tradition: "Swiss Reformed theologian",
     side: "theist",
-    line: "Treated Scripture as true witness to God's Word given in fallible human words, which the Defender cites against the demand for a flawless Bible.",
+    line: "Treated Scripture as true witness to God's Word given in fallible human words, which the Defender cites against the demand for [[inerrancy|a flawless Bible]].",
     work: "Church Dogmatics (1932–67)",
   },
   {
@@ -1221,7 +1400,7 @@ export const thinkers: Thinker[] = [
     year: 1947,
     tradition: "Anglican writer and Oxford literary scholar",
     side: "theist",
-    line: "Charged Hume with arguing in a circle, and pictured hell as a door locked from the inside. After his wife died he wrote that God's silence felt like a door slammed in his face, which the Objector quotes.",
+    line: "Charged {{hume|Hume}} with arguing in a circle, and pictured hell as a door locked from the inside. After his wife died he wrote that God's silence felt like a door slammed in his face, which the Objector quotes.",
     work: "The Problem of Pain (1940); Miracles (1947); A Grief Observed (1961)",
     quote: {
       text: "God whispers to us in our pleasures, speaks in our conscience, but shouts in our pains: it is His megaphone to rouse a deaf world.",
@@ -1238,13 +1417,38 @@ export const thinkers: Thinker[] = [
     ],
   },
   {
+    id: "copleston",
+    name: "Frederick Copleston",
+    life: "1907–1994",
+    year: 1948,
+    tradition: "English Jesuit priest and historian of philosophy",
+    side: "theist",
+    line: "Wrote a nine-volume History of Philosophy (1946–75). In a 1948 BBC radio debate he pressed {{russell}} with the [[contingency-argument|argument from contingency]], that a world of things that need not exist needs a reason outside itself. Russell answered that the universe is just there.",
+    work: "A History of Philosophy (1946–75); BBC debate with Russell (1948)",
+    quote: {
+      text: "in order to explain existence, we must come to a Being which contains within itself the reason for its own existence, that is to say, which cannot not exist.",
+      who: "Frederick Copleston",
+      cite: "A Debate on the Existence of God, with Bertrand Russell (BBC Third Programme, 28 January 1948), Part I",
+      url: "https://strangenotions.com/the-most-famous-debate-on-the-existence-of-god/",
+    },
+    sources: [
+      {
+        title: "A Debate on the Existence of God (BBC Third Programme, 28 January 1948)",
+        by: "Bertrand Russell and F. C. Copleston",
+        year: "1948",
+        url: "https://strangenotions.com/the-most-famous-debate-on-the-existence-of-god/",
+        note: "A transcript of the whole debate, which opens with the argument from contingency.",
+      },
+    ],
+  },
+  {
     id: "flew",
     name: "Antony Flew",
     life: "1923–2010",
     year: 1950,
     tradition: "English philosopher, an atheist until 2004",
     side: "skeptic",
-    line: "Asked what would count against belief in God, and named the 'death by a thousand qualifications' of a claim revised every time it is challenged. Late in life he came to believe in a creator.",
+    line: "Asked [[falsification|what would count against belief in God]], and named the 'death by a thousand qualifications' of a claim revised every time it is challenged. Late in life he came to believe in a creator.",
     work: "Theology and Falsification (1950)",
     quote: {
       text: "Now it often seems to people who are not religious as if there was no conceivable event or series of events the occurrence of which would be admitted by sophisticated religious people to be a sufficient reason for conceding \"There wasn't a God after all\" or \"God does not really love us then.\"",
@@ -1260,7 +1464,7 @@ export const thinkers: Thinker[] = [
     year: 1956,
     tradition: "German Lutheran New Testament scholar",
     side: "theist",
-    line: "Read Paul's 'flesh and blood cannot inherit the kingdom of God' as an idiom for mortal human beings, which leaves room for a bodily resurrection.",
+    line: "Read {{paul|Paul}}'s 'flesh and blood cannot inherit the kingdom of God' as an idiom for mortal human beings, which leaves room for a bodily resurrection.",
     work: "“Flesh and Blood Cannot Inherit the Kingdom of God” (1956)",
   },
   {
@@ -1280,7 +1484,7 @@ export const thinkers: Thinker[] = [
     year: 1961,
     tradition: "German Jesuit theologian",
     side: "theist",
-    line: "Called people saved by a Christ they never knew by name 'anonymous Christians'.",
+    line: "Called people saved by a Christ they never knew by name [[inclusivism|'anonymous Christians']].",
     work: "Theological Investigations",
   },
   {
@@ -1290,7 +1494,7 @@ export const thinkers: Thinker[] = [
     year: 1962,
     tradition: "English philosopher at Oxford",
     side: "theist",
-    line: "Argued that resentment, gratitude and guilt are how we hold one another responsible, and that they don't depend on uncaused choices. The Defender uses this against Spinoza.",
+    line: "Argued that [[reactive-attitudes|resentment, gratitude and guilt]] are how we hold one another responsible, and that they don't depend on uncaused choices. The Defender uses this against {{spinoza|Spinoza}}.",
     work: "Freedom and Resentment (1962)",
   },
   {
@@ -1300,7 +1504,7 @@ export const thinkers: Thinker[] = [
     year: 1963,
     tradition: "Swedish Lutheran bishop and New Testament scholar",
     side: "theist",
-    line: "Argued that the guilt-ridden Paul is a later Western reading, since Paul called himself blameless under the Law.",
+    line: "Argued that the guilt-ridden {{paul|Paul}} is a later Western reading, since Paul called himself blameless under the Jewish Law.",
     work: "“The Apostle Paul and the Introspective Conscience of the West” (1963)",
   },
   {
@@ -1310,7 +1514,7 @@ export const thinkers: Thinker[] = [
     year: 1963,
     tradition: "French Catholic philosopher in Aquinas's tradition",
     side: "theist",
-    line: "Revised the Thomist teaching on how God permits sin, holding that a creature can break God's motions toward the good, so the creature's failure comes first.",
+    line: "Revised the teaching of {{aquinas|Aquinas}}'s followers on how God permits sin, holding that a creature can break God's motions toward the good, so the creature's failure comes first.",
     work: "God and the Permission of Evil (1963; Eng. 1966)",
   },
   {
@@ -1320,7 +1524,7 @@ export const thinkers: Thinker[] = [
     year: 1965,
     tradition: "American philosopher of religion",
     side: "skeptic",
-    line: "Gave the modern form of the argument that if God infallibly knows what you will do, you are not free to do otherwise.",
+    line: "Gave the modern form of [[theological-fatalism|the argument]] that if God infallibly knows what you will do, you are not free to do otherwise.",
     work: "“Divine Omniscience and Voluntary Action” (1965)",
   },
   {
@@ -1330,7 +1534,7 @@ export const thinkers: Thinker[] = [
     year: 1966,
     tradition: "English philosopher of religion",
     side: "theist",
-    line: "Called the world's ambiguity 'epistemic distance', a distance in what we can know of God that leaves people room to come to him freely.",
+    line: "Called the world's ambiguity [[epistemic-distance|'epistemic distance']], a distance in what we can know of God that leaves people room to come to him freely.",
     work: "Evil and the God of Love (1966)",
   },
   {
@@ -1360,7 +1564,7 @@ export const thinkers: Thinker[] = [
     year: 1970,
     tradition: "English moral philosopher",
     side: "neutral",
-    line: "Argued that no one can believe something at will while knowing that belief aims at truth, a point the Objector presses. He also named 'agent-regret', a fitting sorrow for harm done without fault, and the Defender borrows it.",
+    line: "Argued that no one can [[doxastic-voluntarism|believe something at will]] while knowing that belief aims at truth, a point the Objector presses. He also named 'agent-regret', a fitting sorrow for harm done without fault, and the Defender borrows it.",
     work: "“Deciding to Believe” (1970); “Moral Luck” (1976)",
   },
   {
@@ -1378,9 +1582,9 @@ export const thinkers: Thinker[] = [
     name: "Brandon Carter",
     life: "b. 1942",
     year: 1973,
-    tradition: "Theoretical physicist",
+    tradition: "Australian theoretical physicist",
     side: "skeptic",
-    line: "Named the anthropic principle, the point that we can only observe a universe in which observers like us can exist.",
+    line: "Named the [[anthropic-principle|anthropic principle]], the point that we can only observe a universe in which observers like us can exist.",
     work: "“Large Number Coincidences and the Anthropic Principle in Cosmology” (1974)",
   },
   {
@@ -1415,7 +1619,7 @@ export const thinkers: Thinker[] = [
     year: 1979,
     tradition: "English philosopher, a former Catholic priest turned agnostic",
     side: "skeptic",
-    line: "Argued that if every event is simultaneous with all of eternity, then all events are simultaneous with one another, and that the traditional attributes of God do not fit together.",
+    line: "Argued that if every event is simultaneous with all of [[timeless-eternity|eternity]], then all events are simultaneous with one another, and that the traditional attributes of God do not fit together.",
     work: "The God of the Philosophers (1979)",
   },
   {
@@ -1455,7 +1659,7 @@ export const thinkers: Thinker[] = [
     year: 1981,
     tradition: "English astrophysicist, long an atheist",
     side: "theist",
-    line: "Predicted an energy level in carbon that lets stars make it, and later judged that a superintellect seemed to have 'monkeyed with physics'. The Defender cites him on fine-tuning.",
+    line: "Predicted an energy level in carbon that lets stars make it, and later judged that a superintellect seemed to have 'monkeyed with physics'. The Defender cites him on [[fine-tuning|fine-tuning]].",
     work: "“The Universe: Past and Present Reflections” (1981)",
     quote: {
       text: "Rather than accept the fantastically small probability of life having arisen through the blind forces of nature, it seemed better to suppose that the origin of life was a deliberate intellectual act.",
@@ -1471,7 +1675,7 @@ export const thinkers: Thinker[] = [
     year: 1981,
     tradition: "American philosopher and scholar of medieval thought",
     side: "theist",
-    line: "Argued in 1966 that an all-knowing God must change as time passes, then with Eleonore Stump built the account of God's eternity the Defender uses.",
+    line: "Argued in 1966 that an all-knowing God must change as time passes, then with {{stump|Eleonore Stump}} built the account of [[timeless-eternity|God's eternity]] the Defender uses.",
     work: "“Eternity” (with Stump, 1981)",
   },
   {
@@ -1481,7 +1685,7 @@ export const thinkers: Thinker[] = [
     year: 1982,
     tradition: "American lawyer and evangelical theologian",
     side: "theist",
-    line: "Built the modern case from Scripture that the lost are destroyed and do not suffer forever, the view called annihilationism.",
+    line: "Built the modern case from Scripture that the lost are destroyed and do not suffer forever, the view called [[annihilationism|annihilationism]].",
     work: "The Fire That Consumes (1982)",
   },
   {
@@ -1514,7 +1718,7 @@ export const thinkers: Thinker[] = [
     year: 1983,
     tradition: "American metaphysician and an Episcopalian",
     side: "theist",
-    line: "Argued that a principle of sufficient reason without exceptions makes everything necessary, and so rejected it. He also argues that disagreement no more makes believers irrational than it makes philosophers irrational.",
+    line: "Argued that a [[psr|principle of sufficient reason]] without exceptions makes everything necessary, and so rejected it. He also argues that disagreement no more makes believers irrational than it makes philosophers irrational.",
     work: "An Essay on Free Will (1983); “It Is Wrong, Everywhere, Always, and for Anyone, to Believe Anything upon Insufficient Evidence” (1996)",
     quote: {
       text: "The question that is my title is supposed to be the most profound and difficult of all questions. Some, indeed, have said that it is a dangerous question, a question that can tear the mind asunder. But I think we can make some progress with it if we do not panic.",
@@ -1543,7 +1747,7 @@ export const thinkers: Thinker[] = [
     year: 1984,
     tradition: "American philosopher of biology",
     side: "skeptic",
-    line: "Founded teleosemantics, the view that what a brain state means is fixed by what it was selected to signal.",
+    line: "Founded [[teleosemantics|teleosemantics]], the view that what a brain state means is fixed by what it was selected to signal.",
     work: "Language, Thought, and Other Biological Categories (1984)",
   },
   {
@@ -1553,7 +1757,7 @@ export const thinkers: Thinker[] = [
     year: 1987,
     tradition: "English Dominican friar in Aquinas's tradition",
     side: "theist",
-    line: "Argued that God's causing my act is what makes it mine, because God is no rival agent on my level.",
+    line: "Argued that God's causing my act is what makes it mine, because God is [[non-competition|no rival agent on my level]].",
     work: "God Matters (1987)",
   },
   {
@@ -1563,7 +1767,7 @@ export const thinkers: Thinker[] = [
     year: 1987,
     tradition: "Canadian philosopher of probability and science",
     side: "neutral",
-    line: "Charged that inferring many universes from the fine-tuning of this one is an 'inverse gambler's fallacy', like concluding from one double six that there must have been many rolls.",
+    line: "Charged that inferring many universes from the [[fine-tuning|fine-tuning]] of this one is an 'inverse gambler's fallacy', like concluding from one double six that there must have been many rolls.",
     work: "“The Inverse Gambler's Fallacy” (Mind, 1987)",
   },
   {
@@ -1573,7 +1777,7 @@ export const thinkers: Thinker[] = [
     year: 1987,
     tradition: "American physicist, Nobel laureate and atheist",
     side: "skeptic",
-    line: "Used anthropic reasoning in 1987 to predict that empty space has a small energy, a decade before it was measured. The Objector cites this for the multiverse.",
+    line: "Used [[anthropic-principle|anthropic reasoning]] in 1987 to predict that empty space has a small energy, a decade before it was measured. The Objector cites this for the [[multiverse|multiverse]].",
     work: "“Anthropic Bound on the Cosmological Constant” (1987)",
   },
   {
@@ -1583,7 +1787,7 @@ export const thinkers: Thinker[] = [
     year: 1987,
     tradition: "American philosopher and evangelical apologist",
     side: "theist",
-    line: "The leading defender of middle knowledge today. He uses it to square God's foreknowledge with freedom and to argue that no one is lost through an accident of birth.",
+    line: "The leading defender of [[middle-knowledge|middle knowledge]] today. He uses it to square God's foreknowledge with freedom and to argue that no one is lost through an accident of birth.",
     work: "The Only Wise God (1987); “No Other Name” (1989)",
     quote: {
       text: "If there were anyone who would have responded to the gospel if he had heard it, then God in His love would have brought the gospel to such a person.",
@@ -1623,7 +1827,7 @@ export const thinkers: Thinker[] = [
     year: 1988,
     tradition: "English evangelical Anglican leader",
     side: "theist",
-    line: "Tentatively accepted annihilationism, finding endless conscious torment unbearable to contemplate.",
+    line: "Tentatively accepted [[annihilationism|annihilationism]], finding endless conscious torment unbearable to contemplate.",
     work: "Essentials (1988, with David L. Edwards)",
   },
   {
@@ -1633,7 +1837,7 @@ export const thinkers: Thinker[] = [
     year: 1988,
     tradition: "American Episcopalian theologian",
     side: "theist",
-    line: "Argues that God's transcendence is 'non-contrastive', so God and creatures never compete as two agents on one level.",
+    line: "Argues that God's transcendence is [[non-competition|'non-contrastive']], so God and creatures never compete as two agents on one level.",
     work: "God and Creation in Christian Theology (1988)",
     sources: [
       {
@@ -1651,7 +1855,7 @@ export const thinkers: Thinker[] = [
     year: 1989,
     tradition: "Canadian Catholic philosopher",
     side: "theist",
-    line: "Traced the modern sense that work and family are where a good life is lived to the Reformers' 'affirmation of ordinary life'. The Objector also cites him for how late that affirmation came.",
+    line: "Traced the modern sense that work and family are where a good life is lived to the Protestant Reformers' 'affirmation of ordinary life'. The Objector also cites him for how late that affirmation came.",
     work: "Sources of the Self (1989)",
   },
   {
@@ -1661,7 +1865,7 @@ export const thinkers: Thinker[] = [
     year: 1989,
     tradition: "Canadian philosopher of cosmology",
     side: "theist",
-    line: "Told of a condemned man whose fifty marksmen all miss. He shouldn't shrug it off as the only outcome he could have lived to notice, and the Defender says the same of fine-tuning.",
+    line: "Told of a condemned man whose fifty marksmen all miss. He shouldn't shrug it off as the only outcome he could have lived to notice, and the Defender says the same of [[fine-tuning|fine-tuning]].",
     work: "Universes (1989)",
   },
   {
@@ -1671,7 +1875,7 @@ export const thinkers: Thinker[] = [
     year: 1989,
     tradition: "English mathematical physicist and Nobel laureate",
     side: "theist",
-    line: "Put the odds of the universe's highly ordered (low-entropy) beginning at one in 10 to the power of 10¹²³, which the Defender cites as fine-tuning.",
+    line: "Put the odds of the universe's highly ordered (low-entropy) beginning at one in 10 to the power of 10¹²³, which the Defender cites as [[fine-tuning|fine-tuning]].",
     work: "The Emperor's New Mind (1989)",
   },
   {
@@ -1681,7 +1885,7 @@ export const thinkers: Thinker[] = [
     year: 1989,
     tradition: "American philosopher and open theist",
     side: "neutral",
-    line: "Pressed the case that nothing makes a claim about what you would freely do true, which counts against middle knowledge, and helped build open theism, the view that the future is partly unsettled even for God.",
+    line: "Pressed the case that nothing makes a claim about what you would freely do true, which counts against [[middle-knowledge|middle knowledge]], and helped build [[open-theism|open theism]], the view that the future is partly unsettled even for God.",
     work: "God, Time, and Knowledge (1989)",
     quote: {
       text: "If this is so, then we cannot bring about the truth of these counterfactuals; the anti-Molinist argument succeeds, and Molinism is refuted.",
@@ -1726,7 +1930,7 @@ export const thinkers: Thinker[] = [
     year: 1990,
     tradition: "American atheist philosopher",
     side: "skeptic",
-    line: "Pressed the objection Plantinga called 'Son of Great Pumpkin', that if belief in God can be basic, any community could declare its own beliefs basic.",
+    line: "Pressed the [[great-pumpkin-objection|objection]] {{plantinga}} called 'Son of Great Pumpkin', that if belief in God can be [[properly-basic|basic]], any community could declare its own beliefs basic.",
     work: "Atheism: A Philosophical Justification (1990)",
   },
   {
@@ -1736,7 +1940,7 @@ export const thinkers: Thinker[] = [
     year: 1990,
     tradition: "Philosopher of religion",
     side: "skeptic",
-    line: "Turned the complaint about God's hiddenness into an argument in 1990, before Schellenberg, and asked what hiddenness says about how much belief matters.",
+    line: "Turned the complaint about God's hiddenness into an argument in 1990, before {{schellenberg|Schellenberg}}, and asked what hiddenness says about how much belief matters.",
     work: "“The Hiddenness of God” (1990)",
   },
   {
@@ -1746,7 +1950,7 @@ export const thinkers: Thinker[] = [
     year: 1991,
     tradition: "American Catholic philosopher",
     side: "skeptic",
-    line: "Though a believer, argued that the fatalist argument can be rerun against God's timeless knowledge, since a belief you can't affect fixes your act as firmly as a past belief does.",
+    line: "Though a believer, argued that [[theological-fatalism|the fatalist argument]] can be rerun against God's timeless knowledge, since a belief you can't affect fixes your act as firmly as a past belief does.",
     work: "The Dilemma of Freedom and Foreknowledge (1991)",
     quote: {
       text: "Theological fatalism is the thesis that infallible foreknowledge of a human act makes the act necessary and hence unfree.",
@@ -1762,7 +1966,7 @@ export const thinkers: Thinker[] = [
     year: 1991,
     tradition: "American philosopher of mind and ethics",
     side: "skeptic",
-    line: "With Mark Timmons, imagined a 'Moral Twin Earth' to show that moral words do not fix their meaning the way 'water' does.",
+    line: "With {{timmons|Mark Timmons}}, imagined a 'Moral Twin Earth' to show that moral words do not get their meaning the way 'water' does, from the stuff (H₂O) it picks out.",
     work: "“New Wave Moral Realism Meets Moral Twin Earth” (with Timmons, 1991)",
   },
   {
@@ -1807,7 +2011,7 @@ export const thinkers: Thinker[] = [
     year: 1992,
     tradition: "American moral philosopher",
     side: "skeptic",
-    line: "With Terence Horgan, argued from Moral Twin Earth that people who anchor 'good' to different examples still disagree, so moral words work differently from 'water'.",
+    line: "With {{horgan|Terence Horgan}}, argued from their imagined 'Moral Twin Earth' that people who anchor 'good' to different examples still disagree, so moral words work differently from 'water'.",
     work: "“Troubles on Moral Twin Earth” (with Horgan, 1992)",
   },
   {
@@ -1817,7 +2021,7 @@ export const thinkers: Thinker[] = [
     year: 1992,
     tradition: "English New Testament scholar and Anglican priest",
     side: "theist",
-    line: "Showed that the Gospels belong to the genre of ancient Greek and Roman biography.",
+    line: "Showed that the Gospels belong to the genre of [[bios|ancient Greek and Roman biography]].",
     work: "What Are the Gospels? (1992)",
   },
   {
@@ -1827,7 +2031,7 @@ export const thinkers: Thinker[] = [
     year: 1993,
     tradition: "American philosopher in the Reformed (Calvinist) tradition",
     side: "theist",
-    line: "Argues that belief in God can be 'properly basic', reasonable without argument like belief in other minds, and that evolution plus naturalism undercuts trust in our own reasoning.",
+    line: "Argues that belief in God can be [[properly-basic|'properly basic']], reasonable without argument like belief in other minds, and that [[eaan|evolution plus naturalism]] undercuts trust in our own reasoning.",
     work: "Warrant and Proper Function (1993); Warranted Christian Belief (2000)",
     quote: {
       text: "In this regard, the sensus divinitatis resembles perception, memory, and a priori belief.",
@@ -1858,7 +2062,7 @@ export const thinkers: Thinker[] = [
     year: 1993,
     tradition: "Canadian philosopher of religion",
     side: "skeptic",
-    line: "The author of the hiddenness argument. He argues that a perfectly loving God would always be open to a relationship with each of us, so honest, nonresistant nonbelief would not exist, yet it does.",
+    line: "The author of the hiddenness argument. He argues that a perfectly loving God would always be open to a relationship with each of us, so honest, [[nonresistant-nonbelief|nonresistant nonbelief]] would not exist, yet it does.",
     work: "Divine Hiddenness and Human Reason (1993); The Hiddenness Argument (2015)",
     quote: {
       text: "After all, a personal relationship is a conscious, reciprocal relationship, and a conscious relationship is a relationship one recognizes oneself to be in. Given these facts, one clearly cannot even get started in a personal relationship without believing that the other party exists.",
@@ -1930,7 +2134,7 @@ export const thinkers: Thinker[] = [
     name: "John Dominic Crossan",
     life: "b. 1934",
     year: 1994,
-    tradition: "Irish-American New Testament scholar of the Jesus Seminar",
+    tradition: "Irish-American New Testament scholar and former Catholic priest",
     side: "skeptic",
     line: "Doubts that Jesus was ever laid in a known tomb, and reads the Easter stories as parables.",
     work: "Jesus: A Revolutionary Biography (1994)",
@@ -1942,7 +2146,7 @@ export const thinkers: Thinker[] = [
     year: 1998,
     tradition: "American philosopher of probability",
     side: "skeptic",
-    line: "With Elliott Sober, argued that Plantinga's low probability for reliable faculties has no support, and that the believer can't vindicate reason without begging the question either.",
+    line: "With {{sober|Elliott Sober}}, argued that {{plantinga}}'s low estimate of the chance that evolved faculties are reliable has no support, and that the believer can't vindicate reason without begging the question either.",
     work: "“Plantinga's Probability Arguments Against Evolutionary Naturalism” (1998)",
     quote: {
       text: "We will try to show that both arguments contain serious errors.",
@@ -1957,7 +2161,7 @@ export const thinkers: Thinker[] = [
     year: 1998,
     tradition: "Korean-American philosopher of mind",
     side: "skeptic",
-    line: "His causal exclusion argument says that if an event has a complete physical cause, no work is left for a second cause. He aimed it at minds, and the Objector aims it at God.",
+    line: "His [[causal-exclusion|causal exclusion]] argument says that if an event has a complete physical cause, no work is left for a second cause. He aimed it at minds, and the Objector aims it at God.",
     work: "Mind in a Physical World (1998)",
   },
   {
@@ -1967,7 +2171,7 @@ export const thinkers: Thinker[] = [
     year: 1998,
     tradition: "American Catholic philosopher",
     side: "theist",
-    line: "Gave the fullest modern defense of providence through middle knowledge.",
+    line: "Gave the fullest modern account of how God could steer the world through [[middle-knowledge|middle knowledge]].",
     work: "Divine Providence: The Molinist Account (1998)",
   },
   {
@@ -1987,7 +2191,7 @@ export const thinkers: Thinker[] = [
     year: 1999,
     tradition: "British cosmologist and Astronomer Royal",
     side: "theist",
-    line: "Picked out six numbers that must fall in narrow ranges for a universe to permit life. He leans toward a multiverse, but the Defender cites his numbers.",
+    line: "Picked out six numbers that must fall in narrow ranges for a universe to permit life. He leans toward a [[multiverse|multiverse]], but the Defender cites his numbers.",
     work: "Just Six Numbers (1999)",
   },
   {
@@ -1997,7 +2201,7 @@ export const thinkers: Thinker[] = [
     year: 1999,
     tradition: "American philosopher and a Christian",
     side: "theist",
-    line: "Raised the 'grounding objection' to middle knowledge, that nothing makes 'you would freely do this' true, and the Objector presses it. He also built an ethics of divine commands on God as the Good, on which the Defender relies.",
+    line: "Raised the [[grounding-objection|'grounding objection']] to [[middle-knowledge|middle knowledge]], that nothing makes 'you would freely do this' true, and the Objector presses it. He also built an ethics of divine commands on God as the Good, on which the Defender relies.",
     work: "Finite and Infinite Goods (1999)",
     sources: [
       {
@@ -2025,13 +2229,31 @@ export const thinkers: Thinker[] = [
     },
   },
   {
+    id: "hunt-david",
+    name: "David P. Hunt",
+    life: "contemporary",
+    year: 1999,
+    tradition: "Philosopher of religion at Whittier College in California",
+    side: "neutral",
+    line: "Defends simple foreknowledge, the view that God knows what we will freely do without deciding it for us. He argues that freedom doesn't require being able to do otherwise, so God's infallible foreknowledge need not take it away. He and {{zagzebski}} wrote the Stanford Encyclopedia of Philosophy's entry on foreknowledge and free will.",
+    work: "“Divine Providence and Simple Foreknowledge” (1993); “On Augustine's Way Out” (1999)",
+    sources: [
+      {
+        title: "Foreknowledge and Free Will (Stanford Encyclopedia of Philosophy)",
+        by: "David Hunt and Linda Zagzebski",
+        url: "https://plato.stanford.edu/entries/free-will-foreknowledge/",
+        note: "Section 2.7 sets out the reply Hunt defends, that freedom doesn’t need the ability to do otherwise.",
+      },
+    ],
+  },
+  {
     id: "boyd",
     name: "Gregory A. Boyd",
     life: "b. 1957",
     year: 2000,
     tradition: "American pastor and open theist",
     side: "theist",
-    line: "Popularized open theism, reading biblical prophecy as God announcing his intentions and knowing people's characters.",
+    line: "Popularized [[open-theism|open theism]], reading biblical prophecy as God announcing his intentions and knowing people's characters.",
     work: "God of the Possible (2000)",
   },
   {
@@ -2041,7 +2263,7 @@ export const thinkers: Thinker[] = [
     year: 2000,
     tradition: "American philosopher of science, no apologist",
     side: "neutral",
-    line: "Argued that Hume's case against miracles fails on its own terms of probability, while doubting most actual miracle reports, so both sides can cite him.",
+    line: "Argued that {{hume|Hume}}'s case against miracles fails on its own terms of probability, while doubting most actual miracle reports, so both sides can cite him.",
     work: "Hume's Abject Failure (2000)",
     quote: {
       text: "Most of Hume's considerations are unoriginal, warmed over versions of arguments that are found in the writings of predecessors and contemporaries.",
@@ -2071,7 +2293,7 @@ export const thinkers: Thinker[] = [
     year: 2000,
     tradition: "Philosopher of knowledge at MIT",
     side: "neutral",
-    line: "Argued that many universes don't make it any likelier that this universe permits life.",
+    line: "Argued that [[multiverse|many universes]] don't make it any likelier that this universe permits life.",
     work: "“Fine-Tuning and Multiple Universes” (Noûs, 2000)",
   },
   {
@@ -2081,7 +2303,7 @@ export const thinkers: Thinker[] = [
     year: 2001,
     tradition: "British philosopher of science",
     side: "skeptic",
-    line: "Argues that physics showed every physical event to have a complete physical cause (causal closure), and helped found teleosemantics.",
+    line: "Argues that physics showed every physical event to have a complete physical cause ([[causal-closure|causal closure]]), and helped found [[teleosemantics|teleosemantics]].",
     work: "“The Rise of Physicalism” (2001); Reality and Representation (1987)",
     quote: {
       text: "This led to the widespread acceptance of the doctrine now known as the “causal closure” or the “causal completeness of the physical”, according to which all physical effects have fully physical causes.",
@@ -2106,9 +2328,9 @@ export const thinkers: Thinker[] = [
     life: "contemporary",
     year: 2001,
     tradition: "American philosopher of probability and a Christian",
-    side: "skeptic",
-    line: "With Lydia McGrew and Eric Vestrup, argued that fine-tuning probabilities over unlimited ranges cannot be computed, which the Objector uses.",
-    work: "“Probabilities and the Fine-Tuning Argument: A Sceptical View” (Mind, 2001)",
+    side: "neutral",
+    line: "With his wife, {{mcgrew-lydia|Lydia McGrew}}, he argued that [[fine-tuning|fine-tuning]] probabilities over unlimited ranges cannot be computed, which the Objector uses, and that the testimony to the resurrection is very strong evidence, which the Defender uses.",
+    work: "“Probabilities and the Fine-Tuning Argument: A Sceptical View” (Mind, 2001); “The Argument from Miracles” (with Lydia McGrew, 2009)",
   },
   {
     id: "howard-snyder",
@@ -2117,7 +2339,7 @@ export const thinkers: Thinker[] = [
     year: 2002,
     tradition: "American philosopher of religion and a Christian",
     side: "theist",
-    line: "Argues that faith need not include belief, and that God may hold back belief from someone not ready to receive it well.",
+    line: "Argues that [[nondoxastic-faith|faith need not include belief]], and that God may hold back belief from someone not ready to receive it well.",
     work: "Divine Hiddenness: New Essays (ed. with Paul Moser, 2002)",
     quote: {
       text: "In religious literature, there is a long history of expressions of annoyance, anxiety, and despair over divine hiddenness, so understood.",
@@ -2133,7 +2355,7 @@ export const thinkers: Thinker[] = [
     year: 2002,
     tradition: "Swedish philosopher at Oxford",
     side: "skeptic",
-    line: "Worked out the logic of observation selection effects and defended the inference to many universes against the charge of an 'inverse gambler's fallacy'.",
+    line: "Worked out the logic of [[anthropic-principle|observation selection effects]] and defended the inference to many universes against {{hacking|Ian Hacking}}'s charge of an 'inverse gambler's fallacy'.",
     work: "Anthropic Bias (2002)",
     quote: {
       text: "Two possible explanations are usually envisioned: the design hypothesis and the ensemble hypothesis. Although these explanations are compatible, they tend to be viewed as competing.",
@@ -2149,7 +2371,7 @@ export const thinkers: Thinker[] = [
     year: 2003,
     tradition: "American philosopher of biology",
     side: "skeptic",
-    line: "Argues that observer selection undercuts the fine-tuning argument and that an unlimited mind is no simple explanation, and, with Fitelson, that Plantinga's probability arguments fail.",
+    line: "Argues that [[anthropic-principle|observer selection]] undercuts the [[fine-tuning|fine-tuning]] argument and that an unlimited mind is no simple explanation, and, with {{fitelson|Branden Fitelson}}, that {{plantinga}}'s probability arguments fail.",
     work: "“The Design Argument” (2003)",
     sources: [
       {
@@ -2167,7 +2389,7 @@ export const thinkers: Thinker[] = [
     year: 2003,
     tradition: "English New Testament scholar and Anglican bishop",
     side: "theist",
-    line: "Argues that only an empty tomb plus appearances explains why Jews said Jesus had been raised, and that Christian hope is for this world healed.",
+    line: "Argues that only an empty tomb plus appearances explains why first-century Jews said Jesus had been raised, and that Christian hope is for this world healed.",
     work: "The Resurrection of the Son of God (2003); Surprised by Hope (2008)",
     quote: {
       text: "There is no form of early Christianity known to us that does not affirm that after Jesus’ shameful death God raised him to life again.",
@@ -2198,7 +2420,7 @@ export const thinkers: Thinker[] = [
     year: 2003,
     tradition: "American philosopher and Hume scholar",
     side: "skeptic",
-    line: "Defended Hume against Earman, reading the essay's two parts as one argument in which the first sets a bar and the second shows that no actual report clears it.",
+    line: "Defended {{hume|Hume}} against {{earman|John Earman}}, reading the two parts of Hume's essay on miracles as one argument in which the first sets a bar and the second shows that no actual report clears it.",
     work: "A Defense of Hume on Miracles (2003)",
   },
   {
@@ -2208,7 +2430,7 @@ export const thinkers: Thinker[] = [
     year: 2004,
     tradition: "American philosopher and evangelical apologist",
     side: "theist",
-    line: "Built the 'minimal facts' case for the resurrection from facts most critical scholars accept.",
+    line: "Built the [[minimal-facts|'minimal facts']] case for the resurrection from facts most critical scholars accept.",
     work: "The Case for the Resurrection of Jesus (2004, with Licona)",
     quote: {
       text: "So I decided to be even more selective than the majority of critical scholars by shortening the list in order to get more scholars (and especially the skeptics) on board.",
@@ -2234,7 +2456,7 @@ export const thinkers: Thinker[] = [
     year: 2005,
     tradition: "American string theorist",
     side: "skeptic",
-    line: "Champions the string 'landscape' of perhaps 10⁵⁰⁰ possible universes, which the Objector cites for the multiverse.",
+    line: "Champions string theory's 'landscape' of perhaps 10⁵⁰⁰ possible universes, which the Objector cites for the [[multiverse|multiverse]].",
     work: "The Cosmic Landscape (2005)",
     quote: {
       text: "Whether we like it or not, this is the kind of behavior that gives credence to the Anthropic Principle.",
@@ -2250,7 +2472,7 @@ export const thinkers: Thinker[] = [
     year: 2006,
     tradition: "American Catholic philosopher at Baylor",
     side: "theist",
-    line: "Defends the principle of sufficient reason, that everything has an explanation, and the argument from contingency. He argues that without the principle we couldn't even call a brick appearing from nowhere unlikely.",
+    line: "Defends the [[psr|principle of sufficient reason]], that everything has an explanation, and the [[contingency-argument|argument from contingency]]. He argues that without the principle we couldn't even call a brick appearing from nowhere unlikely.",
     work: "The Principle of Sufficient Reason: A Reassessment (2006)",
     quote: {
       text: "But does it make any sense to assign a probability to the hypothesis that a brick comes to exist ex nihilo in mid-air in front of us for no reason at all, assuming this is possible?",
@@ -2300,7 +2522,7 @@ export const thinkers: Thinker[] = [
     year: 2006,
     tradition: "Australian philosopher and atheist",
     side: "skeptic",
-    line: "Argues that whatever the believer says of God, a naturalist (someone who holds that nature is all there is) can say of the universe's first state, and that no argument for God compels a reasonable nonbeliever.",
+    line: "Argues that whatever the believer says of God, a [[naturalism|naturalist]] can say of the universe's first state, and that no argument for God compels a reasonable nonbeliever.",
     work: "Arguing about Gods (2006)",
     quote: {
       text: "I hope to show that agnosticism can be so formulated that it is no less philosophically respectable than theism and atheism.",
@@ -2379,7 +2601,7 @@ export const thinkers: Thinker[] = [
     year: 2007,
     tradition: "American philosopher of knowledge",
     side: "skeptic",
-    line: "Defends evidentialism, the view that we should believe only as far as the evidence goes, and argues that equally informed peers who disagree about religion should both suspend judgment.",
+    line: "Defends [[evidentialism|evidentialism]], the view that we should believe only as far as the evidence goes, and argues that equally informed peers who disagree about religion should both [[conciliationism|suspend judgment]].",
     work: "Evidentialism (2004, with Earl Conee); Reasonable Religious Disagreements (2007)",
     quote: {
       text: "Sometimes it is reasonable to act a certain way while it is not reasonable to believe that that way of acting will be successful.",
@@ -2394,7 +2616,7 @@ export const thinkers: Thinker[] = [
     year: 2007,
     tradition: "American metaphysician and a Christian",
     side: "theist",
-    line: "Argues that many truths need nothing to make them true, and that God's beliefs about our acts depend on what we do.",
+    line: "Argues that many truths [[truthmaker|need nothing to make them true]], and that God's beliefs about our acts depend on what we do.",
     work: "Truth and Ontology (2007)",
   },
   {
@@ -2463,7 +2685,7 @@ export const thinkers: Thinker[] = [
     year: 2009,
     tradition: "American philosopher of knowledge and a Christian",
     side: "theist",
-    line: "A leading skeptical theist, holding that the goods we know of may be no fair sample of all the goods there are. The Objector borrows his point that a naturalist may trust her faculties without argument.",
+    line: "A leading [[skeptical-theism|skeptical theist]], holding that the goods we know of may be no fair sample of all the goods there are. The Objector borrows his point that someone who thinks nature is all there is may trust her faculties without argument.",
     work: "“Commonsense Naturalism” (2002); “Skeptical Theism and the Problem of Evil” (2009)",
     sources: [
       {
@@ -2481,7 +2703,7 @@ export const thinkers: Thinker[] = [
     year: 2009,
     tradition: "American philosopher of physics and a Christian",
     side: "theist",
-    line: "Argues that the life-permitting values of physics are far likelier if God exists, and that a machine producing many universes would need fine-tuning too.",
+    line: "Argues that the life-permitting values of physics are far likelier if God exists, and that a machine producing many universes would need [[fine-tuning|fine-tuning]] too.",
     work: "“The Teleological Argument” (Blackwell Companion to Natural Theology, 2009)",
     quote: {
       text: "Thus, the fine-tuning provides significant evidence for theism over the naturalistic single-universe hypothesis.",
@@ -2506,13 +2728,23 @@ export const thinkers: Thinker[] = [
     ],
   },
   {
+    id: "mcgrew-lydia",
+    name: "Lydia McGrew",
+    life: "contemporary",
+    year: 2009,
+    tradition: "American analytic philosopher and Christian writer",
+    side: "neutral",
+    line: "With her husband, {{mcgrew-timothy|Timothy McGrew}}, she argued in 2009 that the testimony to the resurrection is about 10⁴⁴ times likelier if Jesus rose than if he did not, a figure the Defender cites and the Objector disputes. In 2001 they argued that [[fine-tuning|fine-tuning]] probabilities over unlimited ranges cannot be computed.",
+    work: "“The Argument from Miracles” (with Timothy McGrew, 2009); Hidden in Plain View (2017)",
+  },
+  {
     id: "morriston",
     name: "Wes Morriston",
     life: "contemporary",
     year: 2009,
     tradition: "American philosopher of religion",
     side: "skeptic",
-    line: "Argues that the Euthyphro dilemma returns against the claim that God's nature sets the standard of goodness.",
+    line: "Argues that the [[euthyphro-dilemma|Euthyphro dilemma]] returns against the claim that God's nature sets the standard of goodness.",
     work: "“What If God Commanded Something Terrible?” (2009)",
     quote: {
       text: "If God commanded something that was obviously evil, would we have a moral obligation to do it?",
@@ -2551,7 +2783,7 @@ export const thinkers: Thinker[] = [
     year: 2010,
     tradition: "American philosopher in Aquinas's tradition",
     side: "theist",
-    line: "With Norman Kretzmann she made Boethius's eternity precise. She reads love as wanting the beloved's good and union with them, and the atonement as God's way to union with people divided against themselves.",
+    line: "With {{kretzmann|Norman Kretzmann}} she made {{boethius|Boethius}}'s [[timeless-eternity|eternity]] precise. She reads love as wanting the beloved's good and union with them, and the [[atonement|atonement]] as God's way to union with people divided against themselves.",
     work: "“Eternity” (with Kretzmann, 1981); Wandering in Darkness (2010); Atonement (2018)",
     quote: {
       text: "Properly interpreted, these claims form the basis for a consistent and coherent Christian solution to the problem of evil.",
@@ -2582,7 +2814,7 @@ export const thinkers: Thinker[] = [
     year: 2010,
     tradition: "American philosopher and Spinoza scholar at Yale",
     side: "spinoza",
-    line: "Accepts the principle of sufficient reason without exception and, like Spinoza, accepts the result that nothing could have been otherwise.",
+    line: "Accepts the [[psr|principle of sufficient reason]] without exception and, like {{spinoza|Spinoza}}, accepts the result that nothing could have been otherwise.",
     work: "“PSR” (Philosophers' Imprint, 2010); The Parmenidean Ascent (2020)",
     sources: [
       {
@@ -2620,7 +2852,7 @@ export const thinkers: Thinker[] = [
     year: 2012,
     tradition: "American philosopher of action and a Christian",
     side: "theist",
-    line: "Defends a modified occasionalism, and argues that God's creating our choices is not manipulating them, since God is the source of the will itself.",
+    line: "Defends a modified [[occasionalism|occasionalism]], and argues that God's creating our choices is not manipulating them, since God is the source of the will itself.",
     work: "Creation and the Sovereignty of God (2012)",
   },
   {
@@ -2656,7 +2888,7 @@ export const thinkers: Thinker[] = [
     year: 2013,
     tradition: "American Eastern Orthodox theologian",
     side: "theist",
-    line: "Argues that God is no being among beings but the source of all being, so he never competes with nature, and that such a God could not will anyone's endless torment.",
+    line: "Argues that God is no being among beings but the source of all being, so he [[non-competition|never competes with nature]], and that such a God could not will anyone's endless torment.",
     work: "The Experience of God (2013); That All Shall Be Saved (2019)",
     quote: {
       text: "Simply said, there is no more liberating knowledge given us by the gospel—and none in which we should find more comfort—than the knowledge that suffering and death, considered in themselves, have no ultimate meaning at all.",
@@ -2687,7 +2919,7 @@ export const thinkers: Thinker[] = [
     year: 2013,
     tradition: "Philosopher of religion",
     side: "neutral",
-    line: "Defended theism against Maitzen with a middle-knowledge account of who is born where (2008), then raised the problem of 'natural nonbelief' among early humans (2013).",
+    line: "Defended theism against {{maitzen|Stephen Maitzen}} with a [[middle-knowledge|middle-knowledge]] account of who is born where (2008), then raised the problem of [[natural-nonbelief|'natural nonbelief']] among early humans (2013).",
     work: "“Darwin and the Problem of Natural Nonbelief” (2013)",
     quote: {
       text: "After describing what I take to be the most pressing feature of the problem, I argue that a hidden premise causes Maitzen to overlook a Molinist solution.",
@@ -2710,7 +2942,7 @@ export const thinkers: Thinker[] = [
     year: 2014,
     tradition: "American philosopher and atheist",
     side: "skeptic",
-    line: "Defends moral realism without God, on which basic moral facts are necessary and need no foundation, divine or otherwise.",
+    line: "Defends [[robust-realism|moral realism without God]], on which basic moral facts are necessary and need no foundation, divine or otherwise.",
     work: "Robust Ethics (2014)",
     quote: {
       text: "On my view, objective morality does not require an external foundation of any kind.",
@@ -2749,9 +2981,9 @@ export const thinkers: Thinker[] = [
     name: "Luke A. Barnes",
     life: "contemporary",
     year: 2016,
-    tradition: "Astrophysicist and a Christian",
+    tradition: "Astrophysicist at Western Sydney University and a Christian",
     side: "theist",
-    line: "Defends the physics of fine-tuning against critics such as Victor Stenger.",
+    line: "Defends the physics of [[fine-tuning|fine-tuning]] against critics such as the physicist Victor Stenger.",
     work: "A Fortunate Universe (2016, with Geraint F. Lewis)",
     quote: {
       text: "The claim is that in the space of possible physical laws, parameters and initial conditions, the set that permits the evolution of intelligent life is very small.",
@@ -2767,7 +2999,7 @@ export const thinkers: Thinker[] = [
     year: 2016,
     tradition: "Philosopher of religion at Oxford and a Christian",
     side: "theist",
-    line: "Argues that a God who values our dependence on one another's testimony should expect belief in him to spread unevenly.",
+    line: "Argues that a God who values [[mutual-epistemic-dependence|our dependence on one another's testimony]] should expect belief in him to spread unevenly.",
     work: "“Mutual Epistemic Dependence and the Demographic Divine Hiddenness Problem” (2016)",
     quote: {
       text: "I try to meet Maitzen's challenge by developing a theistic explanation for this lopsidedness.",
@@ -2782,7 +3014,7 @@ export const thinkers: Thinker[] = [
     year: 2016,
     tradition: "Analytic theologian and a Christian",
     side: "skeptic",
-    line: "Argues from inside Christian belief that divine simplicity, the teaching that God has no parts, leaves God unable to create freely.",
+    line: "Argues from inside Christian belief that [[divine-simplicity|divine simplicity]], the teaching that God has no parts, leaves God unable to create freely.",
     work: "The End of the Timeless God (2016)",
   },
   {
@@ -2820,7 +3052,7 @@ export const thinkers: Thinker[] = [
     name: "Mark C. Murphy",
     life: "contemporary",
     year: 2017,
-    tradition: "American philosopher of natural law",
+    tradition: "American philosopher of ethics and religion",
     side: "theist",
     line: "Holds that God's goodness is not a matter of moral duties that God owes, and develops the view that God is goodness itself.",
     work: "God's Own Ethics (2017)",
@@ -2832,7 +3064,7 @@ export const thinkers: Thinker[] = [
     year: 2017,
     tradition: "American New Testament scholar",
     side: "theist",
-    line: "Argues that the faith the gospel asks for is best understood as allegiance to Jesus as king.",
+    line: "Argues that the [[pistis|faith]] the gospel asks for is best understood as allegiance to Jesus as king.",
     work: "Salvation by Allegiance Alone (2017)",
   },
   {
@@ -2842,7 +3074,7 @@ export const thinkers: Thinker[] = [
     year: 2017,
     tradition: "American New Testament scholar and evangelical",
     side: "theist",
-    line: "Argues that the resurrection is the best historical explanation of the facts, and that the Gospels' differences follow the habits of ancient biography. The Objector uses his concessions.",
+    line: "Argues that the resurrection is the best historical explanation of the facts, and that the Gospels' differences follow the habits of [[bios|ancient biography]]. The Objector uses his concessions.",
     work: "The Resurrection of Jesus: A New Historiographical Approach (2010); Why Are There Differences in the Gospels? (2017)",
     sources: [
       {
@@ -2860,7 +3092,7 @@ export const thinkers: Thinker[] = [
     year: 2018,
     tradition: "American philosopher of physics and a Christian",
     side: "skeptic",
-    line: "Criticizes the fine-tuning argument on theological grounds, asking why God would choose laws on which life is a long shot.",
+    line: "Criticizes the [[fine-tuning|fine-tuning]] argument on theological grounds, asking why God would choose laws on which life is a long shot.",
     work: "“A Theological Critique of the Fine-Tuning Argument” (2018)",
     quote: {
       text: "the attempt to parlay this sense of wonder into a scientific proof is fraught with danger.",
@@ -2894,7 +3126,7 @@ export const thinkers: Thinker[] = [
     year: 2019,
     tradition: "Catholic philosopher",
     side: "theist",
-    line: "Argued that the standard argument that a God with no parts makes everything necessary (the modal collapse argument) is invalid.",
+    line: "Argued that the standard argument that a God with no parts makes everything necessary (the [[modal-collapse|modal collapse]] argument) is invalid.",
     work: "“Collapsing the Modal Collapse Argument” (2019)",
   },
   {
@@ -2914,7 +3146,7 @@ export const thinkers: Thinker[] = [
     year: 2019,
     tradition: "American Catholic philosopher",
     side: "theist",
-    line: "Develops 'extrinsic' models on which God's act is the same in every possible world and God freely causes our free acts.",
+    line: "Develops 'extrinsic' models on which God's own act would be the same whatever he created, and God freely causes our free acts.",
     work: "Free Will and God's Universal Causality (2019)",
     quote: {
       text: "I then argue that the objection is best answered by adopting an “extrinsic model of divine knowing” according to which God’s contingent knowledge, which varies across worlds, does not involve any intrinsic variation in God.",
@@ -2945,7 +3177,7 @@ export const thinkers: Thinker[] = [
     year: 2021,
     tradition: "American philosopher of logic and time",
     side: "theist",
-    line: "Argues that all claims about undetermined future events are false, which lets an open God know every truth.",
+    line: "Argues that all [[future-contingents|claims about undetermined future events]] are false, which lets the God of [[open-theism|open theism]] know every truth.",
     work: "The Open Future (2021)",
   },
   {
@@ -2955,7 +3187,7 @@ export const thinkers: Thinker[] = [
     year: 2022,
     tradition: "American philosopher of religion",
     side: "skeptic",
-    line: "With R. T. Mullins, argued that a God who is the same whether or not he creates cannot account for creating (the 'aloneness argument').",
+    line: "With {{mullins|R. T. Mullins}}, argued that a God who is the same whether or not he creates cannot account for creating (the 'aloneness argument').",
     work: "“The Aloneness Argument against Classical Theism” (with Mullins, 2022)",
   },
   {

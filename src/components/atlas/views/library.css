@@ -5,16 +5,18 @@
    ========================================================================== */
 
 /* ---------- page frame ---------- */
-.atl .lib {
-  max-width: var(--maxw);
+/* One frame for every Library view, the same as the top bar's, so the tab row, the H1 and the wordmark share one
+   left edge and the tabs never shift sideways when you switch views. */
+.atl .lib,
+.atl .lib-timeline,
+.atl .lib-outline {
+  max-width: calc(var(--maxw) + 2 * var(--gutter));
   margin: 0 auto;
   padding: clamp(28px, 5vw, 60px) var(--gutter) clamp(72px, 9vw, 120px);
 }
-.atl .lib-timeline {
-  max-width: 1280px;
-}
-.atl .lib-outline {
-  max-width: 940px;
+/* The Outline keeps a reading measure on its body only. */
+.atl .lib-outline .lib-head ~ * {
+  max-width: 876px;
 }
 
 /* ---------- header + library tabs ---------- */
@@ -133,9 +135,12 @@
   .atl .lib-tabs-k {
     display: none;
   }
+  /* five tabs share the row; on the narrowest screens they may wrap rather than clip */
   .atl .lib-tabs ul {
     width: 100%;
+    flex-wrap: wrap;
     justify-content: space-between;
+    column-gap: 4px;
   }
   .atl .lib-tab {
     padding: 0 4px;
@@ -156,6 +161,21 @@
     border-radius: 50%;
     font-size: 0;
     overflow: hidden;
+  }
+}
+
+/* 320px phones: tighter tabs keep all five on one row */
+@media (max-width: 359px) {
+  .atl .lib-tabs ul {
+    column-gap: 0;
+  }
+  .atl .lib-tab {
+    padding: 0 2px;
+    letter-spacing: 0.06em;
+  }
+  .atl .lib-tab[aria-current="page"]::after {
+    left: 2px;
+    right: 2px;
   }
 }
 
@@ -182,11 +202,12 @@
   flex-wrap: wrap;
   gap: 10px;
 }
+/* Dashed means Answered on the chart, so only a true empty state (.lib-empty) is dashed. */
 .atl .lib-none {
   margin: 18px 0;
   padding: 18px 20px;
   border-radius: 12px;
-  border: 1px dashed var(--line);
+  border: 1px solid var(--line);
   color: var(--mute);
 }
 .atl .lib-notice {
@@ -216,7 +237,7 @@
   align-items: center;
   min-height: 34px;
   padding: 0 12px;
-  border: 1px dashed var(--line);
+  border: 1px solid var(--line);
   border-radius: 999px;
   background: transparent;
   font-size: 10.5px;
@@ -1201,13 +1222,9 @@
 }
 .atl .tl-card-hint {
   margin: 0;
+  font-family: var(--sans);
+  font-size: 15px;
   color: var(--mute);
-}
-.atl .tl-card-hint .mono {
-  font-size: 11px;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: var(--bone-2);
 }
 
 /* ---------- strand chips (phone) ---------- */
@@ -1669,6 +1686,15 @@
 .atl .ca-card:hover .ca-badge,
 .atl .ca-card.on .ca-badge {
   background: var(--ink-3);
+}
+/* "Used by both sides": ▲ and ● drawn in their own colours; the words take bone */
+.atl .lib-cast .s-both {
+  --side: var(--bone-2);
+}
+.atl .ca-badge.s-both {
+  width: 20px;
+  right: -6px;
+  border-radius: 999px;
 }
 .atl .ca-txt {
   display: flex;
@@ -2168,9 +2194,8 @@
 }
 .atl .lx-unused {
   margin: 12px 0 0;
-  font-size: 10.5px;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
+  font-family: var(--sans);
+  font-size: 13.5px;
   color: var(--faint);
 }
 .atl .lx-mark {
@@ -2280,20 +2305,6 @@
   letter-spacing: 0.15em;
   text-transform: uppercase;
   color: var(--mute);
-}
-.atl .ol-toc-pip {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  border: 1.5px solid var(--faint);
-}
-.atl .ol-toc-pip.st-in {
-  background: var(--skeptic);
-  border-color: var(--skeptic);
-}
-.atl .ol-toc-pip.st-out {
-  background: var(--theist);
-  border-color: var(--theist);
 }
 .atl .ol-tools {
   display: flex;
@@ -2466,17 +2477,6 @@
 }
 .atl .ol-call {
   font-size: 10.5px;
-}
-/* a computed status explains itself in the chamber ("Why?") */
-.atl .ol-why {
-  color: inherit;
-  text-decoration: underline dotted;
-  text-decoration-color: color-mix(in srgb, currentColor 55%, transparent);
-  text-underline-offset: 4px;
-}
-.atl .ol-why:hover {
-  color: var(--bone);
-  text-decoration-color: var(--bone);
 }
 .atl .ol-end {
   margin-top: 18px;
@@ -2924,6 +2924,68 @@
 }
 
 /* "How to read the threads" (phone) */
+/* the time scale: a ≈ on the axis where the rate changes, explained under the chart */
+.atl .tl-break {
+  font-family: var(--mono);
+  font-size: 12px;
+  fill: var(--mute);
+}
+.atl .tl-chart-meta {
+  margin: 8px 0 0 156px;
+  font-size: 13px;
+  color: var(--faint);
+}
+.atl .tl-break-k {
+  font-family: var(--mono);
+  color: var(--mute);
+}
+/* the lilac line's bare tick, in the key */
+.atl .tl-note-sptick {
+  width: 1.5px;
+  height: 12px;
+  border-radius: 1px;
+  background: var(--spinoza);
+}
+.atl .tl-note-i.s-spinoza {
+  color: var(--mute);
+}
+/* Spinoza's lane mark: his glyph, hollow */
+.atl .tl-lane-g {
+  display: inline-block;
+  vertical-align: -1px;
+}
+/* phone: one labelled key for the lines beside the list */
+.atl .tl-lanekey {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 2px 12px;
+  width: 100%;
+  margin: 2px 0 0;
+  font-size: 11px;
+  line-height: 1.6;
+  color: var(--mute);
+}
+.atl .tl-lanekey-k {
+  width: 100%;
+  font-size: 10.5px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--faint);
+}
+.atl .tl-lanekey-i {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 4px;
+  white-space: nowrap;
+}
+.atl .tl-lanekey-n {
+  font-size: 12px;
+  color: var(--bone-2);
+}
+.atl .tl-lanekey-i.s-spinoza {
+  color: var(--spinoza);
+}
 .atl .tl-howto {
   width: 100%;
   margin-top: 4px;
@@ -2976,14 +3038,17 @@
 
 /* answered labels stay readable but quieter (never dimmed below 4.5:1) */
 .atl .ol-label.lab-out {
-  color: #8a8794;
+  color: var(--faint);
 }
 
 /* deep links land below the sticky top bar */
 .atl .ca-card,
-.atl .tl-item,
 .atl .ca-inline {
   scroll-margin-top: calc(var(--bar-h) + 16px);
+}
+/* a timeline row lands below the top bar and the sticky era band (about 65px) under it */
+.atl .tl-item {
+  scroll-margin-top: calc(var(--bar-h) + env(safe-area-inset-top) + 76px);
 }
 
 /* a chosen moment / thinker settles in (state change only; reduced motion is global) */
@@ -3020,7 +3085,6 @@
     gap: 0 clamp(36px, 5vw, 80px);
   }
   .atl .lib-head-split .lib-h1 {
-    font-size: clamp(2.4rem, 5vw, 3.6rem);
     white-space: nowrap;
   }
   .atl .lib-head-split .lib-dek {
@@ -3434,6 +3498,11 @@
 }
 .atl .src-sec {
   scroll-margin-top: calc(var(--bar-h) + 18px);
+}
+.atl .src-all {
+  margin-top: 16px;
+  min-height: 44px;
+  padding: 0 18px;
 }
 .atl .src-sec + .src-sec {
   margin-top: 48px;

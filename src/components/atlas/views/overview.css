@@ -192,6 +192,9 @@
 .atl .ov-echo-line cite {
   font-style: italic;
 }
+.atl .ov-echo-more {
+  display: none;
+}
 
 /* who speaks: also the glyph key */
 .atl .ov-cast {
@@ -242,7 +245,7 @@
   display: block;
   margin-top: 3px;
   font-family: var(--mono);
-  font-size: 10px;
+  font-size: 10.5px;
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--faint);
@@ -275,10 +278,7 @@
   background: color-mix(in srgb, var(--side, var(--bone)) 12%, transparent);
 }
 .atl .ov-tile .glyph-svg path,
-.atl .ov-tile .glyph-svg circle,
-.atl .ov-cue .glyph-svg path,
-.atl .ov-cue .glyph-svg circle,
-.atl .ov-key-sp .glyph-svg path {
+.atl .ov-tile .glyph-svg circle {
   fill: color-mix(in srgb, var(--side) 35%, transparent);
 }
 .atl .ov-tile.s-spinoza {
@@ -297,16 +297,16 @@
 .atl .ov-rose svg {
   max-width: 640px;
 }
-/* The readout follows the viewport inside the figure, so hovering or focusing a sector
-   always shows its label and "Enter" even when the Rose runs past the fold. Its box has a
-   fixed height and the card grows upward, so the page below never shifts. */
+/* The readout sits under the Rose in a box of its own, tall enough for its largest state
+   (an objection's title plus its Open button), so previewing never covers a sector and
+   never moves the page below. On desktop the Rose is sized so it and the readout fit the
+   first screen. */
 .atl .ov-rose .rose-readout {
-  position: sticky;
-  bottom: max(12px, env(safe-area-inset-bottom));
-  z-index: 2;
-  height: 72px;
-  min-height: 0;
-  justify-content: flex-end;
+  position: relative;
+  height: auto;
+  min-height: var(--ov-readout-h, 150px);
+  margin-top: 10px;
+  justify-content: flex-start;
   pointer-events: none;
 }
 .atl .ov-rose .rose-readout-in {
@@ -423,65 +423,146 @@
   stroke: #6b6f82;
   stroke-width: 1;
 }
+.atl .ov-moveicon {
+  fill: none;
+  stroke: var(--bone-2);
+  stroke-width: 1;
+  stroke-opacity: 0.8;
+}
 
-/* ---------- previously… ---------- */
+/* ---------- last time (returning readers) ----------
+   A fixed-height strip under the dek: one line of context and two 44px buttons, stacked where
+   the column is narrow and side by side where it isn't. The heights below are exact, so the
+   space reserved before hydration (html[data-atl-calls], set by the Shell's early script)
+   matches the strip that fills it. */
+.atl .ov-resume-slot {
+  margin-top: 22px;
+}
+.atl .ov-resume-slot:empty {
+  display: none;
+}
+html[data-atl-calls] .atl .ov-resume-slot:empty {
+  display: block;
+  height: 174px;
+}
 .atl .ov-resume {
-  position: relative;
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 10px 20px;
-  margin-top: clamp(48px, 7vw, 80px);
-  padding-top: 18px;
-  padding-bottom: 18px;
+  display: grid;
+  row-gap: 8px;
+  height: 174px;
+  padding: 12px 14px;
+  border: 1px solid var(--line-soft);
+  border-radius: 12px;
+  background: #ffffff05;
 }
-.atl .ov-resume > * {
+/* two lines where the buttons stack, one where they sit side by side */
+.atl .ov-resume-t {
   margin: 0;
-}
-.atl .ov-resume::before,
-.atl .ov-resume::after {
-  content: "";
-  position: absolute;
-  left: var(--gutter);
-  right: var(--gutter);
-  height: 1px;
-  background: var(--line-soft);
-}
-.atl .ov-resume::before {
-  top: 0;
-}
-.atl .ov-resume::after {
-  bottom: 0;
+  height: 44px;
+  font-size: 14.5px;
+  line-height: 22px;
+  color: var(--bone);
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
 }
 .atl .ov-resume-k {
+  margin-right: 8px;
   font-family: var(--mono);
   font-size: 10.5px;
-  letter-spacing: 0.22em;
+  letter-spacing: 0.2em;
   text-transform: uppercase;
   color: var(--faint);
-}
-.atl .ov-resume-t {
-  flex: 1 1 22rem;
-  font-family: var(--serif);
-  font-size: 18px;
-  line-height: 1.4;
-  color: var(--bone);
-}
-.atl .ov-resume-o {
-  color: var(--bone);
-  text-decoration: underline;
-  text-decoration-color: var(--line);
-  text-underline-offset: 4px;
-  text-decoration-thickness: 1px;
-}
-.atl .ov-resume-o:hover {
-  text-decoration-color: var(--bone);
 }
 .atl .ov-resume-s {
   color: var(--mute);
 }
+.atl .ov-resume-btns {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 8px;
+}
 .atl .ov-resume .ov-resume-b {
-  flex: none;
+  height: 44px;
+  min-height: 0;
+  min-width: 0;
+  padding: 0 12px;
+  font-size: 11.5px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+@media (min-width: 640px) and (max-width: 859.98px), (min-width: 1200px) {
+  html[data-atl-calls] .atl .ov-resume-slot:empty,
+  .atl .ov-resume {
+    height: 100px;
+  }
+  .atl .ov-resume-t {
+    display: block;
+    height: 22px;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+  .atl .ov-resume-btns {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
+}
+
+/* ---------- where to start ---------- */
+.atl .ov-cta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 12px;
+  margin-top: 24px;
+}
+.atl .ov-cta .btn {
+  min-height: 48px;
+  white-space: nowrap;
+}
+.atl .ov-cta-walk {
+  border-color: #6b6f82;
+}
+.atl .ov-cta-all {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  padding: 0 6px;
+  border: 0;
+  background: none;
+  font-family: var(--mono);
+  font-size: 11.5px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--mute);
+  text-decoration: underline dotted;
+  text-underline-offset: 5px;
+  cursor: pointer;
+}
+.atl .ov-cta-all:hover {
+  color: var(--bone);
+}
+/* how the two buttons differ, in one line */
+.atl .ov-cta-cap {
+  flex: 1 1 100%;
+  margin: -2px 0 -4px;
+  font-size: 13.5px;
+  line-height: 1.45;
+  color: var(--faint);
+}
+/* a returning reader: the strip above has Back to / Next open; only "See all five" stays */
+.atl .ov-cta.returning {
+  margin-top: 10px;
+}
+@media (max-width: 639.98px) {
+  .atl .ov-cta-go {
+    flex: 1 1 100%;
+  }
+  .atl .ov-cta-walk {
+    flex: 1 1 auto;
+  }
 }
 
 /* ---------- the five posters ---------- */
@@ -517,8 +598,7 @@
   gap: 16px;
 }
 
-/* Phone (the default): the numeral sits inline with the kicker, the fan floats beside the
-   title, and both sides of the exchange are clamped alike (the chamber has the full text). */
+/* Phone (the default): the numeral sits inline with the kicker and the fan floats beside the title. */
 .atl .ov-poster article {
   position: relative;
   display: flow-root;
@@ -543,11 +623,11 @@
   font-size: 42px;
   line-height: 34px;
   letter-spacing: -0.02em;
-  color: var(--faint);
+  color: var(--skeptic);
   transition: color 0.25s;
 }
 .atl .ov-poster article:hover .ov-pnum {
-  color: var(--bone-2);
+  color: #e6bd73;
 }
 .atl .ov-fan {
   float: right;
@@ -654,16 +734,12 @@
   text-transform: uppercase;
   color: var(--side);
 }
+/* Both sides in full at every width: clamping cut the Defender's longer replies (and mid-word). */
 .atl .ov-saytext {
   font-size: 15.5px;
   line-height: 1.55;
   color: var(--bone-2);
   text-wrap: pretty;
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 5;
-  line-clamp: 5;
-  overflow: hidden;
 }
 .atl .ov-pfoot {
   clear: both;
@@ -802,7 +878,8 @@
 }
 
 .atl .ov-how {
-  margin-top: clamp(72px, 10vw, 120px);
+  margin-top: clamp(56px, 9vw, 112px);
+  min-width: 0;
 }
 .atl .ov-steps {
   list-style: none;
@@ -879,9 +956,79 @@
   stroke-dasharray: 1.5 3;
 }
 
-@media (pointer: coarse) {
-  .atl .ov-resume-b {
+/* ---------- below 860px: one column in reading order ----------
+   What this is → (last time) → where to start → the epigraph → the map and its key → how it
+   works → who's talking. The left column's pieces join the hero grid so they can interleave
+   with the map. */
+@media (max-width: 859.98px) {
+  .atl .ov-left {
+    display: contents;
+  }
+  .atl .ov-dek {
+    order: 1;
+    margin-top: 28px;
+  }
+  .atl .ov-resume-slot {
+    order: 2;
+  }
+  .atl .ov-cta {
+    order: 3;
+  }
+  .atl .ov-echo {
+    order: 4;
+    margin-top: 36px;
+  }
+  .atl .ov-right {
+    order: 5;
+  }
+  .atl .ov-key {
+    order: 6;
+  }
+  .atl .ov-how {
+    order: 7;
+  }
+  .atl .ov-cast {
+    order: 8;
+    margin-top: 48px;
+  }
+  /* the plumb line drops to the map only when the map sits under "Down" */
+  .atl .ov-plumb {
+    display: none;
+  }
+  .atl .ov-rose .rose-readout {
+    --ov-readout-h: 120px;
+  }
+}
+
+/* phones: the epigraph keeps the objection and the history line; his reply opens in place */
+@media (max-width: 639.98px) {
+  .atl .ov-echo-reply {
+    display: none;
+  }
+  .atl .ov-echo.open .ov-echo-reply {
+    display: inline;
+  }
+  .atl .ov-echo-more {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    align-self: flex-start;
     min-height: 44px;
+    margin: -8px 0 -6px;
+    padding: 0;
+    border: 0;
+    background: none;
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--theist);
+    cursor: pointer;
+  }
+}
+@media (max-width: 599.98px) {
+  .atl .ov-pquote {
+    display: none;
   }
 }
 
@@ -961,12 +1108,6 @@
     padding-top: 0;
     margin-top: 18px;
   }
-  .atl .ov-saytext {
-    display: block;
-    -webkit-line-clamp: none;
-    line-clamp: none;
-    overflow: visible;
-  }
   .atl .ov-say + .ov-say {
     position: relative;
   }
@@ -998,6 +1139,7 @@
   }
   .atl .ov-steps li {
     grid-template-columns: minmax(0, 1fr);
+    align-content: start;
     row-gap: 12px;
     padding-top: 22px;
   }
@@ -1015,8 +1157,31 @@
     grid-template-areas:
       "title title"
       "left right"
-      "left key";
-    grid-template-rows: auto auto 1fr;
+      "left key"
+      "cast cast"
+      "how how";
+    grid-template-rows: auto auto 1fr auto auto;
+  }
+  /* who's talking: under the hero, across both columns, two voices to a row */
+  .atl .ov-cast {
+    grid-area: cast;
+    max-width: none;
+    margin-top: 72px;
+  }
+  .atl .ov-cast-list {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: 40px;
+  }
+  /* a voice shorter than its row-mate keeps its name and description together */
+  .atl .ov-persona {
+    align-content: start;
+  }
+  .atl .ov-persona:nth-last-child(-n + 2) {
+    border-bottom: 1px solid var(--line-soft);
+  }
+  .atl .ov-how {
+    grid-area: how;
   }
   .atl .ov-key {
     grid-area: key;
@@ -1056,6 +1221,41 @@
     padding-top: var(--plumb-gap);
   }
 }
+/* ≥ 860px: the Rose and its readout fit the first screen (at 1440×900 the Rose starts near
+   y 380), but never below 420px, where the ring legends would fall back to numerals. The
+   readout puts "Open" beside the kicker to stay short. */
+@media (min-width: 860px) {
+  .atl .ov-rose svg {
+    max-width: clamp(420px, calc(100vh - 500px), 640px);
+  }
+  .atl .ov-rose .rose-readout {
+    --ov-readout-h: 96px;
+  }
+  .atl .ov-rose .rose-readout-in {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    column-gap: 14px;
+    row-gap: 4px;
+    align-items: center;
+    justify-items: start;
+    text-align: left;
+  }
+  .atl .ov-rose .rose-readout-k {
+    grid-column: 1;
+    grid-row: 1;
+  }
+  .atl .ov-rose .rose-readout-in .btn {
+    grid-column: 2;
+    grid-row: 1;
+  }
+  .atl .ov-rose .rose-readout-t {
+    grid-column: 1 / -1;
+    grid-row: 2;
+  }
+  .atl .ov-rose .rose-readout-hint {
+    grid-column: 1 / -1;
+  }
+}
 @media (min-width: 860px) and (max-width: 1199.98px) {
   /* the left column is narrow here: name above description */
   .atl .ov-persona {
@@ -1069,6 +1269,32 @@
   }
   .atl .ov-persona dd {
     grid-column: 2;
+  }
+}
+
+/* ≥ 1200px: the four voices side by side, each name above its description */
+@media (min-width: 1200px) {
+  .atl .ov-cast-list {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    column-gap: 32px;
+  }
+  .atl .ov-persona {
+    grid-template-columns: 28px minmax(0, 1fr);
+    align-items: center;
+    align-content: start;
+    row-gap: 8px;
+    padding-top: 16px;
+  }
+  .atl .ov-tile {
+    grid-row: auto;
+    align-self: center;
+    margin-top: 0;
+  }
+  .atl .ov-persona dd {
+    grid-column: 1 / -1;
+  }
+  .atl .ov-persona:nth-last-child(-n + 4) {
+    border-bottom: 1px solid var(--line-soft);
   }
 }
 

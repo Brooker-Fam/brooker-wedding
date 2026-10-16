@@ -18,12 +18,14 @@ import "./library.css";
 import { memo, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type KeyboardEvent, type RefObject } from "react";
 import { useAtlas } from "../context";
 import { address } from "../helpers";
-import { ThinkerChip } from "../primitives";
+import { Glyph, RichText, ThinkerChip } from "../primitives";
+import { plain } from "../markup";
 import { formatRoute } from "../router";
 import type { DisputationIndex } from "../semantics";
 import type { Moment, Objection, ObjectionId, Quote, Side } from "../types";
 import { ERAS, GlyphKey, LibEmpty, LibHead, eraOf, fold, scrollBehavior, spokenBy, useMedia, yearText } from "./Outline";
 import { QuoteFigure } from "./OutlineList";
+import { spellAddress } from "./chamberShared";
 import { SourceList } from "./Sources";
 
 type LaneKey = ObjectionId | "spinoza";
@@ -41,6 +43,45 @@ interface Lane {
 export const MSIDE_WORD: Record<MSide, string> = { skeptic: "For the Objector", theist: "For the Defender", spinoza: "Spinoza", neutral: "Background" };
 const isSpinoza = (m: Moment) => m.side === "spinoza" || m.thinker === "spinoza";
 const sideCls = (s: MSide | undefined) => (s === "skeptic" || s === "theist" || s === "spinoza" ? s : "neutral");
+
+/** A lane's numeral; Spinoza's lane is drawn with his glyph (◆, hollow), not a filled character. */
+function LaneNum({ l, size = 10 }: { l: Lane; size?: number }) {
+  return l.key === "spinoza" ? <Glyph side="spinoza" size={size} className="tl-lane-g" /> : <>{l.numeral}</>;
+}
+
+/** How far down the screen the sticky bars reach: the top bar, and the era band stuck under it when there is one. */
+function coveredTop(list: HTMLElement | null): number {
+  let bottom = 0;
+  for (const band of list ? list.querySelectorAll<HTMLElement>(".tl-era-h") : []) {
+    const stick = parseFloat(getComputedStyle(band).top) || 0;
+    bottom = Math.max(bottom, stick);
+    const r = band.getBoundingClientRect();
+    if (r.top <= stick + 1 && r.bottom > stick) bottom = Math.max(bottom, r.bottom);
+  }
+  return bottom || 60;
+}
+
+/* The followed strand, remembered per timeline address for this visit, so Back returns to the list as it was left
+   (the history entry's own state belongs to the router). A click or Enter just before the view opens means a fresh
+   arrival, which starts from the address instead (the Shell tells a return from a visit the same way). */
+const keptFilters = new Map<string, string>();
+let lastActivation = 0;
+if (typeof document !== "undefined") {
+  const mark = (e: Event) => {
+    if (e.type === "keydown" && (e as globalThis.KeyboardEvent).key !== "Enter" && (e as globalThis.KeyboardEvent).key !== " ") return;
+    lastActivation = Date.now();
+  };
+  document.addEventListener("click", mark, true);
+  document.addEventListener("keydown", mark, true);
+}
+
+/** Scroll a chronicle row to just under the era band that will be stuck above it (and the top bar above that). */
+function scrollUnderBand(row: HTMLElement) {
+  const band = row.closest(".tl-era-block")?.querySelector<HTMLElement>(".tl-era-h");
+  const stick = band ? parseFloat(getComputedStyle(band).top) || 0 : 60;
+  const y = window.scrollY + row.getBoundingClientRect().top - stick - (band?.offsetHeight ?? 0) - 6;
+  window.scrollTo({ top: Math.max(0, Math.round(y)), behavior: scrollBehavior() });
+}
 
 const words = (s: string) => fold(s).replace(/[^a-z0-9]+/g, " ").trim();
 /** Does the moment's text already quote this, word for word (allowing a few leading words to differ)? */
@@ -61,7 +102,7 @@ export function quoteOf(m: Moment, ix: DisputationIndex): Quote | undefined {
     const who = m.thinker ? ix.thinkers.get(m.thinker)?.name : undefined;
     if (!who || !spokenBy(q.who, who)) return undefined;
   }
-  return echoes(m.text, q.text) ? undefined : q;
+  return echoes(plain(m.text), q.text) ? undefined : q;
 }
 
 /* ---------- glyph for a moment (adds a square for context moments) ---------- */
@@ -96,7 +137,7 @@ function makeScale(years: number[]) {
     }
     return 1;
   };
-  return { f, lo, hi };
+  return { f, lo, hi, breaks: stops.slice(1, -1) };
 }
 
 const TICKS = [-600, -300, 1, 300, 600, 1000, 1200, 1400, 1600, 1700, 1800, 1900, 1950, 2000];
@@ -316,7 +357,19 @@ function layout(sorted: Moment[], lanes: Lane[], objRows: (m: Moment) => number[
 export default function Timeline({ moment }: { moment?: string }) {
   const { d, ix, go } = useAtlas();
   const wide = useMedia("(min-width: 900px)");
-  const [filter, setFilter] = useState<Filter>("all");
+  // Arriving on a moment that belongs to one objection follows that objection's strand ("All events" stays one tap
+  // away); Back returns to the strand that was being followed.
+  const here = formatRoute({ view: "timeline", moment });
+  const [filter, setFilter] = useState<Filter>(() => {
+    const kept = Date.now() - lastActivation > 1200 ? keptFilters.get(here) : undefined;
+    if (kept === "all" || kept === "spinoza" || d.objections.some((o) => o.id === kept)) return kept as Filter;
+    const m = moment ? d.moments.find((x) => x.id === moment) : undefined;
+    const strands = [...new Set((m?.strands ?? []).filter((s) => d.objections.some((o) => o.id === s)))];
+    return strands.length === 1 ? strands[0] : "all";
+  });
+  useEffect(() => {
+    keptFilters.set(here, filter);
+  }, [here, filter]);
   const [said, setSaid] = useState("");
 
   const hasSpinoza = useMemo(() => d.moments.some(isSpinoza), [d]);
@@ -364,9 +417,12 @@ export default function Timeline({ moment }: { moment?: string }) {
           const r = card?.getBoundingClientRect();
           // only while the reader is looking at the chart (not when the choice came from the chronicle below)
           if (!stage || !card || !r || stage.top > window.innerHeight || stage.bottom < 0) return;
-          if (r.bottom > window.innerHeight || r.top < 60) card.scrollIntoView({ block: "nearest", behavior: scrollBehavior() });
-        } else if (first) {
-          listRef.current?.querySelector(`[data-mid="${CSS.escape(selId)}"]`)?.scrollIntoView({ block: "center", behavior: scrollBehavior() });
+          if (r.bottom > window.innerHeight || r.top < coveredTop(listRef.current)) card.scrollIntoView({ block: "nearest", behavior: scrollBehavior() });
+        } else if (first && window.scrollY < 4) {
+          // A fresh arrival (the view has scrolled to the top; Back would have restored a spot): bring the row up to
+          // just under the sticky era band.
+          const row = listRef.current?.querySelector<HTMLElement>(`[data-mid="${CSS.escape(selId)}"]`);
+          if (row) scrollUnderBand(row);
         }
       },
       first ? 440 : 60,
@@ -450,12 +506,15 @@ export default function Timeline({ moment }: { moment?: string }) {
                 )}
               </p>
               {wide ? (
-                <ThreadLegend lanes={lanes} />
+                <ThreadLegend lanes={lanes} wide />
               ) : (
-                <details className="tl-howto">
-                  <summary className="mono">How to read the lines</summary>
-                  <ThreadLegend lanes={lanes} />
-                </details>
+                <>
+                  <LaneKey lanes={lanes} />
+                  <details className="tl-howto">
+                    <summary className="mono">How to read the lines</summary>
+                    <ThreadLegend lanes={lanes} wide={false} />
+                  </details>
+                </>
               )}
             </div>
             {shown.length === 0 ? (
@@ -470,7 +529,7 @@ export default function Timeline({ moment }: { moment?: string }) {
   );
 }
 
-function ThreadLegend({ lanes }: { lanes: Lane[] }) {
+function ThreadLegend({ lanes, wide }: { lanes: Lane[]; wide: boolean }) {
   const objs = lanes.filter((l) => l.key !== "spinoza");
   const sp = lanes.some((l) => l.key === "spinoza");
   return (
@@ -480,18 +539,47 @@ function ThreadLegend({ lanes }: { lanes: Lane[] }) {
       </li>
       <li>
         <span className="tl-legend-i tl-legend-thread" aria-hidden />
-        Each vertical line is one objection, running from its first event to its last.
-        {objs.length > 1 && (
-          <>
-            {" "}
-            The numerals at the top of each era, {objs[0].numeral} to {objs[objs.length - 1].numeral}, show which line is which{sp ? ", and ◆ is Spinoza’s" : ""}.
-          </>
-        )}
+        <span>
+          Each vertical line is one objection, running from its first event to its last.
+          {objs.length > 1 &&
+            (wide ? (
+              <>
+                {" "}
+                The numerals at the top of each era, {objs[0].numeral} to {objs[objs.length - 1].numeral}, show which line is which
+                {sp && (
+                  <>
+                    , and <Glyph side="spinoza" size={9} className="tl-lane-g" />
+                    <span className="sr-only">the diamond</span> is Spinoza’s
+                  </>
+                )}
+                .
+              </>
+            ) : (
+              " The key above the list names the lines, left to right."
+            ))}
+        </span>
       </li>
       <li>
         <span className="tl-legend-i tl-legend-knot" aria-hidden />A bar joining several lines is one event that comes up in each of those objections.
       </li>
     </ul>
+  );
+}
+
+/** Phone: one labelled key for the lines beside the list, left to right (the era bands no longer repeat it). */
+function LaneKey({ lanes }: { lanes: Lane[] }) {
+  return (
+    <p className="tl-lanekey">
+      <span className="tl-lanekey-k mono">Lines, left to right</span>
+      {lanes.map((l) => (
+        <span key={l.key} className={`tl-lanekey-i ${l.key === "spinoza" ? "s-spinoza" : ""}`}>
+          <span className="tl-lanekey-n serif" aria-hidden={l.key === "spinoza" ? true : undefined}>
+            <LaneNum l={l} size={9} />
+          </span>
+          {l.name}
+        </span>
+      ))}
+    </p>
   );
 }
 
@@ -529,7 +617,7 @@ function StrandChips({
           onClick={() => setFilter(filter === l.key ? "all" : l.key)}
         >
           <span className="tl-chip-num serif" aria-hidden={l.key === "spinoza" ? true : undefined}>
-            {l.numeral}
+            <LaneNum l={l} size={10} />
           </span>
           {l.key === "spinoza" ? "Spinoza" : l.name}
           <span className="tl-chip-n mono">{count(l.key)}</span>
@@ -609,6 +697,7 @@ function Chart({
     return out;
   }, [scale, xOf, plotW]);
 
+  const breakXs = useMemo(() => scale.breaks.filter((y) => y > scale.lo && y < scale.hi).map(xOf), [scale, xOf]);
   const clusterById = useMemo(() => new Map(geo.clusters.map((c) => [c.cid, c])), [geo]);
   /** Where a moment is drawn: its own mark, or its cluster's badge. */
   const spotOf = useCallback(
@@ -743,7 +832,7 @@ function Chart({
                 title={filter === l.key ? "Show all" : `Show only ${l.name}`}
               >
                 <span className="tl-lab-num serif" style={{ top: g.y - g.top }} aria-hidden={l.key === "spinoza" ? true : undefined}>
-                  {l.numeral}
+                  <LaneNum l={l} size={12} />
                 </span>
                 <span className="tl-lab-name mono" style={{ top: g.y - g.top }}>
                   {l.name}
@@ -809,9 +898,15 @@ function Chart({
                 return <line key={`tk-${t.id}`} className={`tl-sptick ${visible(m) ? "" : "dim"} ${selected === t.id || hot === t.id ? "lit" : ""}`} x1={t.x} x2={t.x} y1={y - 7} y2={y + 7} />;
               })}
             {sel && <line className="tl-guide" x1={sel.x} x2={sel.x} y1={TOP - 8} y2={geo.lanesBottom + 6} />}
+            {/* where the scale changes, a ≈ on the axis (the note under the chart says why) */}
+            {breakXs.map((x) => (
+              <text key={`br-${x}`} className="tl-break" x={x} y={geo.lanesBottom + 8} textAnchor="middle">
+                ≈
+              </text>
+            ))}
             {ticks.map((t) => (
               <g key={t.y} className="tl-tick">
-                <line x1={t.x} x2={t.x} y1={geo.lanesBottom} y2={geo.lanesBottom + 5} />
+                {!breakXs.some((x) => Math.abs(x - t.x) < 3) && <line x1={t.x} x2={t.x} y1={geo.lanesBottom} y2={geo.lanesBottom + 5} />}
                 <text x={t.x} y={geo.lanesBottom + 20} textAnchor="middle">
                   {t.y === 1 ? "1 CE" : t.y < 0 ? `${-t.y} BCE` : t.y}
                 </text>
@@ -1014,8 +1109,22 @@ function Chart({
             Events close together
           </span>
         )}
+        {geo.spRow >= 0 && geo.ticks.length > 0 && (
+          <span className="tl-note-i mono s-spinoza">
+            <span className="tl-note-sptick" aria-hidden />
+            Spinoza event shown on another line
+          </span>
+        )}
         <span className="tl-note-i tl-note-kbd mono">Arrow keys move between events</span>
       </div>
+      {breakXs.length > 0 && (
+        <p className="tl-chart-meta">
+          <span className="tl-break-k" aria-hidden>
+            ≈
+          </span>{" "}
+          Time is compressed: older centuries take less room.
+        </p>
+      )}
     </div>
   );
 }
@@ -1042,9 +1151,7 @@ function MomentCard({
   if (!m) {
     return (
       <div className="tl-card tl-card-empty">
-        <p className="tl-card-hint">
-          <span className="mono">Choose a mark</span> on the chart to read about it here.
-        </p>
+        <p className="tl-card-hint">Choose a mark on the chart to read about it here.</p>
         {shown.length > 0 && (
           <button type="button" className="btn small" onClick={() => select(shown[0].id)}>
             Start at the oldest →
@@ -1089,7 +1196,11 @@ function MomentCard({
           )}
         </p>
         <h2 className="tl-card-t serif">{m.title}</h2>
-        {m.text && <p className="tl-card-x">{m.text}</p>}
+        {m.text && (
+          <p className="tl-card-x">
+            <RichText text={m.text} />
+          </p>
+        )}
         <QuoteFigure q={quoteOf(m, ix)} className="tl-quote" />
         {reading.length > 0 && (
           <div className="tl-read">
@@ -1101,7 +1212,11 @@ function MomentCard({
           {m.thinker && ix.thinkers.has(m.thinker) && <ThinkerChip id={m.thinker} />}
           {node && (
             <a className="btn small tl-go" href={formatRoute({ view: "objection", o: node.objection, node: node.node.id })}>
-              Go to the move <span className="mono tl-go-addr">{address(ix, node.node.id)}</span> →
+              Go to the move{" "}
+              <span className="mono tl-go-addr" aria-hidden>
+                {address(ix, node.node.id)}
+              </span>
+              <span className="sr-only">{spellAddress(ix, node.node.id)}</span> <span aria-hidden>→</span>
             </a>
           )}
         </div>
@@ -1165,9 +1280,14 @@ function Chronicle({
     if (!selected) return;
     const el = listRef.current?.querySelector<HTMLElement>(`[data-mid="${CSS.escape(selected)}"]`);
     if (!el) return;
+    // The sticky era band covers the top of the list, so "in sight" starts below it.
+    const top = coveredTop(listRef.current);
     const r = el.getBoundingClientRect();
-    const inSight = r.bottom > 80 && r.top < window.innerHeight;
-    if (inSight && (r.top < 80 || r.bottom > window.innerHeight)) el.scrollIntoView({ block: "nearest", behavior: scrollBehavior() });
+    const inSight = r.bottom > top && r.top < window.innerHeight;
+    if (!inSight) return;
+    const tall = r.height > window.innerHeight - top;
+    if (r.top < top || (r.bottom > window.innerHeight && tall)) scrollUnderBand(el);
+    else if (r.bottom > window.innerHeight) el.scrollIntoView({ block: "end", behavior: scrollBehavior() });
   }, [selected, listRef]);
 
   const idx = useMemo(() => new Map(lanes.map((l, i) => [l.key, i])), [lanes]);
@@ -1209,11 +1329,12 @@ function Chronicle({
               {passing(g.rows[0].i).map((l) => (
                 <span key={l.key} className={`tl-th full ${l.key === "spinoza" ? "sp" : ""}`} style={{ left: col(idx.get(l.key)!) }} />
               ))}
-              {lanes.map((l, i) => (
-                <span key={l.key} className={`tl-key ${i % 2 ? "up" : ""} ${l.key === "spinoza" ? "s-spinoza sp" : ""}`} style={{ left: col(i) }}>
-                  {l.numeral}
-                </span>
-              ))}
+              {wide &&
+                lanes.map((l, i) => (
+                  <span key={l.key} className={`tl-key ${l.key === "spinoza" ? "s-spinoza sp" : ""}`} style={{ left: col(i) }}>
+                    <LaneNum l={l} size={8} />
+                  </span>
+                ))}
             </div>
             <h3 className="tl-era-name2">
               <span className="serif">{g.era.name}</span>
@@ -1245,6 +1366,7 @@ function Chronicle({
                   thinker={m.thinker && ix.thinkers.has(m.thinker) ? m.thinker : undefined}
                   goHref={node ? formatRoute({ view: "objection", o: node.objection, node: node.node.id }) : undefined}
                   goAddr={node ? address(ix, node.node.id) : undefined}
+                  goSpoken={node ? spellAddress(ix, node.node.id) : undefined}
                   quote={quoteOf(m, ix)}
                 />
               );
@@ -1271,6 +1393,7 @@ const ChronicleRow = memo(function ChronicleRow({
   thinker,
   goHref,
   goAddr,
+  goSpoken,
   quote,
 }: {
   m: Moment;
@@ -1286,6 +1409,7 @@ const ChronicleRow = memo(function ChronicleRow({
   thinker?: string;
   goHref?: string;
   goAddr?: string;
+  goSpoken?: string;
   quote?: Quote;
 }) {
   const ns = laneNs ? laneNs.split(",").map(Number) : [];
@@ -1326,7 +1450,11 @@ const ChronicleRow = memo(function ChronicleRow({
           <span className="tl-title serif">{m.title}</span>
           <span className="tl-chev" aria-hidden />
         </button>
-        {isOpen && m.text && <p className="tl-text">{m.text}</p>}
+        {isOpen && m.text && (
+          <p className="tl-text">
+            <RichText text={m.text} />
+          </p>
+        )}
         {isOpen && <QuoteFigure q={quote} className="tl-quote tl-quote-row" />}
         {isOpen && reading.length > 0 && (
           <div className="tl-read tl-read-row">
@@ -1349,7 +1477,11 @@ const ChronicleRow = memo(function ChronicleRow({
             {thinker && <ThinkerChip id={thinker} />}
             {goHref && (
               <a className="tl-golink" href={goHref}>
-                Go to the move <span className="mono">{goAddr}</span> →
+                Go to the move{" "}
+                <span className="mono" aria-hidden>
+                  {goAddr}
+                </span>
+                <span className="sr-only">{goSpoken}</span> <span aria-hidden>→</span>
               </a>
             )}
             {wide && (

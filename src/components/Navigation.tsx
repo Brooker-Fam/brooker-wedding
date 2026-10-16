@@ -8,13 +8,9 @@ import { useTheme } from "@/components/ThemeProvider";
 
 const navLinks = [
   { href: "/", label: "Home" },
-  { href: "/rsvp", label: "RSVP" },
-  { href: "/details", label: "Details" },
-  { href: "/bridal-shower", label: "Bridal Shower" },
-  { href: "/registry", label: "Registry" },
-  { href: "/songs", label: "Songs" },
   { href: "/photos", label: "Photos" },
-  { href: "/games", label: "Games", sparkle: true },
+  { href: "/songs", label: "Playlist" },
+  { href: "/games", label: "Games" },
 ];
 
 function ThemeToggle({ className = "" }: { className?: string }) {
@@ -140,20 +136,15 @@ export default function Navigation() {
                 const isActive = pathname === link.href;
 
                 const className = `relative px-4 py-2 text-sm font-medium transition-all duration-300 ${
-                  link.sparkle
-                    ? "rounded-full bg-soft-gold/10 text-soft-gold-dark hover:bg-soft-gold/20 dark:bg-soft-gold/15 dark:text-soft-gold-light"
-                    : isActive
-                      ? "text-forest dark:text-cream"
-                      : "text-forest/75 hover:text-forest dark:text-cream/75 dark:hover:text-cream"
+                  isActive
+                    ? "text-forest dark:text-cream"
+                    : "text-forest/75 hover:text-forest dark:text-cream/75 dark:hover:text-cream"
                 }`;
 
                 const content = (
                   <>
-                    {link.sparkle && (
-                      <span className="mr-1 text-xs">&#10024;</span>
-                    )}
                     {link.label}
-                    {isActive && !link.sparkle && (
+                    {isActive && (
                       <motion.span
                         layoutId="nav-underline"
                         className="absolute bottom-0 left-2 right-2 h-[2px] rounded-full bg-soft-gold"
@@ -233,11 +224,9 @@ export default function Navigation() {
                     const isActive = pathname === link.href;
 
                     const className = `block rounded-xl px-4 py-3.5 text-lg font-medium transition-all ${
-                      link.sparkle
-                        ? "bg-soft-gold/10 text-soft-gold-dark dark:bg-soft-gold/15 dark:text-soft-gold-light"
-                        : isActive
-                          ? "bg-sage/15 text-forest dark:bg-sage/20 dark:text-cream"
-                          : "text-forest/80 hover:bg-sage/10 hover:text-forest dark:text-cream/80 dark:hover:bg-sage/15 dark:hover:text-cream"
+                      isActive
+                        ? "bg-sage/15 text-forest dark:bg-sage/20 dark:text-cream"
+                        : "text-forest/80 hover:bg-sage/10 hover:text-forest dark:text-cream/80 dark:hover:bg-sage/15 dark:hover:text-cream"
                     }`;
 
                     return (
@@ -248,9 +237,6 @@ export default function Navigation() {
                         transition={{ delay: index * 0.06 }}
                       >
                         <Link href={link.href} className={className}>
-                          {link.sparkle && (
-                            <span className="mr-2 text-sm">&#10024;</span>
-                          )}
                           {link.label}
                         </Link>
                       </motion.div>

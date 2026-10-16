@@ -4,9 +4,9 @@
    badges, person chips, and RichText (markup wired to peeks and node jumps). */
 
 import { motion } from "framer-motion";
-import type { KeyboardEvent, MouseEvent, ReactNode } from "react";
-import { useAtlas } from "./context";
-import { Rich } from "./markup";
+import { memo, useMemo, type KeyboardEvent, type MouseEvent, type ReactNode } from "react";
+import { useAtlas, useAtlasStatic } from "./context";
+import { Rich, type RichRenderers } from "./markup";
 import { initials, usePeek } from "./peek";
 import type { Judgment, Label, Side } from "./types";
 
@@ -16,8 +16,9 @@ export const SIDE_META: Record<Side, { word: string; glyph: string; voice: strin
   spinoza: { word: "Spinoza", glyph: "◆", voice: "Spinoza's view" },
 };
 
-/** Inline SVG glyph for a side: ▲ Objector, ● Defender, ◆ Spinoza. Fill follows status. */
-export function Glyph({ side, label = "undec", size = 12, className = "" }: { side: Side; label?: Label; size?: number; className?: string }) {
+/** Inline SVG glyph for a side: ▲ Objector, ● Defender, ◆ Spinoza. Fill follows status.
+    Memoized (primitive props only), since a page draws dozens of them. */
+export const Glyph = memo(function Glyph({ side, label = "undec", size = 12, className = "" }: { side: Side; label?: Label; size?: number; className?: string }) {
   const h = size / 2;
   const shape =
     side === "skeptic" ? (
@@ -32,7 +33,7 @@ export function Glyph({ side, label = "undec", size = 12, className = "" }: { si
       {shape}
     </svg>
   );
-}
+});
 
 export function SideTok({ side, children, className = "" }: { side: Side; children?: ReactNode; className?: string }) {
   const m = SIDE_META[side];
@@ -98,14 +99,19 @@ export function JudgeControl({ id, side, compact = false }: { id: string; side: 
   );
 }
 
-export function ThinkerChip({ id }: { id: string }) {
-  const { ix, thinkerName } = useAtlas();
+/** A person. Neutral in colour: a thinker's own `side` isn't a record of how the moves use
+    them (the peek says "Used by …" in words). Reads only the static context, so a call
+    doesn't re-render it. */
+export const ThinkerChip = memo(function ThinkerChip({ id }: { id: string }) {
+  const { ix, thinkerName } = useAtlasStatic();
   const peek = usePeek();
   const th = ix.thinkers.get(id);
   return (
     <button
       type="button"
-      className={`chip s-${th?.side ?? "neutral"}`}
+      className="chip s-neutral"
+      aria-haspopup="dialog"
+      aria-expanded={false}
       onClick={(e) => peek({ kind: "thinker", id, rect: e.currentTarget.getBoundingClientRect() })}
     >
       <span className="monogram" aria-hidden>
@@ -115,19 +121,16 @@ export function ThinkerChip({ id }: { id: string }) {
       {th?.life && <span className="chip-life mono">{shortLife(th.life)}</span>}
     </button>
   );
-}
+});
 
 function shortLife(life: string) {
   return life.replace(/^c\.\s*/, "c.");
 }
 
-/** Markup-aware text: terms and thinkers open peeks, node refs jump. */
-export function RichText({ text, onNode }: { text: string; onNode?: (id: string) => void }) {
-  const { thinkerName, termName, openNode, ix } = useAtlas();
-  const peek = usePeek();
-  // Inline references are spans with button semantics (not <button>s), so they
-  // wrap like words and never strand punctuation at a line end.
-  const act = (fn: (el: HTMLElement) => void) => ({
+/** Inline references are spans with button semantics (not <button>s), so they
+    wrap like words and never strand punctuation at a line end. */
+function act(fn: (el: HTMLElement) => void) {
+  return {
     role: "button" as const,
     tabIndex: 0,
     onClick: (e: MouseEvent<HTMLElement>) => {
@@ -141,34 +144,45 @@ export function RichText({ text, onNode }: { text: string; onNode?: (id: string)
         fn(e.currentTarget);
       }
     },
-  });
-  const open = (kind: "term" | "thinker", id: string) => act((el) => peek({ kind, id, rect: el.getBoundingClientRect() }));
-  return (
-    <Rich
-      text={text}
-      r={{
-        thinkerName,
-        termName,
-        nodeName: (id) => ix.nodes.get(id)?.node.label,
-        term: (id, shown, k) => (
-          <span key={k} className="ref-term" {...open("term", id)}>
-            {shown}
-          </span>
-        ),
-        thinker: (id, shown, k) => (
-          <span key={k} className="ref-thinker" {...open("thinker", id)}>
-            {shown}
-          </span>
-        ),
-        node: (id, shown, k) => {
-          const side = ix.nodes.get(id)?.node.side ?? "theist";
-          return (
-            <span key={k} className={`ref-node s-${side}`} {...act(() => (onNode ?? openNode)(id))}>
-              {shown || ix.nodes.get(id)?.node.label}
-            </span>
-          );
-        },
-      }}
-    />
-  );
+  };
 }
+
+/** Markup-aware text: terms and thinkers open peeks, node refs jump.
+    Memoized on its two props (pass a stable `onNode`), and it reads only the static
+    context, so a Holds/Fails call leaves every visible move's text alone. */
+export const RichText = memo(function RichText({ text, onNode }: { text: string; onNode?: (id: string) => void }) {
+  const { thinkerName, termName, openNode, ix } = useAtlasStatic();
+  const peek = usePeek();
+  const r = useMemo<RichRenderers>(() => {
+    // The peek sets aria-expanded="true" on the opener while its card is open (see peek.tsx).
+    const open = (kind: "term" | "thinker", id: string) => ({
+      ...act((el) => peek({ kind, id, rect: el.getBoundingClientRect() })),
+      "aria-haspopup": "dialog" as const,
+      "aria-expanded": false,
+    });
+    return {
+      thinkerName,
+      termName,
+      nodeName: (id) => ix.nodes.get(id)?.node.label,
+      term: (id, shown, k) => (
+        <span key={k} className="ref-term" {...open("term", id)}>
+          {shown}
+        </span>
+      ),
+      thinker: (id, shown, k) => (
+        <span key={k} className="ref-thinker" {...open("thinker", id)}>
+          {shown}
+        </span>
+      ),
+      node: (id, shown, k) => {
+        const side = ix.nodes.get(id)?.node.side ?? "theist";
+        return (
+          <span key={k} className={`ref-node s-${side}`} {...act(() => (onNode ?? openNode)(id))}>
+            {shown || ix.nodes.get(id)?.node.label}
+          </span>
+        );
+      },
+    };
+  }, [thinkerName, termName, ix, peek, onNode, openNode]);
+  return <Rich text={text} r={r} />;
+});

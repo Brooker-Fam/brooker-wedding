@@ -7,7 +7,7 @@
    caller-supplied renderers so each view can decide what a term/thinker/node
    reference does (popover, jump, plain text). */
 
-import { Fragment, type ReactNode } from "react";
+import { Fragment, memo, useMemo, type ReactNode } from "react";
 
 export type Token =
   | { t: "text"; v: string }
@@ -63,8 +63,12 @@ export interface RichRenderers {
   nodeName?: (id: string) => string | undefined;
 }
 
-export function Rich({ text, r = {} }: { text: string; r?: RichRenderers }) {
-  const toks = parseMarkup(text);
+const NO_RENDERERS: RichRenderers = {};
+
+/** Memoized: re-renders (and re-parses) only when its text or renderers change, so callers
+    that re-render often should pass a stable `r` (see RichText). */
+export const Rich = memo(function Rich({ text, r = NO_RENDERERS }: { text: string; r?: RichRenderers }) {
+  const toks = useMemo(() => parseMarkup(text), [text]);
   return (
     <>
       {toks.map((tok, k) => {
@@ -89,4 +93,4 @@ export function Rich({ text, r = {} }: { text: string; r?: RichRenderers }) {
       })}
     </>
   );
-}
+});

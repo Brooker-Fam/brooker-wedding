@@ -87,9 +87,15 @@ export default function Lexicon({ term }: { term?: string }) {
     return () => clearTimeout(t);
   }, [term]);
 
+  // Scroll to the letter and take focus there, so the next Tab goes on into its entries (not on along the A–Z).
   const jump = (L: string) => {
     const el = listRef.current?.querySelector<HTMLElement>(`[data-letter="${L}"]`);
     el?.scrollIntoView({ block: "start", behavior: scrollBehavior() });
+    const h = document.getElementById(`lx-l-${L}`);
+    if (h) {
+      h.tabIndex = -1;
+      h.focus({ preventScroll: true });
+    }
   };
 
   const used = useMemo(() => sorted.filter((t) => (ix.termRefs.get(t.id)?.length ?? 0) > 0).length, [sorted, ix]);
@@ -101,8 +107,8 @@ export default function Lexicon({ term }: { term?: string }) {
       <LibHead
         current="lexicon"
         title="Glossary"
-        dek="Here are the technical terms in the arguments, explained in plain words. Choose a term to see every move that uses it."
-        meta={sorted.length ? `${sorted.length} terms${used ? ` · ${used} used in the arguments` : ""}` : undefined}
+        dek="Technical terms from the arguments, in plain words. Choose one to see every move that uses it."
+        meta={sorted.length ? `${sorted.length} terms${used && used !== sorted.length ? ` · ${used} used in the arguments` : ""}` : undefined}
       />
 
       {sorted.length === 0 ? (
@@ -197,15 +203,15 @@ function Entry({ t, on, q, onPick }: { t: Term; on: boolean; q: string; onPick: 
       </h3>
       <p className="lx-def">{defHit ? <Highlight text={defPlain} q={q} /> : <DefText text={t.def} onTerm={(id) => onPick(id)} />}</p>
       {n === 0 ? (
-        <p className="lx-unused mono">Not used in any move yet</p>
+        <p className="lx-unused mono">No move uses this term by name.</p>
       ) : on ? (
         <div className="lx-open">
-          <FootprintBlock ids={uses} title={`Used in ${n} ${n === 1 ? "move" : "moves"}`} caption="Highlighted on the map" />
+          <FootprintBlock ids={uses} title={`Used in ${n} ${n === 1 ? "move" : "moves"}`} caption="Highlighted on the map" plain />
         </div>
       ) : (
         <div className="lx-used">
           <span className="mono lib-k">Used in</span>
-          <NodeChip id={uses[0]} />
+          <NodeChip id={uses[0]} plain />
           {n > 1 && (
             <button
               type="button"

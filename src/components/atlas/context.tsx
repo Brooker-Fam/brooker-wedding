@@ -46,6 +46,12 @@ export interface AtlasValue {
 
 const Ctx = createContext<AtlasValue | null>(null);
 
+/** The parts that never change with the reader's calls or the route: the content, its index
+    and name lookups, and navigation. Markup and person chips read only these, so a Holds/Fails
+    call doesn't re-render (and re-parse) every visible move's text. */
+export type AtlasStatic = Pick<AtlasValue, "ix" | "d" | "go" | "thinkerName" | "termName" | "toPlain" | "openNode">;
+const StaticCtx = createContext<AtlasStatic | null>(null);
+
 export function AtlasProvider({ d, children }: { d: Disputation; children: ReactNode }) {
   const ix = useMemo(() => buildIndex(d), [d]);
   const [route, go] = useRoute();
@@ -104,11 +110,24 @@ export function AtlasProvider({ d, children }: { d: Disputation; children: React
     [ix, d, route, go, judgments, setJudgment, clear, replaceAll, labels, tensions, analysis, thinkerName, termName, toPlain, openNode],
   );
 
-  return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
+  const stable = useMemo<AtlasStatic>(() => ({ ix, d, go, thinkerName, termName, toPlain, openNode }), [ix, d, go, thinkerName, termName, toPlain, openNode]);
+
+  return (
+    <StaticCtx.Provider value={stable}>
+      <Ctx.Provider value={value}>{children}</Ctx.Provider>
+    </StaticCtx.Provider>
+  );
 }
 
 export function useAtlas(): AtlasValue {
   const v = useContext(Ctx);
   if (!v) throw new Error("useAtlas must be used inside <AtlasProvider>");
+  return v;
+}
+
+/** Like useAtlas, for components that need only the content and navigation (see AtlasStatic). */
+export function useAtlasStatic(): AtlasStatic {
+  const v = useContext(StaticCtx);
+  if (!v) throw new Error("useAtlasStatic must be used inside <AtlasProvider>");
   return v;
 }

@@ -48,7 +48,8 @@ export interface DisputationIndex {
   moments: Map<string, Moment>;
   /** thinker id → node ids that cite them (field or inline). */
   thinkerRefs: Map<string, string[]>;
-  /** term id → node ids that use it inline. */
+  /** term id → node ids that use it: inline [[markup]], or its name in plain text.
+      Worked out on first access (only the Glossary and term peeks read it). */
   termRefs: Map<string, string[]>;
   /** node id → nodes whose `see` points at it. */
   backlinks: Map<string, { from: string; why: string }[]>;
@@ -57,6 +58,44 @@ export interface DisputationIndex {
 
 const TERM_RE = /\[\[([a-z0-9-]+)(?:\|[^\]]*)?\]\]/g;
 const THINKER_RE = /\{\{([a-z0-9-]+)(?:\|[^}]*)?\}\}/g;
+
+/* A term's name as plain text: case-insensitive, whole words, an optional plural ending.
+   A parenthetical is left out ("Negative (apophatic) theology" → "negative theology"), and
+   an acronym inside one counts on its own ("HADD"). A name that is a single everyday word
+   once its parenthetical goes ("Imagination (first kind of knowledge)") is matched only as
+   markup, so ordinary uses of the word aren't counted.
+   Prose is reduced to lowercase words separated by single spaces; a term is looked for only
+   in moves that contain its first word (a set lookup), and then as a substring
+   (" middle knowledge "). The whole index still builds in a few milliseconds. */
+const NOT_WORD = /[^a-z0-9\u00c0-\u1fff\u2070-\uffff]+/g; // general punctuation (’ “ — …) separates words
+const MARKUP_ID = /(\[\[|\{\{|\(\()[a-z0-9-]+\|?/g; // [[id|  {{id|  ((id|  — keep only the shown text
+const norm = (s: string) => s.toLowerCase().replace(NOT_WORD, " ").trim();
+interface TermKey {
+  id: string;
+  /** The words the first word may appear as (a one-word name also in its plural forms). */
+  heads: string[];
+  /** " name ", " names ", … in normalised form; null for a one-word name (the head is enough). */
+  forms: string[] | null;
+}
+function plurals(w: string): string[] {
+  const out = [w, `${w}s`, `${w}es`];
+  if (/[^aeiou]y$/.test(w)) out.push(`${w.slice(0, -1)}ies`);
+  return out;
+}
+function termKeys(t: Term): TermKey[] {
+  const out: TermKey[] = [];
+  const add = (name: string) => {
+    const w = norm(name);
+    if (!w) return;
+    const parts = w.split(" ");
+    out.push(parts.length === 1 ? { id: t.id, heads: plurals(w), forms: null } : { id: t.id, heads: [parts[0]], forms: plurals(w).map((f) => ` ${f} `) });
+  };
+  const paren = /\(([^)]*)\)/.exec(t.term);
+  const bare = t.term.replace(/\s*\([^)]*\)\s*/g, " ").replace(/\s+/g, " ").trim();
+  if (!paren || bare.includes(" ")) add(bare);
+  if (paren && /^[A-Z]{2,}$/.test(paren[1].trim())) add(paren[1].trim());
+  return out;
+}
 
 function collect(re: RegExp, text: string, into: Set<string>) {
   for (const m of text.matchAll(re)) into.add(m[1]);
@@ -73,7 +112,7 @@ export function buildIndex(d: Disputation): DisputationIndex {
   const nodes = new Map<string, NodeInfo>();
   const byObjection = new Map<ObjectionId, string[]>();
   const thinkerRefs = new Map<string, string[]>();
-  const termRefs = new Map<string, string[]>();
+  const all: ArgNode[] = [];
   const backlinks = new Map<string, { from: string; why: string }[]>();
   let maxDepth = 0;
 
@@ -93,15 +132,11 @@ export function buildIndex(d: Disputation): DisputationIndex {
       });
       maxDepth = Math.max(maxDepth, p.length);
       order.push(n.id);
+      all.push(n);
 
       const thinkers = new Set(n.thinkers ?? []);
-      const terms = new Set<string>();
-      for (const text of [n.gist, ...n.body, n.cedes ?? ""]) {
-        collect(THINKER_RE, text, thinkers);
-        collect(TERM_RE, text, terms);
-      }
+      for (const text of [n.gist, ...n.body, n.cedes ?? ""]) collect(THINKER_RE, text, thinkers);
       thinkers.forEach((t) => push(thinkerRefs, t, n.id));
-      terms.forEach((t) => push(termRefs, t, n.id));
       (n.children ?? []).forEach((c, i) => walk(c, n.id, p, i, prong));
     };
     o.prongs.forEach((pr, i) => walk(pr, null, [], i, pr.id));
@@ -112,6 +147,7 @@ export function buildIndex(d: Disputation): DisputationIndex {
     for (const s of info.node.see ?? []) push(backlinks, s.id, { from: info.node.id, why: s.why });
   }
 
+  let termRefs: Map<string, string[]> | null = null;
   return {
     d,
     nodes,
@@ -121,10 +157,32 @@ export function buildIndex(d: Disputation): DisputationIndex {
     terms: new Map(d.terms.map((t) => [t.id, t])),
     moments: new Map(d.moments.map((m) => [m.id, m])),
     thinkerRefs,
-    termRefs,
+    get termRefs() {
+      return (termRefs ??= buildTermRefs(d.terms, all));
+    },
     backlinks,
     maxDepth,
   };
+}
+
+/** term id → node ids (in reading order) that link it or name it in plain words, so "Used in"
+    counts every move where the concept does work, on either side, not only the ones that link it. */
+function buildTermRefs(terms: Term[], nodes: ArgNode[]): Map<string, string[]> {
+  const byHead = new Map<string, TermKey[]>();
+  for (const k of terms.flatMap(termKeys)) for (const h of k.heads) byHead.set(h, [...(byHead.get(h) ?? []), k]);
+  const refs = new Map<string, string[]>();
+  for (const n of nodes) {
+    const found = new Set<string>();
+    for (const text of [n.gist, ...n.body, n.cedes ?? ""]) collect(TERM_RE, text, found);
+    const prose = ` ${norm([n.label, n.gist, ...n.body, n.cedes ?? ""].join(" ").replace(MARKUP_ID, " "))} `;
+    for (const w of new Set(prose.split(" "))) {
+      for (const k of byHead.get(w) ?? []) {
+        if (!found.has(k.id) && (!k.forms || k.forms.some((f) => prose.includes(f)))) found.add(k.id);
+      }
+    }
+    found.forEach((t) => push(refs, t, n.id));
+  }
+  return refs;
 }
 
 /* ---------------- labelling ---------------- */

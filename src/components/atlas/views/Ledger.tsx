@@ -18,6 +18,8 @@ import { formatRoute } from "../router";
 import { labelObjection, type DisputationIndex, type Judgments, type Tension } from "../semantics";
 import { useToast } from "../toast";
 import type { Judgment, Label, Objection, ObjectionId, Side } from "../types";
+import { answeredMark, shownLabel, statusText } from "./chamberShared";
+import { StatusPip } from "./marks";
 import Rose from "./Rose";
 
 /** The three voices, as the overview names them. */
@@ -27,7 +29,6 @@ const LABEL_CLASS: Record<Label, string> = { in: "st-in", out: "st-out", undec: 
 const COUNT_WORD = ["No", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine", "Ten"];
 /** What a toast says when clearing a call changes an objection's status. */
 const NOW_STATUS: Record<Label, string> = { in: "now stands", out: "is now answered", undec: "is now open" };
-const callWord = (j: Judgment) => (j === "holds" ? "Holds" : "Fails");
 const otherCall = (j: Judgment): Judgment => (j === "holds" ? "fails" : "holds");
 
 /** Where a move sits, in the reader's words: "Part 2 · Round 3". */
@@ -67,15 +68,15 @@ export default function Ledger() {
         <header className="ld-head">
           <p className="eyebrow ld-kicker">
             <span className="ld-you" aria-hidden />
-            Your results
+            Your calls
           </p>
           <h1 className="ld-title display" tabIndex={-1}>
             Where you <em>stand</em>
           </h1>
           <p className="ld-intro">
             Your results come from the moves you mark Holds or Fails, and they update whenever you change a call. Each objection comes in a few parts. A
-            part stands if you mark it Holds or every reply to it fails, and it is answered if you mark it Fails or a reply to it stands. The objection
-            stands if any one of its parts stands, and it is answered only when every part is.
+            part stands if you mark it Holds or every reply to it has failed or been answered. It doesn’t stand if you mark it Fails or if a reply to it
+            stands. The objection stands if any one of its parts stands, and it is answered once none of them stands or is still open.
           </p>
           {/* One quotation per screen: the empty state carries its own (Socrates). */}
           {!empty && (
@@ -85,7 +86,7 @@ export default function Ledger() {
                 disadvantage to those who are willing to learn; as they refuse to use their own judgment…”
               </blockquote>
               <figcaption>
-                <span className="mono">Cicero · On the Nature of the Gods I.5 (45 BC), tr. C. D. Yonge</span>
+                <span className="mono">Cicero · On the Nature of the Gods I.5 (45 BCE), tr. C. D. Yonge</span>
                 <span className="ld-epi-note">
                   Just before this he says that “those men who desire to know my own private opinion on every particular subject have more curiosity than is
                   necessary.”
@@ -224,7 +225,7 @@ function Ruling({ o, det, count, tense }: { o: Objection; det: Determination; co
             </p>
             {tense && <TensionNote />}
 
-            {det.also.length > 0 && <ChipRow label="It also rests on" ids={det.also} cap={4} />}
+            {det.also.length > 0 && <ChipRow label={det.focus ? "It also rests on" : "It rests on"} ids={det.also} cap={4} />}
             {det.decisive.length > 0 && <ChipRow label="These could also settle it" ids={det.decisive} />}
           </div>
         )}
@@ -275,7 +276,7 @@ function Exchange({ o }: { o: Objection }) {
           <div className="ld-ex-row s-skeptic">
             <dt className="mono">
               <Glyph side="skeptic" size={10} />
-              The objection
+              The Objector argues
             </dt>
             <dd>
               <RichText text={o.objection} />
@@ -286,7 +287,7 @@ function Exchange({ o }: { o: Objection }) {
           <div className="ld-ex-row s-theist">
             <dt className="mono">
               <Glyph side="theist" size={10} />
-              The reply
+              The Defender replies
             </dt>
             <dd>
               <RichText text={o.counter} />
@@ -305,25 +306,39 @@ function Exchange({ o }: { o: Objection }) {
   );
 }
 
-/** The badge: the objection's numeral, ringed by its status and short name. */
+/** The badge: the objection's numeral, ringed by its name along the top and its status along
+    the bottom (two arcs, so both read upright). */
 function Seal({ numeral, label, short }: { numeral: string; label: Label; short?: string }) {
-  const pathId = useId();
-  const ring = `Objection ${numeral} · ${OBJECTION_STATUS[label]} · ${short ? `${short} · ` : ""}`.toUpperCase();
+  const uid = useId().replace(/[^a-zA-Z0-9_-]/g, "");
+  const topId = `${uid}-top`;
+  const botId = `${uid}-bot`;
+  const top = `· Objection ${numeral}${short ? ` · ${short}` : ""} ·`.toUpperCase();
+  const status = OBJECTION_STATUS[label].toUpperCase();
   const r = 39.5;
   const fs = numeral.length >= 4 ? 17 : numeral.length === 3 ? 21 : numeral.length === 2 ? 26 : 31;
-  // As large as the ring allows (Plex Mono advances 0.6em): ≥ 10.5px at the desktop seal size.
-  const ringLen = 2 * Math.PI * r - 2;
-  const ringFs = Math.min(9.6, ringLen / (ring.length * 0.6));
+  // As large as the top half-ring allows (Plex Mono advances 0.6em), then a little tracking.
+  const avail = Math.PI * r - 6;
+  const ringFs = Math.min(9.6, avail / (top.length * 0.6));
+  const track = Math.max(0, Math.min(ringFs * 0.14, (avail * 0.94 - top.length * 0.6 * ringFs) / top.length));
+  // The bottom arc runs counterclockwise so its word reads upright; its baseline sits outside r
+  // by about a cap height, so both words fill the same band of the ring.
+  const r2 = r + ringFs * 0.72;
   return (
     <svg className={`ld-seal ${LABEL_CLASS[label]}`} viewBox="-50 -50 100 100" aria-hidden>
       <defs>
-        <path id={pathId} d={`M0,${-r} a${r},${r} 0 1,1 0,${2 * r} a${r},${r} 0 1,1 0,${-2 * r}`} />
+        <path id={topId} d={`M${-r},0 a${r},${r} 0 0,1 ${2 * r},0`} />
+        <path id={botId} d={`M${-r2},0 a${r2},${r2} 0 0,0 ${2 * r2},0`} />
       </defs>
       <circle className="ld-seal-outer" r={48} />
       <g className="ld-seal-ringtext">
-        <text style={{ fontSize: ringFs }}>
-          <textPath href={`#${pathId}`} textLength={ringLen} lengthAdjust="spacing">
-            {ring}
+        <text style={{ fontSize: ringFs, letterSpacing: track }}>
+          <textPath href={`#${topId}`} startOffset="50%" textAnchor="middle">
+            {top}
+          </textPath>
+        </text>
+        <text style={{ fontSize: ringFs, letterSpacing: ringFs * 0.3 }}>
+          <textPath href={`#${botId}`} startOffset="50%" textAnchor="middle">
+            {status}
           </textPath>
         </text>
       </g>
@@ -363,13 +378,13 @@ function ChipRow({ label, ids, cap }: { label: string; ids: string[]; cap?: numb
 
 /** A move named inside a sentence: glyph + “label”, linking to the move. */
 function MoveRef({ id }: { id: string }) {
-  const { ix, labelOf, toPlain } = useAtlas();
+  const { ix, judgments, labelOf, toPlain } = useAtlas();
   const info = ix.nodes.get(id);
   if (!info) return null;
   const side = info.node.side;
   return (
     <a className={`ld-ref s-${side}`} href={nodeHref(info.objection, id)} title={`${SIDE_WORD[side]} · ${partRound(ix, id)}`}>
-      <Glyph side={side} label={labelOf(id)} size={13} className="ld-ref-glyph" />
+      <Glyph side={side} label={shownLabel(labelOf(id), judgments[id])} size={13} className="ld-ref-glyph" />
       <span className="ld-ref-text">“{toPlain(info.node.label)}”</span>
     </a>
   );
@@ -392,13 +407,13 @@ function MoveChip({ id }: { id: string }) {
     <li>
       <a className={`ld-chip s-${side}`} href={nodeHref(info.objection, id)}>
         <span className="ld-chip-top">
-          <Glyph side={side} label={l} size={11} />
+          <Glyph side={side} label={shownLabel(l, call)} size={11} />
           <span className="ld-chip-addr mono">
             <span className="ld-chip-side">{SIDE_WORD[side]}</span> · {partRound(ix, id)}
           </span>
-          {call && <span className="your-call ld-chip-call">Your call: {callWord(call)}</span>}
+          {call && <span className="your-call ld-chip-call">{statusText(l, call)}</span>}
         </span>
-        <span className={`ld-chip-lab ${l === "out" ? "lab-out" : ""}`}>{toPlain(info.node.label)}</span>
+        <span className={`ld-chip-lab ${answeredMark(l, call) ? "lab-out" : ""}`}>{toPlain(info.node.label)}</span>
         {!call && <span className="sr-only"> ({MOVE_STATUS[l]})</span>}
       </a>
     </li>
@@ -430,10 +445,11 @@ function CruxCard({ crux, tense }: { crux: Crux; tense: boolean }) {
   if (!info) return null;
   const side = info.node.side;
   const short = ix.objections.get(crux.o)?.short;
-  const firstReply = info.childIds[0];
-  // Holds: read its first (strongest) reply. Fails: reread the move itself, which states its side's best case.
-  const target = crux.call === "holds" ? (firstReply ?? crux.id) : crux.id;
-  const cta = crux.call === "holds" && firstReply ? "Read the reply to it" : "Reread the move";
+  // Holds: read the reply that stands against it (a contradiction), else its first (strongest) reply.
+  // Fails: reread the move itself, which states its side's best case.
+  const reply = info.childIds.find((c) => labelOf(c) === "in") ?? info.childIds[0];
+  const target = crux.call === "holds" ? (reply ?? crux.id) : crux.id;
+  const cta = crux.call === "holds" && reply ? "Read the reply to it" : "Reread the move";
   const objName = `Objection ${crux.numeral}`;
   const others = crux.company - 1;
   const lede = others <= 0 ? `${objName} depends on this one call.` : `${objName} depends on this call and ${others === 1 ? "one other" : `${others} others`}.`;
@@ -449,7 +465,7 @@ function CruxCard({ crux, tense }: { crux: Crux; tense: boolean }) {
         <p className="ld-crux-lede serif">{lede}</p>
         <div className="ld-crux-row">
           <span className="ld-crux-bob" aria-hidden>
-            <Glyph side={side} label={labelOf(crux.id)} size={20} />
+            <Glyph side={side} label={shownLabel(labelOf(crux.id), crux.call)} size={20} />
           </span>
           <a className="ld-crux-label serif" href={nodeHref(info.objection, crux.id)}>
             “{toPlain(info.node.label)}”
@@ -460,7 +476,7 @@ function CruxCard({ crux, tense }: { crux: Crux; tense: boolean }) {
           <span>
             <span aria-hidden>· </span>Round {info.depth}
           </span>
-          <span className="your-call ld-crux-stamp">Your call: {callWord(crux.call)}</span>
+          <span className="your-call ld-crux-stamp">{statusText(labelOf(crux.id), crux.call)}</span>
         </p>
         {shifts && (
           <p className="ld-crux-said">
@@ -480,7 +496,7 @@ function CruxCard({ crux, tense }: { crux: Crux; tense: boolean }) {
           </blockquote>
           <figcaption>
             <span className="mono">John Stuart Mill · On Liberty, ch. 2 (1859)</span>
-            <span className="ld-epi-note">On the Church’s devil’s advocate at a canonisation.</span>
+            <span className="ld-epi-note">On the Church’s devil’s advocate at a canonization.</span>
           </figcaption>
         </figure>
         <a className="btn ld-crux-go" href={nodeHref(info.objection, target)}>
@@ -852,8 +868,18 @@ function EmptyState({ first }: { first?: Objection }) {
             1
           </span>
           <p>
-            Each objection is argued over several rounds by <span className="ld-g s-skeptic">▲ the Objector</span> and{" "}
-            <span className="ld-g s-theist">● the Defender</span>, each round answering the one before. <span className="ld-g s-spinoza">◆ Spinoza</span>{" "}
+            Each objection is argued over several rounds by{" "}
+            <span className="ld-g s-skeptic">
+              <span aria-hidden>▲</span> the Objector
+            </span>{" "}
+            and{" "}
+            <span className="ld-g s-theist">
+              <span aria-hidden>●</span> the Defender
+            </span>
+            , each round answering the one before.{" "}
+            <span className="ld-g s-spinoza">
+              <span aria-hidden>◆</span> Spinoza
+            </span>{" "}
             cuts in now and then.
           </p>
         </li>
@@ -946,8 +972,8 @@ function RoseKey() {
           </li>
           <li>
             <PaneSwatch label="undec" sides={["spinoza"]} defs={defs} />
-            <span>
-              <span aria-hidden>◆ </span>Hatched: Spinoza
+            <span className="ld-key-spin">
+              <Glyph side="spinoza" size={11} /> Striped for Spinoza
             </span>
           </li>
         </ul>
@@ -964,7 +990,7 @@ function RoseKey() {
             Answered
           </li>
           <li>
-            <span className="ld-hollow ld-hollow-sm" aria-hidden />
+            <StatusPip label="undec" size={11} />
             Open
           </li>
         </ul>

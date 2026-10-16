@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import { del } from "@vercel/blob";
 import { randomUUID } from "crypto";
 import { query } from "@/lib/db";
@@ -173,6 +174,7 @@ export async function DELETE(request: NextRequest) {
 
     await del(rows[0].url as string).catch(() => {});
     await query(`DELETE FROM photos WHERE id = $1`, [id]);
+    revalidatePath("/");
 
     return NextResponse.json({ success: true });
   } catch (error) {

@@ -67,3 +67,16 @@ export function objectionStats(ix: DisputationIndex, o: ObjectionId) {
   const prongs = ix.objections.get(o)?.prongs.length ?? 0;
   return { moves: ids.length, depth, prongs };
 }
+
+/** An objection's stats in the one wording every view uses, in this order:
+    "34 moves", "3 parts" (left out for a single part), "up to 7 rounds".
+    Join with " · " for a line (see objectionStatsLine), or render the parts separately. */
+export function objectionStatsParts(s: { moves: number; depth: number; prongs: number }): string[] {
+  const n = (k: number, one: string) => `${k} ${k === 1 ? one : `${one}s`}`;
+  return [n(s.moves, "move"), ...(s.prongs > 1 ? [n(s.prongs, "part")] : []), `up to ${n(s.depth, "round")}`];
+}
+
+/** "34 moves · 3 parts · up to 7 rounds" */
+export function objectionStatsLine(ix: DisputationIndex, o: ObjectionId): string {
+  return objectionStatsParts(objectionStats(ix, o)).join(" · ");
+}

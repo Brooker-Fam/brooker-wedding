@@ -9,7 +9,8 @@
        After Show, its replies are visited in content order (strongest first):
          a reply ends IN   → n is OUT (answered because that reply stands),
                              and the reader may still check the remaining replies;
-         every reply OUT   → n is IN  (stands because every reply to it fails).
+         every reply OUT   → n is IN  (stands: each reply failed by the reader's call
+                             or was answered; allOutText says which).
 
    Only the reader's explicit calls are ever written as judgments. Everything
    the walk concludes about an inner move is *computed* (and matches the
@@ -134,6 +135,8 @@ export interface ResolveItem {
   untested: string[];
   /** Number of replies the move has. */
   replies: number;
+  /** The replies' ids (to say truthfully why every one of them is out). */
+  kids: string[];
 }
 
 export type WalkItem = MoveItem | ResolveItem;
@@ -255,12 +258,12 @@ export function runWalk(o: Objection, j: Judgments, s: WalkSession): WalkRun {
             out.prompt = { kind: "resolved", id: n.id, depth: w.depth, by, untested, end: w.depth === 1 ? prongEnd(pi, "out") : null };
             return null;
           }
-          items.push({ kind: "resolve", key: `r:${n.id}`, id: n.id, depth: w.depth, label: "out", by, untested, replies: kids.length });
+          items.push({ kind: "resolve", key: `r:${n.id}`, id: n.id, depth: w.depth, label: "out", by, untested, replies: kids.length, kids: kids.map((k) => k.id) });
           return "out";
         }
       }
     }
-    items.push({ kind: "resolve", key: `r:${n.id}`, id: n.id, depth: w.depth, label: by ? "out" : "in", by, untested: [], replies: kids.length });
+    items.push({ kind: "resolve", key: `r:${n.id}`, id: n.id, depth: w.depth, label: by ? "out" : "in", by, untested: [], replies: kids.length, kids: kids.map((k) => k.id) });
     return by ? "out" : "in";
   };
 
@@ -305,7 +308,8 @@ export function itemCount(run: WalkRun): number {
 /** Why a prong came out the way it did, given the reader's calls. */
 export type ProngReason =
   | { kind: "judged"; j: Judgment }
-  | { kind: "all-fail"; replies: number }
+  /** Every reply is out: `replies` are their ids (see allOutText). */
+  | { kind: "all-fail"; replies: string[] }
   | { kind: "reply"; by: string }
   | { kind: "open" };
 
@@ -313,11 +317,40 @@ export function prongReason(p: ArgNode, j: Judgments, labelOf: (id: string) => L
   const judged = j[p.id];
   if (judged) return { kind: "judged", j: judged };
   const l = labelOf(p.id);
-  if (l === "in") return { kind: "all-fail", replies: (p.children ?? []).length };
+  if (l === "in") return { kind: "all-fail", replies: (p.children ?? []).map((c) => c.id) };
   if (l === "out") {
     const kids = p.children ?? [];
     const by = kids.find((c) => j[c.id] === "holds" && labelOf(c.id) === "in") ?? kids.find((c) => labelOf(c.id) === "in");
     if (by) return { kind: "reply", by: by.id };
   }
   return { kind: "open" };
+}
+
+/* ---------------- why every reply is out ---------------- */
+
+const NUM = ["no", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten"];
+const num = (n: number) => NUM[n] ?? String(n);
+
+/** Why every reply to a move is out, told truthfully (the same wording as the objection page's
+    Why?, explain.ts): a reply the reader said fails is the reader's call, and any other reply was
+    answered by a reply of its own. Never writes a computed status as a call.
+    "all five replies to it have been answered" / "you said both replies to it fail" /
+    "you said one reply to it fails and the other has been answered". */
+export function allOutText(kids: string[], j: Judgments): string {
+  const n = kids.length;
+  const failed = kids.filter((k) => j[k] === "fails").length;
+  if (failed === 0) {
+    if (n === 1) return "its one reply has been answered";
+    if (n === 2) return "both replies to it have been answered";
+    return `all ${num(n)} replies to it have been answered`;
+  }
+  if (failed === n) {
+    if (n === 1) return "you said its one reply fails";
+    if (n === 2) return "you said both replies to it fail";
+    return `you said all ${num(n)} replies to it fail`;
+  }
+  const rest = n - failed;
+  const said = n === 2 ? "one reply to it fails" : `${num(failed)} of its ${num(n)} replies ${failed === 1 ? "fails" : "fail"}`;
+  const others = rest === 1 ? "the other has been answered" : `the other ${num(rest)} have been answered`;
+  return `you said ${said} and ${others}`;
 }

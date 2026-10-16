@@ -10,6 +10,7 @@
 import type { ReactNode } from "react";
 import { Rich } from "../markup";
 import type { ArgNode, Disputation, Judgment, Label, Objection, ObjectionId, Quote, Side } from "../types";
+import { StatusPip } from "./marks";
 
 export const OUTLINE_SIDE_WORD: Record<Side, string> = { skeptic: "Objector", theist: "Defender", spinoza: "Spinoza" };
 const NODE_WORD: Record<Label, string> = { in: "Stands", out: "Answered", undec: "Open" };
@@ -115,6 +116,31 @@ export function OutlineGlyph({ side, label = "undec", size = 12 }: { side: Side;
   );
 }
 
+const ORDINALS = ["first", "second", "third", "fourth", "fifth", "sixth", "seventh", "eighth", "ninth", "tenth"];
+const nth = (k: number) => (ORDINALS[k - 1] ? `the ${ORDINALS[k - 1]} reply` : `reply ${k}`);
+
+/** An address spelled out for a screen reader, in the chamber's words (spellAddress there needs the index; this
+    file stays pure): "I·1.2.3" → "Objection I, part 1, round 3, the third reply to I·1.2". */
+function spellTrail(o: Objection, trail: number[]): string {
+  const many = o.prongs.length > 1;
+  const out = [`Objection ${o.numeral}`];
+  if (many) out.push(`part ${trail[0]}`);
+  if (trail.length === 1) {
+    if (!many) out.push("the opening argument");
+  } else if (trail.length === 2) {
+    out.push(many ? nth(trail[1]) : `${nth(trail[1])} to its opening argument`);
+  } else {
+    out.push(`round ${trail.length}`, `${nth(trail[trail.length - 1])} to ${o.numeral}·${trail.slice(0, -1).join(".")}`);
+  }
+  return out.join(", ");
+}
+
+/** The stats line, in the same words as the chamber and the shell: "34 moves · 3 parts · up to 7 rounds"
+    (no parts when there's one). */
+function statsLine(moves: number, parts: number, rounds: number): string {
+  return `${moves} ${moves === 1 ? "move" : "moves"}${parts > 1 ? ` · ${parts} parts` : ""} · ${rounds === 1 ? "1 round" : `up to ${rounds} rounds`}`;
+}
+
 function countMoves(n: ArgNode): number {
   return 1 + (n.children ?? []).reduce((s, c) => s + countMoves(c), 0);
 }
@@ -186,26 +212,30 @@ function ObjectionBlock({
               {o.objection && (
                 <div className="s-skeptic">
                   <dt className="mono">
-                    <OutlineGlyph side="skeptic" size={10} /> The objection
+                    <OutlineGlyph side="skeptic" size={10} /> The Objector argues
                   </dt>
-                  <dd>{o.objection}</dd>
+                  <dd>
+                    <Rich text={o.objection} r={rich} />
+                  </dd>
                 </div>
               )}
               {o.counter && (
                 <div className="s-theist">
                   <dt className="mono">
-                    <OutlineGlyph side="theist" size={10} /> The reply
+                    <OutlineGlyph side="theist" size={10} /> The Defender replies
                   </dt>
-                  <dd>{o.counter}</dd>
+                  <dd>
+                    <Rich text={o.counter} r={rich} />
+                  </dd>
                 </div>
               )}
             </dl>
           )}
           <p className="ol-meta mono">
-            {o.prongs.length} {o.prongs.length === 1 ? "part" : "parts"} · {moves} {moves === 1 ? "move" : "moves"} · {depth} {depth === 1 ? "round" : "rounds"}
+            {statsLine(moves, o.prongs.length, depth)}
             {ol && (
               <span className={`status-badge st-${ol} ol-objstatus`}>
-                <span className="dot" aria-hidden />
+                <StatusPip label={ol} size={9} />
                 {OBJ_WORD[ol]}
               </span>
             )}
@@ -269,26 +299,25 @@ function NodeItem({
     <li className={`ol-node s-${n.side} ${label ? `st-${label}` : ""}`} data-depth={depth}>
       <div className="ol-line">
         <p className="ol-who mono">
-          <span className="ol-addr">{addr}</span>
+          <span className="ol-addr" aria-hidden>
+            {addr}
+          </span>
+          <span className="sr-only">{spellTrail(o, trail)}</span>
           <span className="ol-side">
-            <OutlineGlyph side={n.side} label={label} size={11} />
+            <OutlineGlyph side={n.side} label={call === "fails" ? "undec" : label} size={11} />
             {OUTLINE_SIDE_WORD[n.side]}
           </span>
-          {label && (
-            <span className={`ol-status st-${label}`}>
-              {call || !nodeHref ? (
-                NODE_WORD[label]
-              ) : (
-                // A computed status explains itself on the objection's page (its "Why?"); the label link goes there too, so keep one tab stop.
-                <a className="ol-why" href={nodeHref(n.id, o.id)} tabIndex={-1} title="See why">
-                  {NODE_WORD[label]}
-                </a>
-              )}
-              {call && <span className="your-call ol-call">Your call: {call === "holds" ? "Holds" : "Fails"}</span>}
-            </span>
-          )}
+          {label &&
+            (call ? (
+              // A move the reader called carries their call, as in the chamber: nobody may have answered a move they rejected.
+              <span className="ol-status called">
+                <span className="your-call ol-call">You said it {call}</span>
+              </span>
+            ) : (
+              <span className={`ol-status st-${label}`}>{NODE_WORD[label]}</span>
+            ))}
         </p>
-        <p className={`ol-label serif ${label === "out" ? "lab-out" : ""}`}>
+        <p className={`ol-label serif ${label === "out" && !call ? "lab-out" : ""}`}>
           {nodeHref ? <a href={nodeHref(n.id, o.id)}>{text}</a> : text}
         </p>
         {gists && n.gist && (

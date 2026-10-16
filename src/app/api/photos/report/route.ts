@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import { query } from "@/lib/db";
 import { captureServerException } from "@/lib/posthog-server";
 import { checkUploadRateLimit } from "@/lib/rate-limit";
@@ -30,6 +31,7 @@ export async function POST(request: NextRequest) {
     if (!result) {
       return NextResponse.json({ error: "Database unavailable" }, { status: 503 });
     }
+    revalidatePath("/");
 
     return NextResponse.json({ success: true });
   } catch (error) {

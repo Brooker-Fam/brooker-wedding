@@ -237,7 +237,9 @@ function Story({
           </span>
         </p>
       )}
-      <p className="pl-text">{m.text}</p>
+      <p className="pl-text">
+        <RichText text={m.text} />
+      </p>
       <QuoteFigure q={quoteOf(m, ix)} className="pl-quote" />
       {info && o && (
         <div className="pl-arg">

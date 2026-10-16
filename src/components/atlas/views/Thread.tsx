@@ -7,12 +7,32 @@
    gone another way, a fork shows the other replies and what each side needs.
    After the last move, an empty seat ("No reply yet") waits opposite it. */
 
-import { useId, type KeyboardEvent } from "react";
+import { useContext, useId, type KeyboardEvent } from "react";
 import { useAtlas } from "../context";
+import { depthBelow, movesBelow } from "../helpers";
 import { Glyph } from "../primitives";
-import type { NodeInfo } from "../semantics";
+import type { DisputationIndex, NodeInfo } from "../semantics";
 import type { Side } from "../types";
-import { CallButtons, SIDE_POSS, SIDE_THE, SIDE_WORD, moveNoun, numWord, rippleStyle, seatOf, statusText, turnEl, useChamber, type Seat } from "./chamberShared";
+import {
+  CallButtons,
+  SIDE_POSS,
+  SIDE_THE,
+  SIDE_WORD,
+  answeredMark,
+  focusTurn,
+  moveNoun,
+  numWord,
+  RippleCtx,
+  delayStyle,
+  rippleDelay,
+  seatOf,
+  shownLabel,
+  statusText,
+  turnEl,
+  useChamber,
+  type Seat,
+} from "./chamberShared";
+import { YouMark } from "./marks";
 import Turn from "./Turn";
 
 /** Elements on which the arrow keys walk the thread (anywhere else they scroll the page). */
@@ -70,9 +90,18 @@ function forkStakes(parent: NodeInfo, n: number): string {
   return `${cap(SIDE_POSS[parent.node.side])} ${above} stands only if ${all} answered or marked Fails. ${any}, the ${above} is answered.`;
 }
 
+/** How far a fork option's branch runs: "6 moves · 4 rounds below", or "No reply yet". */
+function branchSize(ix: DisputationIndex, id: string): string {
+  const m = movesBelow(ix, id);
+  if (m === 0) return "No reply yet";
+  const d = depthBelow(ix, id);
+  return `${m} ${m === 1 ? "move" : "moves"} · ${d} ${d === 1 ? "round" : "rounds"} below`;
+}
+
 function Fork({ parentId, current }: { parentId: string; current: string }) {
   const { ix, labelOf, toPlain, judgments } = useAtlas();
   const api = useChamber();
+  const ripple = useContext(RippleCtx);
   const parent = ix.nodes.get(parentId);
   if (!parent) return null;
   const kids = parent.childIds;
@@ -100,22 +129,30 @@ function Fork({ parentId, current }: { parentId: string; current: string }) {
         {kids.map((k, i) => {
           const info = ix.nodes.get(k)!;
           const l = labelOf(k);
+          const call = judgments[k];
+          const shown = shownLabel(l, call);
           const on = k === current;
           return (
             <li key={k}>
               <button
                 type="button"
-                className={`ch-fork-opt s-${info.node.side} st-${l} ${on ? "on" : ""}`}
+                className={`ch-fork-opt s-${info.node.side} st-${shown} ${on ? "on" : ""}`}
                 aria-current={on ? "true" : undefined}
                 data-subject={k}
                 onClick={() => api.focus(k, "fork")}
-                style={rippleStyle(api.ripple, info.depth)}
+                style={delayStyle(rippleDelay(ripple, k, info.depth))}
               >
                 <span className="ch-fork-n">{i + 1}</span>
-                <Glyph side={info.node.side} label={l} size={12} />
+                <Glyph side={info.node.side} label={shown} size={12} />
                 <span className="ch-fork-body">
-                  <span className={`ch-fork-l ${l === "out" ? "lab-out" : ""}`}>{toPlain(info.node.label)}</span>
-                  <span className={`ch-fork-st st-${l}`}>{statusText(l, judgments[k])}</span>
+                  <span className="ch-fork-main">
+                    <span className={`ch-fork-l ${answeredMark(l, call) ? "lab-out" : ""}`}>{toPlain(info.node.label)}</span>
+                    <span className="ch-fork-meta">{branchSize(ix, k)}</span>
+                  </span>
+                  <span className={`ch-fork-st st-${shown}`}>
+                    {call && <YouMark size={9} className="ch-you" />}
+                    {statusText(l, call)}
+                  </span>
                 </span>
               </button>
             </li>
@@ -128,10 +165,11 @@ function Fork({ parentId, current }: { parentId: string; current: string }) {
 
 type Line = { text: string; who: string; cite: string };
 
-/* Lines for the contradiction note. (Aristotle's law of non-contradiction stays with
-   Where you stand, which explains it.) Checked word for word against the KJV. */
+/* Lines for the contradiction note, one from each tradition. Mark 3:25 is checked word for word
+   against the KJV; Aristotle's line is copied verbatim from Where you stand (Ledger.tsx), which
+   explains the rule it states (Metaphysics IV.3, 1005b, tr. W. D. Ross). */
 const CONTRADICTION_QUOTES: Line[] = [
-  { text: "How long halt ye between two opinions?", who: "1 Kings 18:21", cite: "King James Version" },
+  { text: "it is impossible for any one to believe the same thing to be and not to be", who: "Aristotle", cite: "Metaphysics IV.3, 1005b, tr. W. D. Ross" },
   { text: "And if a house be divided against itself, that house cannot stand.", who: "Mark 3:25", cite: "King James Version" },
 ];
 
@@ -159,12 +197,27 @@ function TensionNote({ node, reply, line }: { node: string; reply: string; line:
           {line.who}, <cite>{line.cite}</cite>
         </figcaption>
       </figure>
+      {/* Clearing a call removes this note (and its buttons), so focus goes back to the move. */}
       <div className="ch-tension-acts">
-        <button type="button" className="btn small" onClick={() => api.decide(node, null)}>
+        <button
+          type="button"
+          className="btn small"
+          onClick={() => {
+            api.decide(node, null);
+            focusTurn(node, reply);
+          }}
+        >
           <span aria-hidden>↑</span> Clear call above
         </button>
         {judgments[reply] ? (
-          <button type="button" className="btn small" onClick={() => api.decide(reply, null)}>
+          <button
+            type="button"
+            className="btn small"
+            onClick={() => {
+              api.decide(reply, null);
+              focusTurn(reply, node);
+            }}
+          >
             <span aria-hidden>↓</span> Clear call below
           </button>
         ) : (
@@ -211,8 +264,17 @@ const DEFENDER_CHAIR_QUOTE: Line = {
   cite: "King James Version",
 };
 
-function chairQuote(id: string, defenderTurn: boolean): Line {
-  const pool = defenderTurn ? [...CHAIR_QUOTES, DEFENDER_CHAIR_QUOTE] : CHAIR_QUOTES;
+/* Its counterpart, only after a Defender's move, when it is the Objector's turn. Checked word for
+   word against the Gutenberg text the site links (#9662, sect. X, part I). Unlike the pool above,
+   this line also appears in the Timeline and in Objection III. */
+const OBJECTOR_CHAIR_QUOTE: Line = {
+  text: "A wise man, therefore, proportions his belief to the evidence.",
+  who: "David Hume",
+  cite: "An Enquiry concerning Human Understanding, sect. X, part I (1748)",
+};
+
+function chairQuote(id: string, turn: "defender" | "objector" | null): Line {
+  const pool = turn === "defender" ? [...CHAIR_QUOTES, DEFENDER_CHAIR_QUOTE] : turn === "objector" ? [...CHAIR_QUOTES, OBJECTOR_CHAIR_QUOTE] : CHAIR_QUOTES;
   return pool[hashOf(id) % pool.length];
 }
 
@@ -224,7 +286,8 @@ function EmptyChair({ leaf, seat }: { leaf: string; seat: Seat }) {
   const sources = (info.node.sources ?? []).filter((s) => s.title);
   const focused = api.focusId === leaf;
   const of = `${SIDE_POSS[info.node.side]} ${moveNoun(info.depth)} above`;
-  const line = chairQuote(leaf, info.node.side === "skeptic");
+  // Whose turn it is after the last move: the other side's (no one's in particular after Spinoza).
+  const line = chairQuote(leaf, info.node.side === "skeptic" ? "defender" : info.node.side === "theist" ? "objector" : null);
   return (
     <div className={`ch-chair seat-${seat}`} role="note" aria-label="No reply yet" data-subject={leaf}>
       <span className="ch-chair-k">
@@ -246,7 +309,7 @@ function EmptyChair({ leaf, seat }: { leaf: string; seat: Seat }) {
           <span className="ch-chair-of">on {of}</span>
         </div>
       )}
-      {/* When the last move is open, its own Sources list is right above. */}
+      {/* When the last move is open, its own Sources list is right above (under "Sources, people and links"). */}
       {!focused && sources.length > 0 && (
         <div className="ch-chair-read">
           <span className="ch-chair-read-k">Where to read more</span>
@@ -272,16 +335,26 @@ function EmptyChair({ leaf, seat }: { leaf: string; seat: Seat }) {
 }
 
 export default function Thread() {
-  const { ix, tensions, judgments } = useAtlas();
+  const { ix, tensions, judgments, labelOf } = useAtlas();
   const api = useChamber();
+  const ripple = useContext(RippleCtx);
   const keysId = useId();
   const { path, focusId } = api;
   const tenseKey = (a: string, b: string) => tensions.some((t) => t.node === a && t.reply === b);
 
   const onKey = (e: KeyboardEvent<HTMLElement>) => {
-    if (e.altKey || e.ctrlKey || e.metaKey) return;
     const t = e.target as HTMLElement;
+    // While a person or term peek is open, the keys belong to it, not to the move behind it.
+    if (t.closest("[role=dialog]") || document.querySelector(".atl .peek")) return;
     if (t.closest("input, textarea, select, [contenteditable='true']")) return;
+    // U (or Ctrl/Cmd+Z) undoes the last call, wherever focus is in the thread.
+    const undoKey =
+      (!e.altKey && !e.ctrlKey && !e.metaKey && (e.key === "u" || e.key === "U")) || ((e.ctrlKey || e.metaKey) && !e.altKey && !e.shiftKey && (e.key === "z" || e.key === "Z"));
+    if (undoKey) {
+      if (api.undo()) e.preventDefault();
+      return;
+    }
+    if (e.altKey || e.ctrlKey || e.metaKey) return;
     // Act on the move that has keyboard focus (a collapsed turn, a fork option, the empty chair),
     // not on whichever move happens to be open.
     const subjectEl = t.closest<HTMLElement>("[data-subject]");
@@ -293,6 +366,8 @@ export default function Thread() {
     if (e.key === "h" || e.key === "H" || e.key === "f" || e.key === "F") {
       const j = e.key.toLowerCase() === "h" ? "holds" : "fails";
       e.preventDefault();
+      // A held key repeats: only the first press counts, or the call would flip on and off.
+      if (e.repeat) return;
       api.decide(subject, judgments[subject] === j ? null : j);
       return;
     }
@@ -369,7 +444,16 @@ export default function Thread() {
               {fork && <Fork parentId={prev!} current={id} />}
               {tense && <TensionNote node={prev!} reply={id} line={noteLines.get(id) ?? CONTRADICTION_QUOTES[0]} />}
               {between && <Connector from="center" to={seat} side={info.node.side} tense={tense} short />}
-              <Turn id={id} focused={id === focusId} next={path[i + 1]} tensed={tense || nextTense} />
+              {/* Primitive props only: a folded move re-renders only when its own status or call changes. */}
+              <Turn
+                id={id}
+                focused={id === focusId}
+                next={id === focusId ? path[i + 1] : undefined}
+                tensed={tense || nextTense}
+                label={labelOf(id)}
+                call={judgments[id]}
+                rippleDelay={rippleDelay(ripple, id, info.depth)}
+              />
             </li>
           );
         })}
@@ -380,12 +464,27 @@ export default function Thread() {
       </ol>
       <p id={keysId} className="sr-only">
         Keyboard shortcuts. On a move, the Down arrow goes to its reply and the Up arrow to the move it replies to. Left and Right switch between replies to the same move. H says
-        the move holds and F says it fails. Press the same key again to clear your call.
+        the move holds and F says it fails. Press the same key again to clear your call. U undoes your last call.
       </p>
+      {/* each key stays on the same line as its word */}
       <p className="ch-keys" aria-hidden>
-        <kbd>↑</kbd>
-        <kbd>↓</kbd> previous or next move · <kbd>←</kbd>
-        <kbd>→</kbd> other replies · <kbd>H</kbd> holds · <kbd>F</kbd> fails
+        <span className="ch-keys-pair">
+          <kbd>↑</kbd>
+          <kbd>↓</kbd> previous or next move
+        </span>{" "}
+        · <span className="ch-keys-pair">
+          <kbd>←</kbd>
+          <kbd>→</kbd> other replies
+        </span>{" "}
+        · <span className="ch-keys-pair">
+          <kbd>H</kbd> holds
+        </span>{" "}
+        · <span className="ch-keys-pair">
+          <kbd>F</kbd> fails
+        </span>{" "}
+        · <span className="ch-keys-pair">
+          <kbd>U</kbd> undo
+        </span>
       </p>
     </section>
   );

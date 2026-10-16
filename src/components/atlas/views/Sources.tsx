@@ -7,7 +7,9 @@
    by author and title (an encyclopedia article or a review by publisher and
    title), so "Pensées" cited from four moves is one entry with four chips.
    One text cited under two titles or bylines is folded into one entry when
-   the citations share a link or one title contains the other. Where moves cite different places in one work ("Summa
+   the citations share a link or one title contains the other, but never two
+   whose modern dates are more than a year apart, nor a piece marked as a
+   lecture, excerpt, abstract, article or review. Where moves cite different places in one work ("Summa
    Theologiae I q.2 a.3", "… I q.105 a.6"), the work is one entry and each
    place gets its own row, with its own link and the moves that cite it.
 
@@ -19,13 +21,13 @@
    person's file and a timeline card show. */
 
 import "./library.css";
-import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { memo, startTransition, useDeferredValue, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { useAtlas } from "../context";
 import { initials } from "../peek";
 import { formatRoute } from "../router";
 import type { DisputationIndex } from "../semantics";
 import type { Disputation, ObjectionId, Source } from "../types";
-import { LibEmpty, LibHead, NodeChip, fold, yearText } from "./Outline";
+import { LibEmpty, LibHead, LibTabs, NodeChip, fold, yearText } from "./Outline";
 import { hostOf } from "./OutlineList";
 
 /* ======================================================================
@@ -215,6 +217,9 @@ function surnameOf(by: string): string {
   const ws = first.split(/\s+/).filter((w) => w && !/^(jr|sr)\.?$/i.test(w));
   // "Leo XIII" → "leo", "Justinian I" → "justinian".
   if (ws.length > 1 && /^[IVXLC]+$/.test(ws[ws.length - 1])) ws.pop();
+  // A surname with a particle files under the particle: "Michael Della Rocca" → "dellarocca", "Peter van Inwagen" → "vaninwagen".
+  const n = ws.length;
+  if (n > 1 && /^(de|del|della|di|da|van|von|le|la)$/i.test(ws[n - 2])) return fold(`${ws[n - 2]} ${ws[n - 1]}`).replace(/[^a-z0-9-]/g, "");
   return fold(ws[ws.length - 1] ?? first).replace(/[^a-z0-9-]/g, "");
 }
 
@@ -370,6 +375,54 @@ function yearsClash(a: WorkAcc, b: WorkAcc): boolean {
   return ya.size > 0 && yb.size > 0 && ![...ya].some((n) => yb.has(n));
 }
 
+/** Every year a citation's date gives: "1979" → 1979; "2004 (2nd ed.)" → 2004; "1265–74" → 1265, 1274; "c. 399 BCE" → -399. */
+function yearsIn(y: string): number[] {
+  const bce = /BCE|\bBC\b/.test(y);
+  const out: number[] = [];
+  for (const m of y.matchAll(/(\d{3,4})(?:\s*[–-]\s*(\d{2,4})\b)?/g)) {
+    const a = Number(m[1]);
+    out.push(bce ? -a : a);
+    if (m[2]) {
+      // "1265–74": the end of a range, completed from its start
+      const b = Number(m[2].length < m[1].length ? m[1].slice(0, m[1].length - m[2].length) + m[2] : m[2]);
+      out.push(bce ? -b : b);
+    }
+  }
+  return out;
+}
+/** The years a work is cited with, when they're all modern (1900 on) and none names an edition. Older texts are cited
+    by first edition, revision or translation (Kant's 1781 and 1787, Molina's 1588 and Freddoso's 1988), and a later
+    edition keeps its title (Swinburne's 1979 book, "2nd ed. 2004"), so those dates can't tell works apart. */
+const EDITION_RE = /\bed\b|\beds?\.|edition|\brev\b|\brev\.|repr|trans/i;
+function modernYears(years: string[]): number[] | undefined {
+  if (years.some((y) => EDITION_RE.test(y))) return undefined;
+  const ys = years.flatMap(yearsIn);
+  return ys.length > 0 && ys.every((n) => n >= 1900) ? ys : undefined;
+}
+/** Both are modern, dated, and every pair of their years is more than one apart: Rowe's "Can God Be Free?" article
+    (2002) and book (2004). */
+function farApart(a: WorkAcc, b: WorkAcc): boolean {
+  const ya = modernYears(a.years);
+  const yb = modernYears(b.years);
+  return !!ya && !!yb && ya.every((x) => yb.every((y) => Math.abs(x - y) > 1));
+}
+/** A parenthetical that says what kind of piece a title is: "The Existence of God (lecture)" is not the book of that name. */
+const GENRE_RE = /\([^)]*\b(?:lecture|excerpt|abstract|article|review)s?\b[^)]*\)/i;
+const isGenre = (a: WorkAcc) => a.titles.some((t) => GENRE_RE.test(t));
+/** Two citations that must stay apart, whatever their titles say: modern years more than one apart, or a piece marked
+    as a lecture, excerpt, abstract, article or review. */
+const keepApart = (a: WorkAcc, b: WorkAcc) => farApart(a, b) || isGenre(a) || isGenre(b);
+/** Both have links, on different sites, and no year in common: a 2021 excerpt at ojs.tnkul.pl is not the 2015 book.
+    (Butler's 1736 Analogy, linked at two sites, is still one work.) */
+function hostsDiffer(a: WorkAcc, b: WorkAcc): boolean {
+  const hosts = (w: WorkAcc) => new Set([...w.parts.values()].flatMap((p) => (p.url ? [hostOf(p.url)] : [])));
+  const ha = hosts(a);
+  const hb = hosts(b);
+  if (ha.size === 0 || hb.size === 0 || [...ha].some((h) => hb.has(h))) return false;
+  const ya = new Set(a.years.flatMap(yearsIn));
+  return !b.years.flatMap(yearsIn).some((y) => ya.has(y));
+}
+
 /** One work cited under different titles or bylines becomes one entry. Two works are one when:
     - they have the same title and share a link ("The Book of Mormon", credited two ways);
     - they're by the same author and cite the same place at the same link, and no number in their titles
@@ -378,7 +431,8 @@ function yearsClash(a: WorkAcc, b: WorkAcc): boolean {
     - they're by the same author, one title is the other with or without its parenthetical, or is the parenthetical
       itself, and their years agree ("Lumen Gentium (Dogmatic Constitution on the Church)"; "Über den Beweis des
       Geistes und der Kraft (On the Proof of the Spirit and of Power)"; but not Sober's "The Design Argument" of 2003
-      and "The Design Argument (Cambridge Elements)" of 2019). */
+      and "The Design Argument (Cambridge Elements)" of 2019, nor "The Existence of God (lecture)" and the book).
+    Never two whose years are more than one apart, or where one is marked as a lecture, excerpt, abstract, article or review. */
 function mergeSameWorks(accs: Map<string, WorkAcc>) {
   const list = [...accs.values()];
   const up = new Map<WorkAcc, WorkAcc>(list.map((a) => [a, a]));
@@ -389,6 +443,7 @@ function mergeSameWorks(accs: Map<string, WorkAcc>) {
     return r;
   };
   const join = (a: WorkAcc, b: WorkAcc) => {
+    if (keepApart(a, b)) return;
     const [ra, rb] = [find(a), find(b)];
     if (ra !== rb) up.set(rb, ra);
   };
@@ -418,6 +473,7 @@ function mergeSameWorks(accs: Map<string, WorkAcc>) {
   }
   for (const a of list) {
     for (const t of a.titles) {
+      if (GENRE_RE.test(t)) continue;
       const asides = [...t.matchAll(/\(([^)]*)\)/g)].map((m) => m[1]).filter((x) => !ASIDE_RE.test(x));
       if (asides.length === 0) continue;
       for (const alias of [t.replace(/\s*\([^)]*\)/g, ""), ...asides]) {
@@ -432,6 +488,17 @@ function mergeSameWorks(accs: Map<string, WorkAcc>) {
     absorb(r, a);
     accs.delete(a.key);
   }
+}
+
+/** Built once per disputation: it takes tens of milliseconds, too long to redo every time the page opens. */
+const WORKS = new WeakMap<Disputation, { works: Work[]; citations: number }>();
+function worksOf(d: Disputation, ix: DisputationIndex): { works: Work[]; citations: number } {
+  let w = WORKS.get(d);
+  if (!w) {
+    w = buildWorks(d, ix);
+    WORKS.set(d, w);
+  }
+  return w;
 }
 
 function buildWorks(d: Disputation, ix: DisputationIndex): { works: Work[]; citations: number } {
@@ -453,8 +520,15 @@ function buildWorks(d: Disputation, ix: DisputationIndex): { works: Work[]; cita
     const pub = publisherOf(s);
     const surname = pub?.id ?? surnameOf(s.by ?? "");
     const tk = titleKey(work);
-    const key = `${surname}|${tk}`;
+    let key = `${surname}|${tk}`;
     let a = accs.get(key);
+    // One author and title, but modern years more than one apart (an article, then the book): two works.
+    const mine = s.year ? modernYears([s.year]) : undefined;
+    const theirs = a ? modernYears(a.years) : undefined;
+    if (mine && theirs && mine.every((x) => theirs.every((y) => Math.abs(x - y) > 1))) {
+      key = `${key}|${mine[0]}`;
+      a = accs.get(key);
+    }
     if (!a) {
       a = { key, surname, pub, titleKey: tk, mainKey: `${surname}|${mainTitleKey(work)}`, hasSub: mainTitleKey(work) !== tk, titles: [], bys: [], years: [], parts: new Map() };
       accs.set(key, a);
@@ -482,6 +556,8 @@ function buildWorks(d: Disputation, ix: DisputationIndex): { works: Work[]; cita
     if (a.hasSub) continue;
     const into = byMain.get(a.mainKey);
     if (!into || into.length !== 1 || into[0] === a) continue;
+    // not a different piece by the same title: years apart, a lecture or an excerpt, or a link to another site
+    if (keepApart(into[0], a) || hostsDiffer(into[0], a)) continue;
     absorb(into[0], a);
     accs.delete(a.key);
   }
@@ -563,34 +639,6 @@ const KINDS: { kind: Kind; title: string; note: string }[] = [
   { kind: "ref", title: "Encyclopedia entries", note: "Overviews of a topic or a person, by title." },
 ];
 
-const LIB_TABS: { view: "timeline" | "cast" | "lexicon" | "outline" | "sources"; word: string }[] = [
-  { view: "timeline", word: "Timeline" },
-  { view: "cast", word: "People" },
-  { view: "lexicon", word: "Glossary" },
-  { view: "outline", word: "Outline" },
-  { view: "sources", word: "Sources" },
-];
-
-/** The Library's tab row, with Sources current. */
-function SourcesTabs() {
-  return (
-    <nav className="lib-tabs src-tabs" aria-label="Library">
-      <span className="lib-tabs-k mono" aria-hidden>
-        Library
-      </span>
-      <ul>
-        {LIB_TABS.map((t) => (
-          <li key={t.view}>
-            <a className="lib-tab mono" href={formatRoute({ view: t.view })} aria-current={t.view === "sources" ? "page" : undefined}>
-              {t.word}
-            </a>
-          </li>
-        ))}
-      </ul>
-    </nav>
-  );
-}
-
 const sortOld = (a: Work, b: Work) => (a.sortYear ?? 99999) - (b.sortYear ?? 99999) || a.surname.localeCompare(b.surname) || a.title.localeCompare(b.title);
 const sortAuthor = (a: Work, b: Work) => a.surname.localeCompare(b.surname) || (a.sortYear ?? 99999) - (b.sortYear ?? 99999) || a.title.localeCompare(b.title);
 const sortTitle = (a: Work, b: Work) => fold(a.title).replace(/^(the|a|an)\s+/, "").localeCompare(fold(b.title).replace(/^(the|a|an)\s+/, ""));
@@ -613,13 +661,18 @@ export default function Sources() {
   const [group, setGroup] = useState<Group>("kind");
   const [onlyLinked, setOnlyLinked] = useState(false);
 
-  const { works, citations } = useMemo(() => buildWorks(d, ix), [d, ix]);
+  const { works, citations } = useMemo(() => worksOf(d, ix), [d, ix]);
   const linked = useMemo(() => works.filter((w) => w.linked).length, [works]);
+  // The list follows the search a beat behind the typing, so the field never waits on the list.
+  const dq = useDeferredValue(q);
+  // Each section shows its first works; "Show all" opens the rest: the next few at once, the others just after.
+  const [limits, setLimits] = useState<Record<string, number>>({});
+  const reveal = useRef<{ id: string; at: number } | null>(null);
 
   const shown = useMemo(() => {
-    const needle = fold(q.trim());
+    const needle = fold(dq.trim());
     return works.filter((w) => (!onlyLinked || w.linked) && (!needle || w.search.includes(needle)));
-  }, [works, q, onlyLinked]);
+  }, [works, dq, onlyLinked]);
 
   const sections: Section[] = useMemo(() => {
     if (group === "kind") {
@@ -653,12 +706,23 @@ export default function Sources() {
     return out.filter((s) => s.works.length > 0);
   }, [group, shown, d]);
 
-  const filtering = q.trim() !== "" || onlyLinked;
-  const qt = q.trim();
+  const filtering = dq.trim() !== "" || onlyLinked;
+  const qt = dq.trim();
+
+  // "Show all" unmounts itself: hand focus to the first work it revealed.
+  useEffect(() => {
+    const r = reveal.current;
+    if (!r) return;
+    reveal.current = null;
+    const id = r.id;
+    const li = document.querySelectorAll<HTMLElement>(`#${CSS.escape(id)} .src-entries > li`)[r.at];
+    const to = li?.querySelector<HTMLElement>("a[href], button") ?? document.getElementById(`${id}-h`);
+    to?.focus();
+  }, [limits]);
 
   const head = (
     <LibHead
-      current="outline"
+      current="sources"
       tabs={false}
       title="Sources"
       dek="Every work cited in the arguments, the reading lists, People and the Timeline, listed once with the moves that cite it. A title marked ↗ opens the text, or a page about it, in a new tab."
@@ -668,10 +732,10 @@ export default function Sources() {
 
   return (
     <div className="lib lib-sources">
-      <SourcesTabs />
+      <LibTabs current="sources" />
       {head}
       {works.length === 0 ? (
-        <LibEmpty current="outline" title="No sources yet." text="I haven’t listed any sources yet. Each one will link to the moves that cite it." />
+        <LibEmpty current="sources" title="No sources yet." text="I haven’t listed any sources yet. Each one will link to the moves that cite it." />
       ) : (
         <div className="src-layout">
           <div className="src-rail">
@@ -735,42 +799,69 @@ export default function Sources() {
                 </button>
               </div>
             ) : (
-              sections.map((s) => (
-                <section key={s.id} id={s.id} className="src-sec" aria-labelledby={`${s.id}-h`}>
-                  <header className="src-sec-head">
-                    <h2 className="src-sec-h serif" id={`${s.id}-h`} tabIndex={-1}>
-                      {s.title}
-                    </h2>
-                    <p className="src-sec-meta mono">
-                      {s.works.length} {s.works.length === 1 ? "work" : "works"}
-                    </p>
-                    {s.note && <p className="src-sec-note">{s.note}</p>}
-                  </header>
-                  <ol className="src-entries">
-                    {s.works
-                      .filter((w) => !s.undated?.includes(w))
-                      .map((w) => (
-                        <li key={w.key}>
-                          <Entry w={w} only={s.only} section={s.o} />
-                        </li>
-                      ))}
-                  </ol>
-                  {s.undated && s.undated.length > 0 && (
-                    <>
-                      <p className="src-undated mono" id={`${s.id}-undated`}>
-                        Date not given <span className="src-undated-n">{s.undated.length}</span>
+              sections.map((s) => {
+                const dated = s.works.filter((w) => !s.undated?.includes(w));
+                const undated = s.undated ?? [];
+                const total = dated.length + undated.length;
+                // A few more than the cap aren't worth a button.
+                const asked = limits[s.id];
+                // A search shows more of its matches before "Show all" (a single letter still matches nearly everything).
+                const cap = qt ? SEARCH_CAP : WORK_CAP;
+                const full = total <= cap + 3 || (asked ?? 0) >= total;
+                const cut = full ? total : Math.max(cap, asked ?? 0);
+                const datedShown = dated.slice(0, cut);
+                const undatedShown = undated.slice(0, Math.max(0, cut - dated.length));
+                return (
+                  <section key={s.id} id={s.id} className="src-sec" aria-labelledby={`${s.id}-h`}>
+                    <header className="src-sec-head">
+                      <h2 className="src-sec-h serif" id={`${s.id}-h`} tabIndex={-1}>
+                        {s.title}
+                      </h2>
+                      <p className="src-sec-meta mono">
+                        {s.works.length} {s.works.length === 1 ? "work" : "works"}
                       </p>
-                      <ol className="src-entries" aria-labelledby={`${s.id}-undated`}>
-                        {s.undated.map((w) => (
+                      {s.note && <p className="src-sec-note">{s.note}</p>}
+                    </header>
+                    {datedShown.length > 0 && (
+                      <ol className="src-entries">
+                        {datedShown.map((w) => (
                           <li key={w.key}>
                             <Entry w={w} only={s.only} section={s.o} />
                           </li>
                         ))}
                       </ol>
-                    </>
-                  )}
-                </section>
-              ))
+                    )}
+                    {undatedShown.length > 0 && (
+                      <>
+                        <p className="src-undated mono" id={`${s.id}-undated`}>
+                          Date not given <span className="src-undated-n">{undated.length}</span>
+                        </p>
+                        <ol className="src-entries" aria-labelledby={`${s.id}-undated`}>
+                          {undatedShown.map((w) => (
+                            <li key={w.key}>
+                              <Entry w={w} only={s.only} section={s.o} />
+                            </li>
+                          ))}
+                        </ol>
+                      </>
+                    )}
+                    {!full && asked === undefined && (
+                      <button
+                        type="button"
+                        className="lib-more src-all mono"
+                        onClick={() => {
+                          reveal.current = { id: s.id, at: cut };
+                          setLimits((l) => ({ ...l, [s.id]: cap + 25 }));
+                          startTransition(() => setLimits((l) => ({ ...l, [s.id]: Infinity })));
+                        }}
+                      >
+                        Show all {total} works
+                        <span className="sr-only"> in {typeof s.title === "string" ? s.title : (s.note ?? "this section")}</span>
+                      </button>
+                    )}
+                  </section>
+                );
+              })
             )}
           </div>
         </div>
@@ -790,7 +881,8 @@ function jumpTo(id: string) {
 
 /* ---------------- one work ---------------- */
 
-function Entry({ w, only, section }: { w: Work; only?: (c: Citer) => boolean; section?: ObjectionId }) {
+/** Memoised: typing in the search re-renders the page at once, and the list only when the deferred search catches up. */
+const Entry = memo(function Entry({ w, only, section }: { w: Work; only?: (c: Citer) => boolean; section?: ObjectionId }) {
   const { d } = useAtlas();
   const parts = w.parts.map((p) => ({ ...p, cites: only ? p.cites.filter((x) => only(x.c)) : p.cites })).filter((p) => p.cites.length > 0);
   // By objection: say where else the work is cited.
@@ -850,9 +942,12 @@ function Entry({ w, only, section }: { w: Work; only?: (c: Citer) => boolean; se
       {also}
     </article>
   );
-}
+});
 
 const CAP = 3;
+/** How many works a section shows before "Show all" (while searching, how many matches). */
+const WORK_CAP = 15;
+const SEARCH_CAP = 40;
 
 /** The moves (and reading lists, people, timeline events) that cite a work or a place in it.
     When citations carry their own notes ("Trotter translation, §233"), each sits under its chip. */
@@ -925,7 +1020,8 @@ function CiteItem({ x, note }: { x: Cite; note?: string }) {
     const t = ix.thinkers.get(c.id);
     if (t)
       chip = (
-        <a className={`lib-node src-cite s-${t.side}`} href={formatRoute({ view: "cast", thinker: c.id })}>
+        // Bone, not the person's own side: a colour here would claim where they stand (the People view marks that in words).
+        <a className="lib-node src-cite s-neutral" href={formatRoute({ view: "cast", thinker: c.id })}>
           <span className="monogram src-cite-mono" aria-hidden>
             {initials(t.name)}
           </span>

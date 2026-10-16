@@ -2,17 +2,22 @@
 
 /* The overview (#/): the 30-second layer of the disputation.
    Hero with a plumb line dropping into the Rose (called "the map" on screen) ·
-   the Aquinas epigraph, the one place the medieval form is explained · who's
-   talking, which doubles as the glyph key, each voice with a line in its own
-   words · the map · a "last time" line · five posters (one per objection, each
-   with its own small fan of moves) · how it works.
+   a "last time" strip for returning readers · where to start (Objection I, step
+   through it, or all five) · the Aquinas epigraph, the one place the medieval
+   form is explained · the map and its key · who's talking, which doubles as the
+   glyph key, each voice with a line in its own words (across the full width on
+   desktop) · how it works · five posters (one per objection, each with its own
+   small fan of moves).
+   On phones the hero is one column in reading order: what this is, where to
+   start, the epigraph (his reply folded away), the map, how it works, then the
+   voices.
    Every build-in is CSS, so the server HTML paints complete and animates
    before hydration. */
 
 import "./overview.css";
-import { useEffect, useId, useState } from "react";
+import { useEffect, useId, useState, type ReactNode } from "react";
 import { useAtlas } from "../context";
-import { objectionStats } from "../helpers";
+import { objectionStats, objectionStatsParts } from "../helpers";
 import { Glyph, RichText } from "../primitives";
 import { parseHash, viewKey } from "../router";
 import type { ArgNode, Label, Objection, ObjectionId, Side } from "../types";
@@ -26,8 +31,6 @@ let firstVisitDone = false;
 const NUMBER_WORDS = ["no", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten"];
 const STATUS_LONG: Record<Label, string> = { in: "Stands", out: "Answered", undec: "Open" };
 const cap = (w: string) => w.charAt(0).toUpperCase() + w.slice(1);
-
-const plural = (n: number, one: string, many = one + "s") => `${n} ${n === 1 ? one : many}`;
 
 /* ------------------------------------------------------------------ */
 /* small drawing helpers                                               */
@@ -134,21 +137,30 @@ function Fan({ o, onEnter }: { o: Objection; onEnter: () => void }) {
 /* ------------------------------------------------------------------ */
 
 function Echo({ reveal }: { reveal: boolean }) {
+  // Phones show the objection and the history line; his reply opens in place (Chamber III has it in full).
+  const [reply, setReply] = useState(false);
+  const replyId = useId();
   return (
-    <figure className={`ov-echo${reveal ? " reveal" : ""}`}>
+    <figure className={`ov-echo${reveal ? " reveal" : ""}${reply ? " open" : ""}`}>
       <blockquote className="ov-echo-q">
         <p>“It seems that everything we see in the world can be accounted for by other principles, supposing God did not exist.”</p>
       </blockquote>
       <figcaption>
         <span className="ov-echo-stamp">
-          <span className="ov-nw">Thomas Aquinas</span> · <cite className="ov-nw">Summa Theologiae</cite>, <span className="ov-nw">Part I, Question 2, Article 3</span> ·{" "}
-          <span className="ov-nw">1265–74</span>
+          <span className="ov-nw">Thomas Aquinas</span> · <cite className="ov-nw">Summa Theologiae</cite>{" "}
+          <span className="ov-nw">I, q. 2, a. 3, obj. 2</span> · <span className="ov-nw">1265–68</span>
         </span>
         <span className="ov-echo-line">
           In a medieval disputation, the teacher opened each question with the arguments against his own answer. Aquinas wrote this objection against
-          himself in the <cite>Summa</cite>. He replied, “Since nature works for a determinate end under the direction of a higher agent, whatever is done
-          by nature must needs be traced back to God, as to its first cause.”
+          himself in the <cite>Summa</cite>.{" "}
+          <span className="ov-echo-reply" id={replyId}>
+            He replied, “Since nature works for a determinate end under the direction of a higher agent, whatever is done by nature must needs be traced
+            back to God, as to its first cause.”
+          </span>
         </span>
+        <button type="button" className="ov-echo-more" aria-expanded={reply} aria-controls={replyId} onClick={() => setReply((v) => !v)}>
+          {reply ? "Hide his reply" : "Read his reply"} <span aria-hidden>{reply ? "▴" : "▾"}</span>
+        </button>
       </figcaption>
     </figure>
   );
@@ -200,8 +212,9 @@ function Personae() {
           </dt>
           <dd>
             <span className="ov-pdesc">
-              Answers for Christianity, often from classical theism, the tradition of Augustine and Aquinas that David Bentley Hart defends today. He also
-              draws on modern Christian thinkers such as the philosopher Alvin Plantinga and the New Testament scholar N. T. Wright.
+              Answers for Christianity, often from classical theism, the tradition of Augustine and Aquinas, which treats God as the source of everything
+              that exists and not as one more being. David Bentley Hart defends it today. The Defender also draws on modern Christian thinkers such as the philosopher
+              Alvin Plantinga and the New Testament scholar N. T. Wright.
             </span>
             <PersonaQuote
               text="[God] is not one more object in the inventory of things that are."
@@ -241,11 +254,29 @@ function Personae() {
   );
 }
 
-function Swatch({ side, label, defs }: { side: Side; label: Label; defs: string }) {
+/** A status swatch: an ochre and a verdigris pane side by side, since a move's colour is its side and only
+    its fill shows status (as in the Where-you-stand key). One side only for Spinoza's stripes. */
+function Swatch({ sides, label, defs }: { sides: Side[]; label: Label; defs: string }) {
+  const two = sides.length > 1;
+  const w = two ? 34 : 26;
+  const panes = two ? [annulus(24, 38, -0.34, -0.015), annulus(24, 38, 0.015, 0.34)] : [annulus(24, 38, -0.3, 0.3)];
+  return (
+    <svg className="ov-swatch" viewBox={`0 0 ${w} 18`} width={w} height="18" aria-hidden>
+      <g transform={`translate(${w / 2} 40)`}>
+        {panes.map((pd, i) => (
+          <PaneShape key={i} d={pd} side={sides[i]} label={label} defs={defs} />
+        ))}
+      </g>
+    </svg>
+  );
+}
+
+/** "One move": a plain outlined block, no side colour and no status. */
+function MoveSwatch() {
   return (
     <svg className="ov-swatch" viewBox="0 0 26 18" width="26" height="18" aria-hidden>
       <g transform="translate(13 40)">
-        <PaneShape d={annulus(24, 38, -0.3, 0.3)} side={side} label={label} defs={defs} />
+        <path d={annulus(24, 38, -0.3, 0.3)} className="ov-moveicon" />
       </g>
     </svg>
   );
@@ -265,7 +296,7 @@ function HubCaption() {
   );
 }
 
-/** How to read the map: under it on phones, beside it (below the personae) on desktop. */
+/** How to read the map: under it, on phones and desktop alike. */
 function RoseKey() {
   const defs = useSvgId("lg");
   return (
@@ -281,39 +312,54 @@ function RoseKey() {
       </p>
       <ul className="ov-key-list">
         <li>
-          <Swatch side="theist" label="undec" defs={defs} />
-          <span>One move</span>
+          <MoveSwatch />
+          <span>
+            One move<span className="sr-only">: one block</span>
+          </span>
         </li>
         <li>
           <svg className="ov-swatch" viewBox="0 0 26 18" width="26" height="18" aria-hidden>
             <path d="M3 17a10 10 0 0 1 20 0M8 17a5 5 0 0 1 10 0" className="ov-ringicon" />
           </svg>
-          <span>One round</span>
+          <span>
+            One round<span className="sr-only">: one ring of blocks</span>
+          </span>
         </li>
         <li>
-          <Swatch side="skeptic" label="undec" defs={defs} />
-          <span>Open</span>
+          <Swatch sides={["skeptic", "theist"]} label="undec" defs={defs} />
+          <span>
+            Open<span className="sr-only">: a hollow block</span>
+          </span>
         </li>
         <li>
-          <Swatch side="skeptic" label="in" defs={defs} />
-          <span>Stands</span>
+          <Swatch sides={["skeptic", "theist"]} label="in" defs={defs} />
+          <span>
+            Stands<span className="sr-only">: a solid, lit block</span>
+          </span>
         </li>
         <li>
-          <Swatch side="skeptic" label="out" defs={defs} />
-          <span>Answered</span>
+          <Swatch sides={["skeptic", "theist"]} label="out" defs={defs} />
+          <span>
+            Answered<span className="sr-only">: a dotted block</span>
+          </span>
         </li>
         <li>
-          <Swatch side="spinoza" label="undec" defs={defs} />
+          <Swatch sides={["spinoza"]} label="undec" defs={defs} />
           <span className="ov-key-sp">
-            <Glyph side="spinoza" size={11} /> Striped for Spinoza
+            <Glyph side="spinoza" size={11} /> Striped for Spinoza<span className="sr-only">: a block with diagonal stripes</span>
           </span>
         </li>
       </ul>
-      <p className="ov-key-note">Gold blocks are the Objector’s and green blocks are the Defender’s. A block’s fill changes with its status as you mark moves.</p>
+      <p className="ov-key-note">
+        Gold blocks are the Objector’s and green blocks are the Defender’s. A block’s fill shows its status, and it changes as you mark moves.
+      </p>
     </section>
   );
 }
 
+/** For a returning reader, one strip under the dek: where they were, and the next open objection.
+    Its height is fixed per breakpoint and reserved before hydration (Shell's early script marks
+    html[data-atl-calls] when calls are stored), so it never pushes the page down as it appears. */
 function Resume() {
   const { d, ix, judgments, labels, analysis, go, openNode } = useAtlas();
   const recent = useRecent(d.slug);
@@ -330,45 +376,92 @@ function Resume() {
   const lastLabel = labels.objection.get(last.id) ?? "undec";
 
   const nextIn = (o: Objection) => analysis.get(o.id)?.next ?? null;
+  // Back to the move they last marked there, else the next open move, else the top of the chamber.
+  const lastNode = recent.judged?.o === last.id && ix.nodes.has(recent.judged.node) ? recent.judged.node : null;
+  const back = () => {
+    const n = lastNode ?? (lastLabel === "undec" ? nextIn(last) : null);
+    if (n) openNode(n);
+    else go({ view: "objection", o: last.id });
+  };
   const firstOpen = d.objections.find((o) => o.id !== last.id && (labels.objection.get(o.id) ?? "undec") === "undec");
+  const next: { label: ReactNode; run: () => void } = firstOpen
+    ? {
+        label: (
+          <>
+            Next open: Objection {firstOpen.numeral} <span aria-hidden>→</span>
+          </>
+        ),
+        run: () => {
+          const n = nextIn(firstOpen);
+          if (n) openNode(n);
+          else go({ view: "objection", o: firstOpen.id });
+        },
+      }
+    : {
+        label: (
+          <>
+            See where you stand <span aria-hidden>→</span>
+          </>
+        ),
+        run: () => go({ view: "ledger" }),
+      };
 
-  let action: { label: string; sr?: string; run: () => void };
-  if (lastLabel === "undec") {
-    const n = nextIn(last);
-    action = {
-      label: "Continue",
-      sr: ` in Objection ${last.numeral}`,
-      run: () => (n ? openNode(n) : go({ view: "objection", o: last.id })),
-    };
-  } else if (firstOpen) {
-    const n = nextIn(firstOpen);
-    action = {
-      label: `Go to Objection ${firstOpen.numeral}`,
-      sr: " (still open)",
-      run: () => (n ? openNode(n) : go({ view: "objection", o: firstOpen.id })),
-    };
-  } else {
-    action = { label: "See where you stand", run: () => go({ view: "ledger" }) };
-  }
-
-  const status = lastLabel === "in" ? "So far it stands." : lastLabel === "out" ? "So far it’s answered." : "It’s still open.";
+  const status = lastLabel === "in" ? "So far it stands on your calls." : lastLabel === "out" ? "So far you have it answered." : "It’s still open.";
 
   return (
-    <section className="ov-resume ov-wrap" aria-label="Where you left off">
-      <p className="ov-resume-k">Last time</p>
+    <section className="ov-resume" aria-label="Where you left off">
       <p className="ov-resume-t">
-        You were reading{" "}
-        <a href={`#/o/${last.id}`} className="ov-resume-o">
-          Objection {last.numeral}
-          {last.short ? ` · ${last.short}` : ""}
-        </a>
-        . <span className="ov-resume-s">{status}</span>
+        <span className="ov-resume-k">Last time</span> Objection {last.numeral}
+        {last.short ? ` · ${last.short}` : ""}. <span className="ov-resume-s">{status}</span>
       </p>
-      <button type="button" className="btn small ov-resume-b" onClick={action.run}>
-        {action.label}
-        {action.sr && <span className="sr-only">{action.sr}</span>} <span aria-hidden>→</span>
-      </button>
+      <div className="ov-resume-btns">
+        <button type="button" className="btn solid ov-resume-b" onClick={back}>
+          Back to Objection {last.numeral}
+        </button>
+        <button type="button" className="btn ov-resume-b" onClick={next.run}>
+          {next.label}
+        </button>
+      </div>
     </section>
+  );
+}
+
+/** Where to start: Objection I, a guided walk through it, or the five at a glance. A returning
+    reader's strip above already offers "Back to" and "Next open", so they get only the last. */
+function StartHere() {
+  const { d, ix, judgments } = useAtlas();
+  const first = d.objections[0];
+  const returning = Object.keys(judgments).some((id) => ix.nodes.has(id));
+  if (!first) return null;
+  const count = d.objections.length;
+  const toFive = () => {
+    const h = document.getElementById("ov-five-h");
+    if (!h) return;
+    const bar = document.querySelector<HTMLElement>(".atl .sh-bar")?.getBoundingClientRect().bottom ?? 52;
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const top = h.getBoundingClientRect().top + window.scrollY - bar - 16;
+    window.scrollTo({ top: Math.max(0, top), behavior: reduce ? "instant" : "smooth" });
+    if (!h.hasAttribute("tabindex")) h.setAttribute("tabindex", "-1");
+    h.focus({ preventScroll: true });
+  };
+  const all = (
+    <button type="button" className="ov-cta-all" onClick={toFive}>
+      See all {NUMBER_WORDS[count] ?? count} <span aria-hidden>↓</span>
+    </button>
+  );
+  if (returning) return <div className="ov-cta returning">{all}</div>;
+  return (
+    <div className="ov-cta">
+      <a className="btn solid ov-cta-go" href={`#/o/${first.id}`}>
+        Start with Objection {first.numeral} <span aria-hidden>→</span>
+      </a>
+      <a className="btn ov-cta-walk" href={`#/walk/${first.id}`}>
+        Step through it <span aria-hidden>▶</span>
+        <span className="sr-only"> (Objection {first.numeral}, a move at a time)</span>
+      </a>
+      <p className="ov-cta-cap">Read every round, or go one move at a time and answer as you go.</p>
+      {all}
+    </div>
   );
 }
 
@@ -411,7 +504,9 @@ function Poster({ o }: { o: Objection }) {
                   <Glyph side="skeptic" size={11} /> The Objector argues
                   <span className="sr-only">: </span>
                 </span>
-                <span className="ov-saytext">{toPlain(objection)}</span>
+                <span className="ov-saytext">
+                  <RichText text={objection} />
+                </span>
               </p>
             )}
             {counter && (
@@ -420,16 +515,18 @@ function Poster({ o }: { o: Objection }) {
                   <Glyph side="theist" size={11} /> The Defender replies
                   <span className="sr-only">: </span>
                 </span>
-                <span className="ov-saytext">{toPlain(counter)}</span>
+                <span className="ov-saytext">
+                  <RichText text={counter} />
+                </span>
               </p>
             )}
           </div>
         )}
         <div className="ov-pfoot">
           <p className="ov-meta">
-            <span>{plural(stats.moves, "move")}</span>
-            <span>up to {plural(stats.depth, "round")}</span>
-            {stats.prongs > 1 && <span>{plural(stats.prongs, "part")}</span>}
+            {objectionStatsParts(stats).map((part) => (
+              <span key={part}>{part}</span>
+            ))}
           </p>
           <p className={`ov-status st-${l}`}>
             <StatusPip label={l} size={11} />
@@ -441,7 +538,7 @@ function Poster({ o }: { o: Objection }) {
               <span className="sr-only"> (Objection {o.numeral})</span>
             </a>
             <a className="btn ghost ov-argue" href={`#/walk/${o.id}`}>
-              Step through it <span aria-hidden>▸</span>
+              Step through it <span aria-hidden>▶</span>
               <span className="sr-only"> (Objection {o.numeral})</span>
             </a>
           </div>
@@ -516,7 +613,7 @@ function PlayInvite() {
 
 function HowItWorks() {
   return (
-    <section className="ov-how ov-wrap" aria-labelledby="ov-how-h">
+    <section className="ov-how" aria-labelledby="ov-how-h">
       <h2 id="ov-how-h" className="eyebrow ov-sect-k">
         How it works
       </h2>
@@ -530,8 +627,8 @@ function HowItWorks() {
           </svg>
           <h3>Each side answers the other</h3>
           <p>
-            Round 1 is the objection, round 2 is the Defender’s reply, round 3 is the Objector’s answer to that, and so on up to round 7. A move can draw
-            several replies. An objection can also come in parts, separate charges argued one by one, and it stands if any one of its parts stands.
+            Round 1 is the objection. Each round after it replies to the one above it, usually alternating between the Objector and the Defender, up to
+            round 7. Spinoza can cut in at any round, on either side. A move can draw several replies. An objection can also come in parts, separate charges argued one by one, and it stands if any one of its parts stands.
           </p>
         </li>
         <li>
@@ -544,8 +641,8 @@ function HowItWorks() {
           </svg>
           <h3>You decide what holds</h3>
           <p>
-            Mark any move Holds or Fails. A move you haven’t marked counts as answered if any reply to it stands. It stands if every reply to it has failed
-            or been answered, and otherwise it stays open. Every status you see comes from your marks this way.
+            Mark any move Holds or Fails. A move you haven’t marked is answered if any reply to it stands. If it has replies and every one has failed or
+            been answered, it stands. Otherwise it stays open. Every status you see comes from your marks this way.
           </p>
         </li>
         <li>
@@ -605,8 +702,11 @@ export default function Overview() {
                 </p>
               )}
             </div>
+            <div className="ov-resume-slot">
+              <Resume />
+            </div>
+            <StartHere />
             <Echo reveal={first} />
-            <Personae />
           </div>
 
           <div className="ov-right">
@@ -615,10 +715,12 @@ export default function Overview() {
           </div>
 
           <RoseKey />
+
+          <Personae />
+
+          <HowItWorks />
         </div>
       </section>
-
-      <Resume />
 
       <section className="ov-five ov-wrap" aria-labelledby="ov-five-h">
         <header className="ov-five-head">
@@ -626,7 +728,6 @@ export default function Overview() {
             The {countWord} objection{count === 1 ? "" : "s"}
           </h2>
           <p className="ov-five-t">Open one to read every round, or step through it a move at a time.</p>
-          <p className="ov-five-n">Each card gives the objection and the Defender’s answer in brief.</p>
         </header>
         <ol className="ov-posters">
           {d.objections.map((o) => (
@@ -636,8 +737,6 @@ export default function Overview() {
       </section>
 
       <PlayInvite />
-
-      <HowItWorks />
     </div>
   );
 }

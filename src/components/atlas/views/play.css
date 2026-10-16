@@ -679,9 +679,9 @@
 }
 
 /* ---------- the card in hand ---------- */
-/* Tabbing through the gaps scrolls each one clear of the top bar and the dock (Play.tsx measures the dock). */
-html:has(.atl .pl-dock) {
-  scroll-padding-top: calc(64px + env(safe-area-inset-top));
+/* While the reader is tabbing, a gap focused from above lands clear of the dock (Play.tsx
+   publishes --pl-dock-h); the Shell keeps it clear of the top bar the same way. */
+html[data-atl-tab]:has(.atl .pl-dock) {
   scroll-padding-bottom: calc(var(--pl-dock-h, 160px) + 12px);
 }
 .atl .pl-dock {

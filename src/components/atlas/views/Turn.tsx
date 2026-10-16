@@ -2,13 +2,14 @@
 
 /* One move in the thread, read as a line in a script.
    Collapsed: cue, address, glyph + claim, the gist, and its status.
-   Focused (expanded in place): the plain-terms line, the side's full case,
-   its quotation (with a link to the text where there is one), its sources,
-   people, glossary terms and cross-links, then the decision
-   block (what would change this side's mind, Holds / Fails / Read the reply,
-   and a Why? that explains the computed status in a sentence). */
+   Focused (expanded in place): the plain-terms line, the side's full case and
+   its quotation (with a link to the text where there is one), then straight
+   away the decision block (what would change this side's mind, "Does … hold
+   up?", Holds / Fails / Read the reply, and a Why? that explains the computed
+   status in a sentence). Its sources, people, glossary terms and cross-links
+   come last, folded into one "Sources, people and links" disclosure. */
 
-import { useId, useMemo, type ReactNode } from "react";
+import { memo, useId, useMemo, useRef, type ReactNode } from "react";
 import { useAtlas } from "../context";
 import { explainNode } from "../explain";
 import { address } from "../helpers";
@@ -16,11 +17,31 @@ import { parseMarkup } from "../markup";
 import { usePeek } from "../peek";
 import { Glyph, RichText, ThinkerChip } from "../primitives";
 import { formatRoute } from "../router";
+import type { Judgment, Label, Side } from "../types";
 import { ContextLink } from "./OutlineList";
 import { SourceList } from "./Sources";
-import { CallButtons, MoveChip, SIDE_POSS, SIDE_WORD, TurnStatus, WhyLine, cueFor, moveNoun, q, rippleStyle, seatOf, spellAddress, useChamber } from "./chamberShared";
+import {
+  CallButtons,
+  MoveChip,
+  RippleMark,
+  SIDE_POSS,
+  SIDE_WORD,
+  TurnStatus,
+  WhyLine,
+  answeredMark,
+  cueFor,
+  delayStyle,
+  focusTurn,
+  moveNoun,
+  placeLabel,
+  q,
+  seatOf,
+  shownLabel,
+  topInset,
+  useChamberStatic,
+} from "./chamberShared";
 
-const KEYS = "ArrowUp ArrowDown ArrowLeft ArrowRight h f";
+const KEYS = "ArrowUp ArrowDown ArrowLeft ArrowRight H F U";
 
 /** First occurrence wins: a list of {id, …} with each id once. */
 function uniqueBy<T>(xs: T[], key: (x: T) => string): T[] {
@@ -31,6 +52,14 @@ function uniqueBy<T>(xs: T[], key: (x: T) => string): T[] {
     seen.add(k);
     return true;
   });
+}
+
+/** A claim cut to its first few words: "God gives fire its power freely…". */
+function shortClaim(s: string, max = 38): string {
+  if (s.length <= max) return s;
+  const cut = s.slice(0, max + 1);
+  const sp = cut.lastIndexOf(" ");
+  return `${(sp > 16 ? cut.slice(0, sp) : s.slice(0, max)).replace(/[\s,;:.\u2013\u2014-]+$/, "")}…`;
 }
 
 function Section({ title, count, className = "", children }: { title: string; count?: number; className?: string; children: ReactNode }) {
@@ -50,18 +79,73 @@ function Section({ title, count, className = "", children }: { title: string; co
 export interface TurnProps {
   id: string;
   focused: boolean;
-  /** The next move on the branch path, if any (for "Read the reply"). */
+  /** The next move on the branch path, if any (for "Read the reply"; open move only). */
   next?: string;
   /** Part of a tension pair adjacent on the path. */
   tensed?: boolean;
+  /** The move's computed status and the reader's call on it. */
+  label: Label;
+  call?: Judgment;
+  /** Stagger (ms) of its status change after the last call, if that call changed it. */
+  rippleDelay?: number;
 }
 
-export default function Turn({ id, focused, next, tensed = false }: TurnProps) {
-  const { ix, labels, judgments, labelOf, toPlain, termName, tensions } = useAtlas();
-  const api = useChamber();
+/** Memoized on primitive props: after a call, only the moves whose status or call changed re-render
+    (the open move reads the page state itself, so it always does). */
+const Turn = memo(function Turn(props: TurnProps) {
+  return props.focused ? <FocusedTurn {...props} /> : <FoldedTurn {...props} />;
+});
+export default Turn;
+
+function turnClass(side: Side, l: Label, focused: boolean, call: Judgment | undefined, tensed: boolean) {
+  return `ch-turn s-${side} seat-${seatOf(side)} st-${l} ${focused ? "is-focus" : "is-folded"} ${call ? "has-call" : ""} ${tensed ? "is-tensed" : ""}`;
+}
+
+/* A folded move reads only what never changes during a call (ChamberStatic), not the page state. */
+function FoldedTurn({ id, tensed = false, label: l, call, rippleDelay }: TurnProps) {
+  const { ix, toPlain, focus } = useChamberStatic();
+  const hid = useId();
+  const info = ix.nodes.get(id);
+  if (!info) return null;
+  const n = info.node;
+  const side = n.side;
+  const cue = cueFor(info.depth, side);
+  const place = placeLabel(ix, id);
+  // If a cue ever stops naming the speaker, name them beside the place.
+  const sideInCue = /Objector|Defender|Spinoza/.test(cue);
+  return (
+    <article className={turnClass(side, l, false, call, tensed)} style={delayStyle(rippleDelay)} data-node-id={id} data-turn={id} aria-labelledby={hid}>
+      <RippleMark id={id} depth={info.depth} />
+      <div className="ch-cue">
+        <span className="ch-cue-k">{cue}</span>
+        <span className="ch-addr" title={address(ix, id)}>
+          <span aria-hidden>{place}</span>
+          <span className="sr-only">{place.replace(" · ", ", ")}</span>
+          {!sideInCue && <span className="ch-addr-side"> · {SIDE_WORD[side]}</span>}
+        </span>
+      </div>
+      <h3 className="ch-label" id={hid}>
+        <button type="button" className="ch-hit" aria-keyshortcuts={KEYS} onClick={() => focus(id, "thread")}>
+          <Glyph side={side} label={shownLabel(l, call)} size={13} className="ch-label-glyph" />
+          <span className={answeredMark(l, call) ? "lab-out" : "lab-in"}>{toPlain(n.label)}</span>
+        </button>
+      </h3>
+      {n.gist && <p className="ch-gist-fold">{toPlain(n.gist)}</p>}
+      <div className="ch-foot">
+        <TurnStatus id={id} side={side} label={l} call={call} />
+        {info.childIds.length > 0 && <span className="ch-replies mono">{info.childIds.length === 1 ? "1 reply" : `${info.childIds.length} replies`}</span>}
+      </div>
+    </article>
+  );
+}
+
+function FocusedTurn({ id, next, tensed = false, label: l, call, rippleDelay }: TurnProps) {
+  const { ix, labels, judgments, toPlain, termName, tensions } = useAtlas();
+  const { focus, decide, jump } = useChamberStatic();
   const peek = usePeek();
   const info = ix.nodes.get(id);
   const hid = useId();
+  const decideRef = useRef<HTMLDivElement>(null);
 
   // Terms used in this move: the lexicon's name if it has one, else the words the text itself shows.
   const terms = useMemo(() => {
@@ -84,43 +168,18 @@ export default function Turn({ id, focused, next, tensed = false }: TurnProps) {
   if (!info) return null;
   const n = info.node;
   const side = n.side;
-  const seat = seatOf(side);
-  const l = labelOf(id);
-  const call = judgments[id];
   const cue = cueFor(info.depth, side);
-  const addr = address(ix, id);
-  const addrLong = spellAddress(ix, id);
-  const rippled = api.ripple?.changed.has(id);
-  const style = rippleStyle(api.ripple, info.depth);
-  const cls = `ch-turn s-${side} seat-${seat} st-${l} ${focused ? "is-focus" : "is-folded"} ${call ? "has-call" : ""} ${tensed ? "is-tensed" : ""}`;
-  // If a cue ever stops naming the speaker, name them beside the address.
-  const sideInCue = /Objector|Defender|Spinoza/.test(cue);
+  const place = placeLabel(ix, id);
+  const cls = turnClass(side, l, true, call, tensed);
 
-  if (!focused) {
-    return (
-      <article className={cls} style={style} data-node-id={id} data-turn={id} aria-labelledby={hid}>
-        {rippled && <span key={api.ripple!.key} className="ch-ripple" aria-hidden />}
-        <div className="ch-cue">
-          <span className="ch-cue-k">{cue}</span>
-          <span className="ch-addr" title={addrLong}>
-            {addr}
-            {!sideInCue && <span className="ch-addr-side"> · {SIDE_WORD[side]}</span>}
-          </span>
-        </div>
-        <h3 className="ch-label" id={hid}>
-          <button type="button" className="ch-hit" aria-keyshortcuts={KEYS} onClick={() => api.focus(id, "thread")}>
-            <Glyph side={side} label={l} size={13} className="ch-label-glyph" />
-            <span className={l === "out" ? "lab-out" : "lab-in"}>{toPlain(n.label)}</span>
-          </button>
-        </h3>
-        {n.gist && <p className="ch-gist-fold">{toPlain(n.gist)}</p>}
-        <div className="ch-foot">
-          <TurnStatus id={id} side={side} label={l} call={call} />
-          {info.childIds.length > 0 && <span className="ch-replies mono">{info.childIds.length === 1 ? "1 reply" : `${info.childIds.length} replies`}</span>}
-        </div>
-      </article>
-    );
-  }
+  /* Phones: the decision comes after the case, often well over a screen down; this jumps there. */
+  const goDecide = () => {
+    const el = decideRef.current;
+    if (!el) return;
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - (topInset() + 16), behavior: (reduce ? "instant" : "smooth") as ScrollBehavior });
+    el.focus({ preventScroll: true });
+  };
 
   const explanation = explainNode(ix, labels, judgments, id, toPlain);
   const see = uniqueBy(
@@ -134,44 +193,53 @@ export default function Turn({ id, focused, next, tensed = false }: TurnProps) {
   const body = n.body.filter((p) => p.trim());
   const sources = (n.sources ?? []).filter((s) => s.title);
   const parentInfo = info.parent ? ix.nodes.get(info.parent) : undefined;
+  const more = sources.length + people.length + terms.length + see.length + backlinks.length;
+  const askId = `${hid}-ask`;
 
   return (
-    <article className={cls} style={style} data-node-id={id} data-turn={id} aria-labelledby={hid}>
-      {rippled && <span key={api.ripple!.key} className="ch-ripple" aria-hidden />}
+    <article className={cls} style={delayStyle(rippleDelay)} data-node-id={id} data-turn={id} aria-labelledby={hid}>
+      <RippleMark id={id} depth={info.depth} />
       <div className="ch-cue">
         <span className="ch-cue-k">{cue}</span>
-        <span className="ch-addr" title={addrLong}>
-          <span className="ch-round">Round {info.depth} · </span>
-          {addr}
+        <span className="ch-addr" title={address(ix, id)}>
+          <span aria-hidden>{place}</span>
+          <span className="sr-only">{place.replace(" · ", ", ")}</span>
         </span>
       </div>
       <h3 className="ch-label ch-label-big" id={hid} tabIndex={-1} data-turn-heading={id} aria-keyshortcuts={KEYS}>
-        <Glyph side={side} label={l} size={15} className="ch-label-glyph" />
-        <span className={l === "out" ? "lab-out" : "lab-in"}>{toPlain(n.label)}</span>
+        <Glyph side={side} label={shownLabel(l, call)} size={15} className="ch-label-glyph" />
+        <span className={answeredMark(l, call) ? "lab-out" : "lab-in"}>{toPlain(n.label)}</span>
       </h3>
-      {/* The cue above already names the speaker; this line says what the move replies to. */}
-      {info.parent && parentInfo && (
-        <p className="ch-side-line">
-          <span className="ch-answers">
-            replying to {SIDE_POSS[parentInfo.node.side]} {moveNoun(parentInfo.depth)},{" "}
-            <button
-              type="button"
-              className="ch-answers-link"
-              title={spellAddress(ix, info.parent)}
-              aria-label={`${address(ix, info.parent)}: ${toPlain(parentInfo.node.label)}`}
-              onClick={() => api.focus(info.parent!, "thread")}
-            >
-              {address(ix, info.parent)}
+      {/* The cue above already names the speaker; this line says what the move replies to.
+          On phones it also carries "Mark it ↓", a jump to Holds / Fails below the case. */}
+      <div className={`ch-side-line ${parentInfo ? "" : "only-mark"}`}>
+        {info.parent && parentInfo && (
+          <p className="ch-answers">
+            replying to {SIDE_POSS[parentInfo.node.side]}{" "}
+            <button type="button" className="ch-answers-link" title={address(ix, info.parent)} onClick={() => focus(info.parent!, "thread")}>
+              {parentInfo.depth === 1 ? (
+                `argument (round 1)`
+              ) : (
+                <>
+                  <span aria-hidden>{q(shortClaim(toPlain(parentInfo.node.label)))}</span>
+                  <span className="sr-only">
+                    {moveNoun(parentInfo.depth)}: {toPlain(parentInfo.node.label)}
+                  </span>
+                </>
+              )}
             </button>
-          </span>
-        </p>
-      )}
+          </p>
+        )}
+        <button type="button" className="ch-mark-go" onClick={goDecide}>
+          <span className="ch-u">Mark it</span> <span aria-hidden>↓</span>
+        </button>
+      </div>
 
       {n.gist && (
         <div className="ch-plain">
           <span className="ch-plain-k mono">In plain terms</span>
           <p className="ch-plain-t">
-            <RichText text={n.gist} onNode={api.jump} />
+            <RichText text={n.gist} onNode={jump} />
           </p>
         </div>
       )}
@@ -180,7 +248,7 @@ export default function Turn({ id, focused, next, tensed = false }: TurnProps) {
         <div className="ch-body">
           {body.map((p, i) => (
             <p key={i}>
-              <RichText text={p} onNode={api.jump} />
+              <RichText text={p} onNode={jump} />
             </p>
           ))}
         </div>
@@ -201,87 +269,30 @@ export default function Turn({ id, focused, next, tensed = false }: TurnProps) {
         </figure>
       )}
 
-      {/* Right under the case and its quotation, so the texts behind the move are easy to find. */}
-      {sources.length > 0 && (
-        <Section title="Sources" count={sources.length} className="ch-srcs">
-          <SourceList sources={sources} className="ch-srclist" />
-          <a className="ch-allsrc" href={formatRoute({ view: "sources" })}>
-            <span className="ch-u">See all sources</span> <span aria-hidden>→</span>
-          </a>
-        </Section>
-      )}
-
-      {(people.length > 0 || terms.length > 0) && (
-        <div className="ch-refs">
-          {people.length > 0 && (
-            <Section title="People">
-              <div className="ch-chips">
-                {people.map((t) => (
-                  <ThinkerChip key={t} id={t} />
-                ))}
-              </div>
-            </Section>
-          )}
-          {terms.length > 0 && (
-            <Section title="Glossary">
-              <div className="ch-chips">
-                {terms.map((t) => (
-                  <button key={t.id} type="button" className="chip ch-term" onClick={(e) => peek({ kind: "term", id: t.id, rect: e.currentTarget.getBoundingClientRect() })}>
-                    <span className="ch-term-mark" aria-hidden>
-                      ¶
-                    </span>
-                    {t.name}
-                  </button>
-                ))}
-              </div>
-            </Section>
-          )}
-        </div>
-      )}
-
-      {(see.length > 0 || backlinks.length > 0) && (
-        <div className="ch-links">
-          {see.length > 0 && (
-            <Section title="See also">
-              <ul className="ch-xrefs">
-                {see.map((s) => (
-                  <MoveChip key={s.id} id={s.id} why={s.why} onGo={api.jump} />
-                ))}
-              </ul>
-            </Section>
-          )}
-          {backlinks.length > 0 && (
-            <Section title="Linked from">
-              <ul className="ch-xrefs">
-                {backlinks.map((b) => (
-                  <MoveChip key={b.from} id={b.from} why={b.why} onGo={api.jump} />
-                ))}
-              </ul>
-            </Section>
-          )}
-        </div>
-      )}
-
-      <div className="ch-decide">
+      {/* The decision comes right after the case, before the references. */}
+      <div className="ch-decide" ref={decideRef} tabIndex={-1} role="group" aria-label="Your call on this move">
         {n.cedes && (
           <div className="ch-cedes">
             <span className="ch-cedes-k mono">What would change this side’s mind</span>
             <p className="ch-cedes-t">
-              <RichText text={n.cedes} onNode={api.jump} />
+              <RichText text={n.cedes} onNode={jump} />
             </p>
           </div>
         )}
+        <p className="ch-ask mono" id={askId}>
+          Does {SIDE_POSS[side]} {moveNoun(info.depth)} hold up?
+        </p>
         <div className="ch-decide-row">
-          <CallButtons id={id} side={side} call={call} />
+          <CallButtons id={id} side={side} call={call} labelledBy={askId} />
           {next && (
-            <button type="button" className="btn ch-hear" onClick={() => api.focus(next, "thread")}>
+            <button type="button" className="btn ch-hear" onClick={() => focus(next, "thread")}>
               {info.childIds.length > 1 ? "Read the replies" : "Read the reply"} <span aria-hidden>↓</span>
             </button>
           )}
         </div>
         <div className="ch-decide-status">
           <TurnStatus id={id} side={side} label={l} call={call} />
-          <WhyLine key={`${id}:${l}:${call ?? ""}`} explanation={explanation} onGo={(x) => api.focus(x, "link")} />
+          <WhyLine key={`${id}:${l}:${call ?? ""}`} explanation={explanation} onGo={(x) => focus(x, "link")} />
         </div>
         {offPathTensions.map((t) => (
           <div key={t.reply} className="tension-note ch-tension-inline" role="note">
@@ -290,15 +301,30 @@ export default function Turn({ id, focused, next, tensed = false }: TurnProps) {
               contradict each other.
             </p>
             <div className="ch-tension-acts">
-              <button type="button" className="btn small" onClick={() => api.decide(id, null)}>
+              <button
+                type="button"
+                className="btn small"
+                onClick={() => {
+                  decide(id, null);
+                  focusTurn(id);
+                }}
+              >
                 Clear this call
               </button>
               {judgments[t.reply] ? (
-                <button type="button" className="btn small" onClick={() => api.decide(t.reply, null)}>
+                <button
+                  type="button"
+                  className="btn small"
+                  onClick={() => {
+                    decide(t.reply, null);
+                    // That reply isn't on this branch, so focus stays with this move.
+                    focusTurn(t.reply, id);
+                  }}
+                >
                   Clear that call
                 </button>
               ) : (
-                <button type="button" className="btn small" onClick={() => api.focus(t.reply, "link")}>
+                <button type="button" className="btn small" onClick={() => focus(t.reply, "link")}>
                   Go to that reply
                 </button>
               )}
@@ -306,6 +332,80 @@ export default function Turn({ id, focused, next, tensed = false }: TurnProps) {
           </div>
         ))}
       </div>
+
+      {/* The texts, people, terms and cross-links behind the move: one tap away, closed by default. */}
+      {more > 0 && (
+        <details className="ch-more">
+          <summary className="ch-more-sum">
+            <span>
+              Sources, people and links <span className="ch-more-n">· {more}</span>
+            </span>
+            <span className="ch-more-chev" aria-hidden />
+          </summary>
+          <div className="ch-more-body">
+            {sources.length > 0 && (
+              <Section title="Sources" count={sources.length} className="ch-srcs">
+                <SourceList sources={sources} className="ch-srclist" />
+                <a className="ch-allsrc" href={formatRoute({ view: "sources" })}>
+                  <span className="ch-u">See all sources</span> <span aria-hidden>→</span>
+                </a>
+              </Section>
+            )}
+
+            {(people.length > 0 || terms.length > 0) && (
+              <div className="ch-refs">
+                {people.length > 0 && (
+                  <Section title="People">
+                    <div className="ch-chips">
+                      {people.map((t) => (
+                        <ThinkerChip key={t} id={t} />
+                      ))}
+                    </div>
+                  </Section>
+                )}
+                {terms.length > 0 && (
+                  <Section title="Glossary">
+                    <div className="ch-chips">
+                      {terms.map((t) => (
+                        <button key={t.id} type="button" className="chip ch-term" onClick={(e) => peek({ kind: "term", id: t.id, rect: e.currentTarget.getBoundingClientRect() })}>
+                          <span className="ch-term-mark" aria-hidden>
+                            ¶
+                          </span>
+                          {t.name}
+                        </button>
+                      ))}
+                    </div>
+                  </Section>
+                )}
+              </div>
+            )}
+
+            {(see.length > 0 || backlinks.length > 0) && (
+              <div className="ch-links">
+                {see.length > 0 && (
+                  <Section title="See also">
+                    <ul className="ch-xrefs">
+                      {see.map((s) => (
+                        <MoveChip key={s.id} id={s.id} why={s.why} onGo={jump} />
+                      ))}
+                    </ul>
+                  </Section>
+                )}
+                {/* No note here: a backlink's note was written by the other move about this one. */}
+                {backlinks.length > 0 && (
+                  <Section title="Linked from">
+                    <ul className="ch-xrefs">
+                      {backlinks.map((b) => (
+                        <MoveChip key={b.from} id={b.from} onGo={jump} />
+                      ))}
+                    </ul>
+                  </Section>
+                )}
+              </div>
+            )}
+          </div>
+        </details>
+      )}
     </article>
   );
 }
