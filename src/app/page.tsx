@@ -107,7 +107,12 @@ function ReliveTheDay({ photoCount, songCount }: { photoCount: number; songCount
   );
 }
 
+const MAPLE_DUE = new Date("2026-10-20T00:00:00-04:00");
+
 function Closing() {
+  // eslint-disable-next-line react-hooks/purity -- server-only; ISR re-renders it every 10 minutes
+  const maple = Date.now() < MAPLE_DUE.getTime() ? "baby Maple Jane, due October 20" : "baby Maple Jane";
+
   return (
     <footer>
       <div className="mx-auto max-w-xl px-4 text-center">
@@ -115,7 +120,7 @@ function Closing() {
           With love from all of us on our farm
         </h2>
         <p className="mt-5 text-lg leading-relaxed text-forest/80 dark:text-cream/80">
-          Matt, Brittany, Emmett, Sapphire, and a baby girl due in October.
+          Matt, Brittany, Emmett, Sapphire, and {maple}.
         </p>
         <p className="mt-3 leading-relaxed text-forest/70 dark:text-cream/70">
           Plus Zoe the couch commander, Bruce, the barn cats, the livestock dogs, and the guinea hens,

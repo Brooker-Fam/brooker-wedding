@@ -18,6 +18,7 @@ Matt & Brittany got married **January 1, 2026** and threw their **celebration pa
 - **Brittany** - Bride.
 - **Emmett** (11) - Matt's son from a prior marriage
 - **Sapphire** (8) - Matt's daughter from a prior marriage
+- **Maple Jane** - Matt & Brittany's baby girl, due October 20, 2026. The home page sign-off drops "due October 20" on that date; once she's born, swap in her real birthday.
 - **Zoe** - Small black dog with grey muzzle, "couch commander"
 - **Bruce** - Cat
 
