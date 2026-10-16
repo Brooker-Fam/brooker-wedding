@@ -129,8 +129,10 @@ export function focusTurn(id: string, fallback?: string) {
   });
 }
 
-/** Bottom edge of whatever is pinned to the top of the viewport (the top bar,
-    plus the one-hop back chip when it is showing), in viewport px. */
+/** Bottom edge of whatever is pinned to the top of the viewport (the top bar, the place bar
+    under it on phones and tablets, and the one-hop back chip when it is showing), in viewport px.
+    The place bar counts whether or not it is showing yet: any move brought into view brings the
+    thread with it, and the bar shows whenever the thread is on screen. */
 export function topInset(): number {
   let y = 0;
   const bar = document.querySelector<HTMLElement>(".sh-bar");
@@ -143,6 +145,8 @@ export function topInset(): number {
     const v = parseFloat(getComputedStyle(root).getPropertyValue("--bar-h"));
     y = Number.isFinite(v) && v > 0 ? v : 56;
   }
+  const loc = document.querySelector<HTMLElement>(".ch-loc");
+  if (loc) y += loc.offsetHeight;
   // The back chip is sticky: wherever it is now, once the page scrolls it pins at its `top`.
   const back = document.querySelector<HTMLElement>(".ch-backbar");
   if (back) {
@@ -155,7 +159,8 @@ export function topInset(): number {
 
 /* ---------------- chamber API (shared by thread, turns, chart) ---------------- */
 
-export type FocusSource = "thread" | "chart" | "fork" | "link" | "key";
+/** What moved the focus. "swipe": a sibling reply swiped in (its heading takes focus quietly, with no ring). */
+export type FocusSource = "thread" | "chart" | "fork" | "swipe" | "link" | "key";
 
 export interface Ripple {
   key: number;
@@ -172,7 +177,9 @@ export interface ChamberApi {
   path: string[];
   /** How many moves of this objection the reader has called. */
   calls: number;
-  focus: (id: string, from?: FocusSource) => void;
+  /** Open a move. `at` is where (viewport px) the move's card should sit if it isn't on the page
+      yet, e.g. a sibling reply taking the place of the card the reader swiped away. */
+  focus: (id: string, from?: FocusSource, at?: number) => void;
   /** Record (or with null, withdraw) the reader's call on a move. */
   decide: (id: string, j: Judgment | null) => void;
   /** Follow a cross-link; leaves a one-hop "back" chip when it changes chamber. */
@@ -195,7 +202,7 @@ export function useChamber(): ChamberApi {
 export interface ChamberStatic {
   ix: DisputationIndex;
   toPlain: (s: string) => string;
-  focus: (id: string, from?: FocusSource) => void;
+  focus: (id: string, from?: FocusSource, at?: number) => void;
   decide: (id: string, j: Judgment | null) => void;
   jump: (id: string) => void;
 }

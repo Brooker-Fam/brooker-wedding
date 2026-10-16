@@ -5,13 +5,32 @@
    (It fails or Show the reply, or Holds or Fails when nobody replies). Earlier
    moves shrink to one-line strips with the reader's stamps between them. The
    rules live in ../walk.ts. This file handles layout, focus and the keyboard.
+   On phones and tablets the lit move is a card on a small deck: drag it toward
+   one of the two buttons below it (left = the "fails" side, right = go on) and
+   it is thrown off that way; the buttons do the same thing.
    In the code a "prong" is what the reader sees as a part of the objection. */
 
 import "./walk.css";
-import { motion, useReducedMotion } from "framer-motion";
-import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore, type CSSProperties, type ReactNode } from "react";
+import { animate, motion, useMotionValue, useReducedMotion, useTransform } from "framer-motion";
+import {
+  Fragment,
+  useCallback,
+  useEffect,
+  useImperativeHandle,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+  useSyncExternalStore,
+  type CSSProperties,
+  type MouseEvent as ReactMouseEvent,
+  type PointerEvent as ReactPointerEvent,
+  type ReactNode,
+  type RefObject,
+} from "react";
 import { useAtlas } from "../context";
 import { determine } from "../determination";
+import { tick } from "../haptics";
 import { ROMAN } from "../helpers";
 import { Glyph, RichText, ThinkerChip } from "../primitives";
 import { labelObjection, type DisputationIndex, type Judgments } from "../semantics";
@@ -65,6 +84,8 @@ const hearLabel = (replies: number) => (replies > 1 ? "Show the replies" : "Show
 const EASE = [0.22, 1, 0.36, 1] as const;
 /** Ignore a second action this soon after the last one (key repeat, double taps). */
 const ACTION_LOCK_MS = 350;
+/** The swipe tip retires after this many steps taken with the buttons. */
+const TIP_STEPS = 4;
 
 /** The cue line over a move: who is speaking, and whether it opens the part or answers a move. */
 function cue(depth: number, side: Side): string {
@@ -111,35 +132,103 @@ function settleText(ix: DisputationIndex, obj: Objection, next: Judgments, id: s
 
 /* ---------------- small hooks ---------------- */
 
-/** Phones (and short touch screens in landscape) get the action bar docked to the bottom. */
-const NARROW = "(max-width: 760px), (max-height: 520px) and (pointer: coarse)";
-function subscribeNarrow(cb: () => void) {
-  const mq = window.matchMedia(NARROW);
-  mq.addEventListener("change", cb);
-  return () => mq.removeEventListener("change", cb);
+/** A media query as a hook (false on the server and before hydration). */
+function useMedia(query: string): boolean {
+  const subscribe = useCallback(
+    (cb: () => void) => {
+      const mq = window.matchMedia(query);
+      mq.addEventListener("change", cb);
+      return () => mq.removeEventListener("change", cb);
+    },
+    [query],
+  );
+  return useSyncExternalStore(
+    subscribe,
+    () => window.matchMedia(query).matches,
+    () => false,
+  );
 }
-const getNarrow = () => window.matchMedia(NARROW).matches;
-const getNarrowServer = () => false;
-const useNarrow = () => useSyncExternalStore(subscribeNarrow, getNarrow, getNarrowServer);
+/** Phones and tablets (and short touch screens in landscape): the lit move is a card on a deck,
+    and the action bar is docked to the bottom of the screen. */
+const DECK = "(max-width: 1023.98px), (max-height: 520px) and (pointer: coarse)";
+/** A touch-first screen, where the card can be swiped (so the tip and the arrows make sense). */
+const SWIPE = "(hover: none) and (pointer: coarse)";
+
+/** The part of the screen a card can be read in: under the top bar, and above the docked bar
+    (phones and tablets) or the bottom of the window. */
+function viewBand(root: Element | null): { top: number; bottom: number } {
+  const dock = root?.querySelector<HTMLElement>(".wk-bar-pin");
+  const bar = Math.max(0, document.querySelector(".atl .sh-bar")?.getBoundingClientRect().bottom ?? 0);
+  return {
+    // Docked, the card may come right up under the top bar; the desktop column keeps more air.
+    top: dock ? bar + 12 : 84,
+    bottom: window.innerHeight - (dock ? dock.getBoundingClientRect().height + 12 : 28),
+  };
+}
+
+/** How far the bottom of `el` sits below the top of `stage`, from layout alone: a card that is
+    arriving is still scaled and lifted, and its rectangle would say it sits lower than it will. */
+function bottomIn(el: HTMLElement, stage: HTMLElement): number {
+  let y = el.offsetHeight;
+  for (let n: HTMLElement | null = el; n && n !== stage; n = n.offsetParent as HTMLElement | null) {
+    const p = n.offsetParent as HTMLElement | null;
+    if (!p) return el.getBoundingClientRect().bottom - stage.getBoundingClientRect().top;
+    y += n.offsetTop + p.clientTop;
+  }
+  return y;
+}
+
+const scrollMode = (smooth: boolean): ScrollBehavior => (smooth ? "smooth" : "instant");
 
 /** Scroll so the lit card is fully in view with as much of the transcript above it as fits;
-    when `fresh` rows (what the last call settled) sit just above, keep them in view too. */
+    when `fresh` rows (what the last call settled) sit just above, keep them in view too. The
+    card's heading always ends up above the docked bar: it wins over the fresh rows. */
 function bringIntoView(stage: HTMLElement, fresh: HTMLElement | null, smooth: boolean) {
   const vh = window.innerHeight;
-  const top = 84;
-  const dock = stage.closest(".wk-root")?.querySelector<HTMLElement>(".wk-bar-pin");
-  const bottomPad = dock ? dock.getBoundingClientRect().height + 12 : 28;
+  const { top, bottom } = viewBand(stage.closest(".wk-root"));
   const st = stage.getBoundingClientRect();
-  const usable = vh - bottomPad - top;
+  const usable = bottom - top;
   // Lowest the card may sit: all of it visible, or at least most of the screen's worth of it.
-  const lowest = Math.max(top, vh - bottomPad - Math.min(st.height, usable * 0.62));
-  let desired = Math.max(top, Math.min(vh * 0.42, vh - st.height - bottomPad));
+  const lowest = Math.max(top, bottom - Math.min(st.height, usable * 0.62));
+  let desired = Math.max(top, Math.min(vh * 0.42, bottom - st.height));
   if (fresh) {
     const gap = st.top - fresh.getBoundingClientRect().top;
     if (gap > 0) desired = Math.max(desired, Math.min(top + gap, lowest));
   }
+  const head = stage.querySelector<HTMLElement>("[data-wk-head]");
+  if (head) desired = Math.min(desired, bottom - bottomIn(head, stage) - 8);
   const delta = st.top - desired;
-  if (Math.abs(delta) > 4) window.scrollBy({ top: delta, behavior: smooth ? "smooth" : "auto" });
+  if (Math.abs(delta) > 4) window.scrollBy({ top: delta, behavior: scrollMode(smooth) });
+}
+
+/** The deck: where the next card is dealt. In the old card's place (`slot`, where the old card's
+    stage began on screen), but never with its top edge under the top bar, and always with its
+    heading above the docked bar (the heading wins). When the old card's top was out of sight the
+    card moves anyway, and then it also leaves room for what the last call settled (`fresh`). */
+function dealTarget(stage: HTMLElement, slot: number, fresh: HTMLElement | null): number {
+  const { top, bottom } = viewBand(stage.closest(".wk-root"));
+  const head = stage.querySelector<HTMLElement>("[data-wk-head]");
+  const lowest = bottom - (head ? bottomIn(head, stage) : 0) - 8;
+  let target = Math.max(slot, top);
+  if (slot < top && fresh) target = Math.max(target, top + stage.getBoundingClientRect().top - fresh.getBoundingClientRect().top);
+  return Math.min(target, lowest);
+}
+
+/** The deck, once a card is dealt: scroll only if something needs it. A heading out of sight
+    brings the card into view; otherwise rows the last call settled, if they are hidden under
+    the top bar, come into view as far as the heading can go without reaching the docked bar. */
+function revealIfNeeded(stage: HTMLElement, fresh: HTMLElement | null, smooth: boolean) {
+  const head = stage.querySelector<HTMLElement>("[data-wk-head]");
+  if (!head) return;
+  const { top, bottom } = viewBand(stage.closest(".wk-root"));
+  const headBottom = stage.getBoundingClientRect().top + bottomIn(head, stage);
+  if (headBottom - head.offsetHeight < top - 1 || headBottom > bottom + 1) {
+    bringIntoView(stage, fresh, smooth);
+    return;
+  }
+  if (!fresh) return;
+  const d = Math.min(top - fresh.getBoundingClientRect().top, bottom - headBottom - 8);
+  if (d > 4) window.scrollBy({ top: -d, behavior: scrollMode(smooth) });
 }
 
 const sessionKey = (slug: string, o: ObjectionId) => `disputation:${slug}:walk:${o}:v1`;
@@ -166,7 +255,12 @@ interface HistEntry {
   n: number;
   session: WalkSession;
   calls: { id: string; prev: Judgment | null }[];
+  /** The side the card was thrown to (deck only): Undo brings it back from there. */
+  dir?: Dir;
 }
+
+/** -1 = left (the "fails" side, or the other choice); 1 = right (go on). */
+type Dir = -1 | 1;
 
 interface BarAct {
   key: string;
@@ -175,8 +269,18 @@ interface BarAct {
   short?: string;
   kbd?: string;
   tone: "solid" | "line";
+  /** Which way the card goes on the deck. */
+  dir: Dir;
+  /** The words stamped on the card while it is dragged that way (the button's own verb). */
+  stamp: string;
+  /** call = a Holds/Fails call (■), read = reads on into the replies (□), step = moves on. */
+  mark: "call" | "read" | "step";
   run: () => void;
 }
+
+/** How the lit card arrives: as it is, risen from the deck after a step, or back from the side it
+    was thrown to (Undo). */
+type Arrive = "none" | "rise" | Dir;
 
 /** A transcript row: one move, or a run of consecutive results (a chain up one branch). */
 type Row = { kind: "move"; item: MoveItem; g: number } | { kind: "res"; items: ResolveItem[]; g: number; last: number };
@@ -213,11 +317,14 @@ function standsBy(end: ProngEnd, sections: WalkSection[]): { kind: "this" | "ear
 /* ====================================================================== */
 
 export default function Walk({ o }: { o: ObjectionId }) {
-  const { ix, d, go, judgments, judge, labels } = useAtlas();
+  const { ix, d, go, judgments, judge, labels, labelOf } = useAtlas();
   const labelText = useLabelText();
   const toast = useToast();
   const reduce = useReducedMotion();
-  const narrow = useNarrow();
+  /** Phones and tablets: the lit move is a card on a deck, and the buttons dock to the bottom. */
+  const deck = useMedia(DECK);
+  const swipeable = useMedia(SWIPE);
+  const narrow = deck;
   const obj = ix.objections.get(o);
 
   const key = sessionKey(d.slug, o);
@@ -237,12 +344,49 @@ export default function Walk({ o }: { o: ObjectionId }) {
   const [dockOn, setDockOn] = useState(false);
   /** Arriving with a transcript behind the reader and the lit move below the fold. */
   const [showResume, setShowResume] = useState(false);
+  /** How the next lit card arrives on the deck. */
+  const [arrive, setArrive] = useState<Arrive>("none");
+  /** The one-time line under the deck: "You can also swipe the card." */
+  const tipKey = `disputation:${d.slug}:walk:swipe-tip:v1`;
+  const [tipOn, setTipOn] = useState(false);
 
   const rootRef = useRef<HTMLDivElement>(null);
   const lastAct = useRef(0);
   const keyHandler = useRef<(e: KeyboardEvent) => void>(() => {});
+  const deckRef = useRef<DeckHandle | null>(null);
+  /** The side the card is being thrown to, read by commit() for the history entry. */
+  const pendingDir = useRef<Dir | null>(null);
+  /** Steps taken with the buttons while the swipe tip showed. */
+  const tipSteps = useRef(0);
+  /** The deck: where the lit card's stage began on screen just before a step or an Undo, so the
+      next card is dealt into the same place (see the layout effect below). */
+  const slot = useRef<number | null>(null);
+  const holdSlot = useCallback(() => {
+    const st = rootRef.current?.querySelector<HTMLElement>(".wk-stage");
+    slot.current = st ? st.getBoundingClientRect().top : null;
+  }, []);
+  /** Words for screen readers when a call changes the objection and no toast says so. */
+  const [liveNote, setLiveNote] = useState("");
 
   useEffect(() => saveSession(key, session), [key, session]);
+
+  useEffect(() => {
+    let seen = false;
+    try {
+      seen = window.localStorage.getItem(tipKey) === "1";
+    } catch {
+      /* storage unavailable: show the tip for this visit */
+    }
+    setTipOn(!seen);
+  }, [tipKey]);
+  const dismissTip = useCallback(() => {
+    setTipOn(false);
+    try {
+      window.localStorage.setItem(tipKey, "1");
+    } catch {
+      /* the tip just comes back next visit */
+    }
+  }, [tipKey]);
 
   const run = useMemo(() => (obj ? runWalk(obj, judgments, session) : null), [obj, judgments, session]);
   const prompt: WalkPrompt = run?.prompt ?? { kind: "empty" };
@@ -263,7 +407,23 @@ export default function Walk({ o }: { o: ObjectionId }) {
     return () => cancelAnimationFrame(id);
   }, []);
 
-  /* ----- after an action: bring the new rows and the lit move into view, move focus ----- */
+  /* ----- the deck, before the new card paints: deal it into the old card's place. The rows the
+     step added above it (and the header leaving its first-visit layout) would push it down;
+     scrolling by as much keeps it where the old card was, so it rises from the deck there. ----- */
+  useLayoutEffect(() => {
+    const at = slot.current;
+    slot.current = null;
+    if (at === null || focusTick === 0) return;
+    const root = rootRef.current;
+    const stage = root?.querySelector<HTMLElement>(".wk-stage");
+    if (!root || !stage) return;
+    const delta = stage.getBoundingClientRect().top - dealTarget(stage, at, root.querySelector<HTMLElement>(".wk-res.wk-fresh"));
+    if (Math.abs(delta) > 1) window.scrollBy({ top: delta, behavior: "instant" });
+  }, [focusTick]);
+
+  /* ----- after an action: move focus to the lit move, and scroll if it needs it. The deck only
+     scrolls when the heading is out of sight or the rows the call settled are hidden; the
+     desktop column brings the new rows and the lit move into view. ----- */
   useEffect(() => {
     if (focusTick === 0) return;
     const root = rootRef.current;
@@ -271,7 +431,8 @@ export default function Walk({ o }: { o: ObjectionId }) {
     if (!root || !head) return;
     head.focus({ preventScroll: true });
     const stage = (head.closest(".wk-stage") as HTMLElement | null) ?? head;
-    bringIntoView(stage, root.querySelector<HTMLElement>(".wk-fresh"), !reduce);
+    if (window.matchMedia(DECK).matches) revealIfNeeded(stage, root.querySelector<HTMLElement>(".wk-res.wk-fresh"), !reduce);
+    else bringIntoView(stage, root.querySelector<HTMLElement>(".wk-fresh"), !reduce);
   }, [focusTick, reduce]);
 
   /* ----- the ripple lasts about a second after each step ----- */
@@ -289,9 +450,10 @@ export default function Walk({ o }: { o: ObjectionId }) {
       setDockOn(true);
       return;
     }
-    // The bottom margin is about the dock's height (≈96px), so on short phones the buttons
-    // arrive with the first screen as soon as the lit card's top clears the dock.
-    const io = new IntersectionObserver((es) => es.some((e) => e.isIntersecting) && setDockOn(true), { rootMargin: "0px 0px -100px 0px" });
+    // The bottom margin is about the dock's height (≈100px; ≈68px on a phone on its side), so the
+    // buttons arrive with the first screen as soon as the lit card's top clears the dock.
+    const margin = window.matchMedia("(max-height: 520px)").matches ? 70 : 100;
+    const io = new IntersectionObserver((es) => es.some((e) => e.isIntersecting) && setDockOn(true), { rootMargin: `0px 0px -${margin}px 0px` });
     io.observe(stage);
     return () => io.disconnect();
   }, [narrow, dockOn, promptKey]);
@@ -301,6 +463,19 @@ export default function Walk({ o }: { o: ObjectionId }) {
     const h = (e: KeyboardEvent) => keyHandler.current(e);
     window.addEventListener("keydown", h);
     return () => window.removeEventListener("keydown", h);
+  }, []);
+
+  /* ----- how the reader last acted (keys or a pointer): the heading's focus bar is a keyboard cue ----- */
+  useEffect(() => {
+    const set = (v: "key" | "pointer") => () => rootRef.current?.setAttribute("data-wk-input", v);
+    const onKey = set("key");
+    const onPointer = set("pointer");
+    document.addEventListener("keydown", onKey, true);
+    document.addEventListener("pointerdown", onPointer, true);
+    return () => {
+      document.removeEventListener("keydown", onKey, true);
+      document.removeEventListener("pointerdown", onPointer, true);
+    };
   }, []);
 
   /* ----- actions ----- */
@@ -314,6 +489,7 @@ export default function Walk({ o }: { o: ObjectionId }) {
 
   const afterStep = useCallback(() => {
     setOpenStrip(null);
+    setLiveNote("");
     setFocusTick((t) => t + 1);
     setRippling(true);
     setDockOn(true);
@@ -324,11 +500,12 @@ export default function Walk({ o }: { o: ObjectionId }) {
     (next: WalkSession, calls: { id: string; j: Judgment | null }[] = []) => {
       const n = seq + 1;
       setSeq(n);
-      const entry: HistEntry = { n, session, calls: calls.map((c) => ({ id: c.id, prev: judgments[c.id] ?? null })) };
+      const entry: HistEntry = { n, session, calls: calls.map((c) => ({ id: c.id, prev: judgments[c.id] ?? null })), dir: pendingDir.current ?? undefined };
       setHistory((h) => [...h.slice(-120), entry]);
       setBaseline(run ? itemCount(run) : 0);
       calls.forEach((c) => judge(c.id, c.j));
       setSession(next);
+      setArrive("rise");
       afterStep();
       return entry;
     },
@@ -345,23 +522,31 @@ export default function Walk({ o }: { o: ObjectionId }) {
     const target = later[later.length - 1];
     if (!target || target.n !== undoTo) return;
     for (const e of later) for (const c of [...e.calls].reverse()) judge(c.id, c.prev);
+    // On the deck the card comes back into the place of the one it replaces.
+    if (window.matchMedia(DECK).matches) holdSlot();
     setSession(target.session);
     setHistory((h) => h.filter((e) => e.n < undoTo));
     setBaseline(Number.POSITIVE_INFINITY);
+    // The card that comes back returns from the side it was thrown to.
+    setArrive(target.dir ?? "rise");
     afterStep();
-  }, [undoTo, history, judge, afterStep]);
+  }, [undoTo, history, judge, afterStep, holdSlot]);
   const undo = (entry: HistEntry | undefined) => entry && setUndoTo(entry.n);
   const canUndo = history.length > 0;
   const undoLast = () => guarded(() => undo(history[history.length - 1]));
 
   const resume = () => {
-    const root = rootRef.current;
-    const stage = root?.querySelector<HTMLElement>(".wk-stage");
+    const stage = rootRef.current?.querySelector<HTMLElement>(".wk-stage");
     if (!stage) return;
     setDockOn(true);
     setShowResume(false);
-    bringIntoView(stage, null, !reduce);
     stage.querySelector<HTMLElement>("[data-wk-head]")?.focus({ preventScroll: true });
+    // Measure once this button has gone (the header is shorter without it), or the card lands
+    // that much higher than meant, under the top bar.
+    requestAnimationFrame(() => {
+      const st = rootRef.current?.querySelector<HTMLElement>(".wk-stage");
+      if (st) bringIntoView(st, null, !reduce);
+    });
   };
 
   /* ----- the buttons for the current prompt (computed before any early return) ----- */
@@ -377,28 +562,51 @@ export default function Walk({ o }: { o: ObjectionId }) {
     const after = labelObjection(obj, next);
     const nextSession = walkReduce(session, { type: "call", id, unhear });
     const entry = commit(nextSession, [{ id, j }]);
-    // When this call ends the walk, the end card says the result (and offers Undo) and takes
-    // focus, so a toast would only repeat it and cover the card's buttons.
-    const ends = runWalk(obj, next, nextSession).prompt.kind === "done";
-    if (after !== objLabel && after !== "undec" && !ends) {
-      toast({ text: settleText(ix, obj, next, id, j, labelText), action: { label: "Undo", run: () => undo(entry) } });
-    }
+    if (after === objLabel || after === "undec") return;
+    // When the next card already says it (the end of the walk, or the end of a part where the
+    // objection now stands), a toast would only repeat it and cover the card's links, and the bar
+    // has its own Undo. The end card's heading says it to screen readers as it takes focus; the
+    // end of a part says it below its heading, so it is announced once instead.
+    const np = runWalk(obj, next, nextSession).prompt;
+    const text = settleText(ix, obj, next, id, j, labelText);
+    if (np.kind === "prong-end" && np.settled) setLiveNote(text);
+    else if (np.kind !== "done") toast({ text, action: { label: "Undo", run: () => undo(entry) } });
   };
 
   if (prompt.kind === "ask") {
-    const n = ix.nodes.get(prompt.id)?.node;
+    const info = ix.nodes.get(prompt.id);
+    const n = info?.node;
+    // The line of argument so far, as glyphs (the last is the lit move), then the round.
+    const path = info?.path ?? [];
+    const shown = path.slice(-6);
     dockContext = (
       <>
-        {n && <Glyph side={n.side} size={10} />}
-        {n && <span className="wk-dock-who">{WHO_SHORT[n.side]}</span>}
+        <span className="wk-dock-path" aria-hidden>
+          {path.length > shown.length && <span className="wk-dock-more">…</span>}
+          {shown.map((id, i) => {
+            const pn = ix.nodes.get(id)?.node;
+            if (!pn) return null;
+            const cur = i === shown.length - 1;
+            return (
+              <Fragment key={id}>
+                {(i > 0 || path.length > shown.length) && <span className="wk-dock-link" />}
+                <Glyph side={pn.side} label={cur ? "undec" : shownLabel(labelOf(id), judgments[id])} size={cur ? 11 : 9} className={cur ? "wk-dock-cur" : ""} />
+              </Fragment>
+            );
+          })}
+        </span>
+        <span className="wk-dock-round mono">
+          Round {prompt.depth}
+          {n && <span className="sr-only">, {WHO[n.side]}</span>}
+        </span>
         <span className="wk-dock-ctx-t">{labelText(prompt.id)}</span>
       </>
     );
     if (prompt.leaf) {
-      acts.push({ key: "holds", label: "Holds", kbd: "H", tone: "line", run: () => call(prompt.id, "holds") });
-      acts.push({ key: "fails", label: "Fails", kbd: "F", tone: "line", run: () => call(prompt.id, "fails") });
+      acts.push({ key: "holds", label: "Holds", kbd: "H", tone: "line", dir: 1, stamp: "Holds", mark: "call", run: () => call(prompt.id, "holds") });
+      acts.push({ key: "fails", label: "Fails", kbd: "F", tone: "line", dir: -1, stamp: "Fails", mark: "call", run: () => call(prompt.id, "fails") });
     } else {
-      acts.push({ key: "fails", label: "It fails", kbd: "F", tone: "line", run: () => call(prompt.id, "fails") });
+      acts.push({ key: "fails", label: "It fails", kbd: "F", tone: "line", dir: -1, stamp: "It fails", mark: "call", run: () => call(prompt.id, "fails") });
       acts.push({
         key: "hear",
         label: (
@@ -406,9 +614,11 @@ export default function Walk({ o }: { o: ObjectionId }) {
             {hearLabel(prompt.replies)} <span className="wk-arrow" aria-hidden>→</span>
           </>
         ),
-        short: hearLabel(prompt.replies),
         kbd: "R",
         tone: "solid",
+        dir: 1,
+        stamp: hearLabel(prompt.replies),
+        mark: "read",
         run: () => dispatch({ type: "hear", id: prompt.id }),
       });
     }
@@ -416,12 +626,16 @@ export default function Walk({ o }: { o: ObjectionId }) {
     const end = prompt.end && !prompt.end.settled ? prompt.end : null;
     dockContext = <span className="wk-dock-ctx-t">{end ? `Part ${end.index + 1} of ${prongs.length} · answered` : "Answered"}</span>;
     const k = prompt.untested.length;
+    const other = k === 1 ? "Show the other reply" : `Show the other ${num(k)}`;
     acts.push({
       key: "test",
-      label: <>Show the other {k === 1 ? "reply" : num(k)}</>,
+      label: other,
       short: k === 1 ? "Other reply" : "Show others",
       kbd: "T",
       tone: "line",
+      dir: -1,
+      stamp: other,
+      mark: "read",
       run: () => dispatch({ type: "test", id: prompt.id }),
     });
     const keys = [`r:${prompt.id}`];
@@ -434,9 +648,12 @@ export default function Walk({ o }: { o: ObjectionId }) {
           {next} <span className="wk-arrow" aria-hidden>→</span>
         </>
       ),
-      short: end ? (end.final ? "Results" : `Part ${end.index + 2} →`) : "Continue",
+      short: end?.final ? "Where you stand" : undefined,
       kbd: "C",
       tone: "solid",
+      dir: 1,
+      stamp: next,
+      mark: "step",
       run: () => dispatch({ type: "ack", key: keys }),
     });
   } else if (prompt.kind === "prong-end") {
@@ -447,7 +664,8 @@ export default function Walk({ o }: { o: ObjectionId }) {
       </span>
     );
     const nextNo = prompt.index + 2;
-    if (prompt.settled) acts.push({ key: "finish", label: "Stop here", tone: "line", run: () => dispatch({ type: "finish", prong: prompt.prong }) });
+    if (prompt.settled)
+      acts.push({ key: "finish", label: "Stop here", tone: "line", dir: -1, stamp: "Stop here", mark: "step", run: () => dispatch({ type: "finish", prong: prompt.prong }) });
     acts.push({
       key: "continue",
       label: (
@@ -455,12 +673,46 @@ export default function Walk({ o }: { o: ObjectionId }) {
           On to part {nextNo} <span className="wk-arrow" aria-hidden>→</span>
         </>
       ),
-      short: `Part ${nextNo} →`,
       kbd: "C",
       tone: "solid",
+      dir: 1,
+      stamp: `On to part ${nextNo}`,
+      mark: "step",
       run: () => dispatch({ type: "ack", key: `p:${prompt.prong}` }),
     });
   }
+  /** On the deck the buttons sit on the side the card goes (so a leaf reads Fails · Holds there). */
+  const barActs = deck ? [...acts].sort((a, b) => a.dir - b.dir) : acts;
+
+  /** Run one of the prompt's actions. On the deck the card is thrown that way first, and the step
+      runs as it leaves; a swipe takes this same path. False if it was ignored (a double tap, or a
+      throw already under way). */
+  const runAct = (a: BarAct, via: "button" | "key" | "swipe"): boolean => {
+    const now = performance.now();
+    if (now - lastAct.current < ACTION_LOCK_MS) return false;
+    const step = () => {
+      pendingDir.current = deck ? a.dir : null;
+      if (deck) holdSlot();
+      try {
+        a.run();
+      } finally {
+        pendingDir.current = null;
+      }
+    };
+    const card = deck ? deckRef.current : null;
+    if (card) {
+      if (!card.fling(a.dir, step)) return false;
+    } else step();
+    lastAct.current = now;
+    if (via === "swipe" || a.mark === "call") tick();
+    // The tip goes once it has been used, or after a few steps taken with the buttons.
+    if (tipOn && deck && swipeable && (via === "swipe" || ++tipSteps.current >= TIP_STEPS)) dismissTip();
+    return true;
+  };
+  const swipeTo = (dir: Dir) => {
+    const a = acts.find((x) => x.dir === dir);
+    return a ? runAct(a, "swipe") : false;
+  };
 
   useEffect(() => {
     keyHandler.current = (e: KeyboardEvent) => {
@@ -477,7 +729,7 @@ export default function Walk({ o }: { o: ObjectionId }) {
       const act = acts.find((x) => x.kbd?.toLowerCase() === k);
       if (act) {
         e.preventDefault();
-        guarded(act.run);
+        runAct(act, "key");
       } else if (k === "u" && canUndo) {
         e.preventDefault();
         undoLast();
@@ -524,10 +776,19 @@ export default function Walk({ o }: { o: ObjectionId }) {
     });
   };
 
-  const guardedActs = acts.map((a) => ({ ...a, run: () => guarded(a.run) }));
   const bar = (where: "inline" | "dock") =>
-    guardedActs.length > 0 ? (
-      <ActionBar where={where} acts={guardedActs} promptKey={promptKey} context={where === "dock" ? dockContext : null} onUndo={canUndo ? undoLast : null} on={dockOn} />
+    acts.length > 0 ? (
+      <ActionBar
+        where={where}
+        acts={where === "dock" ? barActs : acts}
+        onAct={(a) => runAct(a, "button")}
+        promptKey={promptKey}
+        context={where === "dock" ? dockContext : null}
+        onUndo={canUndo ? undoLast : null}
+        on={dockOn}
+        arrows={where === "dock" && swipeable}
+        onTipDone={where === "dock" && swipeable && tipOn ? dismissTip : null}
+      />
     ) : null;
 
   /* ----- transcript ----- */
@@ -553,6 +814,25 @@ export default function Walk({ o }: { o: ObjectionId }) {
     else if (prompt.kind === "resolved") card = <ResolvedCard prompt={prompt} obj={obj} bar={inline} />;
     else if (prompt.kind === "prong-end") card = <ProngEndCard prompt={prompt} obj={obj} sections={sections} bar={inline} />;
     else return null;
+    if (deck) {
+      // The lit card on its deck: two card edges beneath it, and the card can be dragged toward
+      // either button. A new key per prompt, so every step deals a fresh card.
+      return (
+        <div key={promptKey} className="wk-stage wk-deck">
+          <DeckCard
+            handle={deckRef}
+            left={acts.find((a) => a.dir === -1)}
+            right={acts.find((a) => a.dir === 1)}
+            arrive={arrive}
+            reduce={!!reduce}
+            swipeable={swipeable}
+            onSwipe={swipeTo}
+          >
+            {card}
+          </DeckCard>
+        </div>
+      );
+    }
     return (
       <motion.div
         key={promptKey}
@@ -671,6 +951,7 @@ export default function Walk({ o }: { o: ObjectionId }) {
         {freshChains
           .map((r) => r.items[r.items.length - 1])
           .map((r) => (r.label === "out" ? `“${labelText(r.id)}” is answered.` : `“${labelText(r.id)}” stands.`))
+          .concat(liveNote ? [liveNote] : [])
           .join(" ")}
       </p>
 
@@ -754,7 +1035,7 @@ function WalkHeader({
   );
 
   return (
-    <header className="wk-head">
+    <header className={`wk-head ${intro ? "is-intro" : ""}`}>
       <button type="button" className="wk-exit mono" onClick={() => go({ view: "objection", o: obj.id })}>
         <span aria-hidden>←</span> Back to Objection {obj.numeral}
       </button>
@@ -1401,10 +1682,12 @@ function DoneCard({
               const n = ix.nodes.get(id)?.node;
               return (
                 <button key={id} type="button" className={`chip wk-nodechip s-${n?.side ?? "skeptic"}`} onClick={() => openNode(id)}>
-                  {n && <Glyph side={n.side} label={shownLabel(labelOf(id), judgments[id])} size={11} />}
-                  {judgments[id] && <YouMark size={9} className="wk-chip-you" />}
-                  <span className="mono wk-nodechip-addr">{partRound(ix, id)}</span>
-                  <span>{labelText(id)}</span>
+                  <span className="wk-nodechip-top">
+                    {n && <Glyph side={n.side} label={shownLabel(labelOf(id), judgments[id])} size={11} />}
+                    {judgments[id] && <YouMark size={9} className="wk-chip-you" />}
+                    <span className="mono wk-nodechip-addr">{partRound(ix, id)}</span>
+                  </span>
+                  <span className="wk-nodechip-lab">{labelText(id)}</span>
                 </button>
               );
             })}
@@ -1536,29 +1819,72 @@ function UndoIcon({ size = 18 }: { size?: number }) {
 function ActionBar({
   where,
   acts,
+  onAct,
   promptKey,
   context,
   onUndo,
   on,
+  arrows,
+  onTipDone,
 }: {
   where: "inline" | "dock";
   acts: BarAct[];
+  onAct: (a: BarAct) => void;
   promptKey: string;
   context: ReactNode;
   onUndo: (() => void) | null;
   /** Dock only: revealed (the reader has reached the lit move). */
   on: boolean;
+  /** Dock on a touch screen: small arrows on the outer edges say which way each button sends the card. */
+  arrows: boolean;
+  /** Dock on a touch screen, until dismissed or used: the one-time swipe tip (this dismisses it). */
+  onTipDone: (() => void) | null;
 }) {
   const dock = where === "dock";
+  const sided = dock && arrows;
+  // Two calls of equal weight (Holds, Fails) get equal buttons.
+  const even = acts.length === 2 && acts.every((a) => a.mark === "call");
   return (
     <div className={`wk-bar ${dock ? `wk-bar-pin ${on ? "is-on" : ""}` : "wk-bar-inline"}`} role="group" aria-label="Your answer">
-      {dock && context && <p className="wk-dock-ctx">{context}</p>}
-      <div className={`wk-bar-btns n${acts.length} ${dock && onUndo ? "with-undo" : ""}`}>
+      {dock && onTipDone ? (
+        <p className="wk-tip">
+          <SwipeIcon />
+          <span className="wk-tip-t">You can also swipe the card.</span>
+          <button type="button" className="wk-tip-x" onClick={onTipDone} aria-label="Dismiss the swipe tip">
+            <span aria-hidden>×</span>
+          </button>
+        </p>
+      ) : (
+        dock && context && <p className="wk-dock-ctx">{context}</p>
+      )}
+      <div className={`wk-bar-btns n${acts.length} ${even ? "even" : ""} ${dock && onUndo ? "with-undo" : ""}`}>
         {acts.map((a) => (
           // Keyed by the question too, so a fresh button replaces the old one under the finger.
-          <button key={`${promptKey}:${a.key}`} type="button" className={`wk-btn ${a.tone}`} onClick={a.run} aria-keyshortcuts={a.kbd}>
-            <span className="wk-btn-l">{dock && a.short ? a.short : a.label}</span>
-            {a.kbd && !dock && (
+          <button key={`${promptKey}:${a.key}`} type="button" className={`wk-btn ${a.tone}`} onClick={() => onAct(a)} aria-keyshortcuts={a.kbd}>
+            {sided && a.dir < 0 && (
+              <span className="wk-btn-way" aria-hidden>
+                ‹
+              </span>
+            )}
+            <span className="wk-btn-l">
+              {dock && a.short ? (
+                // The short words where the dock is narrow, the full ones where it isn't.
+                <>
+                  <span className="wk-l-short">{a.short}</span>
+                  <span className="wk-l-full">{a.label}</span>
+                </>
+              ) : (
+                a.label
+              )}
+            </span>
+            {sided && a.dir > 0 && (
+              <span className="wk-btn-way" aria-hidden>
+                ›
+              </span>
+            )}
+            {/* The shortcut hints show wherever there's a keyboard (walk.css hides them on touch
+                screens), the docked bar of a narrow desktop window included. */}
+            {a.kbd && (
               <kbd className="wk-kbd" aria-hidden>
                 {a.kbd}
               </kbd>
@@ -1566,11 +1892,347 @@ function ActionBar({
           </button>
         ))}
         {dock && onUndo && (
-          <button type="button" className="wk-btn wk-undo-ic" onClick={onUndo} aria-label="Undo last step">
+          <button type="button" className="wk-btn wk-undo-ic" onClick={onUndo} aria-label="Undo last step" aria-keyshortcuts="U">
             <UndoIcon size={18} />
           </button>
         )}
       </div>
     </div>
+  );
+}
+
+/** Two arrows around a card, for the swipe tip. */
+function SwipeIcon() {
+  return (
+    <svg className="wk-tip-ic" width="30" height="16" viewBox="0 0 30 16" fill="none" stroke="currentColor" strokeWidth={1.3} strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+      <rect x="10.5" y="1.5" width="9" height="13" rx="2" />
+      <path d="M6.5 8H1.5M3.5 5.5 1.2 8l2.3 2.5" />
+      <path d="M23.5 8h5M26.5 5.5 28.8 8l-2.3 2.5" />
+    </svg>
+  );
+}
+
+/* ====================================================================== */
+/* The deck (phones and tablets): the lit card can be dragged sideways      */
+
+/** What the walk asks of the card on top of the deck. */
+interface DeckHandle {
+  /** Throw the card off toward `dir`, then run `then` (the step) as it leaves.
+      False if a throw is already under way. */
+  fling: (dir: Dir, then: () => void) => boolean;
+}
+
+/** Past this many px the card commits on release; a fast flick commits sooner. */
+const COMMIT_PX = 96;
+const FLICK_V = 650;
+const FLICK_MIN_PX = 28;
+/** A flick that would make a call (Holds or Fails) has to travel further: a stray sideways
+    thumb shouldn't record one. */
+const FLICK_CALL_PX = 56;
+/** The finger must travel this far, mostly sideways (|dx| > 1.5·|dy|), before the card moves. */
+const LOCK_PX = 10;
+/** No drag may start this close to the screen's edges (the browser's back and forward swipes). */
+const EDGE_PX = 24;
+const clamp = (v: number, lo: number, hi: number) => Math.min(hi, Math.max(lo, v));
+
+/** Pinch-zoomed in: a sideways drag pans the page, so the card stays put. */
+const isZoomed = () => (window.visualViewport?.scale ?? 1) > 1.01;
+const onZoom = (cb: () => void) => {
+  const vv = window.visualViewport;
+  vv?.addEventListener("resize", cb);
+  return () => vv?.removeEventListener("resize", cb);
+};
+const useZoomed = () => useSyncExternalStore(onZoom, isZoomed, () => false);
+
+interface Gesture {
+  id: number;
+  x0: number;
+  y0: number;
+  lock: boolean;
+  /** Recent pointer samples, for the release velocity. */
+  pts: { x: number; t: number }[];
+}
+
+function DeckCard({
+  handle,
+  left,
+  right,
+  arrive,
+  reduce,
+  swipeable,
+  onSwipe,
+  children,
+}: {
+  handle: RefObject<DeckHandle | null>;
+  left: BarAct | undefined;
+  right: BarAct | undefined;
+  arrive: Arrive;
+  reduce: boolean;
+  /** A touch-first screen: the card can be dragged, so the edges of the cards beneath show. */
+  swipeable: boolean;
+  /** A drag that crossed the line: run that side's action (false if it was refused). */
+  onSwipe: (dir: Dir) => boolean;
+  children: ReactNode;
+}) {
+  const ref = useRef<HTMLDivElement>(null);
+  const zoomed = useZoomed();
+  const back = typeof arrive === "number" && !reduce;
+  // Seeded with the arrival pose, so the first frame is already beneath the deck (or off to the side).
+  const x = useMotionValue(back ? (arrive as Dir) * 56 : 0);
+  const rot = useMotionValue(back ? (arrive as Dir) * 2 : 0);
+  const op = useMotionValue(arrive === "none" ? 1 : arrive === "rise" && !reduce ? 0.55 : 0);
+  const lift = useMotionValue(arrive === "rise" && !reduce ? 1 : 0);
+  /** How far the reader has pulled the card (it drives the stamps, even when motion is reduced). */
+  const pull = useMotionValue(0);
+  /** 1 while the card is held: it lifts a hair off the deck. */
+  const grab = useMotionValue(0);
+  const scale = useTransform([lift, grab], ([l, g]: number[]) => (1 - 0.045 * l) * (1 + 0.012 * g));
+  const y = useTransform(lift, [0, 1], [0, 14]);
+  const stampL = useTransform(pull, [-COMMIT_PX, -14], [1, 0]);
+  const stampR = useTransform(pull, [14, COMMIT_PX], [0, 1]);
+  // The stamp presses in as it fades in, and the card beneath rises a little as this one is pulled.
+  const stampLs = useTransform(pull, [-COMMIT_PX, -14], [1, 0.9]);
+  const stampRs = useTransform(pull, [14, COMMIT_PX], [0.9, 1]);
+  const under1 = useTransform(pull, [-COMMIT_PX, 0, COMMIT_PX], [-6, 0, -6]);
+  const under2 = useTransform(pull, [-COMMIT_PX, 0, COMMIT_PX], [-3, 0, -3]);
+  const [dragging, setDragging] = useState(false);
+  const gesture = useRef<Gesture | null>(null);
+  const busy = useRef(false);
+  const dragged = useRef(false);
+  const alive = useRef(false);
+  const maxDeg = useRef(6);
+  const lastV = useRef(0);
+  const swiping = useRef(false);
+
+  useEffect(() => {
+    alive.current = true;
+    return () => {
+      alive.current = false;
+    };
+  }, []);
+
+  /* the card arrives: it rises from the deck, or comes back from the side it was thrown to */
+  useEffect(() => {
+    if (arrive === "none") return;
+    const runs = [animate(op, 1, { duration: reduce ? 0.18 : 0.26, ease: "easeOut" })];
+    if (!reduce && arrive === "rise") runs.push(animate(lift, 0, { type: "spring", stiffness: 420, damping: 32, mass: 0.8 }));
+    if (!reduce && arrive !== "rise") runs.push(animate(x, 0, { type: "spring", stiffness: 400, damping: 36 }), animate(rot, 0, { type: "spring", stiffness: 400, damping: 36 }));
+    return () => runs.forEach((r) => r.stop());
+  }, [arrive, reduce, op, lift, x, rot]);
+
+  /** Where the stamp sits (in the part of the card on screen) and how the card pivots. */
+  const aim = (fingerY: number | null) => {
+    const el = ref.current;
+    if (!el) return;
+    const r = el.getBoundingClientRect();
+    const top = Math.max(r.top, document.querySelector(".atl .sh-bar")?.getBoundingClientRect().bottom ?? 0, 0);
+    const dock = document.querySelector(".atl .wk-bar-pin.is-on")?.getBoundingClientRect().top ?? window.innerHeight;
+    const bottom = Math.min(r.bottom, dock);
+    const fy = fingerY ?? (top + bottom) / 2;
+    el.style.transformOrigin = `50% ${Math.round(clamp(fy - r.top + 260, 0, r.height))}px`;
+    el.style.setProperty("--wk-stamp-y", `${Math.round(clamp(top - r.top + 18, 14, Math.max(14, r.height - 70)))}px`);
+    // A tall card tilts less, so its far end doesn't swing wide.
+    maxDeg.current = clamp((6 * 560) / Math.max(560, r.height), 2.5, 6);
+  };
+
+  const settle = () => {
+    const spring = { type: "spring" as const, stiffness: 560, damping: 34 };
+    animate(x, 0, spring);
+    animate(rot, 0, spring);
+    animate(pull, 0, { duration: 0.2 });
+    animate(grab, 0, { duration: 0.2 });
+  };
+
+  const fling = (dir: Dir, then: () => void) => {
+    if (busy.current) return false;
+    busy.current = true;
+    // A button press: aim at the part of the card on screen. (A swipe aimed when it began, and
+    // moving the pivot now would make the tilted card jump.)
+    if (!swiping.current) aim(null);
+    const v = lastV.current;
+    lastV.current = 0;
+    const finish = () => {
+      // The step deals a new card in this one's place. If it didn't, bring this one back.
+      window.setTimeout(() => {
+        if (!alive.current) return;
+        busy.current = false;
+        animate(op, 1, { duration: 0.2 });
+        settle();
+      }, 700);
+      then();
+    };
+    if (reduce) {
+      // No slide and no tilt: the stamp shows, the card fades, the next one fades in.
+      pull.set(dir * COMMIT_PX);
+      animate(op, 0, { duration: 0.14, ease: "easeIn" }).then(finish);
+      return true;
+    }
+    const to = dir * (window.innerWidth + 140);
+    const speed = Math.max(Math.abs(v), 1600);
+    const dur = clamp(Math.abs(to - x.get()) / speed, 0.17, 0.3);
+    const ease = [0.45, 0, 0.85, 0.45] as const;
+    animate(x, to, { duration: dur, ease });
+    animate(rot, dir * maxDeg.current, { duration: dur, ease });
+    animate(pull, dir * COMMIT_PX, { duration: Math.min(0.12, dur / 2) });
+    animate(op, 0, { duration: dur * 0.55, delay: dur * 0.45, ease: "easeIn" });
+    window.setTimeout(finish, dur * 900);
+    return true;
+  };
+  useImperativeHandle(handle, () => ({ fling }));
+
+  const canStart = (e: ReactPointerEvent<HTMLDivElement>) => {
+    if (!e.isPrimary || e.button !== 0 || busy.current || (!left && !right)) return false;
+    // Zoomed in, a sideways drag is the reader panning across the page.
+    if (isZoomed()) return false;
+    // A mouse drags the card only on a touch-first screen (an emulator, or a stylus mapped to a
+    // mouse); elsewhere a mouse drag selects text.
+    if (e.pointerType === "mouse" && !window.matchMedia("(hover: none)").matches) return false;
+    const vw = document.documentElement.clientWidth;
+    if (e.clientX < EDGE_PX || e.clientX > vw - EDGE_PX) return false;
+    const t = e.target as Element | null;
+    return !t?.closest?.("input, textarea, select, [contenteditable='true']");
+  };
+
+  const onPointerDown = (e: ReactPointerEvent<HTMLDivElement>) => {
+    dragged.current = false;
+    if (!canStart(e)) return;
+    // A mouse press would start a text selection, and a drag of that selection would then
+    // cancel every later drag of the card. (A click still arrives.)
+    if (e.pointerType === "mouse") e.preventDefault();
+    gesture.current = { id: e.pointerId, x0: e.clientX, y0: e.clientY, lock: false, pts: [{ x: e.clientX, t: e.timeStamp }] };
+  };
+
+  const onPointerMove = (e: ReactPointerEvent<HTMLDivElement>) => {
+    const g = gesture.current;
+    if (!g || e.pointerId !== g.id) return;
+    const dx = e.clientX - g.x0;
+    const dy = e.clientY - g.y0;
+    if (!g.lock) {
+      if (Math.abs(dx) > LOCK_PX && Math.abs(dx) > 1.5 * Math.abs(dy)) {
+        g.lock = true;
+        dragged.current = true;
+        window.getSelection()?.removeAllRanges();
+        try {
+          ref.current?.setPointerCapture(e.pointerId);
+        } catch {
+          /* the pointer is already gone */
+        }
+        aim(g.y0);
+        setDragging(true);
+        if (!reduce) animate(grab, 1, { duration: 0.16, ease: "easeOut" });
+      } else if (Math.abs(dy) > LOCK_PX) {
+        // Mostly up or down: a scroll, and the page keeps it.
+        gesture.current = null;
+        return;
+      } else return;
+    }
+    g.pts.push({ x: e.clientX, t: e.timeStamp });
+    while (g.pts.length > 2 && e.timeStamp - g.pts[0].t > 80) g.pts.shift();
+    const way = dx < 0 ? left : right;
+    // Toward a side with no action the card barely gives.
+    const shift = way ? dx : dx * 0.18;
+    pull.set(way ? dx : 0);
+    if (!reduce) {
+      x.set(shift);
+      rot.set(clamp((shift / 220) * maxDeg.current, -maxDeg.current, maxDeg.current));
+    }
+  };
+
+  const end = (e: ReactPointerEvent<HTMLDivElement>, cancelled: boolean) => {
+    const g = gesture.current;
+    if (!g || e.pointerId !== g.id) return;
+    gesture.current = null;
+    if (!g.lock) return;
+    setDragging(false);
+    // A click that follows the drag arrives in this same turn; anything later is a real click.
+    window.setTimeout(() => {
+      dragged.current = false;
+    }, 0);
+    try {
+      if (ref.current?.hasPointerCapture(e.pointerId)) ref.current.releasePointerCapture(e.pointerId);
+    } catch {
+      /* nothing to release */
+    }
+    const last = g.pts[g.pts.length - 1];
+    const first = g.pts[0];
+    // A cancelled pointer reports no position: use the last one seen.
+    const ex = cancelled ? last.x : e.clientX;
+    const dx = ex - g.x0;
+    const dt = last.t - first.t;
+    // A finger that stopped before lifting has no speed left, whatever it had before.
+    const v = dt > 0 && e.timeStamp - last.t < 60 ? ((last.x - first.x) / dt) * 1000 : 0;
+    const dir: Dir = dx < 0 ? -1 : 1;
+    const way = dir < 0 ? left : right;
+    const minFlick = way?.mark === "call" ? FLICK_CALL_PX : FLICK_MIN_PX;
+    const flick = Math.abs(v) > FLICK_V && Math.sign(v) === dir && Math.abs(dx) > minFlick;
+    if (!cancelled && way && (Math.abs(dx) >= COMMIT_PX || flick)) {
+      lastV.current = v;
+      swiping.current = true;
+      const taken = onSwipe(dir);
+      swiping.current = false;
+      if (taken) return;
+      lastV.current = 0;
+    }
+    settle();
+  };
+
+  // A drag that started on a button or link inside the card is not a tap on it. (A click from
+  // the keyboard has detail 0 and always goes through.)
+  const onClickCapture = (e: ReactMouseEvent<HTMLDivElement>) => {
+    if (!dragged.current || e.detail === 0) return;
+    dragged.current = false;
+    e.preventDefault();
+    e.stopPropagation();
+  };
+
+  const stamp = (a: BarAct | undefined, side: "to-left" | "to-right", opacity: typeof stampL, scale: typeof stampL) =>
+    a ? (
+      <motion.span
+        className={`wk-swipe-stamp ${side} m-${a.mark}`}
+        // Thrown left, the stamp sits on the edge that stays on screen (the right), tilted the other way.
+        style={reduce ? { opacity } : { opacity, scale, rotate: side === "to-left" ? 6 : -6 }}
+        aria-hidden
+      >
+        {a.mark !== "step" && <span className="wk-sq" />}
+        {a.short ? (
+          // The words on the button: the dock's short ones where the dock uses them (walk.css).
+          <>
+            <span className="wk-l-short">{a.short}</span>
+            <span className="wk-l-full">{a.stamp}</span>
+          </>
+        ) : (
+          a.stamp
+        )}
+      </motion.span>
+    ) : null;
+
+  return (
+    <>
+      {/* two card edges beneath (where the card can be dragged): the next card rises a little as
+          this one is pulled away */}
+      {swipeable && (
+        <>
+          <motion.span className="wk-ghost g2" style={reduce ? undefined : { y: under2 }} aria-hidden />
+          <motion.span className="wk-ghost g1" style={reduce ? undefined : { y: under1 }} aria-hidden />
+        </>
+      )}
+      <motion.div
+        ref={ref}
+        className={`wk-card ${dragging ? "is-dragging" : ""} ${zoomed ? "is-zoomed" : ""}`}
+        style={{ x, rotate: rot, scale, y, opacity: op }}
+        onPointerDown={onPointerDown}
+        onPointerMove={onPointerMove}
+        onPointerUp={(e) => end(e, false)}
+        onPointerCancel={(e) => end(e, true)}
+        // Only the card's own capture: a touch is first captured by the element under the finger,
+        // and that element's lostpointercapture bubbles up here when the card takes it over.
+        onLostPointerCapture={(e) => e.target === e.currentTarget && end(e, true)}
+        onClickCapture={onClickCapture}
+      >
+        {children}
+        {stamp(left, "to-left", stampL, stampLs)}
+        {stamp(right, "to-right", stampR, stampRs)}
+      </motion.div>
+    </>
   );
 }

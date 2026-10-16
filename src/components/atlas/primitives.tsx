@@ -6,6 +6,7 @@
 import { motion } from "framer-motion";
 import { memo, useMemo, type KeyboardEvent, type MouseEvent, type ReactNode } from "react";
 import { useAtlas, useAtlasStatic } from "./context";
+import { tick } from "./haptics";
 import { Rich, type RichRenderers } from "./markup";
 import { initials, usePeek } from "./peek";
 import type { Judgment, Label, Side } from "./types";
@@ -64,7 +65,9 @@ export function StatusBadge({ label, objectionLevel = false }: { label: Label; o
   );
 }
 
-/** The reader's call on one move. */
+/** The reader's call on one move. A press ticks (where the phone can vibrate) and the chosen
+    pill stamps (atlas.css; the Shell marks the pressed button). On phones the two buttons are
+    48px tall and share the width. */
 export function JudgeControl({ id, side, compact = false }: { id: string; side: Side; compact?: boolean }) {
   const { judgments, judge, labelOf } = useAtlas();
   const current = judgments[id] ?? null;
@@ -80,8 +83,12 @@ export function JudgeControl({ id, side, compact = false }: { id: string; side: 
             type="button"
             className={`judge-btn j-${j} ${current === j ? "on" : ""}`}
             aria-pressed={current === j}
+            data-atl-ticks=""
             onClick={(e) => {
               e.stopPropagation();
+              // The second click of a double tap would undo the first (keyboard activation has detail 0).
+              if (e.detail > 1) return;
+              tick();
               set(j);
             }}
           >

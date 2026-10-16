@@ -7,21 +7,23 @@
    On wide screens every move of the objection sits beside the thread as a chart. */
 
 import "./chamber.css";
-import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { AnimatePresence, motion, useReducedMotion, type Variants } from "framer-motion";
+import { useCallback, useEffect, useId, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { useAtlas } from "../context";
 import { determine } from "../determination";
 import { explainObjection } from "../explain";
-import { address } from "../helpers";
+import { address, depthBelow } from "../helpers";
 import { initials, usePeek } from "../peek";
 import { Glyph, RichText } from "../primitives";
 import { findTensions, labelObjection, type DisputationIndex, type Tension } from "../semantics";
 import { useToast } from "../toast";
-import type { Judgment, Label, ObjectionId, Side } from "../types";
+import type { Judgment, Label, Objection, ObjectionId, Side } from "../types";
 import {
   ChamberCtx,
   ChamberStaticCtx,
   OBJ_STATUS_WORD,
   RippleCtx,
+  SIDE_WORD,
   STATUS_WORD,
   WhyLine,
   answeredMark,
@@ -29,9 +31,11 @@ import {
   q,
   shownLabel,
   spellAddress,
+  spellPlace,
   statusText,
   topInset,
   turnEl,
+  useChamberStatic,
   type ChamberApi,
   type ChamberStatic,
   type FocusSource,
@@ -292,6 +296,8 @@ function Lineage({ oid, numeral, lineage, onHistory }: { oid: ObjectionId; numer
   const { ix } = useAtlas();
   const peek = usePeek();
   const [all, setAll] = useState(false);
+  // Phones: everyone, in one row of name chips that scrolls sideways (chamber.css).
+  const row = useMedia("(max-width: 639px)");
   const listId = `ch-roundels-${oid}`;
   const people = useMemo(() => {
     const seen = new Set<string>();
@@ -318,8 +324,8 @@ function Lineage({ oid, numeral, lineage, onHistory }: { oid: ObjectionId; numer
 
   if (people.length === 0 && lineage.length === 0) return null;
   const MAX = 9;
-  const more = Math.max(0, people.length - MAX);
-  const shown = all ? people : people.slice(0, MAX);
+  const more = row ? 0 : Math.max(0, people.length - MAX);
+  const shown = all || row ? people : people.slice(0, MAX);
   const first = ix.thinkers.get(people[0]);
   const lastT = ix.thinkers.get(people[people.length - 1]);
   return (
@@ -376,6 +382,347 @@ function Lineage({ oid, numeral, lineage, onHistory }: { oid: ObjectionId; numer
   );
 }
 
+/* ---------------- phones and tablets: the place bar and the depth gauge ---------------- */
+
+/** Rounds on the depth gauge sit this far apart (CSS px; chamber.css draws the notches to match). */
+const GAUGE_STEP = 20;
+
+/* "Round 3" rolls when the round changes: up when the reader goes deeper, down on the way back. */
+const ROLL: Variants = {
+  enter: (d: number) => ({ y: d * 9, opacity: 0 }),
+  center: { y: 0, opacity: 1 },
+  exit: (d: number) => ({ y: d * -9, opacity: 0 }),
+};
+const FADE: Variants = { enter: { opacity: 0 }, center: { opacity: 1 }, exit: { opacity: 0 } };
+
+/** Phones and tablets, while the thread is on screen: a slim bar under the top bar says where the
+    open move sits ("I · Part 2 of 3 · Round 3"; a tap brings that move back into view), with
+    "Up a round" (to the move it replies to) and "Parts" (a short menu of the parts). On a short
+    screen (a phone on its side) the bar tucks away while the reader scrolls down and comes back on
+    a scroll up. At the right edge, the depth gauge: one notch per round of the current part, in the
+    colour of whoever speaks in that round on this branch, the open move's round lit. */
+function Locator({ o, focusId, path }: { o: Objection; focusId: string; path: string[] }) {
+  const { ix, labels, judgments, toPlain } = useAtlas();
+  const { focus } = useChamberStatic();
+  const reduce = useReducedMotion();
+  const barRef = useRef<HTMLElement>(null);
+  const partsRef = useRef<HTMLButtonElement>(null);
+  const menuId = useId();
+  const [inThread, setInThread] = useState(false);
+  const [tucked, setTucked] = useState(false);
+  /** Where the open move is when it is off screen. */
+  const [off, setOff] = useState<"up" | "down" | null>(null);
+  const [menu, setMenu] = useState(false);
+  const info = ix.nodes.get(focusId);
+  const depth = info?.depth ?? 1;
+  const part = info?.prong ?? o.prongs[0]?.id;
+  const rounds = useMemo(() => (part ? 1 + depthBelow(ix, part) : 1), [ix, part]);
+  // Which way the round changed, for the roll.
+  const [seen, setSeen] = useState({ id: focusId, depth, dir: 1 });
+  if (seen.id !== focusId) setSeen({ id: focusId, depth, dir: depth >= seen.depth ? 1 : -1 });
+  const shown = inThread && !tucked;
+  // Opening another move, or the bar going away, closes the parts menu.
+  const [menuFor, setMenuFor] = useState(focusId);
+  if (menuFor !== focusId) {
+    setMenuFor(focusId);
+    setMenu(false);
+  }
+  if (menu && !shown) setMenu(false);
+
+  const focusRef = useRef(focusId);
+  const checkRef = useRef<() => void>(() => {});
+  useEffect(() => {
+    focusRef.current = focusId;
+    checkRef.current();
+  }, [focusId, path]);
+
+  useEffect(() => {
+    const short = window.matchMedia("(max-height: 480px)");
+    let raf = 0;
+    let lastY = window.scrollY;
+    let run = 0;
+    // Only the reader's own scrolling tucks the bar away (a finger on the screen, the fling after
+    // it, a wheel or a scroll key), never the page bringing a move into view after a tap.
+    let touching = false;
+    let inputAt = -Infinity;
+    let userScrollAt = -Infinity;
+    const onTouchStart = () => {
+      touching = true;
+    };
+    const onTouchEnd = () => {
+      touching = false;
+    };
+    const onWheel = () => {
+      inputAt = performance.now();
+    };
+    const onKey = (e: KeyboardEvent) => {
+      if (/^(ArrowDown|ArrowUp|PageDown|PageUp|Home|End| )$/.test(e.key)) inputAt = performance.now();
+    };
+    const check = () => {
+      raf = 0;
+      const bar = document.querySelector<HTMLElement>(".sh-bar");
+      const top = bar ? Math.max(0, bar.getBoundingClientRect().bottom) : 0;
+      const h = barRef.current?.offsetHeight ?? 0;
+      const y = window.scrollY;
+      const dy = y - lastY;
+      lastY = y;
+      const now = performance.now();
+      const user = touching || now - inputAt < 400 || now - userScrollAt < 120;
+      if (dy && user) userScrollAt = now;
+      if (!short.matches) {
+        run = 0;
+        setTucked(false);
+      } else if (dy && user) {
+        run = dy > 0 === run > 0 ? run + dy : dy;
+        if (run > 24) setTucked(true);
+        else if (run < -12) setTucked(false);
+      }
+      // The thread is "on screen" from when its top reaches the bar's lower edge (with the 16px a
+      // move brought into view sits below it) until its end has scrolled up under the bar.
+      const thread = document.querySelector<HTMLElement>(".ch-thread");
+      const r = thread?.getBoundingClientRect();
+      setInThread(!!r && r.top < top + h + 24 && r.bottom > top + h + 96);
+      const el = turnEl(focusRef.current);
+      if (!el) {
+        setOff(null);
+        return;
+      }
+      const t = el.getBoundingClientRect();
+      const dock = parseFloat(document.documentElement.style.getPropertyValue("--atl-dock-h")) || 0;
+      setOff(t.bottom < top + h + 12 ? "up" : t.top > window.innerHeight - dock - 12 ? "down" : null);
+    };
+    const on = () => {
+      if (!raf) raf = requestAnimationFrame(check);
+    };
+    checkRef.current = on;
+    on();
+    const opt = { passive: true, capture: true } as const;
+    window.addEventListener("scroll", on, { passive: true });
+    window.addEventListener("resize", on);
+    window.addEventListener("touchstart", onTouchStart, opt);
+    window.addEventListener("touchend", onTouchEnd, opt);
+    window.addEventListener("touchcancel", onTouchEnd, opt);
+    window.addEventListener("wheel", onWheel, opt);
+    window.addEventListener("keydown", onKey, true);
+    short.addEventListener("change", on);
+    return () => {
+      cancelAnimationFrame(raf);
+      checkRef.current = () => {};
+      window.removeEventListener("scroll", on);
+      window.removeEventListener("resize", on);
+      window.removeEventListener("touchstart", onTouchStart, opt);
+      window.removeEventListener("touchend", onTouchEnd, opt);
+      window.removeEventListener("touchcancel", onTouchEnd, opt);
+      window.removeEventListener("wheel", onWheel, opt);
+      window.removeEventListener("keydown", onKey, true);
+      short.removeEventListener("change", on);
+    };
+  }, []);
+
+  // The back chip drops below the bar while the bar shows (chamber.css, .ch[data-loc]).
+  useEffect(() => {
+    const ch = barRef.current?.closest<HTMLElement>(".ch");
+    if (!ch) return;
+    ch.dataset.loc = shown ? "shown" : "hidden";
+    return () => {
+      delete ch.dataset.loc;
+    };
+  }, [shown]);
+
+  // The parts menu closes on Escape, on a press anywhere outside the bar, and when Tab leaves it.
+  useEffect(() => {
+    if (!menu) return;
+    const bar = barRef.current;
+    const onDown = (e: PointerEvent) => {
+      if (!bar?.contains(e.target as Node)) setMenu(false);
+    };
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== "Escape") return;
+      setMenu(false);
+      partsRef.current?.focus();
+    };
+    const onFocusOut = (e: FocusEvent) => {
+      if (e.relatedTarget && !bar?.contains(e.relatedTarget as Node)) setMenu(false);
+    };
+    document.addEventListener("pointerdown", onDown, true);
+    document.addEventListener("keydown", onKey);
+    bar?.addEventListener("focusout", onFocusOut);
+    return () => {
+      document.removeEventListener("pointerdown", onDown, true);
+      document.removeEventListener("keydown", onKey);
+      bar?.removeEventListener("focusout", onFocusOut);
+    };
+  }, [menu]);
+
+  if (!info) return null;
+  const many = o.prongs.length > 1;
+  const nParts = o.prongs.length;
+  const partNo = o.prongs.findIndex((p) => p.id === info.prong) + 1;
+  const side = info.node.side;
+  const parent = info.parent;
+
+  /* The place itself: bring the open move back into view, with a brief glow round its card. */
+  const bringBack = () => {
+    const el = turnEl(focusId);
+    if (!el) return;
+    const y = window.scrollY + el.getBoundingClientRect().top - (topInset() + 16);
+    window.scrollTo({ top: Math.max(0, y), behavior: (reduce ? "instant" : "smooth") as ScrollBehavior });
+    el.querySelector<HTMLElement>("[data-turn-heading]")?.focus({ preventScroll: true });
+    el.removeAttribute("data-ping");
+    void el.offsetWidth;
+    el.setAttribute("data-ping", "");
+    window.setTimeout(() => el.removeAttribute("data-ping"), 1200);
+  };
+
+  return (
+    <>
+      <nav ref={barRef} className="ch-loc" data-state={shown ? "shown" : "hidden"} aria-label="Your place in this objection">
+        <div className="ch-loc-in">
+          <button
+            type="button"
+            className={`ch-loc-here s-${side}`}
+            onClick={bringBack}
+            aria-label={`${off ? "Back to" : "Show"} the open move: ${spellPlace(ix, focusId)}, the ${SIDE_WORD[side]}`}
+          >
+            <span className="ch-loc-num" aria-hidden>
+              {o.numeral}
+            </span>
+            <span className="ch-loc-where" aria-hidden>
+              {many && (
+                <span className="ch-loc-part">
+                  Part {partNo} of {nParts}
+                </span>
+              )}
+              <span className="ch-loc-roll">
+                <AnimatePresence initial={false} mode="popLayout" custom={seen.dir}>
+                  <motion.span
+                    key={`${partNo}.${depth}`}
+                    className="ch-loc-round"
+                    custom={seen.dir}
+                    variants={reduce ? FADE : ROLL}
+                    initial="enter"
+                    animate="center"
+                    exit="exit"
+                    transition={{ duration: 0.24, ease: [0.22, 1, 0.36, 1] }}
+                  >
+                    <Glyph side={side} label="undec" size={9} />
+                    Round {depth}
+                  </motion.span>
+                </AnimatePresence>
+              </span>
+            </span>
+            {/* the open move is off screen: a "find it" mark, like a map's locate button */}
+            <span className={`ch-loc-off ${off ? "on" : ""}`} aria-hidden>
+              <svg viewBox="0 0 16 16">
+                <circle cx="8" cy="8" r="4.6" />
+                <path d="M8 0.8v3M8 12.2v3M0.8 8h3M12.2 8h3" />
+                <circle cx="8" cy="8" r="1.4" className="dot" />
+              </svg>
+            </span>
+          </button>
+          {parent && (
+            <button type="button" className="ch-loc-btn" aria-label="Up a round" onClick={() => focus(parent, "link")}>
+              <span className="ch-loc-pill">
+                <span aria-hidden>↑</span>
+                <span>
+                  Up<span className="ch-loc-more"> a round</span>
+                </span>
+              </span>
+            </button>
+          )}
+          {many && (
+            <button ref={partsRef} type="button" className="ch-loc-btn" aria-expanded={menu} aria-controls={menuId} onClick={() => setMenu((v) => !v)}>
+              <span className="ch-loc-pill">
+                Parts <span className="ch-loc-chev" aria-hidden />
+              </span>
+            </button>
+          )}
+        </div>
+        {many && (
+          <div id={menuId} className="ch-loc-region">
+            <AnimatePresence>
+              {menu && (
+                <motion.div
+                  className="ch-loc-menu"
+                  initial={reduce ? { opacity: 0 } : { opacity: 0, y: -8, scale: 0.97 }}
+                  animate={reduce ? { opacity: 1 } : { opacity: 1, y: 0, scale: 1 }}
+                  exit={reduce ? { opacity: 0 } : { opacity: 0, y: -6, scale: 0.98 }}
+                  transition={reduce ? { duration: 0.12 } : { type: "spring", stiffness: 520, damping: 34 }}
+                >
+                  <p className="ch-loc-menu-k">The {numWord(nParts)} parts of Objection {o.numeral}</p>
+                  <ol>
+                    {o.prongs.map((p, i) => {
+                      const l = labels.node.get(p.id) ?? "undec";
+                      const call = judgments[p.id];
+                      const sl = shownLabel(l, call);
+                      const on = p.id === info.prong;
+                      return (
+                        <li key={p.id}>
+                          <button
+                            type="button"
+                            className={`ch-loc-opt s-${p.side} ${on ? "on" : ""}`}
+                            aria-current={on ? "true" : undefined}
+                            onClick={() => {
+                              setMenu(false);
+                              focus(p.id, "link");
+                            }}
+                          >
+                            <span className="ch-loc-opt-k">
+                              <span>
+                                Part {i + 1} of {nParts}
+                              </span>
+                              <span className={`ch-loc-opt-st st-${sl}`}>
+                                {call ? (
+                                  <>
+                                    <YouMark size={9} className="ch-you" />
+                                    <span className="your-call">{statusText(l, call)}</span>
+                                  </>
+                                ) : (
+                                  STATUS_WORD[l]
+                                )}
+                              </span>
+                            </span>
+                            <span className="ch-loc-opt-l">
+                              <Glyph side={p.side} label={sl} size={11} />
+                              <span className={answeredMark(l, call) ? "lab-out" : ""}>{toPlain(p.label)}</span>
+                            </span>
+                          </button>
+                        </li>
+                      );
+                    })}
+                  </ol>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+        )}
+      </nav>
+
+      <div
+        className="ch-gauge"
+        data-state={inThread ? "shown" : "hidden"}
+        aria-hidden
+        style={{ ["--ch-gauge-n" as string]: rounds, ["--ch-gauge-at" as string]: depth - 1 }}
+      >
+        <span className="ch-gauge-line" />
+        <span className="ch-gauge-fill" />
+        {Array.from({ length: rounds }, (_, i) => {
+          const id = path[i];
+          const s = id ? ix.nodes.get(id)?.node.side : undefined;
+          const kind = !s ? "beyond" : i + 1 < depth ? "above" : i + 1 === depth ? "here" : "below";
+          return <span key={i} className={`ch-gauge-n k-${kind} ${s ? `s-${s}` : ""}`} style={{ ["--i" as string]: i }} />;
+        })}
+        <motion.span
+          className={`ch-gauge-bob s-${side}`}
+          initial={false}
+          animate={{ y: (depth - 1) * GAUGE_STEP }}
+          transition={reduce ? { duration: 0 } : { type: "spring", stiffness: 420, damping: 30 }}
+        />
+      </div>
+    </>
+  );
+}
+
 /* ---------------- the page ---------------- */
 
 export default function Chamber({ o: oid, node }: { o: ObjectionId; node?: string }) {
@@ -386,7 +733,8 @@ export default function Chamber({ o: oid, node }: { o: ObjectionId; node?: strin
   const focusId = valid ?? o?.prongs[0]?.id ?? null;
   // Two columns from 1200px: below that, the reading column and the chart panel are both too narrow.
   const wide = useMedia("(min-width: 1200px)");
-  const narrow = useMedia("(max-width: 639px)");
+  // Phones (upright, or on their side): the chart folds away behind "Show the chart", after the parts.
+  const narrow = useMedia("(max-width: 639px), (max-height: 480px)");
 
   // A move id that isn't in this objection: go to its real address (or this objection's top), without a history entry.
   useEffect(() => {
@@ -452,6 +800,37 @@ export default function Chamber({ o: oid, node }: { o: ObjectionId; node?: strin
 
   const [mapOpen, setMapOpen] = useState(false);
 
+  /* ---- phones: the Defender's reply and the background sit behind "Read the summary" ----
+     (the Objector's case stays in full), so the parts come within about a screen and a half. */
+  const phone = useMedia("(max-width: 720px), (max-height: 480px)");
+  const reduce = useReducedMotion();
+  const sumId = useId();
+  const [sumOpen, setSumOpen] = useState(false);
+  /** The preview's height when the reader opened it: the whole reply grows from there. */
+  const [teaserH, setTeaserH] = useState(0);
+  const teaserRef = useRef<HTMLSpanElement>(null);
+  const sumBtnRef = useRef<HTMLButtonElement>(null);
+  const sumAnchor = useRef<number | null>(null);
+  const foldable = phone && !!o && !!(o.counter || o.dek);
+  const sumShown = !foldable || sumOpen;
+  const openSummary = useCallback(() => {
+    setTeaserH(teaserRef.current?.offsetHeight ?? 0);
+    setSumOpen(true);
+  }, []);
+  const closeSummary = useCallback(() => {
+    sumAnchor.current = sumBtnRef.current?.getBoundingClientRect().top ?? null;
+    setTeaserH(0);
+    setSumOpen(false);
+  }, []);
+  // Closing it keeps the button where it was on screen (the text above it shrinks back).
+  useLayoutEffect(() => {
+    const before = sumAnchor.current;
+    sumAnchor.current = null;
+    if (before === null || sumOpen) return;
+    const after = sumBtnRef.current?.getBoundingClientRect().top;
+    if (after !== undefined && Math.abs(after - before) > 1) window.scrollBy({ top: after - before, behavior: INSTANT });
+  }, [sumOpen]);
+
   /* ---- screen-reader confirmation of calls that don't change the objection ---- */
   const [said, setSaid] = useState({ text: "", n: 0 });
   const say = useCallback((text: string) => setSaid((s) => ({ text, n: s.n + 1 })), []);
@@ -461,9 +840,9 @@ export default function Chamber({ o: oid, node }: { o: ObjectionId; node?: strin
   const lastFocus = useRef(focusId);
 
   const focus = useCallback(
-    (id: string, from: FocusSource = "thread") => {
+    (id: string, from: FocusSource = "thread", at?: number) => {
       const el = turnEl(id);
-      anchor.current = { id, top: el ? el.getBoundingClientRect().top : null, from };
+      anchor.current = { id, top: el ? el.getBoundingClientRect().top : (at ?? null), from };
       // Leaving this entry: remember where the reader was, for Back.
       if (id !== focusId) spots.current.set(window.location.hash, window.scrollY);
       if (id === focusId && el) {
@@ -519,7 +898,14 @@ export default function Chamber({ o: oid, node }: { o: ObjectionId; node?: strin
       // `instant` beats the site's `scroll-behavior: smooth`; only chart-started moves glide.
       window.scrollTo({ top: window.scrollY + delta, behavior: fromChart && !reducedMotion() ? "smooth" : INSTANT });
     }
-    if (a && a.from !== "chart") heading?.focus({ preventScroll: true });
+    if (a && a.from !== "chart" && heading) {
+      // After a swipe the focus moves on quietly: no ring round a card the reader's finger put there.
+      if (a.from === "swipe") {
+        heading.dataset.quiet = "";
+        heading.addEventListener("blur", () => delete heading.dataset.quiet, { once: true });
+      }
+      heading.focus({ preventScroll: true });
+    }
   }, [focusId]);
 
   // A deep link (or a cross-objection jump): bring the move into view once the view has settled,
@@ -691,7 +1077,7 @@ export default function Chamber({ o: oid, node }: { o: ObjectionId; node?: strin
     focusRef.current = focus;
     jumpRef.current = jump;
   }, [focus, jump]);
-  const stableFocus = useCallback((id: string, from?: FocusSource) => focusRef.current(id, from), []);
+  const stableFocus = useCallback((id: string, from?: FocusSource, at?: number) => focusRef.current(id, from, at), []);
   const stableJump = useCallback((id: string) => jumpRef.current(id), []);
   const stableDecide = useCallback((id: string, j: Judgment | null) => decideRef.current(id, j), []);
   const statics = useMemo<ChamberStatic>(
@@ -732,6 +1118,28 @@ export default function Chamber({ o: oid, node }: { o: ObjectionId; node?: strin
   const ready = !!focusId;
   const chart = (variant: "panel" | "inline", bare = false) =>
     ready && focusId ? <ObjectionChart o={o} focusId={focusId} path={path} variant={variant} bare={bare} onSelect={(id) => focus(id, "chart")} /> : null;
+  /* Below 1200px the chart sits in the page: in full on tablets, folded on phones. */
+  const mapBlock =
+    !wide && ready ? (
+      narrow ? (
+        <section className="ch-map-inline ch-map-disc" aria-label="All moves in this objection">
+          <button type="button" id="ch-map-btn" className="ch-map-toggle" aria-expanded={mapOpen} aria-controls="ch-map-body" onClick={() => setMapOpen((v) => !v)}>
+            <span className="ch-map-toggle-k">{mapOpen ? "Hide the chart" : "Show the chart"}</span>
+            <span className="ch-map-toggle-m">{mapMeta}</span>
+            <span className="ch-map-toggle-chev" aria-hidden>
+              ▸
+            </span>
+          </button>
+          <div id="ch-map-body" hidden={!mapOpen}>
+            {mapOpen && chart("inline", true)}
+          </div>
+        </section>
+      ) : (
+        <section className="ch-map-inline" aria-label="All moves in this objection">
+          {chart("inline")}
+        </section>
+      )
+    ) : null;
 
   return (
     <ChamberStaticCtx.Provider value={statics}>
@@ -823,12 +1231,28 @@ export default function Chamber({ o: oid, node }: { o: ObjectionId; node?: strin
                         </p>
                       )}
                       {o.counter && (
-                        <p className="ch-ex s-theist">
+                        <p className={`ch-ex s-theist ${sumShown ? "" : "is-teaser"}`}>
                           <span className="ch-ex-k">
                             <Glyph side="theist" size={11} /> The Defender replies
                           </span>
-                          <span className="ch-ex-t">
-                            <RichText text={o.counter} />
+                          <span className="ch-ex-t" id={`${sumId}-a`}>
+                            {!sumShown ? (
+                              // Phones: the first lines only, as a preview (the whole reply is behind "Read the summary").
+                              <span ref={teaserRef} className="ch-teaser" aria-hidden onClick={openSummary}>
+                                {toPlain(o.counter)}
+                              </span>
+                            ) : foldable ? (
+                              <motion.span
+                                className="ch-unteaser"
+                                initial={teaserH && !reduce ? { height: teaserH } : false}
+                                animate={{ height: "auto" }}
+                                transition={{ duration: 0.36, ease: [0.22, 1, 0.36, 1] }}
+                              >
+                                <RichText text={o.counter} />
+                              </motion.span>
+                            ) : (
+                              <RichText text={o.counter} />
+                            )}
                           </span>
                         </p>
                       )}
@@ -836,9 +1260,31 @@ export default function Chamber({ o: oid, node }: { o: ObjectionId; node?: strin
                   )}
 
                   {o.dek && (
-                    <p className="ch-dek">
-                      <RichText text={o.dek} onNode={jump} />
-                    </p>
+                    <div id={`${sumId}-b`} className="ch-dek-region">
+                      {sumShown && (
+                        <motion.p
+                          className="ch-dek"
+                          initial={foldable && !reduce ? { opacity: 0 } : false}
+                          animate={{ opacity: 1 }}
+                          transition={{ duration: 0.3, delay: 0.12 }}
+                        >
+                          <RichText text={o.dek} onNode={jump} />
+                        </motion.p>
+                      )}
+                    </div>
+                  )}
+                  {foldable && (
+                    <button
+                      ref={sumBtnRef}
+                      type="button"
+                      className="ch-sum-btn"
+                      aria-expanded={sumOpen}
+                      aria-controls={[o.counter ? `${sumId}-a` : "", o.dek ? `${sumId}-b` : ""].filter(Boolean).join(" ")}
+                      onClick={() => (sumOpen ? closeSummary() : openSummary())}
+                    >
+                      <span className="ch-u">{sumOpen ? "Hide the summary" : "Read the summary"}</span>
+                      <span className="ch-sum-chev" aria-hidden />
+                    </button>
                   )}
 
                   <Lineage oid={oid} numeral={o.numeral} lineage={o.lineage ?? []} onHistory={() => go({ view: "timeline", moment: o.lineage?.[0] })} />
@@ -875,26 +1321,8 @@ export default function Chamber({ o: oid, node }: { o: ObjectionId; node?: strin
                   {oid === "nature" && <Echo full={wide} />}
                 </header>
 
-                {!wide &&
-                  ready &&
-                  (narrow ? (
-                    <section className="ch-map-inline ch-map-disc" aria-labelledby="ch-map-btn">
-                      <button type="button" id="ch-map-btn" className="ch-map-toggle" aria-expanded={mapOpen} aria-controls="ch-map-body" onClick={() => setMapOpen((v) => !v)}>
-                        <span className="ch-map-toggle-k">All moves</span>
-                        <span className="ch-map-toggle-m">{mapMeta}</span>
-                        <span className="ch-map-toggle-chev" aria-hidden>
-                          ▸
-                        </span>
-                      </button>
-                      <div id="ch-map-body" hidden={!mapOpen}>
-                        {mapOpen && chart("inline", true)}
-                      </div>
-                    </section>
-                  ) : (
-                    <section className="ch-map-inline" aria-label="All moves in this objection">
-                      {chart("inline")}
-                    </section>
-                  ))}
+                {/* Tablets: the chart of every move, before the parts. (Phones: after them, folded.) */}
+                {!narrow && mapBlock}
 
                 {/* ---------- part chips ---------- */}
                 {nProngs > 1 && (
@@ -939,6 +1367,8 @@ export default function Chamber({ o: oid, node }: { o: ObjectionId; node?: strin
                   </nav>
                 )}
 
+                {narrow && mapBlock}
+
                 {/* Wide screens: the chart sits top right but comes last in the tab order; this skips to it. */}
                 {wide && ready && (
                   <button
@@ -950,6 +1380,7 @@ export default function Chamber({ o: oid, node }: { o: ObjectionId; node?: strin
                   </button>
                 )}
 
+                {!wide && ready && focusId && <Locator o={o} focusId={focusId} path={path} />}
                 {ready ? <Thread /> : <p className="ch-missing">I haven’t written this one yet.</p>}
                 <p className="sr-only" role="status" aria-live="polite">
                   {said.text ? `${said.text}${said.n % 2 ? " " : ""}` : ""}

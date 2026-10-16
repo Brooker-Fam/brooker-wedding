@@ -12,7 +12,9 @@
 
    Desktop: the chart + a card for the chosen moment, then the chronicle (a
    readable list). Phone: the chronicle alone. Time flows down, compact lanes
-   at the left, titles to the right that open in place. No horizontal scroll. */
+   at the left, titles to the right that open in place. No horizontal scroll.
+   A sticky row of eras over the chronicle lights the era on screen and jumps
+   to any other. */
 
 import "./library.css";
 import { memo, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type KeyboardEvent, type RefObject } from "react";
@@ -23,7 +25,7 @@ import { plain } from "../markup";
 import { formatRoute } from "../router";
 import type { DisputationIndex } from "../semantics";
 import type { Moment, Objection, ObjectionId, Quote, Side } from "../types";
-import { ERAS, GlyphKey, LibEmpty, LibHead, eraOf, fold, scrollBehavior, spokenBy, useMedia, yearText } from "./Outline";
+import { ChipRow, ERAS, GlyphKey, JumpRow, LibEmpty, LibHead, LibTabs, eraOf, fold, holdChrome, jumpTo, scrollBehavior, spokenBy, useMedia, yearText } from "./Outline";
 import { QuoteFigure } from "./OutlineList";
 import { spellAddress } from "./chamberShared";
 import { SourceList } from "./Sources";
@@ -49,16 +51,21 @@ function LaneNum({ l, size = 10 }: { l: Lane; size?: number }) {
   return l.key === "spinoza" ? <Glyph side="spinoza" size={size} className="tl-lane-g" /> : <>{l.numeral}</>;
 }
 
-/** How far down the screen the sticky bars reach: the top bar, and the era band stuck under it when there is one. */
+/** How far down the screen the sticky bars reach: the top bar, and the era band stuck under it when there is one.
+    On a phone the bands don't stick; the tab row and the era row do, and a row's scroll-margin says how far they reach. */
 function coveredTop(list: HTMLElement | null): number {
   let bottom = 0;
   for (const band of list ? list.querySelectorAll<HTMLElement>(".tl-era-h") : []) {
-    const stick = parseFloat(getComputedStyle(band).top) || 0;
+    const cs = getComputedStyle(band);
+    if (cs.position !== "sticky") break;
+    const stick = parseFloat(cs.top) || 0;
     bottom = Math.max(bottom, stick);
     const r = band.getBoundingClientRect();
     if (r.top <= stick + 1 && r.bottom > stick) bottom = Math.max(bottom, r.bottom);
   }
-  return bottom || 60;
+  if (bottom) return bottom;
+  const row = list?.querySelector<HTMLElement>(".tl-item");
+  return (row && parseFloat(getComputedStyle(row).scrollMarginTop)) || 60;
 }
 
 /* The followed strand, remembered per timeline address for this visit, so Back returns to the list as it was left
@@ -66,6 +73,10 @@ function coveredTop(list: HTMLElement | null): number {
    arrival, which starts from the address instead (the Shell tells a return from a visit the same way). */
 const keptFilters = new Map<string, string>();
 let lastActivation = 0;
+/* Where the reader was on each timeline address, so Back from a moment (#/timeline/<moment> → #/timeline, which the
+   Shell treats as one view) returns to that spot instead of staying where the moment had scrolled to. */
+const keptScroll = new Map<string, number>();
+let traversing = false;
 if (typeof document !== "undefined") {
   const mark = (e: Event) => {
     if (e.type === "keydown" && (e as globalThis.KeyboardEvent).key !== "Enter" && (e as globalThis.KeyboardEvent).key !== " ") return;
@@ -73,12 +84,22 @@ if (typeof document !== "undefined") {
   };
   document.addEventListener("click", mark, true);
   document.addEventListener("keydown", mark, true);
+  // popstate comes just before the hashchange that re-renders the view
+  window.addEventListener("popstate", () => {
+    traversing = true;
+    setTimeout(() => (traversing = false), 400);
+  });
 }
 
-/** Scroll a chronicle row to just under the era band that will be stuck above it (and the top bar above that). */
+/** Scroll a chronicle row to just under the era band that will be stuck above it (and the top bar above that).
+    Where the bands don't stick (phones), its scroll-margin clears the sticky rows. */
 function scrollUnderBand(row: HTMLElement) {
   const band = row.closest(".tl-era-block")?.querySelector<HTMLElement>(".tl-era-h");
-  const stick = band ? parseFloat(getComputedStyle(band).top) || 0 : 60;
+  if (!band || getComputedStyle(band).position !== "sticky") {
+    jumpTo(row);
+    return;
+  }
+  const stick = parseFloat(getComputedStyle(band).top) || 0;
   const y = window.scrollY + row.getBoundingClientRect().top - stick - (band?.offsetHeight ?? 0) - 6;
   window.scrollTo({ top: Math.max(0, Math.round(y)), behavior: scrollBehavior() });
 }
@@ -399,6 +420,25 @@ export default function Timeline({ moment }: { moment?: string }) {
   const missing = !!moment && !selected;
   const select = useCallback((id: string | undefined) => go({ view: "timeline", moment: id }, { replace: true }), [go]);
 
+  // Remember the spot for this address; Back or Forward within the Timeline returns to it (and skips the moment's
+  // own scroll below).
+  const restored = useRef(false);
+  const hereRef = useRef(here);
+  useEffect(() => {
+    const save = () => keptScroll.set(hereRef.current, window.scrollY);
+    window.addEventListener("scroll", save, { passive: true });
+    return () => window.removeEventListener("scroll", save);
+  }, []);
+  useLayoutEffect(() => {
+    if (hereRef.current === here) return;
+    hereRef.current = here;
+    const y = keptScroll.get(here);
+    if (!traversing || y === undefined) return;
+    restored.current = true;
+    holdChrome(300);
+    window.scrollTo({ top: y, left: 0, behavior: "instant" });
+  }, [here]);
+
   // Bring the chosen moment into view: on arrival (e.g. a chamber's "Through history →") once the view has settled,
   // and afterwards whenever a mark is chosen on the chart and its card would sit below the fold.
   const listRef = useRef<HTMLOListElement>(null);
@@ -408,6 +448,10 @@ export default function Timeline({ moment }: { moment?: string }) {
   useEffect(() => {
     const first = !arrived.current;
     arrived.current = true;
+    if (restored.current) {
+      restored.current = false;
+      return;
+    }
     if (!selId) return;
     const t = setTimeout(
       () => {
@@ -445,8 +489,17 @@ export default function Timeline({ moment }: { moment?: string }) {
   const only = lanes.find((l) => l.key === filter);
   const span = sorted.length ? `${yearText(Math.min(...years)).replace(" CE", "")} to ${yearText(Math.max(...years)).replace(" CE", "")}` : "";
 
+  // The eras in the list as filtered, for the sticky era row (phone and tablet).
+  const eraItems = useMemo(() => {
+    const n = new Map<string, number>();
+    for (const m of shown) n.set(eraOf(m.year).id, (n.get(eraOf(m.year).id) ?? 0) + 1);
+    return ERAS.filter((e) => n.has(e.id)).map((e) => ({ id: e.id, content: e.name, aria: `${e.name}, ${n.get(e.id)} ${n.get(e.id) === 1 ? "event" : "events"}` }));
+  }, [shown]);
+  const eraBlock = useCallback((id: string) => listRef.current?.querySelector<HTMLElement>(`[data-era="${CSS.escape(id)}"]`) ?? null, []);
+
   return (
     <div className="lib lib-timeline">
+      <LibTabs current="timeline" />
       <LibHead
         current="timeline"
         className="lib-head-split"
@@ -499,7 +552,7 @@ export default function Timeline({ moment }: { moment?: string }) {
                 ) : (
                   <>
                     Showing only <strong>{filter === "spinoza" ? "Spinoza’s events" : only ? `Objection ${only.numeral} · ${only.name}` : ""}</strong>.{" "}
-                    <button type="button" className="lib-link" onClick={() => setFilter("all")}>
+                    <button type="button" className="btn small tl-showall" onClick={() => setFilter("all")}>
                       Show all
                     </button>
                   </>
@@ -517,6 +570,7 @@ export default function Timeline({ moment }: { moment?: string }) {
                 </>
               )}
             </div>
+            {!wide && eraItems.length > 1 && <JumpRow className="tl-jump" label="Jump to an era" items={eraItems} target={eraBlock} />}
             {shown.length === 0 ? (
               <p className="lib-none">No events for this objection yet.</p>
             ) : (
@@ -604,7 +658,7 @@ function StrandChips({
 }) {
   const count = (k: LaneKey) => sorted.filter((m) => lanesOf(m).includes(k)).length;
   return (
-    <div className="tl-chips" role="group" aria-label={filterLabel(lanes)}>
+    <ChipRow className="tl-chips" label={filterLabel(lanes)} active={filter}>
       <button type="button" className="tl-chip" aria-pressed={filter === "all"} onClick={() => setFilter("all")}>
         All
       </button>
@@ -623,7 +677,7 @@ function StrandChips({
           <span className="tl-chip-n mono">{count(l.key)}</span>
         </button>
       ))}
-    </div>
+    </ChipRow>
   );
 }
 
@@ -1323,7 +1377,7 @@ function Chronicle({
   return (
     <ol className="tl-list" ref={listRef} style={{ ["--tl-rail" as string]: railW }}>
       {groups.map((g) => (
-        <li key={g.era.id} className="tl-era-block">
+        <li key={g.era.id} className="tl-era-block" data-era={g.era.id}>
           <div className="tl-era-h">
             <div className="tl-rail" aria-hidden>
               {passing(g.rows[0].i).map((l) => (

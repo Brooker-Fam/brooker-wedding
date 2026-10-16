@@ -238,3 +238,67 @@ export function sectorLayout(d: Pick<Disputation, "objections">): RoseSector[] {
     return s;
   });
 }
+
+/* ------------------------------------------------------------------ */
+/* Hit-testing the Rose by polar coordinates (the touch dial)          */
+/* Panes tile their sector, so a tap maps to one pane with no gaps:    */
+/* far more forgiving under a thumb than the pane shapes themselves.   */
+/* ------------------------------------------------------------------ */
+
+/** A pane's polar box: angles in radians (clockwise from 12 o'clock), radii in Rose units. */
+export interface PolarBox {
+  a0: number;
+  a1: number;
+  r0: number;
+  r1: number;
+}
+
+/** A point in Rose units (y down, origin at the hub) as an angle (clockwise from 12 o'clock,
+    in [base, base + 2π)) and a radius. */
+export function polarOf(x: number, y: number, base = -Math.PI): { a: number; r: number } {
+  const TAU = Math.PI * 2;
+  let a = Math.atan2(x, -y);
+  a = base + ((((a - base) % TAU) + TAU) % TAU);
+  return { a, r: Math.hypot(x, y) };
+}
+
+/** Where the sector angles begin: halfway into the gap before sector I. */
+export function sectorBase(sectors: RoseSector[]): number {
+  return sectors.length ? sectors[0].a0 - SECTOR_GAP / 2 : -Math.PI;
+}
+
+/** The sector an angle falls in, each gap split down the middle (so every angle has one).
+    `a` must already be normalised with `polarOf(…, sectorBase(sectors))`. */
+export function sectorAt<S extends RoseSector>(sectors: S[], a: number): S | null {
+  for (const s of sectors) if (a < s.a1 + SECTOR_GAP / 2) return s;
+  return sectors[sectors.length - 1] ?? null;
+}
+
+/** The pane containing (a, r), else the nearest one (by arc length plus radial distance). */
+export function nearestPane<P extends PolarBox>(panes: P[], a: number, r: number): P | null {
+  let best: P | null = null;
+  let bestD = Infinity;
+  for (const p of panes) {
+    const da = Math.max(0, p.a0 - a, a - p.a1) * Math.max(r, 1);
+    const dr = Math.max(0, p.r0 - r, r - p.r1);
+    const dist = Math.hypot(da, dr);
+    if (dist < bestD) {
+      bestD = dist;
+      best = p;
+      if (dist === 0) break;
+    }
+  }
+  return best;
+}
+
+/** An objection's moves in reading order (depth first, replies in content order): the order
+    the outline and the chamber read them in. */
+export function readingOrder(o: Pick<Objection, "prongs">): string[] {
+  const out: string[] = [];
+  const walk = (n: ArgNode) => {
+    out.push(n.id);
+    (n.children ?? []).forEach(walk);
+  };
+  o.prongs.forEach(walk);
+  return out;
+}

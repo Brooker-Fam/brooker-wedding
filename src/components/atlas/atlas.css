@@ -459,6 +459,67 @@
   font-size: 12.5px;
   color: var(--faint);
 }
+/* The stamp: when a press makes a call, the chosen pill presses down and springs back, with a
+   ring of ink spreading from it. Only on the press itself (the Shell marks the pressed button
+   with data-stamp for a moment), so calls already on the page never stamp, and a press that
+   clears a call shows nothing. `scale` composes with the pill's own glide between buttons. */
+.atl .judge-btn::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 999px;
+  pointer-events: none;
+  opacity: 0;
+}
+.atl .judge-btn.on[data-stamp] .judge-pill {
+  animation: judge-stamp 0.42s cubic-bezier(0.3, 0.7, 0.4, 1);
+}
+.atl .judge-btn.on[data-stamp]::after {
+  animation: judge-ink 0.55s ease-out;
+}
+.atl .judge-btn.j-fails::after {
+  --ink-c: var(--bone-2);
+}
+@keyframes judge-stamp {
+  0% {
+    scale: 1;
+  }
+  30% {
+    scale: 1.08;
+  }
+  62% {
+    scale: 0.95;
+  }
+  100% {
+    scale: 1;
+  }
+}
+@keyframes judge-ink {
+  0% {
+    opacity: 0.75;
+    box-shadow: 0 0 0 0 var(--ink-c, var(--side, var(--bone)));
+  }
+  100% {
+    opacity: 0;
+    box-shadow: 0 0 0 9px var(--ink-c, var(--side, var(--bone)));
+  }
+}
+/* phones: tall, wide targets (a view may lay them out its own way) */
+@media (max-width: 720px) {
+  .atl .judge:not(.compact) {
+    width: 100%;
+  }
+  .atl .judge:not(.compact) .judge-btns {
+    display: flex;
+    flex: 1 1 100%;
+    max-width: 420px;
+  }
+  .atl .judge:not(.compact) .judge-btn {
+    flex: 1 1 0;
+    min-height: 48px;
+    font-size: 12.5px;
+  }
+}
 
 /* ---------- peek (term / thinker cards) ---------- */
 .atl .peek {
@@ -476,6 +537,8 @@
 .atl .peek {
   overscroll-behavior: contain;
 }
+/* On phones the card is a bottom sheet: a grip to drag it down by, then the text, which
+   scrolls on its own (the sheet stays put while it does). */
 .atl .peek.peek-sheet {
   left: 0;
   right: 0;
@@ -483,17 +546,62 @@
   top: auto;
   width: auto;
   max-width: none;
-  border-radius: 18px 18px 0 0;
-  padding: 10px 20px calc(22px + env(safe-area-inset-bottom));
-  max-height: 70vh;
+  display: flex;
+  flex-direction: column;
+  border-radius: 20px 20px 0 0;
+  border-bottom: 0;
+  padding: 0;
+  max-height: 75vh;
+  max-height: 75dvh;
+  overflow: hidden;
+  box-shadow:
+    0 -24px 60px -26px #000000e0,
+    0 1px 0 #ffffff0a inset;
+}
+.atl .peek-sheet .peek-body {
+  flex: 1 1 auto;
+  min-height: 0;
   overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 2px max(20px, env(safe-area-inset-right)) calc(22px + env(safe-area-inset-bottom)) max(20px, env(safe-area-inset-left));
+}
+.atl .peek-sheet .peek-title {
+  padding-right: 36px;
+}
+.atl .peek-scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  background: #0b0c1199;
+  -webkit-tap-highlight-color: transparent;
+}
+/* every bottom sheet's grip (the peek, the phone menu): the strip you drag it down by */
+.atl .sheet-grab {
+  flex: none;
+  display: flex;
+  justify-content: center;
+  height: 26px;
+  padding-top: 10px;
+  touch-action: none;
+  cursor: grab;
+  -webkit-tap-highlight-color: transparent;
+}
+.atl .sheet-grab:active {
+  cursor: grabbing;
 }
 .atl .sheet-grip {
+  display: block;
   width: 40px;
   height: 4px;
   border-radius: 4px;
   background: var(--line);
-  margin: 2px auto 12px;
+  transition:
+    background 0.2s,
+    width 0.2s var(--ease);
+}
+.atl .sheet-grab:active .sheet-grip {
+  width: 48px;
+  background: var(--mute);
 }
 .atl .peek-close {
   position: absolute;
@@ -899,16 +1007,19 @@
 }
 
 /* ---------- toast ---------- */
+/* Above the dock while it shows (--atl-dock-h includes the safe area), else above the bottom
+   edge; it glides as the dock comes and goes. */
 .atl .toast-dock {
   position: fixed;
   left: 0;
   right: 0;
-  bottom: calc(16px + env(safe-area-inset-bottom));
+  bottom: max(calc(var(--atl-dock-h, 0px) + 12px), calc(16px + env(safe-area-inset-bottom)));
   z-index: 95;
   display: flex;
   justify-content: center;
   pointer-events: none;
-  padding: 0 12px;
+  padding: 0 max(12px, env(safe-area-inset-right)) 0 max(12px, env(safe-area-inset-left));
+  transition: bottom 0.3s var(--ease);
 }
 .atl .toast {
   pointer-events: auto;
@@ -946,9 +1057,11 @@
 .atl .toast-act:hover {
   border-color: var(--mute);
 }
-/* On phones a peek is a bottom sheet: a toast rides above it, not over its buttons. */
-html:has(.atl .peek-sheet) .atl .toast-dock {
-  bottom: calc(var(--peek-h, 50vh) + 12px);
+/* While a bottom sheet is open (a phone peek, the phone menu), a toast rides above it, not over
+   its buttons (peek.tsx publishes the flag and --atl-sheet-h). Doubled class: this outranks a
+   view's own placement of the toast (the walk's bar). */
+html[data-atl-sheet="open"] .atl.atl .toast-dock {
+  bottom: calc(var(--atl-sheet-h, 50vh) + 12px);
 }
 
 /* ---------- touch: every control at least 44px ---------- */
@@ -965,6 +1078,33 @@ html:has(.atl .peek-sheet) .atl .toast-dock {
     height: 44px;
     top: 4px;
     right: 4px;
+  }
+  .atl .judge-btn {
+    min-height: 44px;
+  }
+}
+
+/* ---------- touch: things answer the finger ----------
+   No grey flash on tap, no double-tap zoom wait on controls, and a small press-in while a
+   finger is down (touch screens only). Zero specificity (:where), so any view's own :active
+   look wins; `scale` composes with whatever transform a control already has. SVG parts and
+   inline text links are left alone (they don't scale well, and inline boxes can't). */
+.atl {
+  -webkit-tap-highlight-color: transparent;
+}
+.atl :where(a[href], button, [role="button"], summary, label, select) {
+  touch-action: manipulation;
+}
+@media (hover: none) {
+  .atl :where(a[href], button, [role="button"], summary):where(:not(svg *, .ref-term, .ref-thinker, .ref-node, [aria-disabled="true"], :disabled)):active {
+    scale: 0.97;
+  }
+}
+/* A text field under 16px makes iOS zoom the page when it takes focus (zero specificity: a
+   view's own size wins, and should stay at 16px or more on touch screens). */
+@media (pointer: coarse) {
+  .atl :where(input:not([type="checkbox"], [type="radio"], [type="range"], [type="button"], [type="submit"], [type="reset"]), textarea, select) {
+    font-size: max(16px, 1em);
   }
 }
 

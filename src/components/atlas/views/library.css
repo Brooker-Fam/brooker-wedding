@@ -274,7 +274,7 @@
   min-height: 46px;
   padding: 0 16px 0 42px;
   border-radius: 999px;
-  border: 1px solid var(--line);
+  border: 1px solid #63687c; /* 3.2:1 on --ink: the field's edge reads as a control */
   background: var(--ink-deep);
   color: var(--bone);
   font: inherit;
@@ -285,7 +285,7 @@
   color: var(--faint);
 }
 .atl .lib-search input:hover {
-  border-color: #474c60;
+  border-color: #80859a;
 }
 .atl .lib-search input:focus-visible {
   outline: 2px solid var(--bone);
@@ -1268,7 +1268,7 @@
   font-size: 11px;
 }
 .atl .tl-chip-n {
-  font-size: 10px;
+  font-size: 10.5px;
   color: var(--faint);
 }
 
@@ -1582,7 +1582,7 @@
   background: #ffffff09;
 }
 .atl .ca-filter-n {
-  font-size: 10px;
+  font-size: 10.5px;
   color: var(--faint);
 }
 .atl .ca-era {
@@ -1707,6 +1707,7 @@
   font-size: 1.06rem;
   line-height: 1.22;
   color: var(--bone);
+  overflow-wrap: anywhere;
 }
 .atl .ca-life {
   font-size: 10.5px;
@@ -2238,12 +2239,12 @@
     top: calc(var(--bar-h) + 24px);
     gap: 18px;
   }
-  .atl .lx-az {
+  .atl .lx-rail .lx-az {
     display: grid;
     grid-template-columns: repeat(6, 1fr);
     gap: 3px;
   }
-  .atl .lx-letter {
+  .atl .lx-rail .lx-letter {
     min-width: 0;
     min-height: 36px;
     font-size: 16px;
@@ -2915,7 +2916,7 @@
   padding: 0 6px;
   border: 1.5px solid var(--mute);
   border-radius: 999px;
-  font-size: 10px;
+  font-size: 10.5px;
   letter-spacing: 0;
   color: var(--bone);
 }
@@ -3071,9 +3072,6 @@
 }
 
 /* ---------- the Timeline's compact header (the chart should start on the first screen) ---------- */
-.atl .lib-timeline .lib-tabs {
-  margin-bottom: clamp(22px, 3.6vw, 40px);
-}
 .atl .lib-timeline .lib-head {
   margin-bottom: clamp(18px, 3vw, 34px);
 }
@@ -3081,7 +3079,7 @@
   .atl .lib-head-split .lib-head-main {
     display: grid;
     grid-template-columns: auto minmax(0, 46rem);
-    align-items: end;
+    align-items: start;
     gap: 0 clamp(36px, 5vw, 80px);
   }
   .atl .lib-head-split .lib-h1 {
@@ -3090,6 +3088,7 @@
   .atl .lib-head-split .lib-dek {
     max-width: none;
     margin-top: 0;
+    padding-top: 14px;
     font-size: 1rem;
   }
   .atl .lib-head-split .lib-meta {
@@ -3166,7 +3165,7 @@
 }
 .atl .ol-quote figcaption {
   margin-top: 5px;
-  font-size: 10px;
+  font-size: 10.5px;
 }
 .atl .ol-scholium-q .ol-quote {
   margin: 4px 0 10px;
@@ -3570,11 +3569,13 @@
   color: var(--bone);
   text-decoration: none;
 }
-.atl .src-by {
+.atl .src-by,
+.atl .src-by.mono {
   display: block;
   margin-top: 5px;
-  font-size: 11px;
-  letter-spacing: 0.05em;
+  font-family: var(--sans);
+  font-size: 12.5px;
+  letter-spacing: 0;
   line-height: 1.5;
   color: var(--faint);
 }
@@ -3768,7 +3769,7 @@
     border-color: var(--line);
   }
   .atl .src-jump-n {
-    font-size: 10px;
+    font-size: 10.5px;
   }
 }
 @media (min-width: 1100px) {
@@ -3843,7 +3844,820 @@
   .atl a.src-title-t,
   .atl a.src-loc {
     display: inline-block;
-    padding-block: 8px;
-    margin-block: -8px;
+    padding-block: 9px;
+    margin-block: -9px;
   }
+}
+
+/* ==========================================================================
+   Pocket edition (phones and tablets)
+   Sticky rows: the tab row under the top bar, and one row of the view's own
+   (eras, objections, kinds of source) under that. The tab row tucks up under
+   the top bar while you scroll down a list and comes back on the way up.
+   An A–Z rail at the right edge for alphabetical lists. Long lists start
+   compact and open on a tap.
+   ========================================================================== */
+
+/* How far down the sticky rows reach (with the tab row shown). Everything a jump lands on uses it as its
+   scroll-margin; while the tab row is tucked away, jumpTo() (Outline.tsx) takes the tab row off it. On desktop and in
+   phone landscape nothing of the Library's sticks, so it is the top bar alone.
+   These stay the same while the tab row tucks and returns: a custom property changed on .lib would re-style every
+   element in the view each time the reader turns round, so the tucked state below moves the few sticky things by
+   attribute instead. */
+.atl .lib {
+  --lib-tabs-h: 0px;
+  --lib-row-h: 0px;
+  --lib-cover: calc(var(--bar-total) + var(--lib-tabs-h) + var(--lib-row-h) + 14px);
+}
+
+/* ---------- horizontal rows: chips, jump rows, the tab row (edges fade where there is more to scroll to) ---------- */
+.atl .lib-chiprow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.atl .lib-chiprow[data-more-right],
+.atl .lib-jump-row[data-more-right],
+.atl .lib-tabs ul[data-more-right] {
+  -webkit-mask-image: linear-gradient(90deg, #000 calc(100% - 32px), transparent);
+  mask-image: linear-gradient(90deg, #000 calc(100% - 32px), transparent);
+}
+.atl .lib-chiprow[data-more-left],
+.atl .lib-jump-row[data-more-left],
+.atl .lib-tabs ul[data-more-left] {
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 32px);
+  mask-image: linear-gradient(90deg, transparent, #000 32px);
+}
+.atl .lib-chiprow[data-more-left][data-more-right],
+.atl .lib-jump-row[data-more-left][data-more-right],
+.atl .lib-tabs ul[data-more-left][data-more-right] {
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 32px, #000 calc(100% - 32px), transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 32px, #000 calc(100% - 32px), transparent);
+}
+
+/* ---------- the jump row (eras, objections, kinds of source) ---------- */
+.atl .lib-jump-row {
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+  /* room for focus rings inside the scroller */
+  padding-block: 4px;
+}
+.atl .lib-jump-row::-webkit-scrollbar {
+  display: none;
+}
+.atl .lib-jump ul {
+  display: flex;
+  gap: 4px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.atl .lib-jump li {
+  flex: none;
+}
+/* :where() keeps these below a view's own chip styles (the Outline's numerals keep their pill) */
+.atl :where(.lib-jump-b) {
+  position: relative;
+  isolation: isolate;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  font-family: var(--sans);
+  font-size: 14px;
+  white-space: nowrap;
+  color: var(--mute);
+  cursor: pointer;
+  transition: color 0.2s var(--ease);
+}
+.atl .lib-jump-b:hover,
+.atl .lib-jump-b[aria-current="true"] {
+  color: var(--bone);
+}
+/* the marker that glides to the lit chip */
+.atl .lib-jump-on {
+  position: absolute;
+  inset: 6px 0;
+  z-index: -1;
+  border-radius: 999px;
+  background: #ebe5d612;
+  box-shadow: inset 0 0 0 1px #ebe5d640;
+  pointer-events: none;
+}
+.atl .lib-jump .src-jump-t {
+  font-size: 14px;
+}
+/* where the row doesn't stick (phones on their side), it still keeps its distance */
+.atl .lib-jump.ca-jump {
+  margin-top: 18px;
+}
+.atl .lib-jump.src-jumprow {
+  margin-bottom: 16px;
+}
+.atl .lib-jump .src-jump-n {
+  font-size: 10.5px;
+  color: var(--faint);
+}
+
+/* ---------- the A–Z rail (phones and tablets in portrait, phones on their side; Framer moves the bubble) ---------- */
+/* Its foot sits on the dock's space (the same whether the dock shows or is tucked away), so the letters never move
+   under a finger while the dock comes and goes. */
+.atl .lib-rail {
+  position: fixed;
+  z-index: 44;
+  top: calc(var(--bar-total) + 76px);
+  bottom: calc(var(--atl-dock-space, 0px) + 18px);
+  right: calc(4px + env(safe-area-inset-right));
+  width: 30px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s var(--ease);
+}
+.atl .lib-rail.shown {
+  opacity: 1;
+}
+.atl .lib-rail.scrubbing {
+  transition: none;
+}
+.atl .lib-rail-track {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  max-height: 100%;
+  padding: 7px 0;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--ink-2) 86%, transparent);
+  box-shadow: inset 0 0 0 1px var(--line-soft);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  /* the page may still pan from here: a quick flick is a scroll (Outline.tsx cancels the touch once a scrub begins) */
+  touch-action: pan-y;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+  cursor: pointer;
+  transform: translateX(8px);
+  transition:
+    transform 0.25s var(--ease),
+    background 0.2s var(--ease);
+}
+.atl .lib-rail.shown .lib-rail-track {
+  pointer-events: auto;
+  transform: none;
+}
+/* the hit area is the rail itself (a little taller): wider, it took the right thumb's scrolls and the edge of each
+   entry's "+" */
+.atl .lib-rail-track::before {
+  content: "";
+  position: absolute;
+  top: -6px;
+  bottom: -6px;
+  right: 0;
+  left: 0;
+}
+.atl .lib-rail.scrubbing .lib-rail-track {
+  background: color-mix(in srgb, var(--ink-3) 94%, transparent);
+  box-shadow: inset 0 0 0 1px var(--line);
+}
+.atl .lib-rail-l {
+  flex: 1 1 26px;
+  min-height: 13px;
+  max-height: 26px;
+  display: grid;
+  place-items: center;
+  font-size: 12.5px;
+  line-height: 1;
+  color: var(--mute);
+  transition:
+    color 0.15s,
+    transform 0.15s var(--ease);
+}
+.atl .lib-rail-l.on {
+  color: var(--bone);
+  transform: scale(1.18);
+}
+.atl .lib-rail-bubble {
+  position: fixed;
+  z-index: 45;
+  right: calc(54px + env(safe-area-inset-right));
+  width: 92px;
+  height: 92px;
+  margin-top: -46px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-radius: 26px;
+  border: 1px solid var(--line);
+  background:
+    radial-gradient(120% 90% at 30% 0%, #ebe5d614, transparent 60%),
+    linear-gradient(180deg, var(--card-2), var(--ink-2));
+  box-shadow:
+    0 22px 44px -18px #000,
+    0 0 0 6px #1719228c;
+  pointer-events: none;
+}
+.atl .lib-rail-big {
+  font-size: 50px;
+  font-style: italic;
+  font-weight: 330;
+  line-height: 0.9;
+  color: var(--bone);
+}
+.atl .lib-rail-n {
+  margin-top: 8px;
+  font-size: 10.5px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--faint);
+}
+/* the list leaves room for the rail at its right */
+@media (max-width: 1023px) and (orientation: portrait) {
+  .atl .lx-list,
+  .atl .ca-groups.ca-az {
+    padding-right: 26px;
+  }
+}
+
+/* ---------- a "+" that turns to "−" (the chronicle's look), for entries that open in place ---------- */
+.atl .lx-chev,
+.atl .ca-chev {
+  position: relative;
+  flex: none;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 1px solid var(--line);
+}
+.atl .lx-chev::before,
+.atl .lx-chev::after,
+.atl .ca-chev::before,
+.atl .ca-chev::after {
+  content: "";
+  position: absolute;
+  left: 6px;
+  right: 6px;
+  top: 10px;
+  height: 1px;
+  background: var(--mute);
+  transition: transform 0.25s var(--ease);
+}
+.atl .lx-chev::after,
+.atl .ca-chev::after {
+  transform: rotate(90deg);
+}
+.atl [aria-expanded="true"] > .lx-chev::after,
+.atl [aria-expanded="true"] > .ca-chev::after {
+  transform: rotate(0deg);
+}
+
+/* ---------- People: the order switch, the back link, cards that open on a phone ---------- */
+.atl .ca-order {
+  margin-top: 2px;
+}
+.atl .ca-groups > .ca-era:first-child {
+  margin-top: 26px;
+}
+.atl .lib-cast .lx-az {
+  margin-top: 22px;
+}
+.atl .ca-az .ca-era-h .serif {
+  font-size: 1.8rem;
+  font-weight: 300;
+  line-height: 1;
+}
+.atl .ca-back-row {
+  margin: 22px 0 0;
+  padding-top: 16px;
+  border-top: 1px solid var(--line-soft);
+}
+.atl .ca-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 0 16px;
+  border: 1px solid var(--line-soft);
+  border-radius: 999px;
+  background: transparent;
+  font-size: 10.5px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--mute);
+  cursor: pointer;
+  transition:
+    color 0.2s,
+    border-color 0.2s;
+}
+.atl .ca-back:hover {
+  color: var(--bone);
+  border-color: var(--line);
+}
+.atl .ca-chev {
+  display: none;
+}
+@media (max-width: 979px) {
+  .atl .ca-card {
+    position: relative;
+    padding-right: 42px;
+  }
+  .atl .ca-chev {
+    display: block;
+    position: absolute;
+    top: 21px;
+    right: 10px;
+  }
+  /* a phone: the open card is the head of its file (name, dates, tradition in full), joined to it below */
+  .atl .ca-card.open {
+    border-color: var(--line-soft);
+    border-bottom-color: transparent;
+    border-radius: 18px 18px 0 0;
+    background: var(--card);
+  }
+  .atl .ca-card.open .ca-trad {
+    display: block;
+    -webkit-line-clamp: unset;
+    overflow: visible;
+  }
+  .atl .ca-inline.merged {
+    margin: 0 0 14px;
+    padding-top: 2px;
+    border-top: 0;
+    border-radius: 0 0 18px 18px;
+    background: linear-gradient(180deg, var(--card), var(--ink-2));
+  }
+  .atl .ca-file-head-merged {
+    display: block;
+    padding: 0;
+  }
+  .atl .ca-file-head-merged .ca-file-meta {
+    margin: 0;
+  }
+  .atl .ca-file.merged .ca-file-quote {
+    margin-top: 14px;
+  }
+  .atl .ca-file.merged.s-spinoza::before {
+    left: -16px;
+  }
+}
+
+/* ---------- Glossary: compact entries on a phone ---------- */
+.atl .lx-term-t {
+  overflow-wrap: anywhere;
+}
+@media (max-width: 720px) {
+  .atl .lx-entry.lx-compact {
+    padding: 12px 0 15px;
+  }
+  .atl .lx-entry .lx-term {
+    font-size: 1.3rem;
+  }
+  .atl .lx-compact .lx-term button,
+  .atl .lx-full .lx-term button {
+    width: 100%;
+    justify-content: space-between;
+    gap: 14px;
+    min-height: 44px;
+  }
+  /* the whole compact entry opens it (Lexicon.tsx handles the tap); its focus ring goes round the whole entry */
+  .atl .lx-entry.lx-compact {
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    transition: background 0.2s var(--ease);
+  }
+  .atl .lx-entry.lx-compact:active {
+    background: #ffffff07;
+  }
+  .atl .lx-compact .lx-term button::after {
+    content: "";
+    position: absolute;
+    inset: 0 -8px;
+    border-radius: 12px;
+    pointer-events: none;
+  }
+  .atl .lx-compact .lx-term button:focus-visible {
+    outline: none;
+  }
+  .atl .lx-compact .lx-term button:focus-visible::after {
+    outline: 2px solid var(--bone);
+    outline-offset: 2px;
+  }
+  .atl .lx-gist {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    margin: 0;
+    padding-right: 36px;
+    font-size: 15px;
+    line-height: 1.52;
+    color: var(--mute);
+  }
+  .atl .lx-full.on .lx-def {
+    margin-top: 6px;
+  }
+  .atl .lx-group-h {
+    padding-top: 22px;
+  }
+}
+
+/* ---------- Timeline ---------- */
+.atl .tl-showall {
+  margin-left: 4px;
+  vertical-align: middle;
+}
+.atl .tl-chip {
+  max-width: calc(100vw - 2 * var(--gutter));
+  overflow-wrap: anywhere;
+}
+
+/* ---------- touch targets the QA round found under 44px ---------- */
+@media (pointer: coarse), (max-width: 720px) {
+  /* "Read it in context": a 44px hit area from padding (the line keeps its baseline and barely grows) */
+  .atl .rf-ctx {
+    padding-block: 12.5px;
+    margin-block: -10px;
+  }
+  .atl .tl-card .chip,
+  .atl .ol-title a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+  }
+  .atl .tl-chip,
+  .atl .tl-all {
+    min-width: 44px;
+    justify-content: center;
+  }
+  .atl .tl-chip,
+  .atl .ca-filter,
+  .atl .lib-toggle,
+  .atl .lib-more,
+  .atl .lib-node,
+  .atl .ol-toc-btn,
+  .atl .ol-top,
+  .atl .tl-golink,
+  .atl .tl-howto summary,
+  .atl .lx-term button,
+  .atl .lx-letter,
+  .atl .src-jump-a,
+  .atl .lib-tab {
+    min-height: 44px;
+  }
+  .atl .lx-letter {
+    min-width: 44px;
+  }
+}
+
+/* the Glossary's and People's place-in-words chips: no status word, the label may take two lines (QA) */
+.atl .lib-node-plain .lib-node-st {
+  display: none;
+}
+.atl .lib-node-plain {
+  align-items: flex-start;
+}
+.atl .lib-node-plain .lib-node-lab {
+  white-space: normal;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+/* ---------- phones ---------- */
+@media (max-width: 720px) {
+  /* filter chips: one row that scrolls sideways, edge to edge */
+  .atl .lib-chiprow {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    margin-left: calc(-1 * var(--gutter));
+    margin-right: calc(-1 * var(--gutter));
+    padding: 4px var(--gutter);
+    scroll-padding: 0 var(--gutter);
+    scrollbar-width: none;
+  }
+  .atl .lib-chiprow::-webkit-scrollbar {
+    display: none;
+  }
+  .atl .lib-chiprow > * {
+    flex: none;
+  }
+  .atl .tl-chips {
+    margin-top: -6px;
+    margin-bottom: 6px;
+  }
+}
+
+/* ---------- phones and tablets held upright: the sticky rows ---------- */
+@media (max-width: 1023px) and (min-height: 561px) {
+  .atl .lib {
+    --lib-tabs-h: 46px;
+    padding-top: 0;
+  }
+  /* the tab row: flush under the top bar, edge to edge */
+  .atl .lib-tabs {
+    position: sticky;
+    top: var(--bar-total);
+    z-index: 40;
+    height: var(--lib-tabs-h);
+    margin: 0 calc(-1 * var(--gutter)) clamp(24px, 5vw, 40px);
+    padding: 0 var(--gutter);
+    border-bottom: 1px solid var(--line-soft);
+    background: color-mix(in srgb, var(--ink) 95%, transparent);
+    -webkit-backdrop-filter: blur(14px);
+    backdrop-filter: blur(14px);
+    transition:
+      transform 0.26s var(--ease),
+      opacity 0.2s var(--ease);
+  }
+  .atl .lib[data-tabs-hidden] > .lib-tabs {
+    transform: translateY(calc(-1 * var(--lib-tabs-h)));
+  }
+  .atl .lib[data-tabs-hidden] > .lib-tabs:not(:focus-within) {
+    opacity: 0;
+    pointer-events: none;
+  }
+  .atl .lib-tabs ul {
+    flex: 1;
+    min-width: 0;
+    height: 100%;
+    flex-wrap: nowrap;
+    justify-content: space-between;
+    column-gap: 2px;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scrollbar-width: none;
+  }
+  .atl .lib-tabs ul::-webkit-scrollbar {
+    display: none;
+  }
+  .atl .lib-tabs li {
+    flex: none;
+    height: 100%;
+  }
+  .atl .lib-tab {
+    height: 100%;
+    min-height: 0;
+    padding: 0 10px;
+    white-space: nowrap;
+  }
+  .atl .lib-tab[aria-current="page"]::after {
+    left: 10px;
+    right: 10px;
+    bottom: 0;
+  }
+}
+@media (max-width: 640px) and (min-height: 561px) {
+  .atl .lib-tab {
+    padding: 0 5px;
+  }
+  .atl .lib-tab[aria-current="page"]::after {
+    left: 5px;
+    right: 5px;
+  }
+}
+/* the smallest phones: tighter letters keep all five tabs in view (the row still scrolls if the text is enlarged) */
+@media (max-width: 380px) and (min-height: 561px) {
+  .atl .lib-tab {
+    padding: 0 4px;
+    letter-spacing: 0.1em;
+  }
+  .atl .lib-tab[aria-current="page"]::after {
+    left: 4px;
+    right: 4px;
+  }
+}
+@media (max-width: 1023px) and (min-height: 561px) {
+  .atl .lib-tab:focus-visible {
+    outline-offset: -5px;
+    border-radius: 10px;
+  }
+
+  /* the view's own row sticks under the tab row (or under the top bar while the tabs are tucked away) */
+  .atl .lib:has(.tl-jump, .ca-jump, .src-jumprow) {
+    --lib-row-h: 52px;
+  }
+  .atl .lib-jump.tl-jump,
+  .atl .lib-jump.ca-jump,
+  .atl .lib-jump.src-jumprow {
+    position: sticky;
+    top: calc(var(--bar-total) + var(--lib-tabs-h));
+    z-index: 35;
+    display: flex;
+    align-items: center;
+    height: var(--lib-row-h);
+    margin: 0 calc(-1 * var(--gutter));
+    padding: 0 calc(var(--gutter) - 12px);
+    border-bottom: 1px solid var(--line-soft);
+    background: color-mix(in srgb, var(--ink) 96%, transparent);
+    -webkit-backdrop-filter: blur(14px);
+    backdrop-filter: blur(14px);
+    transition: top 0.26s var(--ease);
+  }
+  .atl .lib-jump.tl-jump .lib-jump-row,
+  .atl .lib-jump.ca-jump .lib-jump-row,
+  .atl .lib-jump.src-jumprow .lib-jump-row {
+    flex: 1;
+    min-width: 0;
+  }
+  .atl .lib-jump.tl-jump .lib-jump-b,
+  .atl .lib-jump.ca-jump .lib-jump-b,
+  .atl .lib-jump.src-jumprow .lib-jump-b {
+    padding: 0 12px;
+  }
+  .atl .lib-jump.ca-jump {
+    margin-top: 22px;
+  }
+  .atl .lib-jump.src-jumprow {
+    margin-bottom: 20px;
+  }
+
+  /* bands and panels that already stuck under the top bar now stick under the tab row */
+  .atl .tl-era-h,
+  .atl .ol-bar,
+  .atl .ca-panel {
+    transition: top 0.26s var(--ease);
+  }
+  .atl .tl-era-h {
+    top: calc(var(--bar-total) + var(--lib-tabs-h));
+  }
+  .atl .ca-panel {
+    top: calc(var(--bar-total) + var(--lib-tabs-h) + 20px);
+    max-height: calc(100dvh - var(--bar-total) - var(--lib-tabs-h) - 40px);
+  }
+  .atl .lx-group-h {
+    top: calc(var(--bar-total) + var(--lib-tabs-h) + 18px);
+  }
+
+  /* while the tab row is tucked away, what stuck under it moves up under the top bar */
+  .atl .lib[data-tabs-hidden] :is(.lib-jump.tl-jump, .lib-jump.ca-jump, .lib-jump.src-jumprow, .ol-toc.lib-jump) {
+    top: var(--bar-total);
+  }
+  .atl .lib[data-tabs-hidden] .lx-group-h {
+    top: calc(var(--bar-total) + 18px);
+  }
+  .atl .lib[data-tabs-hidden] .ca-panel {
+    top: calc(var(--bar-total) + 20px);
+    max-height: calc(100dvh - var(--bar-total) - 40px);
+  }
+
+  /* everything a jump, a deep link or keyboard focus lands on clears the sticky rows */
+  .atl .lx-group,
+  .atl .lx-entry,
+  .atl .ca-era,
+  .atl .ca-card,
+  .atl .ca-inline,
+  .atl .tl-era-block,
+  .atl .tl-item,
+  .atl .tl-stage,
+  .atl .ol-obj,
+  .atl .src-sec {
+    scroll-margin-top: var(--lib-cover);
+  }
+}
+
+/* the chronicle under 900px: the era row over the list lights the era, so the era headings scroll with the list */
+@media (max-width: 899px) {
+  .atl .tl-era-h {
+    position: relative;
+    top: auto;
+    background: none;
+  }
+}
+/* where they do stick (900px and up), they follow the tab row (a relative heading must keep top: auto) */
+@media (min-width: 900px) and (max-width: 1023px) and (min-height: 561px) {
+  .atl .lib[data-tabs-hidden] .tl-era-h {
+    top: var(--bar-total);
+  }
+}
+
+/* ---------- keyboard focus clears the sticky rows ----------
+   On focus the browser scrolls only when the control is outside the scrollport less its scroll-padding (an element's
+   scroll-margin doesn't count while it is on screen). The Shell reserves the top bar while the reader tabs; on these
+   views the rows under it are reserved too (literal sizes: the custom properties live on .atl, not on html). */
+html[data-atl-tab]:has(.atl .lib-timeline) {
+  /* the top bar and the tallest (two-line) era band stuck under it */
+  scroll-padding-top: calc(52px + env(safe-area-inset-top) + 100px);
+}
+@media (min-width: 720px) {
+  html[data-atl-tab]:has(.atl .lib-outline) {
+    scroll-padding-top: calc(52px + env(safe-area-inset-top) + 86px);
+  }
+}
+@media (max-width: 1023px) and (min-height: 561px) {
+  html[data-atl-tab]:has(.atl .lib) {
+    scroll-padding-top: calc(52px + env(safe-area-inset-top) + 46px + 16px);
+  }
+  html[data-atl-tab]:has(.atl .lib :is(.tl-jump, .ca-jump, .src-jumprow, .ol-toc)) {
+    scroll-padding-top: calc(52px + env(safe-area-inset-top) + 46px + 70px + 16px);
+  }
+}
+@media (min-width: 900px) and (max-width: 1023px) and (min-height: 561px) {
+  html[data-atl-tab]:has(.atl .lib-timeline) {
+    scroll-padding-top: calc(52px + env(safe-area-inset-top) + 46px + 100px);
+  }
+}
+
+/* ---------- the Outline's objection row ---------- */
+.atl .ol-toc.lib-jump ul {
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.atl .ol-toc .lib-jump-on {
+  inset: -1px;
+  background: #ebe5d60f;
+  box-shadow: inset 0 0 0 1px var(--bone-2);
+}
+.atl .ol-toc .lib-jump-b[aria-current="true"] .ol-toc-num {
+  color: var(--bone);
+}
+/* phones and tablets held upright: the objection chips stick on their own; the switches scroll away under them */
+@media (max-width: 1023px) and (min-height: 561px) {
+  .atl .lib-outline:has(.ol-toc) {
+    --lib-row-h: 58px;
+  }
+  .atl:not(.ol-noscript) .lib-outline .ol-bar {
+    display: contents;
+  }
+  .atl .lib-outline .ol-toc.lib-jump {
+    position: sticky;
+    top: calc(var(--bar-total) + var(--lib-tabs-h));
+    z-index: 35;
+    display: flex;
+    align-items: center;
+    height: var(--lib-row-h);
+    margin: 0 calc(-1 * var(--gutter));
+    padding: 0 var(--gutter);
+    border-top: 1px solid var(--line-soft);
+    border-bottom: 1px solid var(--line-soft);
+    background: color-mix(in srgb, var(--ink) 96%, transparent);
+    -webkit-backdrop-filter: blur(14px);
+    backdrop-filter: blur(14px);
+    transition: top 0.26s var(--ease);
+  }
+  .atl .lib-outline .ol-toc .lib-jump-row {
+    flex: 1;
+    min-width: 0;
+  }
+  .atl .lib-outline .ol-toc.lib-jump ul {
+    flex-wrap: nowrap;
+    justify-content: space-between;
+  }
+  .atl .lib-outline .ol-tools {
+    padding: 12px 0;
+    border-bottom: 1px solid var(--line-soft);
+  }
+}
+
+/* ---------- phones on their side: no sticky rows, and a shorter header so the list starts sooner ---------- */
+@media (max-width: 1023px) and (max-height: 560px) {
+  .atl .lib {
+    padding-top: 14px;
+  }
+  .atl .lib-tabs {
+    margin-bottom: 18px;
+  }
+  .atl .lib-head {
+    margin-bottom: 22px;
+  }
+  .atl .lib-h1 {
+    font-size: clamp(2.2rem, 6vw, 2.8rem);
+  }
+  .atl .lib-dek {
+    margin-top: 10px;
+  }
+  .atl .lib-meta {
+    margin-top: 10px;
+  }
+}
+
+/* ---------- press feedback where the global one (atlas.css: scale on :active) looks wrong ---------- */
+@media (hover: none) {
+  /* a compact glossary entry lights up as a whole; its term doesn't shrink inside it */
+  .atl .lx-compact .lx-term button:active {
+    scale: none;
+  }
+  /* an open card stays joined to its file below */
+  .atl .ca-card.open:active {
+    scale: none;
+    background: var(--card-2);
+  }
+}
+
+/* ---------- what opens in place settles in (state change only; reduced motion is global) ---------- */
+.atl .tl-item.open .tl-text,
+.atl .tl-item.open .tl-quote-row,
+.atl .tl-item.open .tl-read-row,
+.atl .tl-item.open .tl-foot,
+.atl .lx-full.on .lx-def {
+  animation: lib-in 0.32s var(--ease) both;
 }

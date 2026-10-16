@@ -5,16 +5,20 @@
    Technical terms in plain words, A to Z. Each entry links to the moves that
    use it; the chosen entry opens in place with every use, grouped by
    objection, and a small map with those moves lit. A deep link scrolls to
-   the entry and marks it. Terms inside a definition jump to their own entry. */
+   the entry and marks it. Terms inside a definition jump to their own entry.
+
+   On a phone each entry starts compact (the term and the first sentence of its
+   definition) and opens on a tap; an A–Z rail at the right edge jumps through
+   the letters. */
 
 import "./library.css";
-import { Fragment, useEffect, useMemo, useRef, useState, type MouseEvent } from "react";
+import { Fragment, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type MouseEvent } from "react";
 import { useAtlas } from "../context";
 import { Rich } from "../markup";
 import { usePeek } from "../peek";
 import { formatRoute } from "../router";
 import type { Term } from "../types";
-import { FootprintBlock, GlyphKey, LibEmpty, LibHead, NodeChip, fold, scrollBehavior, useMedia } from "./Outline";
+import { FootprintBlock, GlyphKey, LetterNav, LibEmpty, LibHead, LibTabs, NodeChip, ScrubRail, coverAt, fold, holdChrome, jumpTo, useMedia } from "./Outline";
 
 const sortKey = (s: string) => fold(s).replace(/^(the|a|an)\s+/, "").replace(/^[^a-z0-9]+/, "");
 const letterOf = (t: Term) => {
@@ -22,6 +26,24 @@ const letterOf = (t: Term) => {
   return c >= "A" && c <= "Z" ? c : "#";
 };
 const ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
+
+/* A sentence ends at . ! or ? (and any closing quote) followed by a space and a capital, a digit or an opening quote,
+   but not after an abbreviation ("e.g.", "c.", "St.") or an initial ("C. S. Lewis"). */
+const ABBR_END = /(?:\b(?:e\.g|i\.e|cf|c|ca|St|Dr|Mr|Mrs|Ms|vs|vol|ch|pt|bk|sect|no|ed|eds|trans|art|fl|b|d)|\b[A-Z])\.$/;
+function splitSentences(text: string): string[] {
+  const out: string[] = [];
+  const re = /[.!?]["”’)]*\s+(?=["“‘(]?[A-Z0-9])/g;
+  let from = 0;
+  let m: RegExpExecArray | null;
+  while ((m = re.exec(text))) {
+    const end = m.index + m[0].trimEnd().length;
+    if (ABBR_END.test(text.slice(from, end).replace(/["”’)]+$/, ""))) continue;
+    out.push(text.slice(from, end));
+    from = m.index + m[0].length;
+  }
+  if (from < text.length) out.push(text.slice(from));
+  return out.map((s) => s.trim()).filter(Boolean);
+}
 
 /** Mark the first match of `q` in `text` (accent- and case-insensitive; folding keeps one char per char for Latin text). */
 function Highlight({ text, q }: { text: string; q: string }) {
@@ -42,6 +64,7 @@ function Highlight({ text, q }: { text: string; q: string }) {
 export default function Lexicon({ term }: { term?: string }) {
   const { d, ix, go, toPlain } = useAtlas();
   const wide = useMedia("(min-width: 1100px)");
+  const compact = useMedia("(max-width: 720px)");
   const [q, setQ] = useState("");
 
   const sorted = useMemo(() => [...d.terms].sort((a, b) => sortKey(a.term).localeCompare(sortKey(b.term))), [d]);
@@ -65,10 +88,30 @@ export default function Lexicon({ term }: { term?: string }) {
 
   const sel = term ? ix.terms.get(term) : undefined;
   const missing = !!term && !sel;
-  const select = (id: string, toggle = false) => go({ view: "lexicon", term: toggle && id === term ? undefined : id }, { replace: true });
-
-  // Bring the chosen entry into view: after the view transition on arrival, at once afterwards.
   const listRef = useRef<HTMLDivElement>(null);
+  const entryEl = (id: string) => listRef.current?.querySelector<HTMLElement>(`[data-term="${CSS.escape(id)}"]`) ?? null;
+
+  // Opening one entry closes another: keep the one just tapped where it was on the screen, so the page doesn't jump.
+  const anchor = useRef<{ id: string; top: number } | null>(null);
+  const select = (id: string, toggle = false) => {
+    const el = entryEl(id);
+    if (el) anchor.current = { id, top: el.getBoundingClientRect().top };
+    go({ view: "lexicon", term: toggle && id === term ? undefined : id }, { replace: true });
+  };
+  useLayoutEffect(() => {
+    const a = anchor.current;
+    anchor.current = null;
+    const el = a ? listRef.current?.querySelector<HTMLElement>(`[data-term="${CSS.escape(a.id)}"]`) : null;
+    if (!a || !el) return;
+    const dy = el.getBoundingClientRect().top - a.top;
+    if (Math.abs(dy) > 1) {
+      holdChrome(300);
+      window.scrollBy({ top: dy, left: 0, behavior: "instant" });
+    }
+  }, [term]);
+
+  // Bring the chosen entry into view: after the view transition on arrival, at once afterwards (if it opened low on
+  // the screen or under the sticky rows).
   const arrived = useRef(false);
   useEffect(() => {
     const first = !arrived.current;
@@ -79,24 +122,16 @@ export default function Lexicon({ term }: { term?: string }) {
         const el = listRef.current?.querySelector<HTMLElement>(`[data-term="${CSS.escape(term)}"]`);
         if (!el) return;
         const r = el.getBoundingClientRect();
-        const bar = 72;
-        if (first || r.top < bar || r.top > window.innerHeight * 0.6) el.scrollIntoView({ block: "start", behavior: scrollBehavior() });
+        const covered = coverAt(el) || 72;
+        if (first || r.top < covered - 8 || r.top > window.innerHeight * 0.6) jumpTo(el);
       },
       first ? 420 : 30,
     );
     return () => clearTimeout(t);
   }, [term]);
 
-  // Scroll to the letter and take focus there, so the next Tab goes on into its entries (not on along the A–Z).
-  const jump = (L: string) => {
-    const el = listRef.current?.querySelector<HTMLElement>(`[data-letter="${L}"]`);
-    el?.scrollIntoView({ block: "start", behavior: scrollBehavior() });
-    const h = document.getElementById(`lx-l-${L}`);
-    if (h) {
-      h.tabIndex = -1;
-      h.focus({ preventScroll: true });
-    }
-  };
+  const letterTarget = useCallback((L: string) => listRef.current?.querySelector<HTMLElement>(`[data-letter="${L}"]`) ?? null, []);
+  const stops = useMemo(() => groups.map((g) => ({ key: g.letter, label: g.letter, count: g.items.length })), [groups]);
 
   const used = useMemo(() => sorted.filter((t) => (ix.termRefs.get(t.id)?.length ?? 0) > 0).length, [sorted, ix]);
   const letters = wide ? [...ALPHABET, ...(present.has("#") ? ["#"] : [])] : [...present];
@@ -104,10 +139,11 @@ export default function Lexicon({ term }: { term?: string }) {
 
   return (
     <div className="lib lib-lexicon">
+      <LibTabs current="lexicon" />
       <LibHead
         current="lexicon"
         title="Glossary"
-        dek="Technical terms from the arguments, in plain words. Choose one to see every move that uses it."
+        dek={compact ? "Technical terms from the arguments, in plain words. Tap one to read it and see every move that uses it." : "Technical terms from the arguments, in plain words. Choose one to see every move that uses it."}
         meta={sorted.length ? `${sorted.length} terms${used && used !== sorted.length ? ` · ${used} used in the arguments` : ""}` : undefined}
       />
 
@@ -124,13 +160,7 @@ export default function Lexicon({ term }: { term?: string }) {
               </svg>
               <input type="search" value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search the glossary" autoComplete="off" spellCheck={false} />
             </label>
-            <nav className="lx-az" aria-label="Jump to a letter">
-              {letters.map((L) => (
-                <button key={L} type="button" className="lx-letter serif" disabled={!live.has(L)} onClick={() => jump(L)} aria-label={`Terms starting with ${L}`}>
-                  {L}
-                </button>
-              ))}
-            </nav>
+            <LetterNav letters={letters} live={live} target={letterTarget} label="Jump to a letter" describe={(L) => `Terms starting with ${L}`} />
             {wide && (
               <div className="lx-rail-note">
                 <p className="mono lib-k">Who makes each move</p>
@@ -159,20 +189,21 @@ export default function Lexicon({ term }: { term?: string }) {
                   </h2>
                   <div className="lx-entries">
                     {g.items.map((t) => (
-                      <Entry key={t.id} t={t} on={sel?.id === t.id} q={qt} onPick={(id, toggle) => select(id, toggle)} />
+                      <Entry key={t.id} t={t} on={sel?.id === t.id} q={qt} compact={compact} onPick={(id, toggle) => select(id, toggle)} />
                     ))}
                   </div>
                 </section>
               ))
             )}
           </div>
+          <ScrubRail stops={stops} target={letterTarget} list={listRef} unit={["term", "terms"]} />
         </div>
       )}
     </div>
   );
 }
 
-function Entry({ t, on, q, onPick }: { t: Term; on: boolean; q: string; onPick: (id: string, toggle?: boolean) => void }) {
+function Entry({ t, on, q, compact, onPick }: { t: Term; on: boolean; q: string; compact: boolean; onPick: (id: string, toggle?: boolean) => void }) {
   const { ix, toPlain } = useAtlas();
   const uses = ix.termRefs.get(t.id) ?? [];
   const n = uses.length;
@@ -180,8 +211,8 @@ function Entry({ t, on, q, onPick }: { t: Term; on: boolean; q: string; onPick: 
   const wantFocus = useRef(false);
   // A match only in the definition: show the definition as plain text with the match marked.
   const termHit = !!q && fold(t.term).includes(fold(q));
-  const defPlain = q && !termHit ? toPlain(t.def) : "";
-  const defHit = !!defPlain && fold(defPlain).includes(fold(q));
+  const defPlain = (q && !termHit) || (compact && !on) ? toPlain(t.def) : "";
+  const defHit = !!q && !termHit && !!defPlain && fold(defPlain).includes(fold(q));
 
   // "+ N more" unmounts itself when the entry opens: hand focus to the first move it revealed.
   useEffect(() => {
@@ -191,14 +222,47 @@ function Entry({ t, on, q, onPick }: { t: Term; on: boolean; q: string; onPick: 
     (chips?.[1] ?? chips?.[0] ?? box.current?.querySelector<HTMLElement>(".lib-fp-title"))?.focus();
   }, [on]);
 
+  // Phone, closed: the term and the first sentence of its definition (or the sentence the search matched). The whole
+  // entry opens it.
+  if (compact && !on) {
+    const parts = splitSentences(defPlain);
+    const hit = defHit ? parts.find((s) => fold(s).includes(fold(q))) : undefined;
+    // A first sentence that only gives the word's origin ("Greek for “restoration.”") takes the next one with it.
+    const lead = parts[0] && parts[0].length < 70 && parts[1] ? `${parts[0]} ${parts[1]}` : parts[0];
+    const gist = hit ?? lead ?? defPlain;
+    return (
+      <article
+        ref={box}
+        className="lx-entry lx-compact"
+        data-term={t.id}
+        aria-labelledby={`lx-${t.id}`}
+        // A tap anywhere on the entry opens it (the button inside is the control for keyboards and screen readers).
+        onClick={(e) => {
+          if (!(e.target as Element).closest("button, a")) onPick(t.id, true);
+        }}
+      >
+        <h3 className="lx-term serif" id={`lx-${t.id}`}>
+          <button type="button" aria-expanded={false} onClick={() => onPick(t.id, true)}>
+            <span className="lx-term-t">
+              <Highlight text={t.term} q={q} />
+            </span>
+            <span className="lx-chev" aria-hidden />
+          </button>
+        </h3>
+        <p className="lx-gist">{defHit ? <Highlight text={gist} q={q} /> : gist}</p>
+      </article>
+    );
+  }
+
   return (
-    <article ref={box} className={`lx-entry ${on ? "on" : ""}`} data-term={t.id} aria-labelledby={`lx-${t.id}`}>
+    <article ref={box} className={`lx-entry ${on ? "on" : ""} ${compact ? "lx-full" : ""}`} data-term={t.id} aria-labelledby={`lx-${t.id}`}>
       <h3 className="lx-term serif" id={`lx-${t.id}`}>
         <button type="button" aria-expanded={on} onClick={() => onPick(t.id, true)}>
           {/* one span, so the flex button keeps the spaces around the highlighted part */}
           <span className="lx-term-t">
             <Highlight text={t.term} q={q} />
           </span>
+          {compact && <span className="lx-chev" aria-hidden />}
         </button>
       </h3>
       <p className="lx-def">{defHit ? <Highlight text={defPlain} q={q} /> : <DefText text={t.def} onTerm={(id) => onPick(id)} />}</p>

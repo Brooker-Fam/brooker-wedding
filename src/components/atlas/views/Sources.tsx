@@ -21,13 +21,13 @@
    person's file and a timeline card show. */
 
 import "./library.css";
-import { memo, startTransition, useDeferredValue, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { memo, startTransition, useCallback, useDeferredValue, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { useAtlas } from "../context";
 import { initials } from "../peek";
 import { formatRoute } from "../router";
 import type { DisputationIndex } from "../semantics";
 import type { Disputation, ObjectionId, Source } from "../types";
-import { LibEmpty, LibHead, LibTabs, NodeChip, fold, yearText } from "./Outline";
+import { JumpRow, LibEmpty, LibHead, LibTabs, NodeChip, focusHeading, fold, jumpTo, useMedia, yearText } from "./Outline";
 import { hostOf } from "./OutlineList";
 
 /* ======================================================================
@@ -657,6 +657,8 @@ interface Section {
 
 export default function Sources() {
   const { d, ix } = useAtlas();
+  // Wide screens list the sections in the sticky side rail; narrower ones get a sticky row of chips over the list.
+  const wideRail = useMedia("(min-width: 1100px)");
   const [q, setQ] = useState("");
   const [group, setGroup] = useState<Group>("kind");
   const [onlyLinked, setOnlyLinked] = useState(false);
@@ -708,6 +710,21 @@ export default function Sources() {
 
   const filtering = dq.trim() !== "" || onlyLinked;
   const qt = dq.trim();
+  const sectionEl = useCallback((id: string) => document.getElementById(id), []);
+  const jumpItems = useMemo(
+    () =>
+      sections.map((s) => ({
+        id: s.id,
+        aria: `${typeof s.title === "string" ? s.title : (s.note ?? "")}, ${s.works.length} ${s.works.length === 1 ? "work" : "works"}`,
+        content: (
+          <>
+            <span className="src-jump-t">{s.title}</span>
+            <span className="src-jump-n mono">{s.works.length}</span>
+          </>
+        ),
+      })),
+    [sections],
+  );
 
   // "Show all" unmounts itself: hand focus to the first work it revealed.
   useEffect(() => {
@@ -723,7 +740,6 @@ export default function Sources() {
   const head = (
     <LibHead
       current="sources"
-      tabs={false}
       title="Sources"
       dek="Every work cited in the arguments, the reading lists, People and the Timeline, listed once with the moves that cite it. A title marked ↗ opens the text, or a page about it, in a new tab."
       meta={works.length ? `${works.length} works · ${linked} with a link · ${citations} citations` : undefined}
@@ -763,13 +779,13 @@ export default function Sources() {
               Only works with a link
               <span className="ca-filter-n mono">{linked}</span>
             </button>
-            {sections.length > 1 && (
+            {wideRail && sections.length > 1 && (
               <nav className="src-jump" aria-label="Jump to a section">
                 <p className="mono lib-k">Jump to</p>
                 <ul>
                   {sections.map((s) => (
                     <li key={s.id}>
-                      <button type="button" className="src-jump-a" onClick={() => jumpTo(s.id)}>
+                      <button type="button" className="src-jump-a" onClick={() => jumpToSection(s.id)}>
                         <span className="src-jump-t">{s.title}</span>
                         <span className="src-jump-n mono">{s.works.length}</span>
                       </button>
@@ -781,6 +797,7 @@ export default function Sources() {
           </div>
 
           <div className="src-list">
+            {!wideRail && sections.length > 1 && <JumpRow className="src-jumprow" label="Jump to a section" items={jumpItems} target={sectionEl} />}
             <p className={`lib-count mono ${filtering ? "" : "sr-only"}`} aria-live="polite">
               {filtering ? (shown.length ? `Showing ${shown.length} of ${works.length} works` : qt ? `No work matches “${qt}”` : "No work has a link yet") : ""}
             </p>
@@ -871,12 +888,11 @@ export default function Sources() {
 }
 
 /** In-page jump (the hash is the route, so no #fragment links). */
-function jumpTo(id: string) {
+function jumpToSection(id: string) {
   const el = document.getElementById(id);
   if (!el) return;
-  const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  el.scrollIntoView({ block: "start", behavior: reduce ? "auto" : "smooth" });
-  el.querySelector<HTMLElement>("h2")?.focus({ preventScroll: true });
+  jumpTo(el);
+  focusHeading(el.querySelector<HTMLElement>("h2"));
 }
 
 /* ---------------- one work ---------------- */

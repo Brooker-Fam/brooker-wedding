@@ -4,10 +4,15 @@
    wordmark, Map · Library · Where you stand with five status pips), view
    transitions keyed by route, scroll + focus memory per history entry, the
    document title, and a shared footer. It also keeps the "where did the reader
-   last work?" record (see recent.ts) that the overview's "Last time" strip reads. */
+   last work?" record (see recent.ts) that the overview's "Last time" strip reads.
+
+   On phones and tablets (below the desktop nav) a thumb dock sits at the bottom:
+   Map · I–V · You. It publishes its height for everything else fixed to the bottom
+   (see Dock), the menu opens as a bottom sheet, and a change of view slides in from
+   the side it lies on (deeper from the right, back or up from the left). */
 
 import "./shell.css";
-import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { AnimatePresence, motion, useAnimate, useIsPresent, useMotionValue, useReducedMotion } from "framer-motion";
 import Link from "next/link";
 import {
   useCallback,
@@ -23,6 +28,8 @@ import {
   type ReactNode,
 } from "react";
 import { useAtlas } from "../context";
+import { tick } from "../haptics";
+import { useSheetDrag, useSheetPresence } from "../peek";
 import { Glyph } from "../primitives";
 import { formatRoute, parseHash, viewKey, type Route } from "../router";
 import { useToastDismiss } from "../toast";
@@ -100,6 +107,29 @@ function LibIcon({ view }: { view: LibView }) {
   }
 }
 
+/* Pips may spring only once the page has settled: the stored calls arriving after hydration
+   change every status at once, and that is not the reader's doing. Set by the Shell. */
+let popsLive = false;
+
+/** A status pip that gives one small spring when the reader's calls change its status
+    (a state change, never on load; nothing under reduced motion). */
+function PopPip({ label, size }: { label: Label; size?: number }) {
+  const [scope, animateEl] = useAnimate<HTMLSpanElement>();
+  const reduce = useReducedMotion();
+  const prev = useRef(label);
+  useEffect(() => {
+    if (prev.current === label) return;
+    prev.current = label;
+    if (reduce || !popsLive || !scope.current) return;
+    animateEl(scope.current, { scale: [1, 1.9, 0.86, 1] }, { duration: 0.55, times: [0, 0.32, 0.68, 1], ease: "easeOut" });
+  }, [label, reduce, animateEl, scope]);
+  return (
+    <span ref={scope} className="sh-pop">
+      <StatusPip label={label} size={size} />
+    </span>
+  );
+}
+
 /** Five tiny status pips, I–V: ▲ ochre = stands, ● verdigris = answered, hollow = open. */
 function Pips({ current }: { current?: ObjectionId }) {
   const { d, labels } = useAtlas();
@@ -109,7 +139,7 @@ function Pips({ current }: { current?: ObjectionId }) {
         const l = labels.objection.get(o.id) ?? "undec";
         return (
           <span key={o.id} className={`sh-pip${current === o.id ? " cur" : ""}`}>
-            <StatusPip label={l} />
+            <PopPip label={l} />
             <span className="sr-only">{`Objection ${o.numeral}: ${PIP_WORD[l]}.`}</span>
           </span>
         );
@@ -135,15 +165,85 @@ function currentObjection(route: Route): ObjectionId | undefined {
   return route.view === "objection" || route.view === "walk" ? route.o : undefined;
 }
 
+/* Scrolls the Shell makes itself (arriving somewhere, gliding to the map) must not tuck the dock
+   away the moment the reader has used it: the dock ignores downward travel until this time. */
+let dockQuietUntil = 0;
+const hushDock = (ms = 1000) => {
+  dockQuietUntil = performance.now() + ms;
+};
+
 /** Scroll so the overview's map sits just under the top bar. */
 function scrollToMap(animate: boolean) {
   const rose = document.querySelector<HTMLElement>(".atl .ov-rose");
   if (!rose) return null;
+  hushDock(animate ? 1200 : 600);
   const bar = document.querySelector<HTMLElement>(".atl .sh-bar")?.getBoundingClientRect().height ?? 52;
   const top = Math.max(0, Math.round(rose.getBoundingClientRect().top + window.scrollY - bar - 16));
   const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   window.scrollTo({ top, left: 0, behavior: animate && !reduce ? "smooth" : "instant" });
   return top;
+}
+
+const plainClick = (e: MouseEvent) => !(e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0);
+
+/** A Map link: already at #/map, glide to the map (the hash won't change, so nothing else would). */
+function mapClick(route: Route) {
+  return (e: MouseEvent<HTMLAnchorElement>) => {
+    if (route.view !== "home" || route.at !== "map" || !plainClick(e)) return;
+    e.preventDefault();
+    scrollToMap(true);
+  };
+}
+
+/** A link to the page already showing: back to its top, as a tab bar does. */
+function topClick(here: boolean) {
+  return (e: MouseEvent<HTMLAnchorElement>) => {
+    if (!here || !plainClick(e)) return;
+    e.preventDefault();
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    window.scrollTo({ top: 0, left: 0, behavior: reduce ? "instant" : "smooth" });
+  };
+}
+
+/** Where the dock shows: below the desktop nav, held upright (a phone on its side keeps its
+    height for reading). Must match the dock's media query in shell.css. */
+const DOCK_MQ = "(max-width: 959.98px) and (min-height: 480px)";
+/** Where a change of view slides in from the side (wider screens keep the plain fade). */
+const SLIDE_MQ = "(max-width: 959.98px)";
+
+/* The order the dock shows things in, left to right: Map, I–V, You. The Library's pages sit
+   further right, in the menu's order. A change of view slides in from the side the new view
+   lies on: deeper (a new page) from the right, back or up (to the map) from the left. */
+const LIB_RANK: Partial<Record<Route["view"], number>> = { timeline: 10, cast: 11, lexicon: 12, outline: 13, sources: 14 };
+
+function slideDir(from: Route, to: Route, order: ObjectionId[]): -1 | 1 {
+  if (to.view === "home") return -1;
+  // Out of a walk into its own objection: up a level.
+  if (from.view === "walk" && to.view === "objection" && from.o === to.o) return -1;
+  const place = (r: Route): [group: string, rank: number] => {
+    if (r.view === "objection") return ["dock", 1 + order.indexOf(r.o)];
+    if (r.view === "walk") return ["dock", 1.5 + order.indexOf(r.o)];
+    if (r.view === "ledger") return ["dock", 1 + order.length];
+    if (r.view === "home") return ["home", 0];
+    return ["lib", LIB_RANK[r.view] ?? 20];
+  };
+  const [ga, ra] = place(from);
+  const [gb, rb] = place(to);
+  // Neighbours (along the dock, or within the Library) slide from the side they sit on.
+  if (ga === gb && ga !== "home") return rb >= ra ? 1 : -1;
+  return 1;
+}
+
+/* The side a new view slides in from: a change the reader tapped for slides by place
+   (slideDir); Back and Forward (no tap just before) fade, because phones already animate their
+   own back gesture. Wider screens fade. Slides start once the page has settled (catching up to
+   a deep link isn't a navigation). The tap time comes from a capture listener (Shell), which
+   runs before any navigation the tap causes. */
+let lastTapAt = -Infinity;
+let slidesLive = false;
+function slideFor(from: Route, to: Route, order: ObjectionId[]): -1 | 0 | 1 {
+  if (!slidesLive || typeof window === "undefined" || Date.now() - lastTapAt > 800) return 0;
+  return window.matchMedia(SLIDE_MQ).matches ? slideDir(from, to, order) : 0;
 }
 
 const LIB_TITLE: Record<string, string> = {
@@ -316,19 +416,32 @@ function LibraryMenu({ active }: { active: boolean }) {
 /* Mobile menu sheet                                                    */
 /* ------------------------------------------------------------------ */
 
+/* A bottom sheet, near the thumb: it rises from the bottom edge (the dock tucks away beneath
+   it), and closes with the × in the bar or in the sheet, Escape, a tap on the page behind, or
+   a drag down (by the grip, or anywhere on it while it is scrolled to the top). */
 function MobileSheet({ id, onClose, menuBtn }: { id: string; onClose: (refocus: boolean) => void; menuBtn: HTMLButtonElement | null }) {
   const { route, d, labels } = useAtlas();
   const panel = useRef<HTMLDivElement>(null);
+  const body = useRef<HTMLDivElement>(null);
   const title = usePipTitle();
+  const reduce = useReducedMotion();
+  const present = useIsPresent();
+  const y = useMotionValue(0);
+  useSheetPresence(panel, present);
+  const dismiss = useCallback(() => onClose(false), [onClose]);
+  const onGripDown = useSheetDrag(y, dismiss, body, present);
 
   useEffect(() => {
-    const first = panel.current?.querySelector<HTMLElement>("a");
-    first?.focus({ preventScroll: true });
+    // Some rows are hidden at some sizes (Map, while the dock has it): only shown ones count.
+    const shown = (sel: string) => Array.from(panel.current?.querySelectorAll<HTMLElement>(sel) ?? []).filter((el) => el.getClientRects().length > 0);
+    shown(".sh-sbody a")[0]?.focus({ preventScroll: true });
     const root = document.documentElement;
     const prev = root.style.overflow;
     root.style.overflow = "hidden";
     // A modal sheet: the page behind it is out of reach (screen readers' virtual cursor included).
-    const behind = [document.getElementById("atl-main"), document.querySelector<HTMLElement>(".atl .sh-foot")].filter((el): el is HTMLElement => !!el);
+    const behind = [document.getElementById("atl-main"), document.querySelector<HTMLElement>(".atl .sh-foot"), document.querySelector<HTMLElement>(".atl .sh-dock")].filter(
+      (el): el is HTMLElement => !!el,
+    );
     behind.forEach((el) => (el.inert = true));
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
@@ -338,7 +451,7 @@ function MobileSheet({ id, onClose, menuBtn }: { id: string; onClose: (refocus: 
       }
       if (e.key !== "Tab" || !panel.current) return;
       // Keep focus within the menu button + the sheet while it is open.
-      const els = [menuBtn, ...Array.from(panel.current.querySelectorAll<HTMLElement>("a, button"))].filter(Boolean) as HTMLElement[];
+      const els = [menuBtn, ...shown("a, button")].filter(Boolean) as HTMLElement[];
       const i = els.indexOf(document.activeElement as HTMLElement);
       const next = e.shiftKey ? (i <= 0 ? els.length - 1 : i - 1) : i === els.length - 1 ? 0 : i + 1;
       e.preventDefault();
@@ -376,7 +489,7 @@ function MobileSheet({ id, onClose, menuBtn }: { id: string; onClose: (refocus: 
 
   return (
     <>
-      <motion.div className="sh-scrim" onClick={() => onClose(false)} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }} />
+      <motion.div className="sh-scrim" onClick={() => onClose(false)} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.22 }} />
       <motion.div
         ref={panel}
         id={id}
@@ -384,66 +497,311 @@ function MobileSheet({ id, onClose, menuBtn }: { id: string; onClose: (refocus: 
         role="dialog"
         aria-modal="true"
         aria-label="Menu"
-        initial={{ opacity: 0, y: -10 }}
-        animate={{ opacity: 1, y: 0 }}
-        exit={{ opacity: 0, y: -8 }}
-        transition={{ duration: 0.24, ease: [0.22, 1, 0.36, 1] }}
+        style={{ y }}
+        initial={reduce ? { opacity: 0 } : { y: "100%" }}
+        animate={reduce ? { opacity: 1 } : { y: 0 }}
+        exit={reduce ? { opacity: 0 } : { y: "100%" }}
+        transition={reduce ? { duration: 0.16 } : { type: "spring", stiffness: 420, damping: 40 }}
       >
-        <nav aria-label="Disputation">
-          <ul className="sh-slist">{item({ view: "home", at: "map" }, "Map", "All five objections at once", <Emblem current={currentObjection(route)} size={20} />)}</ul>
-          <p className="sh-sgroup" id={`${id}-obj`}>
-            Objections
-          </p>
-          <ul className="sh-sobj" aria-labelledby={`${id}-obj`}>
-            {d.objections.map((o) => {
-              const l = labels.objection.get(o.id) ?? "undec";
-              const on = route.view === "objection" && route.o === o.id;
-              return (
-                <li key={o.id}>
-                  <a
-                    href={formatRoute({ view: "objection", o: o.id })}
-                    className={`sh-sobj-a${on ? " on" : ""}`}
-                    aria-current={on ? "page" : undefined}
-                    onClick={() => onClose(false)}
-                  >
-                    <span className="sh-sobj-top" aria-hidden>
-                      <span className="sh-sobj-n">{o.numeral}</span>
-                      <StatusPip label={l} size={9} />
-                    </span>
-                    <span className="sh-sobj-name" aria-hidden>
-                      {o.short || o.numeral}
-                    </span>
-                    <span className="sr-only">{`Objection ${o.numeral}${o.short ? `, ${o.short}` : ""}: ${PIP_WORD[l]}.`}</span>
-                  </a>
-                </li>
-              );
-            })}
-          </ul>
-          <p className="sh-sgroup">Library</p>
-          <ul className="sh-slist">{LIBRARY.map((it) => item({ view: it.view } as Route, it.label, it.note, <LibIcon view={it.view} />))}</ul>
-          <p className="sh-sgroup">You</p>
-          <ul className="sh-slist">
-            {item(
-              { view: "ledger" },
-              "Where you stand",
-              "Your marks, objection by objection",
-              <YouMark size={13} />,
-              <span title={title}>
-                <Pips current={currentObjection(route)} />
-              </span>,
-            )}
-          </ul>
-        </nav>
-        <div className="sh-sout">
-          <Link href="/debates">
-            Thought Pages <span aria-hidden>↗</span>
-          </Link>
-          <Link href="/">
-            brooker.family <span aria-hidden>↗</span>
-          </Link>
+        <div className="sheet-grab" onPointerDown={onGripDown} aria-hidden>
+          <span className="sheet-grip" />
+        </div>
+        <button type="button" className="sh-sclose" onClick={() => onClose(true)} aria-label="Close menu">
+          <svg width="14" height="14" viewBox="0 0 14 14" aria-hidden>
+            <path d="M2.5 2.5l9 9M11.5 2.5l-9 9" />
+          </svg>
+        </button>
+        <div className="sh-sbody" ref={body}>
+          {/* Three groups: one column on an upright phone (where the dock already has Map), two
+              side by side on a phone held sideways (shell.css). */}
+          <nav aria-label="Disputation" className="sh-snav">
+            <div className="sh-sg sh-sg-obj">
+              <ul className="sh-slist sh-smap">{item({ view: "home", at: "map" }, "Map", "All five objections at once", <Emblem current={currentObjection(route)} size={20} />)}</ul>
+              <p className="sh-sgroup" id={`${id}-obj`}>
+                Objections
+              </p>
+              <ul className="sh-sobj" aria-labelledby={`${id}-obj`}>
+                {d.objections.map((o) => {
+                  const l = labels.objection.get(o.id) ?? "undec";
+                  const on = route.view === "objection" && route.o === o.id;
+                  return (
+                    <li key={o.id}>
+                      <a
+                        href={formatRoute({ view: "objection", o: o.id })}
+                        className={`sh-sobj-a${on ? " on" : ""}`}
+                        aria-current={on ? "page" : undefined}
+                        onClick={() => onClose(false)}
+                      >
+                        <span className="sh-sobj-top" aria-hidden>
+                          <span className="sh-sobj-n">{o.numeral}</span>
+                          <PopPip label={l} size={9} />
+                        </span>
+                        <span className="sh-sobj-name" aria-hidden>
+                          {o.short || o.numeral}
+                        </span>
+                        <span className="sr-only">{`Objection ${o.numeral}${o.short ? `, ${o.short}` : ""}: ${PIP_WORD[l]}.`}</span>
+                      </a>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+            <div className="sh-sg sh-sg-lib">
+              <p className="sh-sgroup">Library</p>
+              <ul className="sh-slist">{LIBRARY.map((it) => item({ view: it.view } as Route, it.label, it.note, <LibIcon view={it.view} />))}</ul>
+            </div>
+            <div className="sh-sg sh-sg-you">
+              <p className="sh-sgroup">You</p>
+              <ul className="sh-slist">
+                {item(
+                  { view: "ledger" },
+                  "Where you stand",
+                  "Your marks, objection by objection",
+                  <YouMark size={13} />,
+                  <span title={title}>
+                    <Pips current={currentObjection(route)} />
+                  </span>,
+                )}
+              </ul>
+            </div>
+          </nav>
+          <div className="sh-sout">
+            <Link href="/debates">
+              Thought Pages <span aria-hidden>↗</span>
+            </Link>
+            <Link href="/">
+              brooker.family <span aria-hidden>↗</span>
+            </Link>
+          </div>
         </div>
       </motion.div>
     </>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/* The thumb dock (phones and tablets held upright)                     */
+/* ------------------------------------------------------------------ */
+
+/* Contract with the views (the pass's shared brief): the dock keeps --atl-dock-h on <html> at its
+   visible height including the bottom safe area, 0px whenever it is tucked away, hidden or absent
+   (desktop, a phone on its side, the walk), and sets html[data-atl-dock="shown|hidden|off"].
+   Anything else fixed to the bottom sits at bottom: calc(var(--atl-dock-h, 0px) + …).
+   --atl-dock-space is the same height whether shown or tucked (0px when off): page bottoms pad
+   with it, so the page's length never changes as the dock comes and goes. */
+
+type DockState = "shown" | "tucked" | "away" | "off";
+
+const TYPING = "input:not([type=checkbox]):not([type=radio]):not([type=button]):not([type=submit]):not([type=reset]):not([type=range]), textarea, select, [contenteditable='true']";
+
+function Dock() {
+  const { route, d, labels, toPlain } = useAtlas();
+  const nav = useRef<HTMLElement>(null);
+  const key = viewKey(route);
+  const off = route.view === "walk";
+  const [tucked, setTucked] = useState(false);
+  const [away, setAway] = useState(false);
+
+  // Every change of view brings it back (and the jump to the new view's spot doesn't tuck it).
+  useEffect(() => {
+    hushDock(900);
+    setTucked(false);
+  }, [key]);
+
+  // The reader scrolling down the page tucks it away (after 24px of travel); a little scroll up,
+  // the top of the page, or the end of it brings it back. Only the reader's own scrolling tucks
+  // it (a finger, a fling still running, a wheel, a scroll key): a view gliding to a move or an
+  // entry doesn't, and neither does a jump the Shell makes itself (hushDock).
+  useEffect(() => {
+    if (off) return;
+    let lastY = Math.max(0, window.scrollY);
+    let run = 0;
+    let raf = 0;
+    let touching = false;
+    let userAt = -Infinity;
+    let flingAt = -Infinity;
+    const mark = () => {
+      userAt = performance.now();
+    };
+    const onTouchStart = () => {
+      touching = true;
+      mark();
+    };
+    const onTouchEnd = () => {
+      touching = false;
+      mark();
+    };
+    const onKey = (e: KeyboardEvent) => {
+      if (/^(ArrowDown|ArrowUp|PageDown|PageUp|Home|End| )$/.test(e.key)) mark();
+    };
+    const check = () => {
+      raf = 0;
+      const now = performance.now();
+      const y = Math.max(0, window.scrollY);
+      const end = document.documentElement.scrollHeight - window.innerHeight - 6;
+      const dy = y - lastY;
+      lastY = y;
+      // The reader's: a finger down or just lifted, a key or wheel just now, or the tail of a
+      // fling that started that way (its scroll events keep coming close together).
+      const user = touching || now - userAt < 700 || now - flingAt < 160;
+      if (user) flingAt = now;
+      if (y < 64 || y >= end) {
+        run = 0;
+        setTucked(false);
+        return;
+      }
+      if (!dy) return;
+      if (dy > 0 && (!user || now < dockQuietUntil)) {
+        run = 0;
+        return;
+      }
+      if (dy > 0 !== run > 0) run = 0;
+      run += dy;
+      if (run > 24) setTucked(true);
+      else if (run < -12) setTucked(false);
+    };
+    const onScroll = () => {
+      if (!raf) raf = requestAnimationFrame(check);
+    };
+    const opt = { passive: true, capture: true } as const;
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("touchstart", onTouchStart, opt);
+    window.addEventListener("touchmove", mark, opt);
+    window.addEventListener("touchend", onTouchEnd, opt);
+    window.addEventListener("touchcancel", onTouchEnd, opt);
+    window.addEventListener("wheel", mark, opt);
+    window.addEventListener("keydown", onKey, true);
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("touchstart", onTouchStart, opt);
+      window.removeEventListener("touchmove", mark, opt);
+      window.removeEventListener("touchend", onTouchEnd, opt);
+      window.removeEventListener("touchcancel", onTouchEnd, opt);
+      window.removeEventListener("wheel", mark, opt);
+      window.removeEventListener("keydown", onKey, true);
+      cancelAnimationFrame(raf);
+    };
+  }, [off]);
+
+  // Out of the way while a sheet is open, or while a text field has focus (the keyboard is up).
+  useEffect(() => {
+    const root = document.documentElement;
+    const update = () => setAway(root.getAttribute("data-atl-sheet") === "open" || !!document.activeElement?.matches(TYPING));
+    const later = () => requestAnimationFrame(update);
+    update();
+    const mo = new MutationObserver(update);
+    mo.observe(root, { attributes: true, attributeFilter: ["data-atl-sheet"] });
+    document.addEventListener("focusin", update);
+    document.addEventListener("focusout", later);
+    return () => {
+      mo.disconnect();
+      document.removeEventListener("focusin", update);
+      document.removeEventListener("focusout", later);
+    };
+  }, []);
+
+  const state: DockState = off ? "off" : away ? "away" : tucked ? "tucked" : "shown";
+
+  // Publish the contract (see above).
+  useLayoutEffect(() => {
+    const root = document.documentElement;
+    const el = nav.current;
+    const mq = window.matchMedia(DOCK_MQ);
+    const apply = () => {
+      const on = state !== "off" && !!el && mq.matches && el.offsetHeight > 0;
+      // The pill on tablets floats above the bottom edge: its gap counts as height too.
+      const h = on && el ? Math.round(el.offsetHeight + (parseFloat(getComputedStyle(el).bottom) || 0)) : 0;
+      root.style.setProperty("--atl-dock-space", `${h}px`);
+      root.style.setProperty("--atl-dock-h", `${state === "shown" ? h : 0}px`);
+      root.setAttribute("data-atl-dock", !on ? "off" : state === "shown" ? "shown" : "hidden");
+    };
+    apply();
+    const ro = el ? new ResizeObserver(apply) : null;
+    if (el) ro?.observe(el);
+    mq.addEventListener("change", apply);
+    return () => {
+      ro?.disconnect();
+      mq.removeEventListener("change", apply);
+    };
+  }, [state]);
+  useEffect(
+    () => () => {
+      const root = document.documentElement;
+      root.style.removeProperty("--atl-dock-h");
+      root.style.removeProperty("--atl-dock-space");
+      root.removeAttribute("data-atl-dock");
+    },
+    [],
+  );
+
+  const curO = currentObjection(route);
+  const order = d.objections;
+  const curIdx =
+    route.view === "home" ? 0 : route.view === "ledger" ? order.length + 1 : route.view === "objection" ? 1 + order.findIndex((o) => o.id === route.o) : -1;
+  // Off the dock's pages (the Library), the ribbon fades where it was instead of flying off.
+  const [lastIdx, setLastIdx] = useState(Math.max(0, curIdx));
+  if (curIdx >= 0 && curIdx !== lastIdx) setLastIdx(curIdx);
+  const ribbonAt = curIdx >= 0 ? curIdx : lastIdx;
+
+  return (
+    <nav ref={nav} className="sh-dock" data-state={state} aria-label="Shortcuts" onFocus={() => setTucked(false)}>
+      <div className="sh-dock-in">
+        <ul className="sh-tabs">
+          <li>
+            <a href="#/map" className="sh-tab" aria-current={route.view === "home" ? "page" : undefined} onClick={mapClick(route)}>
+              <span className="sh-tab-ic" aria-hidden>
+                <Emblem current={curO} size={22} />
+              </span>
+              <span className="sh-tab-sub">Map</span>
+            </a>
+          </li>
+          {order.map((o) => {
+            const l = labels.objection.get(o.id) ?? "undec";
+            const here = route.view === "objection" && route.o === o.id;
+            return (
+              <li key={o.id}>
+                <a
+                  href={formatRoute({ view: "objection", o: o.id })}
+                  className="sh-tab sh-tab-o"
+                  aria-current={here ? "page" : undefined}
+                  aria-label={`Objection ${o.numeral}: ${toPlain(o.title || o.short || "")}, ${PIP_WORD[l]}`}
+                  onClick={topClick(here)}
+                >
+                  <span className="sh-tab-ic sh-tab-n" aria-hidden>
+                    {o.numeral}
+                  </span>
+                  <span className="sh-tab-sub" aria-hidden>
+                    <PopPip label={l} size={9} />
+                  </span>
+                </a>
+              </li>
+            );
+          })}
+          <li>
+            <a href="#/ledger" className="sh-tab" aria-current={route.view === "ledger" ? "page" : undefined} aria-label="Where you stand" onClick={topClick(route.view === "ledger")}>
+              <span className="sh-tab-ic" aria-hidden>
+                <YouMark size={14} />
+              </span>
+              <span className="sh-tab-sub" aria-hidden>
+                You
+              </span>
+            </a>
+          </li>
+        </ul>
+        {/* The bookmark: one gold ribbon that glides to the page you are on. */}
+        <motion.span
+          className="sh-ribbon"
+          aria-hidden
+          initial={false}
+          animate={{ x: `${ribbonAt * 100}%`, opacity: curIdx >= 0 ? 1 : 0 }}
+          transition={{ x: { type: "spring", stiffness: 520, damping: 36, mass: 0.9 }, opacity: { duration: 0.2 } }}
+        >
+          <svg width="16" height="11" viewBox="0 0 16 11">
+            <path d="M0 0H16V11L8 6.8L0 11Z" />
+          </svg>
+        </motion.span>
+      </div>
+    </nav>
   );
 }
 
@@ -465,18 +823,14 @@ function TopBar({ onSkip }: { onSkip: () => void }) {
 
   // Already on the overview: the wordmark glides back to the top instead of doing nothing.
   const toTop = (e: MouseEvent<HTMLAnchorElement>) => {
-    if (route.view !== "home" || e.metaKey || e.ctrlKey || e.shiftKey || e.button !== 0) return;
+    if (route.view !== "home" || !plainClick(e)) return;
     e.preventDefault();
     if (route.at === "map") go({ view: "home" }, { replace: true });
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     window.scrollTo({ top: 0, behavior: reduce ? "instant" : "smooth" });
   };
   // …and Map glides to the map (also when the URL already says #/map).
-  const toMap = (e: MouseEvent<HTMLAnchorElement>) => {
-    if (route.view !== "home" || route.at !== "map" || e.metaKey || e.ctrlKey || e.shiftKey || e.button !== 0) return;
-    e.preventDefault();
-    scrollToMap(true);
-  };
+  const toMap = mapClick(route);
 
   const closeMenu = useCallback(
     (refocus: boolean) => {
@@ -652,9 +1006,66 @@ export default function Shell({ children }: { children: ReactNode }) {
   const hash = formatRoute(route);
   const main = useRef<HTMLElement>(null);
   const hydrating = useHydrating();
-  const reduce = useReducedMotion();
   const dismissToast = useToastDismiss();
   const at = route.view === "home" ? route.at : undefined;
+
+  /* --- how each view comes in: a fade, or on phones and tablets a slide from its side ---
+     Taken once per change of view, during the render that mounts it (see slideFor); CSS
+     keyframes (shell.css) run as its <main> mounts. Nothing for the server-rendered view. */
+  const order = useMemo(() => d.objections.map((o) => o.id), [d]);
+  const [slide, setSlide] = useState<{ key: string; route: Route; dir: -1 | 0 | 1; nav: boolean }>(() => ({ key, route, dir: 0, nav: false }));
+  if (slide.key !== key) setSlide({ key, route, dir: slideFor(slide.route, route, order), nav: true });
+  const enter = !slide.nav ? "" : slide.dir > 0 ? " sh-in-r" : slide.dir < 0 ? " sh-in-l" : " sh-in-fade";
+  useEffect(() => {
+    const onTap = (e: Event) => {
+      if (e.type === "keydown" && (e as KeyboardEvent).key !== "Enter" && (e as KeyboardEvent).key !== " ") return;
+      lastTapAt = Date.now();
+    };
+    document.addEventListener("click", onTap, true);
+    document.addEventListener("keydown", onTap, true);
+    // Statuses and slides come alive once the stored calls and any deep link have landed.
+    const t = window.setTimeout(() => {
+      popsLive = true;
+      slidesLive = true;
+    }, 700);
+    return () => {
+      document.removeEventListener("click", onTap, true);
+      document.removeEventListener("keydown", onTap, true);
+      window.clearTimeout(t);
+      popsLive = false;
+      slidesLive = false;
+    };
+  }, []);
+
+  /* --- Holds / Fails, anywhere: a haptic tick on the press, and a stamp on the call it makes ---
+     One delegated listener for every .judge-btn (the chamber's and the shared control's), in the
+     capture phase so a button's own stopPropagation can't hide the press. A button that ticks
+     itself carries data-atl-ticks. The stamp is CSS (atlas.css: .judge-btn.on[data-stamp]), so a
+     press that clears a call shows nothing, and calls that were already made never stamp. */
+  useEffect(() => {
+    const timers = new Map<HTMLElement, number>();
+    const onPress = (e: Event) => {
+      // The second click of a double tap undoes the first and is ignored by the buttons too.
+      if ((e as globalThis.MouseEvent).detail > 1) return;
+      const btn = e.target instanceof Element ? e.target.closest<HTMLElement>(".atl .judge-btn") : null;
+      if (!btn || (btn as HTMLButtonElement).disabled) return;
+      if (!btn.hasAttribute("data-atl-ticks")) tick();
+      btn.setAttribute("data-stamp", "");
+      window.clearTimeout(timers.get(btn));
+      timers.set(
+        btn,
+        window.setTimeout(() => {
+          btn.removeAttribute("data-stamp");
+          timers.delete(btn);
+        }, 700),
+      );
+    };
+    document.addEventListener("click", onPress, true);
+    return () => {
+      document.removeEventListener("click", onPress, true);
+      timers.forEach((t) => window.clearTimeout(t));
+    };
+  }, []);
 
   /* --- a link to an objection or a page that doesn't exist: say so on the map, and clean the URL --- */
   const [missing, setMissing] = useState<{ name: string; kind: "objection" | "page" } | null>(null);
@@ -829,6 +1240,8 @@ export default function Shell({ children }: { children: ReactNode }) {
       return;
     }
     navigated.current = true;
+    // The jump to the new view's spot below is ours, not the reader's: the dock stays put.
+    hushDock(900);
     // From the first in-page navigation on, the page restores scroll itself.
     if (restorationBefore.current === null) {
       restorationBefore.current = history.scrollRestoration;
@@ -902,26 +1315,21 @@ export default function Shell({ children }: { children: ReactNode }) {
       {hydrating && <script dangerouslySetInnerHTML={{ __html: earlyScript(d.slug) }} />}
       <TopBar onSkip={skip} />
       {/* The main landmark (the root layout leaves it out on this route, so the bar and footer
-          are the page's banner and contentinfo). Opacity only: a transform here would make this
-          the containing block of the views' position:fixed docks for the length of the
-          transition. No exit transition: the old view leaves at once, the new one fades in. */}
-      <motion.main
-        key={key}
-        ref={main}
-        id="atl-main"
-        className="sh-main"
-        initial={hydrating ? false : { opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: reduce ? 0 : 0.38, ease: [0.22, 1, 0.36, 1] }}
-      >
+          are the page's banner and contentinfo). Each view's <main> comes in with a CSS keyframe
+          (shell.css): a fade, or on phones and tablets a short slide from the side the view lies
+          on. The slide moves it with `left` (it is position: relative): a transform would make it
+          the containing block of the views' position:fixed bars while it moved. No exit
+          transition: the old view leaves at once. */}
+      <main key={key} ref={main} id="atl-main" className={`sh-main${enter}`}>
         {missing && route.view === "home" && (
           <p className="sh-notice" role="status">
             There’s no {missing.kind === "page" ? "page" : "objection"} called “{missing.name}”.
           </p>
         )}
         {children}
-      </motion.main>
+      </main>
       <Footer />
+      <Dock />
     </>
   );
 }

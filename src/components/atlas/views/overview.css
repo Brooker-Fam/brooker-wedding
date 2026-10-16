@@ -293,9 +293,13 @@
   fill: var(--bone-2);
 }
 
-/* the Rose + its legend */
-.atl .ov-rose svg {
+/* the Rose + its legend (the dial wraps its svg in a stage, which carries the size) */
+.atl .ov-rose svg,
+.atl .ov-rose .rose-stage {
   max-width: 640px;
+}
+.atl .ov-rose .rose-stage svg {
+  max-width: none;
 }
 /* The readout sits under the Rose in a box of its own, tall enough for its largest state
    (an objection's title plus its Open button), so previewing never covers a sector and
@@ -697,9 +701,9 @@ html[data-atl-calls] .atl .ov-resume-slot:empty {
   background-size: 100% 1px;
 }
 @media (pointer: coarse) {
-  /* a taller hit area without moving the lines */
+  /* a taller hit area (44px and up, even on a one-line title) without moving the lines */
   .atl .ov-ptitle a {
-    padding-block: 8px;
+    padding-block: 10px;
   }
 }
 .atl .ov-pq {
@@ -966,7 +970,7 @@ html[data-atl-calls] .atl .ov-resume-slot:empty {
   }
 }
 
-/* ---------- ≥ 640px: roomier personae; posters as cards with the numeral and fan on top ---------- */
+/* ---------- ≥ 640px: roomier personae and steps ---------- */
 @media (min-width: 640px) {
   .atl .ov-kicker {
     font-size: 11px;
@@ -984,87 +988,6 @@ html[data-atl-calls] .atl .ov-resume-slot:empty {
   }
   .atl .ov-persona dd {
     grid-column: 3;
-  }
-
-  .atl .ov-poster article {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) auto;
-    grid-template-areas:
-      "num fan"
-      "head head"
-      "ex ex"
-      "foot foot";
-    column-gap: 16px;
-    padding: 24px 26px 22px;
-  }
-  .atl .ov-pnum {
-    grid-area: num;
-    float: none;
-    height: auto;
-    margin: 0;
-    align-self: end;
-    font-size: 64px;
-    line-height: 0.8;
-  }
-  .atl .ov-fan {
-    grid-area: fan;
-    float: none;
-    width: 168px;
-    margin: 0;
-    align-self: end;
-    justify-self: end;
-  }
-  .atl .ov-phead {
-    grid-area: head;
-    margin-top: 18px;
-  }
-  .atl .ov-pk {
-    margin: 0 0 6px;
-    line-height: 1.5;
-  }
-  .atl .ov-pk.has-short .ov-pk-o,
-  .atl .ov-pk.has-short .ov-pk-sep {
-    position: static;
-    width: auto;
-    height: auto;
-    margin: 0;
-    overflow: visible;
-    clip: auto;
-  }
-  .atl .ov-ptitle {
-    margin: 0;
-    text-wrap: balance;
-  }
-  .atl .ov-exchange {
-    grid-area: ex;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-    gap: 28px;
-    padding-top: 0;
-    margin-top: 18px;
-  }
-  .atl .ov-say + .ov-say {
-    position: relative;
-  }
-  .atl .ov-say + .ov-say::before {
-    content: "";
-    position: absolute;
-    left: -14px;
-    top: 2px;
-    bottom: 2px;
-    width: 1px;
-    background: var(--line-soft);
-  }
-  .atl .ov-pfoot {
-    grid-area: foot;
-    margin-top: 20px;
-    padding-top: 16px;
-  }
-  .atl .ov-pbtns {
-    width: auto;
-    margin-left: auto;
-  }
-  .atl .ov-pbtns .btn {
-    flex: none;
   }
 
   .atl .ov-steps {
@@ -1159,8 +1082,12 @@ html[data-atl-calls] .atl .ov-resume-slot:empty {
    y 380), but never below 420px, where the ring legends would fall back to numerals. The
    readout puts "Open" beside the kicker to stay short. */
 @media (min-width: 860px) {
-  .atl .ov-rose svg {
+  .atl .ov-rose svg,
+  .atl .ov-rose .rose-stage {
     max-width: clamp(420px, calc(100vh - 500px), 640px);
+  }
+  .atl .ov-rose .rose-stage svg {
+    max-width: none;
   }
   .atl .ov-rose .rose-readout {
     --ov-readout-h: 96px;
@@ -1232,8 +1159,91 @@ html[data-atl-calls] .atl .ov-resume-slot:empty {
   }
 }
 
-/* ---------- ≥ 1000px: posters as wide rows ---------- */
-@media (min-width: 1000px) {
+/* ---------- ≥ 1024px (desktop): the posters as a list of wide rows ----------
+   (Below 1024px they are the deck; see "the deck" further down.) */
+@media (min-width: 1024px) {
+  .atl .ov-poster article {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas:
+      "num fan"
+      "head head"
+      "ex ex"
+      "foot foot";
+    column-gap: 16px;
+    padding: 24px 26px 22px;
+  }
+  .atl .ov-pnum {
+    grid-area: num;
+    float: none;
+    height: auto;
+    margin: 0;
+    align-self: end;
+    font-size: 64px;
+    line-height: 0.8;
+  }
+  .atl .ov-fan {
+    grid-area: fan;
+    float: none;
+    width: 168px;
+    margin: 0;
+    align-self: end;
+    justify-self: end;
+  }
+  .atl .ov-phead {
+    grid-area: head;
+    margin-top: 18px;
+  }
+  .atl .ov-pk {
+    margin: 0 0 6px;
+    line-height: 1.5;
+  }
+  .atl .ov-pk.has-short .ov-pk-o,
+  .atl .ov-pk.has-short .ov-pk-sep {
+    position: static;
+    width: auto;
+    height: auto;
+    margin: 0;
+    overflow: visible;
+    clip: auto;
+  }
+  .atl .ov-ptitle {
+    margin: 0;
+    text-wrap: balance;
+  }
+  .atl .ov-exchange {
+    grid-area: ex;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 28px;
+    padding-top: 0;
+    margin-top: 18px;
+  }
+  .atl .ov-say + .ov-say {
+    position: relative;
+  }
+  .atl .ov-say + .ov-say::before {
+    content: "";
+    position: absolute;
+    left: -14px;
+    top: 2px;
+    bottom: 2px;
+    width: 1px;
+    background: var(--line-soft);
+  }
+  .atl .ov-pfoot {
+    grid-area: foot;
+    margin-top: 20px;
+    padding-top: 16px;
+  }
+  .atl .ov-pbtns {
+    width: auto;
+    margin-left: auto;
+  }
+  .atl .ov-pbtns .btn {
+    flex: none;
+  }
+}
+@media (min-width: 1024px) {
   .atl .ov-poster article {
     grid-template-columns: 112px minmax(0, 1fr) 200px;
     grid-template-areas:
@@ -1262,5 +1272,816 @@ html[data-atl-calls] .atl .ov-resume-slot:empty {
   }
   .atl .ov-say + .ov-say::before {
     left: -20px;
+  }
+}
+
+/* ==========================================================================
+   The pocket edition (phones ≤ 720px; the deck also on tablets ≤ 1023px).
+   The look stays; what changes is how it sits in the hand.
+   ========================================================================== */
+
+/* ---------- phones: the hero fits the first screen ----------
+   Title, subtitle, dek and both buttons above the fold at 360×740 and 390×844, with room left
+   for the bottom bar. The title is sized to the column: "Down", stepped right, ends at its edge. */
+@media (max-width: 720px) {
+  .atl .ov-hero {
+    padding-top: 18px;
+  }
+  .atl .ov-kicker {
+    margin-bottom: 4px;
+  }
+  .atl .ov-title {
+    font-size: min(calc((100vw - 2 * var(--gutter)) / 5.3), 6.5rem);
+  }
+  .atl .ov-dek {
+    margin-top: 18px;
+  }
+  .atl .ov-sub {
+    margin-bottom: 10px;
+    font-size: clamp(1.2rem, 5.3vw, 1.4rem);
+    line-height: 1.24;
+  }
+  .atl .ov-intro {
+    font-size: 15.5px;
+    line-height: 1.58;
+  }
+  .atl .ov-cta {
+    margin-top: 18px;
+  }
+  .atl .ov-resume-slot {
+    margin-top: 16px;
+  }
+}
+
+/* ---------- the deck: the five objections as cards in a scroll-snap row (≤ 1023px) ----------
+   Native horizontal scroll (no custom drag), one card per swipe, the next card peeking in.
+   Each card: numeral and fan, the short name, title and question, then its stats, status and
+   the two ways in. The two sides' summaries stay in the chamber (and on desktop's rows). */
+.atl .ov-pager {
+  display: none;
+}
+@media (max-width: 1023.98px) {
+  .atl .ov-five-head {
+    margin-bottom: 14px;
+  }
+  .atl .ov-posters {
+    position: relative;
+    grid-template-columns: none;
+    --deck-card: min(84vw, 360px);
+    grid-auto-flow: column;
+    grid-auto-columns: var(--deck-card);
+    gap: 12px;
+    margin: 0 calc(-1 * var(--gutter));
+    /* the end padding lets the last card snap to the same place as the others */
+    padding: 4px calc(100vw - var(--deck-card) - var(--gutter)) 6px var(--gutter);
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scroll-snap-type: x mandatory;
+    scroll-padding-inline: var(--gutter);
+    scrollbar-width: none;
+  }
+  .atl .ov-posters::-webkit-scrollbar {
+    display: none;
+  }
+  .atl .ov-poster {
+    display: flex;
+    min-width: 0;
+    scroll-snap-align: start;
+    scroll-snap-stop: always;
+  }
+  .atl .ov-poster article {
+    flex: 1 1 auto;
+    min-width: 0;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-rows: auto auto 1fr auto;
+    grid-template-areas:
+      "num fan"
+      "head head"
+      ". ."
+      "foot foot";
+    padding: 18px 18px 16px;
+    transition:
+      border-color 0.3s var(--ease),
+      box-shadow 0.3s var(--ease);
+  }
+  .atl .ov-poster.is-current article {
+    border-color: #3c4053;
+    box-shadow: 0 22px 44px -30px #000;
+  }
+  .atl .ov-pnum {
+    grid-area: num;
+    float: none;
+    height: auto;
+    margin: 0;
+    align-self: end;
+    font-size: 76px;
+    line-height: 0.78;
+  }
+  .atl .ov-fan {
+    grid-area: fan;
+    float: none;
+    width: 124px;
+    margin: 0 -6px 0 12px;
+    align-self: end;
+  }
+  .atl .ov-phead {
+    grid-area: head;
+    margin-top: 16px;
+  }
+  .atl .ov-pk {
+    margin: 0 0 4px;
+    line-height: 1.5;
+  }
+  .atl .ov-ptitle {
+    margin: 0;
+    font-size: 1.5rem;
+    text-wrap: balance;
+  }
+  .atl .ov-pq {
+    font-size: 15.5px;
+  }
+  .atl .ov-exchange {
+    display: none;
+  }
+  .atl .ov-pfoot {
+    grid-area: foot;
+    margin-top: 18px;
+    padding-top: 12px;
+    gap: 8px 16px;
+  }
+  /* stats as separate items: on a narrow card they wrap without a line starting on a dot */
+  .atl .ov-meta {
+    gap: 2px 14px;
+  }
+  .atl .ov-meta span + span::before {
+    content: none;
+  }
+  .atl .ov-pbtns {
+    margin-top: 4px;
+  }
+  .atl .ov-pbtns .btn {
+    padding: 0 12px;
+  }
+  /* in the deck, Read it is the card's main action */
+  .atl .ov-enter {
+    background: var(--bone);
+    border-color: var(--bone);
+    color: var(--ink);
+  }
+  .atl .ov-enter:hover {
+    background: #fff8e8;
+  }
+
+  /* pager: five dots (44px targets) and "2 of 5" */
+  .atl .ov-pager {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-top: 2px;
+  }
+  .atl .ov-dots {
+    display: flex;
+    margin-left: -12px;
+  }
+  .atl .ov-dot {
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    border: 0;
+    background: none;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .atl .ov-dot span {
+    width: 8px;
+    height: 8px;
+    border-radius: 4px;
+    background: #4a4f63;
+    transition:
+      width 0.35s var(--ease),
+      background-color 0.35s var(--ease);
+  }
+  .atl .ov-dot:hover span {
+    background: var(--mute);
+  }
+  .atl .ov-dot[aria-current="true"] span {
+    width: 24px;
+    background: var(--skeptic);
+  }
+  .atl .ov-count {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--faint);
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+/* a little depth while swiping (phones, where browsers support scroll-driven animation): a card
+   is full size where it snaps and eases back to 93% as it slides away, so the deck feels like
+   a deck. The snap point sits at ~52% of a card's pass across the row at phone widths. */
+@supports (animation-timeline: view()) {
+  @media (max-width: 720px) and (prefers-reduced-motion: no-preference) {
+    .atl .ov-poster article {
+      animation: ov-deck-depth linear both;
+      animation-timeline: view(inline);
+    }
+  }
+}
+@keyframes ov-deck-depth {
+  0% {
+    scale: 0.93;
+  }
+  52% {
+    scale: 1;
+  }
+  100% {
+    scale: 0.93;
+  }
+}
+
+/* ---------- phones: how it works folds into three rows ---------- */
+.atl .ov-step-tog {
+  display: none;
+}
+@media (max-width: 720px) {
+  .atl .ov-how {
+    margin-top: 44px;
+  }
+  .atl .ov-steps {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0;
+  }
+  .atl .ov-steps li {
+    position: relative;
+    grid-template-columns: 44px minmax(0, 1fr) 32px;
+    column-gap: 12px;
+    row-gap: 0;
+    align-items: center;
+    padding: 0;
+  }
+  .atl .ov-steps li:last-child {
+    border-bottom: 1px solid var(--line-soft);
+  }
+  .atl .ov-stepicon {
+    grid-row: 1;
+    grid-column: 1;
+    width: 40px;
+    height: 27px;
+  }
+  .atl .ov-steps h3 {
+    grid-column: 2;
+    margin: 0;
+    padding: 15px 0;
+    font-size: 18px;
+  }
+  /* the whole row is the toggle; the chevron sits at its end */
+  .atl .ov-step-tog {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    height: 100%;
+    max-height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding: 0 6px 0 0;
+    border: 0;
+    border-radius: 6px;
+    background: none;
+    color: var(--mute);
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .atl .ov-steps li.open .ov-step-tog {
+    height: 60px;
+  }
+  .atl .ov-step-tog svg {
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.6;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    transition: transform 0.3s var(--ease);
+  }
+  .atl .ov-steps li.open .ov-step-tog svg {
+    transform: rotate(180deg);
+  }
+  .atl .ov-step-b {
+    grid-column: 2 / -1;
+    display: none;
+    padding: 0 0 16px;
+  }
+  .atl .ov-steps li.open .ov-step-b {
+    display: block;
+    animation: ov-unfold 0.3s var(--ease) both;
+  }
+}
+@keyframes ov-unfold {
+  from {
+    opacity: 0;
+    translate: 0 -4px;
+  }
+  to {
+    opacity: 1;
+    translate: 0 0;
+  }
+}
+
+/* ---------- phones: who's talking is four tiles and one voice ---------- */
+.atl .ov-voices {
+  display: none;
+}
+@media (max-width: 720px) {
+  .atl .ov-cast {
+    margin-top: 44px;
+  }
+  .atl .ov-voices {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 8px;
+  }
+  .atl .ov-voice {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    min-height: 76px;
+    padding: 10px 2px 12px;
+    border: 1px solid var(--line-soft);
+    border-radius: 12px;
+    background: #ffffff04;
+    color: var(--mute);
+    font-family: var(--serif);
+    font-size: 15px;
+    line-height: 1.1;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    transition:
+      color 0.25s var(--ease),
+      border-color 0.25s var(--ease),
+      background-color 0.25s var(--ease);
+  }
+  .atl .ov-voice.you {
+    --side: var(--bone-2);
+  }
+  .atl .ov-voice.on {
+    color: var(--bone);
+    border-color: color-mix(in srgb, var(--side) 50%, transparent);
+    background: color-mix(in srgb, var(--side) 9%, transparent);
+  }
+  .atl .ov-voice .ov-tile {
+    grid-row: auto;
+    margin: 0;
+  }
+  .atl .ov-voice-ind {
+    position: absolute;
+    left: 26%;
+    right: 26%;
+    bottom: -1px;
+    height: 2px;
+    border-radius: 2px;
+    background: var(--side);
+  }
+  /* the chosen voice, under the tiles */
+  .atl .ov-persona {
+    display: none;
+    padding: 16px 2px 0;
+    border: 0;
+  }
+  .atl .ov-persona:last-child {
+    border-bottom: 0;
+  }
+  .atl .ov-persona.on {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    align-items: start;
+    animation: ov-voice-in 0.28s var(--ease) both;
+  }
+  .atl .ov-persona.on .ov-tile {
+    display: none;
+  }
+  .atl .ov-persona.on dd {
+    grid-column: 1;
+  }
+  .atl .ov-persona .ov-pname {
+    font-size: 20px;
+  }
+  .atl .ov-persona dd {
+    margin-top: 4px;
+    font-size: 15px;
+    line-height: 1.55;
+    color: var(--bone-2);
+  }
+  .atl .ov-persona .ov-pquote {
+    display: block;
+    margin-top: 10px;
+  }
+}
+@keyframes ov-voice-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* "You": the five status marks are in the top bar, or in the bottom bar where phones have one */
+.atl .ov-you-dock {
+  display: none;
+}
+html[data-atl-dock="shown"] .atl .ov-you-top,
+html[data-atl-dock="hidden"] .atl .ov-you-top {
+  display: none;
+}
+html[data-atl-dock="shown"] .atl .ov-you-dock,
+html[data-atl-dock="hidden"] .atl .ov-you-dock {
+  display: inline;
+}
+@media (max-width: 720px) {
+  html:not([data-atl-dock]) .atl .ov-you-top {
+    display: none;
+  }
+  html:not([data-atl-dock]) .atl .ov-you-dock {
+    display: inline;
+  }
+}
+
+/* ==========================================================================
+   The dial (Rose `dial`; here because atlas.css belongs to the shell). Touch only:
+   a tap turns a slice to the top and zooms in, the next taps pick blocks.
+   ========================================================================== */
+.atl .rose.dial .rose-stage {
+  position: relative;
+  width: 100%;
+  border-radius: 24px;
+  overflow: hidden;
+}
+.atl .rose.dial .rose-stage > svg {
+  display: block;
+  overflow: hidden;
+}
+/* atlas.css sizes every svg in a Rose to the map's width: icons in the card and chip keep theirs */
+.atl .rose.dial .rose-readout svg,
+.atl .rose.dial .rose-back svg {
+  width: auto;
+  max-width: none;
+  height: auto;
+  overflow: visible;
+}
+/* the zoom window: a hairline frame and a soft vignette, only while zoomed */
+.atl .rose.dial .rose-stage::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  box-shadow:
+    inset 0 0 0 1px var(--line-soft),
+    inset 0 0 34px 8px var(--ink);
+  opacity: 0;
+  transition: opacity 0.45s var(--ease);
+}
+.atl .rose.dial.zoomed .rose-stage::after {
+  opacity: 1;
+}
+.atl .rose.dial .rose-turn {
+  transform-box: view-box;
+  transform-origin: 0 0;
+  transition: transform 0.6s var(--ease);
+}
+/* numerals and the hub's "?" stay upright while the map turns, and step aside while zoomed */
+.atl .rose.dial .rose-up {
+  transform-box: fill-box;
+  transform-origin: center;
+  transform: rotate(calc(var(--turn, 0deg) * -1));
+  transition:
+    transform 0.6s var(--ease),
+    opacity 0.3s var(--ease),
+    fill 0.2s;
+}
+.atl .rose.dial .rose-label.full {
+  transition:
+    opacity 0.3s var(--ease),
+    fill 0.2s;
+}
+/* the zoomed slice's glyphs keep their shape upright too (a turned ◆ would read as the
+   reader's ■). Only that slice's: the rest sit dimmed at the window's edges, and turning
+   every glyph costs a phone too much on each frame. */
+.atl .rose.dial .rose-glyph {
+  transform-box: fill-box;
+  transform-origin: center;
+  transition:
+    transform 0.6s var(--ease),
+    opacity 0.25s;
+}
+.atl .rose.dial .rose-sec.cur .rose-glyph {
+  transform: rotate(calc(var(--turn, 0deg) * -1));
+}
+/* the other slices' glyphs (turned with the map) step aside while zoomed */
+.atl .rose.dial.zoomed .rose-sec:not(.cur) .rose-glyph {
+  opacity: 0;
+}
+.atl .rose.dial.zoomed .rose-label,
+.atl .rose.dial.zoomed .rose-objtext,
+.atl .rose.dial.zoomed .rose-q {
+  opacity: 0;
+}
+/* the picked block: a bone outline that lands with a small ping */
+.atl .rose.dial .rose-pane.sel .rose-glass {
+  stroke: var(--bone);
+  stroke-opacity: 1;
+  stroke-width: 1.6;
+  fill-opacity: 0.5;
+  animation: rose-ping 0.5s var(--ease);
+}
+.atl .rose.dial .rose-pane.sel.st-in .rose-glass {
+  fill-opacity: 1;
+}
+.atl .rose.dial .rose-pane.sel.st-out .rose-glass {
+  fill-opacity: 0.14;
+}
+.atl .rose.dial .rose-pane.sel .rose-glyph {
+  stroke: var(--bone);
+}
+.atl .rose.dial .rose-pane.sel.st-in .rose-glyph {
+  stroke: var(--ink);
+}
+@keyframes rose-ping {
+  from {
+    stroke-width: 5;
+    stroke-opacity: 0.2;
+  }
+  to {
+    stroke-width: 1.6;
+    stroke-opacity: 1;
+  }
+}
+
+/* "Zoom out", over the zoomed map's top-left corner */
+.atl .rose-back {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 44px;
+  padding: 0 14px 0 12px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: #171922d9;
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--bone-2);
+  cursor: pointer;
+  animation: rose-fade 0.35s var(--ease) 0.15s both;
+  -webkit-tap-highlight-color: transparent;
+}
+.atl .rose-back svg {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+}
+.atl .rose-back:hover {
+  color: var(--bone);
+  border-color: var(--mute);
+}
+@keyframes rose-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* the caption card: the zoomed objection, or the picked block */
+.atl .rose-dialcap {
+  width: 100%;
+}
+.atl .rose-dialcap:not(.idle) {
+  padding: 0;
+}
+.atl .rose-card {
+  pointer-events: auto;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 13px 14px 12px 16px;
+  border: 1px solid var(--line-soft);
+  border-radius: 14px;
+  background: linear-gradient(180deg, #1e2230f0, #1b1e29f0);
+  box-shadow: 0 16px 36px -24px #000;
+  text-align: left;
+  animation: rose-card-in 0.3s var(--ease) both;
+}
+@keyframes rose-card-in {
+  from {
+    opacity: 0;
+    translate: 0 5px;
+  }
+  to {
+    opacity: 1;
+    translate: 0 0;
+  }
+}
+.atl .rose-card-k {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  font-family: var(--mono);
+  font-size: 10.5px;
+  font-weight: 500;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--side, var(--faint));
+}
+.atl .rose-card.is-obj .rose-card-k {
+  color: var(--skeptic);
+}
+.atl .rose-card-side {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-width: 0;
+}
+.atl .rose-card-ost {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex: none;
+  color: var(--mute);
+}
+.atl .rose-card-ost.st-in,
+.atl .rose-card-ost.st-out {
+  color: var(--bone);
+}
+.atl .rose-card-t {
+  margin: 0;
+  font-family: var(--serif);
+  font-size: 19px;
+  font-weight: 420;
+  line-height: 1.28;
+  color: var(--bone);
+  text-wrap: pretty;
+}
+.atl .rose-card-t.lab-out {
+  color: var(--faint);
+}
+.atl .rose-card-g {
+  margin: 0;
+  font-size: 14.5px;
+  line-height: 1.5;
+  color: var(--bone-2);
+  text-wrap: pretty;
+}
+.atl .rose-card-q {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 15px;
+  color: var(--mute);
+}
+.atl .rose-card-call {
+  margin: 0;
+  align-self: flex-start;
+  padding: 2px 8px;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--bone-2);
+}
+.atl .rose-card-hint {
+  margin: 2px 0 0;
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--faint);
+}
+.atl .rose-card-btns {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 6px;
+}
+.atl .rose-card-go {
+  flex: 1 1 auto;
+  min-height: 44px;
+  padding: 0 14px;
+}
+.atl .rose-steps {
+  display: inline-flex;
+  gap: 6px;
+  flex: none;
+}
+.atl .rose-step {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  background: none;
+  color: var(--bone-2);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    border-color 0.2s,
+    color 0.2s,
+    opacity 0.2s;
+}
+.atl .rose-step svg {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.atl .rose-step:hover:not(:disabled) {
+  border-color: var(--mute);
+  color: var(--bone);
+}
+.atl .rose-step:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+/* on touch screens the resting readout is one hint line, so the zoomed card is the only growth */
+@media (pointer: coarse) {
+  .atl .ov-rose .rose-dialcap.idle {
+    min-height: 0;
+  }
+}
+
+/* ---------- phone landscape: nothing taller than the screen ---------- */
+@media (orientation: landscape) and (max-height: 500px) and (max-width: 1023.98px) {
+  .atl .ov-title {
+    font-size: clamp(2.4rem, 12vh + 1vw, 4.5rem);
+  }
+  /* the map beside its caption, sized to the screen's height */
+  .atl .ov-rose.dial {
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 24px;
+  }
+  .atl .ov-rose.dial .rose-stage {
+    flex: none;
+    width: calc(100svh - var(--bar-total, 52px) - 32px);
+    max-width: 360px;
+  }
+  .atl .ov-rose.dial .rose-readout {
+    flex: 1 1 0;
+    min-width: 0;
+    max-width: 26rem;
+    min-height: 0;
+    margin-top: 0;
+  }
+  /* deck cards turn sideways: numeral and fan on the left, words on the right */
+  .atl .ov-posters {
+    --deck-card: min(80vw, 600px);
+  }
+  .atl .ov-poster article {
+    grid-template-columns: 136px minmax(0, 1fr);
+    grid-template-rows: auto auto 1fr;
+    grid-template-areas:
+      "num head"
+      "fan head"
+      "fan foot";
+    column-gap: 22px;
+  }
+  .atl .ov-pnum {
+    align-self: start;
+  }
+  .atl .ov-fan {
+    width: 136px;
+    margin: 14px 0 0;
+    align-self: start;
+  }
+  .atl .ov-phead {
+    margin-top: 0;
   }
 }

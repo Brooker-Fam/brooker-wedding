@@ -89,6 +89,25 @@
   font-size: 1.06em;
   color: var(--bone);
 }
+/* phones fold the rules behind this; wider screens keep them in the paragraph */
+.atl .ld-rules-tog {
+  display: none;
+  align-items: center;
+  gap: 9px;
+  min-height: 44px;
+  margin-top: 4px;
+  padding: 0;
+  border: 0;
+  background: none;
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--mute);
+  cursor: pointer;
+}
+.atl .ld-rules-tog:hover {
+  color: var(--bone);
+}
 /* an epigraph: one short quotation with its source, set quietly under the text it goes with */
 .atl .ld-epi {
   max-width: 34rem;
@@ -189,6 +208,9 @@
 .atl .ld-head-rose .rose {
   gap: 2px;
 }
+.atl .ld-map-h {
+  display: none;
+}
 .atl .ld-head-rose .rose-readout {
   min-height: 64px;
   text-wrap: balance;
@@ -287,20 +309,46 @@
     justify-self: end;
   }
 }
+/* Phones and tablets: the results come first. Ledger.tsx renders the map after the five results
+   (in the page itself, so Tab and screen readers meet the results first), as one centred column.
+   Phones also fold the intro's rules behind "How results work" and keep the map small. */
+@media (max-width: 959px) {
+  .atl .ld {
+    display: flex;
+    flex-direction: column;
+  }
+  .atl .ld-top {
+    row-gap: 0;
+  }
+  .atl .ld-top .ld-empty {
+    margin-top: 28px;
+  }
+  .atl .ld-head-rose {
+    align-self: center;
+    margin-top: 56px;
+  }
+  .atl .ld-head-rose .ld-map-h {
+    display: block;
+    align-self: stretch;
+    margin: 0 0 14px;
+    font-size: 1.4rem;
+    text-align: center;
+  }
+}
 @media (max-width: 719px) {
-  /* on a phone the map is for a quick look, so keep the results close */
   .atl .ld-head-rose {
     max-width: min(300px, 80vw);
+    margin-top: 52px;
   }
   .atl .ld-head-rose .rose-readout {
     min-height: 0;
     padding: 0;
   }
-  .atl .ld-top.is-empty .ld-head-rose {
-    margin-top: 12px;
+  .atl .ld-rules:not(.is-open) {
+    display: none;
   }
-  .atl .ld-top .ld-empty {
-    margin-top: 8px;
+  .atl .ld-rules-tog {
+    display: inline-flex;
   }
   .atl .ld-crux-go {
     letter-spacing: 0.1em;

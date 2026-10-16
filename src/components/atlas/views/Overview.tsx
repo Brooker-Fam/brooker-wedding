@@ -11,11 +11,17 @@
    On phones the hero is one column in reading order: what this is, where to
    start, the epigraph (his reply folded away), the map, how it works, then the
    voices.
+   The pocket edition (phones, and tablets where it helps): the hero fits the
+   first screen; the map is a touch dial (Rose `dial`); how it works folds into
+   three rows; who's talking is a row of four tiles with one voice shown; and
+   the five objections are a deck of cards in a native scroll-snap row with
+   pager dots (still a plain ordered list to keyboards and screen readers).
    Every build-in is CSS, so the server HTML paints complete and animates
-   before hydration. */
+   before hydration, and every phone layout is CSS too (no swap on hydration). */
 
 import "./overview.css";
-import { useEffect, useId, useState, type ReactNode } from "react";
+import { motion } from "framer-motion";
+import { memo, useEffect, useId, useRef, useState, type ReactNode } from "react";
 import { useAtlas } from "../context";
 import { objectionStats, objectionStatsParts } from "../helpers";
 import { Glyph, RichText } from "../primitives";
@@ -185,14 +191,45 @@ function PersonaQuote({ text, cite }: { text: string; cite: string }) {
   );
 }
 
+type Who = Side | "you";
+const VOICES: { who: Who; tab: string }[] = [
+  { who: "skeptic", tab: "Objector" },
+  { who: "theist", tab: "Defender" },
+  { who: "spinoza", tab: "Spinoza" },
+  { who: "you", tab: "You" },
+];
+
+/** Who's talking. Wide screens list all four voices; phones show a row of four tiles (which is
+    also the glyph key) and the chosen voice under it. The choice is CSS (a class), so the first
+    paint is already the phone layout. */
 function Personae() {
+  const [pick, setPick] = useState<Who>("skeptic");
+  const base = useId().replace(/[^a-zA-Z0-9_-]/g, "");
+  const pid = (w: Who) => `ov-voice-${base}-${w}`;
+  const on = (w: Who) => (pick === w ? " on" : "");
   return (
     <section className="ov-cast" aria-labelledby="ov-cast-h">
       <h2 id="ov-cast-h" className="eyebrow ov-sect-k">
         Who’s talking
       </h2>
+      <div className="ov-voices" role="group" aria-label="Pick a voice">
+        {VOICES.map((v) => (
+          <button
+            key={v.who}
+            type="button"
+            className={`ov-voice ${v.who === "you" ? "you" : `s-${v.who}`}${on(v.who)}`}
+            aria-expanded={pick === v.who}
+            aria-controls={pid(v.who)}
+            onClick={() => setPick(v.who)}
+          >
+            <PersonaTile who={v.who} />
+            <span className="ov-voice-t">{v.tab}</span>
+            {pick === v.who && <motion.span layoutId={`ov-voice-ind-${base}`} className="ov-voice-ind" transition={{ type: "spring", stiffness: 520, damping: 38 }} />}
+          </button>
+        ))}
+      </div>
       <dl className="ov-cast-list">
-        <div className="ov-persona s-skeptic">
+        <div className={`ov-persona s-skeptic${on("skeptic")}`} id={pid("skeptic")}>
           <dt>
             <PersonaTile who="skeptic" />
             <span className="ov-pname">The Objector</span>
@@ -205,7 +242,7 @@ function Personae() {
             <PersonaQuote text="A wise man, therefore, proportions his belief to the evidence." cite="Hume, Enquiry Concerning Human Understanding, sect. X (1748)" />
           </dd>
         </div>
-        <div className="ov-persona s-theist">
+        <div className={`ov-persona s-theist${on("theist")}`} id={pid("theist")}>
           <dt>
             <PersonaTile who="theist" />
             <span className="ov-pname">The Defender</span>
@@ -222,7 +259,7 @@ function Personae() {
             />
           </dd>
         </div>
-        <div className="ov-persona s-spinoza">
+        <div className={`ov-persona s-spinoza${on("spinoza")}`} id={pid("spinoza")}>
           <dt>
             <PersonaTile who="spinoza" />
             <span className="ov-pname">
@@ -237,14 +274,17 @@ function Personae() {
             <PersonaQuote text="Whatsoever is, is in God, and without God nothing can be, or be conceived." cite="Spinoza, Ethics, Part I, Proposition 15 (1677)" />
           </dd>
         </div>
-        <div className="ov-persona you">
+        <div className={`ov-persona you${on("you")}`} id={pid("you")}>
           <dt>
             <PersonaTile who="you" />
             <span className="ov-pname">You</span>
           </dt>
           <dd>
             <span className="ov-pdesc">
-              You mark moves Holds or Fails. The five small symbols at the top of the page show where that leaves each objection.
+              You mark moves Holds or Fails.{" "}
+              {/* the five status marks sit in the top bar, or in the bottom bar where phones have one */}
+              <span className="ov-you-top">The five small symbols at the top of the page show where that leaves each objection.</span>
+              <span className="ov-you-dock">The marks under I to V in the bar at the bottom of the screen show where that leaves each objection.</span>
             </span>
             <PersonaQuote text="Prove all things; hold fast that which is good." cite="1 Thessalonians 5:21 (KJV)" />
           </dd>
@@ -465,7 +505,10 @@ function StartHere() {
   );
 }
 
-function Poster({ o }: { o: Objection }) {
+/** One objection: a wide row on desktop; on phones and tablets a card in the deck (numeral,
+    fan, title, question, status and the two ways in; the two sides' summaries wait in the
+    chamber). Memoised so a deck snap re-renders only the two cards whose `current` changed. */
+const Poster = memo(function Poster({ o, current = false }: { o: Objection; current?: boolean }) {
   const { ix, labels, go, toPlain } = useAtlas();
   const stats = objectionStats(ix, o.id);
   const l = labels.objection.get(o.id) ?? "undec";
@@ -475,7 +518,7 @@ function Poster({ o }: { o: Objection }) {
   const counter = o.counter?.trim();
   const short = o.short?.trim();
   return (
-    <li className="ov-poster">
+    <li className={`ov-poster${current ? " is-current" : ""}`}>
       <article aria-labelledby={hid}>
         <span className="ov-pnum" aria-hidden>
           {o.numeral}
@@ -546,50 +589,151 @@ function Poster({ o }: { o: Objection }) {
       </article>
     </li>
   );
+});
+
+/** The five posters. Desktop: a list of wide rows. Phones and tablets: a deck, a native
+    scroll-snap row of cards with the next one peeking in, and pager dots under it. The list
+    stays a plain <ol> of articles, so keyboards tab through it and screen readers read it. */
+function Deck({ objections }: { objections: Objection[] }) {
+  const ref = useRef<HTMLOListElement>(null);
+  const [at, setAt] = useState(0);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    let raf = 0;
+    const read = () => {
+      raf = 0;
+      const cards = el.children;
+      if (cards.length < 2) return;
+      const stride = (cards[1] as HTMLElement).offsetLeft - (cards[0] as HTMLElement).offsetLeft;
+      if (stride <= 0) return; // a vertical list (desktop): nothing to page
+      const end = el.scrollLeft >= el.scrollWidth - el.clientWidth - 2;
+      const i = end ? cards.length - 1 : Math.round(el.scrollLeft / stride);
+      setAt(Math.max(0, Math.min(cards.length - 1, i)));
+    };
+    const onScroll = () => {
+      if (!raf) raf = requestAnimationFrame(read);
+    };
+    el.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll);
+    read();
+    return () => {
+      el.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+      cancelAnimationFrame(raf);
+    };
+  }, []);
+  const show = (i: number) => {
+    const el = ref.current;
+    const card = el?.children[i] as HTMLElement | undefined;
+    if (!el || !card) return;
+    const pad = parseFloat(getComputedStyle(el).scrollPaddingLeft) || 0;
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    el.scrollTo({ left: card.offsetLeft - pad, behavior: reduce ? "instant" : "smooth" });
+  };
+  return (
+    <>
+      <ol ref={ref} className="ov-posters">
+        {objections.map((o, i) => (
+          <Poster key={o.id} o={o} current={i === at} />
+        ))}
+      </ol>
+      <div className="ov-pager">
+        <span className="ov-dots">
+          {objections.map((o, i) => (
+            <button
+              key={o.id}
+              type="button"
+              className="ov-dot"
+              aria-label={`Objection ${o.numeral}`}
+              aria-current={i === at ? "true" : undefined}
+              onClick={() => show(i)}
+            >
+              <span />
+            </button>
+          ))}
+        </span>
+        <span className="ov-count" aria-hidden>
+          {at + 1} of {objections.length}
+        </span>
+      </div>
+    </>
+  );
 }
 
+const STEPS: { title: string; body: string; icon: ReactNode }[] = [
+  {
+    title: "Each side answers the other",
+    body:
+      "Round 1 is the objection. Each round after it replies to the one above it, usually alternating between the Objector and the Defender, up to round 7. Spinoza can cut in at any round, on either side. A move can draw several replies. An objection can also come in parts, separate charges argued one by one, and it stands if any one of its parts stands.",
+    icon: (
+      <svg className="ov-stepicon" viewBox="0 0 48 32" aria-hidden>
+        <path d="M10 6 16 17H4z" className="sk" />
+        <path d="M18 12c6-6 12-6 16 1" className="arc" />
+        <path d="M31 9.5l3 3.6 3.4-3" className="arc" />
+        <circle cx="36" cy="22" r="5.4" className="th" />
+      </svg>
+    ),
+  },
+  {
+    title: "You decide what holds",
+    body:
+      "Mark any move Holds or Fails. A move you haven’t marked is answered if any reply to it stands. If it has replies and every one has failed or been answered, it stands. Otherwise it stays open. Every status you see comes from your marks this way.",
+    icon: (
+      // the two calls, as the buttons appear: Holds (chosen) · Fails
+      <svg className="ov-stepicon" viewBox="0 0 48 32" aria-hidden>
+        <rect x="1.5" y="10" width="21" height="12" rx="6" className="pillon" />
+        <rect x="25.5" y="10" width="21" height="12" rx="6" className="pill" />
+        <path d="M8 16.2l2.6 2.4 5-5" className="tick" />
+        <path d="M33 13.6l5 5m0-5-5 5" className="cross" />
+      </svg>
+    ),
+  },
+  {
+    title: "Unanswered moves stay open",
+    body: "An exchange can end with either side. Its last move has no reply, so it stays open until you mark it.",
+    icon: (
+      <svg className="ov-stepicon" viewBox="0 0 48 32" aria-hidden>
+        <circle cx="24" cy="16" r="9" className="open" />
+        <circle cx="24" cy="16" r="13.5" className="openring" />
+      </svg>
+    ),
+  },
+];
+
+/** How it works: three columns on wide screens; on phones three rows that open in place. The
+    phone toggle is a button laid over its row (labelled by the row's heading) and hidden on wide
+    screens, so there it never claims a tab stop or a collapsed state. */
 function HowItWorks() {
+  const [open, setOpen] = useState<boolean[]>(() => STEPS.map(() => false));
+  const base = useId().replace(/[^a-zA-Z0-9_-]/g, "");
   return (
     <section className="ov-how" aria-labelledby="ov-how-h">
       <h2 id="ov-how-h" className="eyebrow ov-sect-k">
         How it works
       </h2>
       <ol className="ov-steps">
-        <li>
-          <svg className="ov-stepicon" viewBox="0 0 48 32" aria-hidden>
-            <path d="M10 6 16 17H4z" className="sk" />
-            <path d="M18 12c6-6 12-6 16 1" className="arc" />
-            <path d="M31 9.5l3 3.6 3.4-3" className="arc" />
-            <circle cx="36" cy="22" r="5.4" className="th" />
-          </svg>
-          <h3>Each side answers the other</h3>
-          <p>
-            Round 1 is the objection. Each round after it replies to the one above it, usually alternating between the Objector and the Defender, up to
-            round 7. Spinoza can cut in at any round, on either side. A move can draw several replies. An objection can also come in parts, separate charges argued one by one, and it stands if any one of its parts stands.
-          </p>
-        </li>
-        <li>
-          {/* the two calls, as the buttons appear: Holds (chosen) · Fails */}
-          <svg className="ov-stepicon" viewBox="0 0 48 32" aria-hidden>
-            <rect x="1.5" y="10" width="21" height="12" rx="6" className="pillon" />
-            <rect x="25.5" y="10" width="21" height="12" rx="6" className="pill" />
-            <path d="M8 16.2l2.6 2.4 5-5" className="tick" />
-            <path d="M33 13.6l5 5m0-5-5 5" className="cross" />
-          </svg>
-          <h3>You decide what holds</h3>
-          <p>
-            Mark any move Holds or Fails. A move you haven’t marked is answered if any reply to it stands. If it has replies and every one has failed or
-            been answered, it stands. Otherwise it stays open. Every status you see comes from your marks this way.
-          </p>
-        </li>
-        <li>
-          <svg className="ov-stepicon" viewBox="0 0 48 32" aria-hidden>
-            <circle cx="24" cy="16" r="9" className="open" />
-            <circle cx="24" cy="16" r="13.5" className="openring" />
-          </svg>
-          <h3>Unanswered moves stay open</h3>
-          <p>An exchange can end with either side. Its last move has no reply, so it stays open until you mark it.</p>
-        </li>
+        {STEPS.map((s, i) => (
+          <li key={s.title} className={open[i] ? "open" : undefined}>
+            {s.icon}
+            <h3 id={`ov-step-${base}-${i}`}>{s.title}</h3>
+            <button
+              type="button"
+              className="ov-step-tog"
+              aria-expanded={open[i]}
+              aria-controls={`ov-stepb-${base}-${i}`}
+              aria-labelledby={`ov-step-${base}-${i}`}
+              onClick={() => setOpen((v) => v.map((x, j) => (j === i ? !x : x)))}
+            >
+              <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden>
+                <path d="M3.5 6 8 10.5 12.5 6" />
+              </svg>
+            </button>
+            <p id={`ov-stepb-${base}-${i}`} className="ov-step-b">
+              {s.body}
+            </p>
+          </li>
+        ))}
       </ol>
     </section>
   );
@@ -647,7 +791,7 @@ export default function Overview() {
           </div>
 
           <div className="ov-right">
-            <Rose onEnter={(o) => go({ view: "objection", o })} onNode={openNode} build={first} className="ov-rose" />
+            <Rose onEnter={(o) => go({ view: "objection", o })} onNode={openNode} build={first} dial className="ov-rose" />
             <HubCaption />
           </div>
 
@@ -666,11 +810,7 @@ export default function Overview() {
           </h2>
           <p className="ov-five-t">Open one to read every round, or step through it a move at a time.</p>
         </header>
-        <ol className="ov-posters">
-          {d.objections.map((o) => (
-            <Poster key={o.id} o={o} />
-          ))}
-        </ol>
+        <Deck objections={d.objections} />
       </section>
     </div>
   );

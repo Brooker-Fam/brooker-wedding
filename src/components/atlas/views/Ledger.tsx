@@ -10,7 +10,7 @@
 
 import "./ledger.css";
 import { motion, useReducedMotion } from "framer-motion";
-import { useCallback, useEffect, useId, useMemo, useRef, useState, type KeyboardEvent } from "react";
+import { useCallback, useEffect, useId, useMemo, useRef, useState, useSyncExternalStore, type KeyboardEvent } from "react";
 import { useAtlas } from "../context";
 import { IF_WRONG, OBJECTION_STATUS, determinationText, determine, findCrux, type Crux, type Determination } from "../determination";
 import { Glyph, RichText } from "../primitives";
@@ -48,9 +48,28 @@ function objectionList(numerals: string[]): string {
 /** Does a tension involve any of these moves? */
 const touches = (tensions: Tension[], ids: (string | null)[]) => tensions.some((t) => ids.includes(t.node) || ids.includes(t.reply));
 
+/** Phones and tablets: the map comes after the five results (the same width as in ledger.css). */
+const NARROW = "(max-width: 959px)";
+const onNarrow = (cb: () => void) => {
+  const mq = window.matchMedia(NARROW);
+  mq.addEventListener("change", cb);
+  return () => mq.removeEventListener("change", cb);
+};
+/** False on the server and before hydration (the wide layout). */
+const useNarrow = () =>
+  useSyncExternalStore(
+    onNarrow,
+    () => window.matchMedia(NARROW).matches,
+    () => false,
+  );
+
 export default function Ledger() {
   const { d, ix, judgments, analysis, tensions, go, toPlain, openNode } = useAtlas();
   const reduce = useReducedMotion();
+  const narrow = useNarrow();
+  /** Phones: the rules under the intro's first sentence fold away until asked for. */
+  const [rulesOpen, setRulesOpen] = useState(false);
+  const rulesId = useId();
 
   // Ignore stale calls on moves that no longer exist in the content.
   const calls = useMemo(() => Object.keys(judgments).filter((id) => ix.nodes.has(id)), [judgments, ix]);
@@ -61,6 +80,17 @@ export default function Ledger() {
 
   const rise = (i: number) =>
     reduce ? {} : { initial: { opacity: 0, y: 10 }, animate: { opacity: 1, y: 0 }, transition: { duration: 0.5, delay: 0.08 + i * 0.06, ease: [0.22, 1, 0.36, 1] as const } };
+
+  // Beside the title on wide screens. On phones and tablets it comes after the results in the
+  // page itself (not only on screen), so Tab and screen readers meet the results first.
+  const map = (
+    <motion.div className="ld-head-rose" {...(reduce ? {} : { initial: { opacity: 0 }, animate: { opacity: 1 }, transition: { duration: 0.6, delay: 0.1 } })}>
+      {/* Phones and tablets only (ledger.css): there the map comes after the results and needs a name. */}
+      <h2 className="ld-h2 ld-map-h serif">Your calls on the map</h2>
+      <Rose verdicts build={false} onEnter={(o) => go({ view: "objection", o })} onNode={openNode} />
+      <RoseKey />
+    </motion.div>
+  );
 
   return (
     <div className="ld">
@@ -74,10 +104,18 @@ export default function Ledger() {
             Where you <em>stand</em>
           </h1>
           <p className="ld-intro">
-            Your results come from the moves you mark Holds or Fails, and they update whenever you change a call. Each objection comes in a few parts. A
-            part stands if you mark it Holds or every reply to it has failed or been answered. It doesn’t stand if you mark it Fails or if a reply to it
-            stands. The objection stands if any one of its parts stands, and it is answered once none of them stands or is still open.
+            Your results come from the moves you mark Holds or Fails, and they update whenever you change a call.{" "}
+            <span id={rulesId} className={`ld-rules ${rulesOpen ? "is-open" : ""}`}>
+              Each objection comes in a few parts. A part stands if you mark it Holds or every reply to it has failed or been answered. It doesn’t stand if
+              you mark it Fails or if a reply to it stands. The objection stands if any one of its parts stands, and it is answered once none of them stands
+              or is still open.
+            </span>
           </p>
+          {/* Shown only on phones (ledger.css); elsewhere the rules are always in the paragraph. */}
+          <button type="button" className="ld-rules-tog mono" aria-expanded={rulesOpen} aria-controls={rulesId} onClick={() => setRulesOpen((v) => !v)}>
+            {rulesOpen ? "Hide how results work" : "How results work"}
+            <span aria-hidden className={`ld-caret ${rulesOpen ? "up" : ""}`} />
+          </button>
           {/* One quotation per screen: the empty state carries its own (Socrates). */}
           {!empty && (
             <figure className="ld-epi">
@@ -112,10 +150,7 @@ export default function Ledger() {
 
         {empty && <EmptyState first={d.objections[0]} />}
 
-        <motion.div className="ld-head-rose" {...(reduce ? {} : { initial: { opacity: 0 }, animate: { opacity: 1 }, transition: { duration: 0.6, delay: 0.1 } })}>
-          <Rose verdicts build={false} onEnter={(o) => go({ view: "objection", o })} onNode={openNode} />
-          <RoseKey />
-        </motion.div>
+        {!narrow && map}
       </div>
 
       <section className="ld-rulings" aria-labelledby="ld-rulings-h">
@@ -133,6 +168,8 @@ export default function Ledger() {
           ))}
         </ol>
       </section>
+
+      {narrow && map}
 
       {crux && <CruxCard crux={crux} tense={touches(tensions, [crux.id])} />}
 
@@ -186,7 +223,13 @@ function Ruling({ o, det, count, tense }: { o: Objection; det: Determination; co
       <p className="eyebrow ld-art-eyebrow">
         Objection {o.numeral}
         <span className="sr-only"> of {count}</span>
-        {o.short && <span className="ld-nw"> · {o.short}</span>}
+        {/* The space stays outside the inline-block, which would swallow it. */}
+        {o.short && (
+          <>
+            {" "}
+            <span className="ld-nw">· {o.short}</span>
+          </>
+        )}
       </p>
       <h3 id={titleId} className="ld-art-title serif">
         {title}
@@ -757,7 +800,8 @@ function TakeAway() {
       ttl: 8000,
       action: {
         label: "Undo",
-        // One write per call (the context exposes no bulk restore); React batches the renders.
+        // One write per call, so any call made since the reset is kept (a bulk replace would drop
+        // it); React batches the renders.
         run: () => {
           Object.entries(snapshot).forEach(([id, j]) => judge(id, j as Judgment));
           keepFocus(window.innerHeight / 3);

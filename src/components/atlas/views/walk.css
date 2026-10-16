@@ -168,8 +168,8 @@
 .atl .wk-how-tog[aria-expanded="true"] span {
   transform: rotate(180deg);
 }
-/* a fresh walk shows the rules outright; on phones they fold behind the same disclosure the
-   walk uses later, so the first move is on the first screen */
+/* a fresh walk shows the rules outright; on phones (and phones on their side) they fold behind
+   the same disclosure the walk uses later, so the first move is on the first screen */
 .atl .wk-how-tog {
   display: none;
   padding: 0;
@@ -177,7 +177,7 @@
   background: none;
   font-family: var(--mono);
 }
-@media (max-width: 639px) {
+@media (max-width: 639px), (max-height: 520px) and (pointer: coarse) {
   .atl .wk-how.is-open {
     border: 0;
   }
@@ -906,6 +906,10 @@
   border-radius: 2px;
   background: var(--bone);
 }
+/* the bar is a keyboard cue: after a tap or a swipe the heading takes focus without it */
+.atl .wk-root[data-wk-input="pointer"] [data-wk-head]:focus-visible::before {
+  display: none;
+}
 .atl .wk-gist {
   margin: 0 0 4px;
   max-width: 60ch;
@@ -1316,21 +1320,69 @@
   max-width: 680px;
   margin-inline: auto;
 }
+/* the tip sits in the same column as the buttons (on a tablet too) */
+.atl .wk-bar-pin .wk-tip {
+  max-width: 680px;
+  margin: -2px auto 7px;
+}
+/* a narrow window with a keyboard: the labels keep their room, and the keys still work */
+@media (max-width: 559px) {
+  .atl .wk-bar-pin .wk-kbd {
+    display: none;
+  }
+}
 .atl .wk-bar-pin .wk-btn {
-  min-height: 48px;
+  min-height: 52px;
   padding: 5px 10px;
+  gap: 8px;
   font-size: 11.5px;
   letter-spacing: 0.08em;
   white-space: nowrap;
 }
+.atl .wk-bar-pin .wk-btn-l {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
 .atl .wk-bar-pin .wk-arrow {
   display: none;
 }
+.atl .wk-bar-pin .wk-l-full {
+  display: none;
+}
+@media (min-width: 560px) {
+  .atl .wk-bar-pin .wk-l-short {
+    display: none;
+  }
+  .atl .wk-bar-pin .wk-l-full {
+    display: inline;
+  }
+}
+/* which way each button sends the card (touch screens): a quiet chevron on its outer side */
+.atl .wk-btn-way {
+  flex: none;
+  margin-top: -2px;
+  font-family: var(--sans);
+  font-size: 17px;
+  line-height: 1;
+  letter-spacing: 0;
+  color: var(--faint);
+}
+.atl .wk-btn.solid .wk-btn-way {
+  color: #5b5e6c;
+}
 .atl .wk-bar-pin .n1.with-undo {
-  grid-template-columns: minmax(0, 1fr) 48px;
+  grid-template-columns: minmax(0, 1fr) 52px;
 }
 .atl .wk-bar-pin .n2.with-undo {
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1.35fr) 48px;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.35fr) 52px;
+}
+/* Holds and Fails weigh the same: equal buttons */
+.atl .wk-bar-pin .n2.even {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.atl .wk-bar-pin .n2.even.with-undo {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 52px;
 }
 /* narrow phones (320–374px): a little less air, so every label stays on one line */
 @media (max-width: 374px) {
@@ -1338,25 +1390,29 @@
     gap: 8px;
   }
   .atl .wk-bar-pin .wk-btn {
+    gap: 6px;
     padding-inline: 6px;
     font-size: 11px;
     letter-spacing: 0.02em;
   }
   .atl .wk-bar-pin .n1.with-undo {
-    grid-template-columns: minmax(0, 1fr) 44px;
+    grid-template-columns: minmax(0, 1fr) 48px;
   }
   .atl .wk-bar-pin .n2.with-undo {
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1.35fr) 44px;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.35fr) 48px;
+  }
+  .atl .wk-bar-pin .n2.even.with-undo {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 48px;
   }
   .atl .wk-bar-pin .wk-undo-ic {
     align-self: center;
-    width: 44px;
-    min-height: 44px;
-    height: 44px;
+    width: 48px;
+    min-height: 48px;
+    height: 48px;
   }
 }
 .atl .wk-undo-ic {
-  width: 48px;
+  width: 52px;
   padding: 0;
   border-radius: 50%;
   border-color: var(--line-soft);
@@ -1366,22 +1422,283 @@
 .atl .wk-undo-ic:hover {
   color: var(--bone);
 }
-/* a control reached with Tab never ends up under the docked bar (its context line + 48px buttons) */
-html:has(.atl .wk-bar-pin.is-on) {
-  scroll-padding-bottom: calc(132px + env(safe-area-inset-bottom));
+/* A control reached with Tab never ends up under the docked bar (its context line + 52px
+   buttons). A margin on the controls, not scroll-padding on the page: the bar is sticky, and with
+   page padding a tap on one of its own buttons would scroll the page to its end to "reveal" it. */
+.atl .wk-root:has(.wk-bar-pin.is-on) :is(a, button, summary, [tabindex]):not(.wk-bar-pin *) {
+  scroll-margin-bottom: calc(136px + env(safe-area-inset-bottom));
 }
-/* keep toasts (and their Undo) clear of the docked bar */
-.atl:has(.wk-bar-pin.is-on) .toast-dock {
-  bottom: calc(108px + env(safe-area-inset-bottom));
+/* keep toasts (and their Undo) clear of the docked bar; an open sheet still takes precedence */
+html:not([data-atl-sheet="open"]):has(.atl .wk-bar-pin.is-on) .atl .toast-dock {
+  bottom: calc(112px + env(safe-area-inset-bottom));
 }
-/* short landscape phones: buttons only */
+
+/* the line of argument so far, in the dock: ▲ ─ ● ─ ◆ (the last is the lit move), then the round */
+.atl .wk-dock-path {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+}
+.atl .wk-dock-link {
+  width: 7px;
+  height: 1px;
+  margin: 0 2px;
+  background: var(--line);
+}
+.atl .wk-dock-more {
+  margin-right: 1px;
+  font-size: 11px;
+  line-height: 1;
+  color: var(--faint);
+}
+.atl .wk-dock-cur {
+  filter: drop-shadow(0 0 4px var(--side-glow));
+}
+.atl .wk-dock-round {
+  flex: none;
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--mute);
+}
+
+/* the one-time tip above the buttons (touch screens) */
+.atl .wk-tip {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 30px;
+  margin: -2px 2px 7px;
+  font-size: 13.5px;
+  line-height: 1.35;
+  color: var(--bone-2);
+}
+.atl .wk-tip-ic {
+  flex: none;
+  color: var(--mute);
+}
+.atl .wk-tip-t {
+  flex: 1;
+  min-width: 0;
+}
+.atl .wk-tip-x {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  margin: -7px -12px -7px 0;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: none;
+  font-size: 22px;
+  line-height: 1;
+  color: var(--mute);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.atl .wk-tip-x:hover {
+  color: var(--bone);
+}
+
+/* short landscape phones: buttons only, and less padding around them */
 @media (max-height: 520px) {
-  .atl .wk-bar-pin .wk-dock-ctx {
+  .atl .wk-bar-pin {
+    padding-top: 7px;
+    padding-bottom: calc(8px + env(safe-area-inset-bottom));
+  }
+  .atl .wk-bar-pin .wk-dock-ctx,
+  .atl .wk-bar-pin .wk-tip {
     display: none;
   }
-  .atl:has(.wk-bar-pin.is-on) .toast-dock {
-    bottom: calc(80px + env(safe-area-inset-bottom));
+  html:not([data-atl-sheet="open"]):has(.atl .wk-bar-pin.is-on) .atl .toast-dock {
+    bottom: calc(76px + env(safe-area-inset-bottom));
   }
+  .atl .wk-root:has(.wk-bar-pin.is-on) :is(a, button, summary, [tabindex]):not(.wk-bar-pin *) {
+    scroll-margin-bottom: calc(84px + env(safe-area-inset-bottom));
+  }
+}
+
+/* phones on their side: a shorter header, so the card comes sooner */
+@media (max-height: 520px) and (pointer: coarse) {
+  .atl .wk-root {
+    padding-top: 6px;
+  }
+  .atl .wk-head-grid {
+    margin-top: 4px;
+  }
+  .atl .wk-num {
+    font-size: 56px;
+  }
+  .atl .wk-title {
+    margin: 8px 0 4px;
+    font-size: 1.95rem;
+  }
+  .atl .wk-how {
+    margin-top: 6px;
+  }
+  /* the question waits for a taller screen (screen readers still get it) */
+  .atl .wk-question {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+  /* a fresh walk: How it works and the part pips share one row, as on phones held upright */
+  .atl .wk-head.is-intro .wk-progress {
+    grid-area: how;
+    justify-self: end;
+    align-self: start;
+    position: relative;
+    z-index: 1;
+    margin-top: 6px;
+  }
+  .atl .wk-head.is-intro .wk-progress-t {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+  /* the move a card answers takes one line, so the card's heading clears the docked bar */
+  .atl .wk-ctx-q {
+    white-space: nowrap;
+  }
+  .atl .wk-ctx-q .serif {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
+
+/* ---------- the deck (phones and tablets) ----------
+   The lit card sits on two card edges. Dragged sideways it tilts a little and the button's verb
+   is stamped on it; let go past the line (or flick) and it is thrown off that way while the next
+   card rises from beneath. The page still scrolls under a vertical drag. */
+.atl .wk-deck {
+  margin-bottom: 26px;
+}
+.atl .wk-ghost {
+  /* a whole card beneath, of which only the bottom edge shows until the top card moves */
+  position: absolute;
+  top: 9px;
+  bottom: -9px;
+  left: 12px;
+  right: 12px;
+  border: 1px solid var(--line-soft);
+  border-radius: 16px;
+  background: linear-gradient(180deg, #1f2231, #1a1c27);
+  box-shadow: 0 14px 28px -18px #000;
+  pointer-events: none;
+}
+.atl .wk-ghost.g2 {
+  top: 17px;
+  bottom: -17px;
+  left: 26px;
+  right: 26px;
+  background: #181a24;
+  opacity: 0.8;
+}
+/* Spinoza's cards are square-cornered, and so are the edges beneath one */
+.atl .wk-deck:has(.wk-lit.s-spinoza) .wk-ghost {
+  border-radius: 6px;
+}
+.atl .wk-card {
+  position: relative;
+  z-index: 1;
+  /* vertical drags scroll the page; sideways drags move the card (pinch zoom still works) */
+  touch-action: pan-y pinch-zoom;
+  transform-origin: 50% 100%;
+}
+/* pinch-zoomed in, the browser pans the page every way and the card stays put */
+.atl .wk-card.is-zoomed {
+  touch-action: manipulation;
+}
+.atl .wk-card.is-dragging {
+  cursor: grabbing;
+  -webkit-user-select: none;
+  user-select: none;
+  will-change: transform;
+}
+/* a drag that began on a button inside the card isn't a press on that button */
+.atl .wk-card.is-dragging :active {
+  scale: none;
+}
+.atl .wk-card.is-dragging .wk-lit,
+.atl .wk-card.is-dragging .wk-verdict {
+  box-shadow:
+    0 50px 90px -40px #000,
+    inset 0 1px 0 #ffffff0a;
+}
+/* the stamp: the button's own verb, pressed onto the part of the card that stays on screen */
+.atl .wk-swipe-stamp {
+  position: absolute;
+  top: var(--wk-stamp-y, 18px);
+  z-index: 3;
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  max-width: calc(100% - 40px);
+  padding: 8px 14px 8px 12px;
+  border: 2px solid var(--bone);
+  border-radius: 7px;
+  outline: 1px solid #ebe5d655;
+  outline-offset: 3px;
+  background: #16181f;
+  box-shadow: 0 12px 30px -12px #000;
+  font-family: var(--mono);
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.25;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--bone);
+  pointer-events: none;
+  opacity: 0;
+}
+/* thrown left, the stamp sits on the right edge (the edge that stays on screen), and vice versa;
+   its tilt and press come from the deck's motion values (none when motion is reduced) */
+.atl .wk-swipe-stamp.to-left {
+  right: 18px;
+}
+.atl .wk-swipe-stamp.to-right {
+  left: 18px;
+}
+.atl .wk-swipe-stamp .wk-sq {
+  flex: none;
+  width: 9px;
+  height: 9px;
+}
+/* the stamp says what its button says: the dock's short words where the dock uses them */
+.atl .wk-swipe-stamp .wk-l-full {
+  display: none;
+}
+@media (min-width: 560px) {
+  .atl .wk-swipe-stamp .wk-l-short {
+    display: none;
+  }
+  .atl .wk-swipe-stamp .wk-l-full {
+    display: inline;
+  }
+}
+/* narrow phones: a tighter stamp that stays on screen when the card is at the line (thrown
+   left, the card's right edge is about 250px in at 360px); anything longer wraps */
+@media (max-width: 420px) {
+  .atl .wk-swipe-stamp {
+    gap: 8px;
+    max-width: min(calc(100% - 40px), 200px);
+    padding: 7px 11px 7px 10px;
+    font-size: 12px;
+    letter-spacing: 0.12em;
+  }
+}
+.atl .wk-swipe-stamp.m-read .wk-sq {
+  background: transparent;
+  box-shadow: inset 0 0 0 1.5px var(--bone);
 }
 
 /* ---------- verdict cards (a reply stood · a line is settled) ---------- */
@@ -1523,6 +1840,12 @@ html:has(.atl .wk-bar-pin.is-on) {
   text-align: left;
   line-height: 1.3;
 }
+.atl .wk-nodechip-top {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: 7px;
+}
 .atl .wk-nodechip-addr {
   font-size: 10.5px;
   color: var(--faint);
@@ -1609,6 +1932,19 @@ html:has(.atl .wk-bar-pin.is-on) {
 .atl .wk-link:hover {
   border-bottom-color: var(--bone);
 }
+/* touch screens: the way back into the skipped parts gets its own line and a full-size target */
+@media (pointer: coarse) {
+  .atl .wk-done-unheard .wk-link {
+    display: flex;
+    align-items: center;
+    width: fit-content;
+    min-height: 44px;
+    margin-top: 2px;
+    border-bottom: 0;
+    text-decoration: underline 1px var(--line);
+    text-underline-offset: 5px;
+  }
+}
 .atl .wk-done-acts {
   display: flex;
   flex-wrap: wrap;
@@ -1671,6 +2007,24 @@ html:has(.atl .wk-bar-pin.is-on) {
   color: var(--mute);
 }
 
+/* ---------- touch screens of any width (tablets, phones on their side): 44px targets ---------- */
+@media (pointer: coarse) {
+  .atl .wk-pip {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  .atl .wk-said {
+    min-height: 44px;
+  }
+  .atl .wk-nodechip {
+    min-height: 44px;
+  }
+  .atl .wk-undo,
+  .atl .wk-res-toggle {
+    min-height: 44px;
+  }
+}
+
 /* ---------- wide screens: more room for the light ---------- */
 @media (min-width: 1100px) {
   .atl .wk-lit::before,
@@ -1721,17 +2075,39 @@ html:has(.atl .wk-bar-pin.is-on) {
       "prog";
   }
   .atl .wk-head-grid {
-    margin-top: 10px;
+    margin-top: 4px;
     gap: 0 14px;
   }
   .atl .wk-num {
-    font-size: 64px;
+    font-size: 58px;
   }
   .atl .wk-title {
-    margin-top: 12px;
+    margin: 10px 0 6px;
+  }
+  .atl .wk-question {
+    font-size: 1.02rem;
+    line-height: 1.42;
   }
   .atl .wk-how {
-    margin-top: 14px;
+    margin-top: 10px;
+  }
+  /* a fresh walk: How it works and the part pips share one row, so the first card sits higher
+     (the pips say which part is lit; their words stay for screen readers) */
+  .atl .wk-head.is-intro .wk-progress {
+    grid-area: how;
+    justify-self: end;
+    align-self: start;
+    position: relative;
+    z-index: 1;
+    margin-top: 10px;
+  }
+  .atl .wk-head.is-intro .wk-progress-t {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
   }
   .atl .wk-rules {
     grid-template-columns: minmax(0, 1fr);
@@ -1760,7 +2136,7 @@ html:has(.atl .wk-bar-pin.is-on) {
     padding: 0 10px;
   }
   .atl .wk-body {
-    margin-top: 20px;
+    margin-top: 16px;
   }
 
   .atl .wk-sec-btn {
@@ -1876,6 +2252,24 @@ html:has(.atl .wk-bar-pin.is-on) {
       "n"
       "label"
       "why";
+  }
+  /* a move chip: where it sits on one line, its claim below */
+  .atl .wk-chips {
+    flex-direction: column;
+  }
+  .atl .wk-nodechip:not(.wk-more-chip) {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 3px;
+    width: 100%;
+    min-height: 48px;
+    padding: 8px 14px 9px 12px;
+    border-radius: 12px;
+  }
+  .atl .wk-more-chip {
+    align-self: flex-start;
+    min-height: 44px;
+    padding-inline: 16px;
   }
   .atl .wk-done-acts {
     flex-direction: column;

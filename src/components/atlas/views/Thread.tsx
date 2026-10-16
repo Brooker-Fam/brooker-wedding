@@ -7,8 +7,10 @@
    gone another way, a fork shows the other replies and what each side needs.
    After the last move, an empty seat ("No reply yet") waits opposite it. */
 
-import { useContext, useId, type KeyboardEvent } from "react";
+import { useReducedMotion } from "framer-motion";
+import { useCallback, useContext, useId, useRef, useState, type KeyboardEvent, type MouseEvent, type PointerEvent, type ReactNode } from "react";
 import { useAtlas } from "../context";
+import { tick } from "../haptics";
 import { depthBelow, movesBelow } from "../helpers";
 import { Glyph } from "../primitives";
 import type { DisputationIndex, NodeInfo } from "../semantics";
@@ -98,7 +100,9 @@ function branchSize(ix: DisputationIndex, id: string): string {
   return `${m} ${m === 1 ? "move" : "moves"} · ${d} ${d === 1 ? "round" : "rounds"} below`;
 }
 
-function Fork({ parentId, current }: { parentId: string; current: string }) {
+type Step = (to: string, dir: 1 | -1, at?: number, swiped?: boolean) => void;
+
+function Fork({ parentId, current, onStep }: { parentId: string; current: string; onStep: Step }) {
   const { ix, labelOf, toPlain, judgments } = useAtlas();
   const api = useChamber();
   const ripple = useContext(RippleCtx);
@@ -114,13 +118,13 @@ function Fork({ parentId, current }: { parentId: string; current: string }) {
       <ForkIcon />
       <p className="ch-fork-title">{title}</p>
       <div className="ch-fork-nav">
-        <button type="button" className="ch-chev" aria-label="Previous reply" disabled={idx === 0} onClick={() => idx > 0 && api.focus(kids[idx - 1], "fork")}>
+        <button type="button" className="ch-chev" aria-label="Previous reply" disabled={idx === 0} onClick={() => idx > 0 && onStep(kids[idx - 1], -1)}>
           ‹
         </button>
         <span className="ch-fork-count">
           {idx + 1} of {n}
         </span>
-        <button type="button" className="ch-chev" aria-label="Next reply" disabled={idx === n - 1} onClick={() => idx < n - 1 && api.focus(kids[idx + 1], "fork")}>
+        <button type="button" className="ch-chev" aria-label="Next reply" disabled={idx === n - 1} onClick={() => idx < n - 1 && onStep(kids[idx + 1], 1)}>
           ›
         </button>
       </div>
@@ -139,7 +143,7 @@ function Fork({ parentId, current }: { parentId: string; current: string }) {
                 className={`ch-fork-opt s-${info.node.side} st-${shown} ${on ? "on" : ""}`}
                 aria-current={on ? "true" : undefined}
                 data-subject={k}
-                onClick={() => api.focus(k, "fork")}
+                onClick={() => (on ? api.focus(k, "fork") : onStep(k, i > idx ? 1 : -1))}
                 style={delayStyle(rippleDelay(ripple, k, info.depth))}
               >
                 <span className="ch-fork-n">{i + 1}</span>
@@ -334,6 +338,172 @@ function EmptyChair({ leaf, seat }: { leaf: string; seat: Seat }) {
   );
 }
 
+/* ---------------- swiping between sibling replies ---------------- */
+
+/** No swipe starts this close to the screen's left or right edge (the browser's back gesture). */
+const EDGE = 24;
+/** Travel (px) before a drag counts as sideways or as a scroll. */
+const SLOP = 10;
+/** Past this (px), or on a quick flick, letting go moves to the next reply. */
+const COMMIT = 84;
+const FLICK = 0.45; // px per ms
+
+interface Gesture {
+  pid: number;
+  x0: number;
+  y0: number;
+  /** Locked sideways (the page no longer scrolls under this finger). */
+  lock: boolean;
+  dx: number;
+  card: HTMLElement;
+  /** Recent positions, for the release speed. */
+  pts: { t: number; x: number }[];
+  /** Where the finger came down, from the top of the card (the hint shows there). */
+  y: number;
+}
+
+/** A reply below a fork can be swiped sideways to the next or previous reply (touch and pen; the
+    ‹ › buttons and the list of replies above do the same, and so do ← and →). A drag is sideways
+    only once the finger has clearly gone sideways (|dx| > 1.5·|dy|), so scrolling always wins, and
+    none starts within 24px of the screen's edges. Past 84px or on a flick it moves on (with a tick
+    where the phone can); otherwise the card springs back. With no reply that way it only gives. */
+function SwipeCard({ id, sibs, enter, onStep, children }: { id: string; sibs: string[]; enter: 1 | -1 | 0; onStep: Step; children: ReactNode }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const g = useRef<Gesture | null>(null);
+  /** A click that lands right after a swipe is swallowed (it was the end of the drag). */
+  const quietUntil = useRef(0);
+  const reduce = useReducedMotion();
+  const i = sibs.indexOf(id);
+  const n = sibs.length;
+  const prevId = i > 0 ? sibs[i - 1] : undefined;
+  const nextId = i >= 0 && i < n - 1 ? sibs[i + 1] : undefined;
+
+  const hint = (dir: 1 | -1) => ref.current?.querySelector<HTMLElement>(`:scope > .ch-swipe-hint.${dir > 0 ? "next" : "prev"}`) ?? null;
+  const settle = (s: Gesture) => {
+    const el = s.card;
+    el.classList.remove("is-dragging");
+    el.classList.add("is-settling");
+    el.style.transform = "";
+    el.style.opacity = "";
+    for (const h of [hint(1), hint(-1)]) if (h) h.style.opacity = "";
+    window.setTimeout(() => el.classList.remove("is-settling"), 450);
+  };
+
+  const onPointerDown = (e: PointerEvent<HTMLDivElement>) => {
+    if (e.pointerType === "mouse" || !e.isPrimary || (!prevId && !nextId)) return;
+    if (e.clientX < EDGE || e.clientX > window.innerWidth - EDGE) return;
+    if ((e.target as Element).closest("input, textarea, select, [contenteditable='true']")) return;
+    // While text is selected, a drag adjusts the selection, not the card.
+    const sel = window.getSelection();
+    if (sel && !sel.isCollapsed) return;
+    const box = ref.current;
+    const card = box?.querySelector<HTMLElement>(":scope > .ch-turn");
+    if (!box || !card) return;
+    g.current = { pid: e.pointerId, x0: e.clientX, y0: e.clientY, lock: false, dx: 0, card, pts: [{ t: e.timeStamp, x: e.clientX }], y: e.clientY - box.getBoundingClientRect().top };
+  };
+
+  const onPointerMove = (e: PointerEvent<HTMLDivElement>) => {
+    const s = g.current;
+    if (!s || e.pointerId !== s.pid) return;
+    const dx = e.clientX - s.x0;
+    const dy = e.clientY - s.y0;
+    if (!s.lock) {
+      if (Math.abs(dx) > SLOP && Math.abs(dx) > 1.5 * Math.abs(dy)) {
+        s.lock = true;
+        try {
+          e.currentTarget.setPointerCapture(e.pointerId);
+        } catch {
+          /* the pointer may already be gone */
+        }
+        s.card.classList.add("is-dragging");
+        for (const h of [hint(1), hint(-1)]) if (h) h.style.top = `${Math.round(s.y)}px`;
+      } else if (Math.abs(dy) > SLOP) {
+        g.current = null; // a scroll: the page has it
+        return;
+      } else return;
+    }
+    s.dx = dx;
+    const dir: 1 | -1 = dx < 0 ? 1 : -1;
+    const to = dir > 0 ? nextId : prevId;
+    // With no reply that way the card only gives a little.
+    const x = to ? dx : Math.sign(dx) * Math.min(36, Math.abs(dx) * 0.28);
+    s.card.style.transform = `translate3d(${x.toFixed(1)}px, 0, 0)`;
+    const h = hint(dir);
+    const other = hint(dir > 0 ? -1 : 1);
+    if (h) h.style.opacity = to ? Math.min(1, Math.abs(dx) / COMMIT).toFixed(2) : "0";
+    if (other) other.style.opacity = "0";
+    s.pts.push({ t: e.timeStamp, x: e.clientX });
+    if (s.pts.length > 6) s.pts.shift();
+  };
+
+  const onPointerUp = (e: PointerEvent<HTMLDivElement>) => {
+    const s = g.current;
+    if (!s || e.pointerId !== s.pid) return;
+    g.current = null;
+    if (!s.lock) return;
+    quietUntil.current = performance.now() + 450;
+    const recent = s.pts.filter((p) => e.timeStamp - p.t < 100);
+    const p0 = recent[0] ?? s.pts[0];
+    const v = (e.clientX - p0.x) / Math.max(1, e.timeStamp - p0.t);
+    const dir: 1 | -1 = s.dx < 0 ? 1 : -1;
+    const to = dir > 0 ? nextId : prevId;
+    const flick = Math.abs(v) > FLICK && Math.sign(v) === Math.sign(s.dx) && Math.abs(s.dx) > 24;
+    if (!to || !(Math.abs(s.dx) > COMMIT || flick)) {
+      settle(s);
+      return;
+    }
+    tick();
+    const top = s.card.getBoundingClientRect().top;
+    s.card.classList.remove("is-dragging");
+    s.card.classList.add("is-leaving");
+    if (!reduce) s.card.style.transform = `translate3d(${-dir * Math.max(140, s.card.offsetWidth * 0.55)}px, 0, 0)`;
+    s.card.style.opacity = "0";
+    window.setTimeout(() => onStep(to, dir, top, true), reduce ? 40 : 150);
+  };
+
+  const onPointerCancel = (e: PointerEvent<HTMLDivElement>) => {
+    const s = g.current;
+    if (!s || e.pointerId !== s.pid) return;
+    g.current = null;
+    if (s.lock) settle(s);
+  };
+
+  const onClickCapture = (e: MouseEvent<HTMLDivElement>) => {
+    if (performance.now() < quietUntil.current) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+  };
+
+  return (
+    <div
+      ref={ref}
+      className="ch-swipe"
+      data-enter={enter > 0 ? "next" : enter < 0 ? "prev" : undefined}
+      onPointerDown={onPointerDown}
+      onPointerMove={onPointerMove}
+      onPointerUp={onPointerUp}
+      onPointerCancel={onPointerCancel}
+      onClickCapture={onClickCapture}
+    >
+      {children}
+      {prevId && (
+        <span className="ch-swipe-hint prev" aria-hidden>
+          ‹ {i} of {n}
+        </span>
+      )}
+      {nextId && (
+        <span className="ch-swipe-hint next" aria-hidden>
+          {i + 2} of {n} ›
+        </span>
+      )}
+    </div>
+  );
+}
+
+/** A sibling switch in progress: the card for `id` slides in from the `dir` side. */
+type Slide = { id: string; dir: 1 | -1; from: string };
+
 export default function Thread() {
   const { ix, tensions, judgments, labelOf } = useAtlas();
   const api = useChamber();
@@ -341,6 +511,18 @@ export default function Thread() {
   const keysId = useId();
   const { path, focusId } = api;
   const tenseKey = (a: string, b: string) => tensions.some((t) => t.node === a && t.reply === b);
+
+  /* Moving to a sibling reply (‹ ›, a reply in the fork's list, ← →, a swipe): the new card comes
+     in from that side. Forgotten once the reader moves on to anything else. */
+  const [slide, setSlide] = useState<Slide | null>(null);
+  if (slide && focusId !== slide.id && focusId !== slide.from) setSlide(null);
+  const step = useCallback<Step>(
+    (to, dir, at, swiped) => {
+      setSlide({ id: to, dir, from: api.focusId });
+      api.focus(to, swiped ? "swipe" : "fork", at);
+    },
+    [api],
+  );
 
   const onKey = (e: KeyboardEvent<HTMLElement>) => {
     const t = e.target as HTMLElement;
@@ -403,6 +585,8 @@ export default function Thread() {
     }
     if (!to) return;
     e.preventDefault();
+    // A sibling reply slides in from its side, as with ‹ › and a swipe.
+    if (info.parent && (e.key === "ArrowLeft" || e.key === "ArrowRight")) setSlide({ id: to, dir: e.key === "ArrowRight" ? 1 : -1, from: focusId });
     api.focus(to, "key");
   };
 
@@ -438,22 +622,31 @@ export default function Thread() {
           const seat = seatOf(info.node.side);
           const prevSeat = prevInfo ? seatOf(prevInfo.node.side) : seat;
           const between = fork || tense;
+          /* Primitive props only: a folded move re-renders only when its own status or call changes. */
+          const turn = (
+            <Turn
+              id={id}
+              focused={id === focusId}
+              next={id === focusId ? path[i + 1] : undefined}
+              tensed={tense || nextTense}
+              label={labelOf(id)}
+              call={judgments[id]}
+              rippleDelay={rippleDelay(ripple, id, info.depth)}
+            />
+          );
           return (
             <li key={id} className={`ch-step seat-${seat}`}>
               {prevInfo && <Connector from={prevSeat} to={between ? "center" : seat} side={info.node.side} tense={tense} short={between} />}
-              {fork && <Fork parentId={prev!} current={id} />}
+              {fork && <Fork parentId={prev!} current={id} onStep={step} />}
               {tense && <TensionNote node={prev!} reply={id} line={noteLines.get(id) ?? CONTRADICTION_QUOTES[0]} />}
               {between && <Connector from="center" to={seat} side={info.node.side} tense={tense} short />}
-              {/* Primitive props only: a folded move re-renders only when its own status or call changes. */}
-              <Turn
-                id={id}
-                focused={id === focusId}
-                next={id === focusId ? path[i + 1] : undefined}
-                tensed={tense || nextTense}
-                label={labelOf(id)}
-                call={judgments[id]}
-                rippleDelay={rippleDelay(ripple, id, info.depth)}
-              />
+              {fork ? (
+                <SwipeCard id={id} sibs={prevInfo!.childIds} enter={slide && slide.id === id && focusId === id ? slide.dir : 0} onStep={step}>
+                  {turn}
+                </SwipeCard>
+              ) : (
+                turn
+              )}
             </li>
           );
         })}

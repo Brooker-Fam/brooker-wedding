@@ -2,18 +2,21 @@
 
 /* "Peek": small floating cards for glossary terms and people.
    Anchored to the clicked element on wide screens; a bottom sheet on phones.
-   One peek at a time; Escape, ×, an outside click, or scrolling the page closes it
-   (scrolling inside the card does not, nor does a page scroll while a keyboard
-   user is working inside it).
+   One peek at a time; Escape, ×, an outside click (on phones, the scrim), or scrolling
+   the page closes it (scrolling inside the card does not, nor does a page scroll while
+   a keyboard user is working inside it). The phone sheet can also be dragged down to
+   close: by its grip, or from anywhere on it while its text is scrolled to the top.
    The sheet/card choice is made on the first render (a peek only ever mounts
    after a click, so there is no server render to match): deciding it later
    left the phone sheet stuck at the card's starting opacity of 0, invisible
    but still taking taps.
    Keyboard: opening moves focus to the card's title, Tab cycles within the card,
    and every way of closing returns focus to the control that opened it, which
-   carries aria-expanded while its card is open. */
+   carries aria-expanded while its card is open.
+   This file also holds the two helpers every bottom sheet uses (the peek and the
+   Shell's phone menu): useSheetPresence and useSheetDrag. */
 
-import { AnimatePresence, motion, useIsPresent, useReducedMotion } from "framer-motion";
+import { animate, AnimatePresence, motion, useIsPresent, useMotionValue, useReducedMotion, type MotionValue } from "framer-motion";
 import {
   createContext,
   useCallback,
@@ -25,11 +28,197 @@ import {
   useRef,
   useState,
   type KeyboardEvent as ReactKeyboardEvent,
+  type PointerEvent as ReactPointerEvent,
   type ReactNode,
+  type RefObject,
 } from "react";
 import { useAtlas } from "./context";
 import { Rich } from "./markup";
 import { ContextLink } from "./views/OutlineList";
+
+/* ------------------------------------------------------------------ */
+/* Bottom sheets: shared by the phone peek and the phone menu            */
+/* ------------------------------------------------------------------ */
+
+/* While a sheet is open, <html> carries data-atl-sheet="open" (the dock tucks away, toasts
+   rise above the sheet) and --atl-sheet-h holds the open sheet's height (--peek-h too, its
+   older name). Counted, so a sheet still sliding out never clears the flag of one that has
+   just opened; the height belongs to whichever sheet opened last. */
+let sheetCount = 0;
+let sheetHOwner: object | null = null;
+
+/** Mark a bottom sheet as open while `active` (pass false once it starts to leave). */
+export function useSheetPresence(ref: RefObject<HTMLElement | null>, active: boolean) {
+  useLayoutEffect(() => {
+    if (!active) return;
+    const root = document.documentElement;
+    const el = ref.current;
+    const me = {};
+    sheetCount += 1;
+    sheetHOwner = me;
+    root.setAttribute("data-atl-sheet", "open");
+    const set = () => {
+      if (sheetHOwner !== me || !el) return;
+      const h = `${Math.round(el.getBoundingClientRect().height)}px`;
+      root.style.setProperty("--atl-sheet-h", h);
+      root.style.setProperty("--peek-h", h);
+    };
+    set();
+    const ro = el ? new ResizeObserver(set) : null;
+    if (el) ro?.observe(el);
+    return () => {
+      ro?.disconnect();
+      sheetCount = Math.max(0, sheetCount - 1);
+      if (!sheetCount) root.removeAttribute("data-atl-sheet");
+      if (sheetHOwner === me) {
+        sheetHOwner = null;
+        root.style.removeProperty("--atl-sheet-h");
+        root.style.removeProperty("--peek-h");
+      }
+    };
+  }, [ref, active]);
+}
+
+const DISMISS_PX = 80;
+/** px per ms: a downward flick at least this fast closes the sheet whatever the distance. */
+const FLICK = 0.5;
+
+/** Recent drag samples, for the release velocity (the last ~100ms of movement). */
+function tracker() {
+  let pts: { t: number; y: number }[] = [];
+  return {
+    reset(t: number) {
+      pts = [{ t, y: 0 }];
+    },
+    add(t: number, y: number) {
+      pts.push({ t, y });
+      while (pts.length > 2 && t - pts[0].t > 100) pts.shift();
+    },
+    velocity() {
+      if (pts.length < 2) return 0;
+      const a = pts[0];
+      const b = pts[pts.length - 1];
+      return b.t > a.t ? (b.y - a.y) / (b.t - a.t) : 0;
+    },
+    last() {
+      return pts.length ? pts[pts.length - 1].y : 0;
+    },
+  };
+}
+
+/** Drag a bottom sheet down to close it. Returns the grip's pointerdown handler (any pointer;
+    the grip has touch-action: none). On touch the sheet's scrolling body also pulls it down,
+    but only when the body is already at its top and the finger moves down: everywhere else
+    the body scrolls as usual, and its own scrolling never closes the sheet. Released past
+    80px, or flicked down, the sheet closes; otherwise it springs back. One snap point. */
+export function useSheetDrag(y: MotionValue<number>, onDismiss: () => void, body: RefObject<HTMLElement | null>, enabled: boolean) {
+  const reduce = useReducedMotion();
+  const dismiss = useRef(onDismiss);
+  useEffect(() => {
+    dismiss.current = onDismiss;
+  }, [onDismiss]);
+
+  const settle = useCallback(
+    (dy: number, v: number) => {
+      if (dy > DISMISS_PX || (v > FLICK && dy > 12)) dismiss.current();
+      else if (reduce) y.set(0);
+      else animate(y, 0, { type: "spring", stiffness: 560, damping: 42 });
+    },
+    [y, reduce],
+  );
+
+  // Touch on the body: pull down from the top.
+  useEffect(() => {
+    const el = body.current;
+    if (!el || !enabled) return;
+    const tr = tracker();
+    let x0 = 0;
+    let y0 = 0;
+    let atTop = false;
+    let decided = false;
+    let pulling = false;
+    const start = (e: TouchEvent) => {
+      decided = e.touches.length !== 1;
+      pulling = false;
+      if (decided) return;
+      x0 = e.touches[0].clientX;
+      y0 = e.touches[0].clientY;
+      atTop = el.scrollTop <= 0;
+    };
+    const move = (e: TouchEvent) => {
+      if (decided && !pulling) return;
+      const t = e.touches[0];
+      if (!t) return;
+      const dy = t.clientY - y0;
+      const dx = t.clientX - x0;
+      if (!decided) {
+        // Nothing above to scroll to: keep the browser from claiming a downward drag.
+        if (atTop && dy > 0 && e.cancelable) e.preventDefault();
+        if (Math.abs(dy) < 8 && Math.abs(dx) < 8) return;
+        decided = true;
+        pulling = atTop && el.scrollTop <= 0 && dy > 0 && Math.abs(dy) > Math.abs(dx);
+        if (!pulling) return;
+        tr.reset(e.timeStamp);
+      }
+      if (e.cancelable) e.preventDefault();
+      // The sheet follows the finger's whole travel (the few px of slop included).
+      const d = Math.max(0, t.clientY - y0);
+      y.set(d);
+      tr.add(e.timeStamp, d);
+    };
+    const end = () => {
+      if (!pulling) return;
+      pulling = false;
+      settle(tr.last(), tr.velocity());
+    };
+    el.addEventListener("touchstart", start, { passive: true });
+    el.addEventListener("touchmove", move, { passive: false });
+    el.addEventListener("touchend", end);
+    el.addEventListener("touchcancel", end);
+    return () => {
+      el.removeEventListener("touchstart", start);
+      el.removeEventListener("touchmove", move);
+      el.removeEventListener("touchend", end);
+      el.removeEventListener("touchcancel", end);
+    };
+  }, [body, enabled, settle, y]);
+
+  // Any pointer on the grip.
+  return useCallback(
+    (e: ReactPointerEvent<HTMLElement>) => {
+      if (!enabled || (e.pointerType === "mouse" && e.button !== 0)) return;
+      const grip = e.currentTarget;
+      const id = e.pointerId;
+      try {
+        grip.setPointerCapture(id);
+      } catch {
+        /* the pointer is already gone */
+      }
+      const tr = tracker();
+      tr.reset(e.timeStamp);
+      const y0 = e.clientY;
+      const move = (ev: PointerEvent) => {
+        if (ev.pointerId !== id) return;
+        const raw = ev.clientY - y0;
+        // Upward: a little give, then it stops (the sheet is already fully open).
+        const d = raw < 0 ? Math.max(-14, raw / 5) : raw;
+        y.set(d);
+        tr.add(ev.timeStamp, d);
+      };
+      const up = (ev: PointerEvent) => {
+        if (ev.pointerId !== id) return;
+        grip.removeEventListener("pointermove", move);
+        grip.removeEventListener("pointerup", up);
+        grip.removeEventListener("pointercancel", up);
+        settle(Math.max(0, tr.last()), tr.velocity());
+      };
+      grip.addEventListener("pointermove", move);
+      grip.addEventListener("pointerup", up);
+      grip.addEventListener("pointercancel", up);
+    },
+    [enabled, settle, y],
+  );
+}
 
 type PeekTarget = { kind: "term" | "thinker"; id: string; rect: DOMRect };
 /** An open card: its target plus a count of opens, so reopening the same card while the last
@@ -120,13 +309,10 @@ export function PeekProvider({ children }: { children: ReactNode }) {
   );
 }
 
-/* The phone sheet that last published --peek-h: a sheet still sliding out must not clear the
-   height of the one that replaced it. */
-let peekHOwner: object | null = null;
-
 function PeekCard({ target, onClose }: { target: OpenPeek; onClose: (refocus?: boolean) => void }) {
   const { ix, go, thinkerName, termName, openNode, route } = useAtlas();
   const ref = useRef<HTMLDivElement>(null);
+  const bodyRef = useRef<HTMLDivElement>(null);
   const reduce = useReducedMotion();
   // A card on its way out (AnimatePresence keeps it for the exit) no longer closes on outside taps.
   const present = useIsPresent();
@@ -142,31 +328,17 @@ function PeekCard({ target, onClose }: { target: OpenPeek; onClose: (refocus?: b
   const [pos, setPos] = useState<{ left: number; top: number } | null>(null);
   const titleId = useId();
 
+  // The phone sheet: flagged open while it shows (its height lets a toast sit above it), and
+  // draggable down to close.
+  useSheetPresence(ref, sheet && present);
+  const sheetY = useMotionValue(0);
+  const dismiss = useCallback(() => onClose(), [onClose]);
+  const onGripDown = useSheetDrag(sheetY, dismiss, bodyRef, sheet && present);
+
   // Focus the title (without scrolling anything) so the next Tab lands on the card's actions.
   useEffect(() => {
     ref.current?.querySelector<HTMLElement>(".peek-title")?.focus({ preventScroll: true });
   }, []);
-
-  // A phone sheet publishes its height, so a toast can sit above it instead of on top of it.
-  useLayoutEffect(() => {
-    if (!sheet || !ref.current) return;
-    const el = ref.current;
-    const root = document.documentElement;
-    const me = {};
-    peekHOwner = me;
-    const set = () => {
-      if (peekHOwner === me) root.style.setProperty("--peek-h", `${Math.round(el.getBoundingClientRect().height)}px`);
-    };
-    set();
-    const ro = new ResizeObserver(set);
-    ro.observe(el);
-    return () => {
-      ro.disconnect();
-      if (peekHOwner !== me) return;
-      peekHOwner = null;
-      root.style.removeProperty("--peek-h");
-    };
-  }, [sheet]);
 
   useLayoutEffect(() => {
     if (sheet) return;
@@ -305,25 +477,49 @@ function PeekCard({ target, onClose }: { target: OpenPeek; onClose: (refocus?: b
     els[next].focus();
   };
 
-  return (
+  const card = (
     <motion.div
       ref={ref}
       role="dialog"
       aria-labelledby={titleId}
       className={`peek${sheet ? " peek-sheet" : ""}`}
       onKeyDown={onKeyDown}
-      style={pos && !sheet ? { left: pos.left, top: pos.top } : undefined}
+      style={sheet ? { y: sheetY } : pos ? { left: pos.left, top: pos.top } : undefined}
       initial={reduce ? { opacity: 0 } : sheet ? { opacity: 1, y: "100%" } : { opacity: 0, y: 6, scale: 0.98 }}
       animate={reduce ? { opacity: 1 } : sheet ? { opacity: 1, y: 0 } : { opacity: 1, y: 0, scale: 1 }}
       exit={reduce ? { opacity: 0 } : sheet ? { opacity: 1, y: "100%" } : { opacity: 0, y: 4, scale: 0.98 }}
-      transition={{ type: "spring", stiffness: 420, damping: 34 }}
+      transition={{ type: "spring", stiffness: 420, damping: 38 }}
     >
-      {sheet && <div className="sheet-grip" aria-hidden />}
+      {sheet && (
+        <div className="sheet-grab" onPointerDown={onGripDown} aria-hidden>
+          <span className="sheet-grip" />
+        </div>
+      )}
       <button type="button" className="peek-close" onClick={() => onClose()} aria-label={`Close ${closeName}`}>
         ×
       </button>
-      {body}
+      <div className="peek-body" ref={bodyRef}>
+        {body}
+      </div>
     </motion.div>
+  );
+
+  if (!sheet) return card;
+  return (
+    <>
+      {/* Tapping the page behind the sheet closes it (the outside-press handler above); the scrim
+          makes that visible and keeps the tap from reaching whatever lies underneath. */}
+      <motion.div
+        className="peek-scrim"
+        aria-hidden
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        transition={{ duration: 0.2 }}
+        onClick={() => onClose()}
+      />
+      {card}
+    </>
   );
 }
 

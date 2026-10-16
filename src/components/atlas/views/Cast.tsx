@@ -9,7 +9,11 @@
    matter, their key work, where to read more, every move that names them
    (grouped by objection), their moments on the timeline, and a small map with
    those moves lit. Desktop: a sticky file beside the roster.
-   Phone / tablet: the file opens in place, under the row of the name you tapped. */
+   Phone / tablet: the file opens in place, under the row of the name you tapped (on a phone the card itself opens
+   into the file).
+
+   Two orders: by era (the default, with a sticky row of eras on phones) or A to Z by surname (with letter buttons and,
+   on phones and tablets held upright, an A–Z rail at the right edge). */
 
 import "./library.css";
 import { Fragment, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type KeyboardEvent, type MouseEvent } from "react";
@@ -19,7 +23,7 @@ import { Glyph, RichText } from "../primitives";
 import { formatRoute } from "../router";
 import type { DisputationIndex } from "../semantics";
 import type { ObjectionId, Quote, Side, Thinker } from "../types";
-import { ERAS, FootprintBlock, LibEmpty, LibHead, LibTabs, eraOf, fold, scrollBehavior, spokenBy, useMedia, yearText } from "./Outline";
+import { ChipRow, ERAS, FootprintBlock, JumpRow, LetterNav, LibEmpty, LibHead, LibTabs, ScrubRail, eraOf, fold, holdChrome, jumpTo, scrollBehavior, spokenBy, useMedia, yearText } from "./Outline";
 import { QuoteFigure } from "./OutlineList";
 import { SourceList } from "./Sources";
 
@@ -27,6 +31,29 @@ type TSide = Side | "neutral";
 /** Which side uses a person's work here: worked out from the moves that name them, never from their own `side`. */
 type Use = "skeptic" | "theist" | "both" | "spinoza" | "neutral";
 type UseFilter = "all" | Use;
+type Order = "era" | "az";
+
+/* A to Z goes by surname: "Thomas Aquinas" under A, "Abu Hamid al-Ghazali" under G; "Augustine of Hippo", "Paul the
+   Apostle" and "Pope Leo XIII" under their given names. A particle files with the surname the way the name is usually
+   indexed: "Peter van Inwagen" and "Michael Della Rocca" under V and D (as Sources files them), "Luis de Molina" and
+   "Adolf von Harnack" under M and H. */
+const PARTICLE = /^(van|De|Del|Della|Di|Da|Le|La|ibn|Ibn|ben)$/;
+function sortName(name: string): string {
+  const base = name.replace(/\([^)]*\)/g, " ").split(",")[0].trim();
+  const given = base.split(/\s+(?:of|the)\s+/i)[0];
+  const ws = given.split(/\s+/).filter((w) => w && !/^(jr|sr)\.?$/i.test(w));
+  if (ws.length > 1 && /^[IVXLC]+$/.test(ws[ws.length - 1])) ws.pop();
+  if (given !== base || ws.length === 1) return fold(ws.join(" "));
+  const n = ws.length;
+  const k = PARTICLE.test(ws[n - 2]) ? n - 2 : n - 1;
+  return fold(`${ws.slice(k).join(" ").replace(/^al-/i, "")} ${ws.slice(0, k).join(" ")}`).trim();
+}
+const letterOfName = (key: string) => {
+  const c = key.replace(/^[^a-z]+/, "").charAt(0).toUpperCase();
+  return c >= "A" && c <= "Z" ? c : "#";
+};
+/** The order chosen, for the rest of this visit (Back to People keeps it). */
+let keptOrder: Order = "era";
 
 /* A person's mark says which side uses their work in these arguments, from the moves that name them (and the moves
    their timeline events go with). It says nothing about what they believed, and neither does their card's colour. */
@@ -69,7 +96,7 @@ function usageOf(ix: DisputationIndex, t: Thinker): Use {
   return "neutral";
 }
 /** The mark's words for one person: Spinoza's own file says "Spinoza"; others with his mark are named where he speaks. */
-const useWord = (t: Thinker, u: Use) => (u === "spinoza" && t.id !== "spinoza" ? "Used where Spinoza speaks" : USE[u]);
+const markWord = (t: Thinker, u: Use) => (u === "spinoza" && t.id !== "spinoza" ? "Used where Spinoza speaks" : USE[u]);
 /** The card's colour follows the mark (which side uses their work here), never what they believed: one side's
     colour for one side only, bone for both sides and for background figures. */
 const tint = (u: Use): TSide => (u === "skeptic" || u === "theist" || u === "spinoza" ? u : "neutral");
@@ -113,6 +140,13 @@ export default function Cast({ thinker }: { thinker?: string }) {
   const wide = useMedia("(min-width: 980px)");
   const [side, setSide] = useState<UseFilter>("all");
   const [q, setQ] = useState("");
+  const [order, setOrderState] = useState<Order>(keptOrder);
+  const setOrder = (o: Order) => {
+    keptOrder = o;
+    setOrderState(o);
+  };
+  // How many roundels share a row (phone / tablet), so a file opens under the whole row, not mid-row.
+  const [cols, setCols] = useState(1);
 
   const all = useMemo(() => [...d.thinkers].sort((a, b) => a.year - b.year || a.name.localeCompare(b.name)), [d]);
   const uses = useMemo(() => new Map(all.map((t) => [t.id, usageOf(ix, t)])), [all, ix]);
@@ -125,16 +159,29 @@ export default function Cast({ thinker }: { thinker?: string }) {
     const needle = fold(q.trim());
     return all.filter((t) => (side === "all" || uses.get(t.id) === side) && (!needle || fold(`${t.name} ${t.tradition} ${t.work ?? ""}`).includes(needle)));
   }, [all, uses, side, q]);
-  const groups = useMemo(
-    () => ERAS.map((era) => ({ era, items: list.filter((t) => eraOf(t.year).id === era.id) })).filter((g) => g.items.length > 0),
-    [list],
-  );
+  const keys = useMemo(() => new Map(all.map((t) => [t.id, sortName(t.name)])), [all]);
+  /** The sections shown: eras (by era) or surname letters (A to Z). */
+  const groups = useMemo(() => {
+    if (order === "era") {
+      return ERAS.map((era) => ({ id: era.id, name: era.name, span: era.span, items: list.filter((t) => eraOf(t.year).id === era.id) })).filter((g) => g.items.length > 0);
+    }
+    const out: { id: string; name: string; span: string; items: Thinker[] }[] = [];
+    const byKey = [...list].sort((a, b) => keys.get(a.id)!.localeCompare(keys.get(b.id)!) || a.name.localeCompare(b.name));
+    for (const t of byKey) {
+      const L = letterOfName(keys.get(t.id)!);
+      const g = out[out.length - 1];
+      if (g && g.id === L) g.items.push(t);
+      else out.push({ id: L, name: L, span: "", items: [t] });
+    }
+    return out;
+  }, [list, order, keys]);
   const filtering = side !== "all" || q.trim() !== "";
 
   const sel = thinker ? ix.thinkers.get(thinker) : undefined;
   const missing = !!thinker && !sel;
   // Choosing someone in this view moves focus to their file (the panel beside the roster, or the file under the row),
   // so the next Tab reads it rather than walking on through the roster. Arriving from another view is the Shell's job.
+  // On a phone the card opens into the file right under it, so focus stays on the card.
   const focusFile = useRef<string | null>(null);
   const select = (id: string) => {
     if (id === thinker && wide) {
@@ -143,7 +190,7 @@ export default function Cast({ thinker }: { thinker?: string }) {
       return;
     }
     const off = id === thinker;
-    focusFile.current = off ? null : id;
+    focusFile.current = off || (!wide && cols === 1) ? null : id;
     go({ view: "cast", thinker: off ? undefined : id }, { replace: true });
   };
   useEffect(() => {
@@ -159,7 +206,10 @@ export default function Cast({ thinker }: { thinker?: string }) {
     const card = rosterRef.current?.querySelector<HTMLElement>(`[data-tid="${CSS.escape(id)}"]`);
     if (!card) return;
     const r = card.getBoundingClientRect();
-    if (r.top < 60 || r.bottom > window.innerHeight) card.scrollIntoView({ block: "center", behavior: scrollBehavior() });
+    if (r.top < 60 || r.bottom > window.innerHeight) {
+      holdChrome(1100);
+      card.scrollIntoView({ block: "center", behavior: scrollBehavior() });
+    }
     card.focus({ preventScroll: true });
   }, []);
   const close = useCallback(
@@ -176,8 +226,6 @@ export default function Cast({ thinker }: { thinker?: string }) {
     toCard(sel.id);
   };
 
-  // How many roundels share a row (phone / tablet), so a file opens under the whole row, not mid-row.
-  const [cols, setCols] = useState(1);
   useLayoutEffect(() => {
     const el = rosterRef.current;
     if (!el || wide) return;
@@ -192,6 +240,14 @@ export default function Cast({ thinker }: { thinker?: string }) {
     ro.observe(el);
     return () => ro.disconnect();
   }, [wide, groups.length]);
+  /** A phone (one card per row): the chosen card opens into its file, so the file doesn't repeat the card. */
+  const merged = !wide && cols === 1;
+
+  const groupsRef = useRef<HTMLDivElement>(null);
+  const sectionOf = useCallback((id: string) => groupsRef.current?.querySelector<HTMLElement>(`[data-group="${CSS.escape(id)}"]`) ?? null, []);
+  const jumpItems = useMemo(() => groups.map((g) => ({ id: g.id, content: g.name, aria: `${g.name}, ${g.items.length} ${g.items.length === 1 ? "person" : "people"}` })), [groups]);
+  const stops = useMemo(() => groups.map((g) => ({ key: g.id, label: g.name, count: g.items.length })), [groups]);
+  const present = useMemo(() => new Set(groups.map((g) => g.id)), [groups]);
 
   // Bring the chosen name into view: on arrival once the view has settled, at once afterwards.
   // On a phone, a file that opens low on the screen pulls its name (and the file under it) up.
@@ -204,6 +260,7 @@ export default function Cast({ thinker }: { thinker?: string }) {
     const t = setTimeout(
       () => {
         const card = rosterRef.current?.querySelector<HTMLElement>(`[data-tid="${CSS.escape(id)}"]`);
+        holdChrome(1100);
         if (wide) {
           const r = card?.getBoundingClientRect();
           if (card && r && (first || r.top < 60 || r.bottom > window.innerHeight)) card.scrollIntoView({ block: "nearest", behavior: scrollBehavior() });
@@ -214,7 +271,8 @@ export default function Cast({ thinker }: { thinker?: string }) {
         const shown = card && card.getClientRects().length > 0 ? card : undefined;
         const r = (file ?? shown)?.getBoundingClientRect();
         const cr = shown?.getBoundingClientRect();
-        if (r && (first || r.top > window.innerHeight * 0.55 || (cr && cr.top < 0) || (!shown && r.top < 0))) (shown ?? file)?.scrollIntoView({ block: "start", behavior: scrollBehavior() });
+        const to = shown ?? file;
+        if (to && r && (first || r.top > window.innerHeight * 0.55 || (cr && cr.top < 0) || (!shown && r.top < 0))) jumpTo(to);
       },
       first ? 420 : 30,
     );
@@ -227,9 +285,8 @@ export default function Cast({ thinker }: { thinker?: string }) {
   const head = (
     <LibHead
       current="cast"
-      tabs={false}
       title="People"
-      dek="Everyone in the arguments and on the timeline, grouped by era. The mark by each name shows which side uses that person’s work here, and that isn’t always the side they were on. Duns Scotus, a Franciscan friar, is marked for the Objector, who uses his argument against Aquinas."
+      dek="Everyone in the arguments and on the timeline. The mark by each name shows which side uses that person’s work here, and that isn’t always the side they were on. Duns Scotus, a Franciscan friar, is marked for the Objector, who uses his argument against Aquinas."
       meta={all.length ? `${all.length} people · ${yearText(first.year)} to ${yearText(last.year)}` : undefined}
     />
   );
@@ -255,7 +312,7 @@ export default function Cast({ thinker }: { thinker?: string }) {
                 </svg>
                 <input type="search" value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search by name, tradition or book" autoComplete="off" spellCheck={false} />
               </label>
-              <div className="ca-filters" role="group" aria-label="Show one group">
+              <ChipRow className="ca-filters" label="Show one group" active={side}>
                 <button type="button" className="ca-filter" aria-pressed={side === "all"} onClick={() => setSide("all")}>
                   Everyone <span className="ca-filter-n mono">{all.length}</span>
                 </button>
@@ -266,6 +323,17 @@ export default function Cast({ thinker }: { thinker?: string }) {
                     <span className="ca-filter-n mono">{counts[s]}</span>
                   </button>
                 ))}
+              </ChipRow>
+              <div className="src-group ca-order" role="group" aria-label="Order the list">
+                <span className="mono lib-k">Order</span>
+                <div className="src-seg">
+                  <button type="button" className="ca-filter" aria-pressed={order === "era"} onClick={() => setOrder("era")}>
+                    By era
+                  </button>
+                  <button type="button" className="ca-filter" aria-pressed={order === "az"} onClick={() => setOrder("az")}>
+                    A to Z
+                  </button>
+                </div>
               </div>
               <p className={`lib-count mono ${filtering ? "" : "sr-only"}`} aria-live="polite">
                 {filtering ? (list.length ? `Showing ${list.length} of ${all.length} people` : `No one matches`) : ""}
@@ -278,6 +346,13 @@ export default function Cast({ thinker }: { thinker?: string }) {
                 <ThinkerFile t={sel} onClose={() => close(sel.id)} />
               </div>
             )}
+
+            {groups.length > 1 &&
+              (order === "era" ? (
+                !wide && <JumpRow className="ca-jump" label="Jump to an era" items={jumpItems} target={sectionOf} />
+              ) : (
+                <LetterNav letters={groups.map((g) => g.id)} live={present} target={sectionOf} label="Jump to a letter" describe={(L) => `People under ${L}`} />
+              ))}
 
             {groups.length === 0 ? (
               <div className="lib-none">
@@ -294,38 +369,41 @@ export default function Cast({ thinker }: { thinker?: string }) {
                 </button>
               </div>
             ) : (
-              groups.map(({ era, items }) => {
-                // On narrow screens the file goes after the last roundel of the chosen one's row.
-                const at = !wide && sel ? items.findIndex((t) => t.id === sel.id) : -1;
-                const rowEnd = at < 0 ? -1 : Math.min(items.length - 1, Math.floor(at / cols) * cols + cols - 1);
-                return (
-                  <section key={era.id} className="ca-era" aria-labelledby={`ca-era-${era.id}`}>
-                    <h2 className="ca-era-h" id={`ca-era-${era.id}`}>
-                      <span className="serif">{era.name}</span>
-                      <span className="mono">{era.span}</span>
-                      <span className="ca-era-n mono">
-                        {items.length}
-                        <span className="sr-only"> {items.length === 1 ? "person" : "people"}</span>
-                      </span>
-                    </h2>
-                    <ul className="ca-grid">
-                      {items.map((t, i) => (
-                        <Fragment key={t.id}>
-                          <li className="ca-cell">
-                            <Roundel t={t} use={uses.get(t.id) ?? "neutral"} on={sel?.id === t.id} wide={wide} onPick={() => select(t.id)} />
-                          </li>
-                          {i === rowEnd && sel && (
-                            <li className="ca-inline">
-                              <ThinkerFile t={sel} key={sel.id} onClose={() => close(sel.id)} />
+              <div className={`ca-groups ${order === "az" ? "ca-az" : ""}`} ref={groupsRef}>
+                {groups.map(({ id, name, span, items }) => {
+                  // On narrow screens the file goes after the last roundel of the chosen one's row.
+                  const at = !wide && sel ? items.findIndex((t) => t.id === sel.id) : -1;
+                  const rowEnd = at < 0 ? -1 : Math.min(items.length - 1, Math.floor(at / cols) * cols + cols - 1);
+                  return (
+                    <section key={id} className="ca-era" data-group={id} aria-labelledby={`ca-era-${id}`}>
+                      <h2 className="ca-era-h" id={`ca-era-${id}`}>
+                        <span className="serif">{name}</span>
+                        {span && <span className="mono">{span}</span>}
+                        <span className="ca-era-n mono">
+                          {items.length}
+                          <span className="sr-only"> {items.length === 1 ? "person" : "people"}</span>
+                        </span>
+                      </h2>
+                      <ul className="ca-grid">
+                        {items.map((t, i) => (
+                          <Fragment key={t.id}>
+                            <li className="ca-cell">
+                              <Roundel t={t} use={uses.get(t.id) ?? "neutral"} on={sel?.id === t.id} wide={wide} open={merged && sel?.id === t.id} onPick={() => select(t.id)} />
                             </li>
-                          )}
-                        </Fragment>
-                      ))}
-                    </ul>
-                  </section>
-                );
-              })
+                            {i === rowEnd && sel && (
+                              <li className={`ca-inline ${merged ? "merged" : ""}`}>
+                                <ThinkerFile t={sel} key={sel.id} merged={merged} onClose={() => close(sel.id)} />
+                              </li>
+                            )}
+                          </Fragment>
+                        ))}
+                      </ul>
+                    </section>
+                  );
+                })}
+              </div>
             )}
+            {order === "az" && <ScrubRail stops={stops} target={sectionOf} list={groupsRef} unit={["person", "people"]} />}
           </div>
 
           {wide && (
@@ -343,7 +421,7 @@ export default function Cast({ thinker }: { thinker?: string }) {
   );
 }
 
-function Roundel({ t, use, on, wide, onPick }: { t: Thinker; use: Use; on: boolean; wide: boolean; onPick: () => void }) {
+function Roundel({ t, use, on, wide, open = false, onPick }: { t: Thinker; use: Use; on: boolean; wide: boolean; open?: boolean; onPick: () => void }) {
   const { ix } = useAtlas();
   const n = ix.thinkerRefs.get(t.id)?.length ?? 0;
   const s = tint(use);
@@ -351,7 +429,7 @@ function Roundel({ t, use, on, wide, onPick }: { t: Thinker; use: Use; on: boole
     <a
       href={formatRoute({ view: "cast", thinker: t.id })}
       data-tid={t.id}
-      className={`ca-card s-${s} ${on ? "on" : ""}`}
+      className={`ca-card s-${s} ${on ? "on" : ""} ${open ? "open" : ""}`}
       onClick={(e) => {
         if (!plainClick(e)) return;
         e.preventDefault();
@@ -368,19 +446,22 @@ function Roundel({ t, use, on, wide, onPick }: { t: Thinker; use: Use; on: boole
         </span>
       </span>
       <span className="ca-txt">
-        <span className="ca-name serif">{t.name}</span>
+        <span className="ca-name serif" id={`ca-name-${t.id}`}>
+          {t.name}
+        </span>
         <span className="ca-life mono">
           {t.life}
-          <span className="sr-only"> · {useWord(t, use)}</span>
+          <span className="sr-only"> · {markWord(t, use)}</span>
           {n > 0 && <span className="ca-n">{` · ${n} ${n === 1 ? "move" : "moves"}`}</span>}
         </span>
         {t.tradition && <span className="ca-trad">{t.tradition}</span>}
       </span>
+      {!wide && <span className="ca-chev" aria-hidden />}
     </a>
   );
 }
 
-function ThinkerFile({ t, onClose, onBack }: { t: Thinker; onClose?: () => void; onBack?: () => void }) {
+function ThinkerFile({ t, merged = false, onClose, onBack }: { t: Thinker; merged?: boolean; onClose?: () => void; onBack?: () => void }) {
   const { d, ix } = useAtlas();
   const refs = useMemo(() => ix.thinkerRefs.get(t.id) ?? [], [ix, t.id]);
   const moments = useMemo(() => [...d.moments].filter((m) => m.thinker === t.id).sort((a, b) => a.year - b.year), [d, t.id]);
@@ -420,30 +501,45 @@ function ThinkerFile({ t, onClose, onBack }: { t: Thinker; onClose?: () => void;
   const reading = (t.sources ?? []).filter((x) => x.title);
   const linked = refs.length === 0 && moments.some((m) => m.node && ix.nodes.has(m.node));
   return (
-    <article className={`ca-file s-${s}`} aria-labelledby={`ca-file-${t.id}`}>
-      {onClose && (
+    <article className={`ca-file s-${s} ${merged ? "merged" : ""}`} aria-labelledby={`ca-file-${t.id}`}>
+      {onClose && !merged && (
         <button type="button" className="ca-close" onClick={onClose} aria-label={`Close ${t.name}`}>
           ×
         </button>
       )}
-      <header className="ca-file-head">
-        <span className="monogram ca-file-mono" aria-hidden>
-          {initials(t.name)}
-        </span>
-        <div className="ca-file-id">
-          <h2 className="ca-file-name serif" id={`ca-file-${t.id}`} tabIndex={-1}>
+      {merged ? (
+        // The card above is this file's header (name, dates, tradition): say only which side uses their work.
+        <header className="ca-file-head ca-file-head-merged">
+          <h2 className="sr-only" id={`ca-file-${t.id}`} tabIndex={-1}>
             {t.name}
           </h2>
           <p className="ca-file-meta mono">
-            {t.life}
             <span className={`ca-file-lean s-${use}`}>
               <SideMark use={use} size={9} />
-              {useWord(t, use)}
+              {markWord(t, use)}
             </span>
           </p>
-        </div>
-      </header>
-      {t.tradition && <p className="ca-file-trad">{t.tradition}</p>}
+        </header>
+      ) : (
+        <header className="ca-file-head">
+          <span className="monogram ca-file-mono" aria-hidden>
+            {initials(t.name)}
+          </span>
+          <div className="ca-file-id">
+            <h2 className="ca-file-name serif" id={`ca-file-${t.id}`} tabIndex={-1}>
+              {t.name}
+            </h2>
+            <p className="ca-file-meta mono">
+              {t.life}
+              <span className={`ca-file-lean s-${use}`}>
+                <SideMark use={use} size={9} />
+                {markWord(t, use)}
+              </span>
+            </p>
+          </div>
+        </header>
+      )}
+      {t.tradition && !merged && <p className="ca-file-trad">{t.tradition}</p>}
       <QuoteFigure q={quote} hideWho={!!quote?.who && sameName(quote.who, t.name)} className="ca-file-quote" />
       {t.line && (
         <p className={`ca-file-line serif ${quote ? "after-quote" : ""}`}>
@@ -506,6 +602,13 @@ function ThinkerFile({ t, onClose, onBack }: { t: Thinker; onClose?: () => void;
         <p className="ca-back-row">
           <button type="button" className="ca-back mono" onClick={onBack} title="Or press Escape">
             <span aria-hidden>←</span> Back to the list
+          </button>
+        </p>
+      )}
+      {merged && onClose && (
+        <p className="ca-back-row">
+          <button type="button" className="ca-back mono" onClick={onClose} aria-label={`Close ${t.name}`}>
+            <span aria-hidden>↑</span> Close
           </button>
         </p>
       )}
