@@ -24,6 +24,27 @@ function shuffle<T>(items: T[]): T[] {
   return out;
 }
 
+function cameraFrame(thumbUrl: string): { roll: string; frame: number } | null {
+  const name = thumbUrl.split("/").pop()?.replace(/-thumb.*$/, "") ?? "";
+  const match = name.match(/^(.*?)(\d+)$/);
+  return match ? { roll: match[1], frame: Number(match[2]) } : null;
+}
+
+// Burst shots (IMG_3877, IMG_3879) side by side on the table read as a glitch.
+function pickPrints(photos: Record<string, unknown>[], count: number): Print[] {
+  const prints: Print[] = [];
+  const taken: { roll: string; frame: number }[] = [];
+  for (const p of shuffle(photos)) {
+    const src = String(p.thumb_url);
+    const frame = cameraFrame(src);
+    if (frame && taken.some((t) => t.roll === frame.roll && Math.abs(t.frame - frame.frame) <= 3)) continue;
+    if (frame) taken.push(frame);
+    prints.push({ id: Number(p.id), src, landscape: Number(p.width) > Number(p.height) });
+    if (prints.length === count) break;
+  }
+  return prints;
+}
+
 export async function getCelebrationMemories(printCount: number): Promise<CelebrationMemories> {
   try {
     const [photos, counts] = await Promise.all([
@@ -39,13 +60,7 @@ export async function getCelebrationMemories(printCount: number): Promise<Celebr
     if (!photos || !counts) return NO_MEMORIES;
 
     return {
-      prints: shuffle(photos)
-        .slice(0, printCount)
-        .map((p) => ({
-          id: Number(p.id),
-          src: String(p.thumb_url),
-          landscape: Number(p.width) > Number(p.height),
-        })),
+      prints: pickPrints(photos, printCount),
       photoCount: Number(counts[0].photos),
       songCount: Number(counts[0].songs),
     };
