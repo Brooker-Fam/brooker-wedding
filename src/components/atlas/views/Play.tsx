@@ -20,7 +20,7 @@ import { QuoteFigure } from "./OutlineList";
 import { MGlyph, MSIDE_WORD, quoteOf } from "./Timeline";
 
 /* A round survives a trip to a move and back (the view remounts); a reload deals a new one. */
-let kept: { slug: string; round: Round; newBest: boolean } | null = null;
+let kept: { slug: string; round: Round; newBest: boolean; open: string | null } | null = null;
 
 const NUM = ["no", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten"];
 const num = (n: number) => NUM[n] ?? String(n);
@@ -126,7 +126,24 @@ function Knot({ t, side }: { t: RowThreads; side: Moment["side"] }) {
 /* the line                                                             */
 /* ------------------------------------------------------------------ */
 
-function Gap({ k, before, after, title, lit, onPlace }: { k: number; before?: Moment; after?: Moment; title: string; lit: boolean[]; onPlace: (k: number) => void }) {
+function Gap({
+  k,
+  before,
+  after,
+  title,
+  lit,
+  grow,
+  onPlace,
+}: {
+  k: number;
+  before?: Moment;
+  after?: Moment;
+  title: string;
+  lit: boolean[];
+  /** Off on a return visit, where the shell restores scroll against the gaps' full height. */
+  grow: boolean;
+  onPlace: (k: number) => void;
+}) {
   const where =
     before && after
       ? `between ${before.title} (${before.when}) and ${after.title} (${after.when})`
@@ -134,7 +151,16 @@ function Gap({ k, before, after, title, lit, onPlace }: { k: number; before?: Mo
         ? `before ${after.title} (${after.when})`
         : `after ${before?.title} (${before?.when})`;
   return (
-    <button type="button" className="pl-gap" onClick={() => onPlace(k)} aria-label={`Place it ${where}`}>
+    <button
+      type="button"
+      className={`pl-gap${grow ? " grow" : ""}`}
+      onClick={(e) => {
+        // The second click of a double-click on Next lands on whatever gap slid under the pointer.
+        if (e.detail > 1) return;
+        onPlace(k);
+      }}
+      aria-label={`Place it ${where}`}
+    >
       <Threads lit={lit} />
       <span className="pl-gap-rule" aria-hidden />
       <span className="pl-gap-plus" aria-hidden>
@@ -345,7 +371,7 @@ function Weave({
   const guessAt = res?.off ? res.guess : -1;
   const n = line.length;
   const markOf = (id: string): Mark => (id === round.anchor ? "start" : round.results[id] ? markFor(round.results[id]) : null);
-  const gap = (k: number) => inHand && <Gap k={k} before={line[k - 1]} after={line[k]} title={inHand.title} lit={weave.gap(k)} onPlace={onPlace} />;
+  const gap = (k: number) => inHand && <Gap k={k} before={line[k - 1]} after={line[k]} title={inHand.title} lit={weave.gap(k)} grow={acted} onPlace={onPlace} />;
   const where = (i: number) => {
     const [b, a] = [line[i - 1], line[i + 1]];
     return b && a ? `between ${b.title} and ${a.title}` : b ? `after ${b.title}` : a ? `before ${a.title}` : "on the line";
@@ -407,12 +433,24 @@ function Weave({
 function Dock({ m, n, total, focus }: { m: Moment; n: number; total: number; focus: boolean }) {
   const { ix, thinkerName } = useAtlas();
   const ref = useRef<HTMLHeadingElement>(null);
+  const dock = useRef<HTMLDivElement>(null);
   useEffect(() => {
     if (focus) ref.current?.focus({ preventScroll: true });
   }, [focus]);
+  useEffect(() => {
+    const el = dock.current;
+    if (!el) return;
+    const root = document.documentElement;
+    const ro = new ResizeObserver(() => root.style.setProperty("--pl-dock-h", `${el.offsetHeight}px`));
+    ro.observe(el);
+    return () => {
+      ro.disconnect();
+      root.style.removeProperty("--pl-dock-h");
+    };
+  }, []);
   const threads = m.strands.map((s) => ix.objections.get(s)).filter((o): o is Objection => !!o);
   return (
-    <div className="pl-dock">
+    <div ref={dock} className="pl-dock">
       <div className={`pl-card s-${m.side}`}>
         <p className="pl-card-top">
           <span className="pl-card-side">
@@ -468,7 +506,7 @@ function Summary({ round, record, newBest, onDeal, headRef }: { round: Round; re
     <section className="pl-sum" aria-labelledby="pl-sum-h">
       <p className="pl-k">Round over</p>
       <h2 id="pl-sum-h" ref={headRef} tabIndex={-1} className="pl-sum-h">
-        {cap(num(s))} of {num(total)} in the right place
+        {s ? cap(num(s)) : "None"} of {num(total)} in the right place
       </h2>
       <p className="pl-sum-say">
         {roundSay(s, total)}
@@ -566,13 +604,13 @@ export default function Play() {
   const [round, setRound] = useState<Round>(() => (kept?.slug === d.slug ? kept.round : deal(d.moments)));
   const [newBest, setNewBest] = useState(() => (kept?.slug === d.slug ? kept.newBest : false));
   const [record, setRecord] = useState<PlayRecord>(() => readRecord(d.slug));
-  const [open, setOpen] = useState<string | null>(null);
+  const [open, setOpen] = useState<string | null>(() => (kept?.slug === d.slug ? kept.open : null));
   const [acted, setActed] = useState(false);
   const sumHead = useRef<HTMLHeadingElement>(null);
 
   useEffect(() => {
-    kept = { slug: d.slug, round, newBest };
-  }, [d.slug, round, newBest]);
+    kept = { slug: d.slug, round, newBest, open };
+  }, [d.slug, round, newBest, open]);
 
   const over = isOver(round);
   const line = useMemo(() => round.line.map((id) => ix.moments.get(id)).filter((m): m is Moment => !!m), [round.line, ix]);

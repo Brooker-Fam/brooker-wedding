@@ -86,10 +86,10 @@ text. Inline markup: `*italic*`, `[[term|text]]`, `{{thinker|text}}`,
 (checked like any other); the card that opens from a person's name shows theirs.
 
 **The game.** *The Long Conversation* (`#/play`; rules in `play.ts`, view in
-`views/Play.tsx`) teaches the history by putting it in order. A round deals eight
+`views/Play.tsx`) teaches the history by putting it in order. A round deals nine
 moments from the timeline, one from each ninth of it so every round spans the
-whole history, plus one from the middle dealt face up to start the line. The
-reader puts each card in a gap. A wrong guess costs a point and nothing else: the
+whole history. One from the middle third starts face up on the line, and the
+reader puts each of the other eight in a gap. A wrong guess costs a point and nothing else: the
 card moves to where it belongs and the guess stays marked until the next card.
 Each placed card opens with its year, its story, its quotation and the move it
 feeds (and what that move answers). The five objections run down the left as

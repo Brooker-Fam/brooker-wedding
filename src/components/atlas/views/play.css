@@ -404,6 +404,8 @@
   border: 0;
   background: none;
   cursor: pointer;
+}
+.atl .pl-gap.grow {
   animation: pl-gap-open 0.35s var(--ease) both;
 }
 .atl .pl-gap-rule {
@@ -677,6 +679,11 @@
 }
 
 /* ---------- the card in hand ---------- */
+/* Tabbing through the gaps scrolls each one clear of the top bar and the dock (Play.tsx measures the dock). */
+html:has(.atl .pl-dock) {
+  scroll-padding-top: calc(64px + env(safe-area-inset-top));
+  scroll-padding-bottom: calc(var(--pl-dock-h, 160px) + 12px);
+}
 .atl .pl-dock {
   order: 2;
   position: sticky;
@@ -926,7 +933,7 @@
   .atl .pl-row.is-new .pl-dot,
   .atl .pl-row.is-new .pl-knot-bar,
   .atl .pl-story,
-  .atl .pl-gap,
+  .atl .pl-gap.grow,
   .atl .pl-sum,
   .atl .pl-pip.now {
     animation: none;
