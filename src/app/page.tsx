@@ -5,6 +5,7 @@ import { getCelebrationMemories } from "@/lib/celebration";
 
 export const revalidate = 600;
 
+// Keep the wedding date off the site: no date on that milestone, and no exact day counts that back it out.
 const MILESTONES = [
   {
     date: "Thanksgiving 2025",
@@ -12,13 +13,12 @@ const MILESTONES = [
     body: "In the woods at New Skete Monastery, Matt sang, played the mandolin, and read Brittany a poem he wrote for her. Then he asked. She said yes, and we stayed for a service at the monastery.",
   },
   {
-    daysLater: 35,
-    date: "January 1, 2026",
+    gap: "A few weeks later",
     title: "The wedding",
     body: "We couldn’t wait, so we planned a winter wedding in five weeks and said our vows with our 20 closest loved ones.",
   },
   {
-    daysLater: 177,
+    gap: "Six months later",
     date: "June 27, 2026",
     title: "The celebration",
     body: "Then we celebrated with everyone on our farm: a ceremony in the field, tables under the tent, cake, and a fire after dark.",
@@ -36,18 +36,18 @@ function HowWeGotHere() {
         </h2>
         <ol className="mt-10 ml-1.5 border-l border-sage/35 dark:border-sage-light/30">
           {MILESTONES.map((m) => (
-            <li key={m.date} className="pl-8 sm:pl-10">
-              {m.daysLater && (
+            <li key={m.title} className="pl-8 sm:pl-10">
+              {m.gap && (
                 <p className={`${display} pt-1 pb-8 text-xl font-medium text-sage italic dark:text-sage-light`}>
-                  {m.daysLater} days later
+                  {m.gap}
                 </p>
               )}
               <div className="relative pb-2">
                 <span
                   aria-hidden="true"
-                  className="absolute top-2 -left-[calc(2rem+7.5px)] h-3.5 w-3.5 rounded-full border-2 border-soft-gold bg-cream sm:-left-[calc(2.5rem+7.5px)] dark:bg-dark-bg"
+                  className={`absolute ${m.date ? "top-2" : "top-3"} -left-[calc(2rem+7.5px)] h-3.5 w-3.5 rounded-full border-2 border-soft-gold bg-cream sm:-left-[calc(2.5rem+7.5px)] dark:bg-dark-bg`}
                 />
-                <p className={`${display} text-xl text-gold-dark italic dark:text-soft-gold-light`}>{m.date}</p>
+                {m.date && <p className={`${display} text-xl text-gold-dark italic dark:text-soft-gold-light`}>{m.date}</p>}
                 <h3 className={`${display} mt-1 text-3xl font-semibold text-forest dark:text-cream`}>{m.title}</h3>
                 <p className="mt-3 max-w-[60ch] text-[1.0625rem] leading-relaxed text-pretty text-forest/75 dark:text-cream/75">
                   {m.body}

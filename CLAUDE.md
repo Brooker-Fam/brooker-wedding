@@ -6,6 +6,8 @@ Wedding celebration website for Matt & Brittany Brooker at **brooker.family**.
 
 Matt & Brittany got married **January 1, 2026** and threw their **celebration party on June 27, 2026** at their farm in Greenwich, NY. The party is over, so the public site is a thank-you keepsake: the home page looks back on the day, and the nav only offers Photos, Playlist, and Games. Write in a warm past tense, never "join us" or "RSVP".
 
+Keep the wedding date off the site. Don't show it anywhere, or anything that pins it down exactly, like a day count from Thanksgiving or to June 27. Showing the June 27 celebration date is fine.
+
 ### What's linked and what isn't
 
 - **Public nav and home:** `/`, `/photos`, `/songs` (labelled "Playlist", read-only), `/games`.
