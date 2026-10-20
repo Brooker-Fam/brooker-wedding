@@ -1,6 +1,7 @@
 "use client";
 
 import { DEFAULT_TZ, localParts } from "@/lib/maple/time";
+import { useNightActive } from "./nightLook";
 import { cx, tone } from "./ui";
 import { useMaple, useNow } from "./useMaple";
 
@@ -30,6 +31,16 @@ function seasonFor(month: number, birthday: boolean): Season {
   if (month <= 8) return "summer";
   return "early-fall";
 }
+
+// Branches sprout as the tree fills in (from = leaves needed).
+const BRANCHES = [
+  { d: "M51,60 C58,54 66,47 74,40", w: 2.2, from: 2 },
+  { d: "M51,72 C44,66 36,60 28,50", w: 2.2, from: 3 },
+  { d: "M50,44 C55,39 58,34 61,29", w: 1.6, from: 4 },
+  { d: "M50,40 C46,38 41,35 37,33", w: 1.6, from: 5 },
+  { d: "M51,64 C56,60 62,56 66,51", w: 1.4, from: 6 },
+  { d: "M50,80 C45,74 39,68 33,61", w: 1.4, from: 7 },
+];
 
 // Where leaves sit, in growth order: branch tips first, then filling the crown.
 const ANCHORS: [number, number, number][] = [
@@ -66,6 +77,7 @@ export function Sapling({
   sway,
   className,
 }: {
+  /** One per week of age (capped at 52); the tree also grows taller over her first two months. */
   leaves: number;
   season: Season;
   gnome?: boolean;
@@ -74,45 +86,52 @@ export function Sapling({
 }) {
   const spots = leafSpots(Math.max(0, Math.min(52, leaves)));
   const palette = season === "summer" ? SUMMER : season === "early-fall" ? EARLY_FALL : season === "birthday" ? BIRTHDAY : AUTUMN;
-  const size = leaves <= 8 ? 1.05 : leaves <= 20 ? 0.8 : 0.62;
+  const size = leaves <= 2 ? 1.55 : leaves <= 8 ? 1.05 : leaves <= 20 ? 0.8 : 0.62;
   const bare = season === "winter";
+  const grow = 0.64 + 0.36 * Math.min(1, leaves / 9);
   return (
     <svg viewBox="0 0 100 110" className={className} aria-hidden>
       {/* ground */}
       <path d="M2,102 C22,94 78,94 98,102 L98,110 L2,110 Z" className="fill-[#5C7A4A]/25 dark:fill-[#A9C08F]/15" />
       {bare && <path d="M10,101 C28,95 72,95 90,101 C70,99 30,99 10,101 Z" fill="#F5F7F2" opacity="0.9" />}
-      <g
-        className={cx(sway && "animate-gentle-sway motion-reduce:animate-none [.maple-night_&]:animate-none")}
-        style={{ transformOrigin: "50% 100%", transformBox: "fill-box", animationDuration: "6s" }}
-      >
-        {/* trunk and branches */}
-        <g fill="none" stroke="#7A5230" strokeLinecap="round" className="dark:stroke-[#B08A62]">
-          <path d="M50,100 C51,84 48,70 51,56 C53,46 50,34 49,20" strokeWidth="3.6" />
-          <path d="M51,72 C44,66 36,60 28,50" strokeWidth="2.2" />
-          <path d="M51,60 C58,54 66,47 74,40" strokeWidth="2.2" />
-          <path d="M50,44 C55,39 58,34 61,29" strokeWidth="1.6" />
-          <path d="M50,40 C46,38 41,35 37,33" strokeWidth="1.6" />
-          <path d="M51,64 C56,60 62,56 66,51" strokeWidth="1.4" />
-          <path d="M50,80 C45,74 39,68 33,61" strokeWidth="1.4" />
+      <g transform={`translate(50 100) scale(${grow}) translate(-50 -100)`}>
+        <g
+          className={cx(sway && "animate-gentle-sway motion-reduce:animate-none [.maple-night_&]:animate-none")}
+          style={{ transformOrigin: "50% 100%", transformBox: "fill-box", animationDuration: "6s" }}
+        >
+          {/* trunk, then branches that appear as the leaves come in */}
+          <g fill="none" stroke="#7A5230" strokeLinecap="round" className="dark:stroke-[#B08A62]">
+            <path d="M50,100 C51,84 48,70 51,56 C53,46 50,34 49,20" strokeWidth="3.6" />
+            {BRANCHES.filter((b) => bare || leaves >= b.from).map((b) => (
+              <path key={b.d} d={b.d} strokeWidth={b.w} />
+            ))}
+          </g>
+          {/* a newborn sapling gets two little seed leaves near the top */}
+          {!bare && leaves < 3 && (
+            <g fill="#86A85E" stroke="#5C7A4A" strokeWidth="0.8">
+              <path d="M50,47 C43,38 33,39 29,45 C35,52 45,52 50,47 Z" />
+              <path d="M51,58 C58,49 68,50 72,56 C66,63 56,63 51,58 Z" />
+            </g>
+          )}
+          {bare &&
+            ANCHORS.slice(0, 7).map(([x, y], i) => (
+              <circle key={i} cx={x} cy={y + 3} r="1.6" fill="#F3D27A" className="animate-fairy-light-twinkle motion-reduce:animate-none [.maple-night_&]:animate-none" style={{ animationDelay: `${i * 0.4}s` }} />
+            ))}
+          {season === "spring" &&
+            spots.map(([x, y], i) => <circle key={i} cx={x} cy={y} r={2.4 * size} fill="#A9C98A" stroke="#6B8448" strokeWidth="0.6" />)}
+          {!bare &&
+            season !== "spring" &&
+            spots.map(([x, y, rot], i) => (
+              <path
+                key={i}
+                d={MAPLE_LEAF_PATH}
+                transform={`translate(${x} ${y}) rotate(${rot}) scale(${size})`}
+                fill={palette[i % palette.length]}
+                stroke="rgba(0,0,0,0.12)"
+                strokeWidth="0.5"
+              />
+            ))}
         </g>
-        {bare &&
-          ANCHORS.slice(0, 7).map(([x, y], i) => (
-            <circle key={i} cx={x} cy={y + 3} r="1.6" fill="#F3D27A" className="animate-fairy-light-twinkle motion-reduce:animate-none [.maple-night_&]:animate-none" style={{ animationDelay: `${i * 0.4}s` }} />
-          ))}
-        {season === "spring" &&
-          spots.map(([x, y], i) => <circle key={i} cx={x} cy={y} r={2.4 * size} fill="#A9C98A" stroke="#6B8448" strokeWidth="0.6" />)}
-        {!bare &&
-          season !== "spring" &&
-          spots.map(([x, y, rot], i) => (
-            <path
-              key={i}
-              d={MAPLE_LEAF_PATH}
-              transform={`translate(${x} ${y}) rotate(${rot}) scale(${size})`}
-              fill={palette[i % palette.length]}
-              stroke="rgba(0,0,0,0.12)"
-              strokeWidth="0.5"
-            />
-          ))}
       </g>
       {gnome && (
         <g transform="translate(70 86)">
@@ -153,10 +172,11 @@ export function Zoe({ alert, className }: { alert?: boolean; className?: string 
 export default function Hero() {
   const { state, summary, isNight, toast } = useMaple();
   const now = useNow(60_000);
+  const nightLook = useNightActive();
   if (!state || !summary) return null;
   const tz = state.baby.timezone ?? DEFAULT_TZ;
   const age = summary.age;
-  const night = isNight();
+  const night = isNight() || nightLook;
   const p = localParts(now, tz);
   const born = state.baby.born_at ? localParts(Date.parse(state.baby.born_at), tz) : null;
   const monthDay = !!(born && age && age.months >= 1 && p.day === born.day);

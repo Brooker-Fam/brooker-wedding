@@ -128,6 +128,8 @@ export function FallingLeaves({
         dur: 7 + rand(i, 18) * 6,
         delay: rand(i, 19) * 5,
         tilt: (rand(i, 20) - 0.5) * 120,
+        // Resting leaves keep to the margins so they never sit on top of words.
+        edge: i % 2 ? 1 + rand(i, 21) * 11 : 86 + rand(i, 21) * 10,
       })),
     [count]
   );
@@ -135,8 +137,12 @@ export function FallingLeaves({
     <div className={`pointer-events-none absolute inset-0 overflow-hidden ${className ?? ""}`} aria-hidden>
       {leaves.map((l, i) =>
         still ? (
-          <span key={i} className="absolute opacity-70" style={{ left: `${l.left}%`, top: `${l.top}%`, transform: `rotate(${l.tilt}deg)` }}>
-            <MapleLeaf size={l.size} color={l.color} veins={false} />
+          <span
+            key={i}
+            className="absolute opacity-60 [.maple-night_&]:opacity-35"
+            style={{ left: `${l.edge}%`, top: `${l.top}%`, transform: `rotate(${l.tilt}deg)` }}
+          >
+            <MapleLeaf size={Math.round(l.size * 0.75)} color={l.color} veins={false} />
           </span>
         ) : (
           <motion.span

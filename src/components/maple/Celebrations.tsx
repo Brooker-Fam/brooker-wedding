@@ -4,6 +4,7 @@ import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { useCallback, useEffect, useState } from "react";
 import type { Celebration } from "@/lib/maple/insights";
 import { MAPLE_LEAF_PATH } from "./Hero";
+import { useNightActive } from "./nightLook";
 import { useSheets } from "./sheets";
 import { cx, tone } from "./ui";
 import { useMaple } from "./useMaple";
@@ -72,6 +73,7 @@ export default function Celebrations() {
   const { state, summary, isNight } = useMaple();
   const { open } = useSheets();
   const reduce = useReducedMotion();
+  const nightLook = useNightActive();
   const me = state?.me.email ?? "";
   const [seen, setSeen] = useState<string[] | null>(null);
   const [falling, setFalling] = useState<string | null>(null);
@@ -85,7 +87,7 @@ export default function Celebrations() {
   // Already kept as a moment (by anyone, or by the birth form's "Hello, world")? Nothing to celebrate twice.
   const kept = new Set(state?.entries.flatMap((e) => (e.kind === "moment" && e.data.milestone ? [e.data.milestone] : [])) ?? []);
   const current: Celebration | null =
-    seen && summary && !isNight() ? summary.celebrations.find((c) => !seen.includes(c.id) && !kept.has(milestoneId(c))) ?? null : null;
+    seen && summary && !isNight() && !nightLook ? summary.celebrations.find((c) => !seen.includes(c.id) && !kept.has(milestoneId(c))) ?? null : null;
 
   // One leaf-fall per celebration per visit.
   useEffect(() => {

@@ -35,41 +35,48 @@ export default function Waiting() {
   const before = baby.due_date ? daysBetween(dayKey(now, baby.timezone), baby.due_date) > 0 : false;
 
   return (
-    <section
-      aria-label={`Waiting for ${name}`}
-      className="relative overflow-hidden rounded-[32px] border border-[#C49A3C]/20 bg-gradient-to-b from-[#FFF4E2] via-[#FDF8F0] to-[#F4E8D6] px-5 pt-6 pb-5 text-center shadow-[0_2px_24px_rgba(196,154,60,0.12)] dark:border-[#C49A3C]/15 dark:from-[#18321D] dark:via-[#12261A] dark:to-[#0E1E12] dark:shadow-none"
-    >
-      <Fireflies count={6} />
-      <div className="relative">
-        <div className="mx-auto w-fit">
-          <Sapling size={168} />
+    <>
+      <section
+        aria-label={`Waiting for ${name}`}
+        className="relative overflow-hidden rounded-[32px] border border-[#C49A3C]/20 bg-gradient-to-b from-[#FFF4E2] via-[#FDF8F0] to-[#F4E8D6] px-5 pt-6 pb-5 text-center shadow-[0_2px_24px_rgba(196,154,60,0.12)] dark:border-[#C49A3C]/15 dark:from-[#18321D] dark:via-[#12261A] dark:to-[#0E1E12] dark:shadow-none"
+      >
+        <Fireflies count={6} />
+        <div className="relative">
+          <div className="mx-auto w-fit">
+            <Sapling size={168} />
+          </div>
+          <h2 className={cx(tone.heading, "mt-1 text-[34px] leading-tight")}>
+            Waiting for {name} <span aria-hidden>🍁</span>
+          </h2>
+          <p className="mt-1 font-[family-name:var(--font-display)] text-2xl font-semibold text-[#9A6B12] dark:text-[#E0C27A]">
+            {countdown(dayKey(now, baby.timezone), baby.due_date)}
+          </p>
+          <p className={cx(tone.muted, "mx-auto mt-2 max-w-xs text-[15px] leading-relaxed")}>
+            {readOnly
+              ? "We'll share the news here the moment she arrives."
+              : logging
+                ? "Add her birth time so Day 1 and her age are right."
+                : before
+                  ? "Growing strong. The forest is getting ready."
+                  : "The forest is holding its breath."}
+          </p>
+          {!readOnly && (
+            <>
+              <Button
+                variant="gold"
+                size="lg"
+                className="mt-5 w-full text-lg shadow-[0_6px_20px_rgba(196,154,60,0.35)]"
+                onClick={() => setOpen(true)}
+              >
+                She&apos;s here! <span aria-hidden>🍁</span>
+              </Button>
+              <p className={cx(tone.muted, "mt-2 text-xs")}>Just the time for now. Weight and length can wait.</p>
+            </>
+          )}
         </div>
-        <h2 className={cx(tone.heading, "mt-1 text-[34px] leading-tight")}>
-          Waiting for {name} <span aria-hidden>🍁</span>
-        </h2>
-        <p className="mt-1 font-[family-name:var(--font-display)] text-2xl font-semibold text-[#9A6B12] dark:text-[#E0C27A]">
-          {countdown(dayKey(now, baby.timezone), baby.due_date)}
-        </p>
-        <p className={cx(tone.muted, "mx-auto mt-2 max-w-xs text-[15px] leading-relaxed")}>
-          {readOnly
-            ? "We'll share the news here the moment she arrives."
-            : logging
-              ? "Add her birth time so Day 1 and her age are right."
-              : before
-                ? "Growing strong. The forest is getting ready."
-                : "The forest is holding its breath."}
-        </p>
-        {!readOnly && (
-          <>
-            <Button variant="gold" size="lg" className="mt-5 w-full text-lg shadow-[0_6px_20px_rgba(196,154,60,0.35)]" onClick={() => setOpen(true)}>
-              She&apos;s here! <span aria-hidden>🍁</span>
-            </Button>
-            <p className={cx(tone.muted, "mt-2 text-xs")}>Just the time for now. Weight and length can wait.</p>
-            <BirthSheet open={open} onClose={() => setOpen(false)} />
-          </>
-        )}
-      </div>
-    </section>
+      </section>
+      {!readOnly && <BirthSheet open={open} onClose={() => setOpen(false)} />}
+    </>
   );
 }
 

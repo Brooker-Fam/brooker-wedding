@@ -93,6 +93,9 @@ export default function PatternsTab({ onNavigate }: { onNavigate?: (t: TabId) =>
 
   const days = useMemo(() => statsByDay(entries, fromKey, todayKey, now, tz), [entries, fromKey, todayKey, now, tz]);
   const loggedDays = days.filter((d) => d.feeds + d.diapers + d.sleeps > 0).length;
+  // Charts start at the first logged day: blank days before logging began would read as "0 feeds".
+  const firstLogged = days.findIndex((d) => d.feeds + d.diapers + d.sleeps > 0);
+  const chartDays = firstLogged > 0 ? days.slice(firstLogged) : days;
 
   const goToDay = useCallback(
     (key: string) => {
@@ -137,7 +140,7 @@ export default function PatternsTab({ onNavigate }: { onNavigate?: (t: TabId) =>
                 </EmptyState>
               </Card>
             )}
-            {loggedDays >= 2 && <Insights days={days} entries={entries} todayKey={todayKey} tz={tz} />}
+            {loggedDays >= 2 && <Insights days={chartDays} entries={entries} todayKey={todayKey} tz={tz} />}
 
             {loggedDays >= 1 && (
               <Ribbons
@@ -155,7 +158,7 @@ export default function PatternsTab({ onNavigate }: { onNavigate?: (t: TabId) =>
             )}
 
             {loggedDays >= 2 && (
-              <DailyCharts days={days} entries={entries} todayKey={todayKey} tz={tz} bornAt={bornAt} units={units} now={now} />
+              <DailyCharts days={chartDays} entries={entries} todayKey={todayKey} tz={tz} bornAt={bornAt} units={units} now={now} />
             )}
           </>
         )}
@@ -446,7 +449,9 @@ function buildRibbon(
     }
     rows.push(row);
   });
-  return rows.reverse();
+  // Drop the blank rows from before logging began (gaps in the middle stay: they're real).
+  const first = rows.findIndex((r) => r.sleeps.length + r.feeds.length + r.diapers.length + r.tummies.length > 0);
+  return (first > 0 ? rows.slice(first) : rows).reverse();
 }
 
 function useWidth<T extends HTMLElement>(): [(el: T | null) => (() => void) | undefined, number] {

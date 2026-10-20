@@ -103,8 +103,11 @@ function FeedForm({ open, onClose, entry, preset }: SheetProps) {
     if (!anchor) return;
     const total = ((l ?? 0) + (r ?? 0)) * MIN;
     const [s, en] = range;
+    const limit = now().getTime();
+    // The end can't pass now, so a feed that would run into the future starts earlier instead.
     if (anchor === "end") setRange([new Date(en.getTime() - total), en]);
-    else setRange([s, new Date(Math.min(s.getTime() + total, now().getTime()))]);
+    else if (s.getTime() + total > limit) setRange([new Date(limit - total), new Date(limit)]);
+    else setRange([s, new Date(s.getTime() + total)]);
   };
 
   // ── Bottle ──

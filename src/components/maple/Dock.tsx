@@ -355,7 +355,7 @@ function Tile({
       }}
     >
       {next && (
-        <span className="absolute -top-2 right-1 rounded-full bg-[#C49A3C] px-1.5 py-px text-[10px] font-bold text-[#1D2A12] shadow-sm [.maple-night_&]:bg-[#E0A93B]/80">
+        <span className="absolute -top-2 right-1 rounded-full bg-[#C49A3C] px-1.5 py-px text-[10px] font-bold text-[#1D2A12] shadow-sm [.maple-night_&]:bg-[#D9772B]/45 [.maple-night_&]:text-[#F0C27A]">
           🍁 next
         </span>
       )}

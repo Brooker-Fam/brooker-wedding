@@ -96,8 +96,15 @@ function CopyButton({ text, label = "Copy", className }: { text: string; label?:
 }
 
 function Code({ children }: { children: ReactNode }) {
+  // Short tokens (`speak`, `pee`) stay whole; long URLs and keys may break anywhere.
+  const long = typeof children === "string" ? children.length > 24 : true;
   return (
-    <code className="rounded-md bg-[#1D4420]/[0.06] px-1.5 py-0.5 font-mono text-[13px] break-all text-[#1D4420] dark:bg-[#F5EDDF]/10 dark:text-[#F5EDDF]">
+    <code
+      className={cx(
+        "rounded-md bg-[#1D4420]/[0.06] px-1.5 py-0.5 font-mono text-[13px] text-[#1D4420] dark:bg-[#F5EDDF]/10 dark:text-[#F5EDDF]",
+        long ? "break-all" : "whitespace-nowrap"
+      )}
+    >
       {children}
     </code>
   );
@@ -222,7 +229,7 @@ function People() {
   const daysLeft = (iso: string) => Math.max(0, Math.ceil((Date.parse(iso) - now().getTime()) / 864e5));
 
   return (
-    <Section title="Family">
+    <Section title="Maple's people">
       <Card className="p-0">
         <ul className="divide-y divide-[#1D4420]/[0.07] dark:divide-[#F5EDDF]/[0.08]">
           {members.map((m) => (
@@ -673,7 +680,8 @@ function BabyDetails() {
   const flag = (key: string) => toggles[key] ?? settings[key] !== false;
 
   const born = baby.born_at ? new Date(baby.born_at) : null;
-  const bornLine = born ? `Born ${formatDayLabel(dayKey(born, tz), dayKey(now(), tz), { long: true })} at ${formatTime(born, tz)}` : null;
+  const bornDay = born ? formatDayLabel(dayKey(born, tz), dayKey(now(), tz), { long: true }) : "";
+  const bornLine = born ? `Born ${/^(Today|Yesterday)$/.test(bornDay) ? bornDay.toLowerCase() : bornDay} at ${formatTime(born, tz)}` : null;
   const stats = [
     baby.birth_weight_g ? formatWeight(baby.birth_weight_g, units) : null,
     baby.birth_length_cm ? `${formatLength(baby.birth_length_cm, units)} long` : null,
@@ -876,7 +884,10 @@ function DoctorQuestions() {
   };
 
   return (
-    <Section title="Questions for the doctor" sub="Jot them down as they come up; tick them off at her checkup.">
+    <Section
+      title="Questions for the doctor"
+      sub={readOnly ? "What the family plans to ask at her next checkup." : "Jot them down as they come up; tick them off at her checkup."}
+    >
       <Card className="space-y-3">
         {!readOnly && (
           <form
@@ -890,7 +901,7 @@ function DoctorQuestions() {
               className={tone.input}
               value={text}
               maxLength={300}
-              placeholder="Ask about the rash on her cheek"
+              placeholder="Is her cheek rash okay?"
               aria-label="New question for the doctor"
               onChange={(e) => setText(e.target.value)}
             />
@@ -902,7 +913,7 @@ function DoctorQuestions() {
 
         {open.length === 0 ? (
           <p className={cx(tone.muted, "py-2 text-center text-sm leading-relaxed")}>
-            {done.length ? "All asked. Nice work." : "Nothing on the list yet. Bring it to her next checkup."}
+            {done.length ? "All asked. Nice work." : "No questions yet."}
           </p>
         ) : (
           <ul className="space-y-1">
@@ -1108,8 +1119,9 @@ function ConnectAI() {
           </div>
           <div>
             <dt className={cx(tone.body, "font-semibold")}>Claude Code</dt>
-            <dd className={cx(tone.muted, "mt-1")}>
+            <dd className={cx(tone.muted, "mt-1 flex items-start gap-2")}>
               <Code>claude mcp add --transport http maple {MCP_URL}</Code>
+              <CopyButton text={`claude mcp add --transport http maple ${MCP_URL}`} />
             </dd>
           </div>
         </dl>
@@ -1210,7 +1222,7 @@ function HandsFree() {
               className={tone.input}
               value={label}
               maxLength={40}
-              placeholder="Name it, e.g. Matt's iPhone"
+              placeholder="Matt's iPhone"
               aria-label="Key name"
               onChange={(e) => setLabel(e.target.value)}
             />

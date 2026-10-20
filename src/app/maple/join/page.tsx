@@ -29,15 +29,21 @@ export default function JoinPage() {
   const [tries, setTries] = useState(0);
 
   useEffect(() => {
-    let raw = window.location.hash.replace(/^#/, "").trim();
-    try {
-      raw = decodeURIComponent(raw);
-    } catch {
-      // keep it as typed
-    }
-    const t = raw.startsWith("t=") ? raw.slice(2) : raw;
-    if (t) setToken(t);
-    else setPhase({ kind: "missing" });
+    const read = () => {
+      let raw = window.location.hash.replace(/^#/, "").trim();
+      try {
+        raw = decodeURIComponent(raw);
+      } catch {
+        // keep it as typed
+      }
+      const t = raw.startsWith("t=") ? raw.slice(2) : raw;
+      if (t) setToken(t);
+      else setPhase((p) => (p.kind === "working" ? { kind: "missing" } : p));
+    };
+    read();
+    // Pasting the full link into this same tab only changes the #fragment.
+    window.addEventListener("hashchange", read);
+    return () => window.removeEventListener("hashchange", read);
   }, []);
 
   useEffect(() => {
@@ -109,9 +115,7 @@ export default function JoinPage() {
 
         {phase.kind === "welcome" && (
           <>
-            <h1 className={cx(tone.heading, "mt-6 text-[34px] leading-tight")}>
-              Welcome{phase.name ? `, ${phase.name}` : ""}! <span aria-hidden>🍁</span>
-            </h1>
+            <h1 className={cx(tone.heading, "mt-6 text-[34px] leading-tight")}>Welcome{phase.name ? `, ${phase.name}` : ""}!</h1>
             <p className={cx(tone.body, "mt-2 text-[15px] leading-relaxed")} aria-live="polite">
               You&apos;re in. Taking you to Maple&apos;s Log…
             </p>
@@ -128,7 +132,7 @@ export default function JoinPage() {
           </Stuck>
         )}
 
-        {phase.kind === "used" && <Stuck title="This link has already been used">{phase.message}</Stuck>}
+        {phase.kind === "used" && <Stuck title="This link no longer works">{phase.message}</Stuck>}
 
         {phase.kind === "busy" && (
           <Stuck title="A few too many tries">

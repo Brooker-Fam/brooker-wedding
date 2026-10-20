@@ -565,6 +565,13 @@ async function migrate() {
   await sql`CREATE INDEX IF NOT EXISTS idx_maple_entries_time ON maple_entries(baby_id, started_at DESC) WHERE deleted_at IS NULL`;
   await sql`CREATE INDEX IF NOT EXISTS idx_maple_entries_kind ON maple_entries(baby_id, kind, started_at DESC) WHERE deleted_at IS NULL`;
   await sql`CREATE INDEX IF NOT EXISTS idx_maple_entries_updated ON maple_entries(baby_id, updated_at DESC)`;
+  // Columns added while the feature was in development: keep databases built
+  // from an earlier draft of these tables in step.
+  await sql`ALTER TABLE maple_entries ADD COLUMN IF NOT EXISTS updated_by TEXT`;
+  await sql`ALTER TABLE maple_entries ADD COLUMN IF NOT EXISTS client_id TEXT`;
+  await sql`ALTER TABLE maple_members ADD COLUMN IF NOT EXISTS last_seen_at TIMESTAMPTZ`;
+  await sql`DROP INDEX IF EXISTS idx_maple_entries_active`;
+
   // One running timer per kind, even when both phones tap Start at once.
   await sql`CREATE UNIQUE INDEX IF NOT EXISTS uniq_maple_entries_running ON maple_entries(baby_id, kind) WHERE active AND deleted_at IS NULL`;
   await sql`CREATE UNIQUE INDEX IF NOT EXISTS uniq_maple_entries_client ON maple_entries(client_id) WHERE client_id IS NOT NULL`;

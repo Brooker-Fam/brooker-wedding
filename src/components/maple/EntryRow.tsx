@@ -40,6 +40,7 @@ export default function EntryRow({
   const d = describeEntry(entry, { units, now });
   const who = member(entry.created_by);
   const color = entryColor(entry);
+  const emoji = entryEmoji(entry);
   const firstPhoto = entry.kind === "moment" && entry.data.photos?.length && entry.id > 0;
 
   return (
@@ -48,19 +49,21 @@ export default function EntryRow({
       onClick={onClick}
       className="flex w-full items-center gap-3 rounded-2xl px-2 py-2.5 text-left transition hover:bg-[#1D4420]/[0.04] active:scale-[0.99] dark:hover:bg-[#F5EDDF]/5"
     >
-      {entry.id < 0 && (
-        <span className="sr-only">Not synced yet</span>
-      )}
       {firstPhoto ? (
         // eslint-disable-next-line @next/next/no-img-element
         <img src={photoUrl(entry.id, 0)} alt="" className="h-11 w-11 shrink-0 rounded-2xl object-cover" loading="lazy" />
       ) : (
         <span
-          className={cx("flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl text-xl", entry.active && "animate-pulse")}
+          className={cx(
+            "flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl",
+            // Two-emoji badges (wet + dirty) need to shrink to fit the tile.
+            [...emoji].length > 2 ? "text-[13px] tracking-[-0.12em]" : "text-xl",
+            entry.active && "animate-pulse"
+          )}
           style={{ backgroundColor: `${color}22`, boxShadow: `inset 0 0 0 1.5px ${color}55` }}
           aria-hidden
         >
-          {entryEmoji(entry)}
+          {emoji}
         </span>
       )}
       <span className="min-w-0 flex-1">
@@ -72,7 +75,10 @@ export default function EntryRow({
         )}
       </span>
       <span className="flex shrink-0 flex-col items-end gap-0.5">
-        <span className={cx(tone.body, "text-sm font-semibold tabular-nums")}>{formatTime(entry.started_at, tz)}</span>
+        <span className={cx(tone.body, "text-sm font-semibold tabular-nums")}>
+          {entry.id < 0 && <span className={cx(tone.muted, "mr-1 text-xs")} title="Saving…" aria-label="Not synced yet">⋯</span>}
+          {formatTime(entry.started_at, tz)}
+        </span>
         <span className={cx(tone.muted, "flex items-center gap-1 text-[11px]")}>
           {VIA[entry.source] && (
             <span className={cx("rounded-full px-1.5 py-px text-[10px] font-semibold", VIA[entry.source].className)}>

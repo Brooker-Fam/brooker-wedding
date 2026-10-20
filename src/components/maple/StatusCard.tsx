@@ -75,30 +75,16 @@ export default function StatusCard() {
 
   if (!hasAnything) return null;
 
-  let feedLine: React.ReactNode;
-  let feedSub: React.ReactNode = null;
+  // The big answer: how long since she last ate (or that she's nursing now).
+  let feedLabel = "Last fed";
+  let feedBig: React.ReactNode = <span className={cx(tone.muted, "text-base font-normal")}>No feeds logged yet</span>;
+  let feedSub: string | null = null;
   if (nursing) {
-    feedLine = (
-      <>
-        <b className="font-semibold">Nursing now</b> · {formatDuration(feedTotals(nursing.data as FeedData, now).total)}
-      </>
-    );
+    feedLabel = "Nursing now";
+    feedBig = formatDuration(feedTotals(nursing.data as FeedData, now).total);
     feedSub = `started ${formatTime(nursing.started_at, tz)}`;
   } else if (last) {
-    feedLine = (
-      <>
-        <b className="font-semibold">Last fed {formatRelative(last.started_at, now)}</b>
-        <button
-          type="button"
-          onClick={() => setInfo((v) => !v)}
-          aria-expanded={info}
-          aria-label="How this is counted"
-          className="ml-1 inline-flex h-6 w-6 translate-y-[-1px] items-center justify-center rounded-full align-middle text-[12px] text-[#5C6B57] hover:bg-[#1D4420]/5 dark:text-[#B9B39C]"
-        >
-          ⓘ
-        </button>
-      </>
-    );
+    feedBig = formatRelative(last.started_at, now);
     const bits = [`started ${formatTime(last.started_at, tz)}`];
     if (last.data.method === "bottle") {
       bits.push(last.data.amount_ml ? `${formatVolume(last.data.amount_ml, units)} bottle` : "bottle");
@@ -109,24 +95,21 @@ export default function StatusCard() {
       if (sides) bits.push(sides);
     }
     feedSub = bits.join(" · ");
-  } else {
-    feedLine = <span className={tone.muted}>No feeds logged yet</span>;
   }
 
-  const nextPill =
-    !nursing && summary.nextSide ? (
-      <span
-        className="mt-0.5 inline-flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-semibold whitespace-nowrap text-[#1D2A12] shadow-sm [.maple-night_&]:text-[#0B0F0A]"
-        style={{ backgroundColor: summary.nextSide === "L" ? "#E8A493" : "#EFC879" }}
-      >
-        <span aria-hidden>🍁</span>
-        {SIDE_NAME[summary.nextSide]} side next
-      </span>
-    ) : null;
+  const next = !nursing ? summary.nextSide : null;
 
-  const diaperBits: string[] = [];
-  if (summary.lastPee) diaperBits.push(`Last wet ${formatRelative(summary.lastPee.started_at, now)}`);
-  if (summary.lastPoop) diaperBits.push(`${diaperBits.length ? "💩 last" : "Last"} dirty ${formatRelative(summary.lastPoop.started_at, now)}`);
+  const cell = (icon: string, label: string, value: string | null) => (
+    <div className="min-w-0 py-2.5">
+      <p className={cx(tone.muted, "flex items-center gap-1 text-[12px] font-medium [.maple-night_&]:text-[#E0A93B]/55")}>
+        <span aria-hidden className="text-[13px]">
+          {icon}
+        </span>
+        {label}
+      </p>
+      <p className={cx(tone.body, "mt-0.5 truncate text-[15px] font-semibold tabular-nums [.maple-night_&]:text-[#E0A93B]/85")}>{value ?? "—"}</p>
+    </div>
+  );
 
   const logVitD = () => {
     tick();
@@ -134,44 +117,76 @@ export default function StatusCard() {
   };
 
   return (
-    <section aria-labelledby="right-now" className={cx(tone.card, "px-4 pt-3 pb-2 [.maple-night_&]:border-[#E0A93B]/10 [.maple-night_&]:bg-[#11140F]")}>
-      <h2 id="right-now" className={cx(tone.label, "mb-0.5 [.maple-night_&]:text-[#E0A93B]/60")}>
+    <section aria-labelledby="right-now" className={cx(tone.card, "px-4 pt-3 pb-1.5 [.maple-night_&]:border-[#E0A93B]/10 [.maple-night_&]:bg-[#11140F]")}>
+      <h2 id="right-now" className={cx(tone.label, "[.maple-night_&]:text-[#E0A93B]/60")}>
         Right now
       </h2>
-      <div className="divide-y divide-[#1D4420]/[0.06] dark:divide-[#F5EDDF]/[0.06]">
-        <div>
-          <Row icon={last?.data.method === "bottle" && !nursing ? "🍼" : "🤱"} sub={feedSub} right={nextPill}>
-            {feedLine}
-          </Row>
-          <AnimatePresence>
-            {info && (
-              <motion.p
-                initial={{ height: 0, opacity: 0 }}
-                animate={{ height: "auto", opacity: 1 }}
-                exit={{ height: 0, opacity: 0 }}
-                className={cx(tone.muted, "overflow-hidden pb-2 pl-9 text-[13px]")}
-              >
-                Counted from when she started eating, the usual way feeds are timed.
-              </motion.p>
-            )}
-          </AnimatePresence>
+
+      {/* Feeding: the most-asked question at 3am, and which side is next. */}
+      <div className="pt-2 pb-3">
+        <div className="flex items-center gap-3">
+          <span aria-hidden className="w-6 shrink-0 text-center text-xl">
+            {last?.data.method === "bottle" && !nursing ? "🍼" : "🤱"}
+          </span>
+          <div className="min-w-0 flex-1">
+            <p className={cx(tone.muted, "text-[13px] font-medium [.maple-night_&]:text-[#E0A93B]/55")}>{feedLabel}</p>
+            <p className="font-[family-name:var(--font-display)] text-[28px] leading-[1.05] font-semibold text-[#1D4420] tabular-nums dark:text-[#F5EDDF] [.maple-night_&]:text-[#E0A93B]/85">
+              {feedBig}
+            </p>
+          </div>
+          {next && (
+            <span
+              className="inline-flex shrink-0 flex-col items-center rounded-2xl px-3 py-1.5 text-center leading-tight text-[#3A1A0E] shadow-sm [.maple-night_&]:bg-[#D9772B]/20! [.maple-night_&]:text-[#E8A23F]"
+              style={{ backgroundColor: next === "L" ? "#F0B6A6" : "#F3D58F" }}
+            >
+              <span className="text-[15px] font-bold whitespace-nowrap">
+                <span aria-hidden>🍁 </span>
+                {SIDE_NAME[next]} side
+              </span>
+              <span className="text-[11px] font-semibold tracking-wide uppercase opacity-75">next</span>
+            </span>
+          )}
         </div>
-        <Row icon={summary.lastPee || !summary.lastPoop ? "💧" : "💩"}>
-          {diaperBits.length ? diaperBits.join(" · ") : <span className={tone.muted}>No diapers logged yet</span>}
-        </Row>
-        {(sleeping || lastSleepEnd) && (
-          <Row icon={sleeping ? "🌙" : "😴"}>
-            {sleeping ? (
-              <>
-                <b className="font-semibold">Asleep</b> {formatDuration((now.getTime() - ts(sleeping)) / 1000)}
-              </>
-            ) : (
-              <>
-                <b className="font-semibold">Awake</b> {formatDuration((now.getTime() - Date.parse(lastSleepEnd!)) / 1000)}
-              </>
+        {feedSub && (
+          <p className={cx(tone.muted, "mt-1 flex flex-wrap items-center pl-9 text-[13px] [.maple-night_&]:text-[#E0A93B]/55")}>
+            {feedSub}
+            {!nursing && (
+              <button
+                type="button"
+                onClick={() => setInfo((v) => !v)}
+                aria-expanded={info}
+                aria-label="How this is counted"
+                className="-my-2 ml-0.5 inline-flex h-9 w-9 items-center justify-center rounded-full text-[13px] hover:bg-[#1D4420]/5"
+              >
+                ⓘ
+              </button>
             )}
-          </Row>
+          </p>
         )}
+        <AnimatePresence>
+          {info && (
+            <motion.p
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: "auto", opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              className={cx(tone.muted, "overflow-hidden pl-9 text-[13px] italic")}
+            >
+              Counted from when she started eating, the usual way feeds are timed.
+            </motion.p>
+          )}
+        </AnimatePresence>
+      </div>
+
+      {/* Diapers and sleep, side by side. */}
+      <div className="grid grid-cols-3 gap-2 border-t border-[#1D4420]/[0.07] pl-9 dark:border-[#F5EDDF]/[0.07]">
+        {cell("💧", "Last wet", summary.lastPee ? formatRelative(summary.lastPee.started_at, now) : null)}
+        {cell("💩", "Last dirty", summary.lastPoop ? formatRelative(summary.lastPoop.started_at, now) : null)}
+        {sleeping
+          ? cell("🌙", "Asleep", formatDuration((now.getTime() - ts(sleeping)) / 1000))
+          : cell("😴", "Awake", lastSleepEnd ? formatDuration((now.getTime() - Date.parse(lastSleepEnd)) / 1000) : null)}
+      </div>
+
+      <div className="divide-y divide-[#1D4420]/[0.07] border-t border-[#1D4420]/[0.07] dark:divide-[#F5EDDF]/[0.07] dark:border-[#F5EDDF]/[0.07]">
         {summary.born &&
           (summary.vitaminD ? (
             <Row icon="☀️" sub="sunshine drops">
@@ -187,7 +202,7 @@ export default function StatusCard() {
                 icon="☀️"
                 sub="sunshine drops · tap when given"
                 right={
-                  <span className="mt-0.5 shrink-0 rounded-full bg-[#C49A3C]/20 px-3 py-1.5 text-sm font-semibold text-[#7A5A12] dark:text-[#E0C27A]">
+                  <span className="mt-0.5 shrink-0 rounded-full bg-[#C49A3C]/20 px-3.5 py-1.5 text-sm font-semibold text-[#7A5A12] dark:text-[#E0C27A]">
                     Log
                   </span>
                 }

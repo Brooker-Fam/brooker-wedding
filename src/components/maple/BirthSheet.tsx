@@ -176,7 +176,7 @@ export default function BirthSheet({ open, onClose, mode = "birth" }: { open: bo
       }
     >
       {mode === "birth" && (
-        <p className={cx(tone.body, "-mt-2 text-[15px] leading-relaxed")}>
+        <p className={cx(tone.body, "text-[15px] leading-relaxed")}>
           Congratulations! Just her birth time for now. Everything else can wait.
         </p>
       )}
@@ -274,7 +274,7 @@ export function WelcomeHost() {
           role="dialog"
           aria-modal="true"
           aria-labelledby="maple-welcome-title"
-          className="fixed inset-0 z-[85] flex items-center justify-center overflow-hidden bg-[radial-gradient(ellipse_at_50%_35%,#FFF1D6_0%,#FDF8F0_55%,#F6E7D6_100%)] px-6 dark:bg-[radial-gradient(ellipse_at_50%_35%,#1E3A22_0%,#11261A_55%,#0B170D_100%)]"
+          className="fixed inset-0 z-[85] flex items-center justify-center overflow-hidden bg-[radial-gradient(ellipse_at_50%_35%,#FFF1D6_0%,#FDF8F0_55%,#F6E7D6_100%)] px-6 dark:bg-[radial-gradient(ellipse_at_50%_35%,#1E3A22_0%,#11261A_55%,#0B170D_100%)] [.maple-night_&]:bg-[#0B0F0A] [.maple-night_&]:bg-none"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
@@ -301,7 +301,7 @@ export function WelcomeHost() {
             </h2>
             <p className={cx(tone.body, "mt-4 text-[15px] font-semibold")}>{w.when}</p>
             {w.stats && <p className={cx(tone.body, "mt-1 text-[15px]")}>{w.stats}</p>}
-            <p className={cx(tone.muted, "mt-2 text-sm")}>Day 1 of everything. The whole forest is glad you&apos;re here.</p>
+            <p className={cx(tone.muted, "mt-3 text-sm")}>The whole forest is glad you&apos;re here.</p>
             <div className="mt-8 grid gap-2">
               <Button
                 size="lg"
