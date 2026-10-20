@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import "./maple.css";
 
 export const metadata: Metadata = {
   title: "Maple's Log",

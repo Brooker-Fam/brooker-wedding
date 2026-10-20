@@ -60,11 +60,10 @@ export async function POST(request: NextRequest) {
     return noStore({ error: "Expected a JSON body" }, 400);
   }
 
-  // Only token requests come from the app (with the session cookie). Any other
-  // event is handled (signature-checked) by handleUpload itself.
-  if (body?.type === "blob.generate-client-token" && !(await sessionMember(request))) {
-    return noStore({ error: "Sign in first" }, 401);
-  }
+  // Token requests are the only event: no callback URL is ever registered, so
+  // a "blob.upload-completed" here is noise (no cookies, nothing to do).
+  if (body?.type !== "blob.generate-client-token") return noStore({ error: "Unexpected event" }, 400);
+  if (!(await sessionMember(request))) return noStore({ error: "Sign in first" }, 401);
 
   const store = uploadStore();
   if (!store) return noStore({ error: "Photo storage isn't set up yet" }, 503);

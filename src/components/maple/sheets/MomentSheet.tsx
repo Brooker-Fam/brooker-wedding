@@ -38,6 +38,8 @@ type Item = {
   status: "preparing" | "uploading" | "done" | "error";
   progress: number;
   error?: string;
+  /** Upload hiccups can be retried; a file the phone can't read can't. */
+  retryable?: boolean;
   encoded?: EncodedPhoto;
   ref?: PhotoRef;
   ctrl: AbortController;
@@ -148,18 +150,26 @@ export default function MomentSheet({ open, onClose, entry, preset }: SheetProps
     async (id: string) => {
       const it = itemsRef.current.find((x) => x.id === id);
       if (!it || it.ctrl.signal.aborted) return;
-      try {
-        let encoded = it.encoded;
-        if (!encoded) {
+      let encoded = it.encoded;
+      if (!encoded) {
+        try {
           encoded = await encodeForUpload(it.file);
-          const preview = URL.createObjectURL(encoded.thumb ?? encoded.full);
-          if (it.ctrl.signal.aborted) {
-            URL.revokeObjectURL(preview);
-            return;
+        } catch (e) {
+          // A file this phone can't read won't work on a second try either.
+          if (!it.ctrl.signal.aborted) {
+            patch(id, { status: "error", retryable: false, error: e instanceof PhotoError ? e.message : "Couldn't open that photo" });
           }
-          patch(id, { encoded, preview });
-          adoptPhotoTime(encoded.takenAt);
+          return;
         }
+        const preview = URL.createObjectURL(encoded.thumb ?? encoded.full);
+        if (it.ctrl.signal.aborted) {
+          URL.revokeObjectURL(preview);
+          return;
+        }
+        patch(id, { encoded, preview });
+        adoptPhotoTime(encoded.takenAt);
+      }
+      try {
         patch(id, { status: "uploading", progress: 3, error: undefined });
         const ref = await uploadPhoto(encoded, {
           signal: it.ctrl.signal,
@@ -172,7 +182,8 @@ export default function MomentSheet({ open, onClose, entry, preset }: SheetProps
         patch(id, { status: "done", progress: 100, ref });
       } catch (e) {
         if (it.ctrl.signal.aborted) return;
-        patch(id, { status: "error", error: e instanceof PhotoError ? e.message : "Couldn't add that photo" });
+        const error = e instanceof PhotoError ? e.message : "Couldn't upload that photo";
+        patch(id, { status: "error", retryable: !/too big|only jpeg/i.test(error), error });
       }
     },
     [adoptPhotoTime, patch]
@@ -318,8 +329,19 @@ export default function MomentSheet({ open, onClose, entry, preset }: SheetProps
               ))}
             </ul>
           )}
+          {items.some((it) => it.status === "error") && (
+            <ul className="mb-3 space-y-1 text-[13px] leading-snug text-[#9A3A24] dark:text-[#F4A68F]" aria-live="polite">
+              {items
+                .filter((it) => it.status === "error")
+                .map((it) => (
+                  <li key={it.id}>
+                    <span className="font-semibold">{shortName(it.file.name)}:</span> {it.error}
+                  </li>
+                ))}
+            </ul>
+          )}
           {storage === "off" || storage === "error" ? (
-            <p className={cx(tone.inset, tone.muted, "px-4 py-3 text-sm")}>
+            <p className={cx(tone.muted, "rounded-2xl bg-[#5C7A4A]/10 px-4 py-3 text-sm dark:bg-[#F5EDDF]/[0.06]")}>
               {storage === "off"
                 ? "🍃 Photo storage isn't set up yet, so this moment will be words only for now."
                 : "🍃 Couldn't reach photo storage. You can still save the words, or close and try again."}
@@ -435,11 +457,22 @@ function PhotoTile({ item, onRemove, onRetry }: { item: Item; onRemove: () => vo
         </span>
       )}
       {item.status === "error" && (
-        <span className="absolute inset-0 flex flex-col items-center justify-center gap-1 bg-[#7A2E1E]/80 p-1.5 text-center text-[11px] leading-tight font-medium text-white">
-          <span className="line-clamp-3">{item.error}</span>
-          <button type="button" onClick={onRetry} className="min-h-[32px] rounded-full bg-white/20 px-3 text-xs font-bold">
-            Retry
-          </button>
+        <span className="absolute inset-0 flex flex-col items-center justify-end gap-1.5 bg-[#7A2E1E]/80 p-2 pt-11 text-center text-xs leading-tight font-semibold text-white">
+          {item.retryable ? (
+            <>
+              <span>Didn&apos;t upload</span>
+              <button type="button" onClick={onRetry} className="min-h-[36px] w-full rounded-full bg-white/20 px-3 text-xs font-bold">
+                Retry
+              </button>
+            </>
+          ) : (
+            <span className="pb-2">
+              <span className="mb-0.5 block text-lg" aria-hidden>
+                🍂
+              </span>
+              Can&apos;t add this one
+            </span>
+          )}
         </span>
       )}
       <button
@@ -476,6 +509,11 @@ function ExistingPhotos({ entryId, count, onNew }: { entryId: number; count: num
       </p>
     </section>
   );
+}
+
+/** "IMG_2041.HEIC", or a trimmed version of a long name. */
+function shortName(name: string): string {
+  return name.length > 24 ? `${name.slice(0, 12)}…${name.slice(-9)}` : name;
 }
 
 /** An image that turns into a soft leaf if it can't load. */

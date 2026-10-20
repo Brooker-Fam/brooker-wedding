@@ -1,13 +1,246 @@
 "use client";
 
-import { Sheet } from "../ui";
+import { useEffect, useState } from "react";
+import { describeEntry, entryEmoji } from "@/lib/maple/describe";
+import { WEIGHT_GAIN_NOTE } from "@/lib/maple/guidelines";
+import { cmToIn, formatLength, formatWeight, gramsToLbOz, inToCm, lbOzToGrams } from "@/lib/maple/units";
+import type { GrowthData, UnitSystem } from "@/lib/maple/types";
+import { Segmented, Sheet, WhenField, cx, tone } from "../ui";
 import type { SheetProps } from "./index";
+import { ContextNote, Label, LoggedBy, MiniStepper, NoteField, SheetFooter, presetStart, pnum, pstr, useOpenCount, useSheetBase, withNulls } from "./parts";
 
-// Placeholder: replaced by the GrowthSheet implementation.
-export default function GrowthSheet({ open, onClose, kind }: SheetProps) {
+/**
+ * Log or edit measurements: weight as lb + oz side by side (the way a
+ * pediatric scale reads out) or grams, length and head in inches or cm, and
+ * whether it was the doctor's scale or home. Each number shows its WHO
+ * percentile for her age as you type; the percentile tables (~60 KB) load
+ * only when this sheet opens. A number far outside the charts gets a gentle
+ * "double-check" (usually a lb/kg or in/cm mix-up).
+ */
+
+type Growth = typeof import("@/lib/maple/growth");
+
+/** Rough newborn-to-toddler bounds before the WHO check loads (or before birth time is known). */
+const SANE = { weight: [1000, 20000], length: [35, 100], head: [25, 55] } as const;
+
+export default function GrowthSheet(props: SheetProps) {
+  const n = useOpenCount(props.open);
+  return <GrowthForm key={n} {...props} />;
+}
+
+function GrowthForm({ open, onClose, entry, preset }: SheetProps) {
+  const { tz, units, log, update, remove, now, bornAt, clock } = useSheetBase();
+  const e = entry?.kind === "growth" ? entry : undefined;
+  const d: Partial<GrowthData> = e?.data ?? {};
+  const [sys, setSys] = useState<UnitSystem>(units);
+  const us = sys === "us";
+
+  const [growth, setGrowth] = useState<Growth | null>(null);
+  useEffect(() => {
+    let live = true;
+    import("@/lib/maple/growth")
+      .then((m) => live && setGrowth(m))
+      .catch(() => {
+        // Percentiles are a bonus; the form works without them.
+      });
+    return () => {
+      live = false;
+    };
+  }, []);
+
+  // Stored in grams / cm; the fields hold whatever the current units show.
+  const initW = d.weight_g ?? pnum(preset, "weight_g");
+  const [lb, setLb] = useState<number | null>(() => (initW != null ? gramsToLbOz(initW).lb : null));
+  const [oz, setOz] = useState<number | null>(() => (initW != null ? gramsToLbOz(initW).oz : null));
+  const [grams, setGrams] = useState<number | null>(() => (initW != null ? Math.round(initW) : null));
+  const toLen = (cm: number | undefined, system: UnitSystem) =>
+    cm == null ? null : system === "us" ? Math.round(cmToIn(cm) * 100) / 100 : Math.round(cm * 10) / 10;
+  const [length, setLength] = useState<number | null>(() => toLen(d.length_cm ?? pnum(preset, "length_cm"), units));
+  const [head, setHead] = useState<number | null>(() => toLen(d.head_cm ?? pnum(preset, "head_cm"), units));
+  const [at, setAt] = useState<"home" | "doctor">(() => d.at ?? (pstr(preset, "at") === "home" ? "home" : "doctor"));
+  const [when, setWhen] = useState<Date | null>(() => (e ? new Date(e.started_at) : presetStart(preset)));
+  const [note, setNote] = useState(e?.note ?? pstr(preset, "note") ?? "");
+  const [busy, setBusy] = useState(false);
+
+  const weightG = us ? (lb == null && oz == null ? undefined : lbOzToGrams(lb ?? 0, oz ?? 0)) : (grams ?? undefined);
+  const lenCm = length == null ? undefined : us ? inToCm(length) : length;
+  const headCm = head == null ? undefined : us ? inToCm(head) : head;
+
+  /** Switch the form's units, carrying the numbers across. */
+  const switchUnits = (next: UnitSystem) => {
+    if (next === sys) return;
+    if (weightG != null) {
+      const w = gramsToLbOz(weightG);
+      setLb(w.lb);
+      setOz(w.oz);
+      setGrams(Math.round(weightG));
+    }
+    setLength(toLen(lenCm, next));
+    setHead(toLen(headCm, next));
+    setSys(next);
+  };
+
+  const t = when ?? now();
+  const ageDays = bornAt ? Math.max(0, (t.getTime() - Date.parse(bornAt)) / 86_400_000) : null;
+  const pct = (measure: "weight" | "length" | "head", v: number | undefined) =>
+    v != null && v > 0 && growth && ageDays != null ? growth.percentileFor(measure, v, ageDays) : null;
+  const pW = pct("weight", weightG);
+  const pL = pct("length", lenCm);
+  const pH = pct("head", headCm);
+  const off = (measure: keyof typeof SANE, v: number | undefined, p: ReturnType<typeof pct>) =>
+    v != null && v > 0 && (p?.implausible || v < SANE[measure][0] || v > SANE[measure][1]);
+  const hasAny = weightG != null || lenCm != null || headCm != null;
+
+  const data = {
+    weight_g: weightG != null ? Math.round(weightG) : undefined,
+    length_cm: lenCm != null ? Math.round(lenCm * 10) / 10 : undefined,
+    head_cm: headCm != null ? Math.round(headCm * 10) / 10 : undefined,
+    at,
+  };
+  // The server's limits; anything outside can't be saved.
+  const savable =
+    hasAny &&
+    (data.weight_g == null || (data.weight_g >= 500 && data.weight_g <= 30000)) &&
+    (data.length_cm == null || (data.length_cm >= 25 && data.length_cm <= 130)) &&
+    (data.head_cm == null || (data.head_cm >= 20 && data.head_cm <= 60));
+
+  const save = async () => {
+    const noteVal = note.trim() || null;
+    const bits = [
+      data.weight_g != null && formatWeight(data.weight_g, sys),
+      data.length_cm != null && formatLength(data.length_cm, sys),
+      data.head_cm != null && `head ${formatLength(data.head_cm, sys)}`,
+    ].filter(Boolean);
+    const p = pW ?? pL ?? pH;
+    const pLine = p ? ` · ${p.label} percentile` : "";
+    if (e) {
+      setBusy(true);
+      const res = await update(
+        e.id,
+        {
+          data: withNulls(data, ["weight_g", "length_cm", "head_cm"]),
+          started_at: when && when.getTime() !== Date.parse(e.started_at) ? when.toISOString() : undefined,
+          note: noteVal,
+        },
+        { toast: `Updated · ${bits.join(" · ")}${pLine}` }
+      );
+      setBusy(false);
+      if (res) onClose();
+      return;
+    }
+    onClose();
+    void log(
+      { kind: "growth", started_at: when?.toISOString(), data: Object.fromEntries(Object.entries(data).filter(([, v]) => v != null)), note: noteVal },
+      { toast: `${bits.join(" · ")}${pLine} · ${clock(t)}`, emoji: "📏" }
+    );
+  };
+
+  const del = () => {
+    if (!e) return;
+    onClose();
+    void remove(e.id, { toast: "Measurements deleted" });
+  };
+
+  const lenUnit = us ? "in" : "cm";
+
   return (
-    <Sheet open={open} onClose={onClose} title={kind}>
-      <p>Coming soon</p>
+    <Sheet
+      open={open}
+      onClose={onClose}
+      title={e ? describeEntry(e).title : "Growth"}
+      emoji={e ? entryEmoji(e) : "📏"}
+      footer={
+        <SheetFooter
+          onClose={onClose}
+          onDelete={e ? del : undefined}
+          onPrimary={() => void save()}
+          label={e ? "Save" : "Log it"}
+          busy={busy}
+          disabled={!savable || (!!e && e.id < 0)}
+          hint={!hasAny ? "Add a weight, length or head measurement." : hasAny && !savable ? "One of those numbers is outside what can be saved." : undefined}
+        />
+      }
+    >
+      {e && <LoggedBy entry={e} />}
+
+      <div className="flex items-center justify-between gap-3">
+        <Segmented<"home" | "doctor">
+          value={at}
+          onChange={setAt}
+          options={[
+            { value: "doctor", label: "Doctor" },
+            { value: "home", label: "Home" },
+          ]}
+          className="flex-1"
+        />
+        <Segmented<UnitSystem>
+          value={sys}
+          onChange={switchUnits}
+          options={[
+            { value: "us", label: "lb·in" },
+            { value: "metric", label: "kg·cm" },
+          ]}
+          className="w-[9.5rem] shrink-0"
+        />
+      </div>
+
+      <section aria-label="Weight">
+        <Label optional>Weight</Label>
+        {us ? (
+          <div className="grid grid-cols-2 gap-3">
+            <MiniStepper label="lb" ariaLabel="pounds" value={lb} onChange={setLb} max={40} />
+            <MiniStepper label="oz" ariaLabel="ounces" value={oz} onChange={setOz} step={0.1} decimals={1} max={15.9} />
+          </div>
+        ) : (
+          <MiniStepper label="grams" unit="g" ariaLabel="grams" value={grams} onChange={setGrams} step={10} max={30000} />
+        )}
+        <Reading p={pW} warn={off("weight", weightG, pW)} extra={!us && weightG ? `${(weightG / 1000).toFixed(2)} kg` : undefined} />
+      </section>
+
+      <div className="grid grid-cols-2 gap-3">
+        <section aria-label="Length">
+          <MiniStepper label={`Length`} unit={lenUnit} ariaLabel={`length in ${us ? "inches" : "centimetres"}`} value={length} onChange={setLength} step={us ? 0.25 : 0.5} decimals={2} max={us ? 50 : 130} />
+          <Reading p={pL} warn={off("length", lenCm, pL)} compact />
+        </section>
+        <section aria-label="Head">
+          <MiniStepper label={`Head`} unit={lenUnit} ariaLabel={`head circumference in ${us ? "inches" : "centimetres"}`} value={head} onChange={setHead} step={us ? 0.25 : 0.5} decimals={2} max={us ? 25 : 60} />
+          <Reading p={pH} warn={off("head", headCm, pH)} compact />
+        </section>
+      </div>
+
+      <WhenField value={when} onChange={setWhen} tz={tz} offsets={[30, 60, 120, 240]} />
+      <NoteField value={note} onChange={setNote} placeholder="Anything the doctor said?" />
+      {!bornAt && <ContextNote emoji="🌱">Percentiles show up once her birth time is added.</ContextNote>}
+      <ContextNote emoji="⚖️">{WEIGHT_GAIN_NOTE}</ContextNote>
     </Sheet>
+  );
+}
+
+/** "About the 38th percentile (WHO)", or a gentle double-check. Neutral either way: percentiles aren't grades. */
+function Reading({
+  p,
+  warn,
+  extra,
+  compact,
+}: {
+  p: { label: string } | null;
+  warn: boolean | undefined;
+  extra?: string;
+  compact?: boolean;
+}) {
+  if (warn) {
+    return (
+      <p className="mt-1.5 rounded-xl bg-[#C49A3C]/15 px-2.5 py-1.5 text-xs leading-snug font-medium text-[#5A4410] dark:bg-[#C49A3C]/15 dark:text-[#EFD9A0]">
+        Double-check this one. Maybe lb vs kg, or in vs cm?
+      </p>
+    );
+  }
+  if (!p && !extra) return null;
+  return (
+    <p className={cx(tone.muted, "mt-1.5 text-xs")}>
+      {extra}
+      {extra && p ? " · " : ""}
+      {p ? (compact ? `${p.label} percentile` : `About the ${p.label} percentile for her age (WHO)`) : ""}
+    </p>
   );
 }

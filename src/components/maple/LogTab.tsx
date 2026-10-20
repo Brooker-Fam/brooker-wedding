@@ -93,12 +93,15 @@ export function useEntryRange(fromKey: string, toKey: string) {
   const { api, state } = useMaple();
   const [history, setHistory] = useState<{ range: string; entries: Entry[] } | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [attempt, setAttempt] = useState(0);
   const loaded = useRef(false);
+  const failures = useRef(0);
   const rev = state?.rev;
   const range = `${fromKey}|${toKey}`;
 
   useEffect(() => {
     let cancelled = false;
+    let retry: ReturnType<typeof setTimeout> | undefined;
     // Debounce rev-triggered refetches (a burst of logs moves rev several times).
     const t = setTimeout(
       async () => {
@@ -106,10 +109,17 @@ export function useEntryRange(fromKey: string, toKey: string) {
           const res = await api<{ entries: Entry[] }>(`/api/maple/entries?from=${fromKey}&to=${toKey}&limit=5000`);
           if (cancelled) return;
           loaded.current = true;
+          failures.current = 0;
           setHistory({ range: `${fromKey}|${toKey}`, entries: res.entries });
           setError(null);
         } catch (e) {
-          if (!cancelled) setError(e instanceof Error ? e.message : "Couldn't load the log");
+          if (cancelled) return;
+          setError(e instanceof Error ? e.message : "Couldn't load the log");
+          // Flaky hospital Wi-Fi: try again a few times, backing off.
+          if (failures.current < 4) {
+            failures.current++;
+            retry = setTimeout(() => setAttempt((a) => a + 1), 1500 * 2 ** failures.current);
+          }
         }
       },
       loaded.current ? 350 : 0
@@ -117,11 +127,16 @@ export function useEntryRange(fromKey: string, toKey: string) {
     return () => {
       cancelled = true;
       clearTimeout(t);
+      if (retry) clearTimeout(retry);
     };
-  }, [api, fromKey, toKey, rev]);
+  }, [api, fromKey, toKey, rev, attempt]);
 
+  const reload = useCallback(() => {
+    failures.current = 0;
+    setAttempt((a) => a + 1);
+  }, []);
   const entries = useMemo(() => (state ? mergeLive(history?.entries ?? [], state) : []), [history, state]);
-  return { entries, ready: history?.range === range, loaded: history !== null, error };
+  return { entries, ready: history?.range === range, loaded: history !== null, error, reload };
 }
 
 /** Clock-change days in the baby's zone get a gentle label instead of a mystery gap. */
@@ -165,9 +180,10 @@ export default function LogTab() {
   const [extendedFrom, setExtendedFrom] = useState<string | null>(null);
   const [exhausted, setExhausted] = useState(false);
   const [pinned, setPinned] = useState<string | null>(null);
+  const [flash, setFlash] = useState<string | null>(null);
   const [scrollTarget, setScrollTarget] = useState<string | null>(null);
 
-  const { entries, ready, loaded, error } = useEntryRange(oldestKey, todayKey);
+  const { entries, ready, loaded, error, reload } = useEntryRange(oldestKey, todayKey);
 
   const hasPreBirth = useMemo(
     () => (bornAt ? entries.some((e) => Date.parse(e.started_at) < Date.parse(bornAt) - H) : false),
@@ -239,8 +255,16 @@ export default function LogTab() {
     const el = document.getElementById(`maple-day-${scrollTarget}`);
     if (!el) return;
     el.scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "start" });
+    setFlash(scrollTarget);
     setScrollTarget(null);
   }, [scrollTarget, ready, days, reduceMotion]);
+
+  // The jumped-to day's header glows briefly, then settles.
+  useEffect(() => {
+    if (!flash) return;
+    const t = setTimeout(() => setFlash(null), 2500);
+    return () => clearTimeout(t);
+  }, [flash]);
 
   // Infinite scroll: once they've scrolled a bit, reaching the bottom loads the previous week.
   const sentinel = useRef<HTMLDivElement>(null);
@@ -285,10 +309,13 @@ export default function LogTab() {
       <RecentlyRemoved />
       <RunningNow entries={running} />
 
-      {error && !loaded && (
-        <p className={cx(tone.muted, "rounded-2xl bg-[#B5452B]/10 px-4 py-3 text-sm")} role="status">
-          Couldn&apos;t reach the forest just now ({error}). Pull down or try again in a moment.
-        </p>
+      {error && !ready && (
+        <div className="mb-4 flex items-center gap-3 rounded-2xl bg-[#B5452B]/10 px-4 py-2.5" role="status">
+          <p className={cx(tone.body, "flex-1 text-sm")}>Couldn&apos;t reach the forest for older pages just now. Recent entries are below.</p>
+          <Button size="sm" variant="soft" onClick={reload}>
+            Try again
+          </Button>
+        </div>
       )}
 
       {nothingAtAll && !running.length ? (
@@ -313,7 +340,7 @@ export default function LogTab() {
               units={units}
               now={now}
               glow={glow}
-              highlighted={d.key === pinned}
+              highlighted={d.key === flash}
             />
           ))}
         </div>

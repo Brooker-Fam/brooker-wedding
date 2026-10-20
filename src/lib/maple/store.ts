@@ -490,6 +490,46 @@ export async function discardTimer(id: number, by?: string): Promise<Entry> {
   return softDeleteEntry(id, by);
 }
 
+/**
+ * Undo a stop ("Done" tapped by mistake): the timer runs again as if it never
+ * stopped. A nursing session reopens the side it ended on, unless it was
+ * paused when it stopped, in which case it comes back paused.
+ */
+export async function reopenTimer(id: number, by?: string): Promise<Entry> {
+  const e = await getEntry(id);
+  if (!e) throw new NotFound(`Timer ${id} not found`);
+  if (e.active) return e;
+  if (!["feed", "sleep", "tummy", "pump"].includes(e.kind)) throw new Error("Only a timer can be reopened");
+  let data: unknown = e.data;
+  if (e.kind === "feed") {
+    const d = e.data as FeedData;
+    if (!d.segments?.length) throw new Error("That feed wasn't timed, so it can't restart");
+    const segs = d.segments.map((s) => ({ ...s }));
+    const last = segs[segs.length - 1];
+    // A discarded-then-restored timer never stopped (ended_at null): its open side is still open.
+    if (last.end && e.ended_at && Math.abs(Date.parse(last.end) - Date.parse(e.ended_at)) < 1500) last.end = null;
+    const rest: FeedData = { ...d, segments: segs };
+    delete rest.left_sec;
+    delete rest.right_sec;
+    data = rest;
+  }
+  try {
+    const rows = await q(
+      `UPDATE maple_entries SET active = TRUE, ended_at = NULL, data = $2::jsonb,
+         updated_by = COALESCE($3, updated_by), updated_at = NOW()
+       WHERE id = $1 AND deleted_at IS NULL AND NOT active RETURNING *`,
+      [id, JSON.stringify(data), by ?? null]
+    );
+    if (rows.length) return rowToEntry(rows[0]);
+    const cur = await getEntry(id);
+    if (!cur) throw new NotFound(`Timer ${id} not found`);
+    return cur;
+  } catch (err) {
+    if (!isUniqueViolation(err, "uniq_maple_entries_running")) throw err;
+    throw new Conflict("Another timer of that kind is running now", e);
+  }
+}
+
 // ── members ───────────────────────────────────────────────────────────
 
 export async function addMember(email: string, addedBy: string, emoji: string, role: "member" | "viewer" = "member"): Promise<void> {

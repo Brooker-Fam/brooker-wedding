@@ -192,7 +192,8 @@ export default function MomentsTab() {
         <p className={cx(tone.muted, "text-sm")}>Little leaves for {babyName}&apos;s someday-book 🍂</p>
       </header>
 
-      {!viewer && (
+      {/* The empty scrapbook has its own "Add a photo"; one invitation is enough. */}
+      {!viewer && moments?.length !== 0 && (
         <Button variant="gold" size="lg" className="mb-5 w-full text-[17px]" onClick={() => add()}>
           <span aria-hidden>📷</span> Add a moment
         </Button>
@@ -301,7 +302,7 @@ function MonthlyPrompt({
         🧸
       </span>
       <div className="min-w-0 flex-1">
-        <p className={cx(tone.heading, "text-lg leading-snug")}>
+        <p className={cx(tone.heading, "text-lg leading-snug lining-nums")}>
           {since === 0 ? "Today" : "This week"} is {name}&apos;s {months}-month day!
         </p>
         <p className={cx(tone.muted, "mt-0.5 text-sm")}>
@@ -480,7 +481,7 @@ function GrowingUp({
             const date = shortDate(monthDayKey(bornAt, k, tz));
             const face = m ? (
               photoCount(m) ? (
-                <SafeImg src={photoUrl(m.id, 0)} className={cx("h-[68px] w-full object-cover", NIGHT_DIM)} />
+                <SafeImg src={photoUrl(m.id, 0)} className="h-[68px] w-full object-cover" />
               ) : (
                 <span className="flex h-[68px] items-center justify-center bg-[#E8C8B8]/40 text-2xl" aria-hidden>
                   🧸
@@ -500,11 +501,14 @@ function GrowingUp({
             const polaroid = (
               <>
                 <span
-                  className="block w-[76px] rounded-[3px] bg-[#FFFDF7] p-1 pb-0 shadow-[0_1px_2px_rgba(29,68,32,0.12),0_8px_16px_-10px_rgba(29,68,32,0.5)] dark:bg-[#ECE5D5]"
+                  className={cx(
+                    "block w-[76px] rounded-[3px] bg-[#FFFDF7] p-1 pb-0 shadow-[0_1px_2px_rgba(29,68,32,0.12),0_8px_16px_-10px_rgba(29,68,32,0.5)] dark:bg-[#ECE5D5]",
+                    NIGHT_DIM
+                  )}
                   style={{ transform: `rotate(${(seeded(k, 3) * 4 - 2).toFixed(1)}deg)` }}
                 >
                   {face}
-                  <span className="block py-0.5 text-center font-[family-name:var(--font-display)] text-base leading-tight font-semibold text-[#1D4420] italic">
+                  <span className="block py-0.5 text-center font-[family-name:var(--font-display)] text-base leading-tight font-semibold text-[#1D4420] italic lining-nums">
                     {k}
                   </span>
                 </span>
@@ -562,7 +566,7 @@ function Scrapbook({
       {weeks.map((w) => (
         <section key={w.id} aria-label={w.n ? `Week ${w.n}` : "Before she arrived"}>
           <div className="mb-1 flex items-baseline gap-2 border-b border-dashed border-[#1D4420]/15 px-1 pb-1.5 dark:border-[#F5EDDF]/15">
-            <h2 className={cx(tone.heading, "text-[22px]")}>{w.n ? `Week ${w.n}` : "Before she arrived"}</h2>
+            <h2 className={cx(tone.heading, "text-[22px] lining-nums")}>{w.n ? `Week ${w.n}` : "Before she arrived"}</h2>
             {w.startKey && w.endKey && <span className={cx(tone.muted, "text-sm")}>· {rangeLabel(w.startKey, w.endKey, todayKey)}</span>}
           </div>
           {w.n && w.startKey && w.endKey ? (
@@ -735,7 +739,7 @@ function NoteFace({ moment: m, saving, aspect }: { moment: Moment; saving: boole
         <span className="text-[11px] font-medium text-[#5C6B57]">Saving…</span>
       ) : (
         m.note &&
-        m.data.title && (
+        captionOf(m) !== m.note && (
           <span className="line-clamp-3 font-[family-name:var(--font-display)] text-[13px] leading-snug text-[#3D4A39] italic">
             “{m.note}”
           </span>
@@ -889,7 +893,7 @@ function Lightbox({
           role="dialog"
           aria-modal="true"
           aria-label="Moment"
-          className="ph-no-capture fixed inset-0 z-[85] flex flex-col bg-[#070F08]/95 text-[#F5EDDF]"
+          className="ph-no-capture fixed inset-0 z-[85] flex flex-col bg-[#070F08] text-[#F5EDDF]"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}

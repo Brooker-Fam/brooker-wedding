@@ -80,7 +80,7 @@ function CopyButton({ text, label = "Copy" }: { text: string; label?: string }) 
 function CodeBlock({ children, copyText }: { children: string; copyText?: string }) {
   return (
     <div className="relative">
-      <pre className="overflow-x-auto rounded-xl border border-[#1D4420]/15 bg-[#FDF8F0]/80 p-4 pr-20 font-mono text-xs leading-relaxed text-[#1D4420] dark:border-[#FDF8F0]/15 dark:bg-[#0F1B11]/80 dark:text-[#E8DCC0] sm:text-sm">
+      <pre className="rounded-xl border border-[#1D4420]/15 bg-[#FDF8F0]/80 p-4 pr-20 font-mono text-xs leading-relaxed break-all whitespace-pre-wrap text-[#1D4420] dark:border-[#FDF8F0]/15 dark:bg-[#0F1B11]/80 dark:text-[#E8DCC0] sm:text-sm">
         <code>{children}</code>
       </pre>
       <div className="absolute top-2 right-2">
@@ -183,7 +183,7 @@ export default function MapleConnectPage() {
             Connector URL
           </p>
           <div className="flex flex-wrap items-center gap-3">
-            <code className="rounded-lg bg-[#1D4420]/5 px-3 py-2 font-mono text-sm break-all text-[#1D4420] dark:bg-[#FDF8F0]/8 dark:text-[#E8DCC0]">
+            <code className="rounded-lg bg-[#1D4420]/5 px-3 py-2 font-mono text-[13px] break-all text-[#1D4420] dark:bg-[#FDF8F0]/8 dark:text-[#E8DCC0] sm:text-sm">
               {MCP_URL}
             </code>
             <CopyButton text={MCP_URL} />

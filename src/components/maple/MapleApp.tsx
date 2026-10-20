@@ -2,12 +2,14 @@
 
 import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useState } from "react";
+import { WelcomeHost } from "./BirthSheet";
 import FamilyTab from "./FamilyTab";
 import LogTab from "./LogTab";
 import MomentsTab from "./MomentsTab";
 import PatternsTab from "./PatternsTab";
 import SignIn from "./SignIn";
 import TodayTab from "./TodayTab";
+import { THEME_COLORS, setNightActive, useNightPref } from "./nightLook";
 import { SheetProvider } from "./sheets";
 import { ToastHost, cx, tone } from "./ui";
 import { MapleProvider, useMaple } from "./useMaple";
@@ -16,6 +18,10 @@ import { MapleProvider, useMaple } from "./useMaple";
  * Maple's Log app shell: provider, sign-in gate, and the bottom tab bar.
  * Logging never waits on the birth form: before she's born, Today shows the
  * waiting hero ("She's here!") above the same logging dock.
+ *
+ * The shell also owns the night look (html.maple-night, styled in
+ * src/app/maple/maple.css), the browser theme-color, the sync chip, and the
+ * birth welcome celebration.
  */
 
 export type TabId = "today" | "log" | "patterns" | "moments" | "family";
@@ -41,6 +47,15 @@ export default function MapleApp() {
 }
 
 function Shell() {
+  return (
+    <>
+      <NightLook />
+      <Screens />
+    </>
+  );
+}
+
+function Screens() {
   const { status, state, error, refresh } = useMaple();
   const [tab, setTab] = useState<TabId>("today");
 
@@ -77,7 +92,8 @@ function Shell() {
   }
 
   return (
-    <div className="relative mx-auto min-h-[100dvh] w-full max-w-lg pb-[calc(88px+env(safe-area-inset-bottom))]">
+    <div className="maple-app relative mx-auto min-h-[100dvh] w-full max-w-lg pb-[calc(88px+env(safe-area-inset-bottom))]">
+      <SyncChip />
       <AnimatePresence mode="wait">
         <motion.div
           key={tab}
@@ -95,6 +111,112 @@ function Shell() {
       </AnimatePresence>
       <TabBar tab={tab} onChange={go} />
       <ToastHost />
+      <WelcomeHost />
+    </div>
+  );
+}
+
+/** The site's own theme choice (mirrors ThemeProvider), for when night ends. */
+function siteWantsDark(): boolean {
+  let t: string | null = null;
+  try {
+    t = localStorage.getItem("theme");
+  } catch {
+    // storage blocked: system theme
+  }
+  return t === "dark" || (t !== "light" && window.matchMedia("(prefers-color-scheme: dark)").matches);
+}
+
+/**
+ * Night look: Auto (8pm–7am, baby's timezone), Always, or Off, per device.
+ * While on, <html> carries .maple-night and .dark (held even if the site
+ * theme flips underneath). Pure class toggles: no filter or transform on any
+ * ancestor, so position:fixed sheets, dock and tab bar keep working.
+ */
+export function NightLook() {
+  const { isNight } = useMaple();
+  const [pref] = useNightPref();
+  const [, setTick] = useState(0);
+  // Re-check the clock every minute so Auto flips at 8pm and 7am on its own.
+  useEffect(() => {
+    const id = setInterval(() => setTick((t) => t + 1), 60_000);
+    return () => clearInterval(id);
+  }, []);
+  const on = pref === "always" || (pref === "auto" && isNight());
+
+  useEffect(() => {
+    if (!on) return;
+    const root = document.documentElement;
+    root.classList.add("maple-night", "dark");
+    setNightActive(true);
+    const hold = new MutationObserver(() => {
+      if (!root.classList.contains("dark")) root.classList.add("dark");
+    });
+    hold.observe(root, { attributes: true, attributeFilter: ["class"] });
+    return () => {
+      hold.disconnect();
+      root.classList.remove("maple-night");
+      root.classList.toggle("dark", siteWantsDark());
+      setNightActive(false);
+    };
+  }, [on]);
+
+  // Keep the status bar / browser chrome in step: cream by day, forest in
+  // dark mode, near-black at night (so iOS doesn't flash a light bar at 3am).
+  useEffect(() => {
+    const root = document.documentElement;
+    const metas = () => Array.from(document.querySelectorAll<HTMLMetaElement>('meta[name="theme-color"]'));
+    const originals = metas().map((m) => [m, m.content] as const);
+    const apply = () => {
+      const color = root.classList.contains("maple-night")
+        ? THEME_COLORS.night
+        : root.classList.contains("dark")
+          ? THEME_COLORS.dark
+          : THEME_COLORS.day;
+      const list = metas();
+      if (!list.length) {
+        const m = document.createElement("meta");
+        m.name = "theme-color";
+        document.head.appendChild(m);
+        list.push(m);
+      }
+      for (const m of list) if (m.content !== color) m.content = color;
+    };
+    apply();
+    const watch = new MutationObserver(apply);
+    watch.observe(root, { attributes: true, attributeFilter: ["class"] });
+    return () => {
+      watch.disconnect();
+      for (const [m, c] of originals) m.content = c;
+    };
+  }, []);
+
+  return null;
+}
+
+/** Shown only when something is waiting in the outbox or we're offline. */
+function SyncChip() {
+  const { pending, online, refresh } = useMaple();
+  if (pending === 0 && online) return null;
+  const text = online
+    ? `${pending} waiting to sync`
+    : pending
+      ? `Offline · ${pending} saved on this phone`
+      : "Offline · saved on this phone";
+  return (
+    <div className="pointer-events-none sticky top-0 z-[65] flex justify-center px-4 pt-[env(safe-area-inset-top)]">
+      <button
+        type="button"
+        onClick={() => void refresh()}
+        aria-live="polite"
+        aria-label={`${text}. Tap to try syncing now.`}
+        className="pointer-events-auto flex min-h-[44px] items-center"
+      >
+        <span className="inline-flex items-center gap-1.5 rounded-full bg-[#FDF8F0]/90 px-3 py-1.5 text-xs font-semibold text-[#5A3E12] shadow-sm ring-1 ring-[#C49A3C]/35 backdrop-blur-md dark:bg-[#12261A]/90 dark:text-[#F0DDB0] dark:ring-[#C49A3C]/30">
+          <span aria-hidden>🍂</span>
+          {text}
+        </span>
+      </button>
     </div>
   );
 }

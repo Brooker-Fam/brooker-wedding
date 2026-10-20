@@ -4,6 +4,7 @@ import {
   discardTimer,
   getBaby,
   pauseTimer,
+  reopenTimer,
   startTimer,
   stopTimer,
   switchSide,
@@ -67,6 +68,8 @@ export const POST = withMember("POST /api/maple/timer", async (request, me) => {
       return json({ entry: toClientEntry(await adjustTimerStart(id, instant(body.at, "at"), me.email)) });
     case "discard":
       return json({ entry: toClientEntry(await discardTimer(id, me.email)) });
+    case "reopen":
+      return json({ entry: toClientEntry(await reopenTimer(id, me.email)) });
     default:
       throw new BadRequest("Unknown timer action");
   }

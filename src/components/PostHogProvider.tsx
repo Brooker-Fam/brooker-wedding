@@ -5,6 +5,10 @@ import { usePathname, useSearchParams } from "next/navigation";
 import posthog from "posthog-js";
 import { PostHogProvider as PHProvider, usePostHog } from "posthog-js/react";
 
+// Maple's Log holds a newborn's health notes: no session replay or event
+// capture there (error reports still go through so bugs can be fixed).
+const isPrivatePath = (path: string) => path === "/maple" || path.startsWith("/maple/");
+
 function PageviewTracker() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -12,6 +16,10 @@ function PageviewTracker() {
 
   useEffect(() => {
     if (!ph) return;
+    if (isPrivatePath(pathname)) {
+      if (ph.sessionRecordingStarted()) ph.stopSessionRecording();
+      return;
+    }
     const url = searchParams.size
       ? `${pathname}?${searchParams.toString()}`
       : pathname;
@@ -43,6 +51,18 @@ export default function PostHogProvider({
         maskInputOptions: { password: true },
       },
       capture_exceptions: true,
+      disable_session_recording: isPrivatePath(window.location.pathname),
+      before_send: (event) => {
+        if (!event || event.event === "$exception") return event;
+        const url = event.properties?.$current_url;
+        let path = window.location.pathname;
+        try {
+          if (typeof url === "string") path = new URL(url, window.location.origin).pathname;
+        } catch {
+          // keep the current path
+        }
+        return isPrivatePath(path) ? null : event;
+      },
       loaded: (ph) => {
         if (process.env.NODE_ENV === "development") ph.debug(false);
       },

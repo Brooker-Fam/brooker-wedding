@@ -1,10 +1,20 @@
 "use client";
 
 import { AnimatePresence, motion, useDragControls } from "framer-motion";
-import { useEffect, useId, useRef, useState, type ReactNode } from "react";
-import { dayKey, formatDayLabel, formatTime, localParts, zonedTimeToUtc } from "@/lib/maple/time";
+import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
+import {
+  addDays,
+  dayKey,
+  formatDayLabel,
+  formatDuration,
+  formatRelative,
+  formatTime,
+  localParts,
+  parseDayKey,
+  zonedTimeToUtc,
+} from "@/lib/maple/time";
 import type { Member } from "@/lib/maple/types";
-import { useMaple } from "./useMaple";
+import { useMaple, useNow } from "./useMaple";
 
 /**
  * Small UI kit for Maple's Log. Big tap targets (≥ 44px), cream storybook
@@ -216,15 +226,11 @@ export function WhenField({
   offsets?: number[];
 }) {
   const { now } = useMaple();
-  const [custom, setCustom] = useState(false);
+  // Opening with a time already set (editing, or "log an earlier one") goes straight to the scrubber.
+  const [custom, setCustom] = useState(() => value != null);
   // Which quick chip was tapped, so it stays lit as the clock moves on.
   const [chip, setChip] = useState<number | null>(null);
-  const id = useId();
   const n = now();
-  const shown = value ?? n;
-  const p = localParts(shown, tz);
-  const pad = (x: number) => String(x).padStart(2, "0");
-  const localValue = `${p.year}-${pad(p.month)}-${pad(p.day)}T${pad(p.hour)}:${pad(p.minute)}`;
 
   return (
     <div>
@@ -250,29 +256,317 @@ export function WhenField({
           🕰️ Pick
         </Chip>
       </div>
-      {custom && (
-        <input
-          id={id}
-          type="datetime-local"
-          aria-label={`${label}: exact time`}
-          value={localValue}
-          max={(() => {
-            const q = localParts(n, tz);
-            return `${q.year}-${pad(q.month)}-${pad(q.day)}T${pad(q.hour)}:${pad(q.minute)}`;
-          })()}
-          onChange={(e) => {
-            const m = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})/.exec(e.target.value);
-            if (!m) return;
-            onChange(zonedTimeToUtc(+m[1], +m[2], +m[3], +m[4], +m[5], tz));
-          }}
-          className={cx(tone.input, "mt-2")}
-        />
-      )}
-      {value && (
+      {custom && <TimeScrubber value={value ?? n} onChange={onChange} tz={tz} quick={false} label={`${label}: exact time`} hideLabel className="mt-2" />}
+      {value && !custom && (
         <p className={cx(tone.muted, "mt-1.5 text-xs")}>
           {formatDayLabel(dayKey(value, tz), dayKey(n, tz))} at {formatTime(value, tz)}
         </p>
       )}
+    </div>
+  );
+}
+
+// ── Time scrubber ────────────────────────────────────────────────────────
+
+const MIN_MS = 60_000;
+const pad2 = (x: number) => String(x).padStart(2, "0");
+
+/**
+ * A wall-clock time on a local day, as an instant. The night clocks fall
+ * back, 1:00–1:59 AM happens twice: prefer the second pass when the first
+ * would be more than 2 hours ago (at 3:10 AM, "1:30" means 1h 40m ago, not
+ * 2h 40m). Elsewhere it's plain zonedTimeToUtc.
+ */
+export function resolveWallTime(key: string, hour: number, minute: number, tz: string, now: Date): Date {
+  const { year, month, day } = parseDayKey(key);
+  const first = zonedTimeToUtc(year, month, day, hour, minute, tz);
+  const second = new Date(first.getTime() + 60 * MIN_MS);
+  const p = localParts(second, tz);
+  const repeats = p.hour === hour && p.minute === minute && dayKey(second, tz) === key;
+  if (repeats && now.getTime() - first.getTime() > 120 * MIN_MS && second.getTime() <= now.getTime() + MIN_MS) return second;
+  return first;
+}
+
+/** Which pass through a repeated (clocks fell back) hour this instant is, if any. */
+function repeatedPass(d: Date, tz: string): "first" | "second" | null {
+  const p = localParts(d, tz);
+  const later = localParts(d.getTime() + 60 * MIN_MS, tz);
+  if (later.hour === p.hour && later.minute === p.minute) return "first";
+  const earlier = localParts(d.getTime() - 60 * MIN_MS, tz);
+  if (earlier.hour === p.hour && earlier.minute === p.minute) return "second";
+  return null;
+}
+
+/**
+ * A button that fires once on press and keeps firing while held (after
+ * 400ms, every 110ms), for nudging a time or a number one-handed.
+ */
+export function RepeatButton({
+  onStep,
+  children,
+  ariaLabel,
+  disabled,
+  className,
+}: {
+  onStep: () => void;
+  children: ReactNode;
+  ariaLabel: string;
+  disabled?: boolean;
+  className?: string;
+}) {
+  const step = useRef(onStep);
+  const timers = useRef<{ wait?: number; tick?: number }>({});
+  useEffect(() => {
+    step.current = onStep;
+  });
+  const stop = useCallback(() => {
+    window.clearTimeout(timers.current.wait);
+    window.clearInterval(timers.current.tick);
+    timers.current = {};
+  }, []);
+  useEffect(() => stop, [stop]);
+  useEffect(() => {
+    if (disabled) stop();
+  }, [disabled, stop]);
+
+  return (
+    <button
+      type="button"
+      aria-label={ariaLabel}
+      disabled={disabled}
+      onPointerDown={(e) => {
+        if (e.button !== 0 || disabled) return;
+        stop();
+        step.current();
+        timers.current.wait = window.setTimeout(() => {
+          timers.current.tick = window.setInterval(() => step.current(), 110);
+        }, 400);
+      }}
+      onPointerUp={stop}
+      onPointerLeave={stop}
+      onPointerCancel={stop}
+      // Keyboard (Enter/Space) clicks have detail 0; pointer presses already stepped.
+      onClick={(e) => {
+        if (e.detail === 0) step.current();
+      }}
+      onContextMenu={(e) => e.preventDefault()}
+      className={cx(
+        "touch-manipulation select-none [-webkit-touch-callout:none] transition active:scale-[0.96] disabled:opacity-35 disabled:active:scale-100",
+        className
+      )}
+    >
+      {children}
+    </button>
+  );
+}
+
+/**
+ * Pick a time with one thumb: the time big, −5/−1/+1/+5 (hold to keep
+ * going), "minutes ago" chips, a Yesterday/Today toggle around midnight, and
+ * an "Exact time…" escape hatch (a native time-only picker). Never later than
+ * now + 1 minute.
+ */
+export function TimeScrubber({
+  value,
+  onChange,
+  tz,
+  label,
+  hideLabel,
+  quick = [0, 5, 15, 30, 60, 120],
+  min,
+  max,
+  className,
+}: {
+  value: Date;
+  onChange: (d: Date) => void;
+  tz: string;
+  /** Shown above the time ("Fell asleep"), and the group's accessible name. */
+  label?: string;
+  hideLabel?: boolean;
+  /** "Minutes ago" chips (0 = Now); false hides them. */
+  quick?: number[] | false;
+  /** Earliest allowed (e.g. a range's start). */
+  min?: Date;
+  /** Latest allowed; never later than now + 1 minute anyway. */
+  max?: Date;
+  className?: string;
+}) {
+  const { now: nowFn } = useMaple();
+  const now = useNow(30_000);
+  // The chip tapped and the instant it produced: it stays lit until the time changes, not until the clock ticks.
+  const [chip, setChip] = useState<{ m: number; at: number } | null>(null);
+  const [exact, setExact] = useState(false);
+  const latest = useRef(value.getTime());
+  useEffect(() => {
+    latest.current = value.getTime();
+  }, [value]);
+
+  const ceiling = () => Math.min(nowFn().getTime() + MIN_MS, max?.getTime() ?? Infinity);
+  const set = (t: number) => {
+    const next = Math.max(min?.getTime() ?? -Infinity, Math.min(ceiling(), t));
+    latest.current = next;
+    onChange(new Date(next));
+    return next;
+  };
+  const step = (mins: number) => {
+    setChip(null);
+    set(Math.round(latest.current / MIN_MS) * MIN_MS + mins * MIN_MS);
+  };
+
+  const t = value.getTime();
+  const todayKey = dayKey(now, tz);
+  const key = dayKey(value, tz);
+  const yesterdayKey = addDays(todayKey, -1);
+  const p = localParts(value, tz);
+  // Around midnight "11:50" could mean either day, so offer the toggle (and whenever it's not today).
+  const showDays = localParts(now, tz).hour < 3 || key !== todayKey;
+  const days = [...(key < yesterdayKey ? [key] : []), yesterdayKey, todayKey];
+  const pass = repeatedPass(value, tz);
+  const atMax = t >= ceiling() - 1000;
+  const atMin = min ? t <= min.getTime() + 1000 : false;
+
+  const pickDay = (k: string) => {
+    setChip(null);
+    set(resolveWallTime(k, p.hour, p.minute, tz, nowFn()).getTime());
+  };
+
+  return (
+    <div role="group" aria-label={label ?? "Time"} className={cx(tone.inset, "p-3", className)}>
+      <div className="-mt-1 flex items-center justify-between gap-3">
+        <span className={tone.label}>{label && !hideLabel ? label : ""}</span>
+        <button
+          type="button"
+          onClick={() => setExact((x) => !x)}
+          aria-expanded={exact}
+          className="-my-2 min-h-[44px] px-1 text-[13px] font-semibold text-[#1D4420] underline decoration-[#C49A3C] underline-offset-4 dark:text-[#E0C27A]"
+        >
+          Exact time…
+        </button>
+      </div>
+      <div className="flex flex-wrap items-baseline gap-x-3 gap-y-0.5">
+        <span className="text-[28px] leading-tight font-semibold text-[#1D4420] tabular-nums dark:text-[#F5EDDF]">{formatTime(value, tz)}</span>
+        <span className={cx(tone.muted, "text-sm")}>
+          {formatDayLabel(key, todayKey)} · {formatRelative(value, now)}
+        </span>
+      </div>
+      {pass && (
+        <p className={cx(tone.muted, "text-xs")}>
+          🕰️ Clocks fell back: this is the {pass} {formatTime(value, tz)}.
+        </p>
+      )}
+
+      <div className="mt-2 grid grid-cols-4 gap-2">
+        {[-5, -1, 1, 5].map((d) => (
+          <RepeatButton
+            key={d}
+            onStep={() => step(d)}
+            disabled={d < 0 ? atMin : atMax}
+            ariaLabel={`${Math.abs(d)} minute${Math.abs(d) === 1 ? "" : "s"} ${d < 0 ? "earlier" : "later"}`}
+            className="h-[52px] rounded-2xl bg-white text-lg font-semibold text-[#1D4420] tabular-nums shadow-[inset_0_0_0_1px_rgba(29,68,32,0.12)] dark:bg-[#F5EDDF]/10 dark:text-[#F5EDDF] dark:shadow-none"
+          >
+            {d < 0 ? "−" : "+"}
+            {Math.abs(d)}
+          </RepeatButton>
+        ))}
+      </div>
+
+      {quick && quick.length > 0 && (
+        <div className="mt-2 flex flex-wrap gap-1.5">
+          {quick.map((m, i) => (
+            <Chip
+              key={m}
+              selected={chip?.m === m && chip.at === t}
+              onClick={() => setChip({ m, at: set(nowFn().getTime() - m * MIN_MS) })}
+            >
+              {m === 0 ? "Now" : `${m < 60 ? `${m}m` : `${m / 60}h`}${i === quick.length - 1 ? " ago" : ""}`}
+            </Chip>
+          ))}
+        </div>
+      )}
+
+      {showDays && (
+        <Segmented
+          className="mt-2"
+          value={key}
+          onChange={pickDay}
+          options={days.map((k) => ({ value: k, label: formatDayLabel(k, todayKey) }))}
+        />
+      )}
+      {exact && (
+        <input
+          type="time"
+          aria-label={`${label ?? "Time"}: exact clock time`}
+          value={`${pad2(p.hour)}:${pad2(p.minute)}`}
+          onChange={(e) => {
+            const m = /^(\d{2}):(\d{2})/.exec(e.target.value);
+            if (!m) return;
+            const n = nowFn();
+            let at = resolveWallTime(key, +m[1], +m[2], tz, n);
+            // "11:30" typed at 1 AM means last night, not later today.
+            if (at.getTime() > n.getTime() + MIN_MS && key === dayKey(n, tz)) {
+              at = resolveWallTime(addDays(key, -1), +m[1], +m[2], tz, n);
+            }
+            setChip(null);
+            set(at.getTime());
+          }}
+          className={cx(tone.input, "mt-2")}
+        />
+      )}
+    </div>
+  );
+}
+
+/**
+ * Start and end for timed things (sleep, a feed logged afterwards, tummy
+ * time, pumping): two scrubbers, the live duration between them, and
+ * duration chips that set start = end − duration. Moving the start keeps the
+ * end where it is.
+ */
+export function TimeRange({
+  start,
+  end,
+  onChange,
+  tz,
+  labels = ["Started", "Ended"],
+  durations = [15, 30, 45, 60, 90, 120, 180],
+}: {
+  start: Date;
+  end: Date;
+  onChange: (start: Date, end: Date) => void;
+  tz: string;
+  labels?: [string, string];
+  /** Minutes; [] hides the chips. */
+  durations?: number[];
+}) {
+  const ms = Math.max(0, end.getTime() - start.getTime());
+  const fmt = (m: number) => (m < 60 ? `${m}m` : `${Math.round((m / 60) * 10) / 10}h`);
+  return (
+    <div className="space-y-2">
+      <TimeScrubber label={labels[0]} value={start} max={end} quick={false} tz={tz} onChange={(s) => onChange(s, end)} />
+      <div className="px-1" role="group" aria-label="Duration">
+        <p className={cx(tone.body, "flex items-baseline gap-2 text-sm")}>
+          <span aria-hidden className="text-[#C49A3C]">
+            ↓
+          </span>
+          <span className={tone.muted}>Duration</span>
+          <span className="text-base font-semibold tabular-nums">{ms < MIN_MS ? "0m" : formatDuration(ms / 1000)}</span>
+        </p>
+        {durations.length > 0 && (
+          <div className="mt-1.5 flex flex-wrap gap-1.5">
+            {durations.map((m) => (
+              <Chip key={m} selected={Math.abs(ms - m * MIN_MS) < 30_000} onClick={() => onChange(new Date(end.getTime() - m * MIN_MS), end)}>
+                {fmt(m)}
+              </Chip>
+            ))}
+          </div>
+        )}
+      </div>
+      <TimeScrubber
+        label={labels[1]}
+        value={end}
+        tz={tz}
+        onChange={(e) => onChange(e.getTime() < start.getTime() ? e : start, e)}
+      />
     </div>
   );
 }
@@ -418,11 +712,15 @@ export function EmptyState({ emoji, title, children }: { emoji: string; title: s
   );
 }
 
-/** Toasts pinned above the tab bar. */
+/**
+ * Toasts pinned above the tab bar, and above Today's logging dock when it's
+ * showing (the dock publishes its height as --maple-dock-h) so a toast never
+ * covers a button you're about to tap.
+ */
 export function ToastHost() {
   const { toasts, dismissToast } = useMaple();
   return (
-    <div className="pointer-events-none fixed inset-x-0 bottom-[calc(84px+env(safe-area-inset-bottom))] z-[90] flex flex-col items-center gap-2 px-4" aria-live="polite">
+    <div className="pointer-events-none fixed inset-x-0 bottom-[calc(var(--maple-dock-h,0px)+84px+env(safe-area-inset-bottom))] z-[90] flex flex-col items-center gap-2 px-4" aria-live="polite">
       <AnimatePresence>
         {toasts.map((t) => (
           <motion.div

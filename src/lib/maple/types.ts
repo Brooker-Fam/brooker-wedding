@@ -238,7 +238,8 @@ export type UpdateEntryInput = {
   note?: string | null;
 };
 
-export type TimerAction = "start" | "switch" | "pause" | "resume" | "stop" | "discard" | "adjust";
+/** reopen: undo a stop (the timer runs again as if never stopped). */
+export type TimerAction = "start" | "switch" | "pause" | "resume" | "stop" | "discard" | "adjust" | "reopen";
 
 /** POST /api/maple/timer */
 export type TimerInput = {
