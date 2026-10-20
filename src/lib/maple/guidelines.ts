@@ -38,8 +38,9 @@ export const EMERGENCY_SIGNS =
 export const FEEDS_PER_DAY = [8, 12] as const;
 
 /**
- * Feed-gap nudges, measured start to start. Until she's two weeks old and back
- * to birth weight: a nudge at 3 hours and a firmer one at 4, day or night.
+ * Feed-gap nudges, measured start to start. Until she's two weeks old (or
+ * while a recent weight is still under birth weight): a nudge at 3 hours and
+ * a firmer one at 4, day or night.
  * After that: a daytime nudge at 4 hours only. A pediatrician's interval in
  * settings overrides both.
  */
@@ -49,7 +50,9 @@ export function feedGapRule(
   overrideHours?: number | null
 ): { nudgeMin: number; firmMin: number | null; nightsOff: boolean } {
   if (overrideHours && overrideHours > 0) return { nudgeMin: overrideHours * 60, firmMin: null, nightsOff: false };
-  if (ageDays < 14 || backToBirthWeight !== true) return { nudgeMin: 180, firmMin: 240, nightsOff: false };
+  // Strict until two weeks, and after that only while a recent weight shows
+  // she's still below birth weight (unknown after two weeks relaxes).
+  if (ageDays < 14 || backToBirthWeight === false) return { nudgeMin: 180, firmMin: 240, nightsOff: false };
   return { nudgeMin: 240, firmMin: null, nightsOff: true };
 }
 

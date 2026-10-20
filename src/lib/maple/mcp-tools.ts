@@ -264,6 +264,9 @@ async function toolError(name: string, err: unknown, ctx: Ctx | null): Promise<C
   if (err instanceof Conflict) {
     // Lost a race with the other parent ("Brittany already stopped it at 3:20 AM").
     const e = err.entry;
+    if (err.reason === "changed") {
+      return fail(`Someone just changed #${e.id}, so nothing was saved. Call list_entries to see it as it is now, then try again.`);
+    }
     if (ctx && !e.active && e.ended_at) {
       const who = memberName(e.updated_by ?? e.created_by, ctx.members);
       return fail(`${who} already stopped that ${TIMER_LABEL[e.kind as TimerKind] ?? KIND_NAME[e.kind]} timer at ${whenText(e.ended_at, ctx)} (#${e.id}). Call maple_status to see what's running now.`);
@@ -537,10 +540,17 @@ async function vitalsAlerts(e: EntryOf<"vitals">, ctx: Ctx): Promise<AlertOut[]>
   const others = prior.filter((x) => x.id !== e.id);
   const out: Assessment[] = [];
   const v = e.data;
-  if (v.heart_bpm != null || v.resp_rate != null || v.spo2 != null) {
-    const prev = others.find((x) => x.data.heart_bpm != null || x.data.resp_rate != null || x.data.spo2 != null);
+  // Each measure against the previous reading of that same measure (a
+  // breathing recount isn't "confirmed" by an oxygen reading in between).
+  for (const f of ["spo2", "resp_rate", "heart_bpm"] as const) {
+    if (v[f] == null) continue;
+    const prev = others.find((x) => x.data[f] != null);
     out.push(
-      ...assessVitals(v, monthsAt(ctx.baby, at, ctx.tz), prev ? { ...prev.data, minutesBefore: (at.getTime() - ts(prev)) / MIN } : null)
+      ...assessVitals(
+        { [f]: v[f] },
+        monthsAt(ctx.baby, at, ctx.tz),
+        prev ? { [f]: prev.data[f], minutesBefore: (at.getTime() - ts(prev)) / MIN } : null
+      )
     );
   }
   if (v.jaundice) {
@@ -2358,7 +2368,7 @@ export function registerMapleTools(server: McpServer) {
       try {
         stopped = await stopTimer(target.id, at, ctx.who.id);
       } catch (err) {
-        if (err instanceof Conflict) return alreadyStopped(err.entry);
+        if (err instanceof Conflict && err.reason === "stopped") return alreadyStopped(err.entry);
         throw err;
       }
       if (stopped.kind === "pump" && pumpedMl != null) {

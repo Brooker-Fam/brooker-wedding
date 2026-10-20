@@ -283,17 +283,19 @@ export function MapleProvider({ children }: { children: ReactNode }) {
         lastPollRef.current = Date.now();
         return;
       }
-      if (inflight.current > 0) return;
-      revRef.current = res.rev;
-      tzRef.current = res.baby.timezone;
       // "While you slept": the previous visit as of the first poll, and again
-      // whenever the app comes back after a long time in the background.
+      // whenever the app comes back after a long time in the background. Read
+      // it before the in-flight check below: the server has already marked
+      // this visit, so a dropped response would lose the old value for good.
       const away = Date.now() - lastPollRef.current >= AWAY_MS;
       if (!seenRef.current || away) {
         seenRef.current = true;
         setSeenAt(res.seen_at);
       }
       lastPollRef.current = Date.now();
+      if (inflight.current > 0) return;
+      revRef.current = res.rev;
+      tzRef.current = res.baby.timezone;
       setState(withPending(res, outboxRef.current));
       setStatus("ready");
       setError(null);
@@ -467,6 +469,11 @@ export function MapleProvider({ children }: { children: ReactNode }) {
     async (id, opts = {}) => {
       // Still in the outbox: just drop it locally.
       const queued = outboxRef.current.find((i) => i.entry.id === id);
+      // Still being saved (temporary id, not queued): nothing to delete yet.
+      if (id < 0 && !queued) {
+        toast("One sec, that's still saving", { emoji: "⏳", tone: "info" });
+        return;
+      }
       if (queued) {
         setQueue(outboxRef.current.filter((i) => i.client_id !== queued.client_id));
         dropEntry(id);
@@ -623,8 +630,13 @@ export function MapleProvider({ children }: { children: ReactNode }) {
         rollback?.();
         if (e instanceof ApiError && e.status === 409) {
           // The other parent got there first: show what actually happened.
-          const cur = (e.body as { entry?: Entry } | null)?.entry;
+          const body = e.body as { entry?: Entry; reason?: string } | null;
+          const cur = body?.entry;
           if (cur) upsert(cur);
+          if (body?.reason === "changed" || cur?.active) {
+            toast("Someone else just changed that timer. Have another look.", { emoji: "🍃", tone: "info" });
+            return cur ?? null;
+          }
           const who = cur?.updated_by && cur.updated_by !== state?.me.email ? memberName(cur.updated_by) : null;
           const when = cur?.ended_at ? ` at ${formatTime(cur.ended_at, tzRef.current)}` : "";
           toast(who ? `${who} already stopped it${when}` : `Already stopped${when}`, { emoji: "🍃", tone: "info" });

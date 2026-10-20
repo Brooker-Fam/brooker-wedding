@@ -63,11 +63,17 @@ function VitalsForm({ open, onClose, entry, preset }: SheetProps) {
 
   const t = when ?? now();
   const ago = (x: EntryOf<"vitals">) => (t.getTime() - Date.parse(x.started_at)) / 60_000;
-  const prevV = earlier.find((x) => Date.parse(x.started_at) < t.getTime() && (x.data.heart_bpm != null || x.data.resp_rate != null || x.data.spo2 != null));
+  // Each measure's baseline is the previous reading of that same measure.
+  const prevOf = (f: "heart_bpm" | "resp_rate" | "spo2") =>
+    earlier.find((x) => Date.parse(x.started_at) < t.getTime() && x.data[f] != null);
   const prevJ = earlier.find((x) => Date.parse(x.started_at) < t.getTime() && x.data.jaundice != null);
 
   const vitals = { heart_bpm: heart ?? undefined, resp_rate: resp ?? undefined, spo2: spo2 ?? undefined };
-  const vitalNotes = assessVitals(vitals, ageMonths, prevV ? { ...prevV.data, minutesBefore: ago(prevV) } : null);
+  const vitalNotes = (["spo2", "resp_rate", "heart_bpm"] as const).flatMap((f) => {
+    if (vitals[f] == null) return [];
+    const prev = prevOf(f);
+    return assessVitals({ [f]: vitals[f] }, ageMonths, prev ? { [f]: prev.data[f], minutesBefore: ago(prev) } : null);
+  });
   // Without a birth time we can't tell her first day from her fifth, so skip that one rule.
   const ageHours = bornAt ? (t.getTime() - Date.parse(bornAt)) / H : 24;
   const skinNote = level ? assessJaundice(level, ageHours, prevJ ? { level: prevJ.data.jaundice!, minutesBefore: ago(prevJ) } : null) : null;

@@ -76,7 +76,7 @@ export default function Dock() {
   const [done, setDone] = useState<Record<string, boolean>>({});
   const ref = useRef<HTMLDivElement>(null);
   const [host, setHost] = useState<HTMLElement | null>(null);
-  const lastTap = useRef(0);
+  const lastTap = useRef(-Infinity);
   const tz = state?.baby.timezone ?? DEFAULT_TZ;
 
   // Portal to <body>: the tab content animates with a transform when tabs
@@ -130,7 +130,8 @@ export default function Dock() {
 
   /** Wrap a tap so taps within the dock-wide cooldown are ignored. */
   const tap = (fn: () => void) => () => {
-    const t = now().getTime();
+    // A monotonic local clock: the server-synced now() can jump on each poll.
+    const t = performance.now();
     if (t - lastTap.current < TAP_COOLDOWN_MS) return;
     lastTap.current = t;
     fn();

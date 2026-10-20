@@ -49,15 +49,19 @@ export const PATCH = withMember("PATCH /api/maple/baby", async (request) => {
     if (!body.settings || typeof body.settings !== "object" || Array.isArray(body.settings)) {
       throw new BadRequest("settings must be an object");
     }
-    // Only the keys sent are changed (null removes one); the store merges them in SQL.
+    // Only the keys sent are changed (null removes one); the store merges them
+    // in SQL, acks included, so concurrent saves from two phones both stick.
     const incoming = { ...(body.settings as Record<string, unknown>) };
-    if (incoming.acks && typeof incoming.acks === "object") {
-      // Acks are per episode, so they pile up: keep the last two weeks.
-      const cutoff = Date.now() - 14 * 24 * 3600_000;
-      const all = { ...((baby.settings.acks as Record<string, unknown>) ?? {}), ...(incoming.acks as Record<string, unknown>) };
-      incoming.acks = Object.fromEntries(
-        Object.entries(all).filter(([, at]) => typeof at === "string" && Date.parse(at) >= cutoff)
-      );
+    if ("acks" in incoming) {
+      const acks = incoming.acks;
+      delete incoming.acks;
+      if (acks && typeof acks === "object" && !Array.isArray(acks)) {
+        patch.acks = Object.fromEntries(
+          Object.entries(acks as Record<string, unknown>).filter(
+            (kv): kv is [string, string] => typeof kv[1] === "string" && !Number.isNaN(Date.parse(kv[1])) && kv[0].length <= 120
+          )
+        );
+      }
     }
     if (JSON.stringify({ ...baby.settings, ...incoming }).length > 8000) throw new BadRequest("settings too large");
     patch.settings = incoming;

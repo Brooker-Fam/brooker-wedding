@@ -57,8 +57,10 @@ export async function GET(request: NextRequest) {
     if (!member) return fail(reason ?? "not_invited");
 
     const res = NextResponse.redirect(withAuthParam(base, back, "ok"));
-    setSessionCookies(res, member.email);
+    // res.cookies.* rewrites every Set-Cookie header, so it must run before
+    // setSessionCookies appends the session's raw headers.
     res.cookies.set(STATE_COOKIE, "", { path: "/api/maple/auth", maxAge: 0 });
+    setSessionCookies(res, member.email);
     return res;
   } catch (error) {
     console.error("Maple auth callback error:", error);

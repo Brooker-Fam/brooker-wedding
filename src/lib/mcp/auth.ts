@@ -115,11 +115,19 @@ export interface AccessTokenPayload {
 export const ACCESS_TOKEN_TTL = 60 * 60 * 24 * 30; // 30 days
 
 export function mintAccessToken(payload: AccessTokenPayload): string {
-  return pack(payload, ACCESS_TOKEN_TTL, "mcpat");
+  const body = payload.sub === "admin" ? { ...payload, pf: adminPassFingerprint() } : payload;
+  return pack(body, ACCESS_TOKEN_TTL, "mcpat");
 }
 
 export function verifyAccessToken(token: string): AccessTokenPayload | null {
-  return unpack<AccessTokenPayload>(token, "mcpat");
+  const p = unpack<AccessTokenPayload & { pf?: string }>(token, "mcpat");
+  if (!p) return null;
+  // Changing ADMIN_PASS revokes admin tokens. Tokens issued before
+  // fingerprints existed (no pf) stay valid until their 30-day expiry.
+  if (p.sub === "admin" && p.pf !== undefined && p.pf !== adminPassFingerprint()) return null;
+  const { pf: _pf, ...rest } = p;
+  void _pf;
+  return rest;
 }
 
 // ---------- Refresh tokens ----------

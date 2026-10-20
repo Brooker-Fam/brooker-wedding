@@ -113,6 +113,8 @@ export type BabyPatch = Partial<
 > & {
   /** Settings keys to set (shallow); a null value removes the key. */
   settings?: Record<string, unknown>;
+  /** Alert acknowledgements to add ({ alertId: isoTime }), merged in SQL. */
+  acks?: Record<string, string>;
 };
 
 const BABY_FIELDS = [
@@ -140,9 +142,20 @@ export async function updateBaby(id: number, patch: BabyPatch): Promise<Baby> {
     params.push(v);
     sets.push(`${f} = $${params.length}${f === "due_date" ? "::date" : ""}`);
   }
-  if (patch.settings) {
-    params.push(JSON.stringify(patch.settings));
-    sets.push(`settings = jsonb_strip_nulls(settings || $${params.length}::jsonb)`);
+  if (patch.settings || patch.acks) {
+    params.push(JSON.stringify(patch.settings ?? {}));
+    let expr = `jsonb_strip_nulls(settings || $${params.length}::jsonb)`;
+    if (patch.acks) {
+      // Merge acks into what's stored (both parents may tap "We called" at
+      // once) and drop any older than two weeks, all in one statement.
+      params.push(JSON.stringify(patch.acks));
+      expr = `jsonb_set(${expr}, '{acks}', (
+        SELECT COALESCE(jsonb_object_agg(k, v), '{}'::jsonb)
+        FROM jsonb_each(COALESCE(settings->'acks', '{}'::jsonb) || $${params.length}::jsonb) AS a(k, v)
+        WHERE jsonb_typeof(v) = 'string' AND (v #>> '{}')::timestamptz > NOW() - INTERVAL '14 days'
+      ))`;
+    }
+    sets.push(`settings = ${expr}`);
   }
   const rows = await q(
     `UPDATE maple_babies SET ${[...sets, "updated_at = NOW()"].join(", ")}
@@ -362,7 +375,7 @@ export async function updateEntry(id: number, patch: EntryPatch, by?: string): P
   if (!rows.length) {
     const now = await getEntry(id);
     if (!now) throw new NotFound(`Entry ${id} not found`);
-    throw new Conflict("Someone else just changed this. Have another look and try again.", now);
+    throw new Conflict("Someone else just changed this. Have another look and try again.", now, "changed");
   }
   return rowToEntry(rows[0]);
 }
@@ -382,8 +395,9 @@ export async function softDeleteEntry(id: number, by?: string): Promise<Entry> {
 }
 
 /**
- * Undo a delete. A deleted timer comes back stopped if another timer of its
- * kind started in the meantime (only one may run).
+ * Undo a delete. A deleted running timer comes back running, unless another
+ * timer of its kind started in the meantime (only one may run): then it comes
+ * back stopped at the moment it was deleted.
  */
 export async function restoreEntry(id: number, by?: string): Promise<Entry> {
   const prev = await getEntry(id, { includeDeleted: true });
@@ -398,7 +412,17 @@ export async function restoreEntry(id: number, by?: string): Promise<Entry> {
     return rowToEntry(rows[0]);
   } catch (err) {
     if (!isUniqueViolation(err, "uniq_maple_entries_running")) throw err;
-    throw new Conflict("Another timer is running now, so this one can't come back", prev);
+    const deletedAt = await q(`SELECT deleted_at FROM maple_entries WHERE id = $1`, [id]);
+    const stopAt = new Date(isoOrNull(deletedAt[0]?.deleted_at) ?? Date.now());
+    const data = prev.kind === "feed" ? finalizeBreast(prev.data as FeedData, stopAt) : prev.data;
+    const rows = await q(
+      `UPDATE maple_entries SET deleted_at = NULL, active = FALSE, ended_at = COALESCE(ended_at, $3::timestamptz),
+         data = $4::jsonb, updated_by = COALESCE($2, updated_by), updated_at = NOW()
+       WHERE id = $1 AND deleted_at IS NOT NULL RETURNING *`,
+      [id, by ?? null, stopAt.toISOString(), JSON.stringify(data)]
+    );
+    if (!rows.length) throw new NotFound(`Entry ${id} not found or not deleted`);
+    return rowToEntry(rows[0]);
   }
 }
 
@@ -416,7 +440,11 @@ export async function listDeleted(babyId: number, since: Date): Promise<Entry[]>
 
 /** A request that lost a race (the other parent already stopped it). Carries the current entry. */
 export class Conflict extends Error {
-  constructor(message: string, readonly entry: Entry) {
+  /**
+   * "stopped": the timer had already stopped (the other parent got there
+   * first). "changed": someone edited it a moment ago.
+   */
+  constructor(message: string, readonly entry: Entry, readonly reason: "stopped" | "changed" = "stopped") {
     super(message);
   }
 }
@@ -588,7 +616,11 @@ export async function addMember(email: string, addedBy: string, emoji: string, r
  * in with Google. Inviting them again (addMember) lifts it.
  */
 export async function removeMember(email: string, by: string): Promise<boolean> {
-  const rows = await q(`DELETE FROM maple_members WHERE email = $1 AND role <> 'owner' RETURNING email`, [email]);
+  // Owners stay, except the "admin" pseudo-owner, which a real owner may remove.
+  const rows = await q(
+    `DELETE FROM maple_members WHERE email = $1 AND (role <> 'owner' OR email = 'admin') RETURNING email`,
+    [email]
+  );
   if (!rows.length) return false;
   await q(`UPDATE maple_tokens SET revoked_at = NOW() WHERE member = $1 AND revoked_at IS NULL`, [email]);
   await q(

@@ -30,6 +30,9 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "That username and password didn't match" }, { status: 401 });
     }
     const member = await ensureAdminMember();
+    if (member === "removed") {
+      return NextResponse.json({ error: "The admin login was turned off for Maple's Log. Sign in with Google." }, { status: 403 });
+    }
     if (!member) return NextResponse.json({ error: "Maple's log is offline right now" }, { status: 503 });
 
     const res = NextResponse.json({ ok: true, member });

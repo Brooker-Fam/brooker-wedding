@@ -37,7 +37,29 @@ function err(code: string, description: string, status = 400) {
   );
 }
 
-/** Access + (rotated) refresh token for a grant. */
+/** "https://Brooker.family/api/maple/mcp/" and "…/mcp" are the same resource. */
+function sameResource(a: string, b: string): boolean {
+  const canon = (r: string) => {
+    try {
+      const u = new URL(r);
+      return `${u.protocol}//${u.host.toLowerCase()}${u.pathname.replace(/\/+$/, "")}`;
+    } catch {
+      return r.replace(/\/+$/, "");
+    }
+  };
+  return canon(a) === canon(b);
+}
+
+/**
+ * Only Maple grants get refresh tokens (so parents' connectors don't lapse
+ * monthly). Calendar and RSVP admin grants keep their 30-day tokens and no
+ * refresh, as before: their tools run unsandboxed code.
+ */
+function isMapleGrant(grant: AccessTokenPayload): boolean {
+  return (grant.resource ?? "").replace(/\/+$/, "").endsWith("/api/maple/mcp") || grant.scope.split(" ").includes("maple");
+}
+
+/** Access + (rotated, Maple only) refresh token for a grant. */
 function issue(grant: AccessTokenPayload) {
   const payload: AccessTokenPayload = {
     sub: grant.sub,
@@ -51,7 +73,7 @@ function issue(grant: AccessTokenPayload) {
       access_token: mintAccessToken(payload),
       token_type: "Bearer",
       expires_in: ACCESS_TOKEN_TTL,
-      refresh_token: mintRefreshToken(payload),
+      ...(isMapleGrant(payload) ? { refresh_token: mintRefreshToken(payload) } : {}),
       scope: payload.scope,
     },
     { headers: HEADERS }
@@ -109,7 +131,7 @@ export async function POST(request: NextRequest) {
     return err("invalid_grant", "PKCE verification failed");
   }
   // RFC 8707: a code bound to one resource can't be redeemed for another.
-  if (resource && payload.resource && resource !== payload.resource) {
+  if (resource && payload.resource && !sameResource(resource, payload.resource)) {
     return err("invalid_grant", "resource does not match the authorization request");
   }
 
@@ -128,13 +150,14 @@ async function refresh(params: URLSearchParams) {
 
   const grant = verifyRefreshToken(token);
   if (!grant) return err("invalid_grant", "refresh_token is invalid or expired");
+  if (!isMapleGrant(grant)) return err("invalid_grant", "refresh isn't available for this connection");
 
   const clientId = params.get("client_id");
   if (clientId && clientId !== grant.client_id) {
     return err("invalid_grant", "client_id mismatch");
   }
   const resource = params.get("resource");
-  if (resource && grant.resource && resource !== grant.resource) {
+  if (resource && grant.resource && !sameResource(resource, grant.resource)) {
     return err("invalid_grant", "resource does not match this grant");
   }
 

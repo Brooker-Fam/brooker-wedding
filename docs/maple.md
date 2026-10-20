@@ -24,7 +24,18 @@ Full instructions with copy buttons are at `/maple/connect`. The MCP server URL 
 - **ChatGPT** (web, developer mode / custom connectors): add a custom MCP server with the same URL and OAuth.
 - **Claude Code:** `claude mcp add --transport http maple https://brooker.family/api/maple/mcp`.
 
-OAuth reuses the site's `/oauth/*` shim. A Maple connection (detected by the RFC 8707 `resource` parameter, or the `maple` scope) signs in with the same Google session as the app, and the token is minted for `maple:<email>`, so entries show "via Claude / via ChatGPT" under the right person. The calendar and RSVP MCP servers now only accept admin tokens, so a family member's Maple token can't open them. Refresh tokens are supported, so connectors don't expire every 30 days.
+OAuth reuses the site's `/oauth/*` shim. A Maple connection (detected by the RFC 8707 `resource` parameter, or the `maple` scope) signs in with the same Google session as the app, and the token is minted for `maple:<email>`, so entries show "via Claude / via ChatGPT" under the right person.
+
+- **Bound to this server.** Tokens are bound to exactly `https://brooker.family/api/maple/mcp`. Any other resource is refused at consent, so another MCP server can't obtain or replay a parent's token.
+- **Calendar and RSVP stay admin-only.** Those MCP servers only accept admin tokens, so a family member's Maple token can't open them.
+- **Refresh tokens for Maple only.** Maple grants get refresh tokens, so parents' connectors don't expire monthly. Calendar and RSVP grants keep their old 30-day tokens with no refresh.
+
+## Access and revocation
+
+- **Removing someone** (Family tab) ends everything at once: their sessions, MCP connections (checked on every request and every refresh) and Siri tokens. Removal leaves a tombstone, so an address on `MAPLE_ALLOWED_EMAILS` can't simply sign back in. Inviting them again lifts it.
+- **The admin password login** shows up in Family as "Admin". A Google owner can remove it, which turns off the admin password and admin MCP access for Maple only; the calendar and RSVP are unaffected. Delete the `admin` row from `maple_removed` to turn it back on.
+- **Changing `ADMIN_PASS`** signs Admin out of Maple, and revokes admin MCP tokens issued since this change.
+- **The session cookie** is scoped to `/api/maple` and `/oauth/authorize`, so the `/ingest` analytics proxy never sees it.
 
 ## Hands-free (Siri / Shortcuts)
 

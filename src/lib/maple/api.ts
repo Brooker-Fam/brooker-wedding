@@ -43,7 +43,9 @@ export function withMember(route: string, handler: Handler, opts: { write?: bool
 export async function errorResponse(route: string, error: unknown): Promise<Response> {
   if (error instanceof StoreUnavailable) return json({ error: "Maple's log is offline right now" }, 503);
   if (error instanceof NotFound) return json({ error: error.message || "Not found" }, 404);
-  if (error instanceof Conflict) return json({ error: error.message, entry: toClientEntry(error.entry) }, 409);
+  if (error instanceof Conflict) {
+    return json({ error: error.message, reason: error.reason, entry: toClientEntry(error.entry) }, 409);
+  }
   if (error instanceof Forbidden) return json({ error: error.message || "Not allowed" }, 403);
   if (error instanceof BadRequest) return json({ error: error.message }, 400);
   // Validation errors from cleanData / store checks are plain Errors with a

@@ -119,7 +119,9 @@ export const SESSION_PATHS = ["/api/maple", "/oauth/authorize"] as const;
 const SESSION_MAX_AGE = SESSION_DAYS * 24 * 60 * 60;
 
 // The same cookie name on two paths: NextResponse.cookies is keyed by name
-// (a second set() would replace the first), so append raw headers.
+// (a second set() would replace the first), so append raw headers. Any
+// res.cookies.* call made AFTER these would rewrite Set-Cookie and drop them:
+// call setSessionCookies/clearSessionCookies last.
 function sessionCookieHeader(value: string, path: string, maxAge: number): string {
   const attrs = [`${SESSION_COOKIE}=${encodeURIComponent(value)}`, `Path=${path}`, `Max-Age=${maxAge}`, "HttpOnly", "SameSite=Lax"];
   if (maxAge === 0) attrs.push("Expires=Thu, 01 Jan 1970 00:00:00 GMT");
@@ -130,6 +132,9 @@ function sessionCookieHeader(value: string, path: string, maxAge: number): strin
 export function setSessionCookies(res: NextResponse, id: string): void {
   const value = sealSession(id);
   for (const path of SESSION_PATHS) res.headers.append("Set-Cookie", sessionCookieHeader(value, path, SESSION_MAX_AGE));
+  // An old cookie at "/" (early builds) would be sent alongside and could
+  // shadow the new one, so expire it.
+  res.headers.append("Set-Cookie", sessionCookieHeader("", "/", 0));
 }
 
 export function clearSessionCookies(res: NextResponse): void {
@@ -235,8 +240,18 @@ export async function joinWithGoogle(
   return { member: await memberFor(who.email) };
 }
 
-/** The admin password signs in as an owner pseudo-member named "Admin". */
-export async function ensureAdminMember(): Promise<Member | null> {
+/** True if an owner removed this member (they stay out until invited again). */
+export async function isRemoved(id: string): Promise<boolean> {
+  const rows = await query(`SELECT 1 FROM maple_removed WHERE email = $1`, [id]);
+  return !!rows && rows.length > 0;
+}
+
+/**
+ * The admin password signs in as an owner pseudo-member named "Admin",
+ * unless a real owner removed it (then the password no longer opens Maple).
+ */
+export async function ensureAdminMember(): Promise<Member | "removed" | null> {
+  if (await isRemoved(ADMIN_ID)) return "removed";
   const done = await query(
     `INSERT INTO maple_members (email, role, display_name, emoji, added_by)
      VALUES ($1, 'owner', 'Admin', '🗝️', 'self')

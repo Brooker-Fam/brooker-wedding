@@ -368,17 +368,18 @@ export function summarize(opts: {
     // Vitals: each measure on its own, so a heart-rate-only entry can't hide
     // an earlier oxygen reading. Its "recheck" baseline is the previous
     // reading of that same measure.
+    // The newest reading of a measure is its current state: a calm recheck
+    // clears an earlier scare, while a different measure can't mask it.
     for (const f of ["spo2", "resp_rate", "heart_bpm"] as const) {
-      const has = (e: EntryOf<"vitals">) => e.data[f] != null;
-      for (const e of ofKind(entries, "vitals")) {
-        if (!has(e) || nowMs - ts(e) >= 12 * H || ts(e) > nowMs) continue;
-        const prev = previousOf(entries, e, has);
-        assessVitals(
-          { [f]: e.data[f] },
-          months,
-          prev ? { [f]: prev.data[f], minutesBefore: (ts(e) - ts(prev)) / 60000 } : null
-        ).forEach((a) => push(`vitals-${e.id}-${f}`, a, e.id));
-      }
+      const has = (e: EntryOf<"vitals">) => e.data[f] != null && ts(e) <= nowMs;
+      const e = newest(entries, "vitals", has);
+      if (!e || nowMs - ts(e) >= 12 * H) continue;
+      const prev = previousOf(entries, e, has);
+      assessVitals(
+        { [f]: e.data[f] },
+        months,
+        prev ? { [f]: prev.data[f], minutesBefore: (ts(e) - ts(prev)) / 60000 } : null
+      ).forEach((a) => push(`vitals-${e.id}-${f}`, a, e.id));
     }
     // Skin checks: the most urgent in the last 48 hours (a later "looks fine"
     // shouldn't quietly clear a call-now; "We called" does).
@@ -457,7 +458,10 @@ export function summarize(opts: {
     }
 
     // Feeding gaps (start to start), unless she's nursing right now.
-    const rule = feedGapRule(age.days, weight?.backToBirthWeight ?? null, num(settings.feed_interval_hours));
+    // An old weighing says little about today: only a recent one keeps the
+    // stricter wake-to-feed rule going past two weeks.
+    const recentWeight = weights.length > 0 && nowMs - ts(weights[weights.length - 1]) <= 7 * 24 * H;
+    const rule = feedGapRule(age.days, recentWeight ? weight?.backToBirthWeight ?? null : null, num(settings.feed_interval_hours));
     const nursingNow = active.some((e) => e.kind === "feed");
     const hour = localParts(now, tz).hour;
     const isNight = hour >= 22 || hour < 7;
@@ -504,17 +508,34 @@ export function summarize(opts: {
         body: "Most babies lose 5–7% before gaining. A bit more is worth a feeding check: let your pediatrician or a lactation consultant know.",
       });
     }
-    // Still losing after Day 5: the newest weighing (after 120 hours) is lower
-    // than the one before it, by more than a home scale's wobble.
+    // Still losing after Day 5: two consecutive weighings from Day 4 on, the
+    // newer one after 120 hours and lower by more than scale noise (home
+    // scales wobble about an ounce, and a feed weighs 2–3 oz).
     const prevW = weights[weights.length - 2];
-    if (latest && prevW && ts(latest) - bornMs >= 120 * H && weightFresh && prevW.data.weight_g! - latest.data.weight_g! >= 30) {
+    const bothDoctor = latest?.data.at === "doctor" && prevW?.data.at === "doctor";
+    const dropG = latest && prevW ? prevW.data.weight_g! - latest.data.weight_g! : 0;
+    if (
+      latest &&
+      prevW &&
+      weightFresh &&
+      ts(latest) - bornMs >= 120 * H &&
+      ts(prevW) - bornMs >= 72 * H &&
+      dropG >= (bothDoctor ? 30 : 60)
+    ) {
       push(`still-losing:${latest.id}`, {
         tier: "today",
         title: "Still losing weight after Day 5",
         body: "Babies usually start gaining around Day 5. A drop after that is worth a call to your pediatrician today.",
       });
     }
-    if (latest && weight && weight.backToBirthWeight === false && age.days >= BIRTH_WEIGHT_REGAIN_DAY && ts(latest) - bornMs >= 10 * 24 * H) {
+    if (
+      latest &&
+      weight &&
+      weight.backToBirthWeight === false &&
+      age.days >= BIRTH_WEIGHT_REGAIN_DAY &&
+      ts(latest) - bornMs >= 10 * 24 * H &&
+      nowMs - ts(latest) <= 7 * 24 * H
+    ) {
       push(`regain-14:${latest.id}`, {
         tier: "today",
         title: "Not back to birth weight yet",

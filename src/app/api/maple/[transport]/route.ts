@@ -1,7 +1,7 @@
 import { createMcpHandler, withMcpAuth } from "mcp-handler";
 import type { AuthInfo } from "@modelcontextprotocol/sdk/server/auth/types.js";
 import { publicOrigin, verifyAccessToken, verifyBasicAuthHeader } from "@/lib/mcp/auth";
-import { memberFor } from "@/lib/maple/auth";
+import { isRemoved, memberFor } from "@/lib/maple/auth";
 import { MAPLE_INSTRUCTIONS, registerMapleTools } from "@/lib/maple/mcp-tools";
 import { captureServerException } from "@/lib/posthog-server";
 
@@ -56,6 +56,15 @@ const VIAS = new Set(["claude", "chatgpt", "mcp"]);
  * also become a 401, so a database blip during the membership check is
  * swallowed rather than disconnecting a parent mid-night.
  */
+/** An owner can turn off the admin login for Maple (Family → remove "Admin"). */
+async function adminRemoved(): Promise<boolean> {
+  try {
+    return await isRemoved("admin");
+  } catch {
+    return false;
+  }
+}
+
 async function verifyToken(req: Request, bearer?: string): Promise<AuthInfo | undefined> {
   if (bearer) {
     const payload = verifyAccessToken(bearer);
@@ -74,7 +83,7 @@ async function verifyToken(req: Request, bearer?: string): Promise<AuthInfo | un
     const expected = `${publicOrigin(req)}/api/maple/mcp`;
     const bound = payload.resource?.replace(/\/+$/, "");
     if (bound && bound !== expected) return undefined;
-    if (payload.sub === "admin") return info("admin");
+    if (payload.sub === "admin") return (await adminRemoved()) ? undefined : info("admin");
     if (!payload.sub.startsWith("maple:")) return undefined;
     if (!bound && !scopes.includes("maple")) return undefined;
     try {
@@ -85,7 +94,7 @@ async function verifyToken(req: Request, bearer?: string): Promise<AuthInfo | un
     return info(payload.sub);
   }
 
-  if (verifyBasicAuthHeader(req.headers.get("authorization"))) {
+  if (verifyBasicAuthHeader(req.headers.get("authorization")) && !(await adminRemoved())) {
     return {
       token: "basic-auth",
       clientId: "admin-basic",
