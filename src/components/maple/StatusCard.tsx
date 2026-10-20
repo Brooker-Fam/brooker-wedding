@@ -348,7 +348,7 @@ export function DiaperBrigade() {
   const { state, summary, memberName } = useMaple();
   const now = useNow(300_000);
   if (!state || !summary || !summary.teamDiapers) return null;
-  if ((state.baby.settings as Record<string, unknown>).show_diaper_brigade === false) return null;
+  if ((state.baby.settings as Record<string, unknown>).show_brigade === false) return null;
   const byName = new Map(state.members.map((m, i) => [memberName(m.email), { m, i }]));
   const week = Math.floor(now.getTime() / (7 * 86_400_000));
   const people = summary.duty.map((d, i) => {
