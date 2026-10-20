@@ -71,7 +71,7 @@ export function usePhones() {
  * nudge comes back after the next feed), on this phone only.
  */
 export default function AlertStack({ tiers, onNavigate }: { tiers: AlertTier[]; onNavigate: (t: TabId) => void }) {
-  const { summary, state } = useMaple();
+  const { summary, state, now } = useMaple();
   const [handled, setHandled] = useState<Set<string>>(() => new Set());
   const [nudges, setNudges] = useState<Record<string, number>>({});
   useEffect(() => setNudges(readNudges()), []);
@@ -88,8 +88,9 @@ export default function AlertStack({ tiers, onNavigate }: { tiers: AlertTier[]; 
   );
 
   const dismissNudge = (a: Alert) => {
-    const next = { ...readNudges(), [nudgeKey(a)]: Date.now() };
-    for (const [k, v] of Object.entries(next)) if (v < Date.now() - 4 * 86_400_000) delete next[k];
+    const t = now().getTime();
+    const next = { ...readNudges(), [nudgeKey(a)]: t };
+    for (const [k, v] of Object.entries(next)) if (v < t - 4 * 86_400_000) delete next[k];
     try {
       localStorage.setItem(NUDGE_KEY, JSON.stringify(next));
     } catch {

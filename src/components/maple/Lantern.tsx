@@ -179,18 +179,19 @@ function HoldButton({ label, onConfirm, onHint }: { label: string; onConfirm: ()
   const start = useRef<number | null>(null);
   const fired = useRef(false);
 
-  const cancel = (tap: boolean) => {
+  // Times come from the events and animation frames themselves (both on the performance clock).
+  const cancel = (tap: boolean, at?: number) => {
     if (raf.current) cancelAnimationFrame(raf.current);
     raf.current = null;
-    const held = start.current != null ? performance.now() - start.current : 0;
+    const held = start.current != null && at != null ? at - start.current : 0;
     start.current = null;
     if (tap && !fired.current && held < HOLD_MS) onHint();
     setProgress(0);
   };
 
-  const loop = () => {
+  const loop = (frame: number) => {
     if (start.current == null) return;
-    const p = Math.min(1, (performance.now() - start.current) / HOLD_MS);
+    const p = Math.min(1, Math.max(0, frame - start.current) / HOLD_MS);
     setProgress(p);
     if (p >= 1) {
       fired.current = true;
@@ -214,12 +215,12 @@ function HoldButton({ label, onConfirm, onHint }: { label: string; onConfirm: ()
       onPointerDown={(e) => {
         e.stopPropagation();
         fired.current = false;
-        start.current = performance.now();
+        start.current = e.timeStamp;
         raf.current = requestAnimationFrame(loop);
       }}
       onPointerUp={(e) => {
         e.stopPropagation();
-        cancel(true);
+        cancel(true, e.timeStamp);
       }}
       onPointerLeave={() => cancel(false)}
       onPointerCancel={() => cancel(false)}

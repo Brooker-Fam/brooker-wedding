@@ -104,7 +104,7 @@ function Screens() {
         >
           {tab === "today" && <TodayTab onNavigate={go} />}
           {tab === "log" && <LogTab />}
-          {tab === "patterns" && <PatternsTab />}
+          {tab === "patterns" && <PatternsTab onNavigate={go} />}
           {tab === "moments" && <MomentsTab />}
           {tab === "family" && <FamilyTab />}
         </motion.div>

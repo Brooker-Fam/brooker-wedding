@@ -139,6 +139,41 @@ export function useEntryRange(fromKey: string, toKey: string) {
   return { entries, ready: history?.range === range, loaded: history !== null, error, reload };
 }
 
+export type TimeWindow = { key: string; start: number; end: number };
+
+/**
+ * Entries overlapping each window (windows oldest first, back to back), found
+ * by binary search so a month of days doesn't rescan every entry per day.
+ */
+export function bucketWindows(entries: Entry[], windows: TimeWindow[], now: Date): Entry[][] {
+  const out = windows.map(() => [] as Entry[]);
+  const nowMs = now.getTime();
+  for (const e of entries) {
+    const s = Date.parse(e.started_at);
+    const end = Math.max(s, e.ended_at ? Date.parse(e.ended_at) : e.active ? nowMs : s);
+    let lo = 0;
+    let hi = windows.length;
+    while (lo < hi) {
+      const mid = (lo + hi) >> 1;
+      if (windows[mid].end <= s) lo = mid + 1;
+      else hi = mid;
+    }
+    for (let i = lo; i < windows.length && windows[i].start <= end; i++) out[i].push(e);
+  }
+  return out;
+}
+
+/** DayStats per local day, oldest first (dailyStats, minus the rescans). */
+export function statsByDay(entries: Entry[], fromKey: string, toKey: string, now: Date, tz: string): DayStats[] {
+  const windows: TimeWindow[] = [];
+  for (let k = fromKey; k <= toKey; k = addDays(k, 1)) {
+    const [a, b] = dayBounds(k, tz);
+    windows.push({ key: k, start: a.getTime(), end: b.getTime() });
+  }
+  const buckets = bucketWindows(entries, windows, now);
+  return windows.map((w, i) => statsFor(buckets[i], new Date(w.start), new Date(w.end), w.key, now));
+}
+
 /** Clock-change days in the baby's zone get a gentle label instead of a mystery gap. */
 export function dstNote(key: string, tz: string): string | null {
   const [a, b] = dayBounds(key, tz);
@@ -237,17 +272,19 @@ export default function LogTab() {
     return m;
   }, [entries, tz]);
 
+  const stats = useMemo(() => statsByDay(entries, oldestKey, todayKey, now, tz), [entries, oldestKey, todayKey, now, tz]);
+
   const days = useMemo(() => {
     const out: { key: string; rows: Entry[]; stats: DayStats; total: number }[] = [];
-    for (let k = todayKey; k >= oldestKey; k = addDays(k, -1)) {
+    for (let i = stats.length - 1; i >= 0; i--) {
+      const k = stats[i].key;
       const all = byDay.get(k) ?? [];
       const rows = group === "all" ? all : all.filter((e) => groupOf(e.kind) === group);
       if (!rows.length && k !== todayKey && k !== pinned) continue;
-      const [a, b] = dayBounds(k, tz);
-      out.push({ key: k, rows, stats: statsFor(entries, a, b, k, now), total: all.length });
+      out.push({ key: k, rows, stats: stats[i], total: all.length });
     }
     return out;
-  }, [todayKey, oldestKey, byDay, group, pinned, tz, entries, now]);
+  }, [stats, byDay, group, pinned, todayKey]);
 
   // Scroll to a jumped-to day once its page has loaded.
   useEffect(() => {
@@ -451,9 +488,12 @@ function DaySection({
 function QuickLog({ compact }: { compact?: boolean }) {
   const { open } = useSheets();
   return (
-    <div className={cx("flex flex-wrap justify-center gap-2", compact ? "mt-3" : "mt-1")}>
-      {!compact && <p className={cx(tone.muted, "w-full text-center text-xs")}>Log an earlier one:</p>}
-      {compact && <span className={cx(tone.muted, "sr-only")}>Log an earlier one</span>}
+    <div role="group" aria-label="Log an earlier one" className={cx("flex flex-wrap justify-center gap-2", compact ? "mt-3" : "mt-1")}>
+      {!compact && (
+        <p aria-hidden className={cx(tone.muted, "w-full text-center text-xs")}>
+          Log an earlier one:
+        </p>
+      )}
       <Chip onClick={() => open({ kind: "feed" })}>🤱 Feed</Chip>
       <Chip onClick={() => open({ kind: "diaper" })}>🧷 Diaper</Chip>
       <Chip onClick={() => open({ kind: "sleep" })}>🌙 Sleep</Chip>

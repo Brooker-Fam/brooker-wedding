@@ -11,7 +11,7 @@ import {
   diaperTargets,
   tummyGoalMinutes,
 } from "@/lib/maple/guidelines";
-import { dailyStats, isVitaminD, statsFor, type DayStats } from "@/lib/maple/insights";
+import { isVitaminD, statsFor, type DayStats } from "@/lib/maple/insights";
 import {
   DEFAULT_TZ,
   addDays,
@@ -29,7 +29,7 @@ import {
 import { formatTempBoth, formatVolume, formatWeightBoth, formatLengthBoth, mlToOz } from "@/lib/maple/units";
 import type { Entry, EntryOf, MapleState, StoolColor, UnitSystem } from "@/lib/maple/types";
 import type { TabId } from "./MapleApp";
-import { dstNote, mergeLive, requestTimelineDay, useEntryRange } from "./LogTab";
+import { bucketWindows, dstNote, mergeLive, requestTimelineDay, statsByDay, useEntryRange, type TimeWindow } from "./LogTab";
 import { useSheets } from "./sheets";
 import { Button, Card, EmptyState, Segmented, cx, tone } from "./ui";
 import { useMaple, useNow } from "./useMaple";
@@ -91,7 +91,7 @@ export default function PatternsTab({ onNavigate }: { onNavigate?: (t: TabId) =>
   // One extra day back so the first night (noon → noon) and sleeps across midnight are complete.
   const { entries, ready, loaded } = useEntryRange(addDays(fromKey, -1), todayKey);
 
-  const days = useMemo(() => dailyStats(entries, fromKey, todayKey, now, tz), [entries, fromKey, todayKey, now, tz]);
+  const days = useMemo(() => statsByDay(entries, fromKey, todayKey, now, tz), [entries, fromKey, todayKey, now, tz]);
   const loggedDays = days.filter((d) => d.feeds + d.diapers + d.sleeps > 0).length;
 
   const goToDay = useCallback(
@@ -257,7 +257,7 @@ function Insights({ days, entries, todayKey, tz }: { days: DayStats[]; entries: 
 
   if (!lines.length) return null;
   return (
-    <Card className="bg-[#FFF9EE]/80 dark:bg-[#15291C]/80">
+    <Card>
       <p className={cx(tone.label, "mb-1.5")}>Lately</p>
       <ul className="space-y-1">
         {lines.map((l) => (
@@ -370,14 +370,15 @@ function buildRibbon(
   bornAt: string | null,
   units: UnitSystem
 ): RibbonRow[] {
-  const rows: RibbonRow[] = [];
   const nowMs = now.getTime();
   const bornMs = bornAt ? Date.parse(bornAt) : null;
-  const first = mode === "nights" ? addDays(fromKey, -1) : fromKey;
-  for (let k = todayKey; k >= first; k = addDays(k, -1)) {
+  const wallStartMin = mode === "nights" ? 720 : 0;
+
+  // Row windows, oldest first: local days, or noon → noon for nights.
+  const windows: TimeWindow[] = [];
+  for (let k = mode === "nights" ? addDays(fromKey, -1) : fromKey; k <= todayKey; k = addDays(k, 1)) {
     let start: number;
     let end: number;
-    const wallStartMin = mode === "nights" ? 720 : 0;
     if (mode === "nights") {
       const a = parseDayKey(k);
       const b = parseDayKey(addDays(k, 1));
@@ -388,15 +389,20 @@ function buildRibbon(
       start = a.getTime();
       end = b.getTime();
     }
-    if (start > nowMs) continue;
-    if (bornMs != null && end <= bornMs) continue;
+    if (start > nowMs || (bornMs != null && end <= bornMs)) continue;
+    windows.push({ key: k, start, end });
+  }
+  const buckets = bucketWindows(entries, windows, now);
 
+  const rows: RibbonRow[] = [];
+  windows.forEach(({ key: k, start, end }, w) => {
+    const inRow = buckets[w];
     const row: RibbonRow = {
       key: k,
       label: mode === "nights" ? nightLabel(k, todayKey) : formatDayLabel(k, todayKey),
       jumpKey: mode === "nights" && addDays(k, 1) <= todayKey ? addDays(k, 1) : k,
       dst: null,
-      stats: statsFor(entries, new Date(start), new Date(end), k, now),
+      stats: statsFor(inRow, new Date(start), new Date(end), k, now),
       sleeps: [],
       tummies: [],
       feeds: [],
@@ -408,26 +414,26 @@ function buildRibbon(
     if (hours === 25) row.dst = mode === "days" ? dstNote(k, tz) : "25 hours (clocks fell back)";
     if (hours === 23) row.dst = mode === "days" ? dstNote(k, tz) : "23 hours (clocks sprang forward)";
 
+    const when = (s: number, e: number) => `${formatTime(s, tz)}${e > s + MIN ? `–${formatTime(e, tz)}` : ""}`;
     const feedsInRow: Entry[] = [];
-    for (const e of entries) {
+    for (const e of inRow) {
       const s = Date.parse(e.started_at);
-      const eEnd = entryEnd(e, now);
-      const when = `${formatTime(s, tz)}${eEnd > s + MIN ? `–${formatTime(eEnd, tz)}` : ""}`;
       if (e.kind === "sleep" || e.kind === "tummy") {
+        const eEnd = entryEnd(e, now);
         if (eEnd <= start || s >= end || eEnd <= s) continue;
         const [x1, x2] = spanFrac(s, eEnd, start, end, wallStartMin, tz);
-        const title = `${e.kind === "sleep" ? "Sleep" : "Tummy time"} ${formatDuration((eEnd - s) / 1000)} · ${when}`;
+        const title = `${e.kind === "sleep" ? "Sleep" : "Tummy time"} ${formatDuration((eEnd - s) / 1000)} · ${when(s, eEnd)}`;
         (e.kind === "sleep" ? row.sleeps : row.tummies).push({ x1, x2, title });
       } else if (e.kind === "feed") {
         if (s < start || s >= end) continue;
         feedsInRow.push(e);
         const bottle = e.data.method === "bottle";
-        const stop = Math.max(eEnd, s + (bottle ? 10 * MIN : 0));
-        const [x1, x2] = spanFrac(s, stop, start, end, wallStartMin, tz);
+        const eEnd = entryEnd(e, now);
+        const [x1, x2] = spanFrac(s, Math.max(eEnd, s + (bottle ? 10 * MIN : 0)), start, end, wallStartMin, tz);
         const what = bottle
           ? `Bottle${e.data.amount_ml ? ` ${formatVolume(e.data.amount_ml, units)}` : ""}`
           : `Nursed ${formatDuration(feedTotals(e.data, now).total)}`;
-        row.feeds.push({ x1, x2, bottle, title: `${what} · ${when}` });
+        row.feeds.push({ x1, x2, bottle, title: `${what} · ${when(s, eEnd)}` });
       } else if (e.kind === "diaper") {
         if (s < start || s >= end) continue;
         const what = e.data.pee && e.data.poop ? "Wet + dirty" : e.data.poop ? "Dirty" : e.data.pee ? "Wet" : "Dry";
@@ -439,8 +445,8 @@ function buildRibbon(
       row.clusters.push({ x1, x2, count: c.count, title: `cluster · ${c.count} feeds in ${formatDuration((c.to - c.from) / 1000)}` });
     }
     rows.push(row);
-  }
-  return rows;
+  });
+  return rows.reverse();
 }
 
 function useWidth<T extends HTMLElement>(): [(el: T | null) => (() => void) | undefined, number] {
@@ -1390,7 +1396,7 @@ export async function buildVisitSummary(opts: {
   out.push(`${baby.name}: visit summary (${from === todayKey ? dayRuns([from]) : `${dayRuns([from])} to ${dayRuns([todayKey])}`})`);
   if (born != null) {
     const age = babyAge(baby.born_at!, now, tz);
-    out.push(`Born ${shortDay(bornKey!)} at ${formatTime(born, tz)} · today she's ${age.label} old (Day ${age.dayOfLife})`);
+    out.push(`Born ${shortDay(bornKey!)} at ${formatTime(born, tz)} · today she's ${age.label.replace(/ old$/, "")} old (Day ${age.dayOfLife})`);
   }
   const birthBits = [
     baby.birth_weight_g ? `weight ${formatWeightBoth(baby.birth_weight_g)}` : null,

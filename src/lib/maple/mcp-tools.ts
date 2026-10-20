@@ -1835,7 +1835,7 @@ export function registerMapleTools(server: McpServer) {
       const what = a.kind ? `${a.kind.replace("_", " ")} entries` : "entries";
       const summary = shown.length
         ? `${plural(shown.length, what.replace(/ies$/, "y"), what)} ${label}, newest first${more ? ` (showing the newest ${limit}; raise limit or narrow the window for more)` : ""}.`
-        : `Nothing logged ${label}${a.kind ? ` for ${a.kind.replace("_", " ")}` : ""}.`;
+        : `No ${what} ${label}.`;
       return ok(summary, {
         count: shown.length,
         has_more: more,

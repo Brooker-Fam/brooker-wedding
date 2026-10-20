@@ -4,7 +4,7 @@
  * words things the same way.
  */
 import { feedTotals } from "./feed";
-import { STOOL_COLOR_INFO } from "./guidelines";
+import { JAUNDICE_LABEL, STOOL_COLOR_INFO } from "./guidelines";
 import { milestoneLabel } from "./milestones";
 import { formatDuration } from "./time";
 import { formatLength, formatTemp, formatVolume, formatWeight } from "./units";
@@ -144,6 +144,10 @@ export function describeEntry(
       if (e.data.heart_bpm != null) bits.push(`heart ${e.data.heart_bpm} bpm`);
       if (e.data.resp_rate != null) bits.push(`breathing ${e.data.resp_rate}/min`);
       if (e.data.spo2 != null) bits.push(`SpO₂ ${e.data.spo2}%`);
+      if (e.data.jaundice) {
+        if (e.data.heart_bpm == null && e.data.resp_rate == null && e.data.spo2 == null) title = "Skin check";
+        bits.push(e.data.jaundice === "none" ? "no yellow" : `yellow: ${JAUNDICE_LABEL[e.data.jaundice].toLowerCase()}`);
+      }
       break;
     }
     case "med": {

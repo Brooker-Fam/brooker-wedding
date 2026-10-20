@@ -158,7 +158,7 @@ export default function Hero() {
   const age = summary.age;
   const night = isNight();
   const p = localParts(now, tz);
-  const born = state.baby.born_at ? localParts(state.baby.born_at, tz) : null;
+  const born = state.baby.born_at ? localParts(Date.parse(state.baby.born_at), tz) : null;
   const monthDay = !!(born && age && age.months >= 1 && p.day === born.day);
   const birthday = !!(born && age && age.months >= 12 && p.month === born.month && p.day === born.day);
   const season = seasonFor(p.month, birthday);

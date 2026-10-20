@@ -343,18 +343,25 @@ export function summarize(opts: {
   if (age) {
     const months = age.months;
 
-    // Temperature: newest reading in the last 12 hours.
-    const lastTemp = newest(entries, "temp");
-    if (lastTemp && nowMs - ts(lastTemp) < 12 * H) {
-      const prev = previousOf(entries, lastTemp);
+    // Temperature: the most urgent reading in the last 12 hours. A lower
+    // reading afterwards (maybe a less accurate thermometer) must not hide a
+    // fever; the family clears it with "We called".
+    let worstTemp: { e: EntryOf<"temp">; a: NonNullable<ReturnType<typeof assessTemperature>> } | null = null;
+    for (const t of ofKind(entries, "temp")) {
+      if (nowMs - ts(t) >= 12 * H || ts(t) > nowMs) continue;
+      const prev = previousOf(entries, t);
       const a = assessTemperature(
-        lastTemp.data.temp_c,
-        lastTemp.data.method,
+        t.data.temp_c,
+        t.data.method,
         months,
-        prev ? { tempC: prev.data.temp_c, minutesBefore: (ts(lastTemp) - ts(prev)) / 60000 } : null
+        prev ? { tempC: prev.data.temp_c, minutesBefore: (ts(t) - ts(prev)) / 60000 } : null
       );
-      if (a) push(`temp-${lastTemp.id}`, a, lastTemp.id);
+      if (!a) continue;
+      const worse = !worstTemp || ALERT_TIERS.indexOf(a.tier) < ALERT_TIERS.indexOf(worstTemp.a.tier);
+      const sameButNewer = worstTemp && a.tier === worstTemp.a.tier && ts(t) > ts(worstTemp.e);
+      if (worse || sameButNewer) worstTemp = { e: t, a };
     }
+    if (worstTemp) push(`temp-${worstTemp.e.id}`, worstTemp.a, worstTemp.e.id);
 
     // Vitals and skin checks: newest of each in the last 12 hours.
     const lastVitals = newest(entries, "vitals", (e) => e.data.heart_bpm != null || e.data.resp_rate != null || e.data.spo2 != null);

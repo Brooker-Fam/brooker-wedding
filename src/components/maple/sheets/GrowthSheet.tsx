@@ -163,7 +163,8 @@ function GrowthForm({ open, onClose, entry, preset }: SheetProps) {
     >
       {e && <LoggedBy entry={e} />}
 
-      <div className="flex items-center justify-between gap-3">
+      <div>
+        <Label>Weighed at</Label>
         <Segmented<"home" | "doctor">
           value={at}
           onChange={setAt}
@@ -171,21 +172,24 @@ function GrowthForm({ open, onClose, entry, preset }: SheetProps) {
             { value: "doctor", label: "Doctor" },
             { value: "home", label: "Home" },
           ]}
-          className="flex-1"
-        />
-        <Segmented<UnitSystem>
-          value={sys}
-          onChange={switchUnits}
-          options={[
-            { value: "us", label: "lb·in" },
-            { value: "metric", label: "kg·cm" },
-          ]}
-          className="w-[9.5rem] shrink-0"
         />
       </div>
 
       <section aria-label="Weight">
-        <Label optional>Weight</Label>
+        <div className="mb-1.5 flex items-center justify-between gap-3">
+          <Label optional className="mb-0">
+            Weight
+          </Label>
+          <Segmented<UnitSystem>
+            value={sys}
+            onChange={switchUnits}
+            options={[
+              { value: "us", label: "lb · in" },
+              { value: "metric", label: "kg · cm" },
+            ]}
+            className="w-[10rem] shrink-0"
+          />
+        </div>
         {us ? (
           <div className="grid grid-cols-2 gap-3">
             <MiniStepper label="lb" ariaLabel="pounds" value={lb} onChange={setLb} max={40} />

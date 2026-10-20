@@ -123,7 +123,7 @@ export default function DayDial() {
   const tz = state?.baby.timezone ?? DEFAULT_TZ;
   const todayKey = dayKey(now, tz);
   const yesterday = addDays(todayKey, -1);
-  const bornKey = state?.baby.born_at ? dayKey(state.baby.born_at, tz) : null;
+  const bornKey = state?.baby.born_at ? dayKey(Date.parse(state.baby.born_at), tz) : null;
   const oldest = bornKey && bornKey > addDays(todayKey, -60) ? bornKey : addDays(todayKey, -60);
   // The state snapshot holds ~72h; older days come from the API.
   const needsFetch = view !== "rolling" && view < addDays(todayKey, -1);
