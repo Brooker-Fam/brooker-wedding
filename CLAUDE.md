@@ -12,7 +12,7 @@ Never put a date on the wedding, in the site or anywhere in this repo (it's publ
 
 - **Public nav and home:** `/`, `/photos`, `/songs` (labelled "Playlist", read-only), `/games`.
 - **Retired:** `/rsvp`, `/details`, `/bridal-shower` redirect to `/`. `/registry` still renders but nothing links to it. RSVP admin pages and APIs still work.
-- **Family side projects stay unlinked on purpose:** `/calendar`, `/sapphire`, `/backpacking-2026`, `/crib`, `/debates`, `/birth`. Matt doesn't want them easy to find, so don't add them to the nav, home page, or footer.
+- **Family side projects stay unlinked on purpose:** `/calendar`, `/sapphire`, `/backpacking-2026`, `/crib`, `/debates`, `/birth`, `/maple`. Matt doesn't want them easy to find, so don't add them to the nav, home page, or footer.
 
 ### Family
 
@@ -20,7 +20,7 @@ Never put a date on the wedding, in the site or anywhere in this repo (it's publ
 - **Brittany** - Bride.
 - **Emmett** (11) - Matt's son from a prior marriage
 - **Sapphire** (8) - Matt's daughter from a prior marriage
-- **Maple Jane** - Matt & Brittany's baby girl, due October 20, 2026. The home page sign-off drops "due October 20" on that date; once she's born, swap in her real birthday.
+- **Maple Jane** - Matt & Brittany's baby girl, due October 20, 2026. The home page sign-off drops "due October 20" on that date; once she's born, swap in her real birthday. Her newborn tracker is Maple's Log at `/maple` (see below).
 - **Zoe** - Small black dog with grey muzzle, "couch commander"
 - **Bruce** - Cat
 
@@ -141,6 +141,18 @@ Guest uploads live in **Vercel Blob** (files) + Neon (`photos` table, metadata).
 **Home page prints:** the star on each `/photos/manage` tile sets `photos.featured` (admin `PATCH /api/photos?id=` with `{ featured }`, which revalidates `/`). The home page lays starred photos down first, shuffled, and fills the rest of the 12 at random; reported or unapproved photos never show, starred or not.
 
 **Export:** `/photos` → "Take the memories home" panel (`src/components/photos/ExportPanel.tsx`): client-side zip via `fflate` (streams to disk on Chromium; also the Apple Photos path), and per-guest **Google Photos album export** (`photoslibrary.appendonly` scope, token in an httpOnly cookie only, batched relay via `/api/photos/google-export`). Reuses `GOOGLE_CLIENT_ID/SECRET`; requires Photos Library API enabled + redirect URI `{BASE_URL}/api/photos/google-export/callback`. See `docs/photos-ops.md`.
+
+## Maple's Log (`/maple`)
+
+Private, collaborative newborn tracker: nursing L/R timers, bottles, pumping, diapers + stool colors, sleep, tummy time, temperature/vitals/skin checks, growth on WHO girls percentiles, notes and doctor questions, photos and milestones. Full design and ops notes: `docs/maple.md`.
+
+- **Access:** Google sign-in (identity only) + `maple_members` (roles owner / member / viewer). First Google sign-in claims owner unless `MAPLE_ALLOWED_EMAILS` (fallback `BIRTH_ALLOWED_EMAILS`) is set. Fallback sign-in with `ADMIN_USER`/`ADMIN_PASS` as the "admin" member. One-time invite links for family without Google. Redirect URI to register: `{BASE_URL}/api/maple/auth/callback`.
+- **Data:** `maple_entries` (one row per event: `kind` + JSONB `data`, metric units; running timers have `active = TRUE`; soft deletes; `client_id` for idempotent retries). The family is in `America/New_York`; all "today"/clock logic goes through `src/lib/maple/time.ts`, never the server's zone.
+- **Medical guidance** lives only in `src/lib/maple/guidelines.ts` (thresholds + exact copy, sourced from AAP/CDC/WHO/ABM). Alerts always say who to call; never suggest medicine doses. `insights.ts` applies the rules for both the app and the MCP tools.
+- **AI:** MCP server at `/api/maple/mcp` (Streamable HTTP, discrete tools in `src/lib/maple/mcp-tools.ts`). OAuth goes through the shared `/oauth/*` shim; Maple connections (RFC 8707 `resource` = `/api/maple/mcp`) sign in with Google and get `maple:<email>` tokens. The calendar and RSVP MCP servers accept admin tokens only. Set `MCP_SECRET` in Vercel. Setup page: `/maple/connect`.
+- **Hands-free:** `POST /api/maple/quick` with a personal token (Family → Hands-free) for iOS Shortcuts / Siri.
+- **Photos:** Vercel Blob under `maple/`, private store via `MAPLE_BLOB_READ_WRITE_TOKEN` (falls back to the public store); always served through the auth proxy `/api/maple/photo`, never by blob URL.
+- **Privacy:** PostHog capture and session replay are off on `/maple` (see `PostHogProvider.tsx`). Never send Maple data to unauthenticated pages like `/calendar/display`.
 
 ## Thought Pages (`/debates`)
 
