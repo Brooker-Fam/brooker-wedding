@@ -44,7 +44,8 @@ export default function WhileYouSlept() {
   const nowMs = now().getTime();
   if (!Number.isFinite(since) || nowMs - since < GAP_MS) return null;
 
-  const fresh = state.entries.filter((e) => e.id > 0 && (Date.parse(e.started_at) >= since || Date.parse(e.created_at) >= since));
+  // What happened while they were away (plus a nap that's still going).
+  const fresh = state.entries.filter((e) => e.id > 0 && (Date.parse(e.started_at) >= since || (e.active && e.kind === "sleep")));
   if (!fresh.length) return null;
 
   const feeds = fresh.filter((e) => e.kind === "feed").sort((a, b) => Date.parse(b.started_at) - Date.parse(a.started_at));
@@ -52,7 +53,9 @@ export default function WhileYouSlept() {
   const wet = diapers.filter((e) => e.kind === "diaper" && e.data.pee).length;
   const dirty = diapers.filter((e) => e.kind === "diaper" && e.data.poop).length;
   const sleeps = fresh.filter((e) => e.kind === "sleep").sort((a, b) => Date.parse(a.started_at) - Date.parse(b.started_at));
-  const done = sleeps.filter((e) => !e.active && e.ended_at).map((e) => formatDuration((Date.parse(e.ended_at!) - Date.parse(e.started_at)) / 1000));
+  const done = sleeps
+    .filter((e) => !e.active && e.ended_at)
+    .map((e) => formatDuration(Math.max(60, (Date.parse(e.ended_at!) - Date.parse(e.started_at)) / 1000)));
   const vitD = fresh.some((e) => e.kind === "med" && isVitaminD(e.data.name));
   const moments = fresh.filter((e) => e.kind === "moment");
   const photo = moments.find((e) => e.kind === "moment" && e.data.photos?.length);
@@ -67,8 +70,14 @@ export default function WhileYouSlept() {
     const parts = [wet && `${wet} wet`, dirty && `${dirty} dirty`].filter(Boolean).join(", ");
     bits.push(`${diapers.length} diaper${diapers.length === 1 ? "" : "s"}${parts ? ` (${parts})` : ""}`);
   }
-  if (done.length || sleeps.some((e) => e.active)) {
-    bits.push(`slept ${done.join(" + ")}${sleeps.some((e) => e.active) ? `${done.length ? " + " : ""}asleep now` : ""}`);
+  const napping = sleeps.some((e) => e.active);
+  if (done.length > 3) {
+    // A long shift: total and longest, not a list of every stretch.
+    const secs = sleeps.filter((e) => !e.active && e.ended_at).map((e) => (Date.parse(e.ended_at!) - Date.parse(e.started_at)) / 1000);
+    const total = secs.reduce((a, b) => a + b, 0);
+    bits.push(`slept ${formatDuration(total)} in ${secs.length} stretches (longest ${formatDuration(Math.max(...secs))})${napping ? " + asleep now" : ""}`);
+  } else if (done.length || napping) {
+    bits.push(`slept ${done.join(" + ")}${napping ? `${done.length ? " + " : ""}asleep now` : ""}`);
   }
   if (vitD) bits.push("Vitamin D ✓");
 

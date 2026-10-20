@@ -22,7 +22,7 @@ import { useMaple, useNow } from "./useMaple";
  */
 
 const C = 160;
-const R = { night: 150, label: 161, sleep: 132, feed: 110, diaper: 88, handIn: 40, handOut: 150 };
+const R = { night: 150, label: 161, sleep: 132, feed: 110, diaper: 88, handIn: 68, handOut: 150 };
 const COLORS = {
   sleep: "#B8A9C9",
   left: "#B5452B",
@@ -112,7 +112,7 @@ function buildMarks(entries: Entry[], lo: number, hi: number, nowMs: number, tz:
 }
 
 export default function DayDial() {
-  const { state, summary, api, units } = useMaple();
+  const { state, summary, api, units, readOnly } = useMaple();
   const { open } = useSheets();
   const now = useNow(30_000);
   const [view, setView] = useState<View>("rolling");
@@ -143,7 +143,8 @@ export default function DayDial() {
 
   const nowMs = now.getTime();
   const [lo, hi] = useMemo(() => {
-    if (view === "rolling") return [nowMs - 24 * 3600_000, nowMs];
+    // A little slack past "now": the dial's clock ticks every 30s, and a diaper logged a second ago belongs on it.
+    if (view === "rolling") return [nowMs - 24 * 3600_000, nowMs + 5 * 60_000];
     const [a, b] = dayBounds(view, tz);
     return [a.getTime(), Math.min(b.getTime(), nowMs)];
   }, [nowMs, tz, view]);
@@ -324,7 +325,7 @@ export default function DayDial() {
             )}
 
             {/* center */}
-            <circle cx={C} cy={C} r={34} className="fill-[#FDF8F0] dark:fill-[#0E1E12] [.maple-night_&]:fill-[#0B0F0A]" opacity={0.9} />
+            <circle cx={C} cy={C} r={66} className="fill-[#FDF8F0] dark:fill-[#0E1E12] [.maple-night_&]:fill-[#0B0F0A]" />
             <text x={C} y={C - 12} textAnchor="middle" fontSize={rolling ? 22 : 16} fontWeight="700" className="fill-[#1D4420] font-[family-name:var(--font-display)] lining-nums dark:fill-[#F5EDDF] [.maple-night_&]:fill-[#E0A93B]/85">
               {rolling ? formatTime(nowMs, tz) : formatDayLabel(view, todayKey)}
             </text>
@@ -360,6 +361,7 @@ export default function DayDial() {
                       <button
                         key={e.id}
                         type="button"
+                        disabled={readOnly}
                         onClick={() => {
                           setPop(null);
                           open({ kind: e.kind, entry: e });

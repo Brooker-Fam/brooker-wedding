@@ -123,19 +123,19 @@ function SleepForm({ open, onClose, entry, preset }: SheetProps) {
       )}
 
       {!running && (
-      <MoreDetails summary={place ? PLACE[place].label : undefined}>
-        <div>
-          <Label>Where</Label>
-          <div className="flex flex-wrap gap-2">
-            {SLEEP_PLACES.map((p) => (
-              <Chip key={p} selected={place === p} onClick={() => setPlace(place === p ? undefined : p)}>
-                <span aria-hidden>{PLACE[p].emoji}</span> {PLACE[p].label}
-              </Chip>
-            ))}
+        <MoreDetails summary={place ? PLACE[place].label : undefined}>
+          <div>
+            <Label>Where</Label>
+            <div className="flex flex-wrap gap-2">
+              {SLEEP_PLACES.map((p) => (
+                <Chip key={p} selected={place === p} onClick={() => setPlace(place === p ? undefined : p)}>
+                  <span aria-hidden>{PLACE[p].emoji}</span> {PLACE[p].label}
+                </Chip>
+              ))}
+            </div>
+            {tip && <p className={cx(tone.muted, "mt-2.5 rounded-2xl bg-[#B8A9C9]/15 px-3.5 py-2.5 text-[13px] leading-relaxed dark:bg-[#B8A9C9]/10")}>🌙 {tip}</p>}
           </div>
-          {tip && <p className={cx(tone.muted, "mt-2.5 rounded-2xl bg-[#B8A9C9]/15 px-3.5 py-2.5 text-[13px] leading-relaxed dark:bg-[#B8A9C9]/10")}>🌙 {tip}</p>}
-        </div>
-      </MoreDetails>
+        </MoreDetails>
       )}
 
       <NoteField value={note} onChange={setNote} />

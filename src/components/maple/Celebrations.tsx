@@ -70,7 +70,7 @@ function LeafFall({ onDone }: { onDone: () => void }) {
 }
 
 export default function Celebrations() {
-  const { state, summary, isNight } = useMaple();
+  const { state, summary, isNight, readOnly } = useMaple();
   const { open } = useSheets();
   const reduce = useReducedMotion();
   const nightLook = useNightActive();
@@ -86,8 +86,10 @@ export default function Celebrations() {
 
   // Already kept as a moment (by anyone, or by the birth form's "Hello, world")? Nothing to celebrate twice.
   const kept = new Set(state?.entries.flatMap((e) => (e.kind === "moment" && e.data.milestone ? [e.data.milestone] : [])) ?? []);
+  // Never celebrate on top of an urgent alert.
+  const urgent = summary?.alerts.some((a) => a.tier === "emergency" || a.tier === "now");
   const current: Celebration | null =
-    seen && summary && !isNight() && !nightLook ? summary.celebrations.find((c) => !seen.includes(c.id) && !kept.has(milestoneId(c))) ?? null : null;
+    seen && summary && !urgent && !isNight() && !nightLook ? summary.celebrations.find((c) => !seen.includes(c.id) && !kept.has(milestoneId(c))) ?? null : null;
 
   // One leaf-fall per celebration per visit.
   useEffect(() => {
@@ -121,10 +123,10 @@ export default function Celebrations() {
               "relative overflow-hidden border-[#C49A3C]/35 bg-gradient-to-br from-[#FFF6E5] to-[#FBE9DA] p-4 dark:from-[#2A2214] dark:to-[#2A1A14]"
             )}
           >
-            <svg aria-hidden viewBox="-11 -11 22 22" className="absolute -top-3 -right-3 h-20 w-20 rotate-12 opacity-15">
+            <svg aria-hidden viewBox="-11 -11 22 22" className="pointer-events-none absolute -top-3 -right-3 h-20 w-20 rotate-12 opacity-15">
               <path d={MAPLE_LEAF_PATH} fill="#B5452B" />
             </svg>
-            <div className="flex items-start gap-3">
+            <div className="relative flex items-start gap-3">
               <span aria-hidden className="text-3xl leading-none">
                 {current.emoji}
               </span>
@@ -141,18 +143,20 @@ export default function Celebrations() {
                 ✕
               </button>
             </div>
-            <div className="mt-3 flex gap-2">
-              <button
-                type="button"
-                onClick={() => {
-                  markSeen(current.id);
-                  open({ kind: "moment", preset: { title: current.title, milestone: milestoneId(current) } });
-                }}
-                className="min-h-[44px] rounded-full bg-[#B5452B] px-4 text-[15px] font-semibold text-white active:scale-[0.97] dark:bg-[#E0A93B] dark:text-[#2A1A0A]"
-              >
-                📷 Keep as a moment
-              </button>
-            </div>
+            {!readOnly && (
+              <div className="mt-3 flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    markSeen(current.id);
+                    open({ kind: "moment", preset: { title: current.title, milestone: milestoneId(current) } });
+                  }}
+                  className="min-h-[44px] rounded-full bg-[#B5452B] px-4 text-[15px] font-semibold text-white active:scale-[0.97] dark:bg-[#E0A93B] dark:text-[#2A1A0A]"
+                >
+                  📷 Keep as a moment
+                </button>
+              </div>
+            )}
           </motion.section>
         )}
       </AnimatePresence>
