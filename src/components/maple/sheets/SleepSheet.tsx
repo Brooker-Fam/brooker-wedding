@@ -72,7 +72,7 @@ function SleepForm({ open, onClose, entry, preset }: SheetProps) {
     if (e) {
       setBusy(true);
       const patch = running
-        ? { note: noteVal, data: withNulls({ place }, ["place"]) }
+        ? { note: noteVal }
         : {
             started_at: start.getTime() !== Date.parse(e.started_at) ? start.toISOString() : undefined,
             ended_at: end.getTime() !== (e.ended_at ? Date.parse(e.ended_at) : NaN) ? end.toISOString() : undefined,
@@ -122,6 +122,7 @@ function SleepForm({ open, onClose, entry, preset }: SheetProps) {
         <TimeRange start={start} end={end} tz={tz} labels={["Fell asleep", "Woke up"]} onChange={(s, en) => setRange([s, en])} />
       )}
 
+      {!running && (
       <MoreDetails summary={place ? PLACE[place].label : undefined}>
         <div>
           <Label>Where</Label>
@@ -135,6 +136,7 @@ function SleepForm({ open, onClose, entry, preset }: SheetProps) {
           {tip && <p className={cx(tone.muted, "mt-2.5 rounded-2xl bg-[#B8A9C9]/15 px-3.5 py-2.5 text-[13px] leading-relaxed dark:bg-[#B8A9C9]/10")}>🌙 {tip}</p>}
         </div>
       </MoreDetails>
+      )}
 
       <NoteField value={note} onChange={setNote} />
       <ContextNote emoji="🌙">{SLEEP_TOTAL_NOTE}</ContextNote>

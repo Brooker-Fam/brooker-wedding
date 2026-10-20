@@ -422,12 +422,14 @@ export function TimeScrubber({
   const showDays = localParts(now, tz).hour < 3 || key !== todayKey;
   const days = [...(key < yesterdayKey ? [key] : []), yesterdayKey, todayKey];
   const pass = repeatedPass(value, tz);
-  const atMax = t >= ceiling() - 1000;
+  // "Later" stops at now (the extra minute in the clamp only absorbs rounding and clock skew).
+  const atMax = t >= Math.min(nowFn().getTime() - 30_000, (max?.getTime() ?? Infinity) - 1000);
   const atMin = min ? t <= min.getTime() + 1000 : false;
 
   const pickDay = (k: string) => {
     setChip(null);
-    set(resolveWallTime(k, p.hour, p.minute, tz, nowFn()).getTime());
+    const n = nowFn();
+    set(Math.min(resolveWallTime(k, p.hour, p.minute, tz, n).getTime(), n.getTime()));
   };
 
   return (

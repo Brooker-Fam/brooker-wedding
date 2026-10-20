@@ -81,7 +81,7 @@ export function LoggedBy({ entry }: { entry: Entry }) {
       : `edited by ${memberName(entry.updated_by)}`
     : null;
   return (
-    <p className={cx(tone.muted, "-mt-3 text-[13px] leading-snug")}>
+    <p className={cx(tone.muted, "text-[13px] leading-snug")}>
       Logged by {name}
       {who?.emoji ? ` ${who.emoji}` : ""}
       {via ? ` via ${via}` : ""} · {when}

@@ -9,8 +9,9 @@ import { formatClock, formatRelative, formatTime, DEFAULT_TZ } from "@/lib/maple
 import { formatVolume } from "@/lib/maple/units";
 import type { DiaperData, Entry, Side, StoolColor } from "@/lib/maple/types";
 import MoreSheet, { usePress } from "./MoreSheet";
+import { useNightActive } from "./nightLook";
 import { useSheets } from "./sheets";
-import { SIDE_COLOR, SIDE_NAME, timerNumbers, useTimerActions } from "./TimerCard";
+import { SIDE_COLOR, SIDE_NAME, SWITCH_STYLE, timerNumbers, useTimerActions } from "./TimerCard";
 import { cx } from "./ui";
 import { useMaple, useNow, type ToastAction } from "./useMaple";
 
@@ -209,7 +210,8 @@ export default function Dock() {
                   label={`Switch to ${SIDE_NAME[feedN.side === "L" ? "R" : "L"]}`}
                   sub={`on ${SIDE_NAME[feedN.side ?? "L"]} · ${formatClock(feedN.side === "L" ? feedN.left : feedN.right)}`}
                   icon="⇄"
-                  color={SIDE_COLOR[feedN.side === "L" ? "R" : "L"]}
+                  color={SWITCH_STYLE[feedN.side === "L" ? "R" : "L"].bg}
+                  ink={SWITCH_STYLE[feedN.side === "L" ? "R" : "L"].fg}
                   strong
                   onTap={() => void actions.switchSide(feed, feedN.side === "L" ? "R" : "L")}
                 />
@@ -283,7 +285,7 @@ export default function Dock() {
                 id="wake"
                 label="Woke up"
                 sub={`☀️ ${formatClock(timerNumbers(sleep, clock).elapsed)}`}
-                color={TILE.sleep}
+                color="#6E5C94"
                 strong
                 onTap={() => flash("wake") && void actions.stop(sleep)}
               />
@@ -319,6 +321,7 @@ function Tile({
   letter,
   icon,
   strong,
+  ink,
   className,
 }: {
   id: string;
@@ -333,9 +336,14 @@ function Tile({
   icon?: string;
   /** Filled (the action you most likely want right now). */
   strong?: boolean;
+  /** Text color on a filled tile (default white). */
+  ink?: string;
   className?: string;
 }) {
   const press = usePress(onTap, onHold);
+  // At night a filled tile glows softly instead of blazing.
+  const night = useNightActive();
+  const fill = strong ? (night ? `${color}55` : color) : `${color}${next ? "2E" : "1F"}`;
   return (
     <button
       type="button"
@@ -344,12 +352,13 @@ function Tile({
       {...press}
       className={cx(
         "relative flex min-h-[60px] flex-col items-center justify-center rounded-2xl px-1 py-1.5 text-center transition select-none active:scale-[0.96]",
-        strong ? "text-white [.maple-night_&]:text-[#0B0F0A]" : "text-[#1D4420] dark:text-[#F5EDDF] [.maple-night_&]:text-[#E0A93B]/85",
+        strong ? "text-white" : "text-[#1D4420] dark:text-[#F5EDDF] [.maple-night_&]:text-[#E0A93B]/85",
         next && "ring-2 ring-[#C49A3C] ring-offset-2 ring-offset-[#FDF8F0] dark:ring-offset-[#0F2014] [.maple-night_&]:ring-[#E0A93B]/70 [.maple-night_&]:ring-offset-[#0B0F0A]",
         className
       )}
       style={{
-        backgroundColor: strong ? color : `${color}${next ? "2E" : "1F"}`,
+        backgroundColor: fill,
+        color: strong ? (night ? "#E8A23F" : ink) : undefined,
         boxShadow: strong ? "0 2px 10px rgba(0,0,0,0.15)" : next ? `inset 0 0 0 1.5px ${color}99, 0 0 18px ${color}55` : `inset 0 0 0 1.5px ${color}55`,
         WebkitTouchCallout: "none",
       }}

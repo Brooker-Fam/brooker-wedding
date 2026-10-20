@@ -325,7 +325,7 @@ export default function DayDial() {
 
             {/* center */}
             <circle cx={C} cy={C} r={34} className="fill-[#FDF8F0] dark:fill-[#0E1E12] [.maple-night_&]:fill-[#0B0F0A]" opacity={0.9} />
-            <text x={C} y={C - 12} textAnchor="middle" fontSize={rolling ? 22 : 16} fontWeight="700" className="fill-[#1D4420] font-[family-name:var(--font-display)] dark:fill-[#F5EDDF] [.maple-night_&]:fill-[#E0A93B]/85">
+            <text x={C} y={C - 12} textAnchor="middle" fontSize={rolling ? 22 : 16} fontWeight="700" className="fill-[#1D4420] font-[family-name:var(--font-display)] lining-nums dark:fill-[#F5EDDF] [.maple-night_&]:fill-[#E0A93B]/85">
               {rolling ? formatTime(nowMs, tz) : formatDayLabel(view, todayKey)}
             </text>
             {dayOfLife != null && (

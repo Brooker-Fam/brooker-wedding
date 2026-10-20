@@ -150,21 +150,33 @@ export function Sapling({
 /** Zoe, the small black couch commander with the grey muzzle, curled up asleep. */
 export function Zoe({ alert, className }: { alert?: boolean; className?: string }) {
   return (
-    <svg viewBox="0 0 44 26" className={className} aria-hidden>
+    <svg viewBox="0 0 48 30" className={className} aria-hidden>
       {!alert && (
-        <text x="10" y="6" fontSize="6" fill="#E0A93B" opacity="0.55" fontFamily="serif">
+        <text x="17" y="7" fontSize="6.5" fill="#E0A93B" opacity="0.6" fontFamily="serif" fontStyle="italic">
           z z
         </text>
       )}
-      <g fill="#24211D" stroke="rgba(224,169,59,0.45)" strokeWidth="0.7">
-        <path d="M14,24 C8,24 6,19 9,15 C12,11 20,10 28,11 C37,12 41,16 40,21 C39,24 34,25 28,24 Z" />
-        <path d="M37,21 C42,19 43,14 39,12" fill="none" strokeWidth="2.4" stroke="#24211D" strokeLinecap="round" />
-        <ellipse cx="11" cy="18" rx="6.5" ry="5.5" />
-        {alert ? <path d="M8,14 L9.5,6.5 L13.5,13 Z" /> : <path d="M10,14 C13,11.5 17,12 18,15 C15,15.5 12,15.5 10,14 Z" />}
+      <g fill="#24211D" stroke="rgba(224,169,59,0.5)" strokeWidth="0.7" strokeLinejoin="round">
+        {/* curled-up body and tail */}
+        <path d="M14,28 C7,28 5,22 8,18 C12,12 24,10 33,11 C43,12 47,18 46,23 C45,27 40,29 34,29 Z" />
+        <path d="M43,22 C48,18 46,12 41,13" fill="none" strokeWidth="2.6" stroke="#24211D" strokeLinecap="round" />
+        {/* head resting on her paws */}
+        <ellipse cx="13" cy="21" rx="7.5" ry="6.5" />
+        <ellipse cx="9" cy="28.2" rx="5" ry="1.8" />
+        {alert ? (
+          <path d="M11,15.5 L13.5,6.5 L18,14.5 Z" />
+        ) : (
+          <path d="M11,15.5 C13,12 18,12 20,15.5 C18.5,19 14,19.5 11,15.5 Z" />
+        )}
       </g>
-      <ellipse cx="6.2" cy="20.2" rx="3.4" ry="2.4" fill="#9A9690" />
-      <circle cx="3.4" cy="19.6" r="0.9" fill="#111" />
-      {alert ? <circle cx="9.6" cy="16.6" r="0.9" fill="#E0A93B" /> : <path d="M8.4,16.8 Q9.6,17.6 10.8,16.8" stroke="#9A9690" strokeWidth="0.7" fill="none" />}
+      {/* the grey muzzle */}
+      <ellipse cx="6.6" cy="23" rx="4.6" ry="3.3" fill="#9A9690" />
+      <circle cx="2.6" cy="22.2" r="1.1" fill="#111" />
+      {alert ? (
+        <circle cx="11.5" cy="19.6" r="1" fill="#E0A93B" />
+      ) : (
+        <path d="M9.6,19.8 Q11.2,20.9 12.8,19.8" stroke="#BDB8B0" strokeWidth="0.8" fill="none" strokeLinecap="round" />
+      )}
     </svg>
   );
 }
@@ -214,7 +226,7 @@ export default function Hero() {
       )}
       <button type="button" onClick={aboutTree} aria-label={`${first}'s tree: ${leaves} leaves, one for each week`} className="relative shrink-0 rounded-2xl active:scale-[0.98]">
         <Sapling leaves={leaves} season={season} gnome={monthDay} sway={!night} className="h-24 w-[88px]" />
-        {night && <Zoe alert={timerRunning} className="absolute bottom-[3px] -left-1 h-[22px] w-[38px]" />}
+        {night && <Zoe alert={timerRunning} className="absolute bottom-[2px] left-0 h-[27px] w-[44px]" />}
       </button>
       <div className="min-w-0 flex-1 pb-1.5">
         <p className={cx(tone.label, "[.maple-night_&]:text-[#E0A93B]/55")}>Maple&apos;s Log</p>

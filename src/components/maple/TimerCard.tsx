@@ -7,6 +7,7 @@ import { feedTotals, openSegment, other, suggestNextSide } from "@/lib/maple/fee
 import { addDays, dayKey, DEFAULT_TZ, formatClock, formatDuration, formatTime, localParts, parseDayKey, zonedTimeToUtc } from "@/lib/maple/time";
 import type { Entry, FeedData, Side, TimerKind } from "@/lib/maple/types";
 import Lantern from "./Lantern";
+import { useNightActive } from "./nightLook";
 import { useSheets } from "./sheets";
 import { cx, tone } from "./ui";
 import { useMaple, useNow } from "./useMaple";
@@ -23,6 +24,8 @@ import { useMaple, useNow } from "./useMaple";
 
 export const SIDE_NAME: Record<Side, string> = { L: "Left", R: "Right" };
 export const SIDE_COLOR: Record<Side, string> = { L: "#B5452B", R: "#E0A93B" };
+/** Filled "switch to" buttons, with text that stays readable on each (rust takes white, honey takes ink). */
+export const SWITCH_STYLE: Record<Side, { bg: string; fg: string }> = { L: { bg: "#B5452B", fg: "#FFFFFF" }, R: { bg: "#E0A93B", fg: "#2A1A08" } };
 
 const KIND_TITLE: Record<TimerKind, string> = { feed: "Nursing", sleep: "Asleep", tummy: "Tummy time", pump: "Pumping" };
 const KIND_ICON: Record<TimerKind, string> = { feed: "🤱", sleep: "🌙", tummy: "🐢", pump: "🫙" };
@@ -264,6 +267,7 @@ export default function TimerCard({ entry }: { entry: Entry }) {
   const { state, memberName, member, isNight } = useMaple();
   const now = useNow(1000);
   const actions = useTimerActions();
+  const night = useNightActive();
   const tz = state?.baby.timezone ?? DEFAULT_TZ;
   const kind = entry.kind as TimerKind;
   const n = timerNumbers(entry, now);
@@ -309,7 +313,7 @@ export default function TimerCard({ entry }: { entry: Entry }) {
       aria-label={`${title} timer`}
       className={cx(tone.card, "relative overflow-hidden p-4 [.maple-night_&]:border-[#E0A93B]/10 [.maple-night_&]:bg-[#11140F]")}
     >
-      <span aria-hidden className="absolute inset-y-0 left-0 w-1.5" style={{ backgroundColor: accent }} />
+      <span aria-hidden className="absolute inset-y-0 left-0 w-1.5 [.maple-night_&]:opacity-50" style={{ backgroundColor: accent }} />
       <div className="flex items-start justify-between gap-2 pl-1">
         <div className="min-w-0">
           <p className={cx(tone.label, "flex items-center gap-1.5 [.maple-night_&]:text-[#E0A93B]/70")}>
@@ -320,7 +324,7 @@ export default function TimerCard({ entry }: { entry: Entry }) {
             {isFeed && (
               <span
                 aria-hidden
-                className="ml-0.5 inline-flex h-5 w-5 items-center justify-center rounded-full text-[11px] font-bold text-white"
+                className="ml-0.5 inline-flex h-5 w-5 items-center justify-center rounded-full text-[11px] font-bold text-white [.maple-night_&]:opacity-60"
                 style={{ backgroundColor: SIDE_COLOR[n.side ?? "L"] }}
               >
                 {n.side}
@@ -366,11 +370,10 @@ export default function TimerCard({ entry }: { entry: Entry }) {
           <div className="mt-1 pl-1">
             <p
               className={cx(
-                "font-[family-name:var(--font-display)] text-[46px] leading-none font-semibold tracking-tight tabular-nums transition-opacity",
+                "font-[family-name:var(--font-display)] text-[48px] leading-none font-semibold tracking-tight lining-nums tabular-nums transition-opacity",
                 "text-[#1D4420] dark:text-[#F5EDDF] [.maple-night_&]:text-[#E0A93B]/85",
                 n.paused && "opacity-50"
               )}
-              style={{ fontVariantNumeric: "tabular-nums" }}
             >
               {formatClock(n.elapsed)}
             </p>
@@ -380,11 +383,27 @@ export default function TimerCard({ entry }: { entry: Entry }) {
               </p>
             )}
             {isFeed && (
-              <p className={cx(tone.body, "mt-1.5 text-[15px] tabular-nums [.maple-night_&]:text-[#E0A93B]/70")}>
-                <span className={cx(n.side === "L" && !n.paused ? "font-bold" : "opacity-75")}>L {formatClock(n.left)}</span>
-                <span className="mx-1.5 opacity-50">·</span>
-                <span className={cx(n.side === "R" && !n.paused ? "font-bold" : "opacity-75")}>R {formatClock(n.right)}</span>
-              </p>
+              <div className="mt-1.5 flex items-center justify-between gap-2">
+                <p className={cx(tone.body, "text-[15px] tabular-nums [.maple-night_&]:text-[#E0A93B]/70")}>
+                  <span className={cx(n.side === "L" && !n.paused ? "font-bold" : "opacity-75")}>L {formatClock(n.left)}</span>
+                  <span className="mx-1.5 opacity-50">·</span>
+                  <span className={cx(n.side === "R" && !n.paused ? "font-bold" : "opacity-75")}>R {formatClock(n.right)}</span>
+                </p>
+                {!n.paused && (
+                  // Pause is secondary: most feeds just switch and finish.
+                  <button
+                    type="button"
+                    onClick={() => void actions.pause(entry)}
+                    className={cx(tone.muted, "-my-2 inline-flex min-h-[44px] items-center gap-1.5 rounded-full px-3 text-sm font-semibold hover:bg-[#1D4420]/5 dark:hover:bg-[#F5EDDF]/10")}
+                  >
+                    <span aria-hidden className="inline-flex gap-[3px]">
+                      <i className="h-3 w-[3px] rounded-sm bg-current" />
+                      <i className="h-3 w-[3px] rounded-sm bg-current" />
+                    </span>
+                    Pause
+                  </button>
+                )}
+              </div>
             )}
             <p className={cx(tone.muted, "mt-1 flex items-center gap-1 text-[13px] [.maple-night_&]:text-[#E0A93B]/55")}>
               since {formatTime(entry.started_at, tz)} · {startedBy}
@@ -394,23 +413,18 @@ export default function TimerCard({ entry }: { entry: Entry }) {
 
           <div className="mt-4 flex gap-2">
             {isFeed && !n.paused && (
-              <>
-                <button
-                  type="button"
-                  onClick={() => void actions.switchSide(entry, target)}
-                  className="flex min-h-[52px] flex-[2] items-center justify-center gap-2 rounded-2xl px-3 text-[15px] font-semibold text-white shadow-sm transition active:scale-[0.97] [.maple-night_&]:text-[#0B0F0A]"
-                  style={{ backgroundColor: target === "L" ? SIDE_COLOR.L : "#B98420" }}
-                >
-                  <span aria-hidden>⇄</span> Switch to {SIDE_NAME[target]}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => void actions.pause(entry)}
-                  className={cx(tone.body, "min-h-[52px] rounded-2xl px-3 text-sm font-semibold opacity-80 transition hover:bg-[#1D4420]/5 active:scale-[0.97] dark:hover:bg-[#F5EDDF]/10")}
-                >
-                  Pause
-                </button>
-              </>
+              <button
+                type="button"
+                onClick={() => void actions.switchSide(entry, target)}
+                className="flex min-h-[52px] flex-[2] items-center justify-center gap-2 rounded-2xl px-3 text-[15px] font-semibold whitespace-nowrap shadow-sm transition active:scale-[0.97]"
+                style={
+                  night
+                    ? { backgroundColor: `${SWITCH_STYLE[target].bg}40`, color: "#E8A23F" }
+                    : { backgroundColor: SWITCH_STYLE[target].bg, color: SWITCH_STYLE[target].fg }
+                }
+              >
+                <span aria-hidden>⇄</span> Switch to {SIDE_NAME[target]}
+              </button>
             )}
             {isFeed && n.paused && (
               <>
@@ -418,12 +432,18 @@ export default function TimerCard({ entry }: { entry: Entry }) {
                   <button
                     key={s}
                     type="button"
+                    aria-label={`Resume ${SIDE_NAME[s]}`}
                     onClick={() => void actions.resume(entry, s)}
-                    className="flex min-h-[52px] flex-1 items-center justify-center gap-1.5 rounded-2xl px-2 text-[15px] font-semibold transition active:scale-[0.97]"
+                    className="flex min-h-[52px] flex-1 flex-col items-center justify-center rounded-2xl px-2 leading-tight transition active:scale-[0.97]"
                     style={{ backgroundColor: `${SIDE_COLOR[s]}22`, boxShadow: `inset 0 0 0 1.5px ${SIDE_COLOR[s]}88` }}
                   >
-                    <span aria-hidden className="text-xs">▶</span>
-                    <span className={tone.body}>Resume {SIDE_NAME[s]}</span>
+                    <span className={cx(tone.muted, "text-[11px] font-semibold tracking-wide uppercase")}>Resume</span>
+                    <span className={cx(tone.body, "text-[15px] font-semibold")}>
+                      <span aria-hidden className="mr-1 text-[11px]">
+                        ▶
+                      </span>
+                      {SIDE_NAME[s]}
+                    </span>
                   </button>
                 ))}
               </>

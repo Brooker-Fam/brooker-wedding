@@ -133,7 +133,7 @@ function siteWantsDark(): boolean {
  * theme flips underneath). Pure class toggles: no filter or transform on any
  * ancestor, so position:fixed sheets, dock and tab bar keep working.
  */
-export function NightLook() {
+function NightLook() {
   const { isNight } = useMaple();
   const [pref] = useNightPref();
   const [, setTick] = useState(0);

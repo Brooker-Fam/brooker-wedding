@@ -3,7 +3,7 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { useState } from "react";
 import { tick } from "@/components/atlas/haptics";
-import { feedTotals } from "@/lib/maple/feed";
+import { feedTotals, openSegment } from "@/lib/maple/feed";
 import { VITAMIN_D_DEFAULT } from "@/lib/maple/guidelines";
 import type { DayStats } from "@/lib/maple/insights";
 import { DEFAULT_TZ, formatDuration, formatRelative, formatTime, localParts } from "@/lib/maple/time";
@@ -21,6 +21,8 @@ import { useMaple, useNow } from "./useMaple";
  */
 
 const ts = (e: { started_at: string }) => Date.parse(e.started_at);
+/** Like formatDuration, but "<1m" instead of a ticking "12s". */
+const since = (sec: number) => (sec < 60 ? "<1m" : formatDuration(sec));
 
 function sidesLabel(d: FeedData): string {
   const order = (d.segments ?? []).map((s) => s.side).filter((s, i, a) => i === 0 || a[i - 1] !== s);
@@ -60,7 +62,7 @@ function Row({ icon, children, sub, right }: { icon: string; children: React.Rea
 }
 
 export default function StatusCard() {
-  const { state, summary, log, memberName, readOnly, units } = useMaple();
+  const { state, summary, log, memberName, readOnly, units, isNight } = useMaple();
   const now = useNow(20_000);
   const [info, setInfo] = useState(false);
   if (!state || !summary) return null;
@@ -80,9 +82,13 @@ export default function StatusCard() {
   let feedBig: React.ReactNode = <span className={cx(tone.muted, "text-base font-normal")}>No feeds logged yet</span>;
   let feedSub: string | null = null;
   if (nursing) {
+    // The timer card has the live clock; here, just which side and how long so far.
+    const d = nursing.data as FeedData;
+    const side = openSegment(d.segments)?.side ?? d.last_side ?? "L";
+    const sofar = feedTotals(d, now).total;
     feedLabel = "Nursing now";
-    feedBig = formatDuration(feedTotals(nursing.data as FeedData, now).total);
-    feedSub = `started ${formatTime(nursing.started_at, tz)}`;
+    feedBig = `${SIDE_NAME[side]} side`;
+    feedSub = `started ${formatTime(nursing.started_at, tz)} · ${sofar < 60 ? "just started" : `${formatDuration(sofar)} so far`}`;
   } else if (last) {
     feedBig = formatRelative(last.started_at, now);
     const bits = [`started ${formatTime(last.started_at, tz)}`];
@@ -130,7 +136,7 @@ export default function StatusCard() {
           </span>
           <div className="min-w-0 flex-1">
             <p className={cx(tone.muted, "text-[13px] font-medium [.maple-night_&]:text-[#E0A93B]/55")}>{feedLabel}</p>
-            <p className="font-[family-name:var(--font-display)] text-[28px] leading-[1.05] font-semibold text-[#1D4420] tabular-nums dark:text-[#F5EDDF] [.maple-night_&]:text-[#E0A93B]/85">
+            <p className="font-[family-name:var(--font-display)] text-[28px] leading-[1.05] font-semibold text-[#1D4420] lining-nums tabular-nums dark:text-[#F5EDDF] [.maple-night_&]:text-[#E0A93B]/85">
               {feedBig}
             </p>
           </div>
@@ -182,12 +188,14 @@ export default function StatusCard() {
         {cell("💧", "Last wet", summary.lastPee ? formatRelative(summary.lastPee.started_at, now) : null)}
         {cell("💩", "Last dirty", summary.lastPoop ? formatRelative(summary.lastPoop.started_at, now) : null)}
         {sleeping
-          ? cell("🌙", "Asleep", formatDuration((now.getTime() - ts(sleeping)) / 1000))
-          : cell("😴", "Awake", lastSleepEnd ? formatDuration((now.getTime() - Date.parse(lastSleepEnd)) / 1000) : null)}
+          ? cell("🌙", "Asleep", since((now.getTime() - ts(sleeping)) / 1000))
+          : cell("😴", "Awake", lastSleepEnd ? since((now.getTime() - Date.parse(lastSleepEnd)) / 1000) : null)}
       </div>
 
       <div className="divide-y divide-[#1D4420]/[0.07] border-t border-[#1D4420]/[0.07] dark:divide-[#F5EDDF]/[0.07] dark:border-[#F5EDDF]/[0.07]">
+        {/* Drops not given yet is a daytime thing; at 3am it's just clutter (More → Vitamin D still works). */}
         {summary.born &&
+          (summary.vitaminD || !isNight()) &&
           (summary.vitaminD ? (
             <Row icon="☀️" sub="sunshine drops">
               Vitamin D ✓ {formatTime(summary.vitaminD.givenAt, tz)} ({memberName(summary.vitaminD.by)})
@@ -300,7 +308,7 @@ export function Tallies() {
                 <span aria-hidden className="text-base leading-none">
                   {x.emoji}
                 </span>
-                <span className="mt-1 font-[family-name:var(--font-display)] text-[28px] leading-none font-semibold text-[#1D4420] tabular-nums dark:text-[#F5EDDF] [.maple-night_&]:text-[#E0A93B]/85">
+                <span className="mt-1 font-[family-name:var(--font-display)] text-[28px] leading-none font-semibold text-[#1D4420] lining-nums tabular-nums dark:text-[#F5EDDF] [.maple-night_&]:text-[#E0A93B]/85">
                   {x.value}
                 </span>
                 <span className={cx(tone.muted, "mt-0.5 text-[12px] font-semibold")}>{x.label}</span>

@@ -35,7 +35,7 @@ export default function Waiting() {
   const before = baby.due_date ? daysBetween(dayKey(now, baby.timezone), baby.due_date) > 0 : false;
 
   return (
-    <>
+    <div className="pt-[calc(env(safe-area-inset-top)+0.75rem)]">
       <section
         aria-label={`Waiting for ${name}`}
         className="relative overflow-hidden rounded-[32px] border border-[#C49A3C]/20 bg-gradient-to-b from-[#FFF4E2] via-[#FDF8F0] to-[#F4E8D6] px-5 pt-6 pb-5 text-center shadow-[0_2px_24px_rgba(196,154,60,0.12)] dark:border-[#C49A3C]/15 dark:from-[#18321D] dark:via-[#12261A] dark:to-[#0E1E12] dark:shadow-none"
@@ -45,7 +45,7 @@ export default function Waiting() {
           <div className="mx-auto w-fit">
             <Sapling size={168} />
           </div>
-          <h2 className={cx(tone.heading, "mt-1 text-[34px] leading-tight")}>
+          <h2 className={cx(tone.heading, "mt-1 text-[clamp(26px,8.4vw,34px)] leading-tight")}>
             Waiting for {name} <span aria-hidden>🍁</span>
           </h2>
           <p className="mt-1 font-[family-name:var(--font-display)] text-2xl font-semibold text-[#9A6B12] dark:text-[#E0C27A]">
@@ -76,7 +76,7 @@ export default function Waiting() {
         </div>
       </section>
       {!readOnly && <BirthSheet open={open} onClose={() => setOpen(false)} />}
-    </>
+    </div>
   );
 }
 

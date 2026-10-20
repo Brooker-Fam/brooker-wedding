@@ -1,7 +1,7 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-import { useEffect, useState, useSyncExternalStore } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { formatTime } from "@/lib/maple/time";
 import { cmToIn, formatLength, formatWeight, gramsToLbOz, inToCm, lbOzToGrams } from "@/lib/maple/units";
 import type { UnitSystem } from "@/lib/maple/types";
@@ -258,12 +258,18 @@ export function WelcomeHost() {
   const w = useSyncExternalStore(subscribe, () => welcome, () => null);
   const { open } = useSheets();
   const still = useStill();
+  const actions = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!w) return;
+    // Move focus into the dialog so screen readers and keyboards land on it.
+    const t = window.setTimeout(() => actions.current?.querySelector("button")?.focus(), 50);
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && closeWelcome();
     document.addEventListener("keydown", onKey);
-    return () => document.removeEventListener("keydown", onKey);
+    return () => {
+      window.clearTimeout(t);
+      document.removeEventListener("keydown", onKey);
+    };
   }, [w]);
 
   return (
@@ -302,7 +308,7 @@ export function WelcomeHost() {
             <p className={cx(tone.body, "mt-4 text-[15px] font-semibold")}>{w.when}</p>
             {w.stats && <p className={cx(tone.body, "mt-1 text-[15px]")}>{w.stats}</p>}
             <p className={cx(tone.muted, "mt-3 text-sm")}>The whole forest is glad you&apos;re here.</p>
-            <div className="mt-8 grid gap-2">
+            <div ref={actions} className="mt-8 grid gap-2">
               <Button
                 size="lg"
                 className="w-full"

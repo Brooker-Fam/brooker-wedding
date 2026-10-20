@@ -134,8 +134,8 @@ export default function Lantern({ entry, onClose, dim }: { entry: Entry; onClose
         onClick={() => showHint(isFeed && !n.paused ? "Hold to switch, or hold Done" : "Hold a button to use it")}
       >
         <p
-          className="font-[family-name:var(--font-display)] text-[72px] leading-none font-semibold tabular-nums"
-          style={{ opacity: n.paused ? 0.35 : dim ? 0.55 : 0.6, fontVariantNumeric: "tabular-nums" }}
+          className="font-[family-name:var(--font-display)] text-[72px] leading-none font-semibold lining-nums tabular-nums"
+          style={{ opacity: n.paused ? 0.35 : dim ? 0.55 : 0.6 }}
           aria-live="off"
         >
           {formatClock(n.elapsed)}
