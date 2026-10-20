@@ -58,6 +58,9 @@ export default function BirthSheet({ open, onClose, mode = "birth" }: { open: bo
   const [length, setLength] = useState<number | null>(null);
   const [head, setHead] = useState<number | null>(null);
   const [saving, setSaving] = useState(false);
+  // A typo in a measurement ("7..2") holds Save rather than dropping the number.
+  const [invalid, setInvalid] = useState<Record<string, boolean>>({});
+  const hasInvalid = Object.values(invalid).some(Boolean);
   const [problem, setProblem] = useState<string | null>(null);
 
   // Fill in from what's saved each time the sheet opens.
@@ -159,7 +162,16 @@ export default function BirthSheet({ open, onClose, mode = "birth" }: { open: bo
   ) => (
     <div>
       <span className={cx(tone.label, "mb-1.5 block")}>{label}</span>
-      <Stepper value={value} onChange={set} step={opts.step} decimals={opts.decimals} suffix={opts.suffix} max={opts.max} ariaLabel={label.toLowerCase()} />
+      <Stepper
+        value={value}
+        onChange={set}
+        step={opts.step}
+        decimals={opts.decimals}
+        suffix={opts.suffix}
+        max={opts.max}
+        ariaLabel={label.toLowerCase()}
+        onInvalid={(bad) => setInvalid((cur) => ({ ...cur, [label]: bad }))}
+      />
     </div>
   );
 
@@ -170,7 +182,7 @@ export default function BirthSheet({ open, onClose, mode = "birth" }: { open: bo
       title={mode === "birth" ? "She's here!" : "Birth details"}
       emoji="🍁"
       footer={
-        <Button size="lg" className="w-full" onClick={() => void submit()} disabled={saving}>
+        <Button size="lg" className="w-full" onClick={() => void submit()} disabled={saving || hasInvalid}>
           {saving ? "Saving…" : mode === "birth" ? `Welcome ${firstName} 🍁` : "Save"}
         </Button>
       }

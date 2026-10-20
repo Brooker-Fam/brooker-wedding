@@ -57,7 +57,7 @@ export default function EntryRow({
           className={cx(
             "flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl",
             // Two-emoji badges (wet + dirty) need to shrink to fit the tile.
-            [...emoji].length > 2 ? "text-[13px] tracking-[-0.12em]" : "text-xl",
+            [...emoji].length > 2 ? "whitespace-nowrap text-[12px] leading-none tracking-[-0.15em]" : "text-xl",
             entry.active && "animate-pulse"
           )}
           style={{ backgroundColor: `${color}22`, boxShadow: `inset 0 0 0 1.5px ${color}55` }}
