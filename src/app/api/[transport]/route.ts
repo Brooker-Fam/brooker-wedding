@@ -75,6 +75,14 @@ const baseHandler = createMcpHandler(
   }
 );
 
+function isOwnResource(resource: string): boolean {
+  try {
+    return new URL(resource).pathname === "/api/mcp";
+  } catch {
+    return false;
+  }
+}
+
 /**
  * Verify a Bearer token OR an HTTP Basic header. Returning undefined tells
  * withMcpAuth to respond with 401 + WWW-Authenticate pointing at the
@@ -87,7 +95,12 @@ function verifyToken(
 ): AuthInfo | undefined {
   if (bearer) {
     const payload = verifyAccessToken(bearer);
-    if (!payload) return undefined;
+    // Only the admin may run exec snippets. The /oauth shim also mints tokens
+    // for Maple's Log family members (sub "maple:<email>"); those must never
+    // open this server.
+    if (!payload || payload.sub !== "admin") return undefined;
+    // Tokens bound to another server (e.g. Maple's) stay with that server.
+    if (payload.resource && !isOwnResource(payload.resource)) return undefined;
     return {
       token: bearer,
       clientId: payload.client_id,

@@ -1,29 +1,60 @@
 import { NextRequest, NextResponse } from "next/server";
 import {
   mintAccessToken,
+  mintRefreshToken,
   verifyAuthCode,
   verifyPkce,
+  verifyRefreshToken,
+  viaForRedirect,
   ACCESS_TOKEN_TTL,
+  type AccessTokenPayload,
 } from "@/lib/mcp/auth";
+import { memberFor } from "@/lib/maple/auth";
 
 /**
- * OAuth 2.1 token endpoint. authorization_code + PKCE only.
+ * OAuth 2.1 token endpoint: authorization_code + PKCE, and refresh_token.
  *
  * No client secret (public client). The code itself is HMAC-signed and
  * carries the expected redirect_uri + code_challenge, so we verify both
  * at redemption time against what the client re-sends.
+ *
+ * Refresh tokens are stateless too (see mintRefreshToken) and rotate on every
+ * use. For Maple family members (sub "maple:<email>") a refresh re-checks
+ * membership, so someone removed from the family loses the connector at the
+ * next refresh (and every MCP call checks membership anyway).
  */
+
+const HEADERS = {
+  "Access-Control-Allow-Origin": "*",
+  "Cache-Control": "no-store",
+  Pragma: "no-cache",
+};
 
 function err(code: string, description: string, status = 400) {
   return NextResponse.json(
     { error: code, error_description: description },
+    { status, headers: HEADERS }
+  );
+}
+
+/** Access + (rotated) refresh token for a grant. */
+function issue(grant: AccessTokenPayload) {
+  const payload: AccessTokenPayload = {
+    sub: grant.sub,
+    scope: grant.scope,
+    client_id: grant.client_id,
+    ...(grant.resource ? { resource: grant.resource } : {}),
+    ...(grant.via ? { via: grant.via } : {}),
+  };
+  return NextResponse.json(
     {
-      status,
-      headers: {
-        "Access-Control-Allow-Origin": "*",
-        "Cache-Control": "no-store",
-      },
-    }
+      access_token: mintAccessToken(payload),
+      token_type: "Bearer",
+      expires_in: ACCESS_TOKEN_TTL,
+      refresh_token: mintRefreshToken(payload),
+      scope: payload.scope,
+    },
+    { headers: HEADERS }
   );
 }
 
@@ -46,6 +77,7 @@ export async function POST(request: NextRequest) {
   }
 
   const grantType = params.get("grant_type");
+  if (grantType === "refresh_token") return refresh(params);
   if (grantType !== "authorization_code") {
     return err("unsupported_grant_type", `grant_type=${grantType} not supported`);
   }
@@ -54,6 +86,7 @@ export async function POST(request: NextRequest) {
   const redirectUri = params.get("redirect_uri");
   const clientId = params.get("client_id");
   const codeVerifier = params.get("code_verifier");
+  const resource = params.get("resource");
 
   if (!code || !redirectUri || !clientId || !codeVerifier) {
     return err(
@@ -75,28 +108,48 @@ export async function POST(request: NextRequest) {
   ) {
     return err("invalid_grant", "PKCE verification failed");
   }
+  // RFC 8707: a code bound to one resource can't be redeemed for another.
+  if (resource && payload.resource && resource !== payload.resource) {
+    return err("invalid_grant", "resource does not match the authorization request");
+  }
 
-  const accessToken = mintAccessToken({
+  return issue({
     sub: payload.sub,
     scope: payload.scope,
     client_id: payload.client_id,
+    resource: payload.resource,
+    via: payload.via ?? viaForRedirect(payload.redirect_uri),
   });
+}
 
-  return NextResponse.json(
-    {
-      access_token: accessToken,
-      token_type: "Bearer",
-      expires_in: ACCESS_TOKEN_TTL,
-      scope: payload.scope,
-    },
-    {
-      headers: {
-        "Access-Control-Allow-Origin": "*",
-        "Cache-Control": "no-store",
-        Pragma: "no-cache",
-      },
+async function refresh(params: URLSearchParams) {
+  const token = params.get("refresh_token");
+  if (!token) return err("invalid_request", "refresh_token required");
+
+  const grant = verifyRefreshToken(token);
+  if (!grant) return err("invalid_grant", "refresh_token is invalid or expired");
+
+  const clientId = params.get("client_id");
+  if (clientId && clientId !== grant.client_id) {
+    return err("invalid_grant", "client_id mismatch");
+  }
+  const resource = params.get("resource");
+  if (resource && grant.resource && resource !== grant.resource) {
+    return err("invalid_grant", "resource does not match this grant");
+  }
+
+  if (grant.sub.startsWith("maple:")) {
+    try {
+      const member = await memberFor(grant.sub.slice("maple:".length));
+      if (!member) return err("invalid_grant", "no longer a member of Maple's Log");
+    } catch (error) {
+      // A database blip shouldn't disconnect a parent at 3am; membership is
+      // checked again on every MCP request.
+      console.error("Refresh membership check failed:", error);
     }
-  );
+  }
+
+  return issue(grant);
 }
 
 export async function OPTIONS() {

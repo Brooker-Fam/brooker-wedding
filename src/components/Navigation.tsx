@@ -92,6 +92,7 @@ export default function Navigation() {
   const isCalendar = pathname?.startsWith("/calendar");
   const isSapphire = pathname?.startsWith("/sapphire");
   const isBackpacking = pathname?.startsWith("/backpacking-2026");
+  const isMaple = pathname?.startsWith("/maple");
   // The disputation is an immersive, full-bleed experience with its own chrome.
   const isDisputation = pathname?.startsWith("/debates/all-the-way-down");
 
@@ -110,7 +111,7 @@ export default function Navigation() {
     };
   }, [isOpen]);
 
-  if (isCalendar || isSapphire || isBackpacking || isDisputation) return null;
+  if (isCalendar || isSapphire || isBackpacking || isDisputation || isMaple) return null;
 
   return (
     <>
