@@ -400,6 +400,11 @@ export async function softDeleteEntry(id: number, by?: string): Promise<Entry> {
  * back stopped at the moment it was deleted.
  */
 export async function restoreEntry(id: number, by?: string): Promise<Entry> {
+  return (await restoreEntryDetailed(id, by)).entry;
+}
+
+/** restoreEntry, plus when a running timer had to come back stopped (else null). */
+export async function restoreEntryDetailed(id: number, by?: string): Promise<{ entry: Entry; stoppedAt: string | null }> {
   const prev = await getEntry(id, { includeDeleted: true });
   if (!prev) throw new NotFound(`Entry ${id} not found`);
   try {
@@ -409,7 +414,7 @@ export async function restoreEntry(id: number, by?: string): Promise<Entry> {
       [id, by ?? null]
     );
     if (!rows.length) throw new NotFound(`Entry ${id} not found or not deleted`);
-    return rowToEntry(rows[0]);
+    return { entry: rowToEntry(rows[0]), stoppedAt: null };
   } catch (err) {
     if (!isUniqueViolation(err, "uniq_maple_entries_running")) throw err;
     const deletedAt = await q(`SELECT deleted_at FROM maple_entries WHERE id = $1`, [id]);
@@ -422,7 +427,7 @@ export async function restoreEntry(id: number, by?: string): Promise<Entry> {
       [id, by ?? null, stopAt.toISOString(), JSON.stringify(data)]
     );
     if (!rows.length) throw new NotFound(`Entry ${id} not found or not deleted`);
-    return rowToEntry(rows[0]);
+    return { entry: rowToEntry(rows[0]), stoppedAt: stopAt.toISOString() };
   }
 }
 

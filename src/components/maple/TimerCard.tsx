@@ -221,12 +221,12 @@ export function useTimerActions() {
       if (!gone) return;
       toast(`${KIND_TITLE[e.kind as TimerKind] ?? "Timer"} discarded`, {
         emoji: "🍂",
-        undo: async () => {
-          if (await restore(e.id)) await reopen(e);
-        },
+        // A discarded timer comes back running (or stopped, with its own toast,
+        // if another one started meanwhile), so there's nothing to reopen.
+        undo: () => void restore(e.id),
       });
     },
-    [reopen, restore, timer, toast]
+    [restore, timer, toast]
   );
 
   return { running, startFeed, startTimer, stop, fellAsleep, switchSide, pause, resume, adjust, discard, reopen, memberName };

@@ -152,18 +152,15 @@ export type ParsedWhen = {
 
 /**
  * The instant a local wall time happened, most recently. When DST repeats an
- * hour (clocks fall back), prefer the later occurrence once the earlier one
- * is more than 2 hours ago — that's the one a tired parent means.
+ * hour (clocks fall back), take the later occurrence unless it hasn't
+ * happened yet.
  */
 function wallTime(y: number, mo: number, d: number, h: number, mi: number, tz: string, now: Date): Date {
   const first = zonedTimeToUtc(y, mo, d, h, mi, tz);
   const second = new Date(first.getTime() + HOUR);
   const p = localParts(second, tz);
   const repeats = p.hour === h && p.minute === mi && p.day === d;
-  if (repeats && now.getTime() - first.getTime() > 2 * HOUR && second.getTime() <= now.getTime() + 10 * MIN) {
-    return second;
-  }
-  return first;
+  return repeats && second.getTime() <= now.getTime() ? second : first;
 }
 
 /** Today's (or, if that's still ahead, yesterday's) occurrence of a clock time. */
@@ -197,7 +194,7 @@ function clockWhen(hour: number, minute: number, now: Date, tz: string, dayOffse
  *   - ISO with offset/Z → that instant; "2026-10-20T14:05" (no offset) → wall time in tz
  *   - "14:05", "2:05pm", "3am", "noon", "midnight" → the most recent such time
  *     (today, or yesterday if today's is still ahead)
- *   - "yesterday 11pm", "today 6:30am", "last night 2am"
+ *   - "yesterday 11pm", "today 6:30am", "last night 2am", "this morning 7", "last night 9"
  *   - bare "3:10" → whichever of 3:10 AM / PM happened most recently, flagged as assumed
  * Returns null when the input can't be understood.
  */
@@ -226,16 +223,20 @@ export function parseWhenDetailed(input: string | null | undefined, now: Date, t
 
   let dayOffset: number | null = null;
   const dayWord = /^(yesterday|today|last night|this morning|tonight)\b(?:\s+at)?\s*/.exec(raw);
+  const word = dayWord?.[1];
   if (dayWord) {
     raw = raw.slice(dayWord[0].length).trim();
-    if (dayWord[1] === "yesterday") dayOffset = -1;
-    else if (dayWord[1] === "today" || dayWord[1] === "this morning" || dayWord[1] === "tonight") dayOffset = 0;
-    // "last night 2am" means the most recent 2am; leave dayOffset null.
+    if (word === "yesterday") dayOffset = -1;
+    else if (word === "today" || word === "this morning" || word === "tonight") dayOffset = 0;
   }
   raw = raw.replace(/^at\s+/, "");
+  // "last night 10pm" is yesterday evening; "last night 2am" and "tonight 1am"
+  // are the most recent small hours.
+  const at = (h: number, mi: number) =>
+    clockWhen(h, mi, now, tz, word === "last night" ? (h >= 12 ? -1 : null) : word === "tonight" && h < 12 ? null : dayOffset);
 
-  if (raw === "noon") return clockWhen(12, 0, now, tz, dayOffset);
-  if (raw === "midnight") return clockWhen(0, 0, now, tz, dayOffset);
+  if (raw === "noon") return at(12, 0);
+  if (raw === "midnight") return at(0, 0);
 
   const m = CLOCK_RE.exec(raw.replace(/\s/g, ""));
   if (!m) return null;
@@ -247,13 +248,17 @@ export function parseWhenDetailed(input: string | null | undefined, now: Date, t
     if (hour < 1 || hour > 12) return null;
     if (mer === "a") hour = hour === 12 ? 0 : hour;
     else hour = hour === 12 ? 12 : hour + 12;
-    return clockWhen(hour, minute, now, tz, dayOffset);
+    return at(hour, minute);
   }
   if (hour > 23) return null;
   if (hour === 0 || hour > 12) {
     // 24-hour clock ("14:05", "0:30").
-    return clockWhen(hour, minute, now, tz, dayOffset);
+    return at(hour, minute);
   }
+  // The day word settles AM/PM: "this morning 7" is 7 AM; "last night 9" is
+  // 9 PM, but "last night 2" is 2 AM.
+  if (word === "this morning") return at(hour === 12 ? 0 : hour, minute);
+  if (word === "tonight" || word === "last night") return at(hour >= 6 && hour <= 11 ? hour + 12 : hour === 12 ? 0 : hour, minute);
   // Bare "3:10" or "3": AM or PM, whichever happened most recently.
   const am = mostRecent(hour === 12 ? 0 : hour, minute, now, tz, dayOffset);
   const pm = mostRecent(hour === 12 ? 12 : hour + 12, minute, now, tz, dayOffset);

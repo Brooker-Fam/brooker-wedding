@@ -3,6 +3,7 @@ import { mintAuthCode, publicOrigin, verifyAdminCreds } from "@/lib/mcp/auth";
 import {
   ADMIN_ID,
   isGoogleConfigured,
+  isRemoved,
   memberFor,
   openSession,
   SESSION_COOKIE,
@@ -281,7 +282,7 @@ async function mapleAuthorize(request: NextRequest, url: URL, form?: FormData) {
   // any other host (or path) is refused, so no other MCP server can obtain a
   // parent's token through this consent screen.
   const resource = `${origin}${MAPLE_PATH}`;
-  if (p.resource && p.resource.replace(/\/+$/, "") !== resource) {
+  if (p.resource && canonResource(p.resource) !== canonResource(resource)) {
     return redirectWithError(p, "invalid_target", `resource must be ${resource}`);
   }
 
@@ -323,6 +324,9 @@ async function mapleAuthorize(request: NextRequest, url: URL, form?: FormData) {
       const user = form.get("username")?.toString() ?? "";
       const pass = form.get("password")?.toString() ?? "";
       if (!verifyAdminCreds(user, pass)) return signInPage(p, client, "That username and password didn't match.", 401);
+      if (await isRemoved(ADMIN_ID).catch(() => false)) {
+        return signInPage(p, client, "The admin login was turned off for Maple's Log. Continue with Google instead.", 403);
+      }
       return mint(ADMIN_ID);
     }
   }
@@ -331,6 +335,16 @@ async function mapleAuthorize(request: NextRequest, url: URL, form?: FormData) {
   if (offline) return offlinePage();
   if (!member) return signInPage(p, client);
   return consentPage(p, client, member, cancelUrl(p));
+}
+
+/** Same resource whatever the host's case or a trailing slash. */
+function canonResource(r: string): string {
+  try {
+    const u = new URL(r);
+    return `${u.protocol}//${u.host.toLowerCase()}${u.pathname.replace(/\/+$/, "")}`;
+  } catch {
+    return r.replace(/\/+$/, "");
+  }
 }
 
 function cancelUrl(p: MapleParams): string {

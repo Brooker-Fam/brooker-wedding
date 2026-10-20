@@ -292,6 +292,8 @@ function People() {
 function MemberRow({ m, me, owner }: { m: Member; me: Member; owner: boolean }) {
   const { api, refresh, toast, memberName } = useMaple();
   const isMe = m.email === me.email;
+  // The site admin password signs in as the "admin" owner; a real owner can switch it off.
+  const isAdminLogin = m.email === "admin";
   const [editing, setEditing] = useState(false);
   const [managing, setManaging] = useState(false);
   const [confirmRemove, setConfirmRemove] = useState(false);
@@ -345,7 +347,7 @@ function MemberRow({ m, me, owner }: { m: Member; me: Member; owner: boolean }) 
             Edit
           </Button>
         )}
-        {owner && !isMe && m.role !== "owner" && (
+        {owner && !isMe && (m.role !== "owner" || isAdminLogin) && (
           <Button variant="ghost" size="sm" onClick={() => setManaging((v) => !v)} aria-label={`Manage ${memberName(m.email)}`}>
             {managing ? "Done" : "Manage"}
           </Button>
@@ -385,7 +387,31 @@ function MemberRow({ m, me, owner }: { m: Member; me: Member; owner: boolean }) 
         </div>
       )}
 
-      {managing && (
+      {managing && isAdminLogin && (
+        <div className="mt-3 space-y-2">
+          <p className={cx(tone.muted, "text-xs")}>
+            This is the site&apos;s admin password. Turning it off here means it no longer opens Maple&apos;s Log (or connects
+            Claude/ChatGPT to it); the rest of brooker.family is unaffected. Google sign-in keeps working for everyone else.
+          </p>
+          {!confirmRemove ? (
+            <Button variant="danger" size="sm" className="w-full" onClick={() => setConfirmRemove(true)}>
+              Turn off admin login
+            </Button>
+          ) : (
+            <div className="flex items-center gap-2">
+              <p className={cx(tone.body, "flex-1 text-sm")}>Turn off the admin login for Maple?</p>
+              <Button variant="danger" size="sm" disabled={busy} onClick={() => void removeMember()}>
+                Turn off
+              </Button>
+              <Button variant="ghost" size="sm" onClick={() => setConfirmRemove(false)}>
+                Keep
+              </Button>
+            </div>
+          )}
+        </div>
+      )}
+
+      {managing && !isAdminLogin && (
         <div className="mt-3 space-y-3">
           <Segmented
             value={m.role === "viewer" ? "viewer" : "member"}

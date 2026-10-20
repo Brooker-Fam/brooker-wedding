@@ -9,7 +9,7 @@ import {
   ACCESS_TOKEN_TTL,
   type AccessTokenPayload,
 } from "@/lib/mcp/auth";
-import { memberFor } from "@/lib/maple/auth";
+import { isRemoved, memberFor } from "@/lib/maple/auth";
 
 /**
  * OAuth 2.1 token endpoint: authorization_code + PKCE, and refresh_token.
@@ -161,6 +161,10 @@ async function refresh(params: URLSearchParams) {
     return err("invalid_grant", "resource does not match this grant");
   }
 
+  if (grant.sub === "admin") {
+    // An owner turned off the admin login for Maple.
+    if (await isRemoved("admin").catch(() => false)) return err("invalid_grant", "the admin login is turned off for Maple's Log");
+  }
   if (grant.sub.startsWith("maple:")) {
     try {
       const member = await memberFor(grant.sub.slice("maple:".length));

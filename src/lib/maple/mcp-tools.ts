@@ -41,7 +41,7 @@ import {
   getEntry,
   lifetimeCounts,
   listEntries,
-  restoreEntry,
+  restoreEntryDetailed,
   rowToEntry,
   softDeleteEntry,
   startTimer,
@@ -3009,9 +3009,15 @@ E.g. "that diaper was actually poopy too" → details {poop: true}; "the feed st
     async (a, ctx) => {
       const live = await getEntry(a.id);
       if (live) return ok(`#${a.id} isn't deleted: ${phrase(live, ctx.now)} at ${whenText(live.started_at, ctx)}. Nothing changed.`, { restored: false, ...entryJson(live, ctx) });
-      const e = await restoreEntry(a.id, ctx.who.id);
-      return ok(`Restored #${e.id}: ${phrase(e, ctx.now)} at ${whenText(e.started_at, ctx)}${e.active ? " (timer running again)" : ""}.`, {
+      const { entry: e, stoppedAt } = await restoreEntryDetailed(a.id, ctx.who.id);
+      const how = e.active
+        ? " (timer running again)"
+        : stoppedAt
+          ? ` (it came back stopped at ${whenText(stoppedAt, ctx)}, when it was deleted, because another ${TIMER_LABEL[e.kind as TimerKind] ?? e.kind} timer is running now)`
+          : "";
+      return ok(`Restored #${e.id}: ${phrase(e, ctx.now)} at ${whenText(e.started_at, ctx)}${how}.`, {
         restored: true,
+        came_back_stopped: Boolean(stoppedAt),
         ...entryJson(e, ctx),
       });
     }

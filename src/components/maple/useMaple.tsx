@@ -340,8 +340,15 @@ export function MapleProvider({ children }: { children: ReactNode }) {
         // Removed from the queue while we were busy (the parent deleted it).
         if (!outboxRef.current.some((i) => i.client_id === item.client_id)) continue;
         try {
-          await fetchJson("/api/maple/entries", { method: "POST", body: JSON.stringify(item.input) });
+          const { entry } = await fetchJson<{ entry: Entry }>("/api/maple/entries", {
+            method: "POST",
+            body: JSON.stringify(item.input),
+          });
           done.add(item.client_id);
+          // Deleted on this phone while it was uploading: take it back out.
+          if (!outboxRef.current.some((i) => i.client_id === item.client_id)) {
+            await fetchJson(`/api/maple/entries?id=${entry.id}`, { method: "DELETE" }).catch(() => {});
+          }
         } catch (e) {
           if (isTransient(e)) bumped.add(item.client_id);
           else {
@@ -451,9 +458,18 @@ export function MapleProvider({ children }: { children: ReactNode }) {
   const restore = useCallback<MapleContextValue["restore"]>(
     async (id) => {
       try {
-        const { entry } = await withInflight(() => fetchJson<{ entry: Entry }>(`/api/maple/entries/restore?id=${id}`, { method: "POST" }));
+        const { entry, stopped_at } = await withInflight(() =>
+          fetchJson<{ entry: Entry; stopped_at?: string | null }>(`/api/maple/entries/restore?id=${id}`, { method: "POST" })
+        );
         upsert(entry);
-        toast("Restored", { emoji: "🍁" });
+        if (stopped_at) {
+          toast(`Restored, but stopped at ${formatTime(stopped_at, tzRef.current)}: another timer is running now`, {
+            emoji: "🍁",
+            tone: "info",
+          });
+        } else {
+          toast("Restored", { emoji: "🍁" });
+        }
         return entry;
       } catch (e) {
         toast(e instanceof Error ? e.message : "Couldn't restore", { tone: "error" });
@@ -549,6 +565,33 @@ export function MapleProvider({ children }: { children: ReactNode }) {
 
   const update = useCallback<MapleContextValue["update"]>(
     async (id, patch, opts = {}) => {
+      if (id < 0) {
+        // Not on the server yet. If it's waiting in the outbox, fold the edit
+        // into the queued save; otherwise it's mid-save, so ask for a moment.
+        const queued = outboxRef.current.find((i) => i.entry.id === id);
+        if (!queued) {
+          toast("One sec, that's still saving", { emoji: "⏳", tone: "info" });
+          return null;
+        }
+        const input: CreateEntryInput = {
+          ...queued.input,
+          ...(patch.started_at ? { started_at: patch.started_at } : {}),
+          ...(patch.ended_at !== undefined ? { ended_at: patch.ended_at } : {}),
+          ...(patch.note !== undefined ? { note: patch.note } : {}),
+          data: { ...(queued.input.data ?? {}), ...(patch.data ?? {}) },
+        };
+        const entry = {
+          ...queued.entry,
+          started_at: input.started_at ?? queued.entry.started_at,
+          ended_at: input.ended_at ?? null,
+          note: input.note ?? null,
+          data: input.data as never,
+        } as Entry;
+        setQueue(outboxRef.current.map((i) => (i.client_id === queued.client_id ? { ...i, input, entry } : i)));
+        upsert(entry);
+        if (opts.toast !== "") toast(opts.toast ?? "Saved on this phone", { emoji: "🍂" });
+        return entry;
+      }
       try {
         const { entry } = await withInflight(() =>
           fetchJson<{ entry: Entry }>(`/api/maple/entries?id=${id}`, { method: "PATCH", body: JSON.stringify(patch) })
@@ -563,7 +606,7 @@ export function MapleProvider({ children }: { children: ReactNode }) {
         void forceRefresh();
       }
     },
-    [forceRefresh, toast, upsert, withInflight]
+    [forceRefresh, setQueue, toast, upsert, withInflight]
   );
 
   const memberName = useCallback((id: string | null | undefined) => nameOf(id, state?.members ?? []), [state]);
@@ -635,12 +678,13 @@ export function MapleProvider({ children }: { children: ReactNode }) {
           if (cur) upsert(cur);
           if (body?.reason === "changed" || cur?.active) {
             toast("Someone else just changed that timer. Have another look.", { emoji: "🍃", tone: "info" });
-            return cur ?? null;
+            return null;
           }
           const who = cur?.updated_by && cur.updated_by !== state?.me.email ? memberName(cur.updated_by) : null;
           const when = cur?.ended_at ? ` at ${formatTime(cur.ended_at, tzRef.current)}` : "";
           toast(who ? `${who} already stopped it${when}` : `Already stopped${when}`, { emoji: "🍃", tone: "info" });
-          return cur ?? null;
+          // null: the action didn't happen (callers must not toast success or offer Undo).
+          return null;
         }
         if (!(e instanceof ApiError)) {
           // Timers need the server's clock, so they aren't queued like entries.

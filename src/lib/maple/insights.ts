@@ -345,25 +345,34 @@ export function summarize(opts: {
   if (age) {
     const months = age.months;
 
-    // Temperature: the most urgent reading in the last 12 hours. A lower
-    // reading afterwards (maybe a less accurate thermometer) must not hide a
-    // fever; the family clears it with "We called".
-    let worstTemp: { e: EntryOf<"temp">; a: NonNullable<ReturnType<typeof assessTemperature>> } | null = null;
-    for (const t of ofKind(entries, "temp")) {
-      if (nowMs - ts(t) >= 12 * H || ts(t) > nowMs) continue;
+    // Temperature. A fever (any call tier) from the last 12 hours stays up
+    // until the family marks it handled: a lower reading afterwards, maybe on
+    // a less accurate thermometer, must not hide it. A "please recheck" nudge
+    // only comes from the newest reading, so the recheck itself clears it.
+    const assess = (t: EntryOf<"temp">) => {
       const prev = previousOf(entries, t);
-      const a = assessTemperature(
+      return assessTemperature(
         t.data.temp_c,
         t.data.method,
         months,
         prev ? { tempC: prev.data.temp_c, minutesBefore: (ts(t) - ts(prev)) / 60000 } : null
       );
-      if (!a) continue;
+    };
+    let worstTemp: { e: EntryOf<"temp">; a: NonNullable<ReturnType<typeof assessTemperature>> } | null = null;
+    for (const t of ofKind(entries, "temp")) {
+      if (nowMs - ts(t) >= 12 * H || ts(t) > nowMs) continue;
+      const a = assess(t);
+      if (!a || a.tier === "nudge") continue;
       const worse = !worstTemp || ALERT_TIERS.indexOf(a.tier) < ALERT_TIERS.indexOf(worstTemp.a.tier);
       const sameButNewer = worstTemp && a.tier === worstTemp.a.tier && ts(t) > ts(worstTemp.e);
       if (worse || sameButNewer) worstTemp = { e: t, a };
     }
     if (worstTemp) push(`temp-${worstTemp.e.id}`, worstTemp.a, worstTemp.e.id);
+    else {
+      const latestTemp = newest(entries, "temp", (t) => ts(t) <= nowMs);
+      const a = latestTemp && nowMs - ts(latestTemp) < 12 * H ? assess(latestTemp) : null;
+      if (latestTemp && a) push(`temp-${latestTemp.id}`, a, latestTemp.id);
+    }
 
     // Vitals: each measure on its own, so a heart-rate-only entry can't hide
     // an earlier oxygen reading. Its "recheck" baseline is the previous
@@ -508,20 +517,20 @@ export function summarize(opts: {
         body: "Most babies lose 5–7% before gaining. A bit more is worth a feeding check: let your pediatrician or a lactation consultant know.",
       });
     }
-    // Still losing after Day 5: two consecutive weighings from Day 4 on, the
-    // newer one after 120 hours and lower by more than scale noise (home
-    // scales wobble about an ounce, and a feed weighs 2–3 oz).
-    const prevW = weights[weights.length - 2];
-    const bothDoctor = latest?.data.at === "doctor" && prevW?.data.at === "doctor";
-    const dropG = latest && prevW ? prevW.data.weight_g! - latest.data.weight_g! : 0;
-    if (
+    // Still losing after Day 5: the newest weighing (after 120 hours) is lower
+    // than an earlier one from Day 4 on, at least a day before it, by more than
+    // noise: about an ounce between doctor's scales, and more than a feed or a
+    // diaper (3 oz) when a home scale is involved.
+    const stillLosing =
       latest &&
-      prevW &&
       weightFresh &&
       ts(latest) - bornMs >= 120 * H &&
-      ts(prevW) - bornMs >= 72 * H &&
-      dropG >= (bothDoctor ? 30 : 60)
-    ) {
+      weights.some((p) => {
+        if (p === latest || ts(p) - bornMs < 72 * H || ts(latest) - ts(p) < 24 * H || ts(latest) - ts(p) > 7 * 24 * H) return false;
+        const both = p.data.at === "doctor" && latest.data.at === "doctor";
+        return p.data.weight_g! - latest.data.weight_g! >= (both ? 30 : 90);
+      });
+    if (latest && stillLosing) {
       push(`still-losing:${latest.id}`, {
         tier: "today",
         title: "Still losing weight after Day 5",

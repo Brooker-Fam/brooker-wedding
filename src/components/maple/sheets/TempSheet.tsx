@@ -50,6 +50,10 @@ function TempForm({ open, onClose, entry, preset }: SheetProps) {
     () => (state?.entries ?? []).filter((x): x is EntryOf<"temp"> => x.kind === "temp" && x.id !== e?.id),
     [state, e?.id]
   );
+  const earlierVitals = useMemo(
+    () => (state?.entries ?? []).filter((x): x is EntryOf<"vitals"> => x.kind === "vitals"),
+    [state]
+  );
 
   const [value, setValue] = useState<number | null>(() => {
     const c = e?.data.temp_c;
@@ -87,7 +91,12 @@ function TempForm({ open, onClose, entry, preset }: SheetProps) {
 
   const vitals = { heart_bpm: heart ?? undefined, resp_rate: resp ?? undefined, spo2: spo2 ?? undefined };
   const hasVitals = heart != null || resp != null || spo2 != null;
-  const vitalNotes = hasVitals ? assessVitals(vitals, ageMonths) : [];
+  // Each measure's baseline is the previous reading of that same measure (as in the vitals sheet).
+  const vitalNotes = (["spo2", "resp_rate", "heart_bpm"] as const).flatMap((f) => {
+    if (vitals[f] == null) return [];
+    const p = earlierVitals.find((x) => Date.parse(x.started_at) < t.getTime() && x.data[f] != null);
+    return assessVitals({ [f]: vitals[f] }, ageMonths, p ? { [f]: p.data[f], minutesBefore: (t.getTime() - Date.parse(p.started_at)) / 60_000 } : null);
+  });
 
   const methods = TEMP_METHODS.filter((m) => m !== "ear" || earThermometerOk(ageMonths) || method === "ear");
   const savable = tempC != null && tempC >= 30 && tempC <= 45;

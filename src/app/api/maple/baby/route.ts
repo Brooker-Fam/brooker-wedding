@@ -56,14 +56,19 @@ export const PATCH = withMember("PATCH /api/maple/baby", async (request) => {
       const acks = incoming.acks;
       delete incoming.acks;
       if (acks && typeof acks === "object" && !Array.isArray(acks)) {
-        patch.acks = Object.fromEntries(
-          Object.entries(acks as Record<string, unknown>).filter(
-            (kv): kv is [string, string] => typeof kv[1] === "string" && !Number.isNaN(Date.parse(kv[1])) && kv[0].length <= 120
-          )
-        );
+        // A handful per tap; times normalized to ISO so SQL can always cast them.
+        const clean: Record<string, string> = {};
+        for (const [k, v] of Object.entries(acks as Record<string, unknown>).slice(0, 20)) {
+          const t = typeof v === "string" ? Date.parse(v) : NaN;
+          if (k.length <= 120 && Number.isFinite(t)) clean[k] = new Date(t).toISOString();
+        }
+        patch.acks = clean;
       }
     }
-    if (JSON.stringify({ ...baby.settings, ...incoming }).length > 8000) throw new BadRequest("settings too large");
+    // Acks are capped and pruned separately, so they don't count toward the limit.
+    const { acks: _acks, ...rest } = { ...baby.settings, ...incoming };
+    void _acks;
+    if (JSON.stringify(rest).length > 8000) throw new BadRequest("settings too large");
     patch.settings = incoming;
   }
 

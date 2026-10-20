@@ -111,6 +111,15 @@ const authedHandler = withMcpAuth(baseHandler, verifyToken, {
 });
 
 async function handleRequest(req: Request): Promise<Response> {
+  // mcp-handler never answers a body that isn't JSON (the request hangs until
+  // the function times out), so turn it away here with a JSON-RPC parse error.
+  if (req.method === "POST") {
+    try {
+      JSON.parse(await req.clone().text());
+    } catch {
+      return Response.json({ jsonrpc: "2.0", id: null, error: { code: -32700, message: "Parse error" } }, { status: 400 });
+    }
+  }
   const res = await authedHandler(req);
   // Tell clients which scope to ask for (mcp-handler's challenge omits it).
   if (res.status === 401) {
