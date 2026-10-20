@@ -167,17 +167,27 @@ function wallTime(y: number, mo: number, d: number, h: number, mi: number, tz: s
 }
 
 /** Today's (or, if that's still ahead, yesterday's) occurrence of a clock time. */
-function mostRecent(hour: number, minute: number, now: Date, tz: string, dayOffset: number | null): Date {
+function mostRecentAt(hour: number, minute: number, now: Date, tz: string, dayOffset: number | null): { date: Date; yesterday: boolean } {
   const todayKey = dayKey(now, tz);
   if (dayOffset !== null) {
     const k = parseDayKey(addDays(todayKey, dayOffset));
-    return wallTime(k.year, k.month, k.day, hour, minute, tz, now);
+    return { date: wallTime(k.year, k.month, k.day, hour, minute, tz, now), yesterday: false };
   }
   const t = parseDayKey(todayKey);
   const today = wallTime(t.year, t.month, t.day, hour, minute, tz, now);
-  if (today.getTime() <= now.getTime() + 10 * MIN) return today;
+  if (today.getTime() <= now.getTime() + 10 * MIN) return { date: today, yesterday: false };
   const y = parseDayKey(addDays(todayKey, -1));
-  return wallTime(y.year, y.month, y.day, hour, minute, tz, now);
+  return { date: wallTime(y.year, y.month, y.day, hour, minute, tz, now), yesterday: true };
+}
+
+function mostRecent(hour: number, minute: number, now: Date, tz: string, dayOffset: number | null): Date {
+  return mostRecentAt(hour, minute, now, tz, dayOffset).date;
+}
+
+/** A clock time read as the most recent one, noting when that meant yesterday. */
+function clockWhen(hour: number, minute: number, now: Date, tz: string, dayOffset: number | null): ParsedWhen {
+  const { date, yesterday } = mostRecentAt(hour, minute, now, tz, dayOffset);
+  return yesterday ? { date, assumed: `assumed yesterday at ${formatTime(date, tz)} (that time hasn't come yet today)` } : { date };
 }
 
 /**
@@ -224,8 +234,8 @@ export function parseWhenDetailed(input: string | null | undefined, now: Date, t
   }
   raw = raw.replace(/^at\s+/, "");
 
-  if (raw === "noon") return { date: mostRecent(12, 0, now, tz, dayOffset) };
-  if (raw === "midnight") return { date: mostRecent(0, 0, now, tz, dayOffset) };
+  if (raw === "noon") return clockWhen(12, 0, now, tz, dayOffset);
+  if (raw === "midnight") return clockWhen(0, 0, now, tz, dayOffset);
 
   const m = CLOCK_RE.exec(raw.replace(/\s/g, ""));
   if (!m) return null;
@@ -237,14 +247,14 @@ export function parseWhenDetailed(input: string | null | undefined, now: Date, t
     if (hour < 1 || hour > 12) return null;
     if (mer === "a") hour = hour === 12 ? 0 : hour;
     else hour = hour === 12 ? 12 : hour + 12;
-    return { date: mostRecent(hour, minute, now, tz, dayOffset) };
+    return clockWhen(hour, minute, now, tz, dayOffset);
   }
   if (hour > 23) return null;
-  if (hour === 0 || hour > 12 || !m[2]) {
-    // 24-hour clock ("14:05", "0:30") or a bare hour like "3" (read as 24h).
-    return { date: mostRecent(hour, minute, now, tz, dayOffset) };
+  if (hour === 0 || hour > 12) {
+    // 24-hour clock ("14:05", "0:30").
+    return clockWhen(hour, minute, now, tz, dayOffset);
   }
-  // Bare "3:10": AM or PM, whichever happened most recently.
+  // Bare "3:10" or "3": AM or PM, whichever happened most recently.
   const am = mostRecent(hour === 12 ? 0 : hour, minute, now, tz, dayOffset);
   const pm = mostRecent(hour === 12 ? 12 : hour + 12, minute, now, tz, dayOffset);
   const pick = [am, pm]

@@ -57,6 +57,9 @@ function readNudges(): Record<string, number> {
   }
 }
 
+/** The alert's kind without any episode suffix: "no-pee-8h:123" → "no-pee-8h". */
+const alertKind = (id: string) => id.split(":")[0];
+
 const telHref = (phone: string) => `tel:${phone.replace(/[^\d+]/g, "")}`;
 
 export function usePhones() {
@@ -78,9 +81,12 @@ export default function AlertStack({ tiers, onNavigate }: { tiers: AlertTier[]; 
   if (!summary || !state) return null;
 
   const tz = state.baby.timezone ?? DEFAULT_TZ;
+  // Episode alerts carry their own suffix ("feed-gap:123"); older plain ids get one here.
   const nudgeKey = (a: Alert) => {
-    if (a.id === "feed-gap" || a.id === "few-feeds") return `${a.id}:${summary.lastFeed?.id ?? 0}`;
-    if (a.id === "vitamin-d") return `${a.id}:${dayKey(new Date(summary.now), tz)}`;
+    if (a.id.includes(":")) return a.id;
+    const base = alertKind(a.id);
+    if (base === "feed-gap" || base === "few-feeds") return `${a.id}:${summary.lastFeed?.id ?? 0}`;
+    if (base === "vitamin-d") return `${a.id}:${dayKey(new Date(summary.now), tz)}`;
     return a.id;
   };
   const shown = summary.alerts.filter(
@@ -195,7 +201,7 @@ function AlertCard({
             We called ✓
           </button>
         )}
-        {alert.id === "vitamin-d" && !readOnly && (
+        {alertKind(alert.id) === "vitamin-d" && !readOnly && (
           <button
             type="button"
             onClick={() => void log({ kind: "med", data: { ...VITAMIN_D_DEFAULT } }, { toast: "Vitamin D drops ✓", emoji: "☀️" })}

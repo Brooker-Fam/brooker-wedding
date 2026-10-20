@@ -9,6 +9,7 @@ import { Chip, Segmented, Sheet, Stepper, WhenField, cx, tone } from "../ui";
 import type { SheetProps } from "./index";
 import {
   AssessmentCard,
+  CHECK_NUMBER_HINT,
   ContextNote,
   Label,
   LoggedBy,
@@ -18,7 +19,9 @@ import {
   presetStart,
   pstr,
   useOpenCount,
+  useNumberChecks,
   useSheetBase,
+  useTouched,
 } from "./parts";
 
 /**
@@ -59,6 +62,9 @@ function TempForm({ open, onClose, entry, preset }: SheetProps) {
   const [when, setWhen] = useState<Date | null>(() => (e ? new Date(e.started_at) : presetStart(preset)));
   const [note, setNote] = useState(e?.note ?? pstr(preset, "note") ?? "");
   const [busy, setBusy] = useState(false);
+  const checks = useNumberChecks();
+  // Only a typed or stepped reading is re-sent on edit (°F ↔ °C display rounding would drift it).
+  const { touched, touch } = useTouched();
   // Other readings (new entries only; they save as a separate vitals entry).
   const [heart, setHeart] = useState<number | null>(null);
   const [resp, setResp] = useState<number | null>(null);
@@ -97,7 +103,7 @@ function TempForm({ open, onClose, entry, preset }: SheetProps) {
       const res = await update(
         e.id,
         {
-          data: { ...data, method: method ?? null },
+          data: { ...(touched.reading ? { temp_c } : {}), method: method ?? null },
           started_at: when && when.getTime() !== Date.parse(e.started_at) ? when.toISOString() : undefined,
           note: noteVal,
         },
@@ -139,8 +145,10 @@ function TempForm({ open, onClose, entry, preset }: SheetProps) {
           onPrimary={() => void save()}
           label={e ? "Save" : "Log it"}
           busy={busy}
-          disabled={!savable || (!!e && e.id < 0)}
-          hint={!savable ? "Enter the reading." : e && e.id < 0 ? "Still syncing, so it can't be edited yet." : undefined}
+          disabled={checks.invalid || !savable || (!!e && e.id < 0)}
+          hint={
+            checks.invalid ? CHECK_NUMBER_HINT : !savable ? "Enter the reading." : e && e.id < 0 ? "Still syncing, so it can't be edited yet." : undefined
+          }
         />
       }
     >
@@ -161,7 +169,11 @@ function TempForm({ open, onClose, entry, preset }: SheetProps) {
         </div>
         <Stepper
           value={value}
-          onChange={setValue}
+          onChange={(v) => {
+            touch("reading");
+            setValue(v);
+          }}
+          onInvalid={checks.watch("reading")}
           step={0.1}
           decimals={1}
           min={unit === "F" ? 90 : 32}
@@ -170,7 +182,11 @@ function TempForm({ open, onClose, entry, preset }: SheetProps) {
           ariaLabel={`temperature in degrees ${unit === "F" ? "Fahrenheit" : "Celsius"}`}
         />
         {looksLikeC && (
-          <button type="button" onClick={() => switchUnit("C")} className="mt-2 min-h-[40px] text-sm font-semibold text-[#1D4420] underline decoration-[#C49A3C] underline-offset-4 dark:text-[#E0C27A]">
+          <button type="button" onClick={() => {
+              // The number typed is already °C: relabel it, don't convert it.
+              touch("reading");
+              setUnit("C");
+            }} className="mt-2 min-h-[40px] text-sm font-semibold text-[#1D4420] underline decoration-[#C49A3C] underline-offset-4 dark:text-[#E0C27A]">
             That looks like °C. Switch to °C?
           </button>
         )}
@@ -197,16 +213,16 @@ function TempForm({ open, onClose, entry, preset }: SheetProps) {
         <MoreDetails label="Other readings" summary={hasVitals ? "saved as vitals" : "heart, breathing, oxygen"}>
           <div>
             <Label optional>Heart rate</Label>
-            <Stepper value={heart} onChange={setHeart} step={5} min={30} max={260} suffix="bpm" ariaLabel="heart rate, beats per minute" />
+            <Stepper value={heart} onChange={setHeart} onInvalid={checks.watch("heart")} step={5} min={30} max={260} suffix="bpm" ariaLabel="heart rate, beats per minute" />
           </div>
           <div>
             <Label optional>Breathing</Label>
-            <Stepper value={resp} onChange={setResp} step={1} min={5} max={150} suffix="/min" ariaLabel="breaths per minute" />
+            <Stepper value={resp} onChange={setResp} onInvalid={checks.watch("resp")} step={1} min={5} max={150} suffix="/min" ariaLabel="breaths per minute" />
             <p className={cx(tone.muted, "mt-1 text-xs")}>Count for a full minute while she&apos;s calm or asleep.</p>
           </div>
           <div>
             <Label optional>Oxygen (SpO₂)</Label>
-            <Stepper value={spo2} onChange={setSpo2} step={1} min={50} max={100} suffix="%" ariaLabel="oxygen saturation percent" />
+            <Stepper value={spo2} onChange={setSpo2} onInvalid={checks.watch("spo2")} step={1} min={50} max={100} suffix="%" ariaLabel="oxygen saturation percent" />
           </div>
           {vitalNotes.map((a) => (
             <AssessmentCard key={a.title} a={a} />

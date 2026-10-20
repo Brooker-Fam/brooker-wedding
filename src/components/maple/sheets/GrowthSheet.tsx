@@ -7,7 +7,22 @@ import { cmToIn, formatLength, formatWeight, gramsToLbOz, inToCm, lbOzToGrams } 
 import type { GrowthData, UnitSystem } from "@/lib/maple/types";
 import { Segmented, Sheet, WhenField, cx, tone } from "../ui";
 import type { SheetProps } from "./index";
-import { ContextNote, Label, LoggedBy, MiniStepper, NoteField, SheetFooter, presetStart, pnum, pstr, useOpenCount, useSheetBase, withNulls } from "./parts";
+import {
+  CHECK_NUMBER_HINT,
+  ContextNote,
+  Label,
+  LoggedBy,
+  MiniStepper,
+  NoteField,
+  SheetFooter,
+  presetStart,
+  pnum,
+  pstr,
+  useNumberChecks,
+  useOpenCount,
+  useSheetBase,
+  useTouched,
+} from "./parts";
 
 /**
  * Log or edit measurements: weight as lb + oz side by side (the way a
@@ -61,6 +76,13 @@ function GrowthForm({ open, onClose, entry, preset }: SheetProps) {
   const [when, setWhen] = useState<Date | null>(() => (e ? new Date(e.started_at) : presetStart(preset)));
   const [note, setNote] = useState(e?.note ?? pstr(preset, "note") ?? "");
   const [busy, setBusy] = useState(false);
+  const checks = useNumberChecks();
+  // Switching lb ↔ kg converts what's shown; only typing or stepping counts as a change.
+  const { touched, touch } = useTouched();
+  const edit = (key: "weight" | "length" | "head", set: (v: number | null) => void) => (v: number | null) => {
+    touch(key);
+    set(v);
+  };
 
   const weightG = us ? (lb == null && oz == null ? undefined : lbOzToGrams(lb ?? 0, oz ?? 0)) : (grams ?? undefined);
   const lenCm = length == null ? undefined : us ? inToCm(length) : length;
@@ -104,6 +126,16 @@ function GrowthForm({ open, onClose, entry, preset }: SheetProps) {
     (data.length_cm == null || (data.length_cm >= 25 && data.length_cm <= 130)) &&
     (data.head_cm == null || (data.head_cm >= 20 && data.head_cm <= 60));
 
+  /** Only the measurements that were changed: shown values are rounded through the display units. */
+  const editData = () => {
+    const changed: Record<string, unknown> = {};
+    if (touched.weight) changed.weight_g = data.weight_g ?? null;
+    if (touched.length) changed.length_cm = data.length_cm ?? null;
+    if (touched.head) changed.head_cm = data.head_cm ?? null;
+    if (at !== e?.data.at) changed.at = at;
+    return Object.keys(changed).length ? changed : undefined;
+  };
+
   const save = async () => {
     const noteVal = note.trim() || null;
     const bits = [
@@ -118,7 +150,7 @@ function GrowthForm({ open, onClose, entry, preset }: SheetProps) {
       const res = await update(
         e.id,
         {
-          data: withNulls(data, ["weight_g", "length_cm", "head_cm"]),
+          data: editData(),
           started_at: when && when.getTime() !== Date.parse(e.started_at) ? when.toISOString() : undefined,
           note: noteVal,
         },
@@ -156,8 +188,16 @@ function GrowthForm({ open, onClose, entry, preset }: SheetProps) {
           onPrimary={() => void save()}
           label={e ? "Save" : "Log it"}
           busy={busy}
-          disabled={!savable || (!!e && e.id < 0)}
-          hint={!hasAny ? "Add a weight, length or head measurement." : hasAny && !savable ? "One of those numbers is outside what can be saved." : undefined}
+          disabled={checks.invalid || !savable || (!!e && e.id < 0)}
+          hint={
+            checks.invalid
+              ? CHECK_NUMBER_HINT
+              : !hasAny
+                ? "Add a weight, length or head measurement."
+                : !savable
+                  ? "One of those numbers is outside what can be saved."
+                  : undefined
+          }
         />
       }
     >
@@ -192,22 +232,22 @@ function GrowthForm({ open, onClose, entry, preset }: SheetProps) {
         </div>
         {us ? (
           <div className="grid grid-cols-2 gap-3">
-            <MiniStepper label="lb" ariaLabel="pounds" value={lb} onChange={setLb} max={40} />
-            <MiniStepper label="oz" ariaLabel="ounces" value={oz} onChange={setOz} step={0.1} decimals={1} max={15.9} />
+            <MiniStepper key="lb" label="lb" ariaLabel="pounds" value={lb} onChange={edit("weight", setLb)} max={40} onInvalid={checks.watch("lb")} />
+            <MiniStepper key="oz" label="oz" ariaLabel="ounces" value={oz} onChange={edit("weight", setOz)} step={0.1} decimals={1} max={15.9} onInvalid={checks.watch("oz")} />
           </div>
         ) : (
-          <MiniStepper label="grams" unit="g" ariaLabel="grams" value={grams} onChange={setGrams} step={10} max={30000} />
+          <MiniStepper key="grams" label="grams" unit="g" ariaLabel="grams" value={grams} onChange={edit("weight", setGrams)} step={10} max={30000} onInvalid={checks.watch("grams")} />
         )}
         <Reading p={pW} warn={off("weight", weightG, pW)} extra={!us && weightG ? `${(weightG / 1000).toFixed(2)} kg` : undefined} />
       </section>
 
       <div className="grid grid-cols-2 gap-3">
         <section aria-label="Length">
-          <MiniStepper label={`Length`} unit={lenUnit} ariaLabel={`length in ${us ? "inches" : "centimetres"}`} value={length} onChange={setLength} step={us ? 0.25 : 0.5} decimals={2} max={us ? 50 : 130} />
+          <MiniStepper label={`Length`} unit={lenUnit} ariaLabel={`length in ${us ? "inches" : "centimetres"}`} value={length} onChange={edit("length", setLength)} step={us ? 0.25 : 0.5} decimals={2} max={us ? 50 : 130} onInvalid={checks.watch("length")} />
           <Reading p={pL} warn={off("length", lenCm, pL)} compact />
         </section>
         <section aria-label="Head">
-          <MiniStepper label={`Head`} unit={lenUnit} ariaLabel={`head circumference in ${us ? "inches" : "centimetres"}`} value={head} onChange={setHead} step={us ? 0.25 : 0.5} decimals={2} max={us ? 25 : 60} />
+          <MiniStepper label={`Head`} unit={lenUnit} ariaLabel={`head circumference in ${us ? "inches" : "centimetres"}`} value={head} onChange={edit("head", setHead)} step={us ? 0.25 : 0.5} decimals={2} max={us ? 25 : 60} onInvalid={checks.watch("head")} />
           <Reading p={pH} warn={off("head", headCm, pH)} compact />
         </section>
       </div>

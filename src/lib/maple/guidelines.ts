@@ -146,8 +146,11 @@ export function assessTemperature(
 ): Assessment | null {
   const f = round1(cToF(tempC));
   const shown = `${f.toFixed(1)}°F`;
+  // A threshold counts if it's met in either scale (38.3°C is 100.94°F, which
+  // would round down to 100.9°F and miss "101°F").
+  const atLeast = (fT: number, cT: number) => f >= fT || tempC >= cT - 1e-9;
 
-  if (f >= 104) {
+  if (atLeast(104, 40)) {
     return {
       tier: "now",
       title: `${shown}: call your pediatrician now`,
@@ -155,31 +158,32 @@ export function assessTemperature(
     };
   }
 
-  if (ageMonths < 3) {
-    if (method === "ear") {
-      if (f >= 100.4) {
-        return {
-          tier: "now",
-          title: `${shown}: call your pediatrician now`,
-          body: "Ear thermometers aren't reliable before 6 months, but a reading this high should be treated as a fever: call your pediatrician now, and confirm with a rectal reading if you can.",
-        };
-      }
-      return f >= 99
-        ? {
-            tier: "nudge",
-            title: "Recheck with another thermometer",
-            body: "Ear thermometers aren't accurate before 6 months. Please recheck with a rectal (most accurate) or forehead reading.",
-          }
-        : null;
+  // Ear thermometers aren't accurate before 6 months: any ear reading gets a
+  // recheck, and a high one is still treated as a fever.
+  if (method === "ear" && ageMonths < 6) {
+    if (ageMonths < 3 ? atLeast(100.4, 38) : atLeast(101, 38.3)) {
+      return {
+        tier: ageMonths < 3 ? "now" : "today",
+        title: `${shown}: call your pediatrician${ageMonths < 3 ? " now" : ""}`,
+        body: "Ear thermometers aren't reliable before 6 months, but a reading this high should be treated as a fever: call your pediatrician, and confirm with a rectal reading if you can.",
+      };
     }
-    if (f >= 100.4) {
+    return {
+      tier: "nudge",
+      title: "Recheck with another thermometer",
+      body: "Ear thermometers aren't accurate before 6 months. Please recheck with a rectal (most accurate) or forehead reading.",
+    };
+  }
+
+  if (ageMonths < 3) {
+    if (atLeast(100.4, 38)) {
       return {
         tier: "now",
         title: "Fever: call your pediatrician now",
         body: "100.4°F (38.0°C) or higher counts as a fever at Maple's age. Call your pediatrician now, even if she seems fine; doctors want to check every fever in babies this young. Don't give fever medicine unless they tell you to. If you can't reach them, go to the ER.",
       };
     }
-    if (f >= 99 && (method === "armpit" || method === undefined)) {
+    if (atLeast(99, 37.2) && (method === "armpit" || method === undefined)) {
       return {
         tier: "nudge",
         title: "Recheck rectally",
@@ -190,14 +194,14 @@ export function assessTemperature(
       };
     }
   } else if (ageMonths < 6) {
-    if (f >= 101) {
+    if (atLeast(101, 38.3)) {
       return {
         tier: "today",
         title: "Fever: call your pediatrician",
         body: "For a baby 3–6 months old, call your pediatrician for advice at 101°F (38.3°C) or higher, and sooner if she's hard to wake, won't feed, or is breathing hard.",
       };
     }
-  } else if (f >= 102) {
+  } else if (atLeast(102, 38.9)) {
     return {
       tier: "mention",
       title: "Fever",

@@ -1,11 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import {
   checkAdminPassword,
-  cookieOptions,
   ensureAdminMember,
   isPasswordConfigured,
-  sealSession,
-  SESSION_COOKIE,
+  setSessionCookies,
 } from "@/lib/maple/auth";
 import { checkUploadRateLimit } from "@/lib/rate-limit";
 import { captureServerException } from "@/lib/posthog-server";
@@ -35,7 +33,7 @@ export async function POST(request: NextRequest) {
     if (!member) return NextResponse.json({ error: "Maple's log is offline right now" }, { status: 503 });
 
     const res = NextResponse.json({ ok: true, member });
-    res.cookies.set(SESSION_COOKIE, sealSession(member.email), cookieOptions);
+    setSessionCookies(res, member.email);
     return res;
   } catch (error) {
     await captureServerException(error, { route: "POST /api/maple/auth/password" });

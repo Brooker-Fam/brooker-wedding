@@ -123,6 +123,8 @@ export function useNow(intervalMs = 1000): Date {
 const UNITS_KEY = "maple-units";
 const OUTBOX_KEY = "maple-outbox-v1";
 const POLL_MS = 10_000;
+/** Back after this long → refresh "While you slept" from the server. */
+const AWAY_MS = 3 * 3600_000;
 
 export class ApiError extends Error {
   constructor(message: string, readonly status: number, readonly body: unknown) {
@@ -199,6 +201,7 @@ export function MapleProvider({ children }: { children: ReactNode }) {
   const inflight = useRef(0);
   const flushing = useRef(false);
   const seenRef = useRef(false);
+  const lastPollRef = useRef(0);
   const tzRef = useRef("America/New_York");
 
   useEffect(() => {
@@ -208,7 +211,11 @@ export function MapleProvider({ children }: { children: ReactNode }) {
     } catch {
       // storage blocked
     }
-    setOutbox(readOutbox());
+    const queued = readOutbox();
+    setOutbox(queued);
+    // Queued entries keep their temporary (negative) ids across reloads; new
+    // ones must not reuse them.
+    for (const i of queued) tempId = Math.min(tempId, i.entry.id - 1);
     setOnline(typeof navigator === "undefined" ? true : navigator.onLine !== false);
   }, []);
 
@@ -272,14 +279,21 @@ export function MapleProvider({ children }: { children: ReactNode }) {
       const res = await fetchJson<MapleState | MapleStateUnchanged>(`/api/maple/state${qs}`);
       syncClock(res.now);
       setOnline(true);
-      if ("unchanged" in res) return;
+      if ("unchanged" in res) {
+        lastPollRef.current = Date.now();
+        return;
+      }
       if (inflight.current > 0) return;
       revRef.current = res.rev;
       tzRef.current = res.baby.timezone;
-      if (!seenRef.current) {
+      // "While you slept": the previous visit as of the first poll, and again
+      // whenever the app comes back after a long time in the background.
+      const away = Date.now() - lastPollRef.current >= AWAY_MS;
+      if (!seenRef.current || away) {
         seenRef.current = true;
         setSeenAt(res.seen_at);
       }
+      lastPollRef.current = Date.now();
       setState(withPending(res, outboxRef.current));
       setStatus("ready");
       setError(null);
@@ -302,43 +316,61 @@ export function MapleProvider({ children }: { children: ReactNode }) {
     await refresh();
   }, [refresh]);
 
-  /** Send anything waiting in the outbox; keep what still fails. */
+  /** Replace the outbox everywhere at once (state, storage, ref). */
+  const setQueue = useCallback((items: OutboxItem[]) => {
+    setOutbox(items);
+    writeOutbox(items);
+    outboxRef.current = items;
+  }, []);
+
+  /**
+   * Send anything waiting in the outbox. Entries can be queued or removed
+   * while a slow request is in flight, so the result is applied to the
+   * current queue by client_id, never by replacing it wholesale.
+   */
   const flush = useCallback(async () => {
     if (flushing.current || !outboxRef.current.length) return;
     flushing.current = true;
-    let changed = false;
+    const done = new Set<string>();
+    const bumped = new Set<string>();
     try {
-      const remaining: OutboxItem[] = [];
-      for (const item of outboxRef.current) {
+      for (const item of [...outboxRef.current]) {
+        // Removed from the queue while we were busy (the parent deleted it).
+        if (!outboxRef.current.some((i) => i.client_id === item.client_id)) continue;
         try {
           await fetchJson("/api/maple/entries", { method: "POST", body: JSON.stringify(item.input) });
-          changed = true;
+          done.add(item.client_id);
         } catch (e) {
-          if (isTransient(e)) remaining.push({ ...item, tries: item.tries + 1 });
+          if (isTransient(e)) bumped.add(item.client_id);
           else {
-            changed = true;
+            done.add(item.client_id);
             toast(`Couldn't save an earlier entry: ${(e as Error).message}`, { tone: "error", duration: 8000 });
           }
         }
       }
-      setOutbox(remaining);
-      writeOutbox(remaining);
-      outboxRef.current = remaining;
-      if (changed) {
+      setQueue(
+        outboxRef.current
+          .filter((i) => !done.has(i.client_id))
+          .map((i) => (bumped.has(i.client_id) ? { ...i, tries: i.tries + 1 } : i))
+      );
+      if (done.size) {
         setOnline(true);
         await forceRefresh();
       }
     } finally {
       flushing.current = false;
     }
-  }, [forceRefresh, toast]);
+  }, [forceRefresh, setQueue, toast]);
 
   useEffect(() => {
     void refresh();
   }, [refresh]);
   useVisiblePoll(() => {
     void flush();
-    void refresh();
+    // Back after hours away: ask for a full snapshot (not just "unchanged") so
+    // the "While you slept" recap gets this member's previous visit.
+    if (Date.now() - lastPollRef.current >= AWAY_MS) void forceRefresh();
+    else void refresh();
   }, POLL_MS);
 
   useEffect(() => {
@@ -436,10 +468,7 @@ export function MapleProvider({ children }: { children: ReactNode }) {
       // Still in the outbox: just drop it locally.
       const queued = outboxRef.current.find((i) => i.entry.id === id);
       if (queued) {
-        const remaining = outboxRef.current.filter((i) => i !== queued);
-        setOutbox(remaining);
-        writeOutbox(remaining);
-        outboxRef.current = remaining;
+        setQueue(outboxRef.current.filter((i) => i.client_id !== queued.client_id));
         dropEntry(id);
         toast(opts.toast ?? "Removed", { emoji: "🍂" });
         return;
@@ -455,7 +484,7 @@ export function MapleProvider({ children }: { children: ReactNode }) {
         void forceRefresh();
       }
     },
-    [dropEntry, forceRefresh, patchEntries, restore, toast, withInflight]
+    [dropEntry, forceRefresh, patchEntries, restore, setQueue, toast, withInflight]
   );
 
   const log = useCallback<MapleContextValue["log"]>(
@@ -496,10 +525,7 @@ export function MapleProvider({ children }: { children: ReactNode }) {
       } catch (e) {
         if (isTransient(e)) {
           // Keep it: it'll sync when the connection is back.
-          const items = [...outboxRef.current, { client_id, input: body, entry: optimistic, tries: 1 }];
-          setOutbox(items);
-          writeOutbox(items);
-          outboxRef.current = items;
+          setQueue([...outboxRef.current, { client_id, input: body, entry: optimistic, tries: 1 }]);
           setOnline(false);
           toast("Saved on this phone · will sync when you're back online", { emoji: "🍂", tone: "info" });
           return optimistic;
@@ -511,7 +537,7 @@ export function MapleProvider({ children }: { children: ReactNode }) {
         void forceRefresh();
       }
     },
-    [dropEntry, forceRefresh, now, remove, state, toast, upsert, withInflight]
+    [dropEntry, forceRefresh, now, remove, setQueue, state, toast, upsert, withInflight]
   );
 
   const update = useCallback<MapleContextValue["update"]>(
@@ -537,6 +563,12 @@ export function MapleProvider({ children }: { children: ReactNode }) {
 
   const timer = useCallback<MapleContextValue["timer"]>(
     async (input) => {
+      // A timer that hasn't reached the server yet has a temporary id; acting
+      // on it would 400 and lose the tap.
+      if (input.id != null && input.id < 0) {
+        toast("One sec, that timer is still starting", { emoji: "⏳", tone: "info" });
+        return null;
+      }
       // Optimistic: reflect the change immediately; the server answer replaces it.
       const at = input.at ? new Date(input.at) : now();
       const body: TimerInput = input.action === "start" ? { ...input, client_id: input.client_id ?? newClientId() } : input;
@@ -598,7 +630,16 @@ export function MapleProvider({ children }: { children: ReactNode }) {
           toast(who ? `${who} already stopped it${when}` : `Already stopped${when}`, { emoji: "🍃", tone: "info" });
           return cur ?? null;
         }
-        toast(e instanceof Error ? e.message : "Timer hiccup, try again", { tone: "error" });
+        if (!(e instanceof ApiError)) {
+          // Timers need the server's clock, so they aren't queued like entries.
+          setOnline(false);
+          toast("Didn't save: you're offline. Tap again when you're back online, or log it afterwards.", {
+            tone: "error",
+            duration: 8000,
+          });
+          return null;
+        }
+        toast(e.message || "Timer hiccup, try again", { tone: "error" });
         return null;
       } finally {
         void forceRefresh();

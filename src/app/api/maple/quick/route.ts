@@ -2,7 +2,7 @@ import { NextRequest } from "next/server";
 import { errorResponse, json } from "@/lib/maple/api";
 import { listMembers, memberFor } from "@/lib/maple/auth";
 import { describeEntry } from "@/lib/maple/describe";
-import { VITAMIN_D_DEFAULT } from "@/lib/maple/guidelines";
+import { TIER_LABEL, VITAMIN_D_DEFAULT } from "@/lib/maple/guidelines";
 import { summarize } from "@/lib/maple/insights";
 import {
   activeTimers,
@@ -142,7 +142,7 @@ export async function POST(request: NextRequest) {
       }
       case "status": {
         const [entries, growth, members, lifetime] = await Promise.all([
-          listEntries({ babyId: baby.id, from: new Date(now.getTime() - 48 * 3600_000), includeActive: true }),
+          listEntries({ babyId: baby.id, from: new Date(now.getTime() - 72 * 3600_000), includeActive: true }),
           listEntries({ babyId: baby.id, kinds: ["growth"], ascending: true }),
           listMembers(),
           lifetimeCounts(baby.id),
@@ -165,7 +165,8 @@ export async function POST(request: NextRequest) {
         if (others.length) bits.push(`A ${others.map((e) => (e.kind === "tummy" ? "tummy time" : e.kind)).join(" and ")} timer is running.`);
         if (s.vitaminD) bits.push("Vitamin D is done today.");
         const urgent = s.alerts.find((a) => a.tier === "emergency" || a.tier === "now" || a.tier === "today");
-        if (urgent) bits.push(`${urgent.title}.`);
+        // Say who to call, not just what happened ("Call your pediatrician now: No wet diaper in 8 hours.").
+        if (urgent) bits.push(`${TIER_LABEL[urgent.tier]}: ${urgent.title.replace(/[.:]?$/, "")}.`);
         speak = bits.join(" ");
         break;
       }

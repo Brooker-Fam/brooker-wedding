@@ -9,6 +9,7 @@ import type { EntryOf, FeedData, Side } from "@/lib/maple/types";
 import { Chip, Segmented, Sheet, TimeRange, WhenField, cx, tone } from "../ui";
 import type { SheetProps } from "./index";
 import {
+  CHECK_NUMBER_HINT,
   ContextNote,
   Label,
   LoggedBy,
@@ -20,9 +21,10 @@ import {
   presetStart,
   pnum,
   pstr,
+  useNumberChecks,
   useOpenCount,
   useSheetBase,
-  withNulls,
+  useTouched,
 } from "./parts";
 
 /**
@@ -66,6 +68,8 @@ function FeedForm({ open, onClose, entry, preset }: SheetProps) {
   const [note, setNote] = useState(e?.note ?? pstr(preset, "note") ?? "");
   const [busy, setBusy] = useState(false);
   const fromPreset = presetStart(preset);
+  const checks = useNumberChecks();
+  const { touched, touch } = useTouched();
 
   // ── Nursing ──
   const totals = e && e.data.method === "breast" ? feedTotals(e.data, now()) : null;
@@ -170,8 +174,12 @@ function FeedForm({ open, onClose, entry, preset }: SheetProps) {
     const noteVal = note.trim() || null;
     if (running) return { note: noteVal };
     if (method === "bottle") {
+      // Only what was changed: the amount shows rounded (¼ oz / 5 ml), so re-sending it would drift.
+      const data: Record<string, unknown> = {};
+      if (touched.amount) data.amount_ml = amountMl ?? null;
+      if (touched.milk) data.milk = milk ?? null;
       return {
-        data: withNulls({ amount_ml: amountMl, milk }, ["amount_ml", "milk"]),
+        data: Object.keys(data).length ? data : undefined,
         started_at: when && when.getTime() !== Date.parse(e.started_at) ? when.toISOString() : undefined,
         note: noteVal,
       };
@@ -219,8 +227,8 @@ function FeedForm({ open, onClose, entry, preset }: SheetProps) {
           onPrimary={() => void save()}
           label={primary}
           busy={busy}
-          disabled={!!e && e.id < 0}
-          hint={e && e.id < 0 ? "Still syncing, so it can't be edited yet." : undefined}
+          disabled={(!!e && e.id < 0) || (!running && checks.invalid)}
+          hint={!running && checks.invalid ? CHECK_NUMBER_HINT : e && e.id < 0 ? "Still syncing, so it can't be edited yet." : undefined}
         />
       }
     >
@@ -245,8 +253,8 @@ function FeedForm({ open, onClose, entry, preset }: SheetProps) {
           {method === "breast" ? (
             <>
               <div className="grid grid-cols-2 gap-3">
-                <MiniStepper label="Left" unit="min" ariaLabel="minutes on the left" value={left} onChange={(v) => setMinutes(v, right)} max={240} />
-                <MiniStepper label="Right" unit="min" ariaLabel="minutes on the right" value={right} onChange={(v) => setMinutes(left, v)} max={240} />
+                <MiniStepper key="left" label="Left" unit="min" ariaLabel="minutes on the left" value={left} onChange={(v) => setMinutes(v, right)} max={240} onInvalid={checks.watch("left")} />
+                <MiniStepper key="right" label="Right" unit="min" ariaLabel="minutes on the right" value={right} onChange={(v) => setMinutes(left, v)} max={240} onInvalid={checks.watch("right")} />
               </div>
               <div>
                 <Label>Started on</Label>
@@ -274,18 +282,30 @@ function FeedForm({ open, onClose, entry, preset }: SheetProps) {
             <>
               <div>
                 <MiniStepper
+                  key="amount"
                   label="Amount"
                   unit={units === "metric" ? "ml" : "oz"}
                   ariaLabel={units === "metric" ? "millilitres" : "ounces"}
                   value={amount}
-                  onChange={setAmount}
+                  onChange={(v) => {
+                    touch("amount");
+                    setAmount(v);
+                  }}
+                  onInvalid={checks.watch("amount")}
                   step={units === "metric" ? 5 : 0.5}
                   decimals={units === "metric" ? 0 : 2}
                   max={units === "metric" ? 500 : 16}
                 />
                 <div className="mt-2 flex flex-wrap gap-2">
                   {chips.map((c) => (
-                    <Chip key={c} selected={amount === c} onClick={() => setAmount(c)}>
+                    <Chip
+                      key={c}
+                      selected={amount === c}
+                      onClick={() => {
+                        touch("amount");
+                        setAmount(c);
+                      }}
+                    >
                       {c} {units === "metric" ? "ml" : "oz"}
                     </Chip>
                   ))}
@@ -303,7 +323,14 @@ function FeedForm({ open, onClose, entry, preset }: SheetProps) {
                   <Label>Milk</Label>
                   <div className="flex flex-wrap gap-2">
                     {(Object.keys(MILK_LABEL) as Milk[]).map((m) => (
-                      <Chip key={m} selected={milk === m} onClick={() => setMilk(milk === m ? undefined : m)}>
+                      <Chip
+                        key={m}
+                        selected={milk === m}
+                        onClick={() => {
+                          touch("milk");
+                          setMilk(milk === m ? undefined : m);
+                        }}
+                      >
                         {MILK_LABEL[m]}
                       </Chip>
                     ))}

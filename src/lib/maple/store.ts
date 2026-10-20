@@ -109,33 +109,47 @@ export type BabyPatch = Partial<
     | "birth_length_cm"
     | "birth_head_cm"
     | "timezone"
-    | "settings"
   >
->;
+> & {
+  /** Settings keys to set (shallow); a null value removes the key. */
+  settings?: Record<string, unknown>;
+};
 
+const BABY_FIELDS = [
+  "name",
+  "nickname",
+  "due_date",
+  "born_at",
+  "birth_weight_g",
+  "birth_length_cm",
+  "birth_head_cm",
+  "timezone",
+] as const;
+
+/**
+ * Update only the fields given, and merge settings in SQL, so two parents
+ * saving different things at once (a birth time, an alert ack) both stick.
+ */
 export async function updateBaby(id: number, patch: BabyPatch): Promise<Baby> {
-  const cur = await getBaby();
-  if (cur.id !== id) throw new NotFound("Baby not found");
-  const next = { ...cur, ...patch };
+  const sets: string[] = [];
+  const params: unknown[] = [id];
+  for (const f of BABY_FIELDS) {
+    if (!(f in patch)) continue;
+    let v = patch[f] ?? null;
+    if (f === "birth_weight_g" && typeof v === "number") v = Math.round(v);
+    params.push(v);
+    sets.push(`${f} = $${params.length}${f === "due_date" ? "::date" : ""}`);
+  }
+  if (patch.settings) {
+    params.push(JSON.stringify(patch.settings));
+    sets.push(`settings = jsonb_strip_nulls(settings || $${params.length}::jsonb)`);
+  }
   const rows = await q(
-    `UPDATE maple_babies SET
-       name = $2, nickname = $3, due_date = $4::date, born_at = $5,
-       birth_weight_g = $6, birth_length_cm = $7, birth_head_cm = $8,
-       timezone = $9, settings = $10::jsonb, updated_at = NOW()
+    `UPDATE maple_babies SET ${[...sets, "updated_at = NOW()"].join(", ")}
      WHERE id = $1 RETURNING ${BABY_COLS}`,
-    [
-      id,
-      next.name,
-      next.nickname,
-      next.due_date,
-      next.born_at,
-      next.birth_weight_g == null ? null : Math.round(next.birth_weight_g),
-      next.birth_length_cm,
-      next.birth_head_cm,
-      next.timezone,
-      JSON.stringify(next.settings ?? {}),
-    ]
+    params
   );
+  if (!rows.length) throw new NotFound("Baby not found");
   return rowToBaby(rows[0]);
 }
 
@@ -152,6 +166,8 @@ export type ListOptions = {
   limit?: number;
   /** Oldest first instead of newest first. */
   ascending?: boolean;
+  /** Keyset paging (ascending only): rows strictly after this (started_at, id). */
+  after?: { startedAt: string; id: number };
 };
 
 export async function listEntries(opts: ListOptions): Promise<Entry[]> {
@@ -164,6 +180,7 @@ export async function listEntries(opts: ListOptions): Promise<Entry[]> {
          AND ($4::timestamptz IS NULL OR started_at < $4::timestamptz)
          OR ($5::boolean AND active)
        )
+       AND ($7::timestamptz IS NULL OR (started_at, id) > ($7::timestamptz, $8::bigint))
      ORDER BY started_at ${opts.ascending ? "ASC" : "DESC"}, id ${opts.ascending ? "ASC" : "DESC"}
      LIMIT $6`,
     [
@@ -173,6 +190,8 @@ export async function listEntries(opts: ListOptions): Promise<Entry[]> {
       opts.to ? opts.to.toISOString() : null,
       Boolean(opts.includeActive),
       Math.min(Math.max(opts.limit ?? 2000, 1), 5000),
+      opts.after?.startedAt ?? null,
+      opts.after?.id ?? 0,
     ]
   );
   return rows.map(rowToEntry);
@@ -320,19 +339,41 @@ export async function updateEntry(id: number, patch: EntryPatch, by?: string): P
   }
   const note = patch.note !== undefined ? (patch.note?.trim() ? patch.note.trim().slice(0, 2000) : null) : cur.note;
 
+  // Only write if the timer state is still what we read: if the other phone
+  // just stopped (or switched) it, don't stomp on that with stale data.
   const rows = await q(
     `UPDATE maple_entries SET started_at = $2, ended_at = $3, data = $4::jsonb, note = $5,
        updated_by = COALESCE($6, updated_by), updated_at = NOW()
-     WHERE id = $1 AND deleted_at IS NULL RETURNING *`,
-    [id, startedAt.toISOString(), endedAt ? endedAt.toISOString() : null, JSON.stringify(data), note, by ?? null]
+     WHERE id = $1 AND deleted_at IS NULL AND active = $7
+       -- JS dates carry milliseconds; the column has microseconds.
+       AND updated_at BETWEEN $8::timestamptz - INTERVAL '1 millisecond' AND $8::timestamptz + INTERVAL '1 millisecond'
+     RETURNING *`,
+    [
+      id,
+      startedAt.toISOString(),
+      endedAt ? endedAt.toISOString() : null,
+      JSON.stringify(data),
+      note,
+      by ?? null,
+      cur.active,
+      cur.updated_at,
+    ]
   );
-  if (!rows.length) throw new NotFound(`Entry ${id} not found`);
+  if (!rows.length) {
+    const now = await getEntry(id);
+    if (!now) throw new NotFound(`Entry ${id} not found`);
+    throw new Conflict("Someone else just changed this. Have another look and try again.", now);
+  }
   return rowToEntry(rows[0]);
 }
 
+/**
+ * Soft delete. A running timer keeps `active` (the running-timer index ignores
+ * deleted rows), so Undo brings it back still running.
+ */
 export async function softDeleteEntry(id: number, by?: string): Promise<Entry> {
   const rows = await q(
-    `UPDATE maple_entries SET deleted_at = NOW(), active = FALSE, updated_by = COALESCE($2, updated_by), updated_at = NOW()
+    `UPDATE maple_entries SET deleted_at = NOW(), updated_by = COALESCE($2, updated_by), updated_at = NOW()
      WHERE id = $1 AND deleted_at IS NULL RETURNING *`,
     [id, by ?? null]
   );
@@ -533,6 +574,7 @@ export async function reopenTimer(id: number, by?: string): Promise<Entry> {
 // ── members ───────────────────────────────────────────────────────────
 
 export async function addMember(email: string, addedBy: string, emoji: string, role: "member" | "viewer" = "member"): Promise<void> {
+  await q(`DELETE FROM maple_removed WHERE email = $1`, [email]);
   await q(
     `INSERT INTO maple_members (email, role, emoji, added_by) VALUES ($1, $2, $3, $4)
      ON CONFLICT (email) DO NOTHING`,
@@ -540,9 +582,25 @@ export async function addMember(email: string, addedBy: string, emoji: string, r
   );
 }
 
-export async function removeMember(email: string): Promise<boolean> {
+/**
+ * Remove someone: their session, MCP tokens and Siri tokens stop working at
+ * once, and a tombstone keeps an allowlisted address from simply signing back
+ * in with Google. Inviting them again (addMember) lifts it.
+ */
+export async function removeMember(email: string, by: string): Promise<boolean> {
   const rows = await q(`DELETE FROM maple_members WHERE email = $1 AND role <> 'owner' RETURNING email`, [email]);
-  return rows.length > 0;
+  if (!rows.length) return false;
+  await q(`UPDATE maple_tokens SET revoked_at = NOW() WHERE member = $1 AND revoked_at IS NULL`, [email]);
+  await q(
+    `INSERT INTO maple_removed (email, removed_by) VALUES ($1, $2)
+     ON CONFLICT (email) DO UPDATE SET removed_at = NOW(), removed_by = EXCLUDED.removed_by`,
+    [email, by]
+  );
+  return true;
+}
+
+export async function wasRemoved(email: string): Promise<boolean> {
+  return (await q(`SELECT 1 FROM maple_removed WHERE email = $1`, [email])).length > 0;
 }
 
 export async function updateMember(

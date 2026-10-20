@@ -113,7 +113,9 @@ export type Summary = {
   totals: { diapers: number; feeds: number };
 };
 
-export const isVitaminD = (name: string) => /vit(amin)?\.?\s*d|d[- ]?vi[- ]?sol|sunshine/i.test(name);
+/** Vitamin D by name, including common US drop brands (Ddrops, D-Vi-Sol, Tri-/Poly-Vi-Sol, "D3 drops"). */
+export const isVitaminD = (name: string) =>
+  /vit(amin)?[\s.-]*d\b|vit(amin)?[\s.-]*d3|\bd3\b|\bd\s*drops?\b|ddrops|(d|tri|poly)[- ]?vi[- ]?sol|cholecalciferol|sunshine/i.test(name);
 
 function emptyStats(key: string): DayStats {
   return {
@@ -363,24 +365,37 @@ export function summarize(opts: {
     }
     if (worstTemp) push(`temp-${worstTemp.e.id}`, worstTemp.a, worstTemp.e.id);
 
-    // Vitals and skin checks: newest of each in the last 12 hours.
-    const lastVitals = newest(entries, "vitals", (e) => e.data.heart_bpm != null || e.data.resp_rate != null || e.data.spo2 != null);
-    if (lastVitals && nowMs - ts(lastVitals) < 12 * H) {
-      const prev = previousOf(entries, lastVitals, (e) => e.data.heart_bpm != null || e.data.resp_rate != null || e.data.spo2 != null);
-      assessVitals(lastVitals.data, months, prev ? { ...prev.data, minutesBefore: (ts(lastVitals) - ts(prev)) / 60000 } : null).forEach(
-        (a, i) => push(`vitals-${lastVitals.id}-${i}`, a, lastVitals.id)
-      );
+    // Vitals: each measure on its own, so a heart-rate-only entry can't hide
+    // an earlier oxygen reading. Its "recheck" baseline is the previous
+    // reading of that same measure.
+    for (const f of ["spo2", "resp_rate", "heart_bpm"] as const) {
+      const has = (e: EntryOf<"vitals">) => e.data[f] != null;
+      for (const e of ofKind(entries, "vitals")) {
+        if (!has(e) || nowMs - ts(e) >= 12 * H || ts(e) > nowMs) continue;
+        const prev = previousOf(entries, e, has);
+        assessVitals(
+          { [f]: e.data[f] },
+          months,
+          prev ? { [f]: prev.data[f], minutesBefore: (ts(e) - ts(prev)) / 60000 } : null
+        ).forEach((a) => push(`vitals-${e.id}-${f}`, a, e.id));
+      }
     }
-    const lastSkin = newest(entries, "vitals", (e) => e.data.jaundice != null);
-    if (lastSkin && nowMs - ts(lastSkin) < 48 * H) {
-      const prev = previousOf(entries, lastSkin, (e) => e.data.jaundice != null);
+    // Skin checks: the most urgent in the last 48 hours (a later "looks fine"
+    // shouldn't quietly clear a call-now; "We called" does).
+    let worstSkin: { e: EntryOf<"vitals">; a: NonNullable<ReturnType<typeof assessJaundice>> } | null = null;
+    for (const e of ofKind(entries, "vitals")) {
+      if (e.data.jaundice == null || nowMs - ts(e) >= 48 * H || ts(e) > nowMs) continue;
+      const prev = previousOf(entries, e, (x) => x.data.jaundice != null);
       const a = assessJaundice(
-        lastSkin.data.jaundice!,
-        (ts(lastSkin) - Date.parse(baby.born_at!)) / H,
-        prev ? { level: prev.data.jaundice!, minutesBefore: (ts(lastSkin) - ts(prev)) / 60000 } : null
+        e.data.jaundice,
+        (ts(e) - Date.parse(baby.born_at!)) / H,
+        prev ? { level: prev.data.jaundice!, minutesBefore: (ts(e) - ts(prev)) / 60000 } : null
       );
-      if (a) push(`skin-${lastSkin.id}`, a, lastSkin.id);
+      if (!a) continue;
+      const worse = !worstSkin || ALERT_TIERS.indexOf(a.tier) < ALERT_TIERS.indexOf(worstSkin.a.tier);
+      if (worse || (a.tier === worstSkin!.a.tier && ts(e) > ts(worstSkin!.e))) worstSkin = { e, a };
     }
+    if (worstSkin) push(`skin-${worstSkin.e.id}`, worstSkin.a, worstSkin.e.id);
   }
 
   // Stool color flags (last 48 hours).
@@ -392,39 +407,49 @@ export function summarize(opts: {
     else if (e.data.color === "black" && hoursOld >= 96) push(`black-${e.id}`, LATE_BLACK_STOOL, e.id);
   }
 
+  // Episode alerts get an id suffix (the entry or day they're about), so
+  // "We called" quiets this episode only, never the next one.
   if (age && born && targets) {
     const bornMs = Date.parse(baby.born_at!);
+    const diapersSinceBirth = ofKind(entries, "diaper").filter((e) => ts(e) >= bornMs && ts(e) <= nowMs);
 
-    // Pee.
-    if (ageHours >= 24 && !ofKind(entries, "diaper").some((e) => e.data.pee && ts(e) >= bornMs) && loggedSince(bornMs) >= 3) {
+    // Pee. The 24-hour rule only applies while the loaded window reaches
+    // back to birth, and only when diapers are actually being logged.
+    if (ageHours >= 24 && ageHours < 72 && diapersSinceBirth.length >= 2 && !diapersSinceBirth.some((e) => e.data.pee)) {
       push("no-pee-24h", {
         tier: "now",
         title: "No wet diaper logged yet",
         body: "Babies should pee by 24 hours of life. If she really hasn't, call your pediatrician (or tell your nurse) now.",
       });
     } else if (age.dayOfLife >= 3 && lastPee && nowMs - ts(lastPee) > 8 * H && loggedSince(nowMs - 8 * H) >= 2) {
-      push("no-pee-8h", {
+      push(`no-pee-8h:${lastPee.id}`, {
         tier: "now",
         title: "No wet diaper in 8 hours",
         body: "No wet diaper in 8 hours can mean she needs more milk. Please call your pediatrician now, especially if her pee was dark or her mouth looks dry.",
       });
-    } else if (ageHours >= 48 && loggingFor24h && last24h.wet < targets.wet) {
-      push("low-wet", {
-        tier: "today",
-        title: `${last24h.wet} wet diaper${last24h.wet === 1 ? "" : "s"} in the last 24 hours`,
-        body: `Around Day ${age.dayOfLife} expect at least ${targets.wet}. Offer feeds often and give your pediatrician a call today.`,
-      });
+    } else if (ageHours >= 48 && loggingFor24h) {
+      // The last 24 hours are mostly the previous day of life: judge them
+      // against that day's minimum, not the higher one just starting.
+      const covered = age.dayOfLife - 1;
+      const wetTarget = diaperTargets(covered).wet;
+      if (last24h.wet < wetTarget) {
+        push(`low-wet:${age.dayOfLife}`, {
+          tier: "today",
+          title: `${last24h.wet} wet diaper${last24h.wet === 1 ? "" : "s"} in the last 24 hours`,
+          body: `The last 24 hours were mostly Day ${covered}, when babies usually have at least ${wetTarget} wet diapers. Offer feeds often and give your pediatrician a call today.`,
+        });
+      }
     }
 
     // Poop.
     if (age.dayOfLife >= 2 && age.dayOfLife <= 4 && loggingFor24h && last24h.dirty === 0) {
-      push("no-stool-24h", {
+      push(`no-stool-24h:${age.dayOfLife}`, {
         tier: "today",
         title: "No poop in the last 24 hours",
         body: "In the first days babies should poop at least a couple of times a day as the meconium clears. Call your pediatrician within the day.",
       });
     } else if (age.dayOfLife >= 6 && age.dayOfLife <= 42 && loggingFor24h && targets.dirty && last24h.dirty < targets.dirty) {
-      push("low-stool", {
+      push(`low-stool:${age.dayOfLife}`, {
         tier: "today",
         title: `${last24h.dirty} poop${last24h.dirty === 1 ? "" : "s"} in the last 24 hours`,
         body: "From about Day 5 to 6 weeks, breastfed babies usually have 3 or more yellow poops a day. Fewer can mean she needs more milk: call your pediatrician within the day.",
@@ -436,16 +461,16 @@ export function summarize(opts: {
     const nursingNow = active.some((e) => e.kind === "feed");
     const hour = localParts(now, tz).hour;
     const isNight = hour >= 22 || hour < 7;
-    if (minutesSinceFeed != null && !nursingNow && !(rule.nightsOff && isNight)) {
+    if (lastFeed && minutesSinceFeed != null && !nursingNow && !(rule.nightsOff && isNight)) {
       const gap = `${Math.floor(minutesSinceFeed / 60)}h ${String(minutesSinceFeed % 60).padStart(2, "0")}m`;
       if (rule.firmMin && minutesSinceFeed >= rule.firmMin) {
-        push("feed-gap", {
+        push(`feed-gap:${lastFeed.id}:firm`, {
           tier: "nudge",
           title: `${gap} since her last feed`,
           body: "Please wake her to feed: undress her, change her diaper, or try skin-to-skin. If she's too sleepy to feed, call your pediatrician.",
         });
       } else if (minutesSinceFeed >= rule.nudgeMin) {
-        push("feed-gap", {
+        push(`feed-gap:${lastFeed.id}`, {
           tier: "nudge",
           title: `${gap} since her last feed`,
           body: rule.firmMin
@@ -454,41 +479,43 @@ export function summarize(opts: {
         });
       }
     }
-    if (age.days >= 1 && loggingFor24h && last24h.feeds < FEEDS_PER_DAY[0] && !alerts.some((a) => a.id === "feed-gap")) {
-      push("few-feeds", {
+    if (age.days >= 1 && loggingFor24h && last24h.feeds < FEEDS_PER_DAY[0] && !alerts.some((a) => a.id.startsWith("feed-gap"))) {
+      push(`few-feeds:${age.dayOfLife}`, {
         tier: "nudge",
         title: `${last24h.feeds} feed${last24h.feeds === 1 ? "" : "s"} in the last 24 hours`,
         body: "Aim for 8–12 feeds a day. If she's hard to wake, not interested in feeding, or you're worried she's not getting enough, call your pediatrician or lactation consultant.",
       });
     }
 
-    // Weight.
-    if (weight?.changePct != null && weight.changePct <= -WEIGHT_LOSS_CALL_PCT) {
-      push("weight-10", {
+    // Weight, from a recent weighing only (an old discharge weight says
+    // nothing about today).
+    const latest = weights[weights.length - 1];
+    const weightFresh = latest && nowMs - ts(latest) <= 5 * 24 * H;
+    if (weightFresh && weight?.changePct != null && weight.changePct <= -WEIGHT_LOSS_CALL_PCT) {
+      push(`weight-10:${latest.id}`, {
         tier: "today",
         title: `Down ${Math.abs(weight.changePct)}% from birth weight`,
         body: `Maple has lost ${Math.abs(weight.changePct)}% of her birth weight. That's more than expected, so please call your pediatrician today.`,
       });
-    } else if (weight?.changePct != null && weight.changePct <= -WEIGHT_LOSS_CHECK_PCT) {
-      push("weight-7", {
+    } else if (weightFresh && weight?.changePct != null && weight.changePct <= -WEIGHT_LOSS_CHECK_PCT) {
+      push(`weight-7:${latest.id}`, {
         tier: "mention",
         title: `Down ${Math.abs(weight.changePct)}% from birth weight`,
         body: "Most babies lose 5–7% before gaining. A bit more is worth a feeding check: let your pediatrician or a lactation consultant know.",
       });
     }
-    const afterDay5 = weights.filter((w) => ts(w) - bornMs >= 120 * H);
-    if (afterDay5.length >= 3) {
-      const [a, b, c] = afterDay5.slice(-3).map((w) => w.data.weight_g!);
-      if (c < b && b < a) {
-        push("still-losing", {
-          tier: "today",
-          title: "Still losing weight after Day 5",
-          body: "Babies usually start gaining around Day 5. Two drops in a row after that are worth a call to your pediatrician today.",
-        });
-      }
+    // Still losing after Day 5: the newest weighing (after 120 hours) is lower
+    // than the one before it, by more than a home scale's wobble.
+    const prevW = weights[weights.length - 2];
+    if (latest && prevW && ts(latest) - bornMs >= 120 * H && weightFresh && prevW.data.weight_g! - latest.data.weight_g! >= 30) {
+      push(`still-losing:${latest.id}`, {
+        tier: "today",
+        title: "Still losing weight after Day 5",
+        body: "Babies usually start gaining around Day 5. A drop after that is worth a call to your pediatrician today.",
+      });
     }
-    if (weight && weight.backToBirthWeight === false && age.days >= BIRTH_WEIGHT_REGAIN_DAY) {
-      push("regain-14", {
+    if (latest && weight && weight.backToBirthWeight === false && age.days >= BIRTH_WEIGHT_REGAIN_DAY && ts(latest) - bornMs >= 10 * 24 * H) {
+      push(`regain-14:${latest.id}`, {
         tier: "today",
         title: "Not back to birth weight yet",
         body: "Most babies are back to birth weight by about 2 weeks. Let's have your pediatrician take a look.",
@@ -497,7 +524,7 @@ export function summarize(opts: {
 
     // Sunshine drops reminder in the evening.
     if (!vitaminD && age.days >= 2 && hour >= 18 && settings.vitamin_d_reminder !== false) {
-      push("vitamin-d", {
+      push(`vitamin-d:${todayKey}`, {
         tier: "nudge",
         title: "Sunshine drops today?",
         body: "No vitamin D logged yet today. Pediatricians recommend 400 IU once a day for breastfed babies.",

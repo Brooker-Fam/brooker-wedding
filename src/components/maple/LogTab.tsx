@@ -84,59 +84,161 @@ export function mergeLive(history: Entry[], state: MapleState): Entry[] {
   return [...byId.values()].sort(byNewest);
 }
 
+// History is cached in fixed Monday–Sunday weeks, so paging back or switching
+// ranges only fetches weeks we don't have, and cache keys survive midnight.
+const CHUNK_DAYS = 7;
+const CHUNK_EPOCH = "2024-01-01"; // a Monday
+/** Weeks this close to today are refetched whenever anything changes (rev moves). */
+const RECENT_DAYS = 14;
+/** Older weeks are refreshed on a change at most this often (edits there are rare). */
+const STALE_MS = 5 * 60_000;
+const PAGE_LIMIT = 5000;
+const PARALLEL = 4;
+
+const chunkOf = (key: string) => Math.floor(daysBetween(CHUNK_EPOCH, key) / CHUNK_DAYS);
+const chunkFrom = (i: number) => addDays(CHUNK_EPOCH, i * CHUNK_DAYS);
+
+type Chunk = { entries: Entry[]; at: number; rev: string | undefined; partialDays: string[] };
+
+type Api = <T = unknown>(path: string, init?: RequestInit) => Promise<T>;
+
 /**
- * Entries for local days [fromKey, toKey], merged with live state. Re-fetches
- * when the range changes or the server's change token (state.rev) moves, and
- * keeps showing the previous data meanwhile.
+ * Every entry overlapping local days [from, to]. If the server says it hit its
+ * row cap, the range is split and each half paged, down to single days; a day
+ * that still overflows keeps its newest rows and is reported in partialDays.
+ */
+export async function fetchRange(api: Api, from: string, to: string): Promise<{ entries: Entry[]; partialDays: string[] }> {
+  const res = await api<{ entries: Entry[]; truncated?: boolean }>(`/api/maple/entries?from=${from}&to=${to}&limit=${PAGE_LIMIT}`);
+  const truncated = res.truncated ?? res.entries.length >= PAGE_LIMIT;
+  if (!truncated) return { entries: res.entries, partialDays: [] };
+  if (from === to) return { entries: res.entries, partialDays: [from] };
+  const mid = addDays(from, Math.floor(daysBetween(from, to) / 2));
+  const [a, b] = await Promise.all([fetchRange(api, from, mid), fetchRange(api, addDays(mid, 1), to)]);
+  return { entries: [...a.entries, ...b.entries], partialDays: [...a.partialDays, ...b.partialDays] };
+}
+
+/**
+ * Entries for local days [fromKey, toKey], merged with live state. Only weeks
+ * not yet loaded are fetched; when the server's change token (state.rev)
+ * moves, recent weeks refresh (older ones at most every few minutes), and the
+ * previous data stays on screen meanwhile.
  */
 export function useEntryRange(fromKey: string, toKey: string) {
   const { api, state } = useMaple();
-  const [history, setHistory] = useState<{ range: string; entries: Entry[] } | null>(null);
+  const [chunks, setChunks] = useState<Map<number, Chunk>>(() => new Map());
   const [error, setError] = useState<string | null>(null);
   const [attempt, setAttempt] = useState(0);
-  const loaded = useRef(false);
-  const failures = useRef(0);
+  const [fails, setFails] = useState(0);
+  const inflight = useRef(new Set<number>());
+  /** Weeks holding an entry someone opened (and may have edited or deleted): refresh on the next change. */
+  const dirty = useRef(new Set<number>());
+  const mounted = useRef(true);
   const rev = state?.rev;
-  const range = `${fromKey}|${toKey}`;
+  const tz = state?.baby.timezone ?? DEFAULT_TZ;
+  const first = chunkOf(fromKey);
+  const last = chunkOf(toKey);
 
   useEffect(() => {
-    let cancelled = false;
-    let retry: ReturnType<typeof setTimeout> | undefined;
-    // Debounce rev-triggered refetches (a burst of logs moves rev several times).
-    const t = setTimeout(
-      async () => {
-        try {
-          const res = await api<{ entries: Entry[] }>(`/api/maple/entries?from=${fromKey}&to=${toKey}&limit=5000`);
-          if (cancelled) return;
-          loaded.current = true;
-          failures.current = 0;
-          setHistory({ range: `${fromKey}|${toKey}`, entries: res.entries });
-          setError(null);
-        } catch (e) {
-          if (cancelled) return;
-          setError(e instanceof Error ? e.message : "Couldn't load the log");
-          // Flaky hospital Wi-Fi: try again a few times, backing off.
-          if (failures.current < 4) {
-            failures.current++;
-            retry = setTimeout(() => setAttempt((a) => a + 1), 1500 * 2 ** failures.current);
+    mounted.current = true;
+    return () => {
+      mounted.current = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    const now = Date.now();
+    const recent = chunkOf(addDays(toKey, -RECENT_DAYS));
+    const missing: number[] = [];
+    const stale: number[] = [];
+    for (let i = last; i >= first; i--) {
+      if (inflight.current.has(i)) continue;
+      const c = chunks.get(i);
+      if (!c) missing.push(i);
+      else if (c.rev !== rev && (i >= recent || dirty.current.has(i) || now - c.at > STALE_MS)) stale.push(i);
+    }
+
+    const load = (weeks: number[]) => {
+      weeks.forEach((i) => inflight.current.add(i));
+      // Newest weeks first, a few at a time; each lands as soon as it arrives.
+      const queue = [...weeks];
+      const worker = async () => {
+        for (let i = queue.shift(); i !== undefined; i = queue.shift()) {
+          try {
+            const from = chunkFrom(i);
+            const res = await fetchRange(api, from, addDays(from, CHUNK_DAYS - 1));
+            if (!mounted.current) return;
+            const chunk: Chunk = { entries: res.entries, at: Date.now(), rev, partialDays: res.partialDays };
+            dirty.current.delete(i);
+            setChunks((m) => new Map(m).set(i, chunk));
+            setError(null);
+            setFails(0);
+          } catch (e) {
+            if (!mounted.current) return;
+            setError(e instanceof Error ? e.message : "Couldn't load the log");
+            setFails((n) => n + 1);
+          } finally {
+            inflight.current.delete(i);
           }
         }
-      },
-      loaded.current ? 350 : 0
-    );
-    return () => {
-      cancelled = true;
-      clearTimeout(t);
-      if (retry) clearTimeout(retry);
+      };
+      void Promise.all(Array.from({ length: Math.min(PARALLEL, weeks.length) }, worker));
     };
-  }, [api, fromKey, toKey, rev, attempt]);
+
+    if (missing.length) load(missing);
+    if (!stale.length) return;
+    // Debounce refreshes: a burst of logs moves rev several times.
+    const t = setTimeout(() => load(stale), 400);
+    return () => clearTimeout(t);
+    // `chunks` is read to decide what's missing; fetched weeks carry the rev they were
+    // fetched at, so a re-run after they land is a no-op.
+  }, [api, chunks, first, last, rev, toKey, attempt]);
+
+  // Flaky hospital Wi-Fi: retry failed weeks a few times, backing off.
+  useEffect(() => {
+    if (!fails || fails > 4) return;
+    const t = setTimeout(() => setAttempt((a) => a + 1), 1500 * 2 ** fails);
+    return () => clearTimeout(t);
+  }, [fails]);
 
   const reload = useCallback(() => {
-    failures.current = 0;
+    setFails(0);
+    setError(null);
     setAttempt((a) => a + 1);
   }, []);
-  const entries = useMemo(() => (state ? mergeLive(history?.entries ?? [], state) : []), [history, state]);
-  return { entries, ready: history?.range === range, loaded: history !== null, error, reload };
+
+  /** Call before opening or restoring an entry, so its week refreshes on the next change. */
+  const touch = useCallback(
+    (e: Entry) => {
+      dirty.current.add(chunkOf(dayKey(Date.parse(e.started_at), tz)));
+      if (e.ended_at) dirty.current.add(chunkOf(dayKey(Date.parse(e.ended_at), tz)));
+    },
+    [tz]
+  );
+
+  let ready = true;
+  let any = false;
+  for (let i = first; i <= last; i++) {
+    if (chunks.has(i)) any = true;
+    else ready = false;
+  }
+  // Start of the loaded stretch ending today: while older weeks are still on their
+  // way, views stop here rather than drawing those days as empty.
+  let loadedFrom: string | null = null;
+  for (let i = last; i >= first && chunks.has(i); i--) loadedFrom = chunkFrom(i);
+  if (loadedFrom && loadedFrom < fromKey) loadedFrom = fromKey;
+  const entries = useMemo(() => {
+    if (!state) return [];
+    const all: Entry[] = [];
+    for (let i = first; i <= last; i++) all.push(...(chunks.get(i)?.entries ?? []));
+    return mergeLive(all, state); // also de-duplicates entries that span two weeks
+  }, [chunks, first, last, state]);
+  const partialDays = useMemo(() => {
+    const out: string[] = [];
+    for (let i = first; i <= last; i++) out.push(...(chunks.get(i)?.partialDays ?? []));
+    return out.filter((k) => k >= fromKey && k <= toKey);
+  }, [chunks, first, last, fromKey, toKey]);
+
+  return { entries, ready, loaded: any, loadedFrom, error, reload, partialDays, touch };
 }
 
 export type TimeWindow = { key: string; start: number; end: number };
@@ -202,7 +304,7 @@ export function requestTimelineDay(key: string) {
 // ── The tab ──────────────────────────────────────────────────────────────
 
 export default function LogTab() {
-  const { state, units } = useMaple();
+  const { state, units, readOnly } = useMaple();
   const now = useNow(60_000);
   const tz = state?.baby.timezone ?? DEFAULT_TZ;
   const todayKey = dayKey(now, tz);
@@ -218,7 +320,7 @@ export default function LogTab() {
   const [flash, setFlash] = useState<string | null>(null);
   const [scrollTarget, setScrollTarget] = useState<string | null>(null);
 
-  const { entries, ready, loaded, error, reload } = useEntryRange(oldestKey, todayKey);
+  const { entries, ready, loadedFrom, error, reload, partialDays, touch } = useEntryRange(oldestKey, todayKey);
 
   const hasPreBirth = useMemo(
     () => (bornAt ? entries.some((e) => Date.parse(e.started_at) < Date.parse(bornAt) - H) : false),
@@ -274,17 +376,19 @@ export default function LogTab() {
 
   const stats = useMemo(() => statsByDay(entries, oldestKey, todayKey, now, tz), [entries, oldestKey, todayKey, now, tz]);
 
+  const shownFrom = ready ? oldestKey : loadedFrom ?? todayKey;
   const days = useMemo(() => {
     const out: { key: string; rows: Entry[]; stats: DayStats; total: number }[] = [];
     for (let i = stats.length - 1; i >= 0; i--) {
       const k = stats[i].key;
+      if (k < shownFrom) break; // that week hasn't arrived yet
       const all = byDay.get(k) ?? [];
       const rows = group === "all" ? all : all.filter((e) => groupOf(e.kind) === group);
       if (!rows.length && k !== todayKey && k !== pinned) continue;
       out.push({ key: k, rows, stats: stats[i], total: all.length });
     }
     return out;
-  }, [stats, byDay, group, pinned, todayKey]);
+  }, [stats, byDay, group, pinned, todayKey, shownFrom]);
 
   // Scroll to a jumped-to day once its page has loaded.
   useEffect(() => {
@@ -322,7 +426,7 @@ export default function LogTab() {
 
   if (!state) return null;
   const running = state.entries.filter((e) => e.active);
-  const nothingAtAll = loaded && entries.length === 0;
+  const nothingAtAll = ready && entries.length === 0;
 
   return (
     <div className="px-4 pt-[max(1.25rem,env(safe-area-inset-top))]">
@@ -343,8 +447,15 @@ export default function LogTab() {
         ))}
       </div>
 
-      <RecentlyRemoved />
+      {!readOnly && <RecentlyRemoved onRestore={touch} />}
       <RunningNow entries={running} />
+
+      {partialDays.length > 0 && (
+        <p className={cx(tone.muted, "mb-4 rounded-2xl bg-[#C49A3C]/10 px-4 py-2.5 text-sm")} role="status">
+          {partialDays.map((k) => formatDayLabel(k, todayKey)).join(", ")} had more entries than we can load at once, so
+          {partialDays.length === 1 ? " that day shows" : " those days show"} the most recent ones.
+        </p>
+      )}
 
       {error && !ready && (
         <div className="mb-4 flex items-center gap-3 rounded-2xl bg-[#B5452B]/10 px-4 py-2.5" role="status">
@@ -360,7 +471,7 @@ export default function LogTab() {
           <EmptyState emoji="🍃" title="The first page is waiting">
             Feeds, changes and naps will gather here like fallen leaves, newest on top. Zoe is keeping the page warm.
           </EmptyState>
-          <QuickLog />
+          {!readOnly && <QuickLog />}
         </div>
       ) : (
         <div className="space-y-4">
@@ -377,6 +488,8 @@ export default function LogTab() {
               units={units}
               now={now}
               glow={glow}
+              readOnly={readOnly}
+              onOpen={touch}
               highlighted={d.key === flash}
             />
           ))}
@@ -419,6 +532,8 @@ function DaySection({
   now,
   glow,
   highlighted,
+  readOnly,
+  onOpen,
 }: {
   day: string;
   todayKey: string;
@@ -431,6 +546,8 @@ function DaySection({
   now: Date;
   glow: Set<number>;
   highlighted: boolean;
+  readOnly: boolean;
+  onOpen: (e: Entry) => void;
 }) {
   const { open } = useSheets();
   const label = formatDayLabel(key, todayKey, { long: false });
@@ -464,7 +581,14 @@ function DaySection({
                 glow.has(e.id) && "bg-[#C49A3C]/15 shadow-[0_0_0_2px_rgba(196,154,60,0.55)]"
               )}
             >
-              <EntryRow entry={e} now={now} onClick={() => open({ kind: e.kind, entry: e })} />
+              <EntryRow
+                entry={e}
+                now={now}
+                onClick={() => {
+                  onOpen(e);
+                  open({ kind: e.kind, entry: e });
+                }}
+              />
             </div>
           ))}
         </div>
@@ -477,7 +601,7 @@ function DaySection({
                 ? "Nothing written down for today yet."
                 : `Nothing written down for ${label}.`}
           </p>
-          {!total && <QuickLog compact />}
+          {!total && !readOnly && <QuickLog compact />}
         </div>
       )}
     </section>
@@ -518,8 +642,8 @@ function RunningNow({ entries }: { entries: Entry[] }) {
 }
 
 /** Last 24h of deleted entries, with Restore (in case the other parent deleted the wrong one). */
-function RecentlyRemoved() {
-  const { api, state, refresh, toast, memberName, units } = useMaple();
+function RecentlyRemoved({ onRestore }: { onRestore: (e: Entry) => void }) {
+  const { api, state, restore: restoreEntry, memberName, units } = useMaple();
   const now = useNow(60_000);
   const [items, setItems] = useState<Entry[]>([]);
   const [expanded, setExpanded] = useState(false);
@@ -548,16 +672,10 @@ function RecentlyRemoved() {
 
   const restore = async (e: Entry) => {
     setBusy(e.id);
-    try {
-      await api(`/api/maple/entries/restore?id=${e.id}`, { method: "POST" });
-      setItems((xs) => xs.filter((x) => x.id !== e.id));
-      toast("Restored", { emoji: "🍁" });
-      await refresh();
-    } catch (err) {
-      toast(err instanceof Error ? err.message : "Couldn't restore that", { tone: "error" });
-    } finally {
-      setBusy(null);
-    }
+    // restore() toasts either way and refreshes the snapshot.
+    onRestore(e);
+    if (await restoreEntry(e.id)) setItems((xs) => xs.filter((x) => x.id !== e.id));
+    setBusy(null);
   };
 
   return (

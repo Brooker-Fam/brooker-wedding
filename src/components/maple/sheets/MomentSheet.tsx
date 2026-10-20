@@ -10,12 +10,13 @@ import {
   type EncodedPhoto,
 } from "@/lib/maple/image";
 import { MILESTONES, milestoneEmoji, milestoneLabel, milestonePreset } from "@/lib/maple/milestones";
-import { zonedTimeToUtc } from "@/lib/maple/time";
+import { dayKey, formatDayLabel, formatTime, zonedTimeToUtc } from "@/lib/maple/time";
 import type { MomentData, PhotoRef } from "@/lib/maple/types";
 import { photoUrl } from "../EntryRow";
-import { Button, Chip, Field, Sheet, TextArea, WhenField, cx, tone } from "../ui";
+import { Chip, Field, Sheet, TextArea, WhenField, cx, tone } from "../ui";
 import { useMaple } from "../useMaple";
 import { useSheets, type SheetProps } from "./index";
+import { LoggedBy, SheetFooter, useOpenCount } from "./parts";
 
 /**
  * Log or edit a moment: photos, a title, an optional "first" (milestone),
@@ -25,7 +26,7 @@ import { useSheets, type SheetProps } from "./index";
  * by the time the title is typed. Nothing is saved until "Save moment"; photos
  * removed (or left behind when the sheet closes) are tidied up from storage.
  * A saved moment's photos are fixed (the server never takes a new photos list
- * on edit), so adding more is a new moment.
+ * on edit), so adding more is a new moment. Viewers get a read-only view.
  */
 
 const MAX_PHOTOS = 12;
@@ -49,8 +50,18 @@ type Storage = "checking" | "ready" | "off" | "error";
 
 let nextId = 0;
 
-export default function MomentSheet({ open, onClose, entry, preset }: SheetProps) {
-  const { state, log, update, remove, toast, now } = useMaple();
+/**
+ * The sheet router keeps one instance mounted between opens (so it can animate
+ * out); keying the form on the open count gives every open a fresh form: no
+ * leftover photos (already tidied from storage on close), text, or preset.
+ */
+export default function MomentSheet(props: SheetProps) {
+  const n = useOpenCount(props.open);
+  return <MomentForm key={n} {...props} />;
+}
+
+function MomentForm({ open, onClose, entry, preset }: SheetProps) {
+  const { state, log, update, remove, toast, now, readOnly } = useMaple();
   const { open: openSheet } = useSheets();
   const tz = state?.baby.timezone ?? "America/New_York";
   const moment = entry?.kind === "moment" ? entry : undefined;
@@ -75,13 +86,16 @@ export default function MomentSheet({ open, onClose, entry, preset }: SheetProps
   itemsRef.current = items;
   const queue = useRef<Promise<void>>(Promise.resolve());
   const saved = useRef(false);
-  const tidied = useRef(false);
+  /** Photos already cancelled/deleted, so each is tidied once (and never saved). */
+  const discarded = useRef(new Set<string>());
+  const openRef = useRef(open);
+  openRef.current = open;
   const cameraRef = useRef<HTMLInputElement>(null);
   const libraryRef = useRef<HTMLInputElement>(null);
 
   // Which photo store is live (or none yet). Only new moments take photos.
   useEffect(() => {
-    if (isEdit || !open) return;
+    if (isEdit || !open || readOnly) return;
     let live = true;
     getUploadMode()
       .then((m) => live && setStorage(m.ready ? "ready" : "off"))
@@ -89,18 +103,23 @@ export default function MomentSheet({ open, onClose, entry, preset }: SheetProps
     return () => {
       live = false;
     };
-  }, [isEdit, open]);
+  }, [isEdit, open, readOnly]);
 
   const patch = useCallback((id: string, p: Partial<Item>) => {
     setItems((list) => list.map((it) => (it.id === id ? { ...it, ...p } : it)));
   }, []);
 
-  /** Cancel uploads in flight and delete anything uploaded but never saved. */
+  /**
+   * Cancel uploads in flight and delete anything uploaded but never saved.
+   * Per photo rather than a one-shot flag: React's dev double-mount runs the
+   * unmount cleanup once before any photo exists, and that must not count.
+   */
   const tidyUp = useCallback(() => {
-    if (saved.current || tidied.current) return;
-    tidied.current = true;
+    if (saved.current) return;
     const refs: PhotoRef[] = [];
     for (const it of itemsRef.current) {
+      if (discarded.current.has(it.id)) continue;
+      discarded.current.add(it.id);
       it.ctrl.abort();
       if (it.ref) refs.push(it.ref);
     }
@@ -221,6 +240,7 @@ export default function MomentSheet({ open, onClose, entry, preset }: SheetProps
     const it = itemsRef.current.find((x) => x.id === id);
     if (!it) return;
     it.ctrl.abort();
+    discarded.current.add(id);
     if (it.ref) discardUploads([it.ref]);
     if (it.preview) URL.revokeObjectURL(it.preview);
     setItems((cur) => cur.filter((x) => x.id !== id));
@@ -234,14 +254,16 @@ export default function MomentSheet({ open, onClose, entry, preset }: SheetProps
     enqueue(id);
   };
 
-  const done = items.filter((it) => it.status === "done" && it.ref);
+  // A photo whose upload was cancelled or tidied away must never be saved.
+  const done = items.filter((it) => it.status === "done" && it.ref && !it.ctrl.signal.aborted && !discarded.current.has(it.id));
   const failed = items.filter((it) => it.status === "error").length;
   const pending = items.length - done.length - failed;
   const hasWords = !!(title.trim() || milestone || note.trim());
-  const canSave = !saving && !uploading && (isEdit || hasWords || done.length > 0);
+  const canSave = !readOnly && !saving && !uploading && (isEdit || hasWords || done.length > 0);
 
   const save = async () => {
-    if (!canSave) return;
+    // A closed sheet's photos are already gone from storage.
+    if (!canSave || !openRef.current) return;
     setSaving(true);
     const t = title.trim();
     const n = note.trim();
@@ -273,7 +295,11 @@ export default function MomentSheet({ open, onClose, entry, preset }: SheetProps
         }
       );
       if (res) onClose();
-      else saved.current = false;
+      else {
+        saved.current = false;
+        // Closed while the save was failing: tidy the photos as a close would have.
+        if (!openRef.current) tidyUp();
+      }
     } finally {
       setSaving(false);
     }
@@ -285,38 +311,67 @@ export default function MomentSheet({ open, onClose, entry, preset }: SheetProps
     void remove(moment.id, { toast: "Moment removed" });
   };
 
-  const footer = isEdit ? (
-    <div className="flex gap-3">
-      <Button variant="danger" size="lg" onClick={del} aria-label="Delete this moment">
-        Delete
-      </Button>
-      <Button size="lg" className="flex-1" onClick={() => void save()} disabled={!canSave}>
-        {saving ? "Saving…" : "Save"}
-      </Button>
-    </div>
-  ) : (
-    <Button size="lg" className="w-full" onClick={() => void save()} disabled={!canSave}>
-      {saving
-        ? "Saving…"
-        : uploading
-          ? `Uploading ${pending} photo${pending === 1 ? "" : "s"}…`
-          : failed && done.length + (hasWords ? 1 : 0) > 0
-            ? `Save without ${failed} photo${failed === 1 ? "" : "s"}`
-            : "Save moment"}
-    </Button>
+  const footer = (
+    <SheetFooter
+      onClose={onClose}
+      onDelete={isEdit ? del : undefined}
+      onPrimary={() => void save()}
+      disabled={!canSave}
+      busy={saving}
+      label={
+        isEdit
+          ? "Save"
+          : uploading
+            ? `Uploading ${pending} photo${pending === 1 ? "" : "s"}…`
+            : failed && done.length + (hasWords ? 1 : 0) > 0
+              ? `Save without ${failed} photo${failed === 1 ? "" : "s"}`
+              : "Save moment"
+      }
+    />
   );
 
   // Chips: a non-preset tag (a monthly photo, a kept celebration) leads the row.
   const custom = milestone && !milestonePreset(milestone) ? milestone : null;
   const chips = showAllChips ? MILESTONES : MILESTONES.slice(0, COLLAPSED_CHIPS);
 
+  // Viewers (read-only role) see the moment, not a form.
+  if (readOnly) {
+    const label = milestoneLabel(moment?.data.milestone);
+    const heading = moment?.data.title || label || "A little moment";
+    return (
+      <Sheet open={open} onClose={onClose} title="Moment" emoji="✨" footer={footer}>
+        {moment ? (
+          <>
+            <LoggedBy entry={moment} />
+            <ExistingPhotos entryId={moment.id} count={moment.data.photos?.length ?? 0} />
+            <div>
+              {label && label !== heading && (
+                <span className="mb-1.5 inline-flex items-center gap-1 rounded-full bg-[#C49A3C]/20 px-2.5 py-0.5 text-xs font-semibold text-[#7A5A12] dark:text-[#F1D58F]">
+                  <span aria-hidden>{milestoneEmoji(moment.data.milestone) ?? "✨"}</span> {label}
+                </span>
+              )}
+              <p className={cx(tone.heading, "text-2xl italic")}>{heading}</p>
+              {moment.note && <p className={cx(tone.body, "mt-1.5 text-[15px] whitespace-pre-line")}>{moment.note}</p>}
+              <p className={cx(tone.muted, "mt-2 text-[13px]")}>
+                {formatDayLabel(dayKey(new Date(moment.started_at), tz), dayKey(now(), tz))} · {formatTime(moment.started_at, tz)}
+              </p>
+            </div>
+          </>
+        ) : (
+          <p className={cx(tone.muted, "text-sm")}>Moments are added by Maple&apos;s grown-ups.</p>
+        )}
+      </Sheet>
+    );
+  }
+
   return (
     <Sheet open={open} onClose={onClose} title={isEdit ? "Edit moment" : "New moment"} emoji={isEdit ? "✨" : "📸"} footer={footer}>
+      {moment && <LoggedBy entry={moment} />}
       {/* Photos */}
-      {isEdit ? (
+      {moment ? (
         <ExistingPhotos
-          entryId={moment!.id}
-          count={moment!.data.photos?.length ?? 0}
+          entryId={moment.id}
+          count={moment.data.photos?.length ?? 0}
           onNew={() => openSheet({ kind: "moment" })}
         />
       ) : (
@@ -487,7 +542,7 @@ function PhotoTile({ item, onRemove, onRetry }: { item: Item; onRemove: () => vo
   );
 }
 
-function ExistingPhotos({ entryId, count, onNew }: { entryId: number; count: number; onNew: () => void }) {
+function ExistingPhotos({ entryId, count, onNew }: { entryId: number; count: number; onNew?: () => void }) {
   return (
     <section aria-label="Photos" className="ph-no-capture">
       {count > 0 && (
@@ -499,14 +554,16 @@ function ExistingPhotos({ entryId, count, onNew }: { entryId: number; count: num
           ))}
         </ul>
       )}
-      <p className={cx(tone.muted, "text-sm")}>
-        {count > 0 ? "Photos stay just as they were saved. " : "This moment was saved without photos. "}
-        To add more, start a{" "}
-        <button type="button" onClick={onNew} className="font-semibold text-[#1D4420] underline decoration-[#C49A3C] underline-offset-2 dark:text-[#E0C27A]">
-          new moment
-        </button>{" "}
-        🍃
-      </p>
+      {onNew && (
+        <p className={cx(tone.muted, "text-sm")}>
+          {count > 0 ? "Photos stay just as they were saved. " : "This moment was saved without photos. "}
+          To add more, start a{" "}
+          <button type="button" onClick={onNew} className="font-semibold text-[#1D4420] underline decoration-[#C49A3C] underline-offset-2 dark:text-[#E0C27A]">
+            new moment
+          </button>{" "}
+          🍃
+        </p>
+      )}
     </section>
   );
 }

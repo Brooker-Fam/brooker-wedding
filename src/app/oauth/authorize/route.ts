@@ -277,16 +277,12 @@ async function mapleAuthorize(request: NextRequest, url: URL, form?: FormData) {
     return redirectWithError(p, "invalid_request", "PKCE with code_challenge_method=S256 is required");
   }
   const origin = publicOrigin(request);
-  let resource = `${origin}${MAPLE_PATH}`;
-  if (p.resource) {
-    let ok = false;
-    try {
-      ok = new URL(p.resource).pathname === MAPLE_PATH;
-    } catch {
-      ok = false;
-    }
-    if (!ok) return redirectWithError(p, "invalid_target", `resource must be ${resource}`);
-    resource = p.resource;
+  // The token is only good for this server's Maple endpoint: a resource on
+  // any other host (or path) is refused, so no other MCP server can obtain a
+  // parent's token through this consent screen.
+  const resource = `${origin}${MAPLE_PATH}`;
+  if (p.resource && p.resource.replace(/\/+$/, "") !== resource) {
+    return redirectWithError(p, "invalid_target", `resource must be ${resource}`);
   }
 
   const client = mapleClient(p.redirect_uri);

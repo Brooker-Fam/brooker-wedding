@@ -23,6 +23,12 @@ import { useMaple, useNow, type ToastAction } from "./useMaple";
  */
 
 const DUP_WINDOW_MS = 3 * 60_000;
+/**
+ * One cooldown for the whole dock: a tap can swap the tile under the thumb
+ * (Sleep ↔ Woke up, Left → Switch to Right), so a double tap must not land on
+ * the replacement and do the opposite thing.
+ */
+const TAP_COOLDOWN_MS = 800;
 const DEFAULT_SWATCHES: StoolColor[] = ["black", "green", "yellow", "brown"];
 const SHORT_COLOR: Record<StoolColor, string> = {
   black: "Black",
@@ -70,6 +76,7 @@ export default function Dock() {
   const [done, setDone] = useState<Record<string, boolean>>({});
   const ref = useRef<HTMLDivElement>(null);
   const [host, setHost] = useState<HTMLElement | null>(null);
+  const lastTap = useRef(0);
   const tz = state?.baby.timezone ?? DEFAULT_TZ;
 
   // Portal to <body>: the tab content animates with a transform when tabs
@@ -98,6 +105,9 @@ export default function Dock() {
   const feed = summary.active.find((e) => e.kind === "feed") ?? null;
   const sleep = summary.active.find((e) => e.kind === "sleep") ?? null;
   const feedN = feed ? timerNumbers(feed, clock) : null;
+  // A timer the server hasn't confirmed yet has a temporary id: hold its controls until it has a real one.
+  const feedPending = !!feed && feed.id < 0;
+  const sleepPending = !!sleep && sleep.id < 0;
   const next = summary.nextSide;
   const lastBottle = entries.find((e) => e.kind === "feed" && e.data.method === "bottle" && e.data.amount_ml);
   const showHint = !summary.age || summary.age.dayOfLife <= 3;
@@ -116,6 +126,14 @@ export default function Dock() {
       1200
     );
     return true;
+  };
+
+  /** Wrap a tap so taps within the dock-wide cooldown are ignored. */
+  const tap = (fn: () => void) => () => {
+    const t = now().getTime();
+    if (t - lastTap.current < TAP_COOLDOWN_MS) return;
+    lastTap.current = t;
+    fn();
   };
 
   const earlierAt = () => new Date(now().getTime() - 15 * 60_000).toISOString();
@@ -213,16 +231,17 @@ export default function Dock() {
                   color={SWITCH_STYLE[feedN.side === "L" ? "R" : "L"].bg}
                   ink={SWITCH_STYLE[feedN.side === "L" ? "R" : "L"].fg}
                   strong
-                  onTap={() => void actions.switchSide(feed, feedN.side === "L" ? "R" : "L")}
+                  disabled={feedPending}
+                  onTap={tap(() => void actions.switchSide(feed, feedN.side === "L" ? "R" : "L"))}
                 />
-                <Tile id="done" label="Done ✓" sub={formatClock(feedN.elapsed)} color="#1D4420" onTap={() => void actions.stop(feed)} />
+                <Tile id="done" label="Done ✓" sub={feedPending ? "starting…" : formatClock(feedN.elapsed)} color="#1D4420" disabled={feedPending} onTap={tap(() => void actions.stop(feed))} />
               </>
             ) : feed && feedN ? (
               <>
                 {(["L", "R"] as Side[]).map((s) => (
-                  <Tile key={s} id={`resume-${s}`} label={SIDE_NAME[s]} sub="▶ resume" letter={s} color={SIDE_COLOR[s]} onTap={() => void actions.resume(feed, s)} />
+                  <Tile key={s} id={`resume-${s}`} label={SIDE_NAME[s]} sub="▶ resume" letter={s} color={SIDE_COLOR[s]} disabled={feedPending} onTap={tap(() => void actions.resume(feed, s))} />
                 ))}
-                <Tile id="done" label="Done ✓" sub={`paused ${formatClock(feedN.pausedSec)}`} color="#1D4420" onTap={() => void actions.stop(feed)} />
+                <Tile id="done" label="Done ✓" sub={`paused ${formatClock(feedN.pausedSec)}`} color="#1D4420" disabled={feedPending} onTap={tap(() => void actions.stop(feed))} />
               </>
             ) : (
               <>
@@ -236,7 +255,7 @@ export default function Dock() {
                     color={SIDE_COLOR[s]}
                     next={next === s}
                     done={done[s]}
-                    onTap={() => tapSide(s)}
+                    onTap={tap(() => tapSide(s))}
                     onHold={() => holdFeed(s)}
                   />
                 ))}
@@ -245,12 +264,12 @@ export default function Dock() {
                   label="Bottle"
                   sub={lastBottleLabel}
                   color={TILE.bottle}
-                  onTap={() => open({ kind: "feed", preset: { method: "bottle" } })}
+                  onTap={tap(() => open({ kind: "feed", preset: { method: "bottle" } }))}
                   onHold={() => open({ kind: "feed", preset: { method: "bottle", started_at: earlierAt() } })}
                 />
               </>
             )}
-            <Tile id="more" label="More" sub="＋ log" color={TILE.more} onTap={() => setMoreOpen(true)} />
+            <Tile id="more" label="More" sub="＋ log" color={TILE.more} onTap={tap(() => setMoreOpen(true))} />
 
             {/* Row 2: diapers and sleep. */}
             <Tile
@@ -259,7 +278,7 @@ export default function Dock() {
               sub="wet 💧"
               color={TILE.pee}
               done={done.pee}
-              onTap={() => void logDiaper("pee", true, false)}
+              onTap={tap(() => void logDiaper("pee", true, false))}
               onHold={() => open({ kind: "diaper", preset: { pee: true, poop: false, started_at: earlierAt() } })}
             />
             <Tile
@@ -268,7 +287,7 @@ export default function Dock() {
               sub="dirty"
               color={TILE.poop}
               done={done.poop}
-              onTap={() => void logDiaper("poop", false, true)}
+              onTap={tap(() => void logDiaper("poop", false, true))}
               onHold={() => open({ kind: "diaper", preset: { pee: false, poop: true, started_at: earlierAt() } })}
             />
             <Tile
@@ -277,17 +296,18 @@ export default function Dock() {
               sub="pee + poop"
               color={TILE.both}
               done={done.both}
-              onTap={() => void logDiaper("both", true, true)}
+              onTap={tap(() => void logDiaper("both", true, true))}
               onHold={() => open({ kind: "diaper", preset: { pee: true, poop: true, started_at: earlierAt() } })}
             />
             {sleep ? (
               <Tile
                 id="wake"
                 label="Woke up"
-                sub={`☀️ ${formatClock(timerNumbers(sleep, clock).elapsed)}`}
+                sub={sleepPending ? "starting…" : `☀️ ${formatClock(timerNumbers(sleep, clock).elapsed)}`}
                 color="#6E5C94"
                 strong
-                onTap={() => flash("wake") && void actions.stop(sleep)}
+                disabled={sleepPending}
+                onTap={tap(() => void actions.stop(sleep))}
               />
             ) : (
               <Tile
@@ -296,7 +316,7 @@ export default function Dock() {
                 sub="🌙"
                 color={TILE.sleep}
                 done={done.sleep}
-                onTap={() => flash("sleep") && void actions.startTimer("sleep")}
+                onTap={tap(() => flash("sleep") && void actions.startTimer("sleep"))}
                 onHold={() => open({ kind: "sleep", preset: { started_at: earlierAt() } })}
               />
             )}
@@ -322,6 +342,7 @@ function Tile({
   icon,
   strong,
   ink,
+  disabled,
   className,
 }: {
   id: string;
@@ -338,6 +359,8 @@ function Tile({
   strong?: boolean;
   /** Text color on a filled tile (default white). */
   ink?: string;
+  /** Not tappable yet (a timer still starting). */
+  disabled?: boolean;
   className?: string;
 }) {
   const press = usePress(onTap, onHold);
@@ -348,10 +371,11 @@ function Tile({
     <button
       type="button"
       data-tile={id}
+      disabled={disabled}
       aria-label={`${label}${next ? " (next side)" : ""}${onHold ? ". Hold to log an earlier one" : ""}`}
       {...press}
       className={cx(
-        "relative flex min-h-[60px] flex-col items-center justify-center rounded-2xl px-1 py-1.5 text-center transition select-none active:scale-[0.96]",
+        "relative flex min-h-[60px] flex-col items-center justify-center rounded-2xl px-1 py-1.5 text-center transition select-none active:scale-[0.96] disabled:opacity-50 disabled:active:scale-100",
         strong ? "text-white" : "text-[#1D4420] dark:text-[#F5EDDF] [.maple-night_&]:text-[#E0A93B]/85",
         next && "ring-2 ring-[#C49A3C] ring-offset-2 ring-offset-[#FDF8F0] dark:ring-offset-[#0F2014] [.maple-night_&]:ring-[#E0A93B]/70 [.maple-night_&]:ring-offset-[#0B0F0A]",
         className

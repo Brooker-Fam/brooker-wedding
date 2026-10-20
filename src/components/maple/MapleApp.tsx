@@ -202,7 +202,7 @@ function SyncChip() {
     ? `${pending} waiting to sync`
     : pending
       ? `Offline · ${pending} saved on this phone`
-      : "Offline · saved on this phone";
+      : "Offline";
   return (
     <div className="pointer-events-none sticky top-0 z-[65] flex justify-center px-4 pt-[env(safe-area-inset-top)]">
       <button

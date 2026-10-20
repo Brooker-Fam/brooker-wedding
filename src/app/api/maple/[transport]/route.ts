@@ -1,6 +1,6 @@
 import { createMcpHandler, withMcpAuth } from "mcp-handler";
 import type { AuthInfo } from "@modelcontextprotocol/sdk/server/auth/types.js";
-import { verifyAccessToken, verifyBasicAuthHeader } from "@/lib/mcp/auth";
+import { publicOrigin, verifyAccessToken, verifyBasicAuthHeader } from "@/lib/mcp/auth";
 import { memberFor } from "@/lib/maple/auth";
 import { MAPLE_INSTRUCTIONS, registerMapleTools } from "@/lib/maple/mcp-tools";
 import { captureServerException } from "@/lib/posthog-server";
@@ -69,10 +69,14 @@ async function verifyToken(req: Request, bearer?: string): Promise<AuthInfo | un
       extra: { sub, via },
     });
 
+    // RFC 8707 audience: a token bound to a resource must be bound to this
+    // exact endpoint (not another host's /api/maple/mcp, not the calendar).
+    const expected = `${publicOrigin(req)}/api/maple/mcp`;
+    const bound = payload.resource?.replace(/\/+$/, "");
+    if (bound && bound !== expected) return undefined;
     if (payload.sub === "admin") return info("admin");
     if (!payload.sub.startsWith("maple:")) return undefined;
-    const forMaple = scopes.includes("maple") || (payload.resource?.endsWith("/api/maple/mcp") ?? false);
-    if (!forMaple) return undefined;
+    if (!bound && !scopes.includes("maple")) return undefined;
     try {
       if (!(await memberFor(payload.sub.slice("maple:".length)))) return undefined;
     } catch (error) {

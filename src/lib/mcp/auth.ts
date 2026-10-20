@@ -140,12 +140,26 @@ export interface RefreshTokenPayload {
 
 export const REFRESH_TOKEN_TTL = 60 * 60 * 24 * 365; // 365 days
 
+/**
+ * Admin grants are tied to the current ADMIN_PASS: changing the password
+ * revokes every admin refresh token (members are re-checked on refresh).
+ */
+function adminPassFingerprint(): string {
+  return crypto.createHash("sha256").update(`mcp-admin:${process.env.ADMIN_PASS ?? ""}`).digest("hex").slice(0, 16);
+}
+
 export function mintRefreshToken(payload: RefreshTokenPayload): string {
-  return pack(payload, REFRESH_TOKEN_TTL, "mcprt");
+  const body = payload.sub === "admin" ? { ...payload, pf: adminPassFingerprint() } : payload;
+  return pack(body, REFRESH_TOKEN_TTL, "mcprt");
 }
 
 export function verifyRefreshToken(token: string): RefreshTokenPayload | null {
-  return unpack<RefreshTokenPayload>(token, "mcprt");
+  const p = unpack<RefreshTokenPayload & { pf?: string }>(token, "mcprt");
+  if (!p) return null;
+  if (p.sub === "admin" && p.pf !== adminPassFingerprint()) return null;
+  const { pf: _pf, ...rest } = p;
+  void _pf;
+  return rest;
 }
 
 /**

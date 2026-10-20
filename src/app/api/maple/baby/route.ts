@@ -49,15 +49,18 @@ export const PATCH = withMember("PATCH /api/maple/baby", async (request) => {
     if (!body.settings || typeof body.settings !== "object" || Array.isArray(body.settings)) {
       throw new BadRequest("settings must be an object");
     }
-    const incoming = body.settings as Record<string, unknown>;
-    const merged: Record<string, unknown> = { ...baby.settings, ...incoming };
-    // Both parents may mark different alerts handled at once: merge, don't replace.
+    // Only the keys sent are changed (null removes one); the store merges them in SQL.
+    const incoming = { ...(body.settings as Record<string, unknown>) };
     if (incoming.acks && typeof incoming.acks === "object") {
-      merged.acks = { ...((baby.settings.acks as Record<string, unknown>) ?? {}), ...(incoming.acks as Record<string, unknown>) };
+      // Acks are per episode, so they pile up: keep the last two weeks.
+      const cutoff = Date.now() - 14 * 24 * 3600_000;
+      const all = { ...((baby.settings.acks as Record<string, unknown>) ?? {}), ...(incoming.acks as Record<string, unknown>) };
+      incoming.acks = Object.fromEntries(
+        Object.entries(all).filter(([, at]) => typeof at === "string" && Date.parse(at) >= cutoff)
+      );
     }
-    for (const [k, v] of Object.entries(incoming)) if (v === null) delete merged[k];
-    if (JSON.stringify(merged).length > 8000) throw new BadRequest("settings too large");
-    patch.settings = merged;
+    if (JSON.stringify({ ...baby.settings, ...incoming }).length > 8000) throw new BadRequest("settings too large");
+    patch.settings = incoming;
   }
 
   return json({ baby: await updateBaby(baby.id, patch) });

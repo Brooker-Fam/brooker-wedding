@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { cookieOptions, memberFor, sealSession, SESSION_COOKIE } from "@/lib/maple/auth";
+import { memberFor, setSessionCookies } from "@/lib/maple/auth";
 import { redeemInvite } from "@/lib/maple/store";
 import { checkUploadRateLimit } from "@/lib/rate-limit";
 import { captureServerException } from "@/lib/posthog-server";
@@ -25,7 +25,7 @@ export async function POST(request: NextRequest) {
     }
     const member = await memberFor(id);
     const res = NextResponse.json({ ok: true, member });
-    res.cookies.set(SESSION_COOKIE, sealSession(id), cookieOptions);
+    setSessionCookies(res, id);
     return res;
   } catch (error) {
     await captureServerException(error, { route: "POST /api/maple/auth/join" });

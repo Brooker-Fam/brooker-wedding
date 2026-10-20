@@ -29,7 +29,7 @@ import {
 import { formatTempBoth, formatVolume, formatWeightBoth, formatLengthBoth, mlToOz } from "@/lib/maple/units";
 import type { Entry, EntryOf, MapleState, StoolColor, UnitSystem } from "@/lib/maple/types";
 import type { TabId } from "./MapleApp";
-import { bucketWindows, dstNote, mergeLive, requestTimelineDay, statsByDay, useEntryRange, type TimeWindow } from "./LogTab";
+import { bucketWindows, dstNote, fetchRange, mergeLive, requestTimelineDay, statsByDay, useEntryRange, type TimeWindow } from "./LogTab";
 import { useSheets } from "./sheets";
 import { Button, Card, EmptyState, Segmented, cx, tone } from "./ui";
 import { useMaple, useNow } from "./useMaple";
@@ -74,7 +74,7 @@ type RibbonMode = "days" | "nights";
 // ── Tab ──────────────────────────────────────────────────────────────────
 
 export default function PatternsTab({ onNavigate }: { onNavigate?: (t: TabId) => void } = {}) {
-  const { state, units } = useMaple();
+  const { state, units, readOnly } = useMaple();
   const { open } = useSheets();
   const now = useNow(60_000);
   const tz = state?.baby.timezone ?? DEFAULT_TZ;
@@ -89,9 +89,11 @@ export default function PatternsTab({ onNavigate }: { onNavigate?: (t: TabId) =>
   let fromKey = addDays(todayKey, -(span - 1));
   if (bornKey && bornKey > fromKey) fromKey = bornKey > todayKey ? todayKey : bornKey;
   // One extra day back so the first night (noon → noon) and sleeps across midnight are complete.
-  const { entries, ready, loaded } = useEntryRange(addDays(fromKey, -1), todayKey);
+  const { entries, ready, loaded, loadedFrom, partialDays } = useEntryRange(addDays(fromKey, -1), todayKey);
+  // While older weeks load (newest first), show only what has arrived instead of empty days.
+  const viewFrom = ready || !loadedFrom || loadedFrom <= fromKey ? fromKey : loadedFrom;
 
-  const days = useMemo(() => statsByDay(entries, fromKey, todayKey, now, tz), [entries, fromKey, todayKey, now, tz]);
+  const days = useMemo(() => statsByDay(entries, viewFrom, todayKey, now, tz), [entries, viewFrom, todayKey, now, tz]);
   const loggedDays = days.filter((d) => d.feeds + d.diapers + d.sleeps > 0).length;
   // Charts start at the first logged day: blank days before logging began would read as "0 feeds".
   const firstLogged = days.findIndex((d) => d.feeds + d.diapers + d.sleeps > 0);
@@ -133,7 +135,7 @@ export default function PatternsTab({ onNavigate }: { onNavigate?: (t: TabId) =>
           <EmptyState emoji="🍂" title="Gathering the pages…" />
         ) : (
           <>
-            {loggedDays < 2 && (
+            {loggedDays < 2 && ready && (
               <Card>
                 <EmptyState emoji="🐈‍⬛" title="Patterns need a few days to grow">
                   Bruce is keeping count ({Math.min(loggedDays, 2)} of 2 days). Keep logging and her rhythms will show up here.
@@ -142,10 +144,17 @@ export default function PatternsTab({ onNavigate }: { onNavigate?: (t: TabId) =>
             )}
             {loggedDays >= 2 && <Insights days={chartDays} entries={entries} todayKey={todayKey} tz={tz} />}
 
+            {!ready && <p className={cx(tone.muted, "px-1 text-xs")}>Gathering earlier days…</p>}
+            {partialDays.length > 0 && (
+              <p className={cx(tone.muted, "rounded-2xl bg-[#C49A3C]/10 px-4 py-2.5 text-sm")} role="status">
+                {partialDays.map((k) => formatDayLabel(k, todayKey)).join(", ")} had more entries than we can load at once, so the
+                counts for {partialDays.length === 1 ? "that day" : "those days"} only include the most recent ones.
+              </p>
+            )}
             {loggedDays >= 1 && (
               <Ribbons
                 entries={entries}
-                fromKey={fromKey}
+                fromKey={viewFrom}
                 todayKey={todayKey}
                 tz={tz}
                 now={now}
@@ -173,7 +182,7 @@ export default function PatternsTab({ onNavigate }: { onNavigate?: (t: TabId) =>
               growth={state.growth}
               units={units}
               todayKey={todayKey}
-              onAdd={() => open({ kind: "growth" })}
+              onAdd={readOnly ? undefined : () => open({ kind: "growth" })}
               onEdit={(e) => open({ kind: "growth", entry: e })}
             />
           </Card>
@@ -1522,8 +1531,8 @@ function VisitSummary({ state, todayKey, tz, now }: { state: MapleState; todayKe
     try {
       const from = addDays(todayKey, -7);
       const [hist, notes] = await Promise.all([
-        api<{ entries: Entry[] }>(`/api/maple/entries?from=${from}&to=${todayKey}&limit=5000`),
-        api<{ entries: Entry[] }>(`/api/maple/entries?kind=note&limit=500`).catch(() => ({ entries: [] as Entry[] })),
+        fetchRange(api, from, todayKey),
+        api<{ entries: Entry[] }>(`/api/maple/entries?kind=note&limit=2000`).catch(() => ({ entries: [] as Entry[] })),
       ]);
       const summary = await buildVisitSummary({ state, history: hist.entries, notes: notes.entries, todayKey, tz, now });
       setText(summary);

@@ -124,7 +124,7 @@ export function useTimerActions() {
     async (side: Side) => {
       tick();
       const nap = running("sleep");
-      if (nap) {
+      if (nap && nap.id > 0) {
         const s = await timer({ action: "stop", id: nap.id });
         if (s && !s.active && s.ended_at) {
           toast(`Nap ended (${formatDuration((Date.parse(s.ended_at) - Date.parse(s.started_at)) / 1000)})`, {
@@ -143,7 +143,7 @@ export function useTimerActions() {
       tick();
       const feed = kind === "sleep" ? running("feed") : null;
       const s = await timer({ action: "start", kind });
-      if (feed && s) {
+      if (feed && feed.id > 0 && s) {
         toast("Stop the feed too?", {
           emoji: "🌙",
           actions: [
@@ -264,10 +264,14 @@ export function timerNumbers(e: Entry, now: Date) {
 }
 
 export default function TimerCard({ entry }: { entry: Entry }) {
-  const { state, memberName, member, isNight } = useMaple();
+  const { state, memberName, member, isNight, readOnly } = useMaple();
   const now = useNow(1000);
   const actions = useTimerActions();
   const night = useNightActive();
+  // Viewers just watch the clock. And until the server answers a start, the
+  // timer has a temporary id the API can't act on, so its controls wait.
+  const pending = entry.id < 0;
+  const controls = !readOnly;
   const tz = state?.baby.timezone ?? DEFAULT_TZ;
   const kind = entry.kind as TimerKind;
   const n = timerNumbers(entry, now);
@@ -283,7 +287,7 @@ export default function TimerCard({ entry }: { entry: Entry }) {
   const settings = (state?.baby.settings ?? {}) as Record<string, unknown>;
   const checkMin = Number(settings[`timer_check_${kind}_min`]) || CHECK_AFTER_MIN[kind];
   const snoozedUntil = snoozes[String(entry.id)] ?? 0;
-  const forgotten = n.wallSec / 60 >= checkMin && now.getTime() > snoozedUntil && entry.id > 0;
+  const forgotten = controls && !pending && n.wallSec / 60 >= checkMin && now.getTime() > snoozedUntil;
 
   const snooze = () => {
     const next = { ...readSnoozes(), [String(entry.id)]: now.getTime() + SNOOZE_MIN * 60_000 };
@@ -332,42 +336,46 @@ export default function TimerCard({ entry }: { entry: Entry }) {
             )}
           </p>
         </div>
-        <div className="-mt-1.5 -mr-1.5 flex shrink-0 items-center">
-          {canLantern && (
+        {controls && (
+          <div className="-mt-1.5 -mr-1.5 flex shrink-0 items-center">
+            {canLantern && (
+              <button
+                type="button"
+                disabled={pending}
+                onClick={() => setLantern(true)}
+                aria-label="Lantern: dim full-screen timer that keeps the screen on"
+                className="flex h-11 w-11 items-center justify-center rounded-full text-xl transition hover:bg-[#1D4420]/5 active:scale-95 disabled:opacity-40 dark:hover:bg-[#F5EDDF]/10"
+              >
+                🏮
+              </button>
+            )}
             <button
               type="button"
-              onClick={() => setLantern(true)}
-              aria-label="Lantern: dim full-screen timer that keeps the screen on"
-              className="flex h-11 w-11 items-center justify-center rounded-full text-xl transition hover:bg-[#1D4420]/5 active:scale-95 dark:hover:bg-[#F5EDDF]/10"
+              disabled={pending}
+              onClick={() => setMenu((m) => (m ? null : "menu"))}
+              aria-expanded={!!menu}
+              aria-label="More timer options"
+              className={cx(
+                "flex h-11 w-11 items-center justify-center rounded-full text-xl font-bold tracking-tight transition active:scale-95 disabled:opacity-40",
+                menu ? "bg-[#1D4420]/10 dark:bg-[#F5EDDF]/15" : "hover:bg-[#1D4420]/5 dark:hover:bg-[#F5EDDF]/10",
+                tone.body
+              )}
             >
-              🏮
+              ⋯
             </button>
-          )}
-          <button
-            type="button"
-            onClick={() => setMenu((m) => (m ? null : "menu"))}
-            aria-expanded={!!menu}
-            aria-label="More timer options"
-            className={cx(
-              "flex h-11 w-11 items-center justify-center rounded-full text-xl font-bold tracking-tight transition active:scale-95",
-              menu ? "bg-[#1D4420]/10 dark:bg-[#F5EDDF]/15" : "hover:bg-[#1D4420]/5 dark:hover:bg-[#F5EDDF]/10",
-              tone.body
-            )}
-          >
-            ⋯
-          </button>
-        </div>
+          </div>
+        )}
       </div>
 
       <AnimatePresence initial={false}>
-        {menu && <TimerMenu key="menu" entry={entry} view={menu} setView={setMenu} tz={tz} now={now} actions={actions} />}
+        {menu && controls && !pending && <TimerMenu key="menu" entry={entry} view={menu} setView={setMenu} tz={tz} now={now} actions={actions} />}
       </AnimatePresence>
 
       {forgotten ? (
         <ForgottenPrompt entry={entry} n={n} now={now} tz={tz} ending={ending} setEnding={setEnding} onSnooze={snooze} actions={actions} />
       ) : (
         <>
-          <div className="mt-1 pl-1">
+          <div className={cx("pl-1", controls ? "mt-1" : "mt-3")}>
             <p
               className={cx(
                 "font-[family-name:var(--font-display)] text-[48px] leading-none font-semibold tracking-tight lining-nums tabular-nums transition-opacity",
@@ -389,12 +397,13 @@ export default function TimerCard({ entry }: { entry: Entry }) {
                   <span className="mx-1.5 opacity-50">·</span>
                   <span className={cx(n.side === "R" && !n.paused ? "font-bold" : "opacity-75")}>R {formatClock(n.right)}</span>
                 </p>
-                {!n.paused && (
+                {!n.paused && controls && (
                   // Pause is secondary: most feeds just switch and finish.
                   <button
                     type="button"
+                    disabled={pending}
                     onClick={() => void actions.pause(entry)}
-                    className={cx(tone.muted, "-my-2 inline-flex min-h-[44px] items-center gap-1.5 rounded-full px-3 text-sm font-semibold hover:bg-[#1D4420]/5 dark:hover:bg-[#F5EDDF]/10")}
+                    className={cx(tone.muted, "-my-2 inline-flex min-h-[44px] items-center gap-1.5 rounded-full px-3 text-sm font-semibold hover:bg-[#1D4420]/5 disabled:opacity-40 dark:hover:bg-[#F5EDDF]/10")}
                   >
                     <span aria-hidden className="inline-flex gap-[3px]">
                       <i className="h-3 w-[3px] rounded-sm bg-current" />
@@ -408,70 +417,73 @@ export default function TimerCard({ entry }: { entry: Entry }) {
             <p className={cx(tone.muted, "mt-1 flex items-center gap-1 text-[13px] [.maple-night_&]:text-[#E0A93B]/55")}>
               since {formatTime(entry.started_at, tz)} · {startedBy}
               {who?.emoji && <span aria-hidden>{who.emoji}</span>}
+              {pending && <span className="ml-1 italic opacity-80">· starting…</span>}
             </p>
           </div>
 
-          <div className="mt-4 flex gap-2">
-            {isFeed && !n.paused && (
+          {controls && (
+            <fieldset disabled={pending} className={cx("mt-4 flex min-w-0 gap-2 transition-opacity", pending && "opacity-50")}>
+              {isFeed && !n.paused && (
+                <button
+                  type="button"
+                  onClick={() => void actions.switchSide(entry, target)}
+                  className="flex min-h-[52px] flex-[2] items-center justify-center gap-2 rounded-2xl px-3 text-[15px] font-semibold whitespace-nowrap shadow-sm transition active:scale-[0.97]"
+                  style={
+                    night
+                      ? { backgroundColor: `${SWITCH_STYLE[target].bg}40`, color: "#E8A23F" }
+                      : { backgroundColor: SWITCH_STYLE[target].bg, color: SWITCH_STYLE[target].fg }
+                  }
+                >
+                  <span aria-hidden>⇄</span> Switch to {SIDE_NAME[target]}
+                </button>
+              )}
+              {isFeed && n.paused && (
+                <>
+                  {(["L", "R"] as Side[]).map((s) => (
+                    <button
+                      key={s}
+                      type="button"
+                      aria-label={`Resume ${SIDE_NAME[s]}`}
+                      onClick={() => void actions.resume(entry, s)}
+                      className="flex min-h-[52px] flex-1 flex-col items-center justify-center rounded-2xl px-2 leading-tight transition active:scale-[0.97]"
+                      style={{ backgroundColor: `${SIDE_COLOR[s]}22`, boxShadow: `inset 0 0 0 1.5px ${SIDE_COLOR[s]}88` }}
+                    >
+                      <span className={cx(tone.muted, "text-[11px] font-semibold tracking-wide uppercase")}>Resume</span>
+                      <span className={cx(tone.body, "text-[15px] font-semibold")}>
+                        <span aria-hidden className="mr-1 text-[11px]">
+                          ▶
+                        </span>
+                        {SIDE_NAME[s]}
+                      </span>
+                    </button>
+                  ))}
+                </>
+              )}
               <button
                 type="button"
-                onClick={() => void actions.switchSide(entry, target)}
-                className="flex min-h-[52px] flex-[2] items-center justify-center gap-2 rounded-2xl px-3 text-[15px] font-semibold whitespace-nowrap shadow-sm transition active:scale-[0.97]"
-                style={
-                  night
-                    ? { backgroundColor: `${SWITCH_STYLE[target].bg}40`, color: "#E8A23F" }
-                    : { backgroundColor: SWITCH_STYLE[target].bg, color: SWITCH_STYLE[target].fg }
-                }
+                onClick={() => void actions.stop(entry)}
+                className={cx(
+                  "flex min-h-[52px] items-center justify-center gap-1.5 rounded-2xl px-4 text-[15px] font-semibold transition active:scale-[0.97]",
+                  "bg-[#1D4420] text-[#FDF8F0] dark:bg-[#C49A3C] dark:text-[#14210F] [.maple-night_&]:bg-[#E0A93B]/80",
+                  isFeed ? "flex-1" : "flex-[2]"
+                )}
               >
-                <span aria-hidden>⇄</span> Switch to {SIDE_NAME[target]}
+                {kind === "sleep" ? (
+                  <>
+                    Woke up <span aria-hidden>☀️</span>
+                  </>
+                ) : (
+                  <>
+                    Done <span aria-hidden>✓</span>
+                  </>
+                )}
               </button>
-            )}
-            {isFeed && n.paused && (
-              <>
-                {(["L", "R"] as Side[]).map((s) => (
-                  <button
-                    key={s}
-                    type="button"
-                    aria-label={`Resume ${SIDE_NAME[s]}`}
-                    onClick={() => void actions.resume(entry, s)}
-                    className="flex min-h-[52px] flex-1 flex-col items-center justify-center rounded-2xl px-2 leading-tight transition active:scale-[0.97]"
-                    style={{ backgroundColor: `${SIDE_COLOR[s]}22`, boxShadow: `inset 0 0 0 1.5px ${SIDE_COLOR[s]}88` }}
-                  >
-                    <span className={cx(tone.muted, "text-[11px] font-semibold tracking-wide uppercase")}>Resume</span>
-                    <span className={cx(tone.body, "text-[15px] font-semibold")}>
-                      <span aria-hidden className="mr-1 text-[11px]">
-                        ▶
-                      </span>
-                      {SIDE_NAME[s]}
-                    </span>
-                  </button>
-                ))}
-              </>
-            )}
-            <button
-              type="button"
-              onClick={() => void actions.stop(entry)}
-              className={cx(
-                "flex min-h-[52px] items-center justify-center gap-1.5 rounded-2xl px-4 text-[15px] font-semibold transition active:scale-[0.97]",
-                "bg-[#1D4420] text-[#FDF8F0] dark:bg-[#C49A3C] dark:text-[#14210F] [.maple-night_&]:bg-[#E0A93B]/80",
-                isFeed ? "flex-1" : "flex-[2]"
-              )}
-            >
-              {kind === "sleep" ? (
-                <>
-                  Woke up <span aria-hidden>☀️</span>
-                </>
-              ) : (
-                <>
-                  Done <span aria-hidden>✓</span>
-                </>
-              )}
-            </button>
-          </div>
+            </fieldset>
+          )}
         </>
       )}
 
-      {lantern && <Lantern entry={entry} onClose={() => setLantern(false)} dim={isNight()} />}
+      {lantern && controls && <Lantern entry={entry} onClose={() => setLantern(false)} dim={isNight()} />}
     </motion.section>
   );
 }
@@ -496,6 +508,9 @@ function TimerMenu({
 }) {
   const start = new Date(entry.started_at);
   const [pick, setPick] = useState(false);
+  // Typing a time fires change events mid-entry, so nothing moves until "Set".
+  const [picked, setPicked] = useState(() => clockValue(start, tz));
+  const pickedAt = pickedTime(picked, now, tz);
   const move = (min: number) => {
     void actions.adjust(entry, new Date(start.getTime() - min * 60_000));
     setView(null);
@@ -557,19 +572,27 @@ function TimerMenu({
               </button>
             </div>
             {pick && (
-              <input
-                type="time"
-                aria-label="Actual start time"
-                defaultValue={clockValue(start, tz)}
-                onChange={(e) => {
-                  const t = pickedTime(e.target.value, now, tz);
-                  if (t) {
-                    void actions.adjust(entry, t);
+              <div className="mt-2 flex gap-2">
+                <input
+                  type="time"
+                  aria-label="Actual start time"
+                  value={picked}
+                  onChange={(e) => setPicked(e.target.value)}
+                  className={cx(tone.input, "min-w-0 flex-1")}
+                />
+                <button
+                  type="button"
+                  disabled={!pickedAt}
+                  onClick={() => {
+                    if (!pickedAt) return;
+                    void actions.adjust(entry, pickedAt);
                     setView(null);
-                  }
-                }}
-                className={cx(tone.input, "mt-2")}
-              />
+                  }}
+                  className="min-h-[48px] shrink-0 rounded-2xl bg-[#1D4420] px-5 text-[15px] font-semibold text-[#FDF8F0] active:scale-[0.97] disabled:opacity-40 dark:bg-[#C49A3C] dark:text-[#14210F]"
+                >
+                  Set {pickedAt ? formatTime(pickedAt, tz) : ""}
+                </button>
+              </div>
             )}
           </div>
         )}

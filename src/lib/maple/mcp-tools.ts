@@ -642,7 +642,8 @@ function tallyLines(s: Summary, kinds: Set<EntryKind>): string[] {
 function snapshotAlerts(s: Summary, kinds: Set<EntryKind>): AlertOut[] {
   const ids = new Set<string>();
   for (const k of kinds) for (const id of KIND_ALERT_IDS[k] ?? []) ids.add(id);
-  return s.alerts.filter((a) => ids.has(a.id)).map(alertOut);
+  // Episode alerts carry a suffix ("low-wet:4", "weight-10:123"); match the base name.
+  return s.alerts.filter((a) => ids.has(a.id.split(":")[0])).map(alertOut);
 }
 
 // ── saving with duplicate checks ────────────────────────────────────────
@@ -678,15 +679,63 @@ function stable(v: unknown): string {
 
 const norm = (s: string | null | undefined) => (s ?? "").trim().toLowerCase().replace(/\s+/g, " ");
 
+/** A log_many item's identity for client_ref purposes (allow_duplicate doesn't change what it is). */
+function itemKey(item: Record<string, unknown>): string {
+  const { allow_duplicate: _ignored, ...rest } = item;
+  void _ignored;
+  return createHash("sha256").update(stable(rest)).digest("hex").slice(0, 16);
+}
+
 /** Idempotency key for a client_ref, namespaced per member (the store's id format is strict). */
 function clientIdFor(ctx: Ctx, ref: string): string {
   return `mcp:${createHash("sha256").update(`${ctx.who.id}\n${ref}`).digest("hex").slice(0, 40)}`;
 }
 
-async function byClientId(clientId: string): Promise<Entry | null> {
+async function byClientId(clientId: string): Promise<{ entry: Entry; deleted: boolean } | null> {
   const rows = await query(`SELECT * FROM maple_entries WHERE client_id = $1`, [clientId]);
   if (rows === null) throw new StoreUnavailable();
-  return rows.length ? rowToEntry(rows[0] as Record<string, unknown>) : null;
+  if (!rows.length) return null;
+  const row = rows[0] as Record<string, unknown>;
+  return { entry: rowToEntry(row), deleted: row.deleted_at != null };
+}
+
+/** How long a client_ref counts as "the same request" (a retry, not a new event). */
+const CLIENT_REF_WINDOW = 10 * MIN;
+
+/**
+ * A client_ref used before: the earlier save if this is a genuine retry of the
+ * same thing (same kind, same data, within 10 minutes). Reusing a ref for
+ * something else is an error rather than a silent "already saved".
+ */
+async function priorForRef(
+  ctx: Ctx,
+  ref: string,
+  clientId: string,
+  kind: EntryKind,
+  data: Record<string, unknown> | null
+): Promise<Entry | null> {
+  const prior = await byClientId(clientId);
+  if (!prior) return null;
+  const e = prior.entry;
+  const fresh = ctx.now.getTime() - Date.parse(e.created_at) <= CLIENT_REF_WINDOW;
+  const same = e.kind === kind && (data == null || stable(e.data) === stable(data));
+  if (fresh && same && !prior.deleted) return e;
+  const why = prior.deleted ? ", which has since been deleted" : "";
+  throw new ToolError(
+    `client_ref "${ref}" was already used for #${e.id} (${phrase(e, ctx.now)} at ${whenText(e.started_at, ctx)})${why}. Nothing new was saved: send this one again with a new client_ref.`
+  );
+}
+
+/** The doctor-question notes (filtered in SQL so everyday notes can't crowd them out), oldest first. */
+async function doctorQuestions(ctx: Ctx): Promise<EntryOf<"note">[]> {
+  const rows = await query(
+    `SELECT * FROM maple_entries
+     WHERE baby_id = $1 AND kind = 'note' AND deleted_at IS NULL AND (data->>'for_doctor')::boolean IS TRUE
+     ORDER BY started_at, id`,
+    [ctx.baby.id]
+  );
+  if (rows === null) throw new StoreUnavailable();
+  return rows.map((r) => rowToEntry(r as Record<string, unknown>)) as EntryOf<"note">[];
 }
 
 /**
@@ -716,7 +765,8 @@ function looksSame(kind: EntryKind, x: Entry, data: Record<string, unknown>, s: 
     case "temp":
       return close && Math.round(cToF(Number(xd.temp_c)) * 10) === Math.round(cToF(Number(data.temp_c)) * 10);
     case "growth":
-      return close;
+      // Weight now, length and head a minute later: separate readings unless they overlap.
+      return close && ["weight_g", "length_cm", "head_cm"].some((k) => xd[k] != null && data[k] != null);
     case "vitals":
       return close && stable(xd) === stable(data);
     case "moment":
@@ -738,14 +788,17 @@ async function save(ctx: Ctx, input: SaveInput): Promise<Pick<Saved, "status" | 
   const data = cleanData(input.kind, input.data) as Record<string, unknown>;
   const note = input.note?.trim() ? input.note.trim().slice(0, 2000) : null;
 
-  // 1. A replay of the same client_ref.
-  const clientId = input.client_ref?.trim() ? clientIdFor(ctx, input.client_ref.trim()) : null;
-  if (clientId) {
-    const prior = await byClientId(clientId);
+  // 1. A replay of the same client_ref (same thing, within 10 minutes).
+  const ref = input.client_ref?.trim() || null;
+  const clientId = ref ? clientIdFor(ctx, ref) : null;
+  if (ref && clientId) {
+    const prior = await priorForRef(ctx, ref, clientId, input.kind, data);
     if (prior) return { status: "deduped", entry: prior };
   }
 
   // 2. An identical retry by the same person (model retried after a timeout).
+  //    Skipped with a client_ref (step 1 covers retries) or when the user
+  //    confirmed it's a second event (allow_duplicate).
   const s = input.start.getTime();
   const e = input.end ? input.end.getTime() : s;
   const nearby = await listEntries({
@@ -757,7 +810,7 @@ async function save(ctx: Ctx, input: SaveInput): Promise<Pick<Saved, "status" | 
     limit: 100,
   });
   const key = stable(data);
-  const retry = nearby.find(
+  const retry = ref || input.allow_duplicate ? undefined : nearby.find(
     (x) =>
       x.created_by === ctx.who.id &&
       !x.active &&
@@ -779,8 +832,7 @@ async function save(ctx: Ctx, input: SaveInput): Promise<Pick<Saved, "status" | 
       if (given) return { status: "duplicate", entry: given, dupReason: "vitamin_d" };
     }
     if (input.kind === "note" && data.for_doctor) {
-      const notes = await listEntries({ babyId: ctx.baby.id, kinds: ["note"], limit: 500 });
-      const same = notes.find((x) => x.kind === "note" && x.data.for_doctor && !x.data.done && norm(x.note) === norm(note));
+      const same = (await doctorQuestions(ctx)).find((x) => !x.data.done && norm(x.note) === norm(note));
       if (same) return { status: "duplicate", entry: same, dupReason: "same" };
     }
   }
@@ -1186,8 +1238,16 @@ async function doTemperature(a: TempArgs, ctx: Ctx, w: WriteOpts): Promise<Saved
   const start = startFrom(a, ctx, assumed) ?? ctx.now;
   const core = await save(ctx, { kind: "temp", start, end: null, data: { temp_c: Math.round(c * 1000) / 1000, method }, note: a.note, ...w });
   const sv = await finish(ctx, core, assumed);
+  const f = round1(cToF(c));
+  const months = monthsAt(ctx.baby, start, ctx.tz);
+  const earTooYoung = method === "ear" && months < 6;
   if (core.status !== "duplicate" && !sv.alerts.length) {
-    sv.lines.push("No temperature alert. A typical newborn range is about 97.7–99.5°F (36.5–37.5°C).");
+    if (earTooYoung) {
+      // Ear thermometers aren't accurate before 6 months; never reassure on one.
+      sv.lines.push("Ear thermometers aren't accurate before 6 months. Please recheck with a rectal (most accurate) or forehead reading.");
+    } else if (f >= 97.7 && f <= 99.5) {
+      sv.lines.push("No temperature alert. A typical newborn range is about 97.7–99.5°F (36.5–37.5°C).");
+    }
   }
   if (!method) sv.lines.push("How was it taken? Rectal is the most accurate at this age; pass method next time.");
   return sv;
@@ -1589,7 +1649,7 @@ async function dailySummaryResult(ctx: Ctx, days: number): Promise<CallToolResul
       ascending: true,
     }),
     listEntries({ babyId: ctx.baby.id, kinds: ["growth"], ascending: true, limit: 2000 }),
-    listEntries({ babyId: ctx.baby.id, kinds: ["note"], limit: 500 }),
+    doctorQuestions(ctx),
   ]);
   const inRange = entries.filter((e) => ts(e) >= windowFrom.getTime());
   const bornMs = ctx.baby.born_at ? Date.parse(ctx.baby.born_at) : null;
@@ -1688,8 +1748,7 @@ async function dailySummaryResult(ctx: Ctx, days: number): Promise<CallToolResul
   }
 
   const questions = notes
-    .filter((n): n is EntryOf<"note"> => n.kind === "note" && !!n.data.for_doctor && !n.data.done)
-    .sort((a, b) => ts(a) - ts(b))
+    .filter((n) => !n.data.done)
     .map((n) => ({ id: n.id, question: n.note ?? "", asked_by: memberName(n.created_by, ctx.members), local: localWhen(n.started_at, ctx) }));
 
   const night = lastNight(entries, ctx);
@@ -1930,9 +1989,8 @@ export function registerMapleTools(server: McpServer) {
       invoked: "Questions ready 🩺",
     },
     async (a, ctx) => {
-      const notes = (await listEntries({ babyId: ctx.baby.id, kinds: ["note"], limit: 500, ascending: true })) as EntryOf<"note">[];
-      const qs = notes
-        .filter((n) => n.data.for_doctor && (a.include_answered || !n.data.done))
+      const qs = (await doctorQuestions(ctx))
+        .filter((n) => a.include_answered || !n.data.done)
         .map((n) => ({
           id: n.id,
           question: n.note ?? "",
@@ -1959,7 +2017,13 @@ export function registerMapleTools(server: McpServer) {
       description:
         'Use this once, when Maple is born, to record her birth time and birth measurements. That switches on age-based targets (diapers, feeds), growth percentiles and alerts. Weight as pounds + ounces, kg or grams; length and head in inches or cm. If a birth is already recorded it refuses unless replace_existing is true (for corrections). E.g. "she\'s here! born 3:12am, 7 lb 6 oz, 20 inches".',
       inputSchema: {
-        at: fields.at("Birth time"),
+        at: z
+          .string()
+          .max(60)
+          .nullish()
+          .describe(
+            `Birth time. ${TIME_HELP} For a birth more than a day ago use the full ISO date and time the family gave (e.g. 2026-10-18T03:12). Leave out (with minutes_ago) for "just now", or when correcting only measurements (the recorded time is kept).`
+          ),
         minutes_ago: fields.minutesAgo("How many minutes ago she was born"),
         pounds: z.number().min(0).max(15).nullish().describe("Birth weight, whole pounds (with ounces)."),
         ounces: z.number().min(0).max(16).nullish().describe("Birth weight, ounces part (0–15.9)."),
@@ -1978,22 +2042,24 @@ export function registerMapleTools(server: McpServer) {
     },
     async (a, ctx) => {
       const assumed: string[] = [];
-      const born = startFrom(a, ctx, assumed) ?? ctx.now;
+      const cur = ctx.baby;
+      const given = startFrom(a, ctx, assumed);
+      // A correction that only fixes measurements keeps the recorded birth time.
+      const born = given ?? (cur.born_at ? new Date(cur.born_at) : ctx.now);
       const g = weightGrams(a);
       const len = lengthCm(a.length_inches, a.length_cm, "length");
       const head = lengthCm(a.head_inches, a.head_cm, "head circumference");
       if (g != null && (g < 400 || g > 7000)) throw new ToolError("That birth weight looks off; check the units.");
       if (len != null && (len < 25 || len > 65)) throw new ToolError("That birth length looks off; check inches vs cm.");
       if (head != null && (head < 20 || head > 45)) throw new ToolError("That head size looks off; check inches vs cm.");
-      const cur = ctx.baby;
       if (cur.born_at && !a.replace_existing) {
-        const parts = [whenText(cur.born_at, ctx), cur.birth_weight_g ? formatWeightBoth(cur.birth_weight_g) : null].filter(Boolean);
+        const parts = [`${whenText(cur.born_at, ctx)} (${isoLocal(cur.born_at, ctx.tz)})`, cur.birth_weight_g ? formatWeightBoth(cur.birth_weight_g) : null].filter(Boolean);
         throw new ToolError(
-          `Maple's birth is already recorded (${parts.join(", ")}). To correct it, call record_birth again with replace_existing: true.`
+          `Maple's birth is already recorded (${parts.join(", ")}). To correct it, call record_birth again with replace_existing: true and only the values that change; leave at/minutes_ago out to keep the birth time.`
         );
       }
       const baby = await updateBaby(cur.id, {
-        born_at: born.toISOString(),
+        ...(given || !cur.born_at ? { born_at: born.toISOString() } : {}),
         ...(g != null ? { birth_weight_g: g } : {}),
         ...(len != null ? { birth_length_cm: round1(len) } : {}),
         ...(head != null ? { birth_head_cm: round1(head) } : {}),
@@ -2004,9 +2070,10 @@ export function registerMapleTools(server: McpServer) {
         baby.birth_length_cm ? `${formatLengthBoth(baby.birth_length_cm)} long` : null,
         baby.birth_head_cm ? `head ${formatLengthBoth(baby.birth_head_cm)}` : null,
       ].filter(Boolean);
-      const fresh = ctx.now.getTime() - born.getTime() < 48 * HOUR;
+      const fresh = !cur.born_at && ctx.now.getTime() - born.getTime() < 48 * HOUR;
+      const verb = cur.born_at ? "Updated her birth record" : "Recorded her birth";
       const lines = [
-        `${fresh ? "Welcome to the world, Maple! 🍁 " : ""}Recorded her birth at ${whenText(born, ctx)}${measures.length ? `: ${measures.join(", ")}` : ""} (by ${ctx.who.name} via ${viaLabel(ctx.who.via)}).`,
+        `${fresh ? "Welcome to the world, Maple! 🍁 " : ""}${verb}: born at ${whenText(born, ctx)}${measures.length ? `, ${measures.join(", ")}` : ""} (by ${ctx.who.name} via ${viaLabel(ctx.who.via)}).`,
         ...(pct.json
           ? [
               `WHO percentiles at birth: ${Object.entries(pct.json)
@@ -2014,7 +2081,7 @@ export function registerMapleTools(server: McpServer) {
                 .join(", ")}.`,
             ]
           : []),
-        FIRST_CHECKUP_NOTE,
+        ...(cur.born_at ? [] : [FIRST_CHECKUP_NOTE]),
         ...assumedLine(assumed),
       ];
       return ok(lines.join("\n"), {
@@ -2150,7 +2217,10 @@ export function registerMapleTools(server: McpServer) {
         side = s.nextSide ?? "L";
         suggested = !!s.nextSide;
       }
-      const clientId = a.client_ref?.trim() ? clientIdFor(ctx, a.client_ref.trim()) : null;
+      const ref = a.client_ref?.trim() || null;
+      const clientId = ref ? clientIdFor(ctx, ref) : null;
+      // A stale or reused ref must not hand back an old timer as "already running".
+      if (ref && clientId) await priorForRef(ctx, ref, clientId, kind, null);
       const { entry, alreadyRunning } = await startTimer({
         babyId: ctx.baby.id,
         kind,
@@ -2210,18 +2280,51 @@ export function registerMapleTools(server: McpServer) {
       const assumed: string[] = [];
       const at = startFrom(a, ctx, assumed) ?? ctx.now;
       const wanted = a.timer ? TIMER_KIND[a.timer] : null;
+      // Check the pumped amount before stopping anything, so a typo can't
+      // leave a stopped timer behind an error that says nothing was saved.
+      const pumpedMl = a.amount != null ? volumeMl(a.amount, a.unit ?? "oz", "pumping session") : null;
+      if (pumpedMl != null && wanted && wanted !== "pump") throw new ToolError("amount is only for pumping timers.");
+      if (pumpedMl != null && pumpedMl > 1200) {
+        throw new ToolError(
+          `${a.amount} ${a.unit ?? "oz"} is more than one pumping session gives (max about 40 oz / 1200 ml). Did you mean ${a.unit === "ml" ? "oz" : "ml"}? Nothing was stopped.`
+        );
+      }
+
+      // Already stopped (a retry, or the other parent got there first): say
+      // so, and still record the amount on a pumping session that has none.
+      const alreadyStopped = async (e: Entry): Promise<CallToolResult> => {
+        let entry = e;
+        const who = memberName(e.updated_by ?? e.created_by, ctx.members);
+        const lines = [
+          `That ${TIMER_LABEL[e.kind as TimerKind] ?? KIND_NAME[e.kind]} timer already stopped${e.ended_at ? ` at ${whenText(e.ended_at, ctx)}` : ""} (by ${who}; #${e.id}: ${phrase(e, ctx.now)}).`,
+        ];
+        let added: string | null = null;
+        if (pumpedMl != null && e.kind === "pump") {
+          const has = e.data.total_ml;
+          if (has == null) {
+            entry = await updateEntry(e.id, { data: { total_ml: pumpedMl } }, ctx.who.id);
+            added = formatVolumeBoth(pumpedMl);
+            lines.push(`Added ${added} to #${e.id}.`);
+          } else if (Math.abs(has - pumpedMl) > 1) {
+            lines.push(`It already has ${formatVolumeBoth(has)}. To change that, use update_entry with id ${e.id} and details { total_ml: ${pumpedMl} }.`);
+          }
+        } else if (pumpedMl != null) {
+          lines.push("amount is only for pumping timers, so it wasn't recorded.");
+        }
+        return ok(lines.join("\n"), {
+          stopped: false,
+          already_stopped: true,
+          ...(added ? { amount_added: added } : {}),
+          ...entryJson(entry, ctx),
+        });
+      };
+
       let target: Entry | null = null;
       if (a.id != null) {
         const e = await getEntry(a.id);
         if (!e) throw new ToolError(`There's no entry #${a.id}. Call maple_status to see running timers.`);
         if (wanted && e.kind !== wanted) throw new ToolError(`#${a.id} is a ${KIND_NAME[e.kind]} entry, not a ${a.timer} timer.`);
-        if (!e.active) {
-          return ok(`Timer #${e.id} already stopped${e.ended_at ? ` at ${whenText(e.ended_at, ctx)}` : ""}: ${phrase(e, ctx.now)}.`, {
-            stopped: false,
-            already_stopped: true,
-            ...entryJson(e, ctx),
-          });
-        }
+        if (!e.active) return alreadyStopped(e);
         target = e;
       } else {
         const running = (await activeTimers(ctx.baby.id)).filter((e) => !wanted || e.kind === wanted);
@@ -2238,35 +2341,28 @@ export function registerMapleTools(server: McpServer) {
             from: new Date(ctx.now.getTime() - 5 * MIN),
             limit: 10,
           })).find((e) => !e.active && e.ended_at && ctx.now.getTime() - Date.parse(e.updated_at) <= 5 * MIN);
-          if (recent) {
-            return ok(
-              `That timer already stopped at ${whenText(recent.ended_at!, ctx)} (#${recent.id}: ${phrase(recent, ctx.now)}).`,
-              { stopped: false, already_stopped: true, ...entryJson(recent, ctx) }
-            );
-          }
+          if (recent) return alreadyStopped(recent);
           throw new ToolError(
             wanted === "feed"
               ? "No nursing timer is running. To record a finished feed use log_feed with left_minutes / right_minutes; to start one use start_timer."
-              : `No ${wanted ? TIMER_LABEL[wanted] : ""} timer is running. To record something that already finished, use the matching log_* tool.`.replace("No  timer", "No timer")
+              : wanted
+                ? `No ${TIMER_LABEL[wanted]} timer is running. To record something that already finished, use the matching log_* tool.`
+                : "No timer is running. To record something that already finished, use the matching log_* tool."
           );
         }
         target = running[0];
       }
+      if (pumpedMl != null && target.kind !== "pump") throw new ToolError(`amount is only for pumping timers; #${target.id} is a ${TIMER_LABEL[target.kind as TimerKind]} timer.`);
+
       let stopped: Entry;
       try {
         stopped = await stopTimer(target.id, at, ctx.who.id);
       } catch (err) {
-        if (err instanceof Conflict) {
-          return ok(`Timer #${err.entry.id} already stopped${err.entry.ended_at ? ` at ${whenText(err.entry.ended_at, ctx)}` : ""}.`, {
-            stopped: false,
-            already_stopped: true,
-            ...entryJson(err.entry, ctx),
-          });
-        }
+        if (err instanceof Conflict) return alreadyStopped(err.entry);
         throw err;
       }
-      if (stopped.kind === "pump" && a.amount != null) {
-        stopped = await updateEntry(stopped.id, { data: { total_ml: volumeMl(a.amount, a.unit ?? "oz", "pumping session") } }, ctx.who.id);
+      if (stopped.kind === "pump" && pumpedMl != null) {
+        stopped = await updateEntry(stopped.id, { data: { total_ml: pumpedMl } }, ctx.who.id);
       }
       const s = await snapshot(ctx);
       const kinds = new Set<EntryKind>([stopped.kind]);
@@ -2682,7 +2778,8 @@ export function registerMapleTools(server: McpServer) {
       const results: { index: number; saved?: Saved; error?: string }[] = [];
       for (const [i, item] of a.entries.entries()) {
         const opts: WriteOpts = {
-          client_ref: a.client_ref?.trim() ? `${a.client_ref.trim()}#${i}` : null,
+          // Keyed by content, so a re-sent batch with fewer or fixed items still lines up.
+          client_ref: a.client_ref?.trim() ? `${a.client_ref.trim()}#${itemKey(item)}` : null,
           allow_duplicate: item.allow_duplicate ?? a.allow_duplicate,
         };
         try {
@@ -2916,7 +3013,7 @@ E.g. "that diaper was actually poopy too" → details {poop: true}; "the feed st
     {
       title: "Undo the last thing I logged",
       description:
-        'Use this for "undo that" / "scratch that": removes the most recent entry YOU logged through an AI assistant in the last 30 minutes (any assistant), and says what was removed. restore_entry brings it back.',
+        'Use this for "undo that" / "scratch that": removes the most recent entry YOU logged through an AI assistant in the last 30 minutes (any assistant), and says what was removed; restore_entry brings it back. If your last action was a change to an existing entry (stop_timer, switch_side, update_entry), it removes nothing and says how to fix that change instead.',
       inputSchema: {},
       annotations: { readOnlyHint: false, destructiveHint: true, idempotentHint: false, openWorldHint: false },
       invoking: "Rewinding a tiny bit…",
@@ -2924,20 +3021,44 @@ E.g. "that diaper was actually poopy too" → details {poop: true}; "the feed st
       write: true,
     },
     async (_a, ctx) => {
-      const rows = await query(
-        `SELECT * FROM maple_entries
-         WHERE baby_id = $1 AND created_by = $2 AND source = ANY($3::text[]) AND deleted_at IS NULL
-           AND created_at >= NOW() - INTERVAL '30 minutes'
-         ORDER BY created_at DESC, id DESC LIMIT 1`,
-        [ctx.baby.id, ctx.who.id, MCP_SOURCES]
-      );
-      if (rows === null) throw new StoreUnavailable();
-      if (!rows.length) {
+      const [rows, changed] = await Promise.all([
+        query(
+          `SELECT * FROM maple_entries
+           WHERE baby_id = $1 AND created_by = $2 AND source = ANY($3::text[]) AND deleted_at IS NULL
+             AND created_at >= NOW() - INTERVAL '30 minutes'
+           ORDER BY created_at DESC, id DESC LIMIT 1`,
+          [ctx.baby.id, ctx.who.id, MCP_SOURCES]
+        ),
+        // Your latest edit to an existing entry (stop_timer, switch_side,
+        // update_entry…). Creating an entry leaves updated_by empty, so any
+        // row carrying your id here is one you changed.
+        query(
+          `SELECT * FROM maple_entries
+           WHERE baby_id = $1 AND updated_by = $2 AND deleted_at IS NULL
+             AND updated_at >= NOW() - INTERVAL '30 minutes'
+           ORDER BY updated_at DESC, id DESC LIMIT 1`,
+          [ctx.baby.id, ctx.who.id]
+        ),
+      ]);
+      if (rows === null || changed === null) throw new StoreUnavailable();
+      const created = rows.length ? rowToEntry(rows[0] as Record<string, unknown>) : null;
+      const edited = changed.length ? rowToEntry(changed[0] as Record<string, unknown>) : null;
+      // If the last thing you did was change an entry, deleting an older one
+      // would undo the wrong thing: explain instead.
+      if (edited && (!created || Date.parse(edited.updated_at) > Date.parse(created.created_at))) {
+        const span = edited.ended_at
+          ? `${formatTime(edited.started_at, ctx.tz)}–${formatTime(edited.ended_at, ctx.tz)} ${dayWord(new Date(edited.started_at), ctx)}`
+          : whenText(edited.started_at, ctx);
+        throw new ToolError(
+          `Nothing was removed. Your last action was a change to #${edited.id} (${phrase(edited, ctx.now)}, ${span}) at ${formatTime(edited.updated_at, ctx.tz)}, ${edited.active ? "and it's still running" : "not a new entry"}. undo_last only takes back entries you just added. To fix that change use update_entry with id ${edited.id} (for example a different end time or details); to remove the entry entirely use delete_entry with id ${edited.id}.`
+        );
+      }
+      if (!created) {
         throw new ToolError(
           "There's nothing you logged through an assistant in the last 30 minutes to undo. To remove something older, find it with list_entries and use delete_entry."
         );
       }
-      const cur = rowToEntry(rows[0] as Record<string, unknown>);
+      const cur = created;
       await softDeleteEntry(cur.id, ctx.who.id);
       return ok(
         `Removed #${cur.id}: ${phrase(cur, ctx.now)} at ${whenText(cur.started_at, ctx)} (logged by ${memberName(cur.created_by, ctx.members)} via ${viaLabel(cur.source)}). To bring it back, use restore_entry with id ${cur.id}.`,

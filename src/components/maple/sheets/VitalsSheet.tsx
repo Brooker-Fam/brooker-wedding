@@ -8,6 +8,7 @@ import { Chip, Sheet, Stepper, WhenField, cx, tone } from "../ui";
 import type { SheetProps } from "./index";
 import {
   AssessmentCard,
+  CHECK_NUMBER_HINT,
   ContextNote,
   Label,
   LoggedBy,
@@ -17,6 +18,7 @@ import {
   presetStart,
   pstr,
   useOpenCount,
+  useNumberChecks,
   useSheetBase,
   withNulls,
 } from "./parts";
@@ -57,6 +59,7 @@ function VitalsForm({ open, onClose, entry, preset }: SheetProps) {
   const [when, setWhen] = useState<Date | null>(() => (e ? new Date(e.started_at) : presetStart(preset)));
   const [note, setNote] = useState(e?.note ?? pstr(preset, "note") ?? "");
   const [busy, setBusy] = useState(false);
+  const checks = useNumberChecks();
 
   const t = when ?? now();
   const ago = (x: EntryOf<"vitals">) => (t.getTime() - Date.parse(x.started_at)) / 60_000;
@@ -114,16 +117,16 @@ function VitalsForm({ open, onClose, entry, preset }: SheetProps) {
     <>
       <div>
         <Label optional>Heart rate</Label>
-        <Stepper value={heart} onChange={setHeart} step={5} min={30} max={260} suffix="bpm" ariaLabel="heart rate, beats per minute" />
+        <Stepper value={heart} onChange={setHeart} onInvalid={checks.watch("heart")} step={5} min={30} max={260} suffix="bpm" ariaLabel="heart rate, beats per minute" />
       </div>
       <div>
         <Label optional>Breathing</Label>
-        <Stepper value={resp} onChange={setResp} step={1} min={5} max={150} suffix="/min" ariaLabel="breaths per minute" />
+        <Stepper value={resp} onChange={setResp} onInvalid={checks.watch("resp")} step={1} min={5} max={150} suffix="/min" ariaLabel="breaths per minute" />
         <p className={cx(tone.muted, "mt-1 text-xs")}>Count for a full minute while she&apos;s calm or asleep.</p>
       </div>
       <div>
         <Label optional>Oxygen (SpO₂)</Label>
-        <Stepper value={spo2} onChange={setSpo2} step={1} min={50} max={100} suffix="%" ariaLabel="oxygen saturation percent" />
+        <Stepper value={spo2} onChange={setSpo2} onInvalid={checks.watch("spo2")} step={1} min={50} max={100} suffix="%" ariaLabel="oxygen saturation percent" />
       </div>
       {vitalNotes.map((a) => (
         <AssessmentCard key={a.title} a={a} />
@@ -169,8 +172,8 @@ function VitalsForm({ open, onClose, entry, preset }: SheetProps) {
           onPrimary={() => void save()}
           label={e ? "Save" : "Log it"}
           busy={busy}
-          disabled={!hasAny || (!!e && e.id < 0)}
-          hint={!hasAny ? (skinMode ? "Pick what you see." : "Add a reading.") : undefined}
+          disabled={checks.invalid || !hasAny || (!!e && e.id < 0)}
+          hint={checks.invalid ? CHECK_NUMBER_HINT : !hasAny ? (skinMode ? "Pick what you see." : "Add a reading.") : undefined}
         />
       }
     >

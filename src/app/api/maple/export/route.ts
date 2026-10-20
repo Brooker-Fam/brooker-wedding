@@ -18,10 +18,16 @@ function csvCell(v: unknown): string {
 /** GET /api/maple/export — every entry as CSV, oldest first (for the pediatrician or a backup). */
 export const GET = withMember("GET /api/maple/export", async () => {
   const baby = await getBaby();
-  const [entries, members] = await Promise.all([
-    listEntries({ babyId: baby.id, ascending: true, limit: 5000 }),
-    listMembers(),
-  ]);
+  const members = await listMembers();
+  // Page through everything (a busy year is well over one page).
+  const entries = [];
+  for (let after: { startedAt: string; id: number } | undefined; ; ) {
+    const page = await listEntries({ babyId: baby.id, ascending: true, limit: 5000, after });
+    entries.push(...page);
+    if (page.length < 5000) break;
+    const last = page[page.length - 1];
+    after = { startedAt: last.started_at, id: last.id };
+  }
   const tz = baby.timezone;
   const header = ["id", "date", "start", "end", "minutes", "kind", "summary", "note", "logged_by", "via", "data_json"];
   const lines = [header.map(csvCell).join(",")];

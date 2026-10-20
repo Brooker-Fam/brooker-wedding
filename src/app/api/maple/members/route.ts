@@ -68,6 +68,6 @@ export const DELETE = withMember("DELETE /api/maple/members", async (request, me
   const email = normalizeMemberId(new URL(request.url).searchParams.get("email"));
   if (!email) throw new BadRequest("Invalid email");
   if (email === me.email) throw new BadRequest("You can't remove yourself");
-  if (!(await removeMember(email))) throw new BadRequest("Owners can't be removed");
+  if (!(await removeMember(email, me.email))) throw new BadRequest("Owners can't be removed");
   return json({ members: await listMembers() });
 });

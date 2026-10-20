@@ -576,6 +576,16 @@ async function migrate() {
   await sql`CREATE UNIQUE INDEX IF NOT EXISTS uniq_maple_entries_running ON maple_entries(baby_id, kind) WHERE active AND deleted_at IS NULL`;
   await sql`CREATE UNIQUE INDEX IF NOT EXISTS uniq_maple_entries_client ON maple_entries(client_id) WHERE client_id IS NOT NULL`;
 
+  // People an owner removed. Keeps an allowlisted address (MAPLE_ALLOWED_EMAILS)
+  // from rejoining by just signing in again; inviting them again clears it.
+  await sql`
+    CREATE TABLE IF NOT EXISTS maple_removed (
+      email TEXT PRIMARY KEY,
+      removed_by TEXT,
+      removed_at TIMESTAMPTZ DEFAULT NOW()
+    )
+  `;
+
   // One-time invite links for family who'd rather not use Google (grandparents).
   // Only the SHA-256 of the token is stored.
   await sql`

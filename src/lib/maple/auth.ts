@@ -1,5 +1,6 @@
 import { google } from "googleapis";
-import type { NextRequest } from "next/server";
+import { createHash } from "crypto";
+import type { NextRequest, NextResponse } from "next/server";
 import { query } from "@/lib/db";
 import { getAppBaseUrl, encryptSecret, decryptSecret } from "@/lib/google";
 import { verifyAdminCreds } from "@/lib/mcp/auth";
@@ -81,30 +82,60 @@ export function checkAdminPassword(user: string, pass: string): boolean {
 
 // ── session cookie ────────────────────────────────────────────────────
 
-export function sealSession(id: string): string {
-  return encryptSecret(JSON.stringify({ id, iat: Date.now() }));
+/**
+ * The admin pseudo-member's session is tied to the current ADMIN_PASS, so
+ * changing that password signs "admin" out everywhere.
+ */
+function adminFingerprint(): string {
+  return createHash("sha256").update(`maple-admin:${process.env.ADMIN_PASS ?? ""}`).digest("hex").slice(0, 16);
 }
 
-/** The member id in a session cookie (an email or "admin"), or null. */
+export function sealSession(id: string): string {
+  const body: { id: string; iat: number; pf?: string } = { id, iat: Date.now() };
+  if (id === ADMIN_ID) body.pf = adminFingerprint();
+  return encryptSecret(JSON.stringify(body));
+}
+
+/** The member id in a session cookie (an email, "admin" or "invite:<n>"), or null. */
 export function openSession(raw: string | undefined | null): string | null {
   if (!raw) return null;
   try {
-    const { id, iat } = JSON.parse(decryptSecret(raw));
+    const { id, iat, pf } = JSON.parse(decryptSecret(raw));
     if (typeof id !== "string" || !id) return null;
     if (typeof iat !== "number" || Date.now() - iat > SESSION_DAYS * 864e5) return null;
+    if (id === ADMIN_ID && pf !== adminFingerprint()) return null;
     return id;
   } catch {
     return null;
   }
 }
 
-export const cookieOptions = {
-  httpOnly: true,
-  secure: process.env.NODE_ENV === "production",
-  sameSite: "lax" as const,
-  path: "/",
-  maxAge: SESSION_DAYS * 24 * 60 * 60,
-};
+/**
+ * The session cookie is scoped to the paths that read it: the app's API and
+ * the MCP consent page. Never "/", or the browser would also send it through
+ * the /ingest analytics proxy to a third party.
+ */
+export const SESSION_PATHS = ["/api/maple", "/oauth/authorize"] as const;
+const SESSION_MAX_AGE = SESSION_DAYS * 24 * 60 * 60;
+
+// The same cookie name on two paths: NextResponse.cookies is keyed by name
+// (a second set() would replace the first), so append raw headers.
+function sessionCookieHeader(value: string, path: string, maxAge: number): string {
+  const attrs = [`${SESSION_COOKIE}=${encodeURIComponent(value)}`, `Path=${path}`, `Max-Age=${maxAge}`, "HttpOnly", "SameSite=Lax"];
+  if (maxAge === 0) attrs.push("Expires=Thu, 01 Jan 1970 00:00:00 GMT");
+  if (process.env.NODE_ENV === "production") attrs.push("Secure");
+  return attrs.join("; ");
+}
+
+export function setSessionCookies(res: NextResponse, id: string): void {
+  const value = sealSession(id);
+  for (const path of SESSION_PATHS) res.headers.append("Set-Cookie", sessionCookieHeader(value, path, SESSION_MAX_AGE));
+}
+
+export function clearSessionCookies(res: NextResponse): void {
+  // "/" too: early builds set it there.
+  for (const path of [...SESSION_PATHS, "/"]) res.headers.append("Set-Cookie", sessionCookieHeader("", path, 0));
+}
 
 /**
  * Where to send someone after sign-in. Only our own app and the OAuth consent
@@ -178,6 +209,11 @@ export async function joinWithGoogle(
     }
     return { member: existing };
   }
+
+  // Someone an owner removed stays out until they're invited again.
+  const removed = await query(`SELECT 1 FROM maple_removed WHERE email = $1`, [who.email]);
+  if (removed === null) return { member: null, reason: "unavailable" };
+  if (removed.length) return { member: null, reason: "not_invited" };
 
   const people = await query(`SELECT COUNT(*)::int AS n FROM maple_members WHERE email <> $1`, [ADMIN_ID]);
   if (people === null) return { member: null, reason: "unavailable" };

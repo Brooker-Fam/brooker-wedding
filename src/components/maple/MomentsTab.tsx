@@ -119,7 +119,7 @@ function groupByWeek(moments: Moment[], bornAt: string | null, tz: string): Week
 }
 
 export default function MomentsTab() {
-  const { state, api, now } = useMaple();
+  const { state, api, now, readOnly } = useMaple();
   const { open } = useSheets();
   const [fetched, setFetched] = useState<Moment[] | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -147,7 +147,8 @@ export default function MomentsTab() {
 
   const tz = state?.baby.timezone ?? "America/New_York";
   const bornAt = state?.baby.born_at ?? null;
-  const viewer = (state?.me.role as string | undefined) === "viewer";
+  // Viewers (read-only role) can look at everything but add or edit nothing.
+  const viewer = readOnly;
   const babyName = state?.baby.name?.split(" ")[0] || "Maple";
 
   // The fetched list plus what the shared state already knows (an optimistic

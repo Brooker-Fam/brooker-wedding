@@ -155,7 +155,57 @@ export function Field({ label, hint, children }: { label: string; hint?: ReactNo
   );
 }
 
-/** Number input with − / + buttons. Empty string = no value. */
+/**
+ * What typed text means: empty, a number, or something to fix. "100..4" or a
+ * number past the field's max is invalid, never quietly the last good value
+ * (a fever typed with a double dot must not save as 100.0°F).
+ */
+export function parseTypedNumber(text: string, max: number): { value: number | null; invalid: boolean } {
+  if (text === "") return { value: null, invalid: false };
+  const n = Number(text);
+  if (!Number.isFinite(n) || n > max) return { value: null, invalid: true };
+  return { value: n, invalid: false };
+}
+
+/**
+ * Typed text for a number field that follows the value from outside, except
+ * that a typo stays on screen (with the value null) until it's fixed. Reports
+ * invalid ↔ valid to `onInvalid`, and clears the flag when the field goes away.
+ * Fields that swap places (Bottle ↔ Breast) need distinct keys so one field's
+ * typo and flag never carry over to another.
+ */
+export function useTypedNumber(value: number | null, max: number, onInvalid?: (invalid: boolean) => void) {
+  const [text, setText] = useState(value == null ? "" : String(value));
+  useEffect(() => {
+    setText((t) => {
+      if (t !== "" && Number(t) === value) return t; // same number ("2." mid-typing)
+      if (value == null && parseTypedNumber(t, max).invalid) return t; // keep the typo visible
+      return value == null ? "" : String(value);
+    });
+  }, [value, max]);
+  const invalid = parseTypedNumber(text, max).invalid;
+  const report = useRef(onInvalid);
+  useEffect(() => {
+    report.current = onInvalid;
+  });
+  useEffect(() => {
+    report.current?.(invalid);
+    return () => report.current?.(false);
+  }, [invalid]);
+  return { text, setText, invalid };
+}
+
+/** "Check this number" under a field holding a typo. */
+export function NumberProblem({ show }: { show: boolean }) {
+  if (!show) return null;
+  return (
+    <span role="alert" className="mt-1 block text-xs font-semibold text-[#9A3A24] dark:text-[#F4A68F]">
+      Check this number
+    </span>
+  );
+}
+
+/** Number input with − / + buttons. Empty string = no value; unreadable text = no value plus "Check this number". */
 export function Stepper({
   value,
   onChange,
@@ -165,6 +215,7 @@ export function Stepper({
   suffix,
   decimals = 0,
   ariaLabel,
+  onInvalid,
 }: {
   value: number | null;
   onChange: (v: number | null) => void;
@@ -174,38 +225,40 @@ export function Stepper({
   suffix?: string;
   decimals?: number;
   ariaLabel: string;
+  /** Called with true while the text isn't a usable number (so a form can hold Save). */
+  onInvalid?: (invalid: boolean) => void;
 }) {
-  const [text, setText] = useState(value == null ? "" : String(value));
-  useEffect(() => {
-    setText((t) => (Number(t) === value && t !== "" ? t : value == null ? "" : String(value)));
-  }, [value]);
+  const { text, setText, invalid } = useTypedNumber(value, max, onInvalid);
   const bump = (d: number) => {
     const next = Math.min(max, Math.max(min, Math.round(((value ?? 0) + d) * 10 ** decimals) / 10 ** decimals));
     onChange(next);
   };
   return (
-    <div className="flex items-center gap-2">
-      <button type="button" aria-label={`Less ${ariaLabel}`} onClick={() => bump(-step)} className="h-12 w-12 shrink-0 rounded-full bg-[#1D4420]/[0.07] text-2xl font-semibold text-[#1D4420] active:scale-95 dark:bg-[#F5EDDF]/10 dark:text-[#F5EDDF]">
-        −
-      </button>
-      <div className="relative flex-1">
-        <input
-          inputMode="decimal"
-          aria-label={ariaLabel}
-          value={text}
-          onChange={(e) => {
-            const t = e.target.value.replace(/[^\d.]/g, "");
-            setText(t);
-            if (t === "") onChange(null);
-            else if (Number.isFinite(Number(t))) onChange(Math.min(max, Number(t)));
-          }}
-          className={cx(tone.input, "text-center text-xl font-semibold", suffix && "pr-12")}
-        />
-        {suffix && <span className={cx(tone.muted, "pointer-events-none absolute top-1/2 right-4 -translate-y-1/2 text-sm")}>{suffix}</span>}
+    <div>
+      <div className="flex items-center gap-2">
+        <button type="button" aria-label={`Less ${ariaLabel}`} onClick={() => bump(-step)} className="h-12 w-12 shrink-0 rounded-full bg-[#1D4420]/[0.07] text-2xl font-semibold text-[#1D4420] active:scale-95 dark:bg-[#F5EDDF]/10 dark:text-[#F5EDDF]">
+          −
+        </button>
+        <div className="relative flex-1">
+          <input
+            inputMode="decimal"
+            aria-label={ariaLabel}
+            aria-invalid={invalid || undefined}
+            value={text}
+            onChange={(e) => {
+              const t = e.target.value.replace(/[^\d.]/g, "");
+              setText(t);
+              onChange(parseTypedNumber(t, max).value);
+            }}
+            className={cx(tone.input, "text-center text-xl font-semibold", suffix && "pr-12", invalid && "border-[#B5452B]! ring-2! ring-[#B5452B]/30!")}
+          />
+          {suffix && <span className={cx(tone.muted, "pointer-events-none absolute top-1/2 right-4 -translate-y-1/2 text-sm")}>{suffix}</span>}
+        </div>
+        <button type="button" aria-label={`More ${ariaLabel}`} onClick={() => bump(step)} className="h-12 w-12 shrink-0 rounded-full bg-[#1D4420]/[0.07] text-2xl font-semibold text-[#1D4420] active:scale-95 dark:bg-[#F5EDDF]/10 dark:text-[#F5EDDF]">
+          +
+        </button>
       </div>
-      <button type="button" aria-label={`More ${ariaLabel}`} onClick={() => bump(step)} className="h-12 w-12 shrink-0 rounded-full bg-[#1D4420]/[0.07] text-2xl font-semibold text-[#1D4420] active:scale-95 dark:bg-[#F5EDDF]/10 dark:text-[#F5EDDF]">
-        +
-      </button>
+      <NumberProblem show={invalid} />
     </div>
   );
 }

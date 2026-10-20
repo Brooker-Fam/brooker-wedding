@@ -39,7 +39,8 @@ function noStore(body: unknown, status = 200) {
 }
 
 export async function GET(request: NextRequest) {
-  if (!(await sessionMember(request))) return noStore({ error: "Sign in first" }, 401);
+  const denied = await writerCheck(request);
+  if (denied) return denied;
   const store = uploadStore();
   return noStore({
     ready: !!store,
@@ -63,7 +64,8 @@ export async function POST(request: NextRequest) {
   // Token requests are the only event: no callback URL is ever registered, so
   // a "blob.upload-completed" here is noise (no cookies, nothing to do).
   if (body?.type !== "blob.generate-client-token") return noStore({ error: "Unexpected event" }, 400);
-  if (!(await sessionMember(request))) return noStore({ error: "Sign in first" }, 401);
+  const denied = await writerCheck(request);
+  if (denied) return denied;
 
   const store = uploadStore();
   if (!store) return noStore({ error: "Photo storage isn't set up yet" }, 503);
@@ -103,13 +105,22 @@ export async function POST(request: NextRequest) {
 
 class UploadRejected extends Error {}
 
+/** Uploading (and tidying up) is for members who can log: viewers are read-only. */
+async function writerCheck(request: NextRequest): Promise<NextResponse | null> {
+  const me = await sessionMember(request);
+  if (!me) return noStore({ error: "Sign in first" }, 401);
+  if (me.role === "viewer") return noStore({ error: "You have view-only access" }, 403);
+  return null;
+}
+
 /**
  * DELETE { urls } — tidy up photos uploaded for a moment that was never saved
  * (removed from the sheet, or the sheet was closed). Only Maple paths, and
  * never a blob any moment (deleted ones included, for undo) still points at.
  */
 export async function DELETE(request: NextRequest) {
-  if (!(await sessionMember(request))) return noStore({ error: "Sign in first" }, 401);
+  const denied = await writerCheck(request);
+  if (denied) return denied;
   let urls: string[] = [];
   try {
     const body = (await request.json()) as { urls?: unknown };

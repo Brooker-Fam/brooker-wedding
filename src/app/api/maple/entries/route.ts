@@ -56,7 +56,8 @@ export const GET = withMember("GET /api/maple/entries", async (request) => {
   }
 
   const entries = await listEntries({ babyId: baby.id, kinds, from, to, limit });
-  return json({ entries: entries.map(toClientEntry), tz: baby.timezone });
+  // Hitting the limit means there's more (newest first): page with a narrower range.
+  return json({ entries: entries.map(toClientEntry), tz: baby.timezone, truncated: entries.length >= limit });
 });
 
 /**

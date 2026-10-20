@@ -1,11 +1,11 @@
 "use client";
 
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import { TIER_LABEL, type AlertTier, type Assessment } from "@/lib/maple/guidelines";
 import { babyAge, DEFAULT_TZ, dayKey, formatDayLabel, formatTime } from "@/lib/maple/time";
 import type { Entry, EntryKind, Source } from "@/lib/maple/types";
-import { Button, RepeatButton, TextArea, cx, tone } from "../ui";
+import { Button, NumberProblem, RepeatButton, TextArea, cx, parseTypedNumber, tone, useTypedNumber } from "../ui";
 import { useMaple } from "../useMaple";
 
 /**
@@ -284,7 +284,8 @@ export function RunningNote({ kind }: { kind: EntryKind }) {
 
 /**
  * A compact stepper that fits two side by side (lb + oz, Left + Right).
- * Holding − or + keeps stepping. Empty input = null.
+ * Holding − or + keeps stepping. Empty input = null; unreadable text = null
+ * plus "Check this number" (never the last good value).
  */
 export function MiniStepper({
   label,
@@ -296,6 +297,7 @@ export function MiniStepper({
   decimals = 0,
   unit,
   ariaLabel,
+  onInvalid,
 }: {
   label: ReactNode;
   value: number | null;
@@ -307,12 +309,13 @@ export function MiniStepper({
   /** Small unit after the number ("min", "oz"). */
   unit?: string;
   ariaLabel: string;
+  /** Called with true while the text isn't a usable number (so the sheet can hold Save). */
+  onInvalid?: (invalid: boolean) => void;
 }) {
-  const [text, setText] = useState(value == null ? "" : String(value));
+  const { text, setText, invalid } = useTypedNumber(value, max, onInvalid);
   const latest = useRef(value);
   useEffect(() => {
     latest.current = value;
-    setText((t) => (t !== "" && Number(t) === value ? t : value == null ? "" : String(value)));
   }, [value]);
   const round = (n: number) => Math.round(n * 10 ** decimals) / 10 ** decimals;
   const bump = (d: number) => {
@@ -333,15 +336,18 @@ export function MiniStepper({
           <input
             inputMode="decimal"
             aria-label={ariaLabel}
+            aria-invalid={invalid || undefined}
             value={text}
             onChange={(e) => {
               const t = e.target.value.replace(/[^\d.]/g, "");
               setText(t);
-              if (t === "") onChange(null);
-              else if (Number.isFinite(Number(t))) onChange(Math.min(max, Number(t)));
+              onChange(parseTypedNumber(t, max).value);
             }}
             className={cx(
-              "w-full rounded-2xl border border-[#1D4420]/15 bg-white py-2.5 text-center text-xl font-semibold text-[#1D4420] tabular-nums outline-none focus:border-[#C49A3C] focus:ring-2 focus:ring-[#C49A3C]/30 dark:border-[#C49A3C]/20 dark:bg-[#0E1E12] dark:text-[#F5EDDF]",
+              "w-full rounded-2xl border bg-white py-2.5 text-center text-xl font-semibold text-[#1D4420] tabular-nums outline-none focus:ring-2 dark:bg-[#0E1E12] dark:text-[#F5EDDF]",
+              invalid
+                ? "border-[#B5452B] ring-2 ring-[#B5452B]/30 focus:ring-[#B5452B]/30"
+                : "border-[#1D4420]/15 focus:border-[#C49A3C] focus:ring-[#C49A3C]/30 dark:border-[#C49A3C]/20",
               unit ? "pr-7 pl-1" : "px-1"
             )}
           />
@@ -351,8 +357,35 @@ export function MiniStepper({
           +
         </RepeatButton>
       </div>
+      <NumberProblem show={invalid} />
     </div>
   );
+}
+
+/**
+ * Number fields holding a typo hold Save until they're fixed:
+ *   const checks = useNumberChecks();  <MiniStepper onInvalid={checks.watch("left")} … />
+ */
+export function useNumberChecks() {
+  const [bad, setBad] = useState<Record<string, boolean>>({});
+  const watch = useCallback(
+    (key: string) => (invalid: boolean) => setBad((b) => (!!b[key] === invalid ? b : { ...b, [key]: invalid })),
+    []
+  );
+  return { invalid: Object.values(bad).some(Boolean), watch };
+}
+
+export const CHECK_NUMBER_HINT = "Check the number marked in red.";
+
+/**
+ * Which fields the person actually changed. Edits send only those, so opening
+ * an entry and fixing the note never re-rounds a volume or a weight through
+ * the display units (100 ml must stay 100 ml, not 3.5 oz → 103.5 ml).
+ */
+export function useTouched() {
+  const [touched, setTouched] = useState<Record<string, true>>({});
+  const touch = useCallback((key: string) => setTouched((t) => (t[key] ? t : { ...t, [key]: true })), []);
+  return { touched, touch };
 }
 
 /** Fields that were cleared in an edit go to the server as null (PATCH merges data). */

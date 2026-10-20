@@ -21,7 +21,7 @@ const HOLD_MS = 500;
 const AMBER = "#E0A93B";
 
 export default function Lantern({ entry, onClose, dim }: { entry: Entry; onClose: () => void; dim?: boolean }) {
-  const { state } = useMaple();
+  const { state, readOnly } = useMaple();
   const now = useNow(1000);
   const actions = useTimerActions();
   const tz = state?.baby.timezone ?? DEFAULT_TZ;
@@ -92,6 +92,8 @@ export default function Lantern({ entry, onClose, dim }: { entry: Entry; onClose
   };
 
   const isFeed = live.kind === "feed";
+  // Viewers only watch; a just-started timer (temporary id) can't take actions yet.
+  const locked = readOnly || live.id < 0;
   const target: Side = n.side ? other(n.side) : "L";
   const subtitle = isFeed
     ? `${n.paused ? "Paused" : `${SIDE_NAME[n.side ?? "L"]} side`} · since ${formatTime(live.started_at, tz)}`
@@ -152,20 +154,23 @@ export default function Lantern({ entry, onClose, dim }: { entry: Entry; onClose
       </div>
 
       <div className="flex h-[40dvh] gap-3 px-4 pb-[max(16px,env(safe-area-inset-bottom))]">
-        {isFeed && !n.paused && (
+        {locked && <p className="m-auto text-sm opacity-50">{readOnly ? "Viewing only" : "Starting…"}</p>}
+        {!locked && isFeed && !n.paused && (
           <HoldButton label={`Switch to ${SIDE_NAME[target]}`} onHint={() => showHint("Hold to switch")} onConfirm={() => void actions.switchSide(live, target)} />
         )}
-        {isFeed && n.paused && (
+        {!locked && isFeed && n.paused && (
           <HoldButton label={`Resume ${SIDE_NAME[n.side ?? "L"]}`} onHint={() => showHint("Hold to resume")} onConfirm={() => void actions.resume(live, n.side ?? "L")} />
         )}
-        <HoldButton
-          label={live.kind === "sleep" ? "Woke up" : "Done"}
-          onHint={() => showHint(live.kind === "sleep" ? "Hold to stop sleep" : "Hold to finish")}
-          onConfirm={() => {
-            void actions.stop(live);
-            onClose();
-          }}
-        />
+        {!locked && (
+          <HoldButton
+            label={live.kind === "sleep" ? "Woke up" : "Done"}
+            onHint={() => showHint(live.kind === "sleep" ? "Hold to stop sleep" : "Hold to finish")}
+            onConfirm={() => {
+              void actions.stop(live);
+              onClose();
+            }}
+          />
+        )}
       </div>
     </motion.div>,
     document.body

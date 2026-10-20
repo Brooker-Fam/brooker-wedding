@@ -1,12 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAppBaseUrl } from "@/lib/google";
 import {
-  cookieOptions,
   identityFromCode,
   joinWithGoogle,
   safeReturnPath,
-  sealSession,
-  SESSION_COOKIE,
+  setSessionCookies,
   STATE_COOKIE,
 } from "@/lib/maple/auth";
 import { captureServerException } from "@/lib/posthog-server";
@@ -59,7 +57,7 @@ export async function GET(request: NextRequest) {
     if (!member) return fail(reason ?? "not_invited");
 
     const res = NextResponse.redirect(withAuthParam(base, back, "ok"));
-    res.cookies.set(SESSION_COOKIE, sealSession(member.email), cookieOptions);
+    setSessionCookies(res, member.email);
     res.cookies.set(STATE_COOKIE, "", { path: "/api/maple/auth", maxAge: 0 });
     return res;
   } catch (error) {

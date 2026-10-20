@@ -6,7 +6,21 @@ import { formatDuration } from "@/lib/maple/time";
 import { formatVolume, mlToOz, ozToMl } from "@/lib/maple/units";
 import { Segmented, Sheet, TimeRange } from "../ui";
 import type { SheetProps } from "./index";
-import { LoggedBy, MiniStepper, NoteField, RunningNote, SheetFooter, presetStart, pnum, pstr, useOpenCount, useSheetBase, withNulls } from "./parts";
+import {
+  CHECK_NUMBER_HINT,
+  LoggedBy,
+  MiniStepper,
+  NoteField,
+  RunningNote,
+  SheetFooter,
+  presetStart,
+  pnum,
+  pstr,
+  useNumberChecks,
+  useOpenCount,
+  useSheetBase,
+  useTouched,
+} from "./parts";
 
 /**
  * Log or edit a pumping session: Left and Right amounts (or just the total,
@@ -45,6 +59,8 @@ function PumpForm({ open, onClose, entry, preset }: SheetProps) {
   });
   const [note, setNote] = useState(e?.note ?? pstr(preset, "note") ?? "");
   const [busy, setBusy] = useState(false);
+  const checks = useNumberChecks();
+  const { touched, touch } = useTouched();
   const [start, end] = range;
 
   const data =
@@ -53,18 +69,27 @@ function PumpForm({ open, onClose, entry, preset }: SheetProps) {
       : { left_ml: undefined, right_ml: undefined, total_ml: toMl(total) };
   const sum = mode === "sides" ? (data.left_ml ?? 0) + (data.right_ml ?? 0) : (data.total_ml ?? 0);
   const step = metric ? 5 : 0.25;
+  const edit = (key: "left_ml" | "right_ml" | "total_ml", set: (v: number | null) => void) => (v: number | null) => {
+    touch(key);
+    set(v);
+  };
   const unit = metric ? "ml" : "oz";
 
   const save = async () => {
     const noteVal = note.trim() || null;
     if (e) {
       setBusy(true);
+      // Only amounts that were changed (and only those showing): they display rounded, so
+      // re-sending untouched ones would drift, and the other mode's fields stay as they were.
+      const changed: Record<string, unknown> = {};
+      const fields = mode === "sides" ? (["left_ml", "right_ml"] as const) : (["total_ml"] as const);
+      for (const k of fields) if (touched[k]) changed[k] = data[k] ?? null;
       const patch = running
         ? { note: noteVal }
         : {
             started_at: start.getTime() !== Date.parse(e.started_at) ? start.toISOString() : undefined,
             ended_at: end.getTime() !== (e.ended_at ? Date.parse(e.ended_at) : NaN) ? end.toISOString() : undefined,
-            data: withNulls(data, ["left_ml", "right_ml", "total_ml"]),
+            data: Object.keys(changed).length ? changed : undefined,
             note: noteVal,
           };
       const res = await update(e.id, patch, { toast: "Pump updated" });
@@ -100,8 +125,8 @@ function PumpForm({ open, onClose, entry, preset }: SheetProps) {
           onPrimary={() => void save()}
           label={e ? "Save" : "Log it"}
           busy={busy}
-          disabled={!!e && e.id < 0}
-          hint={e && e.id < 0 ? "Still syncing, so it can't be edited yet." : undefined}
+          disabled={(!!e && e.id < 0) || (!running && checks.invalid)}
+          hint={!running && checks.invalid ? CHECK_NUMBER_HINT : e && e.id < 0 ? "Still syncing, so it can't be edited yet." : undefined}
         />
       }
     >
@@ -119,11 +144,11 @@ function PumpForm({ open, onClose, entry, preset }: SheetProps) {
           />
           {mode === "sides" ? (
             <div className="grid grid-cols-2 gap-3">
-              <MiniStepper label="Left" unit={unit} ariaLabel={`left, ${unit}`} value={left} onChange={setLeft} step={step} decimals={metric ? 0 : 2} max={metric ? 600 : 20} />
-              <MiniStepper label="Right" unit={unit} ariaLabel={`right, ${unit}`} value={right} onChange={setRight} step={step} decimals={metric ? 0 : 2} max={metric ? 600 : 20} />
+              <MiniStepper key="left" label="Left" unit={unit} ariaLabel={`left, ${unit}`} value={left} onChange={edit("left_ml", setLeft)} onInvalid={checks.watch("left")} step={step} decimals={metric ? 0 : 2} max={metric ? 600 : 20} />
+              <MiniStepper key="right" label="Right" unit={unit} ariaLabel={`right, ${unit}`} value={right} onChange={edit("right_ml", setRight)} onInvalid={checks.watch("right")} step={step} decimals={metric ? 0 : 2} max={metric ? 600 : 20} />
             </div>
           ) : (
-            <MiniStepper label="Total" unit={unit} ariaLabel={`total, ${unit}`} value={total} onChange={setTotal} step={step} decimals={metric ? 0 : 2} max={metric ? 1200 : 40} />
+            <MiniStepper key="total" label="Total" unit={unit} ariaLabel={`total, ${unit}`} value={total} onChange={edit("total_ml", setTotal)} onInvalid={checks.watch("total")} step={step} decimals={metric ? 0 : 2} max={metric ? 1200 : 40} />
           )}
           <TimeRange start={start} end={end} tz={tz} durations={[10, 15, 20, 30, 45]} onChange={(s, en) => setRange([s, en])} />
         </>
