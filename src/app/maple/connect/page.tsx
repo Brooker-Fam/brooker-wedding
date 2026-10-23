@@ -196,9 +196,8 @@ export default function MapleConnectPage() {
           <p className="mt-3 font-[family-name:var(--font-body)] text-sm text-[#1D4420]/80 dark:text-[#FDF8F0]/75">
             <strong>Already have the Brooker Family Calendar connector?</strong>{" "}
             Maple&apos;s tools are in it too, so you can skip this. Reconnect it
-            if Claude asks, and in Maple&apos;s Log &rarr; <strong>Family</strong>{" "}
-            &rarr; <strong>Admin</strong> &rarr; <strong>Manage</strong>, pick who
-            it logs as.
+            if Claude asks, then in Maple&apos;s Log &rarr; <strong>Family</strong>,
+            turn on <strong>Calendar connector logs as me</strong>.
           </p>
         </motion.div>
 

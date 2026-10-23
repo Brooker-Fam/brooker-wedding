@@ -5,6 +5,7 @@ import {
   verifyAuthCode,
   verifyPkce,
   verifyRefreshToken,
+  trustedRedirect,
   viaForRedirect,
   ACCESS_TOKEN_TTL,
   type AccessTokenPayload,
@@ -18,9 +19,10 @@ import { isRemoved, memberFor } from "@/lib/maple/auth";
  * carries the expected redirect_uri + code_challenge, so we verify both
  * at redemption time against what the client re-sends.
  *
- * Refresh tokens are stateless too (see mintRefreshToken) and rotate on every
- * use, so connectors don't lapse monthly. Admin ones die when ADMIN_PASS
- * changes or after 90 idle days. For Maple family members (sub
+ * Refresh tokens are stateless too (see mintRefreshToken): each refresh hands
+ * out a new one, so connectors don't lapse monthly. They only go to codes
+ * sent to Claude, ChatGPT or a local app (trustedRedirect). Admin ones die when
+ * ADMIN_PASS changes or after 90 idle days. For Maple family members (sub
  * "maple:<email>") a refresh re-checks membership, so someone removed from the
  * family loses the connector at the next refresh (and every MCP call checks
  * membership anyway).
@@ -57,8 +59,8 @@ function isMapleGrant(grant: AccessTokenPayload): boolean {
   return (grant.resource ?? "").replace(/\/+$/, "").endsWith("/api/maple/mcp") || grant.scope.split(" ").includes("maple");
 }
 
-/** Access + rotated refresh token for a grant. */
-function issue(grant: AccessTokenPayload) {
+/** Access token for a grant, plus a new refresh token when allowed. */
+function issue(grant: AccessTokenPayload, opts: { refresh: boolean }) {
   const payload: AccessTokenPayload = {
     sub: grant.sub,
     scope: grant.scope,
@@ -71,7 +73,7 @@ function issue(grant: AccessTokenPayload) {
       access_token: mintAccessToken(payload),
       token_type: "Bearer",
       expires_in: ACCESS_TOKEN_TTL,
-      refresh_token: mintRefreshToken(payload),
+      ...(opts.refresh ? { refresh_token: mintRefreshToken(payload) } : {}),
       scope: payload.scope,
     },
     { headers: HEADERS }
@@ -133,13 +135,17 @@ export async function POST(request: NextRequest) {
     return err("invalid_grant", "resource does not match the authorization request");
   }
 
-  return issue({
-    sub: payload.sub,
-    scope: payload.scope,
-    client_id: payload.client_id,
-    resource: payload.resource,
-    via: payload.via ?? viaForRedirect(payload.redirect_uri),
-  });
+  return issue(
+    {
+      sub: payload.sub,
+      scope: payload.scope,
+      client_id: payload.client_id,
+      resource: payload.resource,
+      via: payload.via ?? viaForRedirect(payload.redirect_uri),
+    },
+    // A login phished to some other site gets 30 days at most, never a renewal.
+    { refresh: trustedRedirect(payload.redirect_uri) }
+  );
 }
 
 async function refresh(params: URLSearchParams) {
@@ -174,7 +180,7 @@ async function refresh(params: URLSearchParams) {
     }
   }
 
-  return issue(grant);
+  return issue(grant, { refresh: true });
 }
 
 export async function OPTIONS() {

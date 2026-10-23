@@ -6,7 +6,7 @@ import type { ShapeOutput, ZodRawShapeCompat } from "@modelcontextprotocol/sdk/s
 import type { CallToolResult, ServerNotification, ServerRequest } from "@modelcontextprotocol/sdk/types.js";
 import { query } from "@/lib/db";
 import { captureServerException } from "@/lib/posthog-server";
-import { ADMIN_ID, isRemoved, listMembers } from "./auth";
+import { ADMIN_ID, ensureAdminMember, isRemoved, listMembers } from "./auth";
 import { describeEntry } from "./describe";
 import { feedTotals, openSegment, other, sideTotals } from "./feed";
 import { ageInDays, percentileFor, type Measure } from "./growth";
@@ -232,6 +232,9 @@ async function context(extra: Extra): Promise<Ctx> {
         "The admin login is turned off for Maple's Log, so these tools are off on this connection. Connect Maple's Log with Google instead: brooker.family/maple/connect."
       );
     }
+    // Show the admin login in Family (where an owner can turn it off) once
+    // it's been used here, as a password sign-in does.
+    if (!members.some((m) => m.email === ADMIN_ID)) await ensureAdminMember().catch(() => null);
     id = adminActsAs(baby, members)?.email ?? id;
   }
   const me = members.find((m) => m.email === id);

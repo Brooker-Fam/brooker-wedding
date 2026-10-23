@@ -100,7 +100,10 @@ export type Summary = {
     changePct: number | null;
     backToBirthWeight: boolean | null;
   } | null;
-  /** Most urgent first. Already excludes alerts the family marked handled. */
+  /**
+   * Most urgent first. Already excludes alerts the family marked handled.
+   * Empty unless warnings are switched on (see alertsOn).
+   */
   alerts: Alert[];
   /**
    * The diaper brigade (last 7 days): a team total, not a leaderboard.
@@ -253,6 +256,16 @@ export function memberName(id: string | null | undefined, members: Member[]): st
   if (m?.display_name) return m.display_name;
   if (id === "admin") return "Admin";
   return id.split("@")[0];
+}
+
+/**
+ * Warnings and reminders (feed gaps, diaper counts, weight, vitamin D,
+ * checkups) need consistent logging to mean anything, so they're off unless
+ * the family switches them on in Family → Warnings & reminders. A reading
+ * entered in a sheet or through an assistant is still checked as it's logged.
+ */
+export function alertsOn(baby: Baby): boolean {
+  return (baby.settings as { show_alerts?: unknown }).show_alerts === true;
 }
 
 /**
@@ -630,7 +643,7 @@ export function summarize(opts: {
     targets,
     vitaminD,
     weight,
-    alerts: visible,
+    alerts: alertsOn(baby) ? visible : [],
     duty,
     teamDiapers,
     celebrations,

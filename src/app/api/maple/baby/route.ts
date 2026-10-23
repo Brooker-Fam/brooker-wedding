@@ -1,5 +1,4 @@
 import { BadRequest, Forbidden, json, readJson, withMember } from "@/lib/maple/api";
-import { listMembers } from "@/lib/maple/auth";
 import { getBaby, updateBaby, type BabyPatch } from "@/lib/maple/store";
 import { isDayKey } from "@/lib/maple/time";
 
@@ -67,13 +66,10 @@ export const PATCH = withMember("PATCH /api/maple/baby", async (request, me) => 
       }
     }
     if ("admin_as" in incoming) {
-      // Who Claude/ChatGPT log as through the site admin login (Family → Admin).
-      if (me.role !== "owner") throw new Forbidden("Only an owner can change that");
-      const as = incoming.admin_as;
-      if (as !== null) {
-        const m = typeof as === "string" ? (await listMembers()).find((x) => x.email === as) : undefined;
-        if (!m || m.email === "admin" || m.role === "viewer") throw new BadRequest("Pick someone who can log");
-      }
+      // An owner can have the site admin login (the calendar connector) log as
+      // themselves, or switch that off. Never as someone else.
+      if (me.role !== "owner" || me.email === "admin") throw new Forbidden("Only an owner signed in with Google can change that");
+      if (incoming.admin_as !== null && incoming.admin_as !== me.email) throw new BadRequest("That can only be set to yourself");
     }
     // Acks are capped and pruned separately, so they don't count toward the limit.
     const { acks: _acks, ...rest } = { ...baby.settings, ...incoming };
