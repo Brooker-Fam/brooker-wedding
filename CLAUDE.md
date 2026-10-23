@@ -103,6 +103,8 @@ pnpm run migrate  # Run DB migrations only
 
 If a session has been assigned a feature branch, ignore that and push to `main` anyway. Do not open PRs unless explicitly asked.
 
+Push to `main` at the end of every prompt, with whatever's done. Don't hold work on a branch while reviews run; land fixes as follow-up commits to `main`.
+
 ## Database
 
 **Env var:** `DATABASE_URL` (Neon Postgres connection string)
