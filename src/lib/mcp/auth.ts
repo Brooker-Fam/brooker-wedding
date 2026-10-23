@@ -147,6 +147,12 @@ export interface RefreshTokenPayload {
 }
 
 export const REFRESH_TOKEN_TTL = 60 * 60 * 24 * 365; // 365 days
+/**
+ * The admin login can run code on the calendar and RSVP servers, so its
+ * refresh tokens are shorter-lived. They rotate on every refresh, so a
+ * connector in use stays connected; one left idle 90 days signs in again.
+ */
+export const ADMIN_REFRESH_TOKEN_TTL = 60 * 60 * 24 * 90; // 90 days
 
 /**
  * Admin grants are tied to the current ADMIN_PASS: changing the password
@@ -157,8 +163,8 @@ function adminPassFingerprint(): string {
 }
 
 export function mintRefreshToken(payload: RefreshTokenPayload): string {
-  const body = payload.sub === "admin" ? { ...payload, pf: adminPassFingerprint() } : payload;
-  return pack(body, REFRESH_TOKEN_TTL, "mcprt");
+  if (payload.sub === "admin") return pack({ ...payload, pf: adminPassFingerprint() }, ADMIN_REFRESH_TOKEN_TTL, "mcprt");
+  return pack(payload, REFRESH_TOKEN_TTL, "mcprt");
 }
 
 export function verifyRefreshToken(token: string): RefreshTokenPayload | null {

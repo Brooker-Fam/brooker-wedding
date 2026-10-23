@@ -1,4 +1,5 @@
-import { BadRequest, json, readJson, withMember } from "@/lib/maple/api";
+import { BadRequest, Forbidden, json, readJson, withMember } from "@/lib/maple/api";
+import { listMembers } from "@/lib/maple/auth";
 import { getBaby, updateBaby, type BabyPatch } from "@/lib/maple/store";
 import { isDayKey } from "@/lib/maple/time";
 
@@ -15,7 +16,7 @@ function num(v: unknown, label: string, min: number, max: number): number | null
  * PATCH /api/maple/baby — profile edits and the big one: "She's here!"
  * (born_at + birth measurements). Any family member can update it.
  */
-export const PATCH = withMember("PATCH /api/maple/baby", async (request) => {
+export const PATCH = withMember("PATCH /api/maple/baby", async (request, me) => {
   const body = await readJson<Record<string, unknown>>(request);
   const baby = await getBaby();
   const patch: BabyPatch = {};
@@ -63,6 +64,15 @@ export const PATCH = withMember("PATCH /api/maple/baby", async (request) => {
           if (k.length <= 120 && Number.isFinite(t)) clean[k] = new Date(t).toISOString();
         }
         patch.acks = clean;
+      }
+    }
+    if ("admin_as" in incoming) {
+      // Who Claude/ChatGPT log as through the site admin login (Family → Admin).
+      if (me.role !== "owner") throw new Forbidden("Only an owner can change that");
+      const as = incoming.admin_as;
+      if (as !== null) {
+        const m = typeof as === "string" ? (await listMembers()).find((x) => x.email === as) : undefined;
+        if (!m || m.email === "admin" || m.role === "viewer") throw new BadRequest("Pick someone who can log");
       }
     }
     // Acks are capped and pruned separately, so they don't count toward the limit.

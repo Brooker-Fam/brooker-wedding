@@ -19,9 +19,11 @@ import { isRemoved, memberFor } from "@/lib/maple/auth";
  * at redemption time against what the client re-sends.
  *
  * Refresh tokens are stateless too (see mintRefreshToken) and rotate on every
- * use. For Maple family members (sub "maple:<email>") a refresh re-checks
- * membership, so someone removed from the family loses the connector at the
- * next refresh (and every MCP call checks membership anyway).
+ * use, so connectors don't lapse monthly. Admin ones die when ADMIN_PASS
+ * changes or after 90 idle days. For Maple family members (sub
+ * "maple:<email>") a refresh re-checks membership, so someone removed from the
+ * family loses the connector at the next refresh (and every MCP call checks
+ * membership anyway).
  */
 
 const HEADERS = {
@@ -50,16 +52,12 @@ function sameResource(a: string, b: string): boolean {
   return canon(a) === canon(b);
 }
 
-/**
- * Only Maple grants get refresh tokens (so parents' connectors don't lapse
- * monthly). Calendar and RSVP admin grants keep their 30-day tokens and no
- * refresh, as before: their tools run unsandboxed code.
- */
+/** A grant for the Maple server itself (not the calendar, which also carries Maple's tools). */
 function isMapleGrant(grant: AccessTokenPayload): boolean {
   return (grant.resource ?? "").replace(/\/+$/, "").endsWith("/api/maple/mcp") || grant.scope.split(" ").includes("maple");
 }
 
-/** Access + (rotated, Maple only) refresh token for a grant. */
+/** Access + rotated refresh token for a grant. */
 function issue(grant: AccessTokenPayload) {
   const payload: AccessTokenPayload = {
     sub: grant.sub,
@@ -73,7 +71,7 @@ function issue(grant: AccessTokenPayload) {
       access_token: mintAccessToken(payload),
       token_type: "Bearer",
       expires_in: ACCESS_TOKEN_TTL,
-      ...(isMapleGrant(payload) ? { refresh_token: mintRefreshToken(payload) } : {}),
+      refresh_token: mintRefreshToken(payload),
       scope: payload.scope,
     },
     { headers: HEADERS }
@@ -150,7 +148,6 @@ async function refresh(params: URLSearchParams) {
 
   const grant = verifyRefreshToken(token);
   if (!grant) return err("invalid_grant", "refresh_token is invalid or expired");
-  if (!isMapleGrant(grant)) return err("invalid_grant", "refresh isn't available for this connection");
 
   const clientId = params.get("client_id");
   if (clientId && clientId !== grant.client_id) {
@@ -161,8 +158,9 @@ async function refresh(params: URLSearchParams) {
     return err("invalid_grant", "resource does not match this grant");
   }
 
-  if (grant.sub === "admin") {
-    // An owner turned off the admin login for Maple.
+  if (grant.sub === "admin" && isMapleGrant(grant)) {
+    // An owner turned off the admin login for Maple. (The calendar connector
+    // stays connected; its Maple tools refuse instead.)
     if (await isRemoved("admin").catch(() => false)) return err("invalid_grant", "the admin login is turned off for Maple's Log");
   }
   if (grant.sub.startsWith("maple:")) {

@@ -6,7 +6,7 @@ import type { ShapeOutput, ZodRawShapeCompat } from "@modelcontextprotocol/sdk/s
 import type { CallToolResult, ServerNotification, ServerRequest } from "@modelcontextprotocol/sdk/types.js";
 import { query } from "@/lib/db";
 import { captureServerException } from "@/lib/posthog-server";
-import { ADMIN_ID, listMembers } from "./auth";
+import { ADMIN_ID, isRemoved, listMembers } from "./auth";
 import { describeEntry } from "./describe";
 import { feedTotals, openSegment, other, sideTotals } from "./feed";
 import { ageInDays, percentileFor, type Measure } from "./growth";
@@ -29,7 +29,7 @@ import {
   type AlertTier,
   type Assessment,
 } from "./guidelines";
-import { dailyStats, isVitaminD, memberName, summarize, type Summary } from "./insights";
+import { adminActsAs, dailyStats, isVitaminD, memberName, summarize, type Summary } from "./insights";
 import { milestoneLabel, MILESTONES } from "./milestones";
 import {
   Conflict,
@@ -221,9 +221,19 @@ async function context(extra: Extra): Promise<Ctx> {
   const auth = (extra.authInfo?.extra ?? {}) as { sub?: unknown; via?: unknown };
   const sub = typeof auth.sub === "string" ? auth.sub : "";
   if (!sub) throw new ToolError("You're not signed in to Maple's Log. Reconnect the connector and sign in again.");
-  const id = sub.startsWith("maple:") ? sub.slice("maple:".length) : sub;
+  let id = sub.startsWith("maple:") ? sub.slice("maple:".length) : sub;
   const via: Source = auth.via === "claude" || auth.via === "chatgpt" ? auth.via : "mcp";
   const [baby, members] = await Promise.all([getBaby(), listMembers()]);
+  if (id === ADMIN_ID) {
+    // The calendar connector carries these tools too, so check here and not
+    // only in the Maple route. A database blip doesn't lock anyone out.
+    if (await isRemoved(ADMIN_ID).catch(() => false)) {
+      throw new ToolError(
+        "The admin login is turned off for Maple's Log, so these tools are off on this connection. Connect Maple's Log with Google instead: brooker.family/maple/connect."
+      );
+    }
+    id = adminActsAs(baby, members)?.email ?? id;
+  }
   const me = members.find((m) => m.email === id);
   // The route already checked membership; an unknown non-admin stays read-only.
   const role: Role = me?.role ?? (id === ADMIN_ID ? "owner" : "viewer");

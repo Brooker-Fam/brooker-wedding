@@ -4,12 +4,13 @@ import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react";
 import { useTheme } from "@/components/ThemeProvider";
 import { DISCLAIMER } from "@/lib/maple/guidelines";
+import { adminActsAs } from "@/lib/maple/insights";
 import { dayKey, formatDayLabel, formatRelative, formatTime } from "@/lib/maple/time";
 import { formatLength, formatWeight } from "@/lib/maple/units";
 import type { Entry, EntryOf, Member, Role } from "@/lib/maple/types";
 import BirthSheet from "./BirthSheet";
 import { useNightPref, type NightPref } from "./nightLook";
-import { Avatar, Button, Card, Field, Segmented, SectionTitle, Sheet, TextArea, cx, tone } from "./ui";
+import { Avatar, Button, Card, Chip, Field, Segmented, SectionTitle, Sheet, TextArea, cx, tone } from "./ui";
 import { useMaple } from "./useMaple";
 
 /**
@@ -289,6 +290,53 @@ function People() {
   );
 }
 
+/**
+ * Claude and ChatGPT through the site admin login (the "Brooker Family
+ * Calendar" connector, which carries Maple's tools) log as this person, so
+ * their entries and diaper tally aren't split off under "Admin".
+ */
+function AdminLogsAs() {
+  const { state, api, refresh, toast, memberName } = useMaple();
+  const [busy, setBusy] = useState(false);
+  if (!state) return null;
+  const people = state.members.filter((x) => x.email !== "admin" && x.role !== "viewer");
+  if (!people.length) return null;
+  const current = adminActsAs(state.baby, state.members)?.email ?? "admin";
+
+  const pick = async (email: string) => {
+    if (busy || email === current) return;
+    setBusy(true);
+    try {
+      await api("/api/maple/baby", {
+        method: "PATCH",
+        body: JSON.stringify({ settings: { admin_as: email === "admin" ? null : email } }),
+      });
+      await refresh();
+      toast(`Claude and ChatGPT on the admin login log as ${memberName(email)}`, { emoji: "🍁" });
+    } catch (e) {
+      toast(e instanceof Error ? e.message : "Couldn't save that", { tone: "error" });
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <div className="pb-1">
+      <span className={cx(tone.label, "mb-1.5 block")}>Claude &amp; ChatGPT on this login log as</span>
+      <div className="flex flex-wrap gap-2">
+        {[...people.map((p) => p.email), "admin"].map((email) => (
+          <Chip key={email} selected={email === current} onClick={() => void pick(email)}>
+            {memberName(email)}
+          </Chip>
+        ))}
+      </div>
+      <p className={cx(tone.muted, "mt-1.5 text-xs")}>
+        That&apos;s the Brooker Family Calendar connector, which can log Maple too.
+      </p>
+    </div>
+  );
+}
+
 function MemberRow({ m, me, owner }: { m: Member; me: Member; owner: boolean }) {
   const { api, refresh, toast, memberName } = useMaple();
   const isMe = m.email === me.email;
@@ -389,6 +437,7 @@ function MemberRow({ m, me, owner }: { m: Member; me: Member; owner: boolean }) 
 
       {managing && isAdminLogin && (
         <div className="mt-3 space-y-2">
+          <AdminLogsAs />
           <p className={cx(tone.muted, "text-xs")}>
             This is the site&apos;s admin password. Turning it off here means it no longer opens Maple&apos;s Log (or connects
             Claude/ChatGPT to it); the rest of brooker.family is unaffected. Google sign-in keeps working for everyone else.

@@ -21,12 +21,13 @@ Full instructions with copy buttons are at `/maple/connect`. The MCP server URL 
 - **Claude** (web, desktop, mobile): Settings → Connectors → Add custom connector → paste the URL → Connect → Continue with Google.
 - **ChatGPT** (web, developer mode / custom connectors): add a custom MCP server with the same URL and OAuth.
 - **Claude Code:** `claude mcp add --transport http maple https://brooker.family/api/maple/mcp`.
+- **The existing "Brooker Family Calendar" connector** (`/api/mcp`, admin login) carries Maple's tools too, next to `calendar_exec`, so Matt doesn't need a second connector. Its entries are credited to whoever an owner picks under Family → Admin → Manage ("Claude & ChatGPT on this login log as", stored as `settings.admin_as`); otherwise "Admin". If an owner turns off the admin login for Maple, those tools refuse but the calendar keeps working.
 
 OAuth reuses the site's `/oauth/*` shim. A Maple connection (detected by the RFC 8707 `resource` parameter, or the `maple` scope) signs in with the same Google session as the app, and the token is minted for `maple:<email>`, so entries show "via Claude / via ChatGPT" under the right person.
 
 - **Bound to this server.** Tokens are bound to exactly `https://brooker.family/api/maple/mcp`. Any other resource is refused at consent, so another MCP server can't obtain or replay a parent's token.
 - **Calendar and RSVP stay admin-only.** Those MCP servers only accept admin tokens, so a family member's Maple token can't open them.
-- **Refresh tokens for Maple only.** Maple grants get refresh tokens, so parents' connectors don't expire monthly. Calendar and RSVP grants keep their old 30-day tokens with no refresh.
+- **Refresh tokens for every connection.** They rotate on each use, so connectors don't expire monthly. Admin-login ones last 90 days without use (the admin login can run code on the calendar and RSVP servers) and die when `ADMIN_PASS` changes; family members' last a year and are re-checked against membership.
 
 ## Access and revocation
 

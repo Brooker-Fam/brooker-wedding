@@ -255,6 +255,18 @@ export function memberName(id: string | null | undefined, members: Member[]): st
   return id.split("@")[0];
 }
 
+/**
+ * Who the site admin login logs as through Claude or ChatGPT: the member an
+ * owner picked under Family → Admin (settings.admin_as), while they can still
+ * log. Null means it logs as "Admin".
+ */
+export function adminActsAs(baby: Baby, members: Member[]): Member | null {
+  const as = (baby.settings as { admin_as?: unknown }).admin_as;
+  if (typeof as !== "string") return null;
+  const m = members.find((x) => x.email === as);
+  return m && m.email !== "admin" && m.role !== "viewer" ? m : null;
+}
+
 /** Alerts a family has marked handled ("We called"), keyed by alert id. */
 export function acknowledged(baby: Baby): Record<string, string> {
   const acks = (baby.settings as { acks?: unknown }).acks;
