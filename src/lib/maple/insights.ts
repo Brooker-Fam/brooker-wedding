@@ -89,7 +89,10 @@ export type Summary = {
   today: DayStats;
   /** Rolling last 24 hours: what the clinical targets are measured against. */
   last24h: DayStats;
-  /** Minimums per 24 hours for her current day of life (null before birth). */
+  /**
+   * Minimums per 24 hours for her current day of life. Null before birth, and
+   * while warnings are off: against patchy logging they only say "behind".
+   */
   targets: { wet: number; dirty: number | null; feeds: readonly [number, number]; tummyMin: number } | null;
   vitaminD: { givenAt: string; by: string | null } | null;
   weight: {
@@ -640,7 +643,7 @@ export function summarize(opts: {
     lastSleep,
     today,
     last24h,
-    targets,
+    targets: alertsOn(baby) ? targets : null,
     vitaminD,
     weight,
     alerts: alertsOn(baby) ? visible : [],

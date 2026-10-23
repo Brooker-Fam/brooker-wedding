@@ -332,10 +332,12 @@ export default function MapleConnectPage() {
               second one.
             </p>
             <p>
-              Health alerts (a fever, a pale poop, too few wet diapers) come
-              through word for word, the same as in the app. It&apos;s general
-              guidance, not medical advice: when in doubt, call the
-              pediatrician.
+              A fever, an oxygen reading or a pale poop is checked as you log
+              it, and the alert comes through word for word, the same as in
+              the app. Feeding, diaper-count and weight warnings only come
+              through if they&apos;re switched on in Family &rarr; Warnings
+              &amp; reminders. It&apos;s general guidance, not medical
+              advice: when in doubt, call the pediatrician.
             </p>
           </Section>
 

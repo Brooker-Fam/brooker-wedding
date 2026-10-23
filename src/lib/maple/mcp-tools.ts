@@ -29,7 +29,7 @@ import {
   type AlertTier,
   type Assessment,
 } from "./guidelines";
-import { adminActsAs, dailyStats, isVitaminD, memberName, summarize, type Summary } from "./insights";
+import { adminActsAs, alertsOn, dailyStats, isVitaminD, memberName, summarize, type Summary } from "./insights";
 import { milestoneLabel, MILESTONES } from "./milestones";
 import {
   Conflict,
@@ -1432,7 +1432,7 @@ function speakLine(s: Summary, ctx: Ctx): string {
   }
   const sleeping = s.active.find((e) => e.kind === "sleep");
   if (sleeping) parts.push(`She's been asleep for ${spokenMinutes((ctx.now.getTime() - ts(sleeping)) / MIN)}.`);
-  const vitD = s.vitaminD ? ", and vitamin D is done" : s.age && s.age.days >= 1 ? ", and no vitamin D yet today" : "";
+  const vitD = s.vitaminD ? ", and vitamin D is done" : s.age && s.age.days >= 1 && alertsOn(ctx.baby) ? ", and no vitamin D yet today" : "";
   parts.push(`${plural(s.today.wet, "wet diaper")} and ${s.today.dirty} dirty today${vitD}.`);
   return parts.join(" ");
 }
@@ -1563,19 +1563,18 @@ async function statusResult(ctx: Ctx, since: string | null | undefined): Promise
   lines.push(
     `Today so far: ${plural(s.today.feeds, "feed")}, ${s.today.wet} wet, ${s.today.dirty} dirty, ${s.today.sleepSec >= 60 ? `${formatDuration(s.today.sleepSec)} of sleep` : "no sleep"} logged.`
   );
-  if (t && s.age) {
-    lines.push(
-      `Last 24 hours: ${plural(s.last24h.feeds, "feed")}, ${s.last24h.wet} wet, ${s.last24h.dirty} dirty (Day ${s.age.dayOfLife} aim: ${t.feeds[0]}–${t.feeds[1]} feeds, ${t.wet}+ wet${t.dirty != null ? `, ${t.dirty}+ dirty` : ""}).`
-    );
+  if (s.age) {
+    // The aim only with warnings on (targets is null otherwise).
+    const aim = t ? ` (Day ${s.age.dayOfLife} aim: ${t.feeds[0]}–${t.feeds[1]} feeds, ${t.wet}+ wet${t.dirty != null ? `, ${t.dirty}+ dirty` : ""})` : "";
+    lines.push(`Last 24 hours: ${plural(s.last24h.feeds, "feed")}, ${s.last24h.wet} wet, ${s.last24h.dirty} dirty${aim}.`);
   }
   Object.assign(json, talliesJson(s));
 
-  if (s.born) {
-    lines.push(
-      s.vitaminD
-        ? `Vitamin D: given at ${formatTime(s.vitaminD.givenAt, ctx.tz)} by ${memberName(s.vitaminD.by, ctx.members)}.`
-        : "Vitamin D: not logged yet today."
-    );
+  if (s.vitaminD) {
+    lines.push(`Vitamin D: given at ${formatTime(s.vitaminD.givenAt, ctx.tz)} by ${memberName(s.vitaminD.by, ctx.members)}.`);
+  } else if (s.born && alertsOn(ctx.baby)) {
+    // A reminder, so only with warnings on.
+    lines.push("Vitamin D: not logged yet today.");
   }
   json.vitamin_d_today = s.vitaminD
     ? { local: localWhen(s.vitaminD.givenAt, ctx), by: memberName(s.vitaminD.by, ctx.members) }
@@ -1859,7 +1858,7 @@ export function registerMapleTools(server: McpServer) {
     {
       title: "How's Maple right now?",
       description:
-        'Call this first for anything about right now: the local time and day, her age, running timers, when she last ate and which side to offer next, last wet/dirty diaper, today\'s and last-24-hour counts vs what\'s expected for her age, vitamin D today, latest weight vs birth weight, and any health alerts (relay those word for word). Includes `speak`, one short sentence for voice. Pass since: "last_seen" for a "while you slept" recap. E.g. "which side next?", "when did she last eat?", "how did the night go?". Before she\'s born it says so and gives the due date.',
+        'Call this first for anything about right now: the local time and day, her age, running timers, when she last ate and which side to offer next, last wet/dirty diaper, today\'s and last-24-hour counts (vs what\'s expected for her age, if the family has warnings on), vitamin D today, latest weight vs birth weight, and any health alerts (relay those word for word). Includes `speak`, one short sentence for voice. Pass since: "last_seen" for a "while you slept" recap. E.g. "which side next?", "when did she last eat?", "how did the night go?". Before she\'s born it says so and gives the due date.',
       inputSchema: {
         since: z
           .string()
@@ -2038,7 +2037,7 @@ export function registerMapleTools(server: McpServer) {
     {
       title: "She's here! Record the birth",
       description:
-        'Use this once, when Maple is born, to record her birth time and birth measurements. That switches on age-based targets (diapers, feeds), growth percentiles and alerts. Weight as pounds + ounces, kg or grams; length and head in inches or cm. If a birth is already recorded it refuses unless replace_existing is true (for corrections). E.g. "she\'s here! born 3:12am, 7 lb 6 oz, 20 inches".',
+        'Use this once, when Maple is born, to record her birth time and birth measurements. That switches on her age and growth percentiles. Weight as pounds + ounces, kg or grams; length and head in inches or cm. If a birth is already recorded it refuses unless replace_existing is true (for corrections). E.g. "she\'s here! born 3:12am, 7 lb 6 oz, 20 inches".',
       inputSchema: {
         at: z
           .string()
@@ -2104,7 +2103,7 @@ export function registerMapleTools(server: McpServer) {
                 .join(", ")}.`,
             ]
           : []),
-        ...(cur.born_at ? [] : [FIRST_CHECKUP_NOTE]),
+        ...(cur.born_at || !alertsOn(ctx.baby) ? [] : [FIRST_CHECKUP_NOTE]),
         ...assumedLine(assumed),
       ];
       return ok(lines.join("\n"), {
@@ -2158,7 +2157,7 @@ export function registerMapleTools(server: McpServer) {
     {
       title: "Log a diaper",
       description:
-        'Use this to record a diaper change: wet (pee), dirty (poop), both, or dry. Add the poop color when known: pale yellow, chalky white, gray, red, or black after the first days return a health alert that must be shared word for word. Returns today\'s wet/dirty counts vs what\'s expected for her age. E.g. "log a wet diaper", "wet and dirty diaper, mustard and seedy", "poopy diaper 20 minutes ago, green".',
+        'Use this to record a diaper change: wet (pee), dirty (poop), both, or dry. Add the poop color when known: pale yellow, chalky white, gray, red, or black after the first days return a health alert that must be shared word for word. Returns today\'s wet/dirty counts. E.g. "log a wet diaper", "wet and dirty diaper, mustard and seedy", "poopy diaper 20 minutes ago, green".',
       inputSchema: {
         diaper: z.enum(["wet", "dirty", "both", "dry"]).describe("wet = pee only, dirty = poop only, both = pee + poop, dry = nothing."),
         color: z
