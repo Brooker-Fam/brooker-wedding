@@ -1,4 +1,5 @@
 import { getDb } from "@/lib/db";
+import { SHADOWED_GLOBALS } from "./shadowed-globals";
 
 /**
  * Build the `rsvp` object that snippets see at runtime. Methods are thin
@@ -297,10 +298,7 @@ function buildRsvpApi(logs: string[]) {
   };
 }
 
-const AsyncFunction = Object.getPrototypeOf(async function () {})
-  .constructor as new (...args: string[]) => (
-  rsvp: ReturnType<typeof buildRsvpApi>
-) => Promise<unknown>;
+const AsyncFunction = Object.getPrototypeOf(async function () {}).constructor as new (...args: string[]) => (...args: unknown[]) => Promise<unknown>;
 
 export type RsvpExecResult = {
   result: unknown;
@@ -309,9 +307,9 @@ export type RsvpExecResult = {
 
 /**
  * Execute a snippet against the RSVP API. Mirrors calendar runExec: the snippet
- * receives one arg — `rsvp` — and may return any JSON-serializable value. We
- * don't sandbox the runtime since the MCP transport is already auth-gated to
- * admin-only.
+ * receives one arg — `rsvp` — and may return any JSON-serializable value. The
+ * transport is admin-only, and the same SHADOWED_GLOBALS keep the server's
+ * secrets and the network out of the snippet's plain reach.
  */
 export async function runRsvpExec(code: string): Promise<RsvpExecResult> {
   if (typeof code !== "string" || !code.trim()) {
@@ -320,8 +318,8 @@ export async function runRsvpExec(code: string): Promise<RsvpExecResult> {
   const logs: string[] = [];
   const api = buildRsvpApi(logs);
   const wrapped = `return (async () => { ${code}\n })();`;
-  const fn = new AsyncFunction("rsvp", wrapped);
-  const result = await fn(api);
+  const fn = new AsyncFunction("rsvp", ...SHADOWED_GLOBALS, wrapped);
+  const result = await fn(api, ...SHADOWED_GLOBALS.map(() => undefined));
   return logs.length > 0 ? { result, logs } : { result };
 }
 

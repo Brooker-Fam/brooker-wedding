@@ -1,4 +1,5 @@
 import { getDb } from "@/lib/db";
+import { SHADOWED_GLOBALS } from "./shadowed-globals";
 import {
   createTask,
   updateTask,
@@ -319,10 +320,7 @@ function buildCalendarApi(logs: string[]) {
   };
 }
 
-const AsyncFunction = Object.getPrototypeOf(async function () {})
-  .constructor as new (...args: string[]) => (
-  calendar: ReturnType<typeof buildCalendarApi>
-) => Promise<unknown>;
+const AsyncFunction = Object.getPrototypeOf(async function () {}).constructor as new (...args: string[]) => (...args: unknown[]) => Promise<unknown>;
 
 export type ExecResult = {
   result: unknown;
@@ -332,8 +330,8 @@ export type ExecResult = {
 /**
  * Execute a snippet against the calendar API. The snippet receives one arg —
  * `calendar` — and may return any JSON-serializable value (or void). Errors
- * propagate to the caller; we don't sandbox the runtime since the MCP transport
- * is already auth-gated to admin-only.
+ * propagate to the caller. The transport is admin-only; SHADOWED_GLOBALS keeps
+ * the server's secrets and the network out of the snippet's plain reach.
  */
 export async function runExec(code: string): Promise<ExecResult> {
   if (typeof code !== "string" || !code.trim()) {
@@ -343,8 +341,8 @@ export async function runExec(code: string): Promise<ExecResult> {
   const api = buildCalendarApi(logs);
   // Wrap the snippet so bare `await` works and the return statement is optional.
   const wrapped = `return (async () => { ${code}\n })();`;
-  const fn = new AsyncFunction("calendar", wrapped);
-  const result = await fn(api);
+  const fn = new AsyncFunction("calendar", ...SHADOWED_GLOBALS, wrapped);
+  const result = await fn(api, ...SHADOWED_GLOBALS.map(() => undefined));
   return logs.length > 0 ? { result, logs } : { result };
 }
 
