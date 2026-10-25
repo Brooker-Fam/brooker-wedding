@@ -157,7 +157,7 @@ Private, collaborative newborn tracker: nursing L/R timers, bottles, pumping, di
 - **Look:** its own calm, native-feeling skin, not the site's storybook one. Use the semantic `mp-*` colors (values in `src/app/maple/maple.css` cover day, dark and the night look, so no `dark:` variants), icons from `src/components/maple/icons.tsx`, and the kit in `ui.tsx`. No emoji in the app's chrome (members' avatar emoji and family-typed text are fine). Details in `docs/maple.md`.
 - **Photos:** Vercel Blob under `maple/`, private store via `MAPLE_BLOB_READ_WRITE_TOKEN` (falls back to the public store); always served through the auth proxy `/api/maple/photo`, never by blob URL.
 - **Privacy:** PostHog capture and session replay are off on `/maple` (see `PostHogProvider.tsx`). Never send Maple data to unauthenticated pages like `/calendar/display`.
-- **For mom:** Her page works like Maple's log: it always exists (no setup), anyone signed in can use it, and doses just save (only a likely duplicate within 30 minutes asks). Her data lives only in `maple_care_*` and never shows in Maple's views; every read goes through `careAccess`; no dose numbers anywhere by default; limits are in the label's own unit. Details in `docs/maple.md` ("For mom").
+- **For mom:** Her page works like Maple's log: it always exists (no setup), anyone signed in except view-only guests can use it, and doses just save (only a likely duplicate within 30 minutes asks). Her data lives only in `maple_care_*` and never shows in Maple's views; every read goes through `careAccess`; no dose numbers anywhere by default; limits are in the label's own unit. Details in `docs/maple.md` ("For mom").
 
 ## Thought Pages (`/debates`)
 
