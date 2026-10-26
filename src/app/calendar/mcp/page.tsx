@@ -290,14 +290,14 @@ export default function McpInstallPage() {
               <strong>Maple&apos;s Log</strong>, the baby tracker, has its own
               connector:{" "}
               <code className="font-mono">
-                https://maple.brooker.family/api/maple/mcp
+                https://maplebaby.app/api/maple/mcp
               </code>
               . Setup steps are at{" "}
               <a
-                href="https://maple.brooker.family/maple/connect"
+                href="https://maplebaby.app/maple/connect"
                 className="underline decoration-[#B8A9C9] decoration-2 underline-offset-2"
               >
-                maple.brooker.family/maple/connect
+                maplebaby.app/maple/connect
               </a>
               .
             </p>

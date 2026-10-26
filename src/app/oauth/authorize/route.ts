@@ -16,7 +16,7 @@ import { mintAuthCode, verifyAdminCreds } from "@/lib/mcp/auth";
  */
 
 const MAPLE_MCP_PATH = "/api/maple/mcp";
-const MAPLE_MCP_URL = "https://maple.brooker.family/api/maple/mcp";
+const MAPLE_MCP_URL = "https://maplebaby.app/api/maple/mcp";
 
 function paramReader(url: URL, form?: FormData) {
   return (k: string) =>

@@ -39,7 +39,7 @@ function err(code: string, description: string, status = 400) {
 /**
  * /oauth/authorize only mints unbound admin grants. Anything else (a family
  * member's sub, or a grant bound to a resource) was issued for Maple's Log,
- * whose own server at maple.brooker.family authorizes and checks membership.
+ * whose own server at maplebaby.app authorizes and checks membership.
  */
 function isAdminGrant(grant: { sub: string; resource?: string }): boolean {
   return grant.sub === "admin" && !grant.resource;

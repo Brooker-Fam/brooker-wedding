@@ -1,10 +1,10 @@
 import type { NextConfig } from "next";
 
-// Maple's Log lives at maple.brooker.family. Phones that installed it from
+// Maple's Log lives at maplebaby.app. Phones that installed it from
 // brooker.family/maple keep this origin for their service worker, push
 // subscription, session cookie and Siri Shortcuts, so its URLs here are
 // proxied (not redirected) to the same path there.
-const MAPLE_ORIGIN = "https://maple.brooker.family";
+const MAPLE_ORIGIN = "https://maplebaby.app";
 const MAPLE_PATHS = [
   "/maple",
   "/maple/:path*",
