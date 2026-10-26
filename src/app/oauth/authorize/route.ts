@@ -15,9 +15,16 @@ import { mintAuthCode, verifyAdminCreds } from "@/lib/mcp/auth";
  * ChatGPT and other strict clients can talk to us.
  */
 
-function readParams(url: URL, form?: FormData) {
-  const get = (k: string) =>
+const MAPLE_MCP_PATH = "/api/maple/mcp";
+const MAPLE_MCP_URL = "https://maple.brooker.family/api/maple/mcp";
+
+function paramReader(url: URL, form?: FormData) {
+  return (k: string) =>
     form?.get(k)?.toString() ?? url.searchParams.get(k) ?? "";
+}
+
+function readParams(url: URL, form?: FormData) {
+  const get = paramReader(url, form);
   return {
     client_id: get("client_id"),
     redirect_uri: get("redirect_uri"),
@@ -44,21 +51,19 @@ function isAllowedRedirect(uri: string): boolean {
   }
 }
 
-function renderForm(params: ReturnType<typeof readParams>, error?: string) {
-  const esc = (s: string) =>
-    s
-      .replace(/&/g, "&amp;")
-      .replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;")
-      .replace(/"/g, "&quot;");
-  const hidden = Object.entries(params)
-    .map(([k, v]) => `<input type="hidden" name="${k}" value="${esc(v)}">`)
-    .join("\n");
-  const errorHtml = error
-    ? `<p style="color:#b00;margin-top:12px;">${esc(error)}</p>`
-    : "";
-  return `<!doctype html>
-<html><head><meta charset="utf-8"><title>Brooker MCP Login</title>
+function isMapleRequest(url: URL, form?: FormData): boolean {
+  const get = paramReader(url, form);
+  const resource = get("resource");
+  if (URL.canParse(resource) && new URL(resource).pathname.replace(/\/+$/, "") === MAPLE_MCP_PATH) {
+    return true;
+  }
+  return get("scope").split(/\s+/).includes("maple");
+}
+
+function htmlPage(title: string, card: string, status: number) {
+  return new NextResponse(
+    `<!doctype html>
+<html><head><meta charset="utf-8"><title>${title}</title>
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <style>
   body{font-family:system-ui,sans-serif;background:#FDF8F0;color:#1D4420;margin:0;
@@ -73,9 +78,31 @@ function renderForm(params: ReturnType<typeof readParams>, error?: string) {
   button{margin-top:20px;width:100%;padding:11px;background:#1D4420;color:#FDF8F0;
     border:0;border-radius:8px;font-size:15px;font-weight:600;cursor:pointer;}
   button:hover{background:#2a5c2e;}
+  code{display:block;word-break:break-all;font-size:14px;}
 </style>
 </head><body>
-<form class="card" method="post">
+${card}
+</body></html>`,
+    { status, headers: { "content-type": "text/html; charset=utf-8" } }
+  );
+}
+
+function renderForm(params: ReturnType<typeof readParams>, status: number, error?: string) {
+  const esc = (s: string) =>
+    s
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
+  const hidden = Object.entries(params)
+    .map(([k, v]) => `<input type="hidden" name="${k}" value="${esc(v)}">`)
+    .join("\n");
+  const errorHtml = error
+    ? `<p style="color:#b00;margin-top:12px;">${esc(error)}</p>`
+    : "";
+  return htmlPage(
+    "Brooker MCP Login",
+    `<form class="card" method="post">
   <h1>Brooker MCP</h1>
   <p class="sub">Sign in to connect your AI assistant to the family calendar.</p>
   <label>Username</label>
@@ -85,12 +112,26 @@ function renderForm(params: ReturnType<typeof readParams>, error?: string) {
   ${hidden}
   <button type="submit">Authorize</button>
   ${errorHtml}
-</form>
-</body></html>`;
+</form>`,
+    status
+  );
+}
+
+function mapleMovedPage() {
+  return htmlPage(
+    "Maple's Log moved",
+    `<div class="card">
+  <h1>Maple's Log moved</h1>
+  <p class="sub">Remove this connector from Claude or ChatGPT, then add it again with this URL:</p>
+  <code>${MAPLE_MCP_URL}</code>
+</div>`,
+    400
+  );
 }
 
 export async function GET(request: NextRequest) {
   const url = new URL(request.url);
+  if (isMapleRequest(url)) return mapleMovedPage();
   const params = readParams(url);
 
   if (!params.client_id || !params.redirect_uri) {
@@ -103,15 +144,13 @@ export async function GET(request: NextRequest) {
     return new NextResponse("Only response_type=code supported", { status: 400 });
   }
 
-  return new NextResponse(renderForm(params), {
-    status: 200,
-    headers: { "content-type": "text/html; charset=utf-8" },
-  });
+  return renderForm(params, 200);
 }
 
 export async function POST(request: NextRequest) {
   const url = new URL(request.url);
   const form = await request.formData();
+  if (isMapleRequest(url, form)) return mapleMovedPage();
   const params = readParams(url, form);
   const username = form.get("username")?.toString() ?? "";
   const password = form.get("password")?.toString() ?? "";
@@ -120,10 +159,7 @@ export async function POST(request: NextRequest) {
     return new NextResponse("Invalid request", { status: 400 });
   }
   if (!verifyAdminCreds(username, password)) {
-    return new NextResponse(renderForm(params, "Invalid credentials."), {
-      status: 401,
-      headers: { "content-type": "text/html; charset=utf-8" },
-    });
+    return renderForm(params, 401, "Invalid credentials.");
   }
 
   const code = mintAuthCode({

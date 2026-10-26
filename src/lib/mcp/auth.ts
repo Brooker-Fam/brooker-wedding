@@ -140,11 +140,9 @@ export interface RefreshTokenPayload {
 }
 
 /**
- * The admin login can run code on the calendar and RSVP servers, so its
- * refresh tokens are shorter-lived. Each refresh hands out a new one, so a
- * connector in use stays connected; one left idle 90 days signs in again.
- * (They're stateless: an old one stays valid until it expires, unless
- * ADMIN_PASS or MCP_SECRET changes.)
+ * Each refresh hands out a new one, so a connector in use stays connected.
+ * They're stateless: an old one stays valid until it expires, unless
+ * ADMIN_PASS or MCP_SECRET changes.
  */
 export const ADMIN_REFRESH_TOKEN_TTL = 60 * 60 * 24 * 90; // 90 days
 

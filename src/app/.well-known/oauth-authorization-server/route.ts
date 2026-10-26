@@ -19,7 +19,7 @@ export async function GET(req: Request) {
       code_challenge_methods_supported: ["S256", "plain"],
       token_endpoint_auth_methods_supported: ["none"],
       // No offline_access: Claude only asks for it when it's advertised.
-      // Refresh tokens go to Claude, ChatGPT and local apps (admin ones lapse after 90 idle days).
+      // Refresh tokens go to Claude, ChatGPT and local apps.
       scopes_supported: ["calendar", "rsvp"],
     },
     {
