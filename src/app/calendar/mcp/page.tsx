@@ -287,12 +287,19 @@ export default function McpInstallPage() {
               back and forth.
             </p>
             <p>
-              It also carries <strong>Maple&apos;s Log</strong>, the baby
-              tracker: tools to log and look up feeds, diapers, sleep and the
-              rest, and to fix or delete entries. They count as &ldquo;Admin&rdquo;
-              unless an owner turns on <em>Calendar connector logs as me</em>{" "}
-              in Maple&apos;s Log &rarr; Family, where an owner can also turn
-              the admin login off for Maple.
+              <strong>Maple&apos;s Log</strong>, the baby tracker, has its own
+              connector:{" "}
+              <code className="font-mono">
+                https://maple.brooker.family/api/maple/mcp
+              </code>
+              . Setup steps are at{" "}
+              <a
+                href="https://maple.brooker.family/maple/connect"
+                className="underline decoration-[#B8A9C9] decoration-2 underline-offset-2"
+              >
+                maple.brooker.family/maple/connect
+              </a>
+              .
             </p>
             <p>Some things you can ask:</p>
             <ul className="ml-5 list-disc space-y-1">

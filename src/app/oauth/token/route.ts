@@ -6,11 +6,9 @@ import {
   verifyPkce,
   verifyRefreshToken,
   trustedRedirect,
-  viaForRedirect,
   ACCESS_TOKEN_TTL,
   type AccessTokenPayload,
 } from "@/lib/mcp/auth";
-import { isRemoved, memberFor } from "@/lib/maple/auth";
 
 /**
  * OAuth 2.1 token endpoint: authorization_code + PKCE, and refresh_token.
@@ -21,11 +19,8 @@ import { isRemoved, memberFor } from "@/lib/maple/auth";
  *
  * Refresh tokens are stateless too (see mintRefreshToken): each refresh hands
  * out a new one, so connectors don't lapse monthly. They only go to codes
- * sent to Claude, ChatGPT or a local app (trustedRedirect). Admin ones die when
- * ADMIN_PASS changes or after 90 idle days. For Maple family members (sub
- * "maple:<email>") a refresh re-checks membership, so someone removed from the
- * family loses the connector at the next refresh (and every MCP call checks
- * membership anyway).
+ * sent to Claude, ChatGPT or a local app (trustedRedirect). They die when
+ * ADMIN_PASS changes or after 90 idle days.
  */
 
 const HEADERS = {
@@ -41,22 +36,13 @@ function err(code: string, description: string, status = 400) {
   );
 }
 
-/** "https://Brooker.family/api/maple/mcp/" and "…/mcp" are the same resource. */
-function sameResource(a: string, b: string): boolean {
-  const canon = (r: string) => {
-    try {
-      const u = new URL(r);
-      return `${u.protocol}//${u.host.toLowerCase()}${u.pathname.replace(/\/+$/, "")}`;
-    } catch {
-      return r.replace(/\/+$/, "");
-    }
-  };
-  return canon(a) === canon(b);
-}
-
-/** A grant for the Maple server itself (not the calendar, which also carries Maple's tools). */
-function isMapleGrant(grant: AccessTokenPayload): boolean {
-  return (grant.resource ?? "").replace(/\/+$/, "").endsWith("/api/maple/mcp") || grant.scope.split(" ").includes("maple");
+/**
+ * /oauth/authorize only mints unbound admin grants. Anything else (a family
+ * member's sub, or a grant bound to a resource) was issued for Maple's Log,
+ * whose own server at maple.brooker.family authorizes and checks membership.
+ */
+function isAdminGrant(grant: { sub: string; resource?: string }): boolean {
+  return grant.sub === "admin" && !grant.resource;
 }
 
 /** Access token for a grant, plus a new refresh token when allowed. */
@@ -65,8 +51,6 @@ function issue(grant: AccessTokenPayload, opts: { refresh: boolean }) {
     sub: grant.sub,
     scope: grant.scope,
     client_id: grant.client_id,
-    ...(grant.resource ? { resource: grant.resource } : {}),
-    ...(grant.via ? { via: grant.via } : {}),
   };
   return NextResponse.json(
     {
@@ -108,7 +92,6 @@ export async function POST(request: NextRequest) {
   const redirectUri = params.get("redirect_uri");
   const clientId = params.get("client_id");
   const codeVerifier = params.get("code_verifier");
-  const resource = params.get("resource");
 
   if (!code || !redirectUri || !clientId || !codeVerifier) {
     return err(
@@ -130,25 +113,20 @@ export async function POST(request: NextRequest) {
   ) {
     return err("invalid_grant", "PKCE verification failed");
   }
-  // RFC 8707: a code bound to one resource can't be redeemed for another.
-  if (resource && payload.resource && !sameResource(resource, payload.resource)) {
-    return err("invalid_grant", "resource does not match the authorization request");
-  }
+  if (!isAdminGrant(payload)) return err("invalid_grant", "code is invalid or expired");
 
   return issue(
     {
       sub: payload.sub,
       scope: payload.scope,
       client_id: payload.client_id,
-      resource: payload.resource,
-      via: payload.via ?? viaForRedirect(payload.redirect_uri),
     },
     // A login phished to some other site gets 30 days at most, never a renewal.
     { refresh: trustedRedirect(payload.redirect_uri) }
   );
 }
 
-async function refresh(params: URLSearchParams) {
+function refresh(params: URLSearchParams) {
   const token = params.get("refresh_token");
   if (!token) return err("invalid_request", "refresh_token required");
 
@@ -159,26 +137,7 @@ async function refresh(params: URLSearchParams) {
   if (clientId && clientId !== grant.client_id) {
     return err("invalid_grant", "client_id mismatch");
   }
-  const resource = params.get("resource");
-  if (resource && grant.resource && !sameResource(resource, grant.resource)) {
-    return err("invalid_grant", "resource does not match this grant");
-  }
-
-  if (grant.sub === "admin" && isMapleGrant(grant)) {
-    // An owner turned off the admin login for Maple. (The calendar connector
-    // stays connected; its Maple tools refuse instead.)
-    if (await isRemoved("admin").catch(() => false)) return err("invalid_grant", "the admin login is turned off for Maple's Log");
-  }
-  if (grant.sub.startsWith("maple:")) {
-    try {
-      const member = await memberFor(grant.sub.slice("maple:".length));
-      if (!member) return err("invalid_grant", "no longer a member of Maple's Log");
-    } catch (error) {
-      // A database blip shouldn't disconnect a parent at 3am; membership is
-      // checked again on every MCP request.
-      console.error("Refresh membership check failed:", error);
-    }
-  }
+  if (!isAdminGrant(grant)) return err("invalid_grant", "refresh_token is invalid or expired");
 
   return issue(grant, { refresh: true });
 }

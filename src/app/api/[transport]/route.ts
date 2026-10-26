@@ -7,7 +7,6 @@ import {
   publicOrigin,
 } from "@/lib/mcp/auth";
 import { runExec, EXEC_API_DOC } from "@/lib/mcp/exec";
-import { MAPLE_INSTRUCTIONS, registerMapleTools } from "@/lib/maple/mcp-tools";
 import { captureServerException } from "@/lib/posthog-server";
 
 /**
@@ -18,11 +17,6 @@ import { captureServerException } from "@/lib/posthog-server";
  *
  * Transport: Streamable HTTP at /api/mcp, SSE at /api/sse (mcp-handler
  * routes on the [transport] path segment).
- *
- * It also carries Maple's Log's tools (src/lib/maple/mcp-tools.ts), so the
- * "Brooker Family Calendar" connector Matt already has can log the baby too.
- * They act as the admin member (or whoever Family → Admin says it logs as),
- * and refuse if an owner turned off the admin login for Maple.
  *
  * Auth: Bearer token (from the OAuth shim at /oauth/*) OR raw HTTP Basic
  * (same creds as the rest of the admin surface). Basic is the escape hatch
@@ -72,11 +66,8 @@ const baseHandler = createMcpHandler(
         }
       }
     );
-    registerMapleTools(server);
   },
-  {
-    instructions: `Two things live here: the Brooker family calendar (calendar_exec) and Maple's Log, the family's newborn tracker (maple_status, the log_* tools and the rest).\n\n${MAPLE_INSTRUCTIONS}`,
-  },
+  {},
   {
     basePath: "/api",
     maxDuration: 60,
@@ -104,18 +95,15 @@ function verifyToken(
 ): AuthInfo | undefined {
   if (bearer) {
     const payload = verifyAccessToken(bearer);
-    // Only the admin may run exec snippets. The /oauth shim also mints tokens
-    // for Maple's Log family members (sub "maple:<email>"); those must never
-    // open this server.
+    // Only the admin may run exec snippets.
     if (!payload || payload.sub !== "admin") return undefined;
-    // Tokens bound to another server (e.g. Maple's) stay with that server.
+    // Tokens bound to another server stay with that server.
     if (payload.resource && !isOwnResource(payload.resource)) return undefined;
     return {
       token: bearer,
       clientId: payload.client_id,
       scopes: payload.scope ? payload.scope.split(" ") : [],
-      // via: which assistant, so Maple entries say "via Claude" / "via ChatGPT".
-      extra: { sub: payload.sub, via: payload.via ?? "mcp" },
+      extra: { sub: payload.sub },
     };
   }
 
@@ -127,7 +115,7 @@ function verifyToken(
       token: "basic-auth",
       clientId: "admin-basic",
       scopes: ["calendar"],
-      extra: { sub: "admin", via: "mcp" },
+      extra: { sub: "admin" },
     };
   }
 

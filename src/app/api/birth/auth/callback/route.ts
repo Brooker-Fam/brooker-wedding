@@ -3,8 +3,6 @@ import { getAppBaseUrl } from "@/lib/google";
 import {
   emailFromCode, planForOrCreate, sealSession, cookieOptions, SESSION_COOKIE,
 } from "@/lib/birth-auth";
-import { MAPLE_STATE_PREFIX } from "@/lib/maple/auth";
-import { handleMapleGoogleCallback } from "@/lib/maple/google-callback";
 import { captureServerException } from "@/lib/posthog-server";
 
 export const dynamic = "force-dynamic";
@@ -12,8 +10,6 @@ export const dynamic = "force-dynamic";
 export async function GET(request: NextRequest) {
   const base = getAppBaseUrl();
   const { searchParams } = new URL(request.url);
-  // Maple's Log signs in through this same registered redirect URI.
-  if (searchParams.get("state")?.startsWith(MAPLE_STATE_PREFIX)) return handleMapleGoogleCallback(request);
   const fail = (why: string) => NextResponse.redirect(`${base}/birth?auth=${why}`);
 
   try {

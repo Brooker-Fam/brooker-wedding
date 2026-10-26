@@ -26,7 +26,7 @@ export async function POST(request: NextRequest) {
       : [];
 
   // Echo a requested scope back; the scope actually granted is decided at
-  // /oauth/authorize (e.g. "maple" for Maple's Log).
+  // /oauth/authorize.
   const scope =
     typeof body.scope === "string" && body.scope.trim()
       ? body.scope.trim().slice(0, 200)

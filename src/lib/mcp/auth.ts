@@ -86,10 +86,8 @@ export interface AuthCodePayload {
   code_challenge_method: "S256" | "plain";
   scope: string;
   sub: string;
-  /** RFC 8707 resource the code was issued for (Maple binds it; others omit it). */
+  /** RFC 8707 resource the code was bound to, if any. */
   resource?: string;
-  /** Which assistant is connecting ("claude" | "chatgpt" | "mcp"), for attribution. */
-  via?: string;
 }
 
 export function mintAuthCode(payload: AuthCodePayload): string {
@@ -106,10 +104,8 @@ export interface AccessTokenPayload {
   sub: string;
   scope: string;
   client_id: string;
-  /** Audience: the MCP URL this token was minted for, when the client sent one. */
+  /** Audience: the MCP URL this token was minted for, when it was bound to one. */
   resource?: string;
-  /** "claude" | "chatgpt" | "mcp", stamped by /oauth/token from the redirect host. */
-  via?: string;
 }
 
 export const ACCESS_TOKEN_TTL = 60 * 60 * 24 * 30; // 30 days
@@ -134,19 +130,15 @@ export function verifyAccessToken(token: string): AccessTokenPayload | null {
 
 /**
  * Stateless, like everything else here: the refresh token carries the grant.
- * /oauth/token rotates it on every use (a fresh one comes back each time) and
- * re-checks Maple membership, so removing someone from the family list ends
- * their connector at the next refresh even though old tokens still verify.
+ * /oauth/token rotates it on every use (a fresh one comes back each time).
  */
 export interface RefreshTokenPayload {
   sub: string;
   scope: string;
   client_id: string;
   resource?: string;
-  via?: string;
 }
 
-export const REFRESH_TOKEN_TTL = 60 * 60 * 24 * 365; // 365 days
 /**
  * The admin login can run code on the calendar and RSVP servers, so its
  * refresh tokens are shorter-lived. Each refresh hands out a new one, so a
@@ -158,15 +150,14 @@ export const ADMIN_REFRESH_TOKEN_TTL = 60 * 60 * 24 * 90; // 90 days
 
 /**
  * Admin grants are tied to the current ADMIN_PASS: changing the password
- * revokes every admin refresh token (members are re-checked on refresh).
+ * revokes every admin refresh token.
  */
 function adminPassFingerprint(): string {
   return crypto.createHash("sha256").update(`mcp-admin:${process.env.ADMIN_PASS ?? ""}`).digest("hex").slice(0, 16);
 }
 
 export function mintRefreshToken(payload: RefreshTokenPayload): string {
-  if (payload.sub === "admin") return pack({ ...payload, pf: adminPassFingerprint() }, ADMIN_REFRESH_TOKEN_TTL, "mcprt");
-  return pack(payload, REFRESH_TOKEN_TTL, "mcprt");
+  return pack({ ...payload, pf: adminPassFingerprint() }, ADMIN_REFRESH_TOKEN_TTL, "mcprt");
 }
 
 export function verifyRefreshToken(token: string): RefreshTokenPayload | null {
@@ -180,9 +171,8 @@ export function verifyRefreshToken(token: string): RefreshTokenPayload | null {
 
 /**
  * Redirects we trust with long-lived grants: Claude, ChatGPT, or an app on
- * this machine (Claude Code, Inspector). Maple consent requires one, and only
- * these get refresh tokens, so a login phished to a stranger's site can't keep
- * renewing.
+ * this machine (Claude Code, Inspector). Only these get refresh tokens, so a
+ * login phished to a stranger's site can't keep renewing.
  */
 export function trustedRedirect(uri: string): boolean {
   let u: URL;
@@ -198,21 +188,6 @@ export function trustedRedirect(uri: string): boolean {
   }
   if (u.protocol === "http:") return host === "localhost" || host === "127.0.0.1" || host === "[::1]";
   return false;
-}
-
-/**
- * Which assistant a redirect_uri belongs to, so entries can say "via Claude".
- * Loopback redirects (Claude Code, Inspector, other local apps) are "mcp".
- */
-export function viaForRedirect(redirectUri: string): "claude" | "chatgpt" | "mcp" {
-  try {
-    const host = new URL(redirectUri).hostname.toLowerCase();
-    if (host === "claude.ai" || host === "claude.com") return "claude";
-    if (host === "chatgpt.com" || host === "chat.openai.com") return "chatgpt";
-  } catch {
-    // fall through
-  }
-  return "mcp";
 }
 
 // ---------- PKCE ----------
@@ -267,23 +242,4 @@ export function publicOrigin(req: Request): string {
   }
   const url = new URL(req.url);
   return url.origin;
-}
-
-// ---------- Maple's Log protected-resource metadata (RFC 9728) ----------
-
-/**
- * Served at /.well-known/oauth-protected-resource/api/maple/mcp (the RFC 9728
- * path-insertion URL the MCP route's 401 points at) and the /maple alias.
- * `resource` must equal the URL people paste exactly; authorization_servers[0]
- * must equal the issuer (the bare origin).
- */
-export function mapleResourceMetadata(origin: string) {
-  return {
-    resource: `${origin}/api/maple/mcp`,
-    authorization_servers: [origin],
-    scopes_supported: ["maple"],
-    bearer_methods_supported: ["header"],
-    resource_name: "Maple's Log",
-    resource_documentation: `${origin}/maple/connect`,
-  };
 }

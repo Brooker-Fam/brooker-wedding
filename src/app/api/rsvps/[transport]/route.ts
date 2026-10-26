@@ -89,11 +89,9 @@ function isOwnResource(resource: string): boolean {
 function verifyToken(req: Request, bearer?: string): AuthInfo | undefined {
   if (bearer) {
     const payload = verifyAccessToken(bearer);
-    // Only the admin may run exec snippets. The /oauth shim also mints tokens
-    // for Maple's Log family members (sub "maple:<email>"); those must never
-    // open this server.
+    // Only the admin may run exec snippets.
     if (!payload || payload.sub !== "admin") return undefined;
-    // Tokens bound to another server (e.g. Maple's) stay with that server.
+    // Tokens bound to another server stay with that server.
     if (payload.resource && !isOwnResource(payload.resource)) return undefined;
     return {
       token: bearer,
