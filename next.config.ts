@@ -1,13 +1,12 @@
 import type { NextConfig } from "next";
 
-// Maple's Log lives at maplebaby.app. Phones that installed it from
-// brooker.family/maple keep this origin for their service worker, push
-// subscription, session cookie and Siri Shortcuts, so its URLs here are
-// proxied (not redirected) to the same path there.
+// Maple's Log lives at maplebaby.app. Its pages redirect there. Its API, service worker and assets are
+// proxied instead, so Siri Shortcuts, push receipts and phones that installed it from brooker.family/maple
+// keep working without being set up again.
 const MAPLE_ORIGIN = "https://maplebaby.app";
-const MAPLE_PATHS = [
-  "/maple",
-  "/maple/:path*",
+const MAPLE_PAGES = ["/maple", "/maple/:path((?!sw\\.js$).*)"];
+const MAPLE_PROXIED = [
+  "/maple/sw.js",
   "/maple.webmanifest",
   "/maple-icon.svg",
   "/maple-icon-192.png",
@@ -30,9 +29,16 @@ const nextConfig: NextConfig = {
       { protocol: "https", hostname: "*.blob.vercel-storage.com" },
     ],
   },
+  async redirects() {
+    return MAPLE_PAGES.map((source) => ({
+      source,
+      destination: `${MAPLE_ORIGIN}${source.replace(/\(.*\)$/, "")}`,
+      permanent: true,
+    }));
+  },
   async rewrites() {
     return {
-      beforeFiles: MAPLE_PATHS.map((source) => ({
+      beforeFiles: MAPLE_PROXIED.map((source) => ({
         source,
         destination: `${MAPLE_ORIGIN}${source}`,
       })),
