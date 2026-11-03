@@ -26,7 +26,16 @@ is adapted for **brooker.family** and how to add a new map.
 Interactive: `all-the-way-down` (a Disputation, described below).
 
 Current maps: `god`, `morality`, `vaccines`, `covid-vaccines`, `us-iran`,
-`ai-data-centers`, `saturated-fat`, `sun-exposure`, `venezuela`, `milk-mucus`.
+`ai-data-centers`, `saturated-fat`, `sun-exposure`, `venezuela`, `milk-mucus`,
+`online-reach`.
+
+`online-reach` starts from Haidt's 2022 Atlantic essay and maps the wider fight over
+limiting reach: *reach is speech* ↔ *reach is design*, with "who holds the gate" as the
+lilac hinge. Its payoff plots the positions by what reach is and by whose hand is on the
+dial (state, platform, crowd, reader), so the gap between the poles reads as a funnel.
+Its lineage and positions put `.reveal` on each node and column instead of the whole
+block: a block taller than about 7,000px never reaches the script's 12% threshold on a
+phone, so it would stay invisible.
 
 `venezuela` is a rise-and-fall history as well as a debate: its lineage section
 carries the boom-and-bust narrative, and the two-pole axis runs *ruined from

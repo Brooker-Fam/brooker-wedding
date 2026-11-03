@@ -122,6 +122,15 @@ const DEBATES: DebateCard[] = [
     poleA: "Avoid it",
     poleB: "Get more of it",
   },
+  {
+    slug: "online-reach",
+    group: "Live & contested",
+    field: "Free speech · platform design",
+    title: "Online reach: can a democracy turn it down without silencing anyone?",
+    hook: "Haidt's case for fixing the share button instead of the posts, against the deplatforming evidence, South Korea's real-name law, and regulators who change hands.",
+    poleA: "Reach is speech",
+    poleB: "Reach is design",
+  },
 ];
 
 const GROUPS = ["Old questions", "Live & contested"] as const;

@@ -1,0 +1,886 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- Field map: can a democracy limit online reach without restricting speech? -->
+<title>Is reach speech, or design? — a map of the online-reach debate</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,500&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#171922; --ink-2:#1e212c; --card:#23273380; --card-solid:#232734;
+    --line:#34384a; --line-soft:#2a2e3b;
+    --bone:#ebe5d6; --mute:#a6a394; --faint:#807e8a;
+    /* found = pole A (verdigris) · made = pole B (ochre) · pivot = the reconciling hinge (lilac).
+       Rename the *concepts* in your prose, but keep these three colors as the axis. */
+    --found:#6dbaa4; --found-deep:#2f6657; --found-glow:#6dbaa422;
+    --made:#d8a652; --made-deep:#7d5f29; --made-glow:#d8a65222;
+    --pivot:#a195bd; --pivot-glow:#a195bd1f;
+    /* third camp (slate-blue) — only for genuinely ternary debates; see SKILL.md */
+    --camp-c:#6f93c4; --camp-c-deep:#33506f; --camp-c-glow:#6f93c41f;
+    --maxw:1180px;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0; background:var(--ink); color:var(--bone);
+    font-family:"IBM Plex Sans",sans-serif; font-weight:400;
+    line-height:1.62; font-size:17px;
+    -webkit-font-smoothing:antialiased;
+    background-image:
+      radial-gradient(900px 600px at 82% -8%, #20243340, transparent 70%),
+      radial-gradient(700px 500px at 5% 18%, #1d212e55, transparent 70%);
+    background-attachment:fixed;
+  }
+  .wrap{max-width:var(--maxw); margin:0 auto; padding:0 26px;}
+  .mono{font-family:"IBM Plex Mono",monospace;}
+  .ser{font-family:"Fraunces",serif;}
+
+  /* ---------- eyebrows / dividers ---------- */
+  .eyebrow{
+    font-family:"IBM Plex Mono",monospace; font-size:12px; font-weight:500;
+    letter-spacing:.22em; text-transform:uppercase; color:var(--faint);
+    display:flex; align-items:center; gap:14px;
+  }
+  .eyebrow::before{content:""; width:30px; height:1px; background:var(--line); display:inline-block;}
+  .sec-num{color:var(--mute);}
+
+  /* ---------- brooker site tie (added for brooker.family/debates) ---------- */
+  .site-tie{
+    font-family:"IBM Plex Mono",monospace; font-size:12px; letter-spacing:.2em;
+    text-transform:uppercase; color:var(--faint); text-decoration:none;
+    display:inline-flex; align-items:center; gap:9px; margin:0 0 30px;
+    transition:color .2s;
+  }
+  .site-tie::before{content:""; width:22px; height:1px; background:var(--line); display:inline-block;}
+  .site-tie:hover{color:var(--bone);}
+  .foot-links{margin-top:22px; display:flex; gap:24px; flex-wrap:wrap;}
+  .foot-links a{
+    font-family:"IBM Plex Mono",monospace; font-size:11.5px; letter-spacing:.16em;
+    text-transform:uppercase; color:var(--mute); text-decoration:none;
+    border-bottom:1px solid var(--line); padding-bottom:2px;
+  }
+  .foot-links a:hover{color:var(--bone); border-bottom-color:var(--mute);}
+
+  /* ---------- header ---------- */
+  header{padding:clamp(56px,10vw,116px) 0 clamp(40px,7vw,80px);}
+  .kicker{
+    font-family:"IBM Plex Mono",monospace; font-size:12.5px; letter-spacing:.26em;
+    text-transform:uppercase; color:var(--faint); margin:0 0 26px;
+  }
+  h1.title{
+    font-family:"Fraunces",serif; font-weight:400; font-optical-sizing:auto;
+    font-size:clamp(2.5rem,6.4vw,4.7rem); line-height:1.02; letter-spacing:-.012em;
+    margin:0; max-width:16ch;
+  }
+  h1.title em{font-style:italic; color:var(--found);}
+  h1.title .mk{font-style:italic; color:var(--made);}
+  .dek{
+    font-size:clamp(1.05rem,2.1vw,1.35rem); color:var(--mute); line-height:1.5;
+    max-width:47ch; margin:30px 0 0; font-weight:400;
+  }
+  .dek b{color:var(--bone); font-weight:500;}
+
+  /* ---------- axis legend ---------- */
+  .legend{
+    margin-top:46px; border:1px solid var(--line-soft); border-radius:14px;
+    background:linear-gradient(100deg,#1c202c,#1a1e29);
+    padding:22px 24px; display:grid; gap:14px;
+  }
+  .legend-top{font-family:"IBM Plex Mono",monospace; font-size:11.5px; letter-spacing:.2em; text-transform:uppercase; color:var(--faint);}
+  .axis-bar{
+    height:7px; border-radius:6px;
+    background:linear-gradient(90deg,var(--found) 0%, #6e6b78 50%, var(--made) 100%);
+  }
+  .axis-ends{display:flex; justify-content:space-between; gap:16px; font-size:14.5px;}
+  .axis-ends .ax-found{color:var(--found);}
+  .axis-ends .ax-made{color:var(--made); text-align:right;}
+  .axis-ends span b{display:block; font-weight:600; font-size:15px; margin-bottom:1px;}
+  .axis-ends span small{color:var(--faint); font-size:12.5px; letter-spacing:.02em;}
+
+  /* ---------- section frame ---------- */
+  section{padding:clamp(54px,8vw,96px) 0;}
+  .sec-head{margin-bottom:42px;}
+  .sec-head h2{
+    font-family:"Fraunces",serif; font-weight:400; font-size:clamp(1.9rem,4vw,2.9rem);
+    line-height:1.06; letter-spacing:-.01em; margin:18px 0 0; max-width:24ch;
+  }
+  .sec-head p{color:var(--mute); max-width:62ch; margin:16px 0 0; font-size:1.02rem;}
+
+  /* ===== I. LINEAGE (timeline) ===== */
+  .lineage{position:relative;}
+  .spine{
+    position:absolute; left:140px; top:6px; bottom:6px; width:2px;
+    background:linear-gradient(var(--found-deep),var(--line),var(--made-deep));
+  }
+  .node{position:relative; padding:0 0 26px 172px; min-height:30px;}
+  .node .yr{
+    position:absolute; left:0; top:1px; width:118px; text-align:right;
+    font-family:"IBM Plex Mono",monospace; font-size:12.5px; color:var(--faint);
+    letter-spacing:.02em; padding-top:2px;
+  }
+  .node .dot{
+    position:absolute; left:134px; top:6px; width:14px; height:14px; border-radius:50%;
+    background:var(--ink); border:2px solid var(--mute); z-index:2;
+  }
+  .node.found .dot{border-color:var(--found); box-shadow:0 0 0 4px var(--found-glow);}
+  .node.made .dot{border-color:var(--made); box-shadow:0 0 0 4px var(--made-glow);}
+  .node.pivot .dot{border-color:var(--pivot); box-shadow:0 0 0 4px var(--pivot-glow);}
+  .node .who{font-family:"Fraunces",serif; font-size:1.24rem; font-weight:500; line-height:1.15; letter-spacing:-.005em;}
+  .node .dom{font-family:"IBM Plex Mono",monospace; font-size:10.5px; letter-spacing:.16em; text-transform:uppercase; margin-left:10px; color:var(--faint); vertical-align:middle;}
+  .node .say{color:var(--mute); font-size:.99rem; margin-top:4px; max-width:64ch;}
+  .node.camp-c .dot{border-color:var(--camp-c); box-shadow:0 0 0 4px var(--camp-c-glow);}
+  .node.found .who{color:var(--found);}
+  .node.made .who{color:var(--made);}
+  .node.pivot .who{color:var(--pivot);}
+  .node.camp-c .who{color:var(--camp-c);}
+  .lineage-tail{padding-left:172px; margin-top:2px;}
+  .lineage-tail .pin{
+    position:relative; padding:16px 20px; border:1px dashed var(--line);
+    border-radius:12px; background:#1b1f2a; max-width:60ch;
+  }
+  .lineage-tail .pin b{font-family:"Fraunces",serif; font-weight:500; font-size:1.05rem;}
+  .lineage-tail .pin p{margin:5px 0 0; color:var(--mute); font-size:.96rem;}
+
+  /* ===== II. POSITIONS (field guide) ===== */
+  .fields{display:grid; grid-template-columns:1fr 1fr; gap:30px;}
+  .field h3{
+    font-family:"IBM Plex Mono",monospace; font-size:12.5px; letter-spacing:.2em;
+    text-transform:uppercase; color:var(--bone); margin:0 0 18px; padding-bottom:12px;
+    border-bottom:1px solid var(--line); display:flex; justify-content:space-between; align-items:baseline;
+  }
+  .field h3 small{color:var(--faint); letter-spacing:.12em; font-weight:400;}
+  .pos{
+    border:1px solid var(--line-soft); border-left:3px solid var(--line);
+    border-radius:0 11px 11px 0; background:var(--card);
+    padding:16px 18px; margin-bottom:13px; transition:border-color .25s, background .25s, transform .25s;
+  }
+  .pos.found{border-left-color:var(--found);}
+  .pos.made{border-left-color:var(--made);}
+  .pos.pivot{border-left-color:var(--pivot);}
+  .pos.camp-c{border-left-color:var(--camp-c);}
+  .pos:hover{transform:translateX(3px); background:var(--card-solid);}
+  .pos .nm{font-family:"Fraunces",serif; font-weight:600; font-size:1.16rem; letter-spacing:-.005em; display:flex; align-items:baseline; gap:10px; flex-wrap:wrap;}
+  .pos.found .nm{color:var(--found);} .pos.made .nm{color:var(--made);} .pos.pivot .nm{color:var(--pivot);} .pos.camp-c .nm{color:var(--camp-c);}
+  /* go-deeper links on a card or in the shelf */
+  .src-links{margin-top:9px; display:flex; flex-wrap:wrap; gap:6px 14px;}
+  .src-links a{font-family:"IBM Plex Mono",monospace; font-size:11.5px; color:var(--mute); text-decoration:none; border-bottom:1px solid var(--line);}
+  .src-links a:hover{color:var(--bone); border-bottom-color:var(--mute);}
+  .src-links a::after{content:" ↗"; color:var(--faint);}
+  .traction{
+    font-family:"IBM Plex Mono",monospace; font-size:10px; letter-spacing:.08em; text-transform:uppercase;
+    color:var(--faint); border:1px solid var(--line); border-radius:20px; padding:2px 9px; white-space:nowrap;
+  }
+  .pos .figs{font-family:"IBM Plex Mono",monospace; font-size:12px; color:var(--mute); margin:7px 0 7px; letter-spacing:.01em;}
+  .pos .claim{color:var(--bone); font-size:.97rem; line-height:1.5;}
+  .pos .nb{display:block; margin-top:7px; color:var(--faint); font-size:.85rem; font-style:italic;}
+  .pivot-card{
+    grid-column:1/-1; border:1px solid var(--pivot); border-radius:13px;
+    background:linear-gradient(100deg,#211f2c,#1c1b25); padding:20px 22px; margin-top:4px;
+    display:flex; gap:18px; align-items:flex-start; flex-wrap:wrap;
+  }
+  .pivot-card .pv-tag{font-family:"IBM Plex Mono",monospace; font-size:11px; letter-spacing:.2em; text-transform:uppercase; color:var(--pivot); white-space:nowrap; padding-top:5px;}
+  .pivot-card .pv-body{flex:1 1 320px;}
+  .pivot-card .pv-body b{font-family:"Fraunces",serif; font-weight:600; font-size:1.2rem; color:var(--pivot);}
+  .pivot-card .pv-body p{margin:6px 0 0; color:var(--bone); font-size:.98rem;}
+  .traction-note{margin-top:20px; color:var(--faint); font-size:.84rem; font-style:italic; max-width:70ch; display:flex; gap:9px;}
+  .traction-note::before{content:"※"; color:var(--mute); font-style:normal;}
+
+  /* ===== III. CRUXES (confrontations) ===== */
+  .crux{border:1px solid var(--line-soft); border-radius:18px; overflow:hidden; margin-bottom:30px; background:#191d28;}
+  .crux-head{padding:24px 28px 20px; border-bottom:1px solid var(--line-soft);}
+  .crux-meta{display:flex; justify-content:space-between; gap:14px; align-items:baseline; flex-wrap:wrap; margin-bottom:12px;}
+  .crux-n{font-family:"IBM Plex Mono",monospace; font-size:13px; letter-spacing:.18em; color:var(--mute);}
+  .crux-dom{font-family:"IBM Plex Mono",monospace; font-size:10.5px; letter-spacing:.16em; text-transform:uppercase; color:var(--ink); background:var(--mute); padding:3px 10px; border-radius:20px;}
+  .crux-dom.both{background:var(--pivot);}
+  .crux-q{font-family:"Fraunces",serif; font-weight:500; font-size:clamp(1.4rem,3vw,2rem); line-height:1.12; letter-spacing:-.01em; margin:0;}
+  .crux-sub{color:var(--mute); margin:9px 0 0; font-size:.98rem;}
+  .steels{display:grid; grid-template-columns:1fr 1fr; gap:0;}
+  .steel{padding:24px 28px; position:relative;}
+  .steel.s-found{background:linear-gradient(180deg,#1a2420,#191f1d);}
+  .steel.s-made{background:linear-gradient(180deg,#241f17,#1f1c16); border-left:1px solid var(--line-soft);}
+  .steel .side{font-family:"IBM Plex Mono",monospace; font-size:11px; letter-spacing:.14em; text-transform:uppercase; margin-bottom:5px;}
+  .steel.s-found .side{color:var(--found);}
+  .steel.s-made .side{color:var(--made);}
+  .steel .pos-name{font-family:"Fraunces",serif; font-weight:600; font-size:1.12rem; margin-bottom:9px; line-height:1.2;}
+  .steel.s-found .pos-name{color:var(--found);}
+  .steel.s-made .pos-name{color:var(--made);}
+  .steel .gist{font-weight:600; font-size:1.04rem; line-height:1.45; color:var(--bone); margin:0 0 13px; padding-bottom:13px; border-bottom:1px dashed var(--line);}
+  .steel .gist::before{content:"In plain terms"; display:block; font-family:"IBM Plex Mono",monospace; font-size:10px; font-weight:500; letter-spacing:.18em; text-transform:uppercase; color:var(--faint); margin-bottom:5px;}
+  .steel p{margin:0; font-size:.97rem; line-height:1.56; color:#e2dccd;}
+  .steel p em{font-style:italic; color:var(--bone);}
+  .crux-key{padding:18px 28px; background:#13161f; border-top:1px solid var(--line-soft); display:flex; gap:14px; align-items:flex-start;}
+  .crux-key .lab{font-family:"IBM Plex Mono",monospace; font-size:11px; letter-spacing:.16em; text-transform:uppercase; color:var(--faint); padding-top:3px; white-space:nowrap;}
+  .crux-key .txt{font-size:.99rem; color:var(--bone); line-height:1.5;}
+  .crux-key .txt b{font-weight:600;}
+  .same-tag{display:inline-block; margin-top:9px; font-family:"IBM Plex Mono",monospace; font-size:11px; letter-spacing:.08em; color:var(--pivot); border:1px solid var(--pivot); border-radius:20px; padding:3px 11px;}
+
+  /* ===== IV. PAYOFF ===== */
+  .fault-sec{background:linear-gradient(180deg,transparent, #13161f 30%, #13161f 70%, transparent);}
+  .fault-card{border:1px solid var(--line); border-radius:20px; background:#171b25; padding:clamp(24px,4vw,44px); box-shadow:0 30px 80px -50px #000;}
+  .fault-lead{font-family:"Fraunces",serif; font-weight:400; font-size:clamp(1.5rem,3.3vw,2.3rem); line-height:1.18; letter-spacing:-.01em; margin:0 0 8px; max-width:26ch;}
+  .fault-lead em{font-style:italic; color:var(--pivot);}
+  .fault-intro{color:var(--mute); max-width:64ch; margin:0 0 30px; font-size:1.02rem;}
+  .diagram{width:100%; height:auto; display:block; margin:6px 0 4px; overflow:visible;}
+  .fault-restate{display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:18px; margin-top:34px;}
+  .fr-item{border-top:2px solid var(--line); padding-top:13px;}
+  .fr-item.f1{border-top-color:var(--made);}
+  .fr-item.f2{border-top-color:var(--pivot);}
+  .fr-item.f3{border-top-color:var(--found);}
+  .fr-item.f4{border-top-color:var(--made);}
+  .fr-item .fr-n{font-family:"IBM Plex Mono",monospace; font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--faint);}
+  .fr-item .fr-t{font-family:"Fraunces",serif; font-weight:500; font-size:1.05rem; margin:4px 0 5px;}
+  .fr-item p{margin:0; font-size:.92rem; color:var(--mute); line-height:1.5;}
+  .fault-close{margin-top:36px; padding-top:26px; border-top:1px solid var(--line); font-family:"Fraunces",serif; font-style:italic; font-weight:400; font-size:clamp(1.15rem,2.4vw,1.5rem); line-height:1.35; color:var(--bone); max-width:44ch;}
+  .fault-close .ax{color:var(--found);}
+  .fault-close .mk{color:var(--made);}
+
+  /* ===== V. GO DEEPER (resources shelf) ===== */
+  .shelf{display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:24px;}
+  .shelf-col h4{font-family:"IBM Plex Mono",monospace; font-size:12px; letter-spacing:.18em; text-transform:uppercase; color:var(--mute); margin:0 0 14px; padding-bottom:10px; border-bottom:1px solid var(--line);}
+  .res{margin-bottom:15px;}
+  .res .t{font-family:"Fraunces",serif; font-weight:500; font-size:1.04rem; line-height:1.25;}
+  .res .t a{color:var(--bone); text-decoration:none; border-bottom:1px solid var(--line);}
+  .res .t a:hover{border-bottom-color:var(--mute);}
+  .res .by{font-family:"IBM Plex Mono",monospace; font-size:11.5px; color:var(--faint); margin-top:1px;}
+  .res .why{color:var(--mute); font-size:.9rem; margin-top:4px; line-height:1.45;}
+
+  /* ---------- footer ---------- */
+  footer{padding:54px 0 80px; border-top:1px solid var(--line-soft); margin-top:30px;}
+  .foot-note{color:var(--faint); font-size:.86rem; max-width:66ch; line-height:1.55;}
+  .foot-note b{color:var(--mute); font-weight:500;}
+
+  /* ---------- reveal ---------- */
+  .reveal{opacity:0; transform:translateY(16px); transition:opacity .7s ease, transform .7s ease;}
+  .reveal.in{opacity:1; transform:none;}
+
+  :focus-visible{outline:2px solid var(--found); outline-offset:3px; border-radius:3px;}
+
+  /* ---------- responsive ---------- */
+  @media (max-width:760px){
+    body{font-size:16px;}
+    .fields{grid-template-columns:1fr;}
+    .steels{grid-template-columns:1fr;}
+    .steel.s-made{border-left:none; border-top:1px solid var(--line-soft);}
+    .spine{left:84px;}
+    .node{padding-left:112px;}
+    .node .yr{width:64px;}
+    .node .dot{left:78px;}
+    .lineage-tail{padding-left:112px;}
+    .axis-ends{flex-direction:column; gap:10px;}
+    .axis-ends .ax-made{text-align:left;}
+  }
+  @media (prefers-reduced-motion:reduce){
+    *{scroll-behavior:auto;}
+    .reveal{opacity:1; transform:none; transition:none;}
+    .draw{stroke-dashoffset:0 !important;}
+  }
+</style>
+</head>
+<body>
+
+<!-- ============================ HEADER ============================ -->
+<header class="wrap">
+  <a class="site-tie" href="/debates">All thought pages · brooker</a>
+  <p class="kicker">FIELD · free-speech law, platform design &amp; political psychology</p>
+  <h1 class="title">Is reach <em>speech</em>, or is it <span class="mk">design</span> — and who said what</h1>
+  <p class="dek">In 2022 Jonathan Haidt blamed a decade of American dysfunction on the machinery of virality more than on anything anyone posted, and argued that a democracy could rebuild the machinery without censoring a word. Can it? A dozen positions on that question fold into four <b>disagreements</b>, and the four fold into one <b>question</b>: whose hand is on the dial. Below are the history, a field guide to who holds which view, and the four <b>cruxes</b>, each argued by its strongest advocates on both sides.</p>
+
+  <div class="legend reveal">
+    <div class="legend-top">One axis runs under all of it. Watch the two colors.</div>
+    <div class="axis-bar"></div>
+    <div class="axis-ends">
+      <span class="ax-found"><b>Reach is speech</b><small>limit the carrying and you limit the voice, whoever does it</small></span>
+      <span class="ax-made"><b>Reach is design</b><small>amplification is a product setting; changing it silences no one</small></span>
+    </div>
+  </div>
+</header>
+
+<!-- ============================ I. LINEAGE ============================ -->
+<section class="wrap">
+  <div class="sec-head">
+    <div class="eyebrow"><span class="sec-num">I</span> &nbsp;the lineage</div>
+    <h2 class="ser">The fight over the loudspeaker is older than the feed</h2>
+    <p>Each node is a work, a ruling or a product change that moved the argument, and its halo shows which way it pushed. Verdigris treats distribution as part of the speech. Ochre treats it as machinery someone built and can rebuild. Lilac asks who gets to hold the switch.</p>
+  </div>
+
+  <div class="lineage">
+    <div class="spine" aria-hidden="true"></div>
+
+    <div class="node found reveal">
+      <span class="yr">1859</span><span class="dot"></span>
+      <div class="who">John Stuart Mill<span class="dom">philosophy · On Liberty</span></div>
+      <div class="say">Mill's worry ran past the law: “Protection, therefore, against the tyranny of the magistrate is not enough: there needs protection also against the tyranny of the prevailing opinion and feeling.” That sentence is why a platform's throttle can offend the <em>value</em> of free expression where the First Amendment never reaches. It cuts both ways: one pole aims it at the platforms, the other at the online mob.</div>
+    </div>
+
+    <div class="node found reveal">
+      <span class="yr">1963</span><span class="dot"></span>
+      <div class="who">Bantam Books v. Sullivan<span class="dom">US Supreme Court · distribution</span></div>
+      <div class="say">Rhode Island's Commission to Encourage Morality in Youth banned nothing. It sent distributors lists of “objectionable” titles, mentioned its duty to recommend prosecutions, and the books stopped moving. The Court, 8–1: “We hold that the system of <em>informal censorship</em> disclosed by this record violates the Fourteenth Amendment.” The jawboning fights of the 2020s start here.</div>
+    </div>
+
+    <div class="node made reveal">
+      <span class="yr">1969</span><span class="dot"></span>
+      <div class="who">Red Lion Broadcasting v. FCC<span class="dom">US Supreme Court · broadcast</span></div>
+      <div class="say">Upholding the FCC's fairness doctrine, which made broadcasters air contrasting views, the Court wrote: “It is the right of the viewers and listeners, not the right of the broadcasters, which is paramount.” It's the high-water mark for a regulator shaping distribution for the audience's sake, and it rested on scarce airwaves. The FCC dropped the doctrine in 1987, and in <em>Reno v. ACLU</em> (1997) the Court found “no basis for qualifying the level of First Amendment scrutiny” online.</div>
+    </div>
+
+    <div class="node found reveal">
+      <span class="yr">1995</span><span class="dot"></span>
+      <div class="who">McIntyre v. Ohio Elections Commission<span class="dom">US Supreme Court · anonymity</span></div>
+      <div class="say">Margaret McIntyre was fined $100 for handing out unsigned leaflets against a school tax levy. The Court sided with her: “Anonymity is a shield from the tyranny of the majority.” The next citation in the opinion is Mill.</div>
+    </div>
+
+    <div class="node pivot reveal">
+      <span class="yr">1996</span><span class="dot"></span>
+      <div class="who">Section 230<span class="dom">Congress · platform law</span></div>
+      <div class="say">Twenty-six words: “No provider or user of an interactive computer service shall be treated as the publisher or speaker of any information provided by another information content provider.” With a second clause protecting good-faith moderation, they put the gate in private hands, shielded from most suits over users' posts and free to choose what to carry.</div>
+    </div>
+
+    <div class="node made reveal">
+      <span class="yr">2007</span><span class="dot"></span>
+      <div class="who">South Korea's real-name rule<span class="dom">law · identity</span></div>
+      <div class="say">From 2007 Korea's biggest sites had to verify users' real identities before they could post; by 2009 the rule covered any site with 100,000 daily users, and Google shut off uploads and comments on YouTube's Korean site rather than comply. A 2011 hack exposed data on more than 35 million Nate and Cyworld users. In 2012 the Constitutional Court struck the rule down unanimously.</div>
+    </div>
+
+    <div class="node made reveal">
+      <span class="yr">2009</span><span class="dot"></span>
+      <div class="who">The retweet, then the share<span class="dom">engineering · virality</span></div>
+      <div class="say">Chris Wetherell led the Twitter team that built the retweet button in 2009; eight days after the 2012 election, Facebook answered with a Share button on mobile. Haidt dates the break to features like these. Watching the first mob use his tool, Wetherell thought, as he told BuzzFeed News: “We might have just handed a 4-year-old a loaded weapon.”</div>
+    </div>
+
+    <div class="node made reveal">
+      <span class="yr">2017–18</span><span class="dot"></span>
+      <div class="who">Tim Wu, Zeynep Tufekci, Renée DiResta<span class="dom">law · sociology · disinformation research</span></div>
+      <div class="say">The threat moved from the censor to the feed. Wu: “it is no longer speech itself that is scarce, but the attention of listeners.” Tufekci: “The most effective forms of censorship today involve meddling with trust and attention, not muzzling speech itself.” DiResta gave the design camp its motto, in <em>Wired</em>: “free speech does not mean free reach. There is no right to algorithmic amplification.”</div>
+    </div>
+
+    <div class="node pivot reveal">
+      <span class="yr">2019</span><span class="dot"></span>
+      <div class="who">Mike Masnick<span class="dom">essay · protocols</span></div>
+      <div class="say">“Protocols, Not Platforms” proposed taking the dial away from the company so that “anyone could design their own interfaces, filters, and additional services.” Fukuyama, Richman and Goel called it <em>middleware</em> a year later; in 2024 Bluesky let users stack moderation services run by outsiders.</div>
+    </div>
+
+    <div class="node made reveal">
+      <span class="yr">2022</span><span class="dot"></span>
+      <div class="who">Jonathan Haidt<span class="dom">essay · social psychology</span></div>
+      <div class="say"><em>Why the Past 10 Years of American Life Have Been Uniquely Stupid</em> (<em>The Atlantic</em>, April) blamed the 2010s on how things spread more than on what was said. Leaning on Frances Haugen's testimony, it called for architecture that slows virality, a bank-style “know your customer” duty with pseudonyms still allowed, regulatory oversight, data for researchers, and no social media for children until about 16. To a Senate panel that May: “Architectural changes, don't focus on content moderation.”</div>
+    </div>
+
+    <div class="node pivot reveal">
+      <span class="yr">2022</span><span class="dot"></span>
+      <div class="who">Musk's Twitter<span class="dom">platform · policy</span></div>
+      <div class="say">Three weeks after buying Twitter, Elon Musk posted its new rule: “New Twitter policy is freedom of speech, but not freedom of reach.” Weeks later, Bari Weiss's installment of the Twitter Files, “Twitter's Secret Blacklists,” presented the old management's “visibility filtering” as a scandal. Same tool, opposite verdicts, sorted by whose hand was on it.</div>
+    </div>
+
+    <div class="node found reveal">
+      <span class="yr">2023</span><span class="dot"></span>
+      <div class="who">The election studies, and Parler<span class="dom">political science · experiments</span></div>
+      <div class="say">The US 2020 Facebook &amp; Instagram Election Study turned the dial on tens of thousands of consenting users for three months: a chronological feed, no reshares, a third less like-minded content. What people saw changed a lot; no measured attitude moved, polarization included. Critics later argued that Meta's post-election emergency measures had altered the comparison feed. Months earlier, a <em>PNAS Nexus</em> study found that taking Parler offline hadn't reduced its users' activity on fringe sites overall. Each covers one platform at one moment.</div>
+    </div>
+
+    <div class="node pivot reveal">
+      <span class="yr">2024</span><span class="dot"></span>
+      <div class="who">The Supreme Court on the gate<span class="dom">law · Moody, Vullo, Murthy</span></div>
+      <div class="say">In <em>Moody v. NetChoice</em> the Court called compiling and ordering others' posts “expressive activity of its own,” so a state can't order a feed rebalanced to suit its own idea of balance. In <em>NRA v. Vullo</em>, 9–0, it held that officials “cannot attempt to coerce private parties in order to punish or suppress views that the government disfavors.” <em>Murthy v. Missouri</em>, the big jawboning case, ended on standing with the merits unreached. The platform holds the dial; how hard the government may lean on its hand was left open.</div>
+    </div>
+
+    <div class="node found reveal">
+      <span class="yr">2025</span><span class="dot"></span>
+      <div class="who">The FCC and Jimmy Kimmel<span class="dom">regulator · pressure</span></div>
+      <div class="say">FCC chairman Brendan Carr suggested on a podcast that broadcasters carrying Jimmy Kimmel risked “fines or license revocations,” adding: “we can do this the easy way or the hard way.” That day Nexstar, which needed FCC approval for a merger, pulled the show, and ABC suspended it. Kimmel was back within a week.</div>
+    </div>
+
+    <div class="lineage-tail reveal">
+      <div class="pin">
+        <b>Into the present</b>
+        <p>In March 2026 <em>Murthy</em> ended in a consent decree barring three agencies, for ten years, from threatening platforms into removing or reducing the plaintiffs' posts, “including through altering their algorithms.” In June the Supreme Court let the president fire FTC commissioners at will. ABC is suing the FCC over an early review of its station licenses. Australia's under-16 rule has blocked nearly 5 million accounts and now faces its first major High Court challenge. Each side can point to a dial being turned by someone it distrusts.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ II. POSITIONS ============================ -->
+<section class="wrap">
+  <div class="sec-head">
+    <div class="eyebrow"><span class="sec-num">II</span> &nbsp;the positions</div>
+    <h2 class="ser">A field guide: who holds what, and where it sits</h2>
+    <p>Each card's edge is colored by pole. The tag is rough sociology, how widely the view is held today among the lawyers and researchers who work on this, inside the platforms and out. It isn't a verdict. The left column is about what governments may require or lean on; the right is about what platforms and their users do with the dial.</p>
+  </div>
+
+  <div class="fields">
+    <div class="field reveal">
+      <h3>The state <small>laws, regulators &amp; pressure</small></h3>
+
+      <div class="pos found">
+        <div class="nm">Amplification law is speech law <span class="traction">the US legal default</span></div>
+        <div class="figs">Daphne Keller · the Moody v. NetChoice majority · NetChoice</div>
+        <div class="claim">A rule that tells a platform what to rank down regulates what the platform says and what its users can reach. Calling it a design rule doesn't change what it does to speech.</div>
+        <span class="nb">Keller isn't absolutist: she writes that “some versions of amplification law would be flatly unconstitutional in the U.S.,” while a few rules “grounded in content-neutral goals, including privacy or competition” might survive.</span>
+        <div class="src-links"><a href="https://knightcolumbia.org/content/amplification-and-its-discontents">Keller, Amplification and Its Discontents</a></div>
+      </div>
+
+      <div class="pos found">
+        <div class="nm">No jawboning <span class="traction">unanimous in principle</span></div>
+        <div class="figs">Bantam Books (1963) · NRA v. Vullo (2024) · Justice Alito</div>
+        <div class="claim">When officials lean on a platform to throttle a speaker, the speaker loses reach without any law to challenge. That's censorship by proxy, and it does the most damage when nobody announces it.</div>
+        <span class="nb">The principle won 9–0 in Vullo. Applying it split the Court in Murthy, which turned on standing, and that case ended in 2026 with a consent decree, not a ruling.</span>
+      </div>
+
+      <div class="pos made">
+        <div class="nm">Regulate the plumbing <span class="traction">EU law · US proposals</span></div>
+        <div class="figs">Jonathan Haidt · Frances Haugen · the EU Digital Services Act</div>
+        <div class="claim">Rules that touch no particular post — limits on reshare chains, a click before resharing, data access for researchers, a feed option that isn't built from your profile — change the incentives without anyone judging content.</div>
+        <span class="nb">The DSA also makes the largest platforms assess and reduce “systemic risks,” a far looser standard. Its first fine, €120 million against X in December 2025, was all plumbing: the blue checkmark, the ad archive, data for researchers. Weeks later the State Department barred five Europeans it accused of censorship, among them Thierry Breton, the former commissioner responsible for digital affairs.</span>
+      </div>
+
+      <div class="pos made">
+        <div class="nm">Verify before you amplify <span class="traction">spreading in legislatures</span></div>
+        <div class="figs">Haidt · Australia's under-16 law · the UK Online Safety Act</div>
+        <div class="claim">Before a platform amplifies an account to strangers, it should know that one real person of the right age stands behind it. The person can keep posting under a pseudonym.</div>
+        <span class="nb">Someone has to hold the proof. South Korea's stricter real-name rule ended in its Constitutional Court in 2012.</span>
+      </div>
+
+      <div class="pos found">
+        <div class="nm">Anonymity is the shield <span class="traction">strong in US case law</span></div>
+        <div class="figs">McIntyre v. Ohio (1995) · EFF · Jeff Kosseff</div>
+        <div class="claim">Speaking without a name has protected pamphleteers and people hiding from abusers. In the EFF's words, “Age verification systems are surveillance systems”: whoever holds the list holds the speaker.</div>
+        <span class="nb">Most anonymity cases are about the state unmasking a speaker. A platform choosing to verify is a different legal question, if not a different risk.</span>
+      </div>
+
+      <div class="pos made">
+        <div class="nm">Protect the listener's attention <span class="traction">minority in doctrine</span></div>
+        <div class="figs">Tim Wu · Zeynep Tufekci · Red Lion (1969)</div>
+        <div class="claim">When attention is the scarce thing, flooding and harassment silence more people than any censor, so a free-speech law that only watches the government misses the main threat.</div>
+        <span class="nb">Red Lion rested on scarce airwaves, and in Reno v. ACLU (1997) the Court declined to carry that reasoning online.</span>
+      </div>
+    </div>
+
+    <div class="field reveal">
+      <h3>The platforms <small>companies, crowds &amp; users</small></h3>
+
+      <div class="pos made">
+        <div class="nm">Free speech, not free reach <span class="traction">industry standard</span></div>
+        <div class="figs">Renée DiResta · Meta's “remove, reduce, inform” · X under Musk</div>
+        <div class="claim">Leave the post up and stop recommending it. Demotion is the humane middle course between deleting speech and pushing it into a million strangers' feeds.</div>
+        <span class="nb">Meta has been “reducing the spread of problematic content that does not violate our policies” since 2016. The slogan has united people who agree on little else.</span>
+      </div>
+
+      <div class="pos found">
+        <div class="nm">Throttling is censorship you can't see <span class="traction">loud, cross-partisan</span></div>
+        <div class="figs">Bari Weiss's Twitter Files · Human Rights Watch</div>
+        <div class="claim">A demotion is a removal with no notice, no stated reason and no appeal. The speaker can't see it, so they can't contest it, and the platform never has to defend it.</div>
+        <span class="nb">The complaint comes from both directions: Human Rights Watch reviewed 1,050 cases of suppressed content on Meta's apps in late 2023, and 1,049 were peaceful posts in support of Palestinians. Its cases were solicited, not sampled.</span>
+      </div>
+
+      <div class="pos made">
+        <div class="nm">Deplatforming works <span class="traction">strong where it's measured</span></div>
+        <div class="figs">McCabe et al. (2024) · Chandrasekharan et al. (2017) · Jhaver et al. (2021)</div>
+        <div class="claim">Remove the accounts that spread the most and the spread drops: fewer shares, fewer newcomers, less talk about the banned figures, and calmer followers left behind.</div>
+        <span class="nb">These studies measure the platform that acted. The Reddit team itself allowed that the ban may have driven users “to darker corners of the internet.”</span>
+      </div>
+
+      <div class="pos found">
+        <div class="nm">Suppression backfires <span class="traction">contested</span></div>
+        <div class="figs">Jacob Mchangama · Horta Ribeiro et al. (2023) · Andrew Callaghan</div>
+        <div class="claim">Bans and prosecutions move believers somewhere darker, where nobody argues back, and confirm the story that someone powerful is hiding the truth.</div>
+        <span class="nb">Callaghan's view is mixed: he backs some bans (Alex Jones, Andrew Tate) and credits social media itself with spreading QAnon. The Parler study measured where users went, not whether they grew more extreme.</span>
+      </div>
+
+      <div class="pos pivot">
+        <div class="nm">Add context; let the crowd judge <span class="traction">spreading</span></div>
+        <div class="figs">X's Community Notes · Meta · Ovadya &amp; Thorburn on “bridging”</div>
+        <div class="claim">Don't remove or demote. Attach a note that raters who usually disagree both find helpful, and the gate moves from the company to a crowd that has to agree with itself.</div>
+        <span class="nb">Meta dropped its US fact-checkers for this model in January 2025, with Zuckerberg saying they had been “too politically biased.” Rewarding agreement across camps is a viewpoint of its own: it favors whatever the middle can accept.</span>
+      </div>
+    </div>
+
+    <div class="pivot-card reveal">
+      <div class="pv-tag">the hinge ↕</div>
+      <div class="pv-body">
+        <b>Every feed has a gate. Fight over the hand on it.</b>
+        <p>Middleware, protocols, stackable moderation: Fukuyama and his co-authors want “to enable users to choose how information is presented to them,” Masnick wants filters anyone can build, and Bluesky lets users subscribe to moderation services the company doesn't run. Once you grant that no feed is neutral, whether a gate should exist stops being the question; the live one is who holds it and who can take it away. Put the reader's hand on it and the censorship objection mostly falls away, since a filter you chose silences nobody. What remains is the empirical worry the cruxes raise: readers may choose the angriest feed anyway.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="traction-note">Tags describe how the people working on this split today, not who's right. A view can be the legal default and still be wrong, and a minority view can be the one the evidence ends up favoring.</div>
+</section>
+
+<!-- ============================ III. CRUXES ============================ -->
+<section class="wrap">
+  <div class="sec-head">
+    <div class="eyebrow"><span class="sec-num">III</span> &nbsp;the cruxes</div>
+    <h2 class="ser">Four fair fights over the same dial</h2>
+    <p>The positions are bundles of answers to these four questions. Crux 01 asks what reach is; 02 and 03 ask what the evidence shows, and the panels keep what a study measured apart from what each side reads into it; 04 asks who can be trusted with the dial. Each panel gives one side's best case in its own voice.</p>
+  </div>
+
+  <!-- CRUX 1 -->
+  <div class="crux reveal">
+    <div class="crux-head">
+      <div class="crux-meta"><span class="crux-n">Crux 01 — the definition</span><span class="crux-dom">law · philosophy</span></div>
+      <h3 class="crux-q ser">Is limiting reach a restriction on speech?</h3>
+      <p class="crux-sub">Four tools get called censorship, and they aren't the same: removing a post, banning an account, ranking a post down, and adding friction (a prompt, or a copy-and-paste step). This crux is about the last two. Nobody has a right to an audience, yet a speaker whose posts quietly stop showing up has lost something.</p>
+    </div>
+    <div class="steels">
+      <div class="steel s-found">
+        <div class="side">▸ distribution is part of the speech</div>
+        <div class="pos-name">Civil libertarians, the anti-jawboning courts, shadowban critics</div>
+        <div class="gist">A voice that can't travel isn't free in any way that matters, and a demotion is the most dangerous limit because nobody sees it happen.</div>
+        <p>The law worked this out sixty years ago. Rhode Island's morality commission banned no books in <em>Bantam Books</em>; it wrote to the distributor, “Cooperative action will eliminate the necessity of our recommending prosecution,” and the books vanished from the stands. The Court called that censorship. A post the feed won't carry sits in the same place: published on paper, unread in practice. Demotion is also the limit hardest to fight. A removal comes with a notice and an appeal; a demotion comes with nothing, which is why Human Rights Watch had to define “shadow banning” before it could document it. And friction isn't neutral in its effects. An extra step barely slows a senator with a press office, while it can sink an unknown with one good post and no other channel. Limiting reach limits listening too: when the 2020 election study took reshares out of Facebook feeds, users saw less political news, untrustworthy sources included, and ended up measurably less informed, while their political attitudes didn't move. The legal right and the wider value split here. A private platform may throttle whom it likes, but a public square run by a few companies that quietly turn people down is the “tyranny of the prevailing opinion” Mill warned about, with an algorithm doing the work.</p>
+      </div>
+      <div class="steel s-made">
+        <div class="side">▸ every feed is a ranking somebody chose</div>
+        <div class="pos-name">DiResta, Haugen, Haidt</div>
+        <div class="gist">There's no natural amount of reach to take away. Every feed is a product decision, and changing yesterday's decision silences no one.</div>
+        <p>Ask what “limiting reach” is measured against. A post's audience comes from a ranking model tuned to keep people scrolling; a chronological feed is a design too, and so is the retweet button. No baseline exists that the speaker owns. What the speaker owns is the right to speak and to be found by anyone who goes looking, and a demoted post keeps both. “There is no right to algorithmic amplification,” as DiResta put it. The law already treats volume this way: in <em>Ward v. Rock Against Racism</em> the Supreme Court let New York run the sound system at the Central Park bandshell, because a rule about decibels isn't a rule about lyrics. A cap on reshare chains is a rule about decibels. It applies to every post and doesn't care what the post says. “No one is censored by being forced to click on a link before resharing it,” Haugen told the Senate, and in written answers she added that capping reshare chains at two hops “has a similar impact on misinformation to the entire third party fact checking program”: the same result, with nobody deciding what's true. Haidt's case against the current design is itself a speech case. He asked senators to “please stop talking about content moderation” and to “focus on the fear of speaking up.”</p>
+      </div>
+    </div>
+    <div class="crux-key">
+      <span class="lab">the crux</span>
+      <span class="txt">Is distribution <b>part of what the speaker says</b>, or <b>a setting on the machine</b>? The same demotion reads as either, depending on whether you picture the speaker or the feed.</span>
+    </div>
+  </div>
+
+  <!-- CRUX 2 -->
+  <div class="crux reveal">
+    <div class="crux-head">
+      <div class="crux-meta"><span class="crux-n">Crux 02 — the evidence on bans</span><span class="crux-dom">social science</span></div>
+      <h3 class="crux-q ser">Does suppression shrink extremism, or feed it?</h3>
+      <p class="crux-sub">What the studies measured: posts, shares, toxicity scores and site visits, on the platform that acted or on the sites users fled to, plus one cross-national count of far-right violence. What none of them measured: whether anyone's beliefs became more extreme, or less. Neither “censorship radicalizes” nor its opposite is settled.</p>
+    </div>
+    <div class="steels">
+      <div class="steel s-found">
+        <div class="side">▸ the ban moves the room, not the belief</div>
+        <div class="pos-name">Mchangama, migration researchers, Callaghan</div>
+        <div class="gist">A ban doesn't delete a belief. It moves the believers somewhere darker and hands them proof that someone is hiding something.</div>
+        <p>Watch what happens when the gate slams hardest. In January 2021 Google and Apple dropped Parler from their app stores and Amazon took it offline. Researchers following Parler users' browsing found that the shutdown “increased the probability of daily activity across other fringe social media” and did not reduce their activity on fringe sites overall; Gab and Rumble prospered. When r/The_Donald left Reddit for its own site it lost more than half its posts, but its remaining users showed rising signals of toxicity and radicalization. Counter-speech can reach a doubter on a mainstream feed. It can't reach them in a channel nobody else reads. Then there's the grievance. Andrew Callaghan, who has spent years filming America's fringes, says being deplatformed “only serves to validate their thesis, which is that they're the target.” A comparison of 18 West European countries found that the most far-right violence came where heavy public repression of radical-right actors and opinions met high immigration and weak radical-right parties, and its author warned that measures meant to contain the radical right “appear to fuel extreme right violence.” The studies that show success measure the platform that acted, and the cost lands where they didn't look.</p>
+      </div>
+      <div class="steel s-made">
+        <div class="side">▸ smaller rooms reach fewer people</div>
+        <div class="pos-name">Deplatforming researchers, trust-and-safety teams</div>
+        <div class="gist">Measured where the ban happens, the effect is large and points one way: remove the biggest spreaders and the spread falls.</div>
+        <p>After January 6 Twitter suspended some 70,000 accounts trafficking in misinformation; a study of more than 500,000 active users found that misinformation circulation fell, both from the banned accounts and among their followers, and that many traffickers who weren't banned left on their own. The authors can't separate the ban from January 6 itself, so the size is uncertain; the direction isn't. When Reddit banned its worst hate communities in 2015, the members who stayed cut their hate speech “by at least 80%,” and the subreddits they moved into didn't inherit it. After Twitter banned Alex Jones, Milo Yiannopoulos and Owen Benjamin, posts about them fell by about 90 percent. Migration is real, but it sorts: the committed follow and the curious don't, so the audience collapses. On Gab, banned Twitter users kept an average of 167 followers, down from about 7,700. A fringe site full of believers is a problem. A mainstream feed recommending the same posts to millions of strangers is a bigger one. The martyrdom effect is plausible, and it hasn't been shown at scale. That's thin ground for leaving the megaphone on.</p>
+      </div>
+    </div>
+    <div class="crux-key">
+      <span class="lab">the crux</span>
+      <span class="txt">Do you judge a ban by <b>how many people it stops reaching</b>, or by <b>what it does to the people it pushes out</b>? The first gets measured. The second, so far, mostly gets argued.</span>
+    </div>
+  </div>
+
+  <!-- CRUX 3 -->
+  <div class="crux reveal">
+    <div class="crux-head">
+      <div class="crux-meta"><span class="crux-n">Crux 03 — identity</span><span class="crux-dom">privacy · psychology</span></div>
+      <h3 class="crux-q ser">Does anonymity mainly enable abuse, or protect dissent?</h3>
+      <p class="crux-sub">Three regimes that get blurred: full anonymity; verified pseudonyms, where the platform knows who you are and the public doesn't (Haidt's proposal); and real-name rules, where everyone knows (South Korea, 2007–2012).</p>
+    </div>
+    <div class="steels">
+      <div class="steel s-found">
+        <div class="side">▸ the name on file is the target</div>
+        <div class="pos-name">EFF, Kosseff, the McIntyre majority</div>
+        <div class="gist">The people who most need to post without a name have the most to lose, and any verification database is a list of their names waiting for a subpoena or a breach.</div>
+        <p>South Korea ran the experiment. From 2007 its biggest sites had to check users' real identities, and by 2009 the rule covered any site with 100,000 daily users. In 2011 hackers took the personal data of more than 35 million Nate and Cyworld users, national registration numbers included. The Constitutional Court struck the rule down unanimously in 2012, and noted that the regulator's own research found no evidence that defamatory or insulting posts had “diminished significantly.” The behavioral premise is shaky too. In a study of German petition firestorms, “non-anonymous individuals are more aggressive compared to anonymous individuals”: people attack in the open when they think they're enforcing a norm. After England players were racially abused during Euro 2020, Twitter said 99 percent of the accounts it permanently suspended were “identifiable,” meaning it held a verified phone number or email for them. The platform could trace almost every one of them, and the abuse came anyway. A verified pseudonym is still an entry on a list. Whoever holds the list — a company that gets subpoenaed, a government that changes hands — holds the whistleblower, the abuse survivor and the teenager who isn't ready to come out.</p>
+      </div>
+      <div class="steel s-made">
+        <div class="side">▸ accountability changes behavior, and bots aren't people</div>
+        <div class="pos-name">Haidt, researchers of online incivility</div>
+        <div class="gist">Nobody needs to know your name. The platform needs to know you're one real adult and not a thousand bots before it hands you a megaphone.</div>
+        <p>Haidt's proposal is not South Korea's. “Not that you have to post with your real name,” he told the Senate, “but just as you can't go to a bank and give them a bag of money, and say, ‘Open an account,’ banks have know your customer laws.” Verification would kill the cheapest tool of influence operations, the sockpuppet army, and let platforms enforce the age limits they already claim to have. Several comment-board studies point his way. In one study of newspaper comments, 53 percent of anonymous comments were uncivil, against 29 percent of comments under real names, and a study of Korea's own law found “significant effects on reducing uninhibited behaviors at the aggregate level,” even if individual users changed little. Twitter's “identifiable” meant an email address on file, which is not what Haidt means by verification. Korea's mistake was making every portal store national ID numbers; a third-party check that confirms a person and an age, and passes on nothing else, builds no such list. Haidt's measure of harm is the speaker who goes quiet. Verifying users, he said, “would make us less afraid to speak.”</p>
+      </div>
+    </div>
+    <div class="crux-key">
+      <span class="lab">the crux</span>
+      <span class="txt">Is the bigger threat to a vulnerable speaker <b>the anonymous crowd</b>, or <b>whoever holds the list</b>? Verified pseudonymity is a bet that the list can be kept safe.</span>
+    </div>
+  </div>
+
+  <!-- CRUX 4 -->
+  <div class="crux reveal">
+    <div class="crux-head">
+      <div class="crux-meta"><span class="crux-n">Crux 04 — power</span><span class="crux-dom">institutions</span></div>
+      <h3 class="crux-q ser">Can any regulator stay viewpoint-neutral when power changes hands?</h3>
+      <p class="crux-sub">Haidt called for regulatory oversight of the platforms. The test is what that regulator does once the other party appoints it, and what counts as pressure when nobody writes a rule.</p>
+    </div>
+    <div class="steels">
+      <div class="steel s-found">
+        <div class="side">▸ build the dial for your friends, and your enemies will use it</div>
+        <div class="pos-name">Civil libertarians, Justice Alito, fairness-doctrine historians</div>
+        <div class="gist">Every power to shape distribution will eventually belong to someone who despises you, and “neutral” speech rules have a long record of partisans using them.</div>
+        <p>The fairness doctrine sounded like balance. Bill Ruder, a Commerce official in the Kennedy years whose PR firm ran the Democrats' 1964 radio campaign, later said: “Our massive strategy was to use the Fairness Doctrine to challenge and harass right-wing broadcasters and hope that the challenges would be so costly to them that they would be inhibited and decide it was too expensive to continue.” Fred Cook, the writer whose complaint became <em>Red Lion</em>, had been paid $1,500 by that campaign's front group. Sixty years on, the FCC had no rule about late-night monologues, only a chairman telling a podcaster “we can do this the easy way or the hard way,” and Jimmy Kimmel was off ABC within hours. In 2026 the FCC ordered ABC's stations to file for license renewal early, and ABC sued, calling it a “retaliatory campaign.” The government that settled <em>Murthy</em> by promising three agencies wouldn't threaten platforms is the one whose FCC chairman threatened broadcasters. And in June 2026 the Supreme Court held that the president may fire FTC commissioners at will, overruling what was left of <em>Humphrey's Executor</em>. The independent regulator reformers had in mind now serves at the pleasure of whoever wins. The more judgment a rule leaves (“harmful,” “misleading,” “systemic risk”), the more the regulator's politics fill it.</p>
+      </div>
+      <div class="steel s-made">
+        <div class="side">▸ the cure for partisan regulators is rules with nothing to aim</div>
+        <div class="pos-name">Haugen, Haidt, defenders of the DSA</div>
+        <div class="gist">Write rules that never ask anyone to judge content (reshare limits, data access, age floors) and a partisan regulator has nothing to point them at.</div>
+        <p>Look at what went wrong in each example: an official with discretion over content. The fairness doctrine made officials judge “balance,” and Carr invoked the FCC's rule against “news distortion,” another content standard. A reshare limit has no such dial. It applies the same way to every post from every side, which is why Haugen argued that content-free fixes “reduce the chance of bias on the part of Facebook on which content is actioned.” Courts can tell the difference. In October 2026 a federal appeals court held that Florida's age limit for social media accounts “likely passes First Amendment muster because it is a content-neutral speech regulation,” and the coercion rule in <em>Vullo</em> was unanimous. Researcher access reveals what platforms do and suppresses nothing, and a regulator can stick to plumbing: the EU's first fine under its new platform law went to X's blue checkmarks, its ad archive and its data for researchers, without judging a single post. The status quo isn't neutral either. The gate today belongs to a few executives who rewrite the rules when ownership or politics change. Meta dropped its US fact-checkers thirteen days before the 2025 inauguration; asked whether Zuckerberg was responding to his past threats, the incoming president said, “Probably.” A public rule can at least be read and challenged in court.</p>
+      </div>
+    </div>
+    <div class="crux-key">
+      <span class="lab">the crux</span>
+      <span class="txt">Is the danger <b>discretion</b>, which careful drafting can remove, or <b>power itself</b>, which the next government inherits however careful the drafting? <span class="same-tag">↳ Crux 03's question, asked of a government instead of a database</span></span>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ IV. PAYOFF ============================ -->
+<section class="wrap fault-sec">
+  <div class="sec-head">
+    <div class="eyebrow"><span class="sec-num">IV</span> &nbsp;the payoff</div>
+  </div>
+
+  <div class="fault-card reveal">
+    <h3 class="fault-lead ser">Four cruxes, <em>one question</em> underneath</h3>
+    <p class="fault-intro">Crux 01 looks like a quarrel about definitions, but neither side denies that every feed is a gate. The reach-is-speech side objects to particular hands on it; the design side objects to treating today's engagement ranking as the speaker's property. Cruxes 02 and 03 keep turning on who did the gating: a platform banning accounts, app stores and a cloud host erasing a whole app, a portal storing ID numbers. Crux 04 asks it outright. Plot the positions by what they think reach is and by whose hand is on the dial, and the disagreement takes a shape: wide where the state holds the dial, narrow where the reader does.</p>
+
+    <svg class="diagram" viewBox="0 34 980 590" role="img" aria-labelledby="dg-t dg-d">
+      <title id="dg-t">Whose hand is on the dial: the shape of the reach debate</title>
+      <desc id="dg-d">A chart with two axes. The horizontal axis along the bottom runs from "reach is speech" on the left to "reach is design" on the right. The vertical axis on the left asks whose hand is on the dial, from the state at the top, down through the platform and the crowd, to the reader at the bottom. Two lines, one verdigris on the left and one ochre on the right, start far apart at the top and close toward each other near the bottom, so the space between the poles is a funnel. In the state band, "amplification law is speech law" and "no jawboning" sit far left, while "regulate the plumbing" and "verify before you amplify" sit far right. In the platform band, "throttling is censorship you can't see" and "suppression backfires" sit on the left, "free speech, not free reach" and "deplatforming works" on the right, closer together. In the crowd band, Community Notes and bridging sit in the middle. In the reader band, middleware and protocols sit at the narrow bottom of the funnel, marked as the place where almost nobody calls a filter they chose censorship. Brackets on the right assign Crux 04 to the state band and Cruxes 02 and 03 to the platform band; Crux 01 is the horizontal axis.</desc>
+      <defs>
+        <linearGradient id="axisgrad" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0" stop-color="#6dbaa4"/>
+          <stop offset="0.5" stop-color="#6e6b78"/>
+          <stop offset="1" stop-color="#d8a652"/>
+        </linearGradient>
+        <linearGradient id="funnelfill" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0" stop-color="#6dbaa4" stop-opacity="0.10"/>
+          <stop offset="0.5" stop-color="#a195bd" stop-opacity="0.07"/>
+          <stop offset="1" stop-color="#d8a652" stop-opacity="0.10"/>
+        </linearGradient>
+      </defs>
+
+      <!-- band guides -->
+      <g stroke="#2a2e3b" stroke-width="1" stroke-dasharray="3 6">
+        <line x1="150" y1="252" x2="830" y2="252"/>
+        <line x1="150" y1="386" x2="830" y2="386"/>
+        <line x1="150" y1="446" x2="830" y2="446"/>
+      </g>
+
+      <!-- vertical axis: whose hand -->
+      <line x1="22" y1="86" x2="22" y2="500" stroke="#34384a" stroke-width="2"/>
+      <path d="M16 96 L22 84 L28 96" fill="none" stroke="#34384a" stroke-width="2"/>
+      <text x="22" y="62" fill="#a6a394" font-family="'IBM Plex Mono',monospace" font-size="13" letter-spacing="1.5">WHOSE HAND IS ON THE DIAL</text>
+      <g fill="#807e8a" font-family="'IBM Plex Mono',monospace" font-size="12" letter-spacing="1">
+        <text x="36" y="168">the state</text>
+        <text x="36" y="184" font-size="10.5" fill="#6b6a76">law · pressure</text>
+        <text x="36" y="316">the platform</text>
+        <text x="36" y="332" font-size="10.5" fill="#6b6a76">ranking · bans</text>
+        <text x="36" y="420">the crowd</text>
+        <text x="36" y="478">the reader</text>
+      </g>
+
+      <!-- the funnel: distance between the poles at each height -->
+      <polygon points="150,92 830,92 512,500 468,500" fill="url(#funnelfill)"/>
+      <line x1="150" y1="92" x2="468" y2="500" stroke="#6dbaa4" stroke-width="2.5" stroke-linecap="round"/>
+      <line x1="830" y1="92" x2="512" y2="500" stroke="#d8a652" stroke-width="2.5" stroke-linecap="round"/>
+      <text x="490" y="84" fill="#a195bd" font-family="'Fraunces',serif" font-style="italic" font-size="15" text-anchor="middle">the gap between the poles</text>
+
+      <!-- STATE band (rows staggered so no two labels share a line) -->
+      <circle cx="190" cy="118" r="6" fill="#6dbaa4"/>
+      <text x="205" y="123" fill="#ebe5d6" font-family="'IBM Plex Sans',sans-serif" font-size="14.5">Amplification law is speech law</text>
+      <circle cx="774" cy="146" r="6" fill="#d8a652"/>
+      <text x="759" y="151" fill="#ebe5d6" font-family="'IBM Plex Sans',sans-serif" font-size="14.5" text-anchor="end">Regulate the plumbing</text>
+      <circle cx="233" cy="174" r="6" fill="#6dbaa4"/>
+      <text x="248" y="179" fill="#ebe5d6" font-family="'IBM Plex Sans',sans-serif" font-size="14.5">No jawboning</text>
+      <circle cx="730" cy="202" r="6" fill="#d8a652"/>
+      <text x="715" y="207" fill="#ebe5d6" font-family="'IBM Plex Sans',sans-serif" font-size="14.5" text-anchor="end">Verify before you amplify</text>
+      <circle cx="277" cy="230" r="6" fill="#6dbaa4"/>
+      <text x="292" y="235" fill="#ebe5d6" font-family="'IBM Plex Sans',sans-serif" font-size="14.5">Anonymity is the shield</text>
+
+      <!-- PLATFORM band -->
+      <circle cx="318" cy="276" r="6" fill="#6dbaa4"/>
+      <text x="333" y="281" fill="#ebe5d6" font-family="'IBM Plex Sans',sans-serif" font-size="14.5">Throttling is censorship you can't see</text>
+      <circle cx="652" cy="306" r="6" fill="#d8a652"/>
+      <text x="637" y="311" fill="#ebe5d6" font-family="'IBM Plex Sans',sans-serif" font-size="14.5" text-anchor="end">Free speech, not free reach</text>
+      <circle cx="355" cy="336" r="6" fill="#6dbaa4"/>
+      <text x="370" y="341" fill="#ebe5d6" font-family="'IBM Plex Sans',sans-serif" font-size="14.5">Suppression backfires</text>
+      <circle cx="614" cy="366" r="6" fill="#d8a652"/>
+      <text x="599" y="371" fill="#ebe5d6" font-family="'IBM Plex Sans',sans-serif" font-size="14.5" text-anchor="end">Deplatforming works</text>
+
+      <!-- CROWD band -->
+      <circle cx="490" cy="416" r="6" fill="#a195bd"/>
+      <line x1="499" y1="416" x2="596" y2="416" stroke="#a195bd" stroke-width="1" stroke-dasharray="2 4"/>
+      <text x="604" y="421" fill="#a195bd" font-family="'IBM Plex Sans',sans-serif" font-size="14.5">Community Notes · bridging</text>
+
+      <!-- READER band: the narrow end -->
+      <circle cx="490" cy="474" r="8.5" fill="#a195bd" stroke="#171922" stroke-width="2"/>
+      <line x1="501" y1="474" x2="556" y2="474" stroke="#a195bd" stroke-width="1" stroke-dasharray="2 4"/>
+      <text x="564" y="470" fill="#a195bd" font-family="'IBM Plex Sans',sans-serif" font-size="14.5" font-style="italic">Middleware · protocols</text>
+      <text x="564" y="488" fill="#a195bd" font-family="'IBM Plex Mono',monospace" font-size="11">few call a filter they chose censorship</text>
+
+      <!-- which cruxes live in which band (right margin) -->
+      <g stroke="#a6a394" stroke-width="1.5" fill="none">
+        <path d="M858 104 h8 v138 h-8"/>
+        <path d="M858 262 h8 v114 h-8"/>
+      </g>
+      <g fill="#a6a394" font-family="'IBM Plex Mono',monospace" font-size="12">
+        <text x="876" y="162">Crux 04</text>
+        <text x="876" y="178">Crux 03</text>
+        <text x="876" y="194" font-size="10.5" fill="#807e8a">power · lists</text>
+        <text x="876" y="310">Crux 02</text>
+        <text x="876" y="326">Crux 03</text>
+        <text x="876" y="342" font-size="10.5" fill="#807e8a">evidence</text>
+      </g>
+
+      <!-- horizontal axis: what reach is (Crux 01) -->
+      <rect x="150" y="553" width="680" height="6" rx="3" fill="url(#axisgrad)"/>
+      <circle cx="150" cy="556" r="7" fill="#6dbaa4"/>
+      <circle cx="830" cy="556" r="7" fill="#d8a652"/>
+      <text x="150" y="590" fill="#6dbaa4" font-family="'IBM Plex Mono',monospace" font-size="15">reach is speech</text>
+      <text x="830" y="590" fill="#d8a652" font-family="'IBM Plex Mono',monospace" font-size="15" text-anchor="end">reach is design</text>
+      <text x="490" y="590" fill="#a6a394" font-family="'IBM Plex Mono',monospace" font-size="12" text-anchor="middle">Crux 01 · what reach is</text>
+    </svg>
+
+    <div class="fault-restate">
+      <div class="fr-item f1"><div class="fr-n">Crux 01 · definition</div><div class="fr-t ser">What a demotion is</div><p>The horizontal axis. It looks like the whole fight and turns out to be the part both sides can draw: every feed ranks something.</p></div>
+      <div class="fr-item f2"><div class="fr-n">Crux 02 · evidence</div><div class="fr-t ser">What a ban does</div><p>Measured on the platform that acted, argued everywhere else. The results change with who held the gate and how much of it they closed.</p></div>
+      <div class="fr-item f3"><div class="fr-n">Crux 03 · identity</div><div class="fr-t ser">Who holds the list</div><p>The vertical axis at small scale. Verified pseudonyms are only as safe as the company, or the government, that keeps the names.</p></div>
+      <div class="fr-item f4"><div class="fr-n">Crux 04 · power</div><div class="fr-t ser">Who holds the dial next</div><p>The vertical axis itself. Every rule is written by one government and enforced by the next.</p></div>
+    </div>
+
+    <p class="fault-close ser">Find your own hinge. Picture the dial in your own hand and most of this map agrees with you; picture it in your opponent's and the same dial looks like a gag. Work out whose hand you're imagining when you say <span class="ax">reach is speech</span> or <span class="mk">reach is design</span>, and you'll usually find the other person imagining a different one.</p>
+  </div>
+</section>
+
+<!-- ============================ V. GO DEEPER ============================ -->
+<section class="wrap">
+  <div class="sec-head">
+    <div class="eyebrow"><span class="sec-num">V</span> &nbsp;go deeper</div>
+    <h2 class="ser">Where to take it from here</h2>
+    <p>A short shelf, grouped by medium, with both poles on it. Each line says what the source is good for and which way it leans.</p>
+  </div>
+
+  <div class="shelf reveal">
+    <div class="shelf-col">
+      <h4>Books</h4>
+      <div class="res">
+        <div class="t"><a href="https://www.basicbooks.com/titles/jacob-mchangama/free-speech/9781541620339/">Free Speech: A History from Socrates to Social Media</a></div>
+        <div class="by">Jacob Mchangama · 2022</div>
+        <div class="why">The long view from the reach-is-speech side: censors from Socrates's Athens to the platforms, and how often suppression handed its targets a stage.</div>
+      </div>
+      <div class="res">
+        <div class="t"><a href="https://www.publicaffairsbooks.com/titles/renee-diresta/invisible-rulers/9781541703377/">Invisible Rulers</a></div>
+        <div class="by">Renée DiResta · 2024</div>
+        <div class="why">The design side from inside the research, by the author of the “free reach” line: the influencers who, in her subtitle's words, “turn lies into reality,” and the feeds that help them.</div>
+      </div>
+      <div class="res">
+        <div class="t"><a href="https://www.cornellpress.cornell.edu/book/9781501762383/the-united-states-of-anonymous/">The United States of Anonymous</a></div>
+        <div class="by">Jeff Kosseff · 2022</div>
+        <div class="why">How the right to speak anonymously has shaped American politics and law, and what happens to it online. Read it before Crux 03.</div>
+      </div>
+    </div>
+
+    <div class="shelf-col">
+      <h4>Essays &amp; papers</h4>
+      <div class="res">
+        <div class="t"><a href="https://www.theatlantic.com/magazine/archive/2022/05/social-media-democracy-trust-babel/629369/">Why the Past 10 Years of American Life Have Been Uniquely Stupid</a></div>
+        <div class="by">Jonathan Haidt · The Atlantic · 2022</div>
+        <div class="why">The starting point: the Babel argument and its reform list.</div>
+      </div>
+      <div class="res">
+        <div class="t"><a href="https://www.wired.com/story/free-speech-is-not-the-same-as-free-reach/">Free Speech Is Not the Same As Free Reach</a></div>
+        <div class="by">Renée DiResta · Wired · 2018</div>
+        <div class="why">The short version of the reach-is-design case, and the source of its slogan.</div>
+      </div>
+      <div class="res">
+        <div class="t"><a href="https://knightcolumbia.org/content/amplification-and-its-discontents">Amplification and Its Discontents</a></div>
+        <div class="by">Daphne Keller · Knight First Amendment Institute · 2021</div>
+        <div class="why">The best legal map of why regulating reach is hard in the US, by a former Google lawyer: skeptical, not absolutist.</div>
+      </div>
+      <div class="res">
+        <div class="t"><a href="https://knightcolumbia.org/content/protocols-not-platforms-a-technological-approach-to-free-speech">Protocols, Not Platforms</a></div>
+        <div class="by">Mike Masnick · Knight First Amendment Institute · 2019</div>
+        <div class="why">The hinge view at full length: move the dial from the company to the user.</div>
+      </div>
+    </div>
+
+    <div class="shelf-col">
+      <h4>Studies</h4>
+      <div class="res">
+        <div class="t"><a href="https://pubmed.ncbi.nlm.nih.gov/37498999/">How do social media feed algorithms affect attitudes and behavior in an election campaign?</a></div>
+        <div class="by">Guess et al. · Science · 2023</div>
+        <div class="why">The chronological-feed experiment: large changes in what people saw, no measured change in polarization over three months.</div>
+      </div>
+      <div class="res">
+        <div class="t"><a href="https://www.nature.com/articles/s41586-023-06297-w">Like-minded sources on Facebook are prevalent but not polarizing</a></div>
+        <div class="by">Nyhan et al. · Nature · 2023</div>
+        <div class="why">The echo-chamber test, open access, with an honest list of what a three-month experiment can't see.</div>
+      </div>
+      <div class="res">
+        <div class="t"><a href="https://arxiv.org/abs/2409.18393">Social media algorithms can curb misinformation, but do they?</a></div>
+        <div class="by">Bagchi et al. · 2024</div>
+        <div class="why">The critique: Meta's post-election emergency measures were running in the comparison feed.</div>
+      </div>
+      <div class="res">
+        <div class="t"><a href="https://pubmed.ncbi.nlm.nih.gov/36959908/">Deplatforming did not decrease Parler users' activity on fringe social media</a></div>
+        <div class="by">Horta Ribeiro, Hosseinmardi, West &amp; Watts · PNAS Nexus · 2023</div>
+        <div class="why">The Parler study, built on browsing panels, with its limits stated plainly.</div>
+      </div>
+      <div class="res">
+        <div class="t"><a href="https://www.nature.com/articles/s41586-024-07524-8">Post-January 6th deplatforming reduced the reach of misinformation on Twitter</a></div>
+        <div class="by">McCabe et al. · Nature · 2024</div>
+        <div class="why">The case that bans work where they happen, and why the size of the effect can't be pinned down.</div>
+      </div>
+    </div>
+
+    <div class="shelf-col">
+      <h4>Rulings, records &amp; talk</h4>
+      <div class="res">
+        <div class="t"><a href="https://www.supremecourt.gov/opinions/23pdf/23-411_3dq3.pdf">Murthy v. Missouri</a></div>
+        <div class="by">US Supreme Court · 2024</div>
+        <div class="why">Barrett's majority on standing and Alito's dissent on coercion; read both to see what was left undecided.</div>
+      </div>
+      <div class="res">
+        <div class="t"><a href="https://www.opennetkorea.org/wp-content/uploads/2023/05/Korean-real-name-law-decision-english.pdf">The real-name decision: Case 2010 Heon Ma 47, 252</a></div>
+        <div class="by">Constitutional Court of Korea · 2012 · English translation</div>
+        <div class="why">Why a democracy that tried real-name posting gave it up, in the judges' own reasoning.</div>
+      </div>
+      <div class="res">
+        <div class="t"><a href="https://reason.com/podcast/2022/02/24/regulate-social-media-jonathan-haidt-debates-robby-soave/">Regulate Social Media? Jonathan Haidt Debates Robby Soave</a></div>
+        <div class="by">The Soho Forum · February 2022</div>
+        <div class="why">Haidt against Reason's Robby Soave on whether Washington should do more to curb social media's harms, two months before the essay. Both poles at full strength.</div>
+      </div>
+      <div class="res">
+        <div class="t"><a href="https://www.govinfo.gov/content/pkg/CHRG-117shrg54110/html/CHRG-117shrg54110.htm">Protecting Kids Online: Testimony from a Facebook Whistleblower</a></div>
+        <div class="by">US Senate hearing record · Frances Haugen · 2021</div>
+        <div class="why">The official transcript, including her written answers on reshare limits and why “non-content based solutions” scale.</div>
+      </div>
+      <div class="res">
+        <div class="t"><a href="https://ctrlaltspeech.com/">Ctrl-Alt-Speech</a></div>
+        <div class="by">Mike Masnick &amp; Ben Whitelaw · weekly</div>
+        <div class="why">The week's news in online speech and moderation, from a host who leans toward the hinge.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ FOOTER ============================ -->
+<footer class="wrap">
+  <p class="foot-note"><b>On these summaries.</b> Each steelman is compressed; the real arguments run to books and briefs, and a panel is a doorway, not the room. Dates mark a well-known work or ruling, not the first time anyone had the idea. Studies are described by what they measured; where a side draws a larger conclusion, the panel says so in that side's voice. Quotations are checked against the source, and where a source couldn't be reached directly, as with The Atlantic's paywalled essay, the map paraphrases instead of quoting. The map leans American because the First Amendment frames most of this argument, with South Korea, Australia and the EU as the comparisons. The two-pole axis is a lens for seeing structure, and the lilac views are there because some of the best thinking here refuses the axis.</p>
+  <div class="foot-links">
+    <a href="/debates">← All thought pages</a>
+    <a href="/">brooker.family</a>
+  </div>
+</footer>
+
+<script>
+(function(){
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var items = document.querySelectorAll('.reveal');
+  if(reduce || !('IntersectionObserver' in window)){
+    items.forEach(function(el){ el.classList.add('in'); });
+    return;
+  }
+  var io = new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); }
+    });
+  }, {threshold:0.12, rootMargin:'0px 0px -8% 0px'});
+  items.forEach(function(el){ io.observe(el); });
+})();
+</script>
+</body>
+</html>
